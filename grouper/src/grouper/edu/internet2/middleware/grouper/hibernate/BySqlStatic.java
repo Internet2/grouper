@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.type.Type;
 
@@ -34,7 +33,7 @@ public class BySqlStatic {
   
   /** logger */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(BySqlStatic.class);
+  private static final Log LOG = GrouperUtil.getLog(BySqlStatic.class);
 
   
   /**

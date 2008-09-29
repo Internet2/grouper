@@ -22,7 +22,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
@@ -38,6 +37,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.LazySubject;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * and, if an effective membership, the parent membership
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.96 2008-09-10 05:45:59 mchyzer Exp $
+ * @version $Id: MembershipFinder.java,v 1.97 2008-09-29 03:38:28 mchyzer Exp $
  */
 public class MembershipFinder {
   
@@ -325,7 +325,7 @@ public class MembershipFinder {
   } // public static Set internal_findSubjects(s, o, f)
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(MemberFinder.class);
+  private static final Log LOG = GrouperUtil.getLog(MemberFinder.class);
 
   // @since   1.2.0
   public static Set internal_findSubjectsNoPriv(GrouperSession s, Owner o, Field f) {

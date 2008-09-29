@@ -19,21 +19,21 @@ package edu.internet2.middleware.grouper;
 import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU11.java,v 1.12 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestCompositeU11.java,v 1.13 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestCompositeU11 extends GrouperTest {
 
   // Private Static Class Constants
-  private static final Log LOG = LogFactory.getLog(TestCompositeU11.class);
+  private static final Log LOG = GrouperUtil.getLog(TestCompositeU11.class);
 
   public TestCompositeU11(String name) {
     super(name);

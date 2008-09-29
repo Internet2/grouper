@@ -6,20 +6,22 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import  bsh.*;
-import  edu.internet2.middleware.grouper.*;
+import java.net.URL;
+import java.util.Properties;
+
+import bsh.CallStack;
+import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.XmlImporter;
 import edu.internet2.middleware.grouper.xml.XmlReader;
-
-import  java.net.URL;
-import  java.util.Properties;
 
 /**
  * Import Groups Registry from XML URL.
  * <p/>
  * @author  blair christensen.
- * @version $Id: xmlFromURL.java,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+ * @version $Id: xmlFromURL.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.1.0
  */
 public class xmlFromURL {
@@ -40,6 +42,8 @@ public class xmlFromURL {
     throws  GrouperShellException
   {
     GrouperShell.setOurCommand(i, true);
+    //make sure right db
+    GrouperUtil.promptUserAboutDbChanges("import data from xml", true);
     try {
       GrouperSession  s         = GrouperShell.getSession(i);
       XmlImporter     importer  = new XmlImporter(s, new Properties());

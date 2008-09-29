@@ -22,7 +22,6 @@ import net.sf.ehcache.Element;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -33,6 +32,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.16 2008-08-26 21:11:51 mchyzer Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.17 2008-09-29 03:38:31 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -63,7 +63,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   private GrouperSession wheelSession = null;
   
   /** logger */
-  private static final Log LOG = LogFactory.getLog(WheelAccessResolver.class);
+  private static final Log LOG = GrouperUtil.getLog(WheelAccessResolver.class);
 
   /** only log this once... */
   private static boolean loggedWheelGroupMissing = false;

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: Hib3GrouploaderLogTest.java,v 1.3 2008-07-27 07:37:24 mchyzer Exp $
+ * $Id: Hib3GrouploaderLogTest.java,v 1.4 2008-09-29 03:38:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
@@ -10,7 +10,6 @@ import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.hibernate.BySqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 

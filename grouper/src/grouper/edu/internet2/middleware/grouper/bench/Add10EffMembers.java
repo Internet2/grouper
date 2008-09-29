@@ -16,14 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper.bench;
-import  edu.internet2.middleware.grouper.*; 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.RegistrySubject;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
-import  edu.internet2.middleware.subject.*;      
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Benchmark adding 10 effective {@link Membership}s.
  * @author  blair christensen.
- * @version $Id: Add10EffMembers.java,v 1.6 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: Add10EffMembers.java,v 1.7 2008-09-29 03:38:30 mchyzer Exp $
  * @since   1.1.0
  */
 public class Add10EffMembers extends BaseGrouperBenchmark {

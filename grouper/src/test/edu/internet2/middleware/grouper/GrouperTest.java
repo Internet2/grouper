@@ -16,36 +16,39 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Date;
+
+import junit.framework.TestCase;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import  edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import  edu.internet2.middleware.subject.*;
-import  java.util.Date;
-import  junit.framework.*;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.7 2008-08-27 01:31:20 mchyzer Exp $
+ * @version $Id: GrouperTest.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String G   = "group";
-  private static final Log    LOG = LogFactory.getLog(GrouperTest.class);
+  private static final Log    LOG = GrouperUtil.getLog(GrouperTest.class);
   private static final String NS  = "stem";
 
 

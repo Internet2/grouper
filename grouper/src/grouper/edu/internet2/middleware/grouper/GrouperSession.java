@@ -21,13 +21,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
@@ -51,6 +48,7 @@ import edu.internet2.middleware.grouper.privs.AccessResolverFactory;
 import edu.internet2.middleware.grouper.privs.NamingAdapter;
 import edu.internet2.middleware.grouper.privs.NamingResolver;
 import edu.internet2.middleware.grouper.privs.NamingResolverFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.subject.Subject;
@@ -60,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.87 2008-09-23 04:26:23 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.88 2008-09-29 03:38:28 mchyzer Exp $
  */
 public class GrouperSession {
 
@@ -75,7 +73,7 @@ public class GrouperSession {
   }
   
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperSession.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperSession.class);
 
   /**
    * store the grouper connection in thread local so other classes can get it.

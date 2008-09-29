@@ -26,7 +26,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
@@ -59,7 +58,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.67 2008-09-23 04:26:23 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.68 2008-09-29 03:38:28 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVersioned {
 
@@ -315,7 +314,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
   } // public void delete(s)
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GroupType.class);
+  private static final Log LOG = GrouperUtil.getLog(GroupType.class);
 
   /**
    * Delete a custom {@link Field} from a custom {@link GroupType}.

@@ -6,7 +6,6 @@ import java.util.Set;
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Restrictions;
 
 import edu.internet2.middleware.grouper.Field;
@@ -27,6 +26,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -39,7 +39,7 @@ public class TestUSDU extends GrouperTest {
   /**
    * 
    */
-  private static final Log LOG = LogFactory.getLog(TestUSDU.class);
+  private static final Log LOG = GrouperUtil.getLog(TestUSDU.class);
 
   public TestUSDU() {
     super();

@@ -16,25 +16,35 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Map;
+import java.util.Set;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.subj.InternalSubject;
-import  edu.internet2.middleware.subject.*;
-import  java.util.*;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectType;
 
 /**
  * Test {@link InternalSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestInternalSourceAdapter.java,v 1.8 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: TestInternalSourceAdapter.java,v 1.9 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestInternalSourceAdapter extends TestCase {
 
   // Private Class Constants
   private static final  String  ID    = InternalSourceAdapter.ID;
-  private static final  Log     LOG   = LogFactory.getLog(TestInternalSourceAdapter.class);
+  private static final  Log     LOG   = GrouperUtil.getLog(TestInternalSourceAdapter.class);
   private static final  String  NAME  = InternalSourceAdapter.NAME;
 
 

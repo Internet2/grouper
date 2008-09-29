@@ -7,24 +7,24 @@
 
 package edu.internet2.middleware.grouper.app.gsh;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import bsh.CallStack;
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Rollback a transaction
  * <p/>
  * @author  chris hyzer
- * @version $Id: transactionRollback.java,v 1.1 2008-09-22 15:06:40 mchyzer Exp $
+ * @version $Id: transactionRollback.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
  */
 public class transactionRollback {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(transactionRollback.class);
+  private static final Log LOG = GrouperUtil.getLog(transactionRollback.class);
 
   /**
    * Rollback a transaction

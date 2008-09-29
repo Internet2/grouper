@@ -18,7 +18,6 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Field;
@@ -29,11 +28,12 @@ import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Basic Hibernate <code>Field</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3FieldDAO.java,v 1.9 2008-08-24 04:47:10 mchyzer Exp $
+ * @version $Id: Hib3FieldDAO.java,v 1.10 2008-09-29 03:38:31 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
@@ -42,7 +42,7 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   private static final String KLASS = Hib3FieldDAO.class.getName();
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(Hib3FieldDAO.class);
+  private static final Log LOG = GrouperUtil.getLog(Hib3FieldDAO.class);
 
 
   /**

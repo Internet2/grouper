@@ -16,19 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  junit.framework.*;
-import junit.textui.TestRunner;
-
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Test use of the UPDATE {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivUPDATE.java,v 1.12 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestPrivUPDATE.java,v 1.13 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestPrivUPDATE extends TestCase {
 
@@ -50,7 +51,7 @@ public class TestPrivUPDATE extends TestCase {
   }
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestPrivUPDATE.class);
+  private static final Log LOG = GrouperUtil.getLog(TestPrivUPDATE.class);
 
 
   // Private Class Variables

@@ -34,7 +34,6 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.CompositeFinder;
@@ -68,6 +67,7 @@ import edu.internet2.middleware.grouper.internal.util.U;
 import edu.internet2.middleware.grouper.internal.util.XML;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.Owner;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.subject.Source;
@@ -90,14 +90,14 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.2 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: XmlExporter.java,v 1.3 2008-09-29 03:38:30 mchyzer Exp $
  * @since   1.0
  */
 public class XmlExporter {
 
   // PRIVATE CLASS CONSTANTS //  
   private static final String CF          = "export.properties"; 
-  private static final Log    LOG         = LogFactory.getLog(XmlExporter.class);
+  private static final Log    LOG         = GrouperUtil.getLog(XmlExporter.class);
 
 
   // PRIVATE INSTANCE VARIABLES //

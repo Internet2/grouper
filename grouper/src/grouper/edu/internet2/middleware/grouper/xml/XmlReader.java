@@ -16,11 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper.xml;
-import  java.io.*;
-import  java.net.URL;
-import  javax.xml.parsers.*;
-import  org.w3c.dom.*;
-import  org.xml.sax.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import edu.internet2.middleware.grouper.exception.GrouperException;
 
@@ -28,7 +34,7 @@ import edu.internet2.middleware.grouper.exception.GrouperException;
  * Read XML representation of the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlReader.java,v 1.1 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: XmlReader.java,v 1.2 2008-09-29 03:38:30 mchyzer Exp $
  * @since   1.1.0
  */
 public class XmlReader {

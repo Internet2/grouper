@@ -16,8 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
+import java.util.Date;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.filter.ComplementFilter;
 import edu.internet2.middleware.grouper.filter.GroupCreatedAfterFilter;
@@ -25,13 +27,12 @@ import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.filter.NullFilter;
 import edu.internet2.middleware.grouper.filter.StemCreatedAfterFilter;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  junit.framework.*;
 
 /**
  * Test {@link ComplementFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQComplementFilter.java,v 1.7 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestGQComplementFilter.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestGQComplementFilter extends TestCase {
 

@@ -16,16 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import edu.internet2.middleware.grouper.Group;
-import  edu.internet2.middleware.subject.*;
-import  org.apache.commons.lang.builder.*;
+import edu.internet2.middleware.subject.Subject;
 
 
 /** 
  * An instance of a granted access privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: AccessPrivilege.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
  */
 public class AccessPrivilege {
 

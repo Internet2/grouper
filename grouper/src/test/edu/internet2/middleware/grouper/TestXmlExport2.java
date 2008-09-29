@@ -16,20 +16,22 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
-import  org.apache.commons.logging.*;
+import java.util.Properties;
+
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.XmlArgs;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlExport2.java,v 1.7 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestXmlExport2.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestXmlExport2 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestXmlExport2.class);
+  private static final Log LOG = GrouperUtil.getLog(TestXmlExport2.class);
 
   public TestXmlExport2(String name) {
     super(name);

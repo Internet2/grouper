@@ -19,7 +19,6 @@ package edu.internet2.middleware.grouper.privs;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -30,6 +29,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -37,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelNamingResolver.java,v 1.9 2008-09-13 03:16:54 mchyzer Exp $
+ * @version $Id: WheelNamingResolver.java,v 1.10 2008-09-29 03:38:31 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelNamingResolver extends NamingResolverDecorator {
@@ -53,7 +53,7 @@ public class WheelNamingResolver extends NamingResolverDecorator {
   private GrouperSession wheelSession = null;
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(WheelNamingResolver.class);
+  private static final Log LOG = GrouperUtil.getLog(WheelNamingResolver.class);
 
   /**
    * @param resolver 

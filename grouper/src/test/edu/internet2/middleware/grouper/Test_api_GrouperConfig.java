@@ -24,7 +24,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
  * Test {@link GrouperConfig}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_GrouperConfig.java,v 1.3 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_api_GrouperConfig.java,v 1.4 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_GrouperConfig extends GrouperTest {
@@ -44,23 +44,6 @@ public class Test_api_GrouperConfig extends GrouperTest {
     super.tearDown();
   }
 
-
-  public void test_getBuildProperty_nullProperty() {
-    try {
-      GrouperConfig.getBuildProperty(null);
-    }
-    catch (IllegalArgumentException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
-
-  public void test_getBuildProperty_nonExistentProperty() {
-    assertEquals( GrouperConfig.EMPTY_STRING, GrouperConfig.getBuildProperty(this.prop_invalid) );
-  }
-
-  public void test_getBuildProperty_validProperty() {
-    assertNotNull( GrouperConfig.getBuildProperty(this.prop_valid_build) );
-  }
 
   public void test_getHibernateProperty_nullProperty() {
     try {

@@ -16,8 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import junit.framework.Assert;
+
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
@@ -25,17 +26,18 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.12 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: StemHelper.java,v 1.13 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class StemHelper {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(StemHelper.class);
+  private static final Log LOG = GrouperUtil.getLog(StemHelper.class);
 
 
   // Protected Class Methods

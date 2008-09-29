@@ -16,18 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
+import java.util.Iterator;
+import java.util.Set;
 
+import junit.framework.Assert;
+import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  junit.framework.*;
 
 /**
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.7 2008-08-25 01:17:11 mchyzer Exp $
+ * @version $Id: TestField.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestField extends TestCase {
 

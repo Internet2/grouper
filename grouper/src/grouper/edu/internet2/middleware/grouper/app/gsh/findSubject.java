@@ -6,15 +6,20 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import  bsh.*;
-import  edu.internet2.middleware.grouper.*;
-import  edu.internet2.middleware.subject.*;
+import bsh.CallStack;
+import bsh.Interpreter;
+import edu.internet2.middleware.grouper.RegistrySubject;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.subject.SourceUnavailableException;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Find a {@link Subject}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: findSubject.java,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+ * @version $Id: findSubject.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
  */
 public class findSubject {

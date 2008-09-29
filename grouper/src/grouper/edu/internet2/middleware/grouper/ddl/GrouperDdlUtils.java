@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.15 2008-09-19 06:28:17 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.16 2008-09-29 03:38:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -27,7 +27,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.ddlutils.Platform;
 import org.apache.ddlutils.PlatformFactory;
 import org.apache.ddlutils.model.Column;
@@ -116,10 +115,10 @@ public class GrouperDdlUtils {
   /**
    * 
    */
-  private static final String DB_OBJECT_PREFIX = "grouper";
+  private static final String PLATFORM_NAME = "grouper";
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperDdlUtils.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperDdlUtils.class);
 
   /** if inside bootstrap, ok to use hibernate */
   private static boolean insideBootstrap = false;
@@ -196,9 +195,10 @@ public class GrouperDdlUtils {
    * startup the process, if the version table is not there, print out that ddl
    * @param callFromCommandLine
    * @param installDefaultGrouperData 
+   * @param promptUser prompt user to see if they really want to do this
    */
   @SuppressWarnings("unchecked")
-  public static void bootstrap(boolean callFromCommandLine, boolean installDefaultGrouperData) {
+  public static void bootstrap(boolean callFromCommandLine, boolean installDefaultGrouperData, boolean promptUser) {
     if (bootstrapDone) {
       if (callFromCommandLine) {
         throw new RuntimeException("DDL bootstrap is already done, something is wrong...");
@@ -212,7 +212,7 @@ public class GrouperDdlUtils {
   
       bootstrapHelper(callFromCommandLine, false, !callFromCommandLine || compareFromDbDllVersion, 
           callFromCommandLine && RegistryInitializeSchema.isDropBeforeCreate(), 
-          callFromCommandLine && RegistryInitializeSchema.isWriteAndRunScript(), false, installDefaultGrouperData, null);
+          callFromCommandLine && RegistryInitializeSchema.isWriteAndRunScript(), false, installDefaultGrouperData, null, promptUser);
     } catch (RuntimeException re) {
       everythingRightVersion = false;
       throw re;
@@ -244,13 +244,24 @@ public class GrouperDdlUtils {
    * @param installDefaultGrouperData if registry install should be called afterwards
    * @param maxVersions if unit testing, and not going to max, then associate object name
    * with max version
+   * @param promptUser promptUser to see if they want to do this...
    * @return the script or null if none (for unit testing, this will also be written to file and logged etc)
    */
   @SuppressWarnings("unchecked")
-  static String bootstrapHelper(boolean callFromCommandLine, boolean fromUnitTest,
+  public static String bootstrapHelper(boolean callFromCommandLine, boolean fromUnitTest,
       boolean theCompareFromDbVersion, boolean theDropBeforeCreate, boolean theWriteAndRunScript,
-      boolean dropOnly, boolean installDefaultGrouperData, Map<String, DdlVersionable> maxVersions) {
+      boolean dropOnly, boolean installDefaultGrouperData, Map<String, DdlVersionable> maxVersions,
+      boolean promptUser) {
         
+    if (promptUser) {
+      String prompt = "schemaexport all tables (dropThenCreate=" + (theDropBeforeCreate ? "T" : "F")
+        + ",writeAndRunScript=" + (theWriteAndRunScript ? "T" : "F") + ")";
+     
+     //make sure it is ok to change db
+     GrouperUtil.promptUserAboutDbChanges(prompt, true);
+ 
+    }
+    
     String resultString = null;
     
     try {
@@ -400,11 +411,11 @@ public class GrouperDdlUtils {
           // if deleting all, lets delete all:
           if (theDropBeforeCreate) {
             //it needs a name, just use "grouper"
-            Database oldDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
+            Database oldDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
                 null, null);
             dropAllForeignKeys(oldDatabase);
             
-            Database newDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
+            Database newDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
                 null, null);
             dropAllForeignKeys(newDatabase);
   
@@ -433,11 +444,11 @@ public class GrouperDdlUtils {
               if (StringUtils.isBlank(script)) {
                 
                 //it needs a name, just use "grouper"
-                Database oldDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
+                Database oldDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
                     null, null);
                 dropAllForeignKeys(oldDatabase);
                 
-                Database newDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
+                Database newDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
                     null, null);
                 dropAllForeignKeys(newDatabase);
                 
@@ -520,11 +531,11 @@ public class GrouperDdlUtils {
               ddlVersionable = retieveVersion(objectName, javaVersion);
   
               //it needs a name, just use "grouper"
-              Database oldDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
+              Database oldDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
                   null, null);
               dropAllForeignKeys(oldDatabase);
               
-              Database newDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
+              Database newDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
                   null, null);
               dropAllForeignKeys(newDatabase);
               
@@ -754,7 +765,7 @@ public class GrouperDdlUtils {
       Platform platform = retrievePlatform(false);
       
       //convenience to get the url, user, etc of the grouper db, helps get db connection
-      GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile(DB_OBJECT_PREFIX);
+      GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
       
       Connection connection = null;
       
@@ -788,11 +799,11 @@ public class GrouperDdlUtils {
         dropAllForeignKeysScript(new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, null, null, null, false, -1, result));
         
         //it needs a name, just use "grouper"
-        Database oldDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
+        Database oldDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
             null, null);
         dropAllForeignKeys(oldDatabase);
           
-        Database newDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
+        Database newDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
             null, null);
         dropAllForeignKeys(newDatabase);
 
@@ -955,10 +966,10 @@ public class GrouperDdlUtils {
       String objectName = ddlVersionBean.getObjectName();
       
       //it needs a name, just use "grouper"
-      Database oldDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
+      Database oldDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
           null, null);
       
-      Database newDatabase = platform.readModelFromDatabase(connection, DB_OBJECT_PREFIX, null,
+      Database newDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
           null, null);
       dropAllForeignKeys(newDatabase);
   
@@ -1920,8 +1931,16 @@ public class GrouperDdlUtils {
   //    }
 
     //see if the table is there
-    final String sampleTablename = ddlVersionable.getSampleTablename();
-    boolean tableThere = assertTablesThere(false, false, sampleTablename);
+    final String[] sampleTablenames = ddlVersionable.getSampleTablenames();
+    boolean tableThere = false;
+    String sampleTableNameExists = null;
+    for (String sampleTableName : sampleTablenames) {
+      tableThere = assertTablesThere(false, false, sampleTableName);
+      if (tableThere) {
+        sampleTableNameExists = sampleTableName;
+        break;
+      }
+    }
     
     //pattern to get only certain objects (e.g. GROUPERLOADER% )
     String defaultTablePattern = ddlVersionable.getDefaultTablePattern(); 
@@ -1968,6 +1987,8 @@ public class GrouperDdlUtils {
           schema, StringUtils.lowerCase(schema), StringUtils.upperCase(schema), 
           extraSchema, StringUtils.lowerCase(extraSchema), StringUtils.lowerCase(extraSchema));
       
+      final String sampleTableNameExistsFinal = sampleTableNameExists;
+      
       HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, new HibernateHandler() {
   
         @SuppressWarnings("deprecation")
@@ -1999,7 +2020,7 @@ public class GrouperDdlUtils {
                     //System.out.println("  " + resultSetMetaData.getColumnName(i) + ": "
                       //  + fkData.getString(i));
                     if (StringUtils.equalsIgnoreCase("TABLE_NAME", resultSetMetaData.getColumnName(i))) {
-                      if (StringUtils.equalsIgnoreCase(sampleTablename, fkData.getString(i))) {
+                      if (StringUtils.equalsIgnoreCase(sampleTableNameExistsFinal, fkData.getString(i))) {
                         //we found it!
                         dbMetadataBean.setSchema(theSchema);
                         dbMetadataBean.setDefaultTablePattern(theDefaultTablePattern);
@@ -2019,7 +2040,7 @@ public class GrouperDdlUtils {
             }
           }
           //it never found the connection criteria!
-          throw new RuntimeException("The table: '" + sampleTablename + "' exists, but " +
+          throw new RuntimeException("The table: '" + sampleTableNameExistsFinal + "' exists, but " +
               "cant find it with DB metadata... is the ddlutils.schema set correctly");
         }
         

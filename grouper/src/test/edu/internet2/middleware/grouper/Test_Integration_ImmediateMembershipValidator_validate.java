@@ -16,20 +16,22 @@
 */
 
 package edu.internet2.middleware.grouper;
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
-import  edu.internet2.middleware.subject.Subject;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.8 2008-08-14 06:35:47 mchyzer Exp $
+ * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.9 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_ImmediateMembershipValidator_validate extends GrouperTest {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(Test_Integration_ImmediateMembershipValidator_validate.class);
+  private static final Log LOG = GrouperUtil.getLog(Test_Integration_ImmediateMembershipValidator_validate.class);
 
   /**
    * 

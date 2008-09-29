@@ -17,13 +17,12 @@
 
 package edu.internet2.middleware.grouper.validator;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.Stem.Scope;
-import  edu.internet2.middleware.grouper.internal.dao.StemDAO;
+import edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * @author  blair christensen.
- * @version $Id: DeleteStemValidator.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: DeleteStemValidator.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
  * @since   1.2.0
  */
 public class DeleteStemValidator extends GrouperValidator {

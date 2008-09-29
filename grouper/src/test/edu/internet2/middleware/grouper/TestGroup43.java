@@ -17,16 +17,18 @@
 
 package edu.internet2.middleware.grouper;
 import junit.textui.TestRunner;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import  edu.internet2.middleware.subject.*;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup43.java,v 1.14 2008-08-27 01:31:20 mchyzer Exp $
+ * @version $Id: TestGroup43.java,v 1.15 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroup43 extends GrouperTest {
@@ -39,7 +41,7 @@ public class TestGroup43 extends GrouperTest {
     TestRunner.run(new TestGroup43("testGroupModifyAttributesUpdatedAfterAddingImmediateMember"));
   }
   
-  private static final Log LOG = LogFactory.getLog(TestGroup43.class);
+  private static final Log LOG = GrouperUtil.getLog(TestGroup43.class);
 
   public TestGroup43(String name) {
     super(name);

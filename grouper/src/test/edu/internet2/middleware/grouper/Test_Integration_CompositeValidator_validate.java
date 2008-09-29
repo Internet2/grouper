@@ -16,20 +16,22 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.Date;
-import  org.apache.commons.logging.*;
+import java.util.Date;
 
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.CompositeValidator;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_CompositeValidator_validate.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_Integration_CompositeValidator_validate.java,v 1.5 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_CompositeValidator_validate extends GrouperTest {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(Test_Integration_CompositeValidator_validate.class);
+  private static final Log LOG = GrouperUtil.getLog(Test_Integration_CompositeValidator_validate.class);
 
 
   // TESTS //  

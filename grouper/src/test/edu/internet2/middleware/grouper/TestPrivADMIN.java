@@ -16,22 +16,25 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.framework.Assert;
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  junit.framework.*;
-import junit.textui.TestRunner;
-
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.15 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.16 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestPrivADMIN extends TestCase {
 
@@ -53,7 +56,7 @@ public class TestPrivADMIN extends TestCase {
   }
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestPrivADMIN.class);
+  private static final Log LOG = GrouperUtil.getLog(TestPrivADMIN.class);
 
 
   // Private Class Variables

@@ -6,17 +6,20 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import  bsh.*;
-import  edu.internet2.middleware.grouper.*;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import java.util.Set;
 
-import  java.util.*;
+import bsh.CallStack;
+import bsh.Interpreter;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 
 /**
  * Get a {@link Group}'s {@link GroupType}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: groupGetTypes.java,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+ * @version $Id: groupGetTypes.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.1.0
  */
 public class groupGetTypes {

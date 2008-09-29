@@ -21,7 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
@@ -31,6 +30,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.subj.LazySubject;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.55 2008-09-10 05:45:59 mchyzer Exp $
+ * @version $Id: MemberFinder.java,v 1.56 2008-09-29 03:38:28 mchyzer Exp $
  */
 public class MemberFinder {
 	
@@ -159,7 +159,7 @@ public class MemberFinder {
   } // public static Member internal_findAllMember()
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(MemberFinder.class);
+  private static final Log LOG = GrouperUtil.getLog(MemberFinder.class);
 
   // @since   1.2.0
   public static Member internal_findRootMember() 

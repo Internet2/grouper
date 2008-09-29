@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -45,6 +44,7 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /** 
@@ -55,7 +55,7 @@ import edu.internet2.middleware.subject.Subject;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.68 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.69 2008-09-29 03:38:28 mchyzer Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -149,7 +149,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
   } // public Set getStemsWhereSubjectHasPriv(s, subj, priv)
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperNamingAdapter.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperNamingAdapter.class);
 
   /**
    * Get all privileges held by this subject on this stem.

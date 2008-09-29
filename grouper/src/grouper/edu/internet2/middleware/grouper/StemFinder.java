@@ -22,7 +22,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.QueryException;
@@ -30,13 +29,13 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
-import edu.internet2.middleware.grouper.registry.RegistryInstall;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.50 2008-08-25 01:17:11 mchyzer Exp $
+ * @version $Id: StemFinder.java,v 1.51 2008-09-29 03:38:28 mchyzer Exp $
  */
 public class StemFinder {
 
@@ -95,7 +94,7 @@ public class StemFinder {
   } // public static Stem findRootStem(s)
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(StemFinder.class);
+  private static final Log LOG = GrouperUtil.getLog(StemFinder.class);
 
   /**
    * Get stem by uuid.

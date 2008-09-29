@@ -16,16 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper.bench;
-import  edu.internet2.middleware.grouper.*; 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.RegistrySubject;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import  edu.internet2.middleware.subject.*;      
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Benchmarking adding a member to a group that is privileged on a lot of other
  * groups.
  * @author  blair christensen.
- * @version $Id: AddAsEffMemberToLotsOfGroups.java,v 1.6 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: AddAsEffMemberToLotsOfGroups.java,v 1.7 2008-09-29 03:38:30 mchyzer Exp $
  * @since   1.2.0
  */
 public class AddAsEffMemberToLotsOfGroups extends BaseGrouperBenchmark {

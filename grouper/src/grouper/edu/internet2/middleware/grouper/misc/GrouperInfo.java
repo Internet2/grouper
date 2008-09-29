@@ -16,22 +16,30 @@
 */
 
 package edu.internet2.middleware.grouper.misc;
+import java.util.Iterator;
+import java.util.Properties;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.SubjectFinder;
-import  edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfig;
-import  edu.internet2.middleware.subject.Source;
-import  java.util.Iterator;
-import  java.util.Properties;
+import edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
 
 /**
  * Report on system and configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperInfo.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: GrouperInfo.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperInfo {
+
+  /** logger */
+  @SuppressWarnings("unused")
+  private static final Log LOG = GrouperUtil.getLog(GrouperInfo.class);
 
   private ApiConfig           api;
   private HibernateDaoConfig  hib;
@@ -59,6 +67,14 @@ public class GrouperInfo {
    * @since   1.1.0
    */
   public static void main(String[] args) {
+    grouperInfo();
+  } // public static void main(args)
+
+
+  /**
+   * 
+   */
+  public static void grouperInfo() {
     GrouperInfo info = new GrouperInfo();
     info._printSystemInfo();
     System.out.println();
@@ -67,8 +83,7 @@ public class GrouperInfo {
     info._printSubjectInfo();
     System.out.println();
     info._printHibernateInfo();
-    System.exit(0);
-  } // public static void main(args)
+  }
 
 
   // PRIVATE INSTANCE METHODS //

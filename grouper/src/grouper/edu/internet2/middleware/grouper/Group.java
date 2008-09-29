@@ -30,7 +30,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.CallbackException;
 import org.hibernate.Session;
 import org.hibernate.classic.Lifecycle;
@@ -108,7 +107,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.201 2008-09-23 04:26:23 mchyzer Exp $
+ * @version $Id: Group.java,v 1.202 2008-09-29 03:38:28 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
@@ -456,7 +455,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   } // public static Field getDefaultList()
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(Group.class);
+  private static final Log LOG = GrouperUtil.getLog(Group.class);
 
 
   // PUBLIC INSTANCE METHODS //

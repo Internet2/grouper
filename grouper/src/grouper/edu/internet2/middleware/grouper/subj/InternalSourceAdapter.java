@@ -16,10 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /**
  * Internal <i>SourceAdapter</i> for retrieving {@link InternalSubject}s.
@@ -31,7 +35,7 @@ import  java.util.*;
  * <li><i>GrouperSystem</i></li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.2 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.3 2008-09-29 03:38:31 mchyzer Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 

@@ -8,7 +8,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -37,7 +36,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class HibernateSession {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(HibernateSession.class);
+  private static final Log LOG = GrouperUtil.getLog(HibernateSession.class);
 
   /**
    * 

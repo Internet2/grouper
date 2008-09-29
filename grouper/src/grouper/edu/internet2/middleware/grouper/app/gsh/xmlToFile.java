@@ -6,19 +6,24 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import  bsh.*;
-import  edu.internet2.middleware.grouper.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Properties;
+
+import bsh.CallStack;
+import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.xml.XmlExporter;
-
-import  java.io.*;
-import  java.util.Properties;
 
 /**
  * Export Groups Registry to XML file.
  * <p/>
  * @author  blair christensen.
- * @version $Id: xmlToFile.java,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+ * @version $Id: xmlToFile.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.1.0
  */
 public class xmlToFile {

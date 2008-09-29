@@ -16,14 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper.misc;
-import  java.io.Serializable;
-import  java.util.*;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /** 
  * Composite Type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CompositeType.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $    
+ * @version $Id: CompositeType.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $    
  * @since   1.0
  */
 public class CompositeType implements Serializable {

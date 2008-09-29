@@ -23,12 +23,12 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestFindBadMemberships2 extends TestCase {
 
-  private static final Log LOG = LogFactory.getLog(TestFindBadMemberships2.class);
+  private static final Log LOG = GrouperUtil.getLog(TestFindBadMemberships2.class);
 
   public TestFindBadMemberships2(String name) {
     super(name);

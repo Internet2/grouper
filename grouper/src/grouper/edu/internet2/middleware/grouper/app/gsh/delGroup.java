@@ -6,8 +6,11 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import  bsh.*;
-import  edu.internet2.middleware.grouper.*;
+import bsh.CallStack;
+import bsh.Interpreter;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -16,7 +19,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
  * Delete a group.
  * <p/>
  * @author  blair christensen.
- * @version $Id: delGroup.java,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+ * @version $Id: delGroup.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
  */
 public class delGroup {

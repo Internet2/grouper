@@ -16,14 +16,18 @@
 */
 
 package edu.internet2.middleware.grouper.bench;
-import  edu.internet2.middleware.grouper.*; 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.RegistrySubject;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
-import  edu.internet2.middleware.subject.*;      
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Benchmark finding an already existing {@link Member} by {@link Subject}.
  * @author  blair christensen.
- * @version $Id: FindExistingMemberBySubject.java,v 1.5 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: FindExistingMemberBySubject.java,v 1.6 2008-09-29 03:38:30 mchyzer Exp $
  * @since   1.1.0
  */
 public class FindExistingMemberBySubject extends BaseGrouperBenchmark {

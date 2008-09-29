@@ -16,20 +16,22 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr1.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestGAttr1.java,v 1.5 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGAttr1 extends TestCase {
 
-  private static final Log LOG = LogFactory.getLog(TestGAttr1.class);
+  private static final Log LOG = GrouperUtil.getLog(TestGAttr1.class);
 
   public TestGAttr1(String name) {
     super(name);

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderJob.java,v 1.2 2008-07-23 06:41:29 mchyzer Exp $
+ * $Id: GrouperLoaderJob.java,v 1.3 2008-09-29 03:38:30 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -10,7 +10,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
@@ -38,7 +37,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(GrouperLoaderJob.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperLoaderJob.class);
 
   /**
    * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)

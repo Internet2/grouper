@@ -16,20 +16,24 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeI14.java,v 1.5 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestCompositeI14.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestCompositeI14 extends TestCase {
 
   // Private Static Class Constants
-  private static final Log LOG = LogFactory.getLog(TestCompositeI14.class);
+  private static final Log LOG = GrouperUtil.getLog(TestCompositeI14.class);
 
   public TestCompositeI14(String name) {
     super(name);

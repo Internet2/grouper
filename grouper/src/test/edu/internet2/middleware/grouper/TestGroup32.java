@@ -16,17 +16,18 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup32.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestGroup32.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestGroup32 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestGroup32.class);
+  private static final Log LOG = GrouperUtil.getLog(TestGroup32.class);
 
   public TestGroup32(String name) {
     super(name);

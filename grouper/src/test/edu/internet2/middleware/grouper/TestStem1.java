@@ -16,20 +16,23 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem1.java,v 1.5 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestStem1.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestStem1 extends TestCase {
 
   // Private Static Class Constants
-  private static final Log LOG = LogFactory.getLog(TestStem1.class);
+  private static final Log LOG = GrouperUtil.getLog(TestStem1.class);
 
   public TestStem1(String name) {
     super(name);

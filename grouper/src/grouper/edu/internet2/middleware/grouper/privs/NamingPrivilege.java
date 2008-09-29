@@ -16,15 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import edu.internet2.middleware.grouper.Stem;
-import  edu.internet2.middleware.subject.*;
-import  org.apache.commons.lang.builder.*;
+import edu.internet2.middleware.subject.Subject;
 
 /** 
  * An instance of a granted naming privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingPrivilege.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: NamingPrivilege.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
  */
 public class NamingPrivilege {
 

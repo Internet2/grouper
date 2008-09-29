@@ -1,16 +1,17 @@
 /*
  * @author mchyzer
- * $Id: GrouperAntProject.java,v 1.1 2008-07-27 07:37:24 mchyzer Exp $
+ * $Id: GrouperAntProject.java,v 1.2 2008-09-29 03:38:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.Target;
 import org.apache.tools.ant.Task;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -19,7 +20,7 @@ import org.apache.tools.ant.Task;
 public class GrouperAntProject extends Project {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperAntProject.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperAntProject.class);
 
   /**
    * @see org.apache.tools.ant.Project#log(java.lang.String, int)

@@ -16,9 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.textui.TestRunner;
+
 import org.apache.commons.lang.StringUtils;
 
-import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -30,13 +31,13 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import  edu.internet2.middleware.subject.*;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Test wheel group use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_WheelGroup.java,v 1.14 2008-08-26 21:11:51 mchyzer Exp $
+ * @version $Id: Test_uc_WheelGroup.java,v 1.15 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_uc_WheelGroup extends GrouperTest {

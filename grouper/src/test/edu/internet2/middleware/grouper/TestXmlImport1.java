@@ -16,23 +16,25 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
+import java.util.Properties;
 
-import  junit.framework.*;
+import junit.framework.Assert;
+import junit.framework.TestCase;
 
-import  org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.XmlImporter;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlImport1.java,v 1.8 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: TestXmlImport1.java,v 1.9 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.0
  */
 public class TestXmlImport1 extends TestCase {
 
-  private static final Log LOG = LogFactory.getLog(TestXmlImport1.class);
+  private static final Log LOG = GrouperUtil.getLog(TestXmlImport1.class);
 
   public TestXmlImport1(String name) {
     super(name);

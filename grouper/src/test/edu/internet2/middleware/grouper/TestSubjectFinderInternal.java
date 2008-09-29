@@ -16,17 +16,19 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.framework.Assert;
+import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.subj.InternalSubject;
-import  edu.internet2.middleware.subject.*;
-import  junit.framework.*;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Test {@link SubjectFinder} class with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSubjectFinderInternal.java,v 1.10 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: TestSubjectFinderInternal.java,v 1.11 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestSubjectFinderInternal extends TestCase {
 

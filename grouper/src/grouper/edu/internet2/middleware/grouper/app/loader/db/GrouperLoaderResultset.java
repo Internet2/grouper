@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderResultset.java,v 1.2 2008-07-23 06:41:30 mchyzer Exp $
+ * $Id: GrouperLoaderResultset.java,v 1.3 2008-09-29 03:38:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
@@ -18,7 +18,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -154,7 +153,7 @@ public class GrouperLoaderResultset {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(GrouperLoaderResultset.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperLoaderResultset.class);
 
   /**
    * simple struct for subjects

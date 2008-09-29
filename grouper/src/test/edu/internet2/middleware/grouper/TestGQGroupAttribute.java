@@ -16,17 +16,18 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.framework.Assert;
+import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.filter.GroupAttributeFilter;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  junit.framework.*;
 
 /**
  * Test {@link GroupAttributeFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQGroupAttribute.java,v 1.9 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestGQGroupAttribute.java,v 1.10 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestGQGroupAttribute extends TestCase {
 

@@ -21,7 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.internal.util.Quote;
@@ -35,7 +34,7 @@ import edu.internet2.middleware.grouper.validator.NotNullValidator;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.54 2008-07-21 04:43:56 mchyzer Exp $
+ * @version $Id: GroupFinder.java,v 1.55 2008-09-29 03:38:28 mchyzer Exp $
  */
 public class GroupFinder {
 
@@ -167,7 +166,7 @@ public class GroupFinder {
   } 
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GroupFinder.class);
+  private static final Log LOG = GrouperUtil.getLog(GroupFinder.class);
 
   /**
    * Find a group within the registry by its {@link GroupType}.

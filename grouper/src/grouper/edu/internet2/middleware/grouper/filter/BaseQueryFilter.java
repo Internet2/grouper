@@ -21,7 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -30,12 +29,13 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
  * Base {@link QueryFilter} that all other query filters should extend.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseQueryFilter.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: BaseQueryFilter.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
  */
 public class BaseQueryFilter implements QueryFilter {
 
@@ -86,7 +86,7 @@ public class BaseQueryFilter implements QueryFilter {
   } 
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(BaseQueryFilter.class);
+  private static final Log LOG = GrouperUtil.getLog(BaseQueryFilter.class);
 
   /**
    * Get filter results.

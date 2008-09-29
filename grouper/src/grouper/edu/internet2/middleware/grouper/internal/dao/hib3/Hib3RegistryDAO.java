@@ -34,17 +34,17 @@ import org.apache.ddlutils.platform.SqlBuilder;
 import org.hibernate.HibernateException;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Basic Hibernate <code>Registry</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3RegistryDAO.java,v 1.9 2008-09-16 05:11:54 mchyzer Exp $
+ * @version $Id: Hib3RegistryDAO.java,v 1.10 2008-09-29 03:38:31 mchyzer Exp $
  * @since   @HEAD@
  */
 class Hib3RegistryDAO implements RegistryDAO {
@@ -61,7 +61,9 @@ class Hib3RegistryDAO implements RegistryDAO {
   public void initializeSchema() 
     throws  GrouperDAOException
   {
-    String outputFile = GrouperConfig.getBuildProperty("schemaexport.out");
+    String outputFile = GrouperUtil.fileCanonicalPath(new File("schemaexport.out"));
+
+    System.out.println("Schemaexport output file: " + outputFile);
 
     // drop foreign keys and save the drop statements in a StringWriter.
     StringWriter sw = new StringWriter();

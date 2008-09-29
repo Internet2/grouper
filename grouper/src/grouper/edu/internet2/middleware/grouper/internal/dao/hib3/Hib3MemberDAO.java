@@ -16,11 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import java.util.HashMap;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Member;
@@ -30,6 +28,7 @@ import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
@@ -37,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.9 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.10 2008-09-29 03:38:31 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
@@ -188,7 +187,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   } 
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(Hib3MemberDAO.class);
+  private static final Log LOG = GrouperUtil.getLog(Hib3MemberDAO.class);
 
   /**
    * update the exists cache

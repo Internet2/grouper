@@ -16,12 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
-import  junit.framework.*;
+import java.util.Set;
+
+import junit.framework.Assert;
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
-import  org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -30,17 +31,18 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.12 2008-08-24 04:47:11 mchyzer Exp $
+ * @version $Id: TestGroupTypes.java,v 1.13 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestGroupTypes extends GrouperTest {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestGroupTypes.class);
+  private static final Log LOG = GrouperUtil.getLog(TestGroupTypes.class);
 
   /**
    * 

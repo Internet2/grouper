@@ -16,21 +16,24 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeC1.java,v 1.10 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestCompositeC1.java,v 1.11 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.0
  */
 public class TestCompositeC1 extends TestCase {
 
-  private static final Log LOG = LogFactory.getLog(TestCompositeC1.class);
+  private static final Log LOG = GrouperUtil.getLog(TestCompositeC1.class);
 
   public TestCompositeC1(String name) {
     super(name);

@@ -23,7 +23,6 @@ import junit.textui.TestRunner;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
@@ -37,22 +36,21 @@ import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup0.java,v 1.14 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestGroup0.java,v 1.15 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestGroup0 extends GrouperTest {
 
   /** log */
-  private static final Log LOG = LogFactory.getLog(TestGroup0.class);
+  private static final Log LOG = GrouperUtil.getLog(TestGroup0.class);
 
   /**
    * Method main.

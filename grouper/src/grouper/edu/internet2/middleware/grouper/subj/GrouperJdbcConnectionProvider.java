@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperJdbcConnectionProvider.java,v 1.1 2008-09-16 05:11:53 mchyzer Exp $
+ * $Id: GrouperJdbcConnectionProvider.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.subj;
 
@@ -9,10 +9,10 @@ import java.sql.SQLException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.SubjectUtils;
 import edu.internet2.middleware.subject.provider.JdbcConnectionBean;
@@ -74,7 +74,7 @@ public class GrouperJdbcConnectionProvider implements JdbcConnectionProvider {
   }
 
   /** logger */
-  private static Log log = LogFactory.getLog(GrouperJdbcConnectionProvider.class);
+  private static Log log = GrouperUtil.getLog(GrouperJdbcConnectionProvider.class);
 
   /**
    * @see edu.internet2.middleware.subject.provider.JdbcConnectionProvider#init(java.lang.String, java.lang.String, java.lang.Integer, int, java.lang.Integer, int, java.lang.Integer, int, java.lang.String, java.lang.String, java.lang.String, java.lang.Boolean, boolean)

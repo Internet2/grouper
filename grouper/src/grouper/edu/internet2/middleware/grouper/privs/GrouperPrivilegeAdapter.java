@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -41,13 +40,14 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.2 2008-09-10 05:45:59 mchyzer Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.3 2008-09-29 03:38:31 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperPrivilegeAdapter {
@@ -150,7 +150,7 @@ public class GrouperPrivilegeAdapter {
   } // public Set internal_getPrivs(s, subj, m, p, it)
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperPrivilegeAdapter.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperPrivilegeAdapter.class);
 
   /**
    * @since   1.2.0

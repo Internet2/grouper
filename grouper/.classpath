@@ -1,47 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry excluding="edu/internet2/middleware/grouper/.cvsignore" kind="src" path="src/test"/>
 	<classpathentry kind="src" path="src/grouper"/>
-	<classpathentry kind="src" path="conf"/>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="lib/log4j-1.2.8.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jug-1.1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jta-1.0.1B.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-math-1.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/subject.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-collections.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-digester.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-logging.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/dom4j.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/junit.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/odmg.jar"/>
-	<classpathentry kind="lib" path="lib/ant-1.7.1.jar"/>
-	<classpathentry kind="lib" path="lib/asm.jar"/>
-	<classpathentry kind="lib" path="lib/asm-attrs.jar"/>
-	<classpathentry kind="lib" path="lib/asm-util.jar"/>
-	<classpathentry kind="lib" path="lib/backport-util-concurrent-3.0.jar"/>
-	<classpathentry kind="lib" path="lib/c3p0-0.9.1.2.jar"/>
-	<classpathentry kind="lib" path="lib/cglib2.1_3.jar"/>
-	<classpathentry kind="lib" path="lib/ehcache-1.4.0.jar"/>
-	<classpathentry kind="lib" path="lib/hibernate3.2.6.jar"/>
-	<classpathentry kind="lib" path="lib/p6spy.jar"/>
-	<classpathentry kind="lib" path="lib/jamon-2.7.jar"/>
-	<classpathentry kind="lib" path="lib/DdlUtils-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/jsr107cache-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/activation.jar"/>
-	<classpathentry kind="lib" path="lib/mailapi.jar"/>
-	<classpathentry kind="lib" path="lib/smtp.jar"/>
-	<classpathentry kind="lib" path="lib/quartz-1.6.0.jar"/>
-	<classpathentry kind="lib" path="lib/commons-cli-1.1.jar"/>
-	<classpathentry kind="lib" path="lib/bsh-2.0b4.jar"/>
-	<classpathentry kind="lib" path="lib/antlr-2.7.6.jar"/>
-	<classpathentry kind="lib" path="lib/commons-betwixt-0.8.jar"/>
-	<classpathentry kind="lib" path="lib/commons-discovery-0.4.jar"/>
-	<classpathentry kind="lib" path="lib/invoker.jar"/>
-	<classpathentry kind="lib" path="lib/jakarta-oro-2.0.8.jar"/>
-	<classpathentry kind="lib" path="lib/hsqldb.jar"/>
-	<classpathentry kind="lib" path="lib/morphString.jar"/>
+	<classpathentry kind="src" path="src/test"/>
+	<classpathentry kind="src" path="confForTest"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="lib/ant/ant-contrib-1.0b3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/activation.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/ant.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/antlr.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/asm.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/asm-attrs.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/asm-util.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/backport-util-concurrent.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/bsh.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/c3p0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/cglib.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-beanutils.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-betwixt.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-cli.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-collections.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-digester.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-discovery-0.4.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-lang.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-logging.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-math.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/DdlUtils.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/dom4j.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/ehcache.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/invoker.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/jakarta-oro.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/jamon-2.7.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/jsr107cache.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/jta.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/jug.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/log4j.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/mailapi.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/morphString.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/odmg.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/p6spy.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/quartz.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/smtp.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/subject.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/hsqldb.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/mysql-connector-java-bin.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/ojdbc14.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/postgresql.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/junit.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

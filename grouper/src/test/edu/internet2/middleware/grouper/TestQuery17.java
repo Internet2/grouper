@@ -16,22 +16,26 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import java.util.Date;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.filter.GroupModifiedBeforeFilter;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestQuery17.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestQuery17.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestQuery17 extends TestCase {
 
-  private static final Log LOG = LogFactory.getLog(TestQuery17.class);
+  private static final Log LOG = GrouperUtil.getLog(TestQuery17.class);
 
   public TestQuery17(String name) {
     super(name);

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
@@ -32,7 +31,7 @@ public class ByHql extends HibernateDelegate {
   
   /** logger */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(ByHql.class);
+  private static final Log LOG = GrouperUtil.getLog(ByHql.class);
 
   /** assign a transaction type, default use the transaction modes
    * GrouperTransactionType.READONLY_OR_USE_EXISTING, and 

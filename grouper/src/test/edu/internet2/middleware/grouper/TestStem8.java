@@ -16,23 +16,29 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Date;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
-import  edu.internet2.middleware.subject.*;
-import  java.util.*;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem8.java,v 1.9 2008-09-19 06:28:17 mchyzer Exp $
+ * @version $Id: TestStem8.java,v 1.10 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestStem8 extends TestCase {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestStem8.class);
+  private static final Log LOG = GrouperUtil.getLog(TestStem8.class);
 
 
   public TestStem8(String name) {

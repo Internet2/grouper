@@ -30,7 +30,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
@@ -52,9 +51,7 @@ import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksStemBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
@@ -92,7 +89,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.163 2008-09-23 04:26:23 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.164 2008-09-29 03:38:28 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
@@ -1187,7 +1184,7 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   } // protected static Stem internal_addRootStem(GrouperSession s)
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(Stem.class);
+  private static final Log LOG = GrouperUtil.getLog(Stem.class);
 
   /**
    * set modified

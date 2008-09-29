@@ -16,11 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * @author  blair christensen.
- * @version $Id: Suite_Unit_API.java,v 1.9 2007-08-02 16:46:51 blair Exp $
+ * @version $Id: Suite_Unit_API.java,v 1.10 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.0
  */
 public class Suite_Unit_API extends GrouperTest {

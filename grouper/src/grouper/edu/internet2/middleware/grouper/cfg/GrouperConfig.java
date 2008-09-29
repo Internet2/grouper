@@ -26,7 +26,7 @@ import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConf
  * Grouper configuration information.
  * <p><b>This class is being deprecated by the {@link edu.internet2.middleware.grouper.cfg.Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.3 2008-09-10 05:45:59 mchyzer Exp $
+ * @version $Id: GrouperConfig.java,v 1.4 2008-09-29 03:38:32 mchyzer Exp $
  * @since   ?
  */
 public class GrouperConfig {
@@ -51,10 +51,7 @@ public class GrouperConfig {
    * Grouper configuration file.
    */
   public static final String GROUPER_CF           = "/grouper.properties";
-  /**
-   * Grouper build configuration file.
-   */
-  public static final String GROUPER_BUILD_CF     = "/buildGrouper.properties";
+
   /**
    * Hibernate configuration file.
    */
@@ -121,7 +118,6 @@ public class GrouperConfig {
   public static final String MESSAGES_USE_TOOLTIPS = "messages.use.tooltips";
   private static  GrouperConfig       cfg;
   private         ApiConfig           api;
-  private         BuildConfig         build;
   private         HibernateDaoConfig  hib;
 
 
@@ -132,20 +128,7 @@ public class GrouperConfig {
   private GrouperConfig() {
     super();
     this.api   = new ApiConfig();
-    this.build = new BuildConfig();
     this.hib   = new HibernateDaoConfig();
-  } 
-
-  /**
-   * Get a Grouper build configuration parameter.
-   * <pre class="eg">
-   * String schemaexportOut = GrouperConfig.getBuildProperty("schemaexport.out");
-   * </pre>
-   * @return  Value of configuration parameter or an empty string if parameter is invalid.
-   * @since   1.2.0
-   */
-  public static String getBuildProperty(String property) {
-    return getDefaultTrimmedValueIfNull( getInstance().build.getProperty(property) );
   } 
 
   /** 

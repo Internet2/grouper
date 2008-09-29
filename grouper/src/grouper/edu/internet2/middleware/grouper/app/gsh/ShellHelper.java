@@ -10,24 +10,24 @@ import java.util.List;
 
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import bsh.Interpreter;
 import bsh.TargetError;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
  * Shell Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: ShellHelper.java,v 1.2 2008-09-22 15:06:40 mchyzer Exp $
+ * @version $Id: ShellHelper.java,v 1.3 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
  */
 class ShellHelper {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(ShellHelper.class);
+  private static final Log LOG = GrouperUtil.getLog(ShellHelper.class);
 
   /**
    * 

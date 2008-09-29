@@ -17,8 +17,14 @@
 
 package edu.internet2.middleware.grouper.eg;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
-import  edu.internet2.middleware.grouper.*; // Import Grouper API
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
@@ -30,7 +36,7 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import  edu.internet2.middleware.subject.*; // Import Subject API
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * EXAMPLE Bootstrap your Groups Registry by creating a sysadmin (wheel) group.
@@ -179,7 +185,7 @@ import  edu.internet2.middleware.subject.*; // Import Subject API
  * }
  * </pre>
  * @author  blair christensen.
- * @version $Id: Bootstrap.java,v 1.4 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: Bootstrap.java,v 1.5 2008-09-29 03:38:31 mchyzer Exp $
  * @see     <a href="http://viewvc.internet2.edu/viewvc.py/grouper/src/grouper/edu/internet2/middleware/grouper/eg/Bootstrap.java?root=I2MI&view=markup">Source</a>
  * @since   1.2.0
  */
@@ -192,6 +198,10 @@ public class Bootstrap {
   private Stem            root; 
   private GrouperSession  s;
   private Group           wheel;
+
+  /** logger */
+  @SuppressWarnings("unused")
+  private static final Log LOG = GrouperUtil.getLog(Bootstrap.class);
 
 
   // MAIN //

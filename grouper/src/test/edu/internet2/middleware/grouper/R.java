@@ -16,30 +16,33 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
-import  edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
-import  edu.internet2.middleware.grouper.internal.util.U;
+import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
+import edu.internet2.middleware.grouper.internal.util.U;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import  edu.internet2.middleware.subject.*;
-import  java.util.HashMap;
-import  java.util.Map;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: R.java,v 1.23 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: R.java,v 1.24 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.0
  */
 public class R {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(R.class);
+  private static final Log LOG = GrouperUtil.getLog(R.class);
 
   
   // PROTECTED INSTANCE VARIABLES //

@@ -16,13 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper.bench;
-import  edu.internet2.middleware.grouper.*;      
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 
 /**
  * Benchmark find <b>GrouperSystem</b>.
  * @author  blair christensen.
- * @version $Id: FindGrouperSystem.java,v 1.6 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: FindGrouperSystem.java,v 1.7 2008-09-29 03:38:30 mchyzer Exp $
  * @since   1.1.0
  */
 public class FindGrouperSystem extends BaseGrouperBenchmark {

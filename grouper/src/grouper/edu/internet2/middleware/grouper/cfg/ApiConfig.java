@@ -23,7 +23,6 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -33,7 +32,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * you should probably use GrouperConfig
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.13 2008-09-23 18:57:41 mchyzer Exp $
+ * @version $Id: ApiConfig.java,v 1.14 2008-09-29 03:38:32 mchyzer Exp $
  * @since   1.2.1
  */
 public class ApiConfig implements Configuration {
@@ -41,7 +40,7 @@ public class ApiConfig implements Configuration {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(ApiConfig.class);
+  private static final Log LOG = GrouperUtil.getLog(ApiConfig.class);
 
   /**
    * Property name for <code>AccessAdapter</code> implementation.
@@ -143,7 +142,7 @@ public class ApiConfig implements Configuration {
       GrouperUtil.fileCanonicalPath(log4jFile);
     resultString.append("log4j.properties read from:   " + log4jFileLocation + "\n");
     
-    resultString.append(GrouperUtil.printLogDir());    
+    resultString.append(GrouperUtil.logDirPrint());    
     Properties grouperHibernateProperties = GrouperUtil.propertiesFromResourceName("grouper.hibernate.properties");
     String url = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.url"));
     String user = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.username"));

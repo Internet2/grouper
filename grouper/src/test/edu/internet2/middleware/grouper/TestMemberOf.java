@@ -16,19 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  junit.framework.*;
+import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
-import  org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Test memberOf calculations.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMemberOf.java,v 1.9 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestMemberOf.java,v 1.10 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestMemberOf extends TestCase {
 
@@ -42,7 +44,7 @@ public class TestMemberOf extends TestCase {
   }
 
   // Private Class Constants
-  private static final Log        LOG   = LogFactory.getLog(TestMemberOf.class); 
+  private static final Log        LOG   = GrouperUtil.getLog(TestMemberOf.class); 
 
 
   // Private Class Variables

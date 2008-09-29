@@ -16,25 +16,27 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  junit.framework.*;
-import junit.textui.TestRunner;
-
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem11.java,v 1.9 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestStem11.java,v 1.10 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.0.1
  */
 public class TestStem11 extends TestCase {
 
   // Private Static Class Constants
-  private static final Log LOG = LogFactory.getLog(TestStem11.class);
+  private static final Log LOG = GrouperUtil.getLog(TestStem11.class);
 
   public TestStem11(String name) {
     super(name);

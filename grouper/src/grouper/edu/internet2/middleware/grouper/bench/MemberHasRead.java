@@ -16,14 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper.bench;
-import  edu.internet2.middleware.grouper.*;    
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.RegistrySubject;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 
 /**
  * Benchmark <code>Member.hasRead()</code> when <i>GrouperAll</i> has a large
  * number of memberships.
  * @author  blair christensen.
- * @version $Id: MemberHasRead.java,v 1.6 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: MemberHasRead.java,v 1.7 2008-09-29 03:38:30 mchyzer Exp $
  * @since   1.2.0
  */
 public class MemberHasRead extends BaseGrouperBenchmark {

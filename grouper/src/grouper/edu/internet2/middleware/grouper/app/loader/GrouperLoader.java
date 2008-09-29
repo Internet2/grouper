@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoader.java,v 1.3 2008-07-27 07:37:24 mchyzer Exp $
+ * $Id: GrouperLoader.java,v 1.4 2008-09-29 03:38:30 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -8,7 +8,6 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.ddlutils.PlatformFactory;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
@@ -31,7 +30,7 @@ public class GrouperLoader {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(GrouperLoader.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperLoader.class);
 
   /**
    * @param args

@@ -768,8 +768,8 @@
 	  <target name="-only-grouper-libs-available" if="only.grouper-libs.available">
 		<echo>Copy jar files from lib</echo>
 		<copy todir="${grouper.folder}/dist/lib" overwrite="${overwiteLib}">
-			<fileset dir="${grouper.folder}/lib">
-				<include name="**/*.jar"/>
+			<fileset dir="${grouper.folder}/lib/grouper">
+				<include name="*.jar"/>
 			</fileset>
 		</copy>   
 	  </target>

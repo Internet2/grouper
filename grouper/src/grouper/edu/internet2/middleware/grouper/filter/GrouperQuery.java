@@ -21,7 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -31,12 +30,13 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
  * Perform arbitrary queries against the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: GrouperQuery.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
  */
 public class GrouperQuery {
 
@@ -129,7 +129,7 @@ public class GrouperQuery {
   } // public Set getGroups()
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperQuery.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperQuery.class);
 
   /**
    * Get members matching query filter.

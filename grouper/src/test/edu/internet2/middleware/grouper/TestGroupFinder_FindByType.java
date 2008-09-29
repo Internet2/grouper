@@ -16,19 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupFinder_FindByType.java,v 1.5 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestGroupFinder_FindByType.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroupFinder_FindByType extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestGroupFinder_FindByType.class);
+  private static final Log LOG = GrouperUtil.getLog(TestGroupFinder_FindByType.class);
 
   public TestGroupFinder_FindByType(String name) {
     super(name);

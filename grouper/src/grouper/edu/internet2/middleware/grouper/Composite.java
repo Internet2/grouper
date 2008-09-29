@@ -28,7 +28,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -37,9 +36,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.CompositeHooks;
-import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksCompositeBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
@@ -64,7 +61,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.60 2008-09-23 04:26:23 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.61 2008-09-29 03:38:28 mchyzer Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
@@ -253,7 +250,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(Composite.class);
+  private static final Log LOG = GrouperUtil.getLog(Composite.class);
 
 
 

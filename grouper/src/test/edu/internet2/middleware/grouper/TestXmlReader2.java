@@ -16,22 +16,27 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.io.*;
-import  java.util.Properties;
-import  org.apache.commons.logging.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.Writer;
+import java.util.Properties;
+
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.XmlExporter;
 import edu.internet2.middleware.grouper.xml.XmlReader;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlReader2.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestXmlReader2.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestXmlReader2 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestXmlReader2.class);
+  private static final Log LOG = GrouperUtil.getLog(TestXmlReader2.class);
 
   public TestXmlReader2(String name) {
     super(name);

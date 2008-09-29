@@ -16,19 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_Stem_internal_addChildGroup.java,v 1.2 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_Integration_Stem_internal_addChildGroup.java,v 1.3 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_Stem_internal_addChildGroup extends GrouperTest {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(Test_Integration_Stem_internal_addChildGroup.class);
+  private static final Log LOG = GrouperUtil.getLog(Test_Integration_Stem_internal_addChildGroup.class);
 
 
   // TESTS //  

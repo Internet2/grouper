@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.4 2008-09-10 05:45:59 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.5 2008-09-29 03:38:30 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -15,7 +15,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.Trigger;
@@ -30,7 +29,6 @@ import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset.Row;
-import edu.internet2.middleware.grouper.hibernate.BySqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
@@ -311,7 +309,7 @@ public enum GrouperLoaderType {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(GrouperLoaderType.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperLoaderType.class);
 
   /**
    * make sure if an attribute is required that it exists (non blank).  throw exception if problem

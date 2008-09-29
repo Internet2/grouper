@@ -19,20 +19,40 @@ package edu.internet2.middleware.grouper;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import junit.textui.TestRunner;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.app.gsh.AllGshTests;
 import edu.internet2.middleware.grouper.app.loader.db.AllLoaderDbTests;
 import edu.internet2.middleware.grouper.app.usdu.AllUsduTests;
 import edu.internet2.middleware.grouper.ddl.AllDdlTests;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hooks.AllHooksTests;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
 
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.41 2008-08-18 06:15:58 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.42 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
+
+  /** logger */
+  @SuppressWarnings("unused")
+  private static final Log LOG = GrouperUtil.getLog(SuiteDefault.class);
+
+  /**
+   * run tests from bat or sh file.  Note, dont change this method unless you want the 
+   * bat or sh test runer to be changed
+   * @param args
+   */
+  public static void main(String[] args) {
+    GrouperDdlUtils.bootstrapHelper(true, false, true, false, true, false, true, null, true);
+    TestRunner.run(SuiteDefault.suite());
+  }
 
   /**
    * 
@@ -58,7 +78,6 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite( Test_cache_EhcacheStats.class );
 
     suite.addTestSuite( Test_cfg_ApiConfig.class );
-    suite.addTestSuite( Test_cfg_BuildConfig.class );
     suite.addTestSuite( Test_cfg_ConfigurationHelper.class );
     suite.addTestSuite( Test_cfg_PropertiesConfiguration.class );
 

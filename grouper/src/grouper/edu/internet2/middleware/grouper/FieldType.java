@@ -16,8 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.io.Serializable;
-import  java.util.*;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -25,7 +26,7 @@ import org.apache.commons.lang.StringUtils;
  * Field Type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldType.java,v 1.12 2008-08-14 06:35:47 mchyzer Exp $    
+ * @version $Id: FieldType.java,v 1.13 2008-09-29 03:38:28 mchyzer Exp $    
  */
 public class FieldType implements Serializable {
 

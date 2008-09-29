@@ -33,7 +33,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -99,14 +98,14 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.2 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.3 2008-09-29 03:38:30 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
 
   // PRIVATE CLASS CONSTANTS //  
   private static final String CF            = "import.properties";
-  private static final Log    LOG           = LogFactory.getLog(XmlImporter.class);
+  private static final Log    LOG           = GrouperUtil.getLog(XmlImporter.class);
   private static final String MODE_ADD      = "add";
   private static final String MODE_IGNORE   = "ignore";
   private static final String MODE_REPLACE  = "replace";

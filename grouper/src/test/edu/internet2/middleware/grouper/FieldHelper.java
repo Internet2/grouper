@@ -16,15 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.framework.Assert;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.privs.Privilege;
-import  junit.framework.*;
 
 /**
 * Field-related helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldHelper.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: FieldHelper.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class FieldHelper {
 

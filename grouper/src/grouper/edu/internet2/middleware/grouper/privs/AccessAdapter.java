@@ -17,14 +17,15 @@
 
 package edu.internet2.middleware.grouper.privs;
 
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
-import  edu.internet2.middleware.subject.*;
-import  java.util.*;
+import edu.internet2.middleware.subject.Subject;
 
 
 /** 
@@ -35,7 +36,7 @@ import  java.util.*;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: AccessAdapter.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: AccessAdapter.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
  */
 public interface AccessAdapter {
 

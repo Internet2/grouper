@@ -16,22 +16,28 @@
 */
 
 package edu.internet2.middleware.grouper.xml;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Properties;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
-import  edu.internet2.middleware.subject.*;
-import  java.io.*;
-import  java.util.*;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.2 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: XmlUtils.java,v 1.3 2008-09-29 03:38:30 mchyzer Exp $
  * @since   1.1.0
  */
 public class XmlUtils {

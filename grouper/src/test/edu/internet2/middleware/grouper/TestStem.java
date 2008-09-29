@@ -16,6 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Iterator;
+import java.util.Set;
+
+import junit.framework.Assert;
+import junit.textui.TestRunner;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
@@ -23,23 +31,19 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  java.util.*;
-import  junit.framework.*;
-import junit.textui.TestRunner;
-
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.18 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.19 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestStem.class);
+  private static final Log LOG = GrouperUtil.getLog(TestStem.class);
 
   /**
    * Method main.
