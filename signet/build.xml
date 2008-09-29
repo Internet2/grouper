@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.75 2008-09-26 01:34:38 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build.xml,v 1.76 2008-09-29 00:48:45 ddonn Exp $ -->
 
 <project name="Signet" default="production" basedir="." >
 
@@ -287,6 +287,7 @@
 		<copy todir="${dist.util.dir}" >
 			<fileset dir="." >
 				<include name="README*" />
+				<include name="version-info/${signet_basename}_${signet_version}_ReleaseNotes.txt" />
 			</fileset>
 		</copy>
 	</target>
@@ -350,9 +351,6 @@
 		<path id="source.class.path" >
 			<fileset refid="source.lib.fileset" />
 			<fileset refid="i2mi_common_lib.fileset" />
-<!-- SubjectAPI JAR is in Signet CVS for now
-			<fileset refid="subjectApi_lib.fileset" />
--->
 			<fileset refid="custom.lib.fileset" />
 		</path>
 	</target>

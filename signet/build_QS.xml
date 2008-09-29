@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.15 2008-07-21 00:13:14 ddonn Exp $ -->
+<!-- $Header: /home/hagleyj/i2mi/signet/build_QS.xml,v 1.16 2008-09-29 00:48:45 ddonn Exp $ -->
 
 <project name="Signet" default="quickstart" basedir="." >
 
@@ -25,13 +25,13 @@
 
 
 	<!-- 
-		SignetXml properties and taskdefs / JAXB-specific Ant tasks
+		JAXB-specific Ant tasks
 		This section contains the Ant task definitions for using the JAXB
 		schemagen and xjc utilities.
 		
 		NOTE: Class SchemaGenTask relies on 
 		  com/sun/mirror/apt/AnnotationProcessorFactory
-		which is only available in the JDK (not JRE) libs in file tools.jar.
+		which is only available in the JDK libs (not JRE) in file tools.jar.
 		If you experience problems in the schema_gen target you mignt try
 		adding tools.jar to the classpath.
 		1. Uncomment and enter an appropriate value for "tools_jar_path", below.
@@ -40,17 +40,21 @@
 	<!-- <property name="tools_jar_path" value="/JavaDev/jdk1.5.0_12/lib/tools.jar" /> -->
 
 	<path id="jaxb.jars" >
-		<fileset dir="${i2mi_common_lib.dir}" includes="activation.jar, jaxb-api.jar, jaxb-impl.jar, jsr173_1.0_api.jar, jaxb-xjc.jar" />
+		<fileset dir="${i2mi_common_lib.dir}"
+			includes="activation.jar, jaxb-api.jar, jaxb-impl.jar,
+				jsr173_1.0_api.jar, jaxb-xjc.jar" />
 		<!-- <pathelement path="${tools_jar_path}" /> -->
 	</path>
 
 	<!-- Task to create the binding classes from a schema -->
-	<taskdef name="xjc" classname="com.sun.tools.xjc.XJCTask" >
+	<taskdef name="xjc"
+			classname="com.sun.tools.xjc.XJCTask" >
 		<classpath refid="jaxb.jars" />
 	</taskdef>
 
 	<!-- Task to create a schema file -->
-	<taskdef name="schemagen" classname="com.sun.tools.jxc.SchemaGenTask" >
+	<taskdef name="schemagen"
+			classname="com.sun.tools.jxc.SchemaGenTask" >
 		<classpath refid="jaxb.jars" />
 	</taskdef>
 
@@ -68,14 +72,16 @@
 	<!-- - - - - - - - - - - Private, Utility Targets - - - - - - - - - - - -->
 
 
-	<!-- - - - - - - - - target: clean - - - - - - - - - -  -->
+	<!-- =============== target: clean ==================== -->
 	<target name="clean"
+			description="Clean out (delete) previous build products including Java classes and the signet dist directory" 
 			depends="delete_classes, clean_distdirs, signetxml_clean" >
 	</target>
 
 
-	<!-- - - - - - - - - target: compile - - - - - - - - -  -->
+	<!-- =============== target: compile ================== -->
 	<target name="compile"
+			description="Compile .java files, copy Hibernate mapping files"
 			depends="create_altlocal_java_dir_no, create_classpath" >
 
 		<tstamp/>
@@ -101,8 +107,9 @@
 	</target>
 
 
-	<!-- - - - - - - - - target: assemble_prod - - - - - - - -->
+	<!-- =============== target: assemble_prod ============= -->
 	<target name="assemble_prod"
+			description="Assemble production output products in preparation for deployment"
 			depends="clean,	compile, assemble_all, create_signet_jars, javadoc" >
 	</target>
 
@@ -307,7 +314,6 @@
 					copy_sql, copy_util_scripts, copy_demo_scripts,
 					config_util_run_script, configure_hibernate" >
 	</target>
-
 
 	<!-- - - - - - - - - target: copy_libs - - - - - - - - - -->
 	<target name="copy_libs"
@@ -521,6 +527,7 @@
 				<attribute name="Implementation-BuildDate" value="${TODAY}" />
 				<attribute name="Implementation-Vendor"   value="${signet_vendor}" />
 				<attribute name="Implementation-URL"      value="${signet_url}" />
+				<attribute name="Dependencies"	value="Standard Java JRE jars, many 3rd-party jars" />
 				</section>
 			</manifest>
 			<fileset dir="${classes.dir}" >
@@ -542,6 +549,7 @@
 				<attribute name="Implementation-BuildDate" value="${TODAY}" />
 				<attribute name="Implementation-Vendor"   value="${signet_vendor}" />
 				<attribute name="Implementation-URL"      value="${signet_url}" />
+				<attribute name="Dependencies"	value="Standard Java JRE, ${signet.jar.api}, ${signet.jar.util}, many 3rd-party jars" />
 				</section>
 			</manifest>
 			<fileset dir="${classes.dir}" >
@@ -554,8 +562,21 @@
 	<!-- - - - - - - - - target: create_signet_util_jar - -->
 	<target name="create_signet_util_jar" >
 		<jar destfile="${signet.jar.util}" >
+			<manifest>
+				<section name="edu/internet2/middleware/signet/util" >
+				<attribute name="Built-By"                value="${user.name}"/>
+				<attribute name="Implementation-Title"    value="${signet_basename}" />
+				<attribute name="Implementation-Version"  value="${signet_version}" />
+				<attribute name="Implementation-BuildDate" value="${TODAY}" />
+				<attribute name="Implementation-Vendor"   value="${signet_vendor}" />
+				<attribute name="Implementation-URL"      value="${signet_url}" />
+				<attribute name="Dependencies"	value="Standard Java JRE, ${signet.jar.api}, many 3rd-party jars" />
+				</section>
+			</manifest>
 			<fileset dir="${classes.dir}" >
 				<include name="${signet.jar.util.files}" />
+				<exclude name="${xml.adapter.relpath}/**" />
+				<exclude name="${xml.bindings.relpath}/**" />
 			</fileset>
 		</jar>
 	</target>
@@ -602,9 +623,6 @@
 				</section>
 			</manifest>
 			<fileset dir="${classes.dir}" >
-				<include name="${signetxml.main.relpath}/*.class" />
-			</fileset>
-			<fileset dir="${classes.dir}" >
 				<include name="${xml.adapter.relpath}/*" />
 			</fileset>
 		</jar>
@@ -622,6 +640,12 @@
 		<replace file="${dist.util.dir}/dist-signet_cp.bat"
 				token="${signet.jar.util.token}"
 				value="${signet.jar.util.filename}" />
+		<replace file="${dist.util.dir}/dist-signet_cp.bat"
+				token="${signet.jar.xmladapter.token}"
+				value="${signet.jar.xmladapt.filename}" />
+		<replace file="${dist.util.dir}/dist-signet_cp.bat"
+				token="${signet.jar.xmlbind.token}"
+				value="${signet.jar.xmlbind.filename}" />
 	</target>
 
 
@@ -636,7 +660,7 @@
 			depends="copy_altweb_configs_no"
 			if="custom.webconfig.dir" >
 		<fileset id="custom.webconfig.fileset"
-				dir="custom.webconfig.dir" >
+				dir="${custom.webconfig.dir}" >
 			<include name="**/*" />
 		</fileset>
 	</target>
@@ -667,7 +691,7 @@
 	<!-- - - - - - - - - target: copy_altweb_images_no - -->
 	<target name="copy_altweb_images_no"
 			unless="custom.webimages.dir" >
-		<fileset id="${custom.webimages.fileset}"
+		<fileset id="custom.webimages.fileset"
 				dir="" >
 			<include name="" />
 		</fileset>
