@@ -1,4 +1,4 @@
-<!-- $Id: ext-build.xml,v 1.7 2008-06-02 17:19:08 mchyzer Exp $ -->
+<!-- $Id: ext-build.xml,v 1.8 2008-09-29 04:36:51 mchyzer Exp $ -->
 
 <project name="Grouper Extensions" default="ext.compile" basedir=".">
 
@@ -69,6 +69,7 @@
     <delete>
       <fileset dir="${ext.dir.lib}"/>
     </delete>
+    <mkdir dir="${ext.dir}/conf" />
     <delete>
       <fileset dir="${ext.dir}/conf"/>
     </delete>
