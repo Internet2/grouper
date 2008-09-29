@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperAntProject.java,v 1.2 2008-09-29 03:38:26 mchyzer Exp $
+ * $Id: GrouperAntProject.java,v 1.3 2008-09-29 04:42:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -33,7 +33,6 @@ public class GrouperAntProject extends Project {
   /**
    * @see org.apache.tools.ant.Project#log(java.lang.String, java.lang.Throwable, int)
    */
-  @Override
   public void log(String message, Throwable throwable, int msgLevel) {
     message = StringUtils.trimToEmpty(message);
     if (StringUtils.isBlank(message) && throwable == null) {
@@ -84,7 +83,6 @@ public class GrouperAntProject extends Project {
   /**
    * @see org.apache.tools.ant.Project#log(org.apache.tools.ant.Target, java.lang.String, java.lang.Throwable, int)
    */
-  @Override
   public void log(Target target, String message, Throwable throwable, int msgLevel) {
     this.log(message, throwable, msgLevel);
   }
@@ -100,7 +98,6 @@ public class GrouperAntProject extends Project {
   /**
    * @see org.apache.tools.ant.Project#log(org.apache.tools.ant.Task, java.lang.String, java.lang.Throwable, int)
    */
-  @Override
   public void log(Task task, String message, Throwable throwable, int msgLevel) {
     this.log(message, throwable, msgLevel);
   }
