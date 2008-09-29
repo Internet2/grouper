@@ -16,20 +16,24 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup27.java,v 1.7 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestGroup27.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestGroup27 extends TestCase {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestGroup27.class);
+  private static final Log LOG = GrouperUtil.getLog(TestGroup27.class);
 
 
   public TestGroup27(String name) {

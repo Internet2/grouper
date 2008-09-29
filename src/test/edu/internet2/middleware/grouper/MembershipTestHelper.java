@@ -22,7 +22,6 @@ import java.util.Set;
 import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -32,6 +31,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.FindBadMemberships;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
@@ -39,12 +39,12 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipTestHelper.java,v 1.10 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: MembershipTestHelper.java,v 1.11 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class MembershipTestHelper {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(MembershipTestHelper.class);
+  private static final Log LOG = GrouperUtil.getLog(MembershipTestHelper.class);
 
 
   // Protected Class Methods

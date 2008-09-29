@@ -16,19 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper;
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMember27.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestMember27.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestMember27 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestMember27.class);
+  private static final Log LOG = GrouperUtil.getLog(TestMember27.class);
 
   public TestMember27(String name) {
     super(name);

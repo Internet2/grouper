@@ -6,15 +6,15 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import  bsh.*;
-import  edu.internet2.middleware.grouper.*;
+import bsh.CallStack;
+import bsh.Interpreter;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 
 /**
  * Reset Groups Registry to default state.
  * <p/>
  * @author  blair christensen.
- * @version $Id: resetRegistry.java,v 1.2 2008-09-13 03:16:54 mchyzer Exp $
+ * @version $Id: resetRegistry.java,v 1.3 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
  */
 public class resetRegistry {

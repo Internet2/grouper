@@ -16,19 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper.bench;
-import  edu.internet2.middleware.grouper.*;      
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Properties;
+
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.xml.XmlExporter;
 import edu.internet2.middleware.grouper.xml.XmlImporter;
 import edu.internet2.middleware.grouper.xml.XmlReader;
 
-import  java.util.Properties;
-import  java.io.*;
-
 /**
  * Benchmark updating an effectively empty XML file.
  * @author  blair christensen.
- * @version $Id: XmlUpdateEmpty.java,v 1.3 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: XmlUpdateEmpty.java,v 1.4 2008-09-29 03:38:30 mchyzer Exp $
  * @since   1.1.0
  */
 public class XmlUpdateEmpty extends BaseGrouperBenchmark {

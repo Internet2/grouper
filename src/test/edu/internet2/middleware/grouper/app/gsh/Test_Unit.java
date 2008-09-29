@@ -16,11 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import  edu.internet2.middleware.grouper.GrouperTest;
-import edu.internet2.middleware.grouper.app.gsh.CommandReader;
-import edu.internet2.middleware.grouper.app.gsh.SimpleCommandReader;
+import org.apache.commons.logging.Log;
 
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.GrouperTest;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
@@ -29,7 +28,7 @@ import  org.apache.commons.logging.*;
 public class Test_Unit extends GrouperTest {
 
   /** */
-  private static final Log LOG = LogFactory.getLog(Test_Unit.class);
+  private static final Log LOG = GrouperUtil.getLog(Test_Unit.class);
 
 
   /**

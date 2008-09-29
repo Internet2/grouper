@@ -20,24 +20,24 @@ import junit.framework.Assert;
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * Test use of the CREATE {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivCREATE.java,v 1.10 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestPrivCREATE.java,v 1.11 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestPrivCREATE extends GrouperTest {
 
   // Private Class Constants
-  private static final Log        LOG   = LogFactory.getLog(TestPrivCREATE.class); 
+  private static final Log        LOG   = GrouperUtil.getLog(TestPrivCREATE.class); 
   
   // Private Class Variables
   private static Stem           a;

@@ -17,16 +17,20 @@
 
 package edu.internet2.middleware.grouper.util;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 
 
 /**
  * Make sure the user is ok with db changes, only display message
  * @author Chris Hyzer
- * @version $Id: ConfirmDbChangePromptOnly.java,v 1.1 2008-05-06 21:30:50 mchyzer Exp $
+ * @version $Id: ConfirmDbChangePromptOnly.java,v 1.2 2008-09-29 03:38:30 mchyzer Exp $
  */
 public class ConfirmDbChangePromptOnly {
+
+  /** logger */
+  @SuppressWarnings("unused")
+  private static final Log LOG = GrouperUtil.getLog(ConfirmDbChangePromptOnly.class);
 
   /**
    * 

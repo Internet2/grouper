@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.19 2008-09-19 06:28:17 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.20 2008-09-29 03:38:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -2015,8 +2015,10 @@ public enum GrouperDdl implements DdlVersionable {
    * an example table name so we can hone in on the exact metadata
    * @return the table name
    */
-  public String getSampleTablename() {
-    return "GROUPER_GROUPS";
+  public String[] getSampleTablenames() {
+    return new String[]{"GROUPER_GROUPS", "GROUPER_DDL", "GROUPER_ATTRIBUTES", "GROUPER_COMPOSITES",
+        "GROUPER_FIELDS", "GROUPER_GROUPS_TYPES", "GROUPER_LOADER_LOG", "GROUPER_MEMBERS", "GROUPER_MEMBERSHIPS", 
+        "GROUPER_STEMS", "GROUPER_TYPES"};
   }
   
   /**

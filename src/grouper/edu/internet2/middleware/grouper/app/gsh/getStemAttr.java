@@ -6,16 +6,19 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import  bsh.*;
-import  edu.internet2.middleware.grouper.*;
+import bsh.CallStack;
+import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import  edu.internet2.middleware.subject.*;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Get {@link Stem} attribute value.
  * <p/>
  * @author  blair christensen.
- * @version $Id: getStemAttr.java,v 1.2 2008-09-19 06:28:17 mchyzer Exp $
+ * @version $Id: getStemAttr.java,v 1.3 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
  */
 public class getStemAttr {

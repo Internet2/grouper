@@ -16,19 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateStemDAO_findAllByApproximateExtension.java,v 1.3 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_Integration_HibernateStemDAO_findAllByApproximateExtension.java,v 1.4 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateStemDAO_findAllByApproximateExtension extends GrouperTest {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(Test_Integration_HibernateStemDAO_findAllByApproximateExtension.class);
+  private static final Log LOG = GrouperUtil.getLog(Test_Integration_HibernateStemDAO_findAllByApproximateExtension.class);
 
 
   // TESTS //  

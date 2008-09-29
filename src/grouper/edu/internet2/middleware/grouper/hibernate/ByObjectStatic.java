@@ -8,7 +8,6 @@ import java.util.Collection;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -29,7 +28,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class ByObjectStatic extends ByQueryBase {
   
   /** logger */
-  private static final Log LOG = LogFactory.getLog(ByObjectStatic.class);
+  private static final Log LOG = GrouperUtil.getLog(ByObjectStatic.class);
 
   /** assign a transaction type, default use the transaction modes
    * GrouperTransactionType.READONLY_OR_USE_EXISTING, and 

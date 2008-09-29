@@ -16,18 +16,19 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import  java.io.Serializable;
-import  java.util.*;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-
-import edu.internet2.middleware.grouper.FieldType;
 
 /** 
  * Privilege schema specification.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.2 2008-07-27 07:37:24 mchyzer Exp $
+ * @version $Id: Privilege.java,v 1.3 2008-09-29 03:38:31 mchyzer Exp $
  */
 public class Privilege implements Serializable {
 

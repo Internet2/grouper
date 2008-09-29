@@ -37,6 +37,7 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
@@ -56,6 +57,7 @@ import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
  * Find bad memberships in the Grouper memberships table.
@@ -69,6 +71,10 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
  * @since   1.3.1
  */
 public class FindBadMemberships {
+
+  /** logger */
+  @SuppressWarnings("unused")
+  private static final Log LOG = GrouperUtil.getLog(FindBadMemberships.class);
 
   // GSH script to fix membership data
   private static StringWriter gshScript = null;
@@ -98,7 +104,14 @@ public class FindBadMemberships {
     list2priv.put("stemmers", "NamingPrivilege.STEM");
   }
 
-
+  /**
+   * call this before finding bad memberships
+   */
+  public static void clearResults() {
+    gshScript = null;
+    sqlScript = null;
+  }
+  
   /**
    * @since   1.3.1
    */
@@ -127,23 +140,13 @@ public class FindBadMemberships {
       printUsage(options);
       System.exit(1);
     }
-
+    clearResults();
     // maybe this should go to a log file instead?
     printErrorsToSTOUT = true;
-
+    
     try {
       if (line.hasOption("all")) {
-        System.out.println();
-        System.out.println("PHASE 1: Find memberships with invalid owners.");
-        checkMembershipsWithInvalidOwners();
-
-        System.out.println();
-        System.out.println("PHASE 2: Check list and access memberships for groups.");
-        checkGroups();
-
-        System.out.println();
-        System.out.println("PHASE 3: Check naming memberships for stems.");
-        checkStems();
+        checkAll();
       } else if (line.hasOption("group")) {
         checkGroup(line.getOptionValue("group"));
       } else if (line.hasOption("stem")) {
@@ -183,6 +186,23 @@ public class FindBadMemberships {
       */
     }
     System.exit(0);
+  }
+
+  /**
+   * @throws SessionException
+   */
+  public static void checkAll() throws SessionException {
+    System.out.println();
+    System.out.println("PHASE 1: Find memberships with invalid owners.");
+    checkMembershipsWithInvalidOwners();
+
+    System.out.println();
+    System.out.println("PHASE 2: Check list and access memberships for groups.");
+    checkGroups();
+
+    System.out.println();
+    System.out.println("PHASE 3: Check naming memberships for stems.");
+    checkStems();
   }
 
   /**

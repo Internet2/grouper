@@ -7,23 +7,23 @@
 
 package edu.internet2.middleware.grouper.app.gsh;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import bsh.CallStack;
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * End a transaction
  * <p/>
  * @author  chris hyzer
- * @version $Id: transactionEnd.java,v 1.1 2008-09-22 15:06:40 mchyzer Exp $
+ * @version $Id: transactionEnd.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
  */
 public class transactionEnd {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(transactionCommit.class);
+  private static final Log LOG = GrouperUtil.getLog(transactionCommit.class);
 
   /**
    * End a transaction

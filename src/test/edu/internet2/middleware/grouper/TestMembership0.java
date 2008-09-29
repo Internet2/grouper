@@ -16,20 +16,24 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Iterator;
+
+import junit.framework.Assert;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  java.util.*;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMembership0.java,v 1.10 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestMembership0.java,v 1.11 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestMembership0 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestMembership0.class);
+  private static final Log LOG = GrouperUtil.getLog(TestMembership0.class);
 
   public TestMembership0(String name) {
     super(name);

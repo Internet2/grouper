@@ -16,23 +16,28 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import junit.framework.Assert;
+import junit.textui.TestRunner;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  java.util.*;
-import  junit.framework.*;
-import junit.textui.TestRunner;
-
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMembership2.java,v 1.9 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestMembership2.java,v 1.10 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestMembership2 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestMembership2.class);
+  private static final Log LOG = GrouperUtil.getLog(TestMembership2.class);
 
   public TestMembership2(String name) {
     super(name);

@@ -6,13 +6,14 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import  bsh.*;
+import bsh.CallStack;
+import bsh.Interpreter;
 
 /**
  * Assert condition for GrouperShell testing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: assertTrue.java,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+ * @version $Id: assertTrue.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
  */
 public class assertTrue {

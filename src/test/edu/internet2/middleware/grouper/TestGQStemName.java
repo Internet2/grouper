@@ -16,17 +16,18 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.framework.Assert;
+import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.filter.StemNameAnyFilter;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  junit.framework.*;
 
 /**
  * Test {@link StemNameAnyFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQStemName.java,v 1.7 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestGQStemName.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestGQStemName extends TestCase {
 

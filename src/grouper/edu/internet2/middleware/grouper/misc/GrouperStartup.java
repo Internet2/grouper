@@ -1,11 +1,10 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.4 2008-09-13 03:16:54 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.5 2008-09-29 03:38:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
@@ -17,6 +16,7 @@ import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -27,7 +27,7 @@ public class GrouperStartup {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(GrouperStartup.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperStartup.class);
   /**
    * keep track if started or not
    */
@@ -50,7 +50,7 @@ public class GrouperStartup {
     
     if (runDdlBootstrap) {
       //first make sure the DB ddl is up to date
-      GrouperDdlUtils.bootstrap(false, false);
+      GrouperDdlUtils.bootstrap(false, false, false);
     }
     //lets see if we need to
     boolean needsInit;

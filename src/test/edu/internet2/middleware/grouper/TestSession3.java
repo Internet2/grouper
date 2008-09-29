@@ -16,21 +16,24 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Test {@link GrouperSession} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSession3.java,v 1.7 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestSession3.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestSession3 extends TestCase {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestSession3.class);
+  private static final Log LOG = GrouperUtil.getLog(TestSession3.class);
 
   public TestSession3(String name) {
     super(name);

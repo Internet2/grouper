@@ -16,11 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * @author  blair christensen.
- * @version $Id: Suite_Integration_HibernateGroupTypeDAO.java,v 1.1 2007-03-06 20:19:00 blair Exp $
+ * @version $Id: Suite_Integration_HibernateGroupTypeDAO.java,v 1.2 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.0
  */
 public class Suite_Integration_HibernateGroupTypeDAO extends GrouperTest {

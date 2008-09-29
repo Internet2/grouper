@@ -24,7 +24,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
@@ -33,6 +32,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.1 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: GrouperSubject.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -188,7 +188,7 @@ public Set getAttributeValues(String name) {
   } // private void _populateAttributes(g)
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperSubject.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperSubject.class);
 
 
 } // public class GrouperSubject implements Subject

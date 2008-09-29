@@ -16,18 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper;
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMemberFinder_FindByUuid.java,v 1.3 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestMemberFinder_FindByUuid.java,v 1.4 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestMemberFinder_FindByUuid extends GrouperTest {
-  private static final Log LOG = LogFactory.getLog(TestMemberFinder_FindByUuid.class);
+  private static final Log LOG = GrouperUtil.getLog(TestMemberFinder_FindByUuid.class);
   public TestMemberFinder_FindByUuid(String name) {
     super(name);
   }

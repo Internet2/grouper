@@ -81,6 +81,66 @@ import edu.internet2.middleware.subject.Subject;
 @SuppressWarnings("serial")
 public class GrouperUtil {
 
+  /**
+   * get a logger, and auto-create log dirs if havent done yet
+   * @param theClass
+   * @return the logger
+   */
+  public static Log getLog(Class<?> theClass) {
+    logDirsCreateIfNotDone();
+    return LogFactory.getLog(theClass);
+  }
+  
+  /**
+   * see if created log dirs
+   */
+  private static boolean logDirsCreated = false;
+  
+  /**
+   * auto-create log dirs if not done yet
+   */
+  private static void logDirsCreateIfNotDone() {
+    if (logDirsCreated) {
+      return;
+    }
+    logDirsCreated = true;
+    
+    String location = "log4j.properties";
+    Properties properties = new Properties();
+    try {
+      URL url = computeUrl(location, false);
+      properties.load(url.openStream());
+    } catch (IOException ioe) {
+      throw new RuntimeException("Cant read log4j.properties", ioe);
+    }
+    Set<String> keySet = (Set<String>)(Object)properties.keySet();
+    for (String key : keySet) {
+      //if its a file property
+      if (key.endsWith(".File")) {
+        String fileName = properties.getProperty(key);
+        File file = new File(fileName);
+        File parent = file.getParentFile();
+        if (parent != null && !parent.exists()) {
+          //dont have a logger yet, so just print to stdout
+          System.out.println("Grouper warning: parent dir of log file doesnt exist: " + fileCanonicalPath(parent));
+          //create the parent
+          mkdirs(parent);
+          System.out.println("Grouper note: auto-created parent dir of log file: " + fileCanonicalPath(parent));
+        }
+      }
+    }
+  }
+  
+  /**
+   * see if options have a specific option by int bits
+   * @param options
+   * @param option
+   * @return if the option is there
+   */
+  public static boolean hasOption(int options, int option) {
+    return (options & option) > 0;
+  }
+  
   /** keep a cache of db change whitelists */
   private static Set<MultiKey> dbChangeWhitelist = new HashSet<MultiKey>();
   
@@ -95,7 +155,7 @@ public class GrouperUtil {
    */
   public static boolean isPrintGrouperLogsToConsole() {
     if (printGrouperLogsToConsole == null) {
-      printLogDir();
+      logDirPrint();
     }
     return printGrouperLogsToConsole;
   }
@@ -122,7 +182,8 @@ public class GrouperUtil {
    * print the log dir to the console so the logs are easy to find 
    * @return the log dir message
    */
-  public static String printLogDir() {
+  public static String logDirPrint() {
+    logDirsCreateIfNotDone();
     //only do this once
     if (printGrouperLogsToConsole != null) {
       return logDirMessage;
@@ -164,7 +225,9 @@ public class GrouperUtil {
             } else {
               File logFile = new File(path);
               if (logFile.getParentFile() != null && !logFile.getParentFile().exists()) {
-                resultMessage.append("Grouper error, parent dir of log file doesnt exist: " + logFile.getAbsolutePath() + "\n");
+                resultMessage.append("Grouper warning: parent dir of log file doesnt exist: " + logFile.getAbsolutePath() + "\n");
+                mkdirs(logFile.getParentFile());
+                resultMessage.append("Grouper note: auto-created parent dir of log file: " + logFile.getAbsolutePath() + "\n");
               }
               rootLoggerAppender.append(logFile.getAbsolutePath()).append(", ");
             }
@@ -457,7 +520,7 @@ public class GrouperUtil {
     if (findGrouperPropertiesDbMatch(false, user, url)) {
       System.out.println("This DB user '" + user + "' and url '" + url + "' are denied to be " +
       		"changed in the grouper.properties");
-      System.exit(0);
+      System.exit(1);
 
     }
     
@@ -4698,7 +4761,7 @@ public class GrouperUtil {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(GrouperUtil.class);
+  private static final Log LOG = getLog(GrouperUtil.class);
 
   /**
    * The name says it all.
@@ -5578,5 +5641,22 @@ public class GrouperUtil {
     }
     return in;
   
+  }
+
+  /**
+   * Create directories, throw exception if not possible.
+   * This is will be ok if the directory already exists (will not delete it)
+   * @param dir
+   */
+  public static void mkdirs(File dir) {
+    if (!dir.exists()) {
+      if (!dir.mkdirs()) {
+        throw new RuntimeException("Could not create directory : " + dir.getParentFile());
+      }
+      return;
+    }
+    if (!dir.isDirectory()) {
+      throw new RuntimeException("Should be a directory but is not: " + dir);
+    }
   }
 }

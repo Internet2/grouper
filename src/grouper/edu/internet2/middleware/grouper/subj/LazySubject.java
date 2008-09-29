@@ -16,16 +16,22 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
-import  edu.internet2.middleware.subject.*;
-import  java.util.Map;
-import  java.util.Set;
-
-import org.apache.commons.lang.builder.HashCodeBuilder;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.SourceUnavailableException;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectType;
 
 
 /** 
@@ -34,7 +40,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
  * necessary to instantiate all the Subjects (and Members) 
  * <p/>
  * @author  Gary Brown.
- * @version $Id: LazySubject.java,v 1.2 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: LazySubject.java,v 1.3 2008-09-29 03:38:31 mchyzer Exp $
  */
 
 public class LazySubject implements Subject {

@@ -16,11 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteStems.java,v 1.13 2007-02-14 20:55:35 blair Exp $
+ * @version $Id: SuiteStems.java,v 1.14 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class SuiteStems extends TestCase {
 

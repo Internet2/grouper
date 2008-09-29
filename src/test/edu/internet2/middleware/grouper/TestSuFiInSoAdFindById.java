@@ -16,15 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.framework.Assert;
+import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
-import  junit.framework.*;
 
 /**
  * Test {@link SubjectFinder.findById()} with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiInSoAdFindById.java,v 1.9 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestSuFiInSoAdFindById.java,v 1.10 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestSuFiInSoAdFindById extends TestCase {
 

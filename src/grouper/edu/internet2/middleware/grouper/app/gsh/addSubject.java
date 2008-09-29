@@ -6,8 +6,9 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import  bsh.*;
-import  edu.internet2.middleware.grouper.*;
+import bsh.CallStack;
+import bsh.Interpreter;
+import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 
@@ -15,7 +16,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
  * Add {@link RegistrySubject} to Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: addSubject.java,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+ * @version $Id: addSubject.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
  */
 public class addSubject {

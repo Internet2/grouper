@@ -21,7 +21,6 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
@@ -34,6 +33,7 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -60,7 +60,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.26 2008-07-21 04:43:56 mchyzer Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.27 2008-09-29 03:38:28 mchyzer Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -247,7 +247,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
   } // public Set search(searchValue)
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperSourceAdapter.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperSourceAdapter.class);
 
 
   // PRIVATE INSTANCE METHODS //

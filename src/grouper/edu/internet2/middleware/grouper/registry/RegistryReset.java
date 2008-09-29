@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper.registry;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
@@ -39,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.2 2008-07-27 07:37:24 mchyzer Exp $
+ * @version $Id: RegistryReset.java,v 1.3 2008-09-29 03:38:31 mchyzer Exp $
  */
 public class RegistryReset {
 
@@ -147,7 +146,7 @@ public class RegistryReset {
   }
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(RegistryReset.class);
+  private static final Log LOG = GrouperUtil.getLog(RegistryReset.class);
 
   private void _emptyTables() 
     throws  GrouperException

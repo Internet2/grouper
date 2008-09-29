@@ -16,25 +16,30 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Iterator;
+import java.util.Set;
+
+import junit.framework.Assert;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  java.util.*;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Test {@link Group}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroup.java,v 1.10 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestGroup.java,v 1.11 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestGroup extends GrouperTest {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestGroup.class);
+  private static final Log LOG = GrouperUtil.getLog(TestGroup.class);
 
 
   // Private Class Variables

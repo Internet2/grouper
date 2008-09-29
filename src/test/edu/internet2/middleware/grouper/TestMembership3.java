@@ -22,9 +22,9 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -32,7 +32,7 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestMembership3 extends TestCase {
 
-  private static final Log LOG = LogFactory.getLog(TestMembership3.class);
+  private static final Log LOG = GrouperUtil.getLog(TestMembership3.class);
 
   public TestMembership3(String name) {
     super(name);

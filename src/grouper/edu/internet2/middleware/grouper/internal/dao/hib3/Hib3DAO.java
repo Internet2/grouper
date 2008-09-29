@@ -21,7 +21,6 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -35,12 +34,13 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHibInitBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.morphString.Morph;
 
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.17 2008-09-14 04:54:00 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.18 2008-09-29 03:38:31 mchyzer Exp $
  * @since   @HEAD@
  */
 public abstract class Hib3DAO {
@@ -56,7 +56,7 @@ public abstract class Hib3DAO {
   private static SessionFactory FACTORY;
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(Hib3DAO.class);
+  private static final Log LOG = GrouperUtil.getLog(Hib3DAO.class);
 
   static {
     try {

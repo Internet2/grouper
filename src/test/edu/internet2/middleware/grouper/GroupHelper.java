@@ -16,6 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Date;
+import java.util.Map;
+
+import junit.framework.Assert;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
@@ -26,21 +33,20 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import  edu.internet2.middleware.subject.*;
-import  java.util.*;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.20 2008-09-19 06:28:17 mchyzer Exp $
+ * @version $Id: GroupHelper.java,v 1.21 2008-09-29 03:38:27 mchyzer Exp $
  */
 class GroupHelper {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(GroupHelper.class);
+  private static final Log LOG = GrouperUtil.getLog(GroupHelper.class);
 
 
   // PROTECTED CLASS METHODS //

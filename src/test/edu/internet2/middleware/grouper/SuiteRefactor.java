@@ -16,12 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * Test suites that need to be refactored.
  * @author  blair christensen.
- * @version $Id: SuiteRefactor.java,v 1.3 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: SuiteRefactor.java,v 1.4 2008-09-29 03:38:27 mchyzer Exp $
  * @sincd   1.2.1
  */
 public class SuiteRefactor extends TestCase {

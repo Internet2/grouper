@@ -16,22 +16,29 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  java.util.*;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Test {@link Membership}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMembership.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestMembership.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestMembership extends TestCase {
 
   // Private Class Constants
-  private static final Log        LOG   = LogFactory.getLog(TestMembership.class); 
+  private static final Log        LOG   = GrouperUtil.getLog(TestMembership.class); 
 
 
   // Private Class Variables

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdlUtilsTest.java,v 1.7 2008-08-26 21:11:51 mchyzer Exp $
+ * $Id: GrouperDdlUtilsTest.java,v 1.8 2008-09-29 03:38:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -75,12 +75,12 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     assertTrue("Starting out, tables should be there", GrouperDdlUtils.assertTablesThere(false, true));
     
     //now lets remove all tables and object
-    GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, true, false, null);
+    GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, true, false, null, false);
     
     assertFalse("Just removed tables, shouldnt be there", GrouperDdlUtils.assertTablesThere(false, false));
 
     //lets add all tables and object
-    GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, true, null);
+    GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, true, null, false);
     
     //if we init data, the root stem should be there...
     assertTrue("Just added all tables, and registry init, it should be there", 
@@ -93,7 +93,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     		"should be there " + count, count > 1);
     
     //try again, everything should be there (even not from junit)
-    GrouperDdlUtils.bootstrapHelper(false, false, true, false, false, false, false, null);
+    GrouperDdlUtils.bootstrapHelper(false, false, true, false, false, false, false, null, false);
     
     assertTrue("Should not change anything", GrouperDdlUtils.assertTablesThere(true, true));
 
@@ -118,7 +118,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //lets get the first version
     @SuppressWarnings("unused")
     String script = GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
-        GrouperDdlUtils.maxVersionMap(GrouperDdl.V1));
+        GrouperDdlUtils.maxVersionMap(GrouperDdl.V1), false);
   
     GrouperDdlUtils.justTesting = true;
     
@@ -129,7 +129,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   
     //get up to v4...  note if cols are added, they should be added pre-v4 also...
     GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, true, 
-        GrouperDdlUtils.maxVersionMap(GrouperDdl.V4));
+        GrouperDdlUtils.maxVersionMap(GrouperDdl.V4), false);
     
     //make sure uuid is there...
     HibernateSession.bySqlStatic().select(int.class, 
@@ -169,7 +169,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     //now convert the data
     ApiConfig.testConfig.put("ddlutils.dropBackupUuidCols", "false");
-    GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null);
+    GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null, false);
     
     //that should have created backup cols
     int count = HibernateSession.bySqlStatic().select(int.class, 
@@ -194,7 +194,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     //now delete the uuid cols
     ApiConfig.testConfig.put("ddlutils.dropBackupUuidCols", "true");
-    GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null);
+    GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null, false);
     
     try {
       count = HibernateSession.bySqlStatic().select(int.class, 
@@ -217,7 +217,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     GrouperDdlUtils.everythingRightVersion = true;
     GrouperDdlUtils.justTesting = false;
   
-    GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, true, null);
+    GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, true, null, false);
     
     //at this point, hibernate should not be shut off
     assertTrue("at this point, hibernate should not be shut off", GrouperDdlUtils.okToUseHibernate());
@@ -233,7 +233,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //lets get the first version
     @SuppressWarnings("unused")
     String script = GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
-        GrouperDdlUtils.maxVersionMap(GrouperDdl.V1));
+        GrouperDdlUtils.maxVersionMap(GrouperDdl.V1), false);
 
     GrouperDdlUtils.justTesting = true;
     
@@ -244,7 +244,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
 
     //get up to v4...  note if cols are added, they should be added pre-v4 also...
     GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, true, 
-        GrouperDdlUtils.maxVersionMap(GrouperDdl.V4));
+        GrouperDdlUtils.maxVersionMap(GrouperDdl.V4), false);
     
     //make sure attribute name, list_type, list_name is there...
     HibernateSession.bySqlStatic().select(int.class, 
@@ -348,7 +348,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     //now convert the data
     ApiConfig.testConfig.put("ddlutils.dropBackupFieldNameTypeCols", "false");
-    GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null);
+    GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null, false);
     
     //that should have created backup cols
     int count = HibernateSession.bySqlStatic().select(int.class, 
@@ -393,7 +393,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     //now delete the uuid cols
     ApiConfig.testConfig.put("ddlutils.dropBackupFieldNameTypeCols", "true");
-    GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null);
+    GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null, false);
     
     try {
       count = HibernateSession.bySqlStatic().select(int.class, 
@@ -416,7 +416,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     GrouperDdlUtils.everythingRightVersion = true;
     GrouperDdlUtils.justTesting = false;
 
-    GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, true, null);
+    GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, true, null, false);
     
     try {
       count = HibernateSession.bySqlStatic().select(int.class, 
@@ -440,7 +440,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //lets get the first version
     @SuppressWarnings("unused")
     String script = GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
-        GrouperDdlUtils.maxVersionMap(GrouperDdl.V1));
+        GrouperDdlUtils.maxVersionMap(GrouperDdl.V1), false);
   
     GrouperDdlUtils.justTesting = true;
     
@@ -451,7 +451,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   
     //get up to v4...  note grouper_sessions will be added...
     GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, true, 
-        GrouperDdlUtils.maxVersionMap(GrouperDdl.V4));
+        GrouperDdlUtils.maxVersionMap(GrouperDdl.V4), false);
     
     //now we should have the grouper_sessions table of course...
     GrouperDdlUtils.assertTablesThere(false, true, "grouper_sessions");
@@ -461,7 +461,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //add a group, type, stem, member, etc.
     super.setUp();
     
-    GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null);
+    GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, false, null, false);
     
     //now we should not have the grouper_sessions table of course...
     GrouperDdlUtils.assertTablesThere(false, false, "grouper_sessions");
@@ -472,7 +472,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     GrouperDdlUtils.everythingRightVersion = true;
     GrouperDdlUtils.justTesting = false;
   
-    GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, true, null);
+    GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, true, null, false);
     
     //at this point, hibernate should not be shut off
     assertTrue("at this point, hibernate should not be shut off", GrouperDdlUtils.okToUseHibernate());

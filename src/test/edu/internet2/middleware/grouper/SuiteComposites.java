@@ -16,11 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteComposites.java,v 1.8 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SuiteComposites.java,v 1.9 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class SuiteComposites extends TestCase {
 

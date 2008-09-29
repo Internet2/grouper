@@ -16,21 +16,21 @@
 */
 
 package edu.internet2.middleware.grouper.bench;
-import  edu.internet2.middleware.grouper.*;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import org.apache.commons.logging.Log;
 
-import  org.apache.commons.logging.*;      
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Base {@link GrouperBenchmark} implementation.
  * @author  blair christensen.
- * @version $Id: BaseGrouperBenchmark.java,v 1.5 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: BaseGrouperBenchmark.java,v 1.6 2008-09-29 03:38:30 mchyzer Exp $
  * @since   1.1.0
  */
 public class BaseGrouperBenchmark implements GrouperBenchmark {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(BaseGrouperBenchmark.class);
+  private static final Log LOG = GrouperUtil.getLog(BaseGrouperBenchmark.class);
 
 
   // MAIN //

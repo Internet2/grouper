@@ -16,11 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_UnresolvedBugs.java,v 1.5 2007-04-17 18:45:13 blair Exp $
+ * @version $Id: Test_UnresolvedBugs.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_UnresolvedBugs extends GrouperTest {
@@ -28,7 +30,7 @@ public class Test_UnresolvedBugs extends GrouperTest {
   // PRIVATE CLASS CONSTANTS //
   // commented out to silence warnings in eclipse:
   // private static final String KLASS = Test_UnresolvedBugs.class.getName();
-  private static final Log    LOG   = LogFactory.getLog(Test_UnresolvedBugs.class);
+  private static final Log    LOG   = GrouperUtil.getLog(Test_UnresolvedBugs.class);
 
   /*
    * Use "TestLog.resolved(KLASS, msg)" and "TestLog.unresolved(KLASS, msg)"

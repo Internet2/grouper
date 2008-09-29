@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHooksUtils.java,v 1.13 2008-07-23 06:41:30 mchyzer Exp $
+ * $Id: GrouperHooksUtils.java,v 1.14 2008-09-29 03:38:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -12,7 +12,6 @@ import javax.transaction.Synchronization;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Transaction;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
@@ -102,7 +101,7 @@ public class GrouperHooksUtils {
   }
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperHooksUtils.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperHooksUtils.class);
 
   /**
    * 

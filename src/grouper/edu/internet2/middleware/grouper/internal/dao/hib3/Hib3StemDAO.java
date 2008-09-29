@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Group;
@@ -45,7 +44,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.12 2008-09-19 06:28:17 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.13 2008-09-29 03:38:31 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -173,7 +172,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   } 
   
   /** logger */
-  private static final Log LOG = LogFactory.getLog(Hib3StemDAO.class);
+  private static final Log LOG = GrouperUtil.getLog(Hib3StemDAO.class);
 
   /**
    * @since   @HEAD@

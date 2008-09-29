@@ -16,15 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.framework.Assert;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
-import  edu.internet2.middleware.subject.*;
-import  junit.framework.*;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * {@link Subject} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectTestHelper.java,v 1.12 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: SubjectTestHelper.java,v 1.13 2008-09-29 03:38:27 mchyzer Exp $
  */
  public class SubjectTestHelper {
 

@@ -16,7 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper.xml;
-import  java.io.*;
+import java.io.IOException;
+import java.io.Writer;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
@@ -25,7 +26,7 @@ import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
  * Create XML representation of the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlWriter.java,v 1.1 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: XmlWriter.java,v 1.2 2008-09-29 03:38:30 mchyzer Exp $
  * @since   1.1.0
  */
 class XmlWriter {

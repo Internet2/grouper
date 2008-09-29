@@ -16,20 +16,24 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestPrivAdmin0.java,v 1.3 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestPrivAdmin0.java,v 1.4 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestPrivAdmin0 extends TestCase {
 
-  private static final Log LOG = LogFactory.getLog(TestPrivAdmin0.class);
+  private static final Log LOG = GrouperUtil.getLog(TestPrivAdmin0.class);
 
   public TestPrivAdmin0(String name) {
     super(name);

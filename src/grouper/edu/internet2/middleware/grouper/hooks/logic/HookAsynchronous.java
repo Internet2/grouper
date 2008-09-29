@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HookAsynchronous.java,v 1.6 2008-07-21 04:43:58 mchyzer Exp $
+ * $Id: HookAsynchronous.java,v 1.7 2008-09-29 03:38:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -8,14 +8,14 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.SessionException;
-import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextType;
+import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -25,7 +25,7 @@ import edu.internet2.middleware.subject.Subject;
 public class HookAsynchronous {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(HookAsynchronous.class);
+  private static final Log LOG = GrouperUtil.getLog(HookAsynchronous.class);
   
   /**
    * @param hooksBean

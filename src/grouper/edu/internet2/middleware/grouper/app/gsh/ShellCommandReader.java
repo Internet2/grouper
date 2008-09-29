@@ -50,7 +50,7 @@ class ShellCommandReader implements CommandReader {
     }
     else {
       this.in     = new BufferedReader( new InputStreamReader(System.in) );
-      this.prompt = GrouperShell.NAME + "-" + GrouperShellVersion.VERSION + " ";
+      this.prompt = GrouperShell.NAME + " ";
     }
     this.i = new Interpreter(this.in, System.out, System.err, false);
   } // protected ShellCommandReader(args)

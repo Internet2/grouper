@@ -17,17 +17,26 @@
 
 package edu.internet2.middleware.grouper.subj;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import  edu.internet2.middleware.subject.*;
-import  edu.internet2.middleware.subject.provider.*;
-import  java.util.*;
-import  org.apache.commons.lang.builder.ToStringBuilder;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /**
  * Internal <i>Subject</i> returned by an {@link InternalSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: InternalSubject.java,v 1.2 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: InternalSubject.java,v 1.3 2008-09-29 03:38:31 mchyzer Exp $
  */
 public class InternalSubject implements Subject {
 

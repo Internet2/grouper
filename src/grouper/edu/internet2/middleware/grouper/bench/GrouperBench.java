@@ -16,18 +16,18 @@
 */
 
 package edu.internet2.middleware.grouper.bench;
-import  edu.internet2.middleware.grouper.*; 
+import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.logging.Log;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-
-import  org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import  org.apache.commons.lang.time.*;
-import  org.apache.commons.logging.*;      
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Run Grouper benchmarks.
  * @author  blair christensen.
- * @version $Id: GrouperBench.java,v 1.21 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: GrouperBench.java,v 1.22 2008-09-29 03:38:30 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperBench {
@@ -35,7 +35,7 @@ public class GrouperBench {
   // PRIVATE CLASS CONSTANTS //
   private static final int    RUNSIZE_DEFAULT = 100;
   private static final String RUNSIZE_VAR     = "GROUPER_BENCH_RUNSIZE";
-  private static final Log    LOG             = LogFactory.getLog(GrouperBench.class);
+  private static final Log    LOG             = GrouperUtil.getLog(GrouperBench.class);
 
 
   // PRIVATE CLASS VARIABLES //

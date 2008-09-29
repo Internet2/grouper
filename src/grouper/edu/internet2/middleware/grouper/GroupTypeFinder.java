@@ -16,26 +16,24 @@
 */
 
 package edu.internet2.middleware.grouper;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.31 2008-07-27 07:37:24 mchyzer Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.32 2008-09-29 03:38:28 mchyzer Exp $
  */
 public class GroupTypeFinder {
   
@@ -46,7 +44,7 @@ public class GroupTypeFinder {
       GroupTypeFinder.class.getName() + ".typeCache", 10000, false, 60*10, 60*10, false);
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GroupTypeFinder.class);
+  private static final Log LOG = GrouperUtil.getLog(GroupTypeFinder.class);
 
 
 // 20080727: should do this in static block, too early, things arent initted yet...

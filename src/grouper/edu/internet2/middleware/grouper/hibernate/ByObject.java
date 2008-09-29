@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Collection;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
@@ -14,13 +13,13 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * @version $Id: ByObject.java,v 1.6 2008-06-29 17:42:41 mchyzer Exp $
+ * @version $Id: ByObject.java,v 1.7 2008-09-29 03:38:30 mchyzer Exp $
  * @author harveycg
  */
 public class ByObject extends HibernateDelegate {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(ByObject.class);
+  private static final Log LOG = GrouperUtil.getLog(ByObject.class);
 
   /**
    * @param theHibernateSession

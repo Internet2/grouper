@@ -17,21 +17,21 @@
 
 package edu.internet2.middleware.grouper;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.EffectiveMembershipValidator;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Unit_API_EffectiveMembershipValidator_validate.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_Unit_API_EffectiveMembershipValidator_validate.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Unit_API_EffectiveMembershipValidator_validate extends GrouperTest {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(Test_Unit_API_EffectiveMembershipValidator_validate.class);
+  private static final Log LOG = GrouperUtil.getLog(Test_Unit_API_EffectiveMembershipValidator_validate.class);
 
 
   // TESTS //  

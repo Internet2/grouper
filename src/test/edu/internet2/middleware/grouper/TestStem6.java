@@ -16,24 +16,28 @@
 */
 
 package edu.internet2.middleware.grouper;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  java.util.*;
-import  junit.framework.*;
+import java.util.Date;
+
+import junit.framework.Assert;
 import junit.textui.TestRunner;
 
-import  org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem6.java,v 1.9 2008-09-19 06:28:17 mchyzer Exp $
+ * @version $Id: TestStem6.java,v 1.10 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestStem6 extends GrouperTest {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestStem6.class);
+  private static final Log LOG = GrouperUtil.getLog(TestStem6.class);
 
   public static void main(String[] args) {
     TestRunner.run(new TestStem6("testGetCreateAttrs"));

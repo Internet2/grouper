@@ -18,22 +18,23 @@
 package edu.internet2.middleware.grouper;
 import junit.textui.TestRunner;
 
-import  org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Test use of the STEM {@link NamingPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivSTEM.java,v 1.13 2008-07-21 18:05:44 mchyzer Exp $
+ * @version $Id: TestPrivSTEM.java,v 1.14 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestPrivSTEM extends GrouperTest {
 
   // Private Class Constants
-  private static final Log        LOG   = LogFactory.getLog(TestPrivSTEM.class);
+  private static final Log        LOG   = GrouperUtil.getLog(TestPrivSTEM.class);
   private static final Privilege  PRIV  = NamingPrivilege.STEM;
 
 

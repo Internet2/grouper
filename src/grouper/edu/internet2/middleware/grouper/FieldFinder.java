@@ -22,28 +22,27 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
-import edu.internet2.middleware.grouper.registry.RegistryInstall;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.41 2008-08-25 01:17:11 mchyzer Exp $
+ * @version $Id: FieldFinder.java,v 1.42 2008-09-29 03:38:28 mchyzer Exp $
  */
 public class FieldFinder {
 
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(FieldFinder.class);
+  private static final Log LOG = GrouperUtil.getLog(FieldFinder.class);
   /** 
    * every 10 minutes, get new elements
    */

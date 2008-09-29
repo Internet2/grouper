@@ -16,21 +16,24 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStemFinder.java,v 1.7 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestStemFinder.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestStemFinder extends TestCase {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestStemFinder.class);
+  private static final Log LOG = GrouperUtil.getLog(TestStemFinder.class);
 
 
   public TestStemFinder(String name) {

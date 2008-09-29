@@ -16,18 +16,19 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr4.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestGAttr4.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGAttr4 extends GrouperTest {
 
-  private static final Log LOG = LogFactory.getLog(TestGAttr4.class);
+  private static final Log LOG = GrouperUtil.getLog(TestGAttr4.class);
 
   public TestGAttr4(String name) {
     super(name);

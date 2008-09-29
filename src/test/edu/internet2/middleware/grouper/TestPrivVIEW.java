@@ -16,27 +16,32 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Iterator;
+import java.util.Set;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  java.util.*;
-import  junit.framework.*;
-import junit.textui.TestRunner;
-
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Test use of the VIEW {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivVIEW.java,v 1.9 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestPrivVIEW.java,v 1.10 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestPrivVIEW extends TestCase {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestPrivVIEW.class);
+  private static final Log LOG = GrouperUtil.getLog(TestPrivVIEW.class);
 
   // Private Class Variables
   private static Stem           edu;

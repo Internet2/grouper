@@ -16,13 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  junit.framework.*;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 /**
  * Test XML Import.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SuiteXmlImport.java,v 1.7 2007-01-04 17:17:45 blair Exp $
+ * @version $Id: SuiteXmlImport.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.0
  */
 public class SuiteXmlImport extends TestCase {

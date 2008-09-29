@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -30,7 +29,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class ByCriteriaStatic {
   
   /** logger */
-  private static final Log LOG = LogFactory.getLog(ByCriteriaStatic.class);
+  private static final Log LOG = GrouperUtil.getLog(ByCriteriaStatic.class);
 
   /** assign a transaction type, default use the transaction modes
    * GrouperTransactionType.READONLY_OR_USE_EXISTING, and 

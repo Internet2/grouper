@@ -6,17 +6,21 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import  bsh.*;
-import  edu.internet2.middleware.grouper.*;
-import edu.internet2.middleware.grouper.exception.SchemaException;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-import  java.util.*;
+import bsh.CallStack;
+import bsh.Interpreter;
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 
 /**
  * Find <code>Field</code>s belonging to a <code>GroupType</code>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: typeGetFields.java,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+ * @version $Id: typeGetFields.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.1.0
  */
 public class typeGetFields {

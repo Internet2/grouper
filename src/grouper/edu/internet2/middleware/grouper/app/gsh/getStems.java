@@ -6,19 +6,22 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import  bsh.*;
-import  edu.internet2.middleware.grouper.*;
+import java.util.Set;
+
+import bsh.CallStack;
+import bsh.Interpreter;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.filter.StemNameAnyFilter;
-
-import  java.util.*;
 
 /**
  * Query for stems by name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: getStems.java,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+ * @version $Id: getStems.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
  */
 public class getStems {

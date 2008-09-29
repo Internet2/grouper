@@ -16,15 +16,20 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.framework.Assert;
+import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import  edu.internet2.middleware.subject.*;
-import  junit.framework.*;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SubjectType;
 
 /**
  * Test {@link GrouperSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSourceAdapter.java,v 1.10 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: TestGrouperSourceAdapter.java,v 1.11 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestGrouperSourceAdapter extends TestCase {
 

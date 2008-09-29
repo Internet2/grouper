@@ -16,19 +16,19 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.Stem;
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
-import  edu.internet2.middleware.grouper.privs.NamingResolver;
+import edu.internet2.middleware.grouper.privs.NamingResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
-import  edu.internet2.middleware.subject.Subject;
-import  java.util.Set;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
  * Mock {@link NamingResolver}.
  * @author  blair christensen.
- * @version $Id: MockNamingResolver.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: MockNamingResolver.java,v 1.5 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.1
  */
 public class MockNamingResolver implements NamingResolver {

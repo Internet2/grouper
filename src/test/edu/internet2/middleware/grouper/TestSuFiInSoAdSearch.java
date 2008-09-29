@@ -16,23 +16,27 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.*;
-import  junit.framework.*;
-import  org.apache.commons.logging.*;
+import java.util.Set;
+
+import junit.framework.Assert;
+import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Test {@link SubjectFinder.findAll()} with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiInSoAdSearch.java,v 1.6 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: TestSuFiInSoAdSearch.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
  */
 public class TestSuFiInSoAdSearch extends TestCase {
 
   // Private Class Constants
-  private static final Log LOG = LogFactory.getLog(TestSuFiInSoAdSearch.class);
+  private static final Log LOG = GrouperUtil.getLog(TestSuFiInSoAdSearch.class);
 
 
   public TestSuFiInSoAdSearch(String name) {

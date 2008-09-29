@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper.registry;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GroupType;
@@ -32,13 +31,14 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
  * Install the Groups Registry.  When there is a newly created (or truncated database),
  * this will put the base records that grouper needs to operate (e.g. root stem)
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.4 2008-09-13 03:16:54 mchyzer Exp $    
+ * @version $Id: RegistryInstall.java,v 1.5 2008-09-29 03:38:31 mchyzer Exp $    
  */
 public class RegistryInstall {
 
@@ -91,7 +91,7 @@ public class RegistryInstall {
   }
   
   /** logger */
-  private static final Log LOG = LogFactory.getLog(RegistryInstall.class);
+  private static final Log LOG = GrouperUtil.getLog(RegistryInstall.class);
 
 
   /**

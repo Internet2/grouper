@@ -17,15 +17,17 @@
 
 package edu.internet2.middleware.grouper;
 import junit.textui.TestRunner;
-import  org.apache.commons.logging.*;
+
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateGroupTypeDAO_delete.java,v 1.11 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_Integration_HibernateGroupTypeDAO_delete.java,v 1.12 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateGroupTypeDAO_delete extends GrouperTest {
@@ -57,7 +59,7 @@ public class Test_Integration_HibernateGroupTypeDAO_delete extends GrouperTest {
   // TODO 20070606 this should not be DAO specific
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(Test_Integration_HibernateGroupTypeDAO_delete.class);
+  private static final Log LOG = GrouperUtil.getLog(Test_Integration_HibernateGroupTypeDAO_delete.class);
 
 
   // TESTS //  

@@ -23,13 +23,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
-import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 
 /**
  * Basic Hibernate <code>Attribute</code> DTO interface.
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.20 2008-09-23 04:26:23 mchyzer Exp $
+ * @version $Id: Attribute.java,v 1.21 2008-09-29 03:38:28 mchyzer Exp $
  * @since   @HEAD@
  */
 @GrouperIgnoreDbVersion @GrouperIgnoreClone

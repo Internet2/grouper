@@ -16,12 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.subject.*;
-import  org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.SourceUnavailableException;
 
 /**
  * @author  blair christensen.
- * @version $Id: T.java,v 1.14 2008-08-26 21:11:51 mchyzer Exp $
+ * @version $Id: T.java,v 1.15 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.0
  */
 public class T extends GrouperTest {
@@ -31,7 +34,7 @@ public class T extends GrouperTest {
 
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(T.class);
+  private static final Log LOG = GrouperUtil.getLog(T.class);
 
   
   // PROTECTED CLASS METHODS //

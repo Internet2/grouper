@@ -6,17 +6,20 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
-import  bsh.*;
-import  edu.internet2.middleware.grouper.*;
+import bsh.CallStack;
+import bsh.Interpreter;
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import  edu.internet2.middleware.subject.*;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Get {@link Group} attribute value.
  * <p/>
  * @author  blair christensen.
- * @version $Id: getGroupAttr.java,v 1.2 2008-09-19 06:28:17 mchyzer Exp $
+ * @version $Id: getGroupAttr.java,v 1.3 2008-09-29 03:38:28 mchyzer Exp $
  * @since   0.0.1
  */
 public class getGroupAttr {

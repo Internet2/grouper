@@ -1,4 +1,6 @@
 
+THIS IS CURRENTLY OUTDATED
+
 # Grouper README
 
 This file is intended to give you a brief overview of how this directory tree

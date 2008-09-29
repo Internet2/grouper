@@ -16,6 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper.log;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
+
+import org.apache.commons.lang.time.StopWatch;
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
@@ -27,7 +34,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import  edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -35,23 +42,19 @@ import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
-import  edu.internet2.middleware.subject.*;
-import  java.util.HashMap;
-import  java.util.Iterator;
-import  java.util.Set;
-import  org.apache.commons.lang.time.*;
-import  org.apache.commons.logging.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: EventLog.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
  */
 public class EventLog {
 
   private               HashMap<String, Group>  groupCache        = new HashMap<String, Group>();
-  private static final  Log                     LOG               = LogFactory.getLog(EventLog.class);
+  private static final  Log                     LOG               = GrouperUtil.getLog(EventLog.class);
   private               boolean                 log_eff_group_add = false;
   private               boolean                 log_eff_group_del = false;
   private               boolean                 log_eff_stem_add  = false;

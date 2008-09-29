@@ -19,23 +19,24 @@ package edu.internet2.middleware.grouper;
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
-import  org.apache.commons.logging.*;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_Stem_setExtension.java,v 1.7 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_Integration_Stem_setExtension.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_Stem_setExtension extends GrouperTest {
 
   // PRIVATE CLASS CONSTANTS //
-  private static final Log LOG = LogFactory.getLog(Test_Integration_Stem_setExtension.class);
+  private static final Log LOG = GrouperUtil.getLog(Test_Integration_Stem_setExtension.class);
 
 
   /**

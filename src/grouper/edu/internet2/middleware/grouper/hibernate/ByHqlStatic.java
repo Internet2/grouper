@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -30,7 +29,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class ByHqlStatic {
   
   /** logger */
-  private static final Log LOG = LogFactory.getLog(ByHqlStatic.class);
+  private static final Log LOG = GrouperUtil.getLog(ByHqlStatic.class);
 
   /** assign a transaction type, default use the transaction modes
    * GrouperTransactionType.READONLY_OR_USE_EXISTING, and 

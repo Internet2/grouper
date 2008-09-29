@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper.registry;
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -25,19 +27,30 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInitializeSchema.java,v 1.3 2008-08-26 04:54:32 mchyzer Exp $    
+ * @version $Id: RegistryInitializeSchema.java,v 1.4 2008-09-29 03:38:31 mchyzer Exp $    
  * @since   1.2.0
  */
 public class RegistryInitializeSchema {
 
+  /** logger */
+  @SuppressWarnings("unused")
+  private static final Log LOG = GrouperUtil.getLog(RegistryInitializeSchema.class);
+  
   /** if initting */
   public static boolean inInitSchema = false;
   
   /**
    * @param args
-   * @throws Throwable 
    */
-  public static void main(String[] args) throws Throwable {
+  public static void main(String[] args) {
+    initializeSchema(true);
+  }
+
+
+  /**
+   * @param fromCommandLine if called from command line
+   */
+  public static void initializeSchema(boolean fromCommandLine) {
     inInitSchema = true;
     try {
       //dont run from startup, run from here
@@ -53,18 +66,12 @@ public class RegistryInitializeSchema {
       
       GrouperStartup.startup();
       
-      String prompt = "schemaexport all tables (dropThenCreate=" + (isDropBeforeCreate() ? "T" : "F")
-       + ",writeAndRunScript=" + (isWriteAndRunScript() ? "T" : "F") + ")";
-      
-      //make sure it is ok to change db
-      GrouperUtil.promptUserAboutDbChanges(prompt, true);
-  
       //run the bootstrap
-      GrouperDdlUtils.bootstrap(true, isInstallGrouperData());
+      GrouperDdlUtils.bootstrap(fromCommandLine, isInstallGrouperData(), true);
       
     } catch (Throwable t) {
       t.printStackTrace();
-      throw t;
+      throw new RuntimeException(t);
     } finally {
       inInitSchema = false;
     }
@@ -75,7 +82,7 @@ public class RegistryInitializeSchema {
    * if schema should be initted after schemaexport
    * @return the inInitSchema
    */
-  private static boolean isInstallGrouperData() {
+  public static boolean isInstallGrouperData() {
     return GrouperConfig.getPropertyBoolean("ddlutils.schemaexport.installGrouperData", true);
   }
   
