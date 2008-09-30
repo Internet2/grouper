@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SubjectDdl.java,v 1.8 2008-09-29 03:38:26 mchyzer Exp $
+ * $Id: SubjectDdl.java,v 1.9 2008-09-30 05:29:25 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -29,37 +29,32 @@ public enum SubjectDdl implements DdlVersionable {
 
       {
         Table subjectTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-            "subject", "sample subject table for grouper unit tests");
+            "subject");
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(subjectTable, "subjectId", 
-            "subject id of row", Types.VARCHAR, "255", true, true);
+            Types.VARCHAR, "255", true, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(subjectTable, "subjectTypeId", 
-            "subject type e.g. person", 
             Types.VARCHAR, "32", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(subjectTable, "name", 
-            "name of this subject",
             Types.VARCHAR, "255", false, false);
   
       }
       {
         Table subjectTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-            "subjectattribute", "attribute data for each subject");
+            "subjectattribute");
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(subjectTable, "subjectId", 
-            "subject id of row", Types.VARCHAR, "255", true, true);
+            Types.VARCHAR, "255", true, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(subjectTable, "name", 
-            "name of attribute", 
             Types.VARCHAR, "255", true, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(subjectTable, "value", 
-            "value of attribute",
             Types.VARCHAR, "255", true, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(subjectTable, "searchValue", 
-            "search value (e.g. all lower)",
             Types.VARCHAR, "255", false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, subjectTable.getName(), 
@@ -131,8 +126,42 @@ public enum SubjectDdl implements DdlVersionable {
    */
   public void addAllForeignKeysViewsEtc(DdlVersionBean ddlVersionBean) {
     Database database = ddlVersionBean.getDatabase();
+
+    
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, "subjectattribute", 
         "fk_subjectattr_subjectid", "subject", "subjectId", "subjectId");
+
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+        "subject", "sample subject table for grouper unit tests");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "subject", "subjectId", 
+        "subject id of row");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "subject", "subjectTypeId", 
+        "subject type e.g. person");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "subject", "name", 
+        "name of this subject");
+
+    
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+        "subjectattribute", "attribute data for each subject");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        "subjectattribute",  "subjectId", 
+        "subject id of row");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        "subjectattribute",  "name", 
+        "name of attribute");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        "subjectattribute",  "value", 
+        "value of attribute");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        "subjectattribute",  "searchValue", 
+        "search value (e.g. all lower)");
 
   }
   

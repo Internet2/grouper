@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.16 2008-09-29 03:38:26 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.17 2008-09-30 05:29:25 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -554,13 +554,13 @@ public class GrouperDdlUtils {
               
               ddlVersionable.addAllForeignKeysViewsEtc(ddlVersionBean);
   
-              //lets add table / col comments
-              for (Table table : newDatabase.getTables()) {
-                GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, table.getName(), table.getDescription());
-                for (Column column : table.getColumns()) {
-                  GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, table.getName(), column.getName(), column.getDescription());
-                }
-              }
+              ////lets add table / col comments
+              //for (Table table : newDatabase.getTables()) {
+              //  GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, table.getName(), table.getDescription());
+              //  for (Column column : table.getColumns()) {
+              //    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, table.getName(), column.getName(), column.getDescription());
+              //  }
+              //}
 
               String script = convertChangesToString(objectName, sqlBuilder, oldDatabase,
                   newDatabase);
@@ -1267,7 +1267,7 @@ public class GrouperDdlUtils {
     }
     
     if (StringUtils.isBlank(comment)) {
-      LOG.warn("No comment for db object " + objectName);
+      LOG.debug("No comment for db object " + objectName);
       return;
     }
     
@@ -1294,47 +1294,6 @@ public class GrouperDdlUtils {
     
   }
   
-  
-  /**
-   * add a unique constraint if the table or col isnt there or has no rows.
-   * Note, call this before you add the table to the DB so we know if the table is already in the DB
-   * @param tableName
-   * @param constraintName 
-   * @param ddlVersionBean 
-   * @param columnNames
-   */
-  public static void ddlutilsAddUniqueConstraint(String tableName, String constraintName, 
-      DdlVersionBean ddlVersionBean, String... columnNames) {
-    Platform platform = retrievePlatform(); 
-
-    Database database = ddlVersionBean.getDatabase();
-    boolean containedTable = database.findTable(tableName) != null;
-
-    Database oldDatabase = ddlVersionBean.getOldDatabase();
-    
-    boolean oldDatabaseContainedTable = oldDatabase != null && oldDatabase.findTable(tableName, false) != null;
-        
-    //dont bother, we arent in the right spot... it probably already exists there, or can be added manually
-    if (containedTable || oldDatabaseContainedTable) {
-      return;
-    }
-
-    //lets add the constraint
-    if (StringUtils.contains(platform.getName().toLowerCase(), "oracle")) {
-      //if oracle, add that
-      ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + tableName 
-          + " ADD CONSTRAINT " + constraintName + " UNIQUE (" + StringUtils.join(columnNames, ',') + ") ENABLE VALIDATE;\n");
-      
-    } else if (StringUtils.contains(platform.getName().toLowerCase(), "postgres")) {
-      //postgres
-      //ALTER TABLE grouper_fields ADD CONSTRAINT whatever UNIQUE ("name");
-      ddlVersionBean.appendAdditionalScriptUnique("ALTER TABLE " + tableName 
-          + " ADD CONSTRAINT " + constraintName + " UNIQUE (" + StringUtils.join(columnNames, ',') + ");\n");
-      
-    }
-    
-    //not sure if we need to add constraints for other dbs, unless adding foreign keys fails or there is another reason
-  }
   
   /**
    * get the object names from the 
@@ -1535,17 +1494,15 @@ public class GrouperDdlUtils {
    * find or create table
    * @param database
    * @param tableName
-   * @param description currently not used, but eventually can be the data dictionary comment
    * @return the table
    */
-  public static Table ddlutilsFindOrCreateTable(Database database, String tableName, String description) {
+  public static Table ddlutilsFindOrCreateTable(Database database, String tableName) {
     Table table = database.findTable(tableName);
     if (table == null) {
       table = new Table();
       table.setName(tableName);
       database.addTable(table);
     }
-    table.setDescription(description);
     return table;
   }
 
@@ -1764,16 +1721,15 @@ public class GrouperDdlUtils {
    * find or create column with various properties
    * @param table 
    * @param columnName 
-   * @param description not used, but eventually can be used for data dictionary
    * @param typeCode from java.sql.Types
    * @param size string, can be a simple int, or comma separated, see ddlutils docs
    * @param primaryKey this should only be true for new tables
    * @param required this should probably only be true for new tables (since ddlutils will copy to temp table)
    * @return the column
    */
-  public static Column ddlutilsFindOrCreateColumn(Table table, String columnName, String description, 
+  public static Column ddlutilsFindOrCreateColumn(Table table, String columnName, 
       int typeCode, String size, boolean primaryKey, boolean required) {
-    return ddlutilsFindOrCreateColumn(table, columnName, description, 
+    return ddlutilsFindOrCreateColumn(table, columnName, 
         typeCode, size, primaryKey, required, null);
   }
   
@@ -1781,7 +1737,6 @@ public class GrouperDdlUtils {
    * find or create column with various properties
    * @param table 
    * @param columnName 
-   * @param description not used, but eventually can be used for data dictionary
    * @param typeCode from java.sql.Types
    * @param size string, can be a simple int, or comma separated, see ddlutils docs
    * @param primaryKey this should only be true for new tables
@@ -1789,7 +1744,7 @@ public class GrouperDdlUtils {
    * @param defaultValue is null for none, or something for default value
    * @return the column
    */
-  public static Column ddlutilsFindOrCreateColumn(Table table, String columnName, String description, 
+  public static Column ddlutilsFindOrCreateColumn(Table table, String columnName, 
       int typeCode, String size, boolean primaryKey, boolean required, String defaultValue) {
 
     Column column = table.findColumn(columnName);
@@ -1811,7 +1766,6 @@ public class GrouperDdlUtils {
       }
     }
 
-    column.setDescription(description);
     column.setPrimaryKey(primaryKey);
 
     return column;

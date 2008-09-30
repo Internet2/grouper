@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.20 2008-09-29 03:38:26 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.21 2008-09-30 05:29:25 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -165,11 +165,11 @@ public enum GrouperDdl implements DdlVersionable {
         Table attributesTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             Attribute.TABLE_GROUPER_ATTRIBUTES);
         
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributesTable, Attribute.COLUMN_OLD_FIELD_NAME, "temp col for old field name", 
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributesTable, Attribute.COLUMN_OLD_FIELD_NAME,  
             Types.VARCHAR, "32", false, false);
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributesTable, Attribute.COLUMN_FIELD_ID, 
-            "foreign key to field by id", Types.VARCHAR, "128", false, false);
+            Types.VARCHAR, "128", false, false);
       }
 
       if (needsMembershipFieldIdConversion) {
@@ -177,13 +177,13 @@ public enum GrouperDdl implements DdlVersionable {
         Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             Membership.TABLE_GROUPER_MEMBERSHIPS);
 
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_LIST_NAME, "temp col for old list name", 
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_LIST_NAME,  
             Types.VARCHAR, "32", false, false);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_LIST_TYPE, "temp col for old list type", 
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_LIST_TYPE,  
             Types.VARCHAR, "32", false, false);
 
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_FIELD_ID, 
-            "foreign key to field by id", Types.VARCHAR, "128", false, false);
+            Types.VARCHAR, "128", false, false);
         
       }
       
@@ -461,8 +461,8 @@ public enum GrouperDdl implements DdlVersionable {
         Table compositesTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             Composite.TABLE_GROUPER_COMPOSITES);
 
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositesTable, Composite.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositesTable, Composite.COLUMN_OLD_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositesTable, Composite.COLUMN_OLD_ID, Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositesTable, Composite.COLUMN_OLD_UUID, Types.VARCHAR, "128", false, false);
         if (isDestinationVersion) {
 
           //update records, move the uuid to the id
@@ -478,8 +478,8 @@ public enum GrouperDdl implements DdlVersionable {
         Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             Membership.TABLE_GROUPER_MEMBERSHIPS);
         
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_MEMBERSHIP_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_ID, Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OLD_MEMBERSHIP_UUID, Types.VARCHAR, "128", false, false);
 
         if (isDestinationVersion) {
 
@@ -495,8 +495,8 @@ public enum GrouperDdl implements DdlVersionable {
         
         Table fieldsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             Field.TABLE_GROUPER_FIELDS);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, Field.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, Field.COLUMN_OLD_FIELD_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, Field.COLUMN_OLD_ID, Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, Field.COLUMN_OLD_FIELD_UUID, Types.VARCHAR, "128", false, false);
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
@@ -512,8 +512,8 @@ public enum GrouperDdl implements DdlVersionable {
         Table groupsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             Group.TABLE_GROUPER_GROUPS);
         
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_OLD_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_OLD_ID, Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_OLD_UUID, Types.VARCHAR, "128", false, false);
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
@@ -529,8 +529,8 @@ public enum GrouperDdl implements DdlVersionable {
         Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             Member.TABLE_GROUPER_MEMBERS);
         
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_OLD_MEMBER_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_OLD_ID, Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_OLD_MEMBER_UUID, Types.VARCHAR, "128", false, false);
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
@@ -546,8 +546,8 @@ public enum GrouperDdl implements DdlVersionable {
         Table stemsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             Stem.TABLE_GROUPER_STEMS);
 
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_OLD_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_OLD_ID, Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_OLD_UUID, Types.VARCHAR, "128", false, false);
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
@@ -563,8 +563,8 @@ public enum GrouperDdl implements DdlVersionable {
         Table typesTable = GrouperDdlUtils.ddlutilsFindTable(database, 
             GroupType.TABLE_GROUPER_TYPES);
               
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, GroupType.COLUMN_OLD_ID, "temp col for old id vals", Types.VARCHAR, "128", false, false);
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, GroupType.COLUMN_OLD_TYPE_UUID, "temp col for old uuid vals", Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, GroupType.COLUMN_OLD_ID, Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, GroupType.COLUMN_OLD_TYPE_UUID, Types.VARCHAR, "128", false, false);
         
         if (isDestinationVersion) {
           //update records, move the uuid to the id
@@ -611,87 +611,86 @@ public enum GrouperDdl implements DdlVersionable {
         DdlVersionBean ddlVersionBean) {
 
       //see if the grouper_ext_loader_log table is there
-      Table grouploaderLogTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"grouper_loader_log", 
-          "log table with a row for each grouper loader job run");
+      Table grouploaderLogTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"grouper_loader_log");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "id", "uuid of this log record", 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "id", 
           Types.VARCHAR, "128", true, true);
       
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_name", 
-          "Could be group name (friendly) or just config name", Types.VARCHAR, "512", false, false);
+          Types.VARCHAR, "512", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "status", 
-          "STARTED, SUCCESS, ERROR, WARNING, CONFIG_ERROR", Types.VARCHAR, "20", false, false);
+          Types.VARCHAR, "20", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "started_time", 
-          "When the job was started", Types.TIMESTAMP, null, false, false);
+          Types.TIMESTAMP, null, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "ended_time", 
-          "When the job ended (might be blank if daemon died)", Types.TIMESTAMP, null, false, false);
+          Types.TIMESTAMP, null, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "millis", 
-          "Milliseconds this process took", Types.INTEGER, null, false, false);
+          Types.INTEGER, null, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "millis_get_data", 
-          "Milliseconds this process took to get the data from the source", Types.INTEGER, null, false, false);
+          Types.INTEGER, null, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "millis_load_data", 
-          "Milliseconds this process took to load the data to grouper", Types.INTEGER, null, false, false);
+          Types.INTEGER, null, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_type", 
-          "GrouperLoaderJobType enum value", Types.VARCHAR, "128", false, false);
+          Types.VARCHAR, "128", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_schedule_type", 
-          "GrouperLoaderJobscheduleType enum value", Types.VARCHAR, "128", false, false);
+          Types.VARCHAR, "128", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_description", 
-          "More information about the job", Types.VARCHAR, "4000", false, false);
+          Types.VARCHAR, "4000", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_message", 
-          "Could be a status or error message or stack", Types.VARCHAR, "4000", false, false);
+          Types.VARCHAR, "4000", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "host", 
-          "Host that this job ran on", Types.VARCHAR, "128", false, false);
+          Types.VARCHAR, "128", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "group_uuid", 
-          "If this job involves one group, this is uuid", Types.VARCHAR, "128", false, false);
+          Types.VARCHAR, "128", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_schedule_quartz_cron", 
-          "Quartz cron string for this col", Types.VARCHAR, "128", false, false);
+          Types.VARCHAR, "128", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_schedule_interval_seconds", 
-          "How many seconds this is supposed to wait between runs", Types.INTEGER, null, false, false);
+          Types.INTEGER, null, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "last_updated", 
-          "When this record was last updated", Types.TIMESTAMP, null, false, false);
+          Types.TIMESTAMP, null, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "unresolvable_subject_count", 
-          "The number of records which were not subject resolvable", Types.INTEGER, null, false, false);
+          Types.INTEGER, null, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "insert_count", 
-          "The number of records inserted", Types.INTEGER, null, false, false);
+          Types.INTEGER, null, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "update_count", 
-          "The number of records updated", Types.INTEGER, null, false, false);
+          Types.INTEGER, null, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "delete_count", 
-          "The number of records deleted", Types.INTEGER, null, false, false);
+          Types.INTEGER, null, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "total_count", 
-          "The total number of records (e.g. total number of members)", Types.INTEGER, null, false, false);
+          Types.INTEGER, null, false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "parent_job_name", 
-          "If this job is a subjob of another job, then put the parent job name here", Types.VARCHAR, "512", false, false);
+          Types.VARCHAR, "512", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "parent_job_id", 
-          "If this job is a subjob of another job, then put the parent job id here", Types.VARCHAR, "128", false, false);
+          Types.VARCHAR, "128", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "and_group_names", 
-          "If this group query is anded with another group or groups, they are listed here comma separated", Types.VARCHAR, "512", false, false);
+          Types.VARCHAR, "512", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouploaderLogTable, "job_schedule_priority", 
-          "Priority of this job (5 is unprioritized, higher the better)", Types.INTEGER, null, false, false);
+          Types.INTEGER, null, false, false);
 
       //see if the grouper_ext_loader_log table is there
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_loader_log",
@@ -722,29 +721,29 @@ public enum GrouperDdl implements DdlVersionable {
         boolean attributesTableNew = database.findTable(Attribute.TABLE_GROUPER_ATTRIBUTES) == null;
         
         Table attributeTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-            Attribute.TABLE_GROUPER_ATTRIBUTES, "attributes for groups, including name, extension, etc");
+            Attribute.TABLE_GROUPER_ATTRIBUTES);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeTable, "id", 
-            "db id of this attribute record", Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, "128", true, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeTable, "group_id", 
-            "group_uuid foreign key", Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, "128", false, true);
   
         if (buildingToThisVersion) {
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeTable, "field_name", 
-              "name of attribute", Types.VARCHAR, "32", false, false);
+              Types.VARCHAR, "32", false, false);
         
         } 
         
         //this is needed for hibernate, so always add it if the table is being created
         if (attributesTableNew || attributeTable.findColumn(Attribute.COLUMN_FIELD_ID) != null) {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeTable, Attribute.COLUMN_FIELD_ID, 
-              "foreign key to field by id", Types.VARCHAR, "128", false, true);
+              Types.VARCHAR, "128", false, true);
         }
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeTable, "value", 
-            "value this attribute record", Types.VARCHAR, "1024", false, true);
+            Types.VARCHAR, "1024", false, true);
   
         //dont add foreign keys if col not there
         if (attributeTable.findColumn(Attribute.COLUMN_FIELD_ID) != null) {
@@ -762,17 +761,17 @@ public enum GrouperDdl implements DdlVersionable {
       
       {
         Table compositeTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-            Composite.TABLE_GROUPER_COMPOSITES, "records the composite group, and its factors");
+            Composite.TABLE_GROUPER_COMPOSITES);
   
         boolean needsConversion = needsCompositeIdConversion(database);
       
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, "id", 
-            "db id of this composite record", Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, "128", true, true);
 
         if (needsConversion || buildingToThisVersion) {
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, "uuid", 
-              "grouper uuid of this table", Types.VARCHAR, "128", false, false);
+              Types.VARCHAR, "128", false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, compositeTable.getName(), 
               "composite_uuid_idx", true, "uuid");
@@ -780,22 +779,22 @@ public enum GrouperDdl implements DdlVersionable {
         }
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, "owner", 
-            "group uuid of the composite group", Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, "128", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, "left_factor", 
-            "left factor of the composite group", Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, "128", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, "right_factor", 
-            "right factor of the composite group", Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, "128", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, "type", 
-            "e.g. union, complement, intersection", Types.VARCHAR, "32", false, true);
+            Types.VARCHAR, "32", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, "creator_id", 
-            "member uuid of who created this", Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, "128", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, "create_time", 
-            "number of millis since 1970 until when created", Types.BIGINT, "20", false, true);
+            Types.BIGINT, "20", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, compositeTable.getName(), 
             "composite_composite_idx", false, "owner");
@@ -821,22 +820,18 @@ public enum GrouperDdl implements DdlVersionable {
 
       {
 
-        //do this before table so we know if the table is already there
-        GrouperDdlUtils.ddlutilsAddUniqueConstraint(Field.TABLE_GROUPER_FIELDS, "fields_name_unq", ddlVersionBean, "name");
-        GrouperDdlUtils.ddlutilsAddUniqueConstraint(Field.TABLE_GROUPER_FIELDS, "fields_name_type_unq", ddlVersionBean, "name", "type");
-
         Table fieldsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-            Field.TABLE_GROUPER_FIELDS, "describes fields related to types");
+            Field.TABLE_GROUPER_FIELDS);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, "id", 
-            "db id of this field record", Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, "128", true, true);
 
         boolean needsConversion = needsFieldsIdConversion(database);
     
         if (needsConversion || buildingToThisVersion) {
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, "field_uuid", 
-              "grouper uuid of this table", Types.VARCHAR, "128", false, false);
+              Types.VARCHAR, "128", false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, fieldsTable.getName(), 
               "field_uuid_idx", true, "field_uuid");
@@ -844,22 +839,22 @@ public enum GrouperDdl implements DdlVersionable {
         }
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, "grouptype_uuid", 
-            "foreign key to group type", Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, "128", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, "is_nullable", 
-            "if this is nullable", Types.BIT, "1", false, false);
+            Types.BIT, "1", false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, "name", 
-            "name of the field", Types.VARCHAR, "32", false, true);
+            Types.VARCHAR, "32", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, "read_privilege", 
-            "which privilege is required to read this field", Types.VARCHAR, "32", false, true);
+            Types.VARCHAR, "32", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, "type", 
-            "type of field (e.g. attribute, list, access, naming)", Types.VARCHAR, "32", false, true);
+            Types.VARCHAR, "32", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, "write_privilege", 
-            "which privilege is required to write this attribute", Types.VARCHAR, "32", false, true);
+            Types.VARCHAR, "32", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, fieldsTable.getName(), 
             "name_and_type", true, "name", "type");
@@ -870,17 +865,17 @@ public enum GrouperDdl implements DdlVersionable {
     
       {
         Table groupsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-            Group.TABLE_GROUPER_GROUPS, "holds the groups in the grouper system");
+            Group.TABLE_GROUPER_GROUPS);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "id", 
-            "db id of this group record", Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, "128", true, true);
   
         boolean needsConversion = needsGroupsIdConversion(database);
         
         if (needsConversion || buildingToThisVersion) {
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "uuid", 
-              "grouper uuid of this table", Types.VARCHAR, "128", false, false);
+              Types.VARCHAR, "128", false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
               "group_uuid_idx", true, "uuid");
@@ -888,19 +883,19 @@ public enum GrouperDdl implements DdlVersionable {
         }
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "parent_stem", 
-            "uuid of the stem that this group refers to", Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, "128", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "creator_id", 
-            "member uuid of the creator of this group", Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, "128", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "create_time", 
-            "number of millis since 1970 that this group was created", Types.BIGINT, "20", false, true);
+            Types.BIGINT, "20", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "modifier_id", 
-            "member uuid of the last modifier of this group", Types.VARCHAR, "128", false, false);
+            Types.VARCHAR, "128", false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "modify_time", 
-            "number of millis since 1970 that this group was modified", Types.BIGINT, "20", false, false);
+            Types.BIGINT, "20", false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
             "group_parent_idx", false, "parent_stem");
@@ -923,16 +918,16 @@ public enum GrouperDdl implements DdlVersionable {
     
       {
         Table groupsTypesTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-            "grouper_groups_types", "holds the association between group and type");
+            "grouper_groups_types");
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTypesTable, "id", 
-            "id of this group/type record", Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, "128", true, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTypesTable, "group_uuid", 
-            "group uuid foreign key", Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, "128", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTypesTable, "type_uuid", 
-            "type uuid foreign key", Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, "128", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTypesTable.getName(), 
             "grouptypetyple_grouptype_idx", true, "group_uuid", "type_uuid");
@@ -948,17 +943,17 @@ public enum GrouperDdl implements DdlVersionable {
     
       {
         Table membersTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-            Member.TABLE_GROUPER_MEMBERS, "keeps track of subjects used in grouper.  Records are never deleted from this table");
+            Member.TABLE_GROUPER_MEMBERS);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, "id", 
-            "db id of this row", Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, "128", true, true);
   
         boolean needsConversion = needsMembersIdConversion(database);
         
         if (needsConversion || buildingToThisVersion ) {
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, "member_uuid", 
-              "member uuid used in foreign keys from other tables", Types.VARCHAR, "128", false, false);
+              Types.VARCHAR, "128", false, false);
     
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), 
               "member_uuid_idx", true, "member_uuid");
@@ -966,13 +961,13 @@ public enum GrouperDdl implements DdlVersionable {
         }
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, "subject_id", 
-            "subject id is the id from the subject source", Types.VARCHAR, "255", false, true);
+            Types.VARCHAR, "255", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, "subject_source", 
-            "id of the source from sources.xml", Types.VARCHAR, "255", false, true);
+            Types.VARCHAR, "255", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, "subject_type", 
-            "type of subject, e.g. person", Types.VARCHAR, "255", false, true);
+            Types.VARCHAR, "255", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membersTable.getName(), 
             "member_subjectsourcetype_idx", true, "subject_id", "subject_source", 
@@ -993,17 +988,16 @@ public enum GrouperDdl implements DdlVersionable {
       {
         boolean membershipsTableExists = database.findTable(Membership.TABLE_GROUPER_MEMBERSHIPS) != null;
         Table membershipsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-            Membership.TABLE_GROUPER_MEMBERSHIPS, "keeps track of memberships and permissions");
+            Membership.TABLE_GROUPER_MEMBERSHIPS);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "id", 
-            "db id of this row", Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, "128", true, true);
   
         boolean needsConversion = needsMembersIdConversion(database);
         
         if (needsConversion || buildingToThisVersion ) {
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "membership_uuid", 
-              "grouper id for membership (used is foreign keys to this row)", 
               Types.VARCHAR, "128", false, false);
     
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
@@ -1012,48 +1006,42 @@ public enum GrouperDdl implements DdlVersionable {
         }
 
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "owner_id", 
-            "group of the membership", Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, "128", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "member_id", 
-            "member of the memership", Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, "128", false, true);
   
         //if not testing, dont worry about these columns
         if (buildingToThisVersion) {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "list_name", 
-              "list, e.g. stemmers, admin, members, etc", Types.VARCHAR, "32", false, false);
+              Types.VARCHAR, "32", false, false);
     
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "list_type", 
-              "type of list, e.g. naming, access, list", Types.VARCHAR, "32", false, false);
+              Types.VARCHAR, "32", false, false);
         }
         
         //only add the col if a new table, else it is added in a subsequent version
         if (!membershipsTableExists || membershipsTable.findColumn(Membership.COLUMN_FIELD_ID) != null) {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_FIELD_ID, 
-              "foreign key to field by id", Types.VARCHAR, "128", false, true);
+              Types.VARCHAR, "128", false, true);
         }
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "mship_type", 
-            "type of membership, one of the three: immediate, effective, composite", 
             Types.VARCHAR, "32", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "via_id", 
-            "if effective, this is the group above the member in the chain, " +
-            "for composite, this is the composite uuid", Types.VARCHAR, "128", false, false);
+            Types.VARCHAR, "128", false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "depth", 
-            "for effective membership, the number of hops (excluding composites) " +
-            "along the membership graph", Types.INTEGER, "11", false, true);
+            Types.INTEGER, "11", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "parent_membership", 
-            "for effective membership, uuid of membership record from the group in " +
-            "question to the parent group of the member", Types.VARCHAR, "128", false, false);
+            Types.VARCHAR, "128", false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "creator_id", 
-            "member uuid of the creator of this record", 
             Types.VARCHAR, "128", false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "create_time", 
-            "number of millis since 1970 that this record was created", 
             Types.BIGINT, "20", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
@@ -1096,19 +1084,17 @@ public enum GrouperDdl implements DdlVersionable {
       {
         if (buildingToThisVersion) {
           Table sessionsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-              "grouper_sessions", "keeps track of grouper session when opened (deleted when closed)");
+              "grouper_sessions");
     
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(sessionsTable, "id", 
-              "db id of this row", Types.VARCHAR, "128", true, true);
+              Types.VARCHAR, "128", true, true);
           
           //note, this code is only here for unit testing... no need to do id conversion
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(sessionsTable, "member_id", 
-              "member uuid foreign key of who started the session", 
               Types.VARCHAR, "128", false, true);
     
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(sessionsTable, "starttime", 
-              "number if millis since 1970 that the session was started",
               Types.BIGINT, "20", false, true);
     
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, sessionsTable.getName(), 
@@ -1119,17 +1105,16 @@ public enum GrouperDdl implements DdlVersionable {
       }
       {
         Table stemsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-            Stem.TABLE_GROUPER_STEMS, "entries for stems and their attributes");
+            Stem.TABLE_GROUPER_STEMS);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "id", 
-            "db id of this row", Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, "128", true, true);
   
         boolean needsConversion = needsStemIdConversion(database);
         
         if (needsConversion || buildingToThisVersion) {
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "uuid", 
-              "grouper id of this row (used for foreign keys from other tables)", 
               Types.VARCHAR, "128", false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
@@ -1138,39 +1123,34 @@ public enum GrouperDdl implements DdlVersionable {
         }
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "parent_stem", 
-            "stem uuid of parent stem or empty if under root",
             Types.VARCHAR, "128", false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "name", 
-            "full name (id) path of stem", Types.VARCHAR, "255", false, true);
+            Types.VARCHAR, "255", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "display_name", 
-            "full dislpay name path of stem", Types.VARCHAR, "255", false, true);
+            Types.VARCHAR, "255", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "creator_id", 
-            "member_id of who created this stem", Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, "128", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "create_time", 
-            "number of millis since 1970 since this was created", 
             Types.BIGINT, "20", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "modifier_id", 
-            "member_id of modifier who last edited", 
             Types.VARCHAR, "128", false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "modify_time", 
-            "number of millis since 1970 since this was edited", 
             Types.BIGINT, "20", false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "display_extension", 
-            "display extension (not full path) of stem", Types.VARCHAR, "255", false, true);
+            Types.VARCHAR, "255", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "extension", 
-            "extension (id) (not full path) of this stem", 
             Types.VARCHAR, "255", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "description", 
-            "description of stem", Types.VARCHAR, "1024", false, false);
+            Types.VARCHAR, "1024", false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
             "stem_createtime_idx", false, "create_time");
@@ -1203,17 +1183,16 @@ public enum GrouperDdl implements DdlVersionable {
       }
       {
         Table typesTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-            "grouper_types", "the various types which can be assigned to groups");
+            "grouper_types");
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, "id", 
-            "db id of this row", Types.VARCHAR, "128", true, true);
+            Types.VARCHAR, "128", true, true);
   
         boolean needsConversion = needsTypesIdConversion(database);
         
         if (needsConversion || buildingToThisVersion) {
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, "type_uuid", 
-              "grouper id of this row (used for foreign keys from other tables)", 
               Types.VARCHAR, "128", false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, typesTable.getName(), 
@@ -1222,21 +1201,18 @@ public enum GrouperDdl implements DdlVersionable {
         }
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, "name", 
-            "name of this type",
             Types.VARCHAR, "255", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, "creator_uuid", 
-            "member_id of the creator", Types.VARCHAR, "128", false, true);
+            Types.VARCHAR, "128", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, "create_time", 
-            "number of millis since 1970 since this was created", 
             Types.BIGINT, "20", false, true);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, "is_assignable", 
-            "if this type is assignable (not internal)", Types.BIT, "1", false, false);
+            Types.BIT, "1", false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, "is_internal", 
-            "if this type if internal (not assignable)", 
             Types.BIT, "1", false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, typesTable.getName(), 
@@ -1258,25 +1234,21 @@ public enum GrouperDdl implements DdlVersionable {
         DdlVersionBean ddlVersionBean) {
 
       //see if the grouper_ext_loader_log table is there
-      Table grouperDdlTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"grouper_ddl", 
-          "holds a record for each database object name, and db version, and java version");
+      Table grouperDdlTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,"grouper_ddl");
 
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "id", "uuid of this ddl record", 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "id",
           Types.VARCHAR, "128", true, true);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "object_name", 
-          "Corresponds to an enum in grouper.ddl package (with Ddl on end), represents one module, " +
-          "so grouper itself is one object", Types.VARCHAR, "128", false, false);
+          Types.VARCHAR, "128", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "db_version", 
-          "Version of this object as far as DB knows about", Types.INTEGER, null, false, false);
+          Types.INTEGER, null, false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "last_updated", 
-          "last update timestamp, string so it can easily be used from update statement", 
           Types.VARCHAR, "50", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperDdlTable, "history", 
-          "history of this object name, with most recent first (truncated after 4k)", 
           Types.VARCHAR, "4000", false, false);
 
       //object name is unique
@@ -1330,7 +1302,8 @@ public enum GrouperDdl implements DdlVersionable {
    * @param table
    */
   private static void versionNumberColumnFindOrCreate(Table table) {
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows", Types.BIGINT, "12", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, COLUMN_HIBERNATE_VERSION_NUMBER, 
+        Types.BIGINT, "12", false, false);
   }
   
   /**
@@ -1494,6 +1467,347 @@ public enum GrouperDdl implements DdlVersionable {
     if (buildingToVersion < V2.getVersion()) {
       return;
     }
+    
+    //add comments on tables, comments
+    //see if the grouper_ext_loader_log table is there
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,"grouper_ddl", 
+        "holds a record for each database object name, and db version, and java version");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_ddl", "id", "uuid of this ddl record");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_ddl", "object_name", 
+        "Corresponds to an enum in grouper.ddl package (with Ddl on end), represents one module, " +
+        "so grouper itself is one object");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_ddl", "db_version", 
+        "Version of this object as far as DB knows about");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_ddl", "last_updated", 
+        "last update timestamp, string so it can easily be used from update statement");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_ddl", "history", 
+        "history of this object name, with most recent first (truncated after 4k)");
+
+    
+    
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+        Attribute.TABLE_GROUPER_ATTRIBUTES, "attributes for groups, including name, extension, etc");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Attribute.TABLE_GROUPER_ATTRIBUTES,  "id", 
+        "db id of this attribute record");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Attribute.TABLE_GROUPER_ATTRIBUTES,  "group_id", 
+        "group_uuid foreign key");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Attribute.TABLE_GROUPER_ATTRIBUTES,  Attribute.COLUMN_FIELD_ID, 
+          "foreign key to field by id");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Attribute.TABLE_GROUPER_ATTRIBUTES,   "value", 
+        "value this attribute record");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Attribute.TABLE_GROUPER_ATTRIBUTES, 
+        COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
+
+    
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          Composite.TABLE_GROUPER_COMPOSITES, "records the composite group, and its factors");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Composite.TABLE_GROUPER_COMPOSITES, "id", 
+          "db id of this composite record");
+
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Composite.TABLE_GROUPER_COMPOSITES,  "owner", 
+          "group uuid of the composite group");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Composite.TABLE_GROUPER_COMPOSITES,  "left_factor", 
+          "left factor of the composite group");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Composite.TABLE_GROUPER_COMPOSITES,  "right_factor", 
+          "right factor of the composite group");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Composite.TABLE_GROUPER_COMPOSITES,  "type", 
+          "e.g. union, complement, intersection");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Composite.TABLE_GROUPER_COMPOSITES,  "creator_id", 
+          "member uuid of who created this");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Composite.TABLE_GROUPER_COMPOSITES,  "create_time", 
+          "number of millis since 1970 until when created");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Composite.TABLE_GROUPER_COMPOSITES, 
+        COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
+
+    
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS, "describes fields related to types");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS,  "id", 
+          "db id of this field record");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS,  "grouptype_uuid", 
+          "foreign key to group type");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS, "is_nullable", 
+          "if this is nullable");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS, "name", 
+          "name of the field");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS,  "read_privilege", 
+          "which privilege is required to read this field");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS,  "type", 
+          "type of field (e.g. attribute, list, access, naming)");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS, "write_privilege", 
+          "which privilege is required to write this attribute");
+
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+          Group.TABLE_GROUPER_GROUPS, "holds the groups in the grouper system");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,  "id", 
+          "db id of this group record");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "parent_stem", 
+          "uuid of the stem that this group refers to");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "creator_id", 
+          "member uuid of the creator of this group");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "create_time", 
+          "number of millis since 1970 that this group was created");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "modifier_id", 
+          "member uuid of the last modifier of this group");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "modify_time", 
+          "number of millis since 1970 that this group was modified");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
+        COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
+
+    
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+        "grouper_groups_types", "holds the association between group and type");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_groups_types", "id", 
+          "id of this group/type record");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_groups_types",  "group_uuid", 
+          "group uuid foreign key");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_groups_types",  "type_uuid", 
+          "type uuid foreign key");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_groups_types", 
+        COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
+
+    
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+          Member.TABLE_GROUPER_MEMBERS, "keeps track of subjects used in grouper.  Records are never deleted from this table");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  "id", 
+          "db id of this row");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS, "subject_id", 
+          "subject id is the id from the subject source");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  "subject_source", 
+          "id of the source from sources.xml");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS,  "subject_type", 
+          "type of subject, e.g. person");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS, 
+        COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
+
+    
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS, "keeps track of memberships and permissions");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS,  "id", 
+          "db id of this row");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, "owner_id", 
+          "group of the membership");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, "member_id", 
+          "member of the memership");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, Membership.COLUMN_FIELD_ID, 
+            "foreign key to field by id");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, "mship_type", 
+          "type of membership, one of the three: immediate, effective, composite");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, "via_id", 
+          "if effective, this is the group above the member in the chain, " +
+          "for composite, this is the composite uuid");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, "depth", 
+          "for effective membership, the number of hops (excluding composites) " +
+          "along the membership graph");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, "parent_membership", 
+          "for effective membership, uuid of membership record from the group in " +
+          "question to the parent group of the member");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, "creator_id", 
+          "member uuid of the creator of this record");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, "create_time", 
+          "number of millis since 1970 that this record was created");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, 
+        COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
+
+    
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+        Stem.TABLE_GROUPER_STEMS, "entries for stems and their attributes");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS, "id", 
+          "db id of this row");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS,  "parent_stem", 
+          "stem uuid of parent stem or empty if under root");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS,  "name", 
+          "full name (id) path of stem");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS,  "display_name", 
+          "full dislpay name path of stem");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS, "creator_id", 
+          "member_id of who created this stem");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS,  "create_time", 
+          "number of millis since 1970 since this was created");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS,  "modifier_id", 
+          "member_id of modifier who last edited");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS,  "modify_time", 
+          "number of millis since 1970 since this was edited");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS,  "display_extension", 
+          "display extension (not full path) of stem");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS, "extension", 
+          "extension (id) (not full path) of this stem");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS,  "description", 
+          "description of stem");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS, 
+        COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
+
+    
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
+          "grouper_types", "the various types which can be assigned to groups");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_types",  "id", 
+          "db id of this row");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_types",  "name", 
+          "name of this type");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_types",  "creator_uuid", 
+          "member_id of the creator");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_types",  "create_time", 
+          "number of millis since 1970 since this was created");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_types",  "is_assignable", 
+          "if this type is assignable (not internal)");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_types",  "is_internal", 
+          "if this type if internal (not assignable)");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_types", 
+        COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
+
+    
+    //see if the grouper_ext_loader_log table is there
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, "grouper_loader_log", 
+        "log table with a row for each grouper loader job run");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "id", "uuid of this log record");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_name", 
+        "Could be group name (friendly) or just config name");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "status", 
+        "STARTED, SUCCESS, ERROR, WARNING, CONFIG_ERROR");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "started_time", 
+        "When the job was started");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "ended_time", 
+        "When the job ended (might be blank if daemon died)");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "millis", 
+        "Milliseconds this process took");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "millis_get_data", 
+        "Milliseconds this process took to get the data from the source");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "millis_load_data", 
+        "Milliseconds this process took to load the data to grouper");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_type", 
+        "GrouperLoaderJobType enum value");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_schedule_type", 
+        "GrouperLoaderJobscheduleType enum value");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_description", 
+        "More information about the job");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_message", 
+        "Could be a status or error message or stack");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "host", 
+        "Host that this job ran on");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "group_uuid", 
+        "If this job involves one group, this is uuid");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_schedule_quartz_cron", 
+        "Quartz cron string for this col");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_schedule_interval_seconds", 
+        "How many seconds this is supposed to wait between runs");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "last_updated", 
+        "When this record was last updated");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "unresolvable_subject_count", 
+        "The number of records which were not subject resolvable");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "insert_count", 
+        "The number of records inserted");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "update_count", 
+        "The number of records updated");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "delete_count", 
+        "The number of records deleted");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "total_count", 
+        "The total number of records (e.g. total number of members)");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "parent_job_name", 
+        "If this job is a subjob of another job, then put the parent job name here");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "parent_job_id", 
+        "If this job is a subjob of another job, then put the parent job id here");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "and_group_names", 
+        "If this group query is anded with another group or groups, they are listed here comma separated");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "job_schedule_priority", 
+        "Priority of this job (5 is unprioritized, higher the better)");
+
+
     
     String groupIdCol = "id";
     

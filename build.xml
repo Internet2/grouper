@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.196 2008-09-29 04:34:45 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.197 2008-09-30 05:29:25 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -197,6 +197,13 @@
     <mkdir dir="${dist.binary.zip}/lib"/>
     <copy todir="${dist.binary.zip}/lib">
       <fileset dir="${lib.dir}">
+        <include name="README.txt"/>
+      </fileset>
+    </copy>
+    
+    <mkdir dir="${dist.binary.zip}/lib/custom"/>
+    <copy todir="${dist.binary.zip}/lib/custom">
+      <fileset dir="${lib.dir}/custom">
         <include name="README.txt"/>
       </fileset>
     </copy>

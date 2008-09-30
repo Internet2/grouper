@@ -1293,31 +1293,79 @@ public class GrouperUtil {
   /**
    * use the field cache, expire every day (just to be sure no leaks)
    */
-  private static GrouperCache<String, Set<Field>> fieldSetCache = 
-    new GrouperCache<String, Set<Field>>("edu.internet2.middleware.grouper.util.GrouperUtil.fieldSetCache",
-        2000, false, 0, 60*60*24, false);
+  private static GrouperCache<String, Set<Field>> fieldSetCache = null;
+  
+  /**
+   * lazy load
+   * @return field set cache
+   */
+  private static GrouperCache<String, Set<Field>> fieldSetCache() {
+    if (fieldSetCache == null) {
+      fieldSetCache = new GrouperCache<String, Set<Field>>("edu.internet2.middleware.grouper.util.GrouperUtil.fieldSetCache",
+          2000, false, 0, 60*60*24, false);
+    }
+    return fieldSetCache;
+  }
+    
 
   /**
    * make a cache with max size to cache declared methods
    */
-  private static GrouperCache<Class, Method[]> declaredMethodsCache = 
-    new GrouperCache<Class, Method[]>("edu.internet2.middleware.grouper.util.GrouperUtil.declaredMethodsCache",
-      2000, false, 0, 60*60*24, false);
+  private static GrouperCache<Class, Method[]> declaredMethodsCache = null;
+  
+  /**
+   * lazy load
+   * @return declared method cache
+   */
+  private static GrouperCache<Class, Method[]> declaredMethodsCache() {
+    if (declaredMethodsCache == null) {
+      declaredMethodsCache = new GrouperCache<Class, Method[]>("edu.internet2.middleware.grouper.util.GrouperUtil.declaredMethodsCache",
+          2000, false, 0, 60*60*24, false);
+    }
+    return declaredMethodsCache;
+  }
+  
+    
 
   /**
    * use the field cache, expire every day (just to be sure no leaks) 
    */
-  private static GrouperCache<String, Set<Method>> getterSetCache = 
-    new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.GrouperUtil.getterSetCache",
-        2000, false, 0, 60*60*24, false);
+  private static GrouperCache<String, Set<Method>> getterSetCache = null;
+    
+
+  /**
+   * lazy load
+   * @return getter cache
+   */
+  private static GrouperCache<String, Set<Method>> getterSetCache() {
+    if (getterSetCache == null) {
+      getterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.GrouperUtil.getterSetCache",
+          2000, false, 0, 60*60*24, false);
+    }
+    return getterSetCache;
+  }
+  
+    
 
   /**
    * use the field cache, expire every day (just to be sure no leaks) 
    */
-  private static GrouperCache<String, Set<Method>> setterSetCache = 
-    new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.GrouperUtil.setterSetCache",
-        2000, false, 0, 60*60*24, false);
+  private static GrouperCache<String, Set<Method>> setterSetCache = null;
+    
 
+  /**
+   * lazy load
+   * @return setter cache
+   */
+  private static GrouperCache<String, Set<Method>> setterSetCache() {
+    if (setterSetCache == null) {
+      setterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.GrouperUtil.setterSetCache",
+          2000, false, 0, 60*60*24, false);
+    }
+    return setterSetCache;
+  }
+  
+  
   /**
    * Field lastId.
    */
@@ -1941,7 +1989,7 @@ public class GrouperUtil {
         + includeStaticFields + CACHE_SEPARATOR + includeFinalFields
         + CACHE_SEPARATOR + markerAnnotation + CACHE_SEPARATOR
         + includeAnnotation;
-    fieldNameSet = fieldSetCache.get(cacheKey);
+    fieldNameSet = fieldSetCache().get(cacheKey);
     if (fieldNameSet != null) {
       return fieldNameSet;
     }
@@ -1953,7 +2001,7 @@ public class GrouperUtil {
         includeAnnotation);
 
     // add to cache
-    fieldSetCache.put(cacheKey, fieldNameSet);
+    fieldSetCache().put(cacheKey, fieldNameSet);
 
     return fieldNameSet;
 
@@ -2441,11 +2489,11 @@ public class GrouperUtil {
    */
   @SuppressWarnings("unused")
   private static Method[] retrieveDeclaredMethods(Class theClass) {
-    Method[] methods = declaredMethodsCache.get(theClass);
+    Method[] methods = declaredMethodsCache().get(theClass);
     // get from cache if we can
     if (methods == null) {
       methods = theClass.getDeclaredMethods();
-      declaredMethodsCache.put(theClass, methods);
+      declaredMethodsCache().put(theClass, methods);
     }
     return methods;
   }
@@ -3643,7 +3691,7 @@ public class GrouperUtil {
     Set<Method> getterSet = null;
     String cacheKey = theClass + CACHE_SEPARATOR + superclassToStopAt + CACHE_SEPARATOR + fieldType + CACHE_SEPARATOR
       + includeSuperclassToStopAt + CACHE_SEPARATOR + markerAnnotation + CACHE_SEPARATOR + includeAnnotation;
-    getterSet = getterSetCache.get(cacheKey);
+    getterSet = getterSetCache().get(cacheKey);
     if (getterSet != null) {
       return getterSet;
     }
@@ -3653,7 +3701,7 @@ public class GrouperUtil {
         markerAnnotation, getterSet, includeAnnotation);
   
     //add to cache
-    getterSetCache.put(cacheKey, getterSet);
+    getterSetCache().put(cacheKey, getterSet);
     
     return getterSet;
     
@@ -3894,7 +3942,7 @@ public class GrouperUtil {
     Set<Method> setterSet = null;
     String cacheKey = theClass + CACHE_SEPARATOR + superclassToStopAt + CACHE_SEPARATOR + fieldType + CACHE_SEPARATOR
       + includeSuperclassToStopAt + CACHE_SEPARATOR + markerAnnotation + CACHE_SEPARATOR + includeAnnotation;
-    setterSet = setterSetCache.get(cacheKey);
+    setterSet = setterSetCache().get(cacheKey);
     if (setterSet != null) {
       return setterSet;
     }
@@ -3904,7 +3952,7 @@ public class GrouperUtil {
         markerAnnotation, setterSet, includeAnnotation);
   
     //add to cache
-    setterSetCache.put(cacheKey, setterSet);
+    setterSetCache().put(cacheKey, setterSet);
     
     return setterSet;
     
