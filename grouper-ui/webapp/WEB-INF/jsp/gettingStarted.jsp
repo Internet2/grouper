@@ -3,7 +3,7 @@
      and on the help page
 --%><%--
   @author Gary Brown.
-  @version $Id: gettingStarted.jsp,v 1.8 2008-09-27 04:12:48 mchyzer Exp $
+  @version $Id: gettingStarted.jsp,v 1.9 2008-09-30 05:29:21 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}"> 
@@ -97,7 +97,7 @@
 <h2>Grouper end-to-end scenarios</h2>
 <dl>
   <a name="findFolderNavigationAnchor"></a>
-  <dt><a href="#" 
+  <dt><li> <a href="#" 
   onclick="return grouperHideShow(event, 'findFolderNavigation');">Find 
   a folder or a group by navigation</a></dt>
   <dd id="findFolderNavigation0" style="display:none;visibility:hidden;">
@@ -118,7 +118,7 @@ the Group Summary screen for that group</li>
   </ol>
   </dd>
   <a name="findEntitySearchAnchor"></a>
-  <dt><a href="#" 
+  <dt><li> <a href="#" 
   onclick="return grouperHideShow(event, 'findEntitySearch');">Find an entity or a group by searching</a></dt>
   <dd id="findEntitySearch0" style="display:none;visibility:hidden;">(requires VIEW privilege or greater)
     <ol><li> Click "Search" in the "My Tools" segment of the left menu</li>
@@ -135,7 +135,7 @@ your privilege level for the group.)</li>
 view it.   Try modifying your search, or contact your administrator.</li></ul>
      </li></ol></dd>
      <a name="readGroupMembershipListAnchor"></a>
-<dt>      <a href="#" 
+<dt><li>       <a href="#" 
   onclick="return grouperHideShow(event, 'readGroupMembershipList');">Read a group's membership list</a></dt>
 <dd id="readGroupMembershipList0" style="display:none;visibility:hidden;">(requires READ privilege or greater)
 <ol><li>      Find the Group Summary screen for the group by <a href="#" 
@@ -149,7 +149,7 @@ by selecting the appropriate radio button at the top of the "Membership list" pa
 </li></ul></li></ol>
 </dd>
 <a name="addMemberToGroupAnchor"></a>
-<dt>      <a href="#" 
+<dt><li>       <a href="#" 
   onclick="return grouperHideShow(event, 'addMemberToGroup');">Add a member (entity or group) to a group</a></dt>
 <dd id="addMemberToGroup0" style="display:none;visibility:hidden;">(requires UPDATE privilege or greater)
 <ol><li>      <a href="#" 
@@ -165,7 +165,7 @@ MEMBER privilege is selected by default.  You may use the neighboring checkboxes
 <li>      Select each member you want to add by clicking the checkbox next to
 the member listing, then click the "Assign privileges" button at the bottom of the panel.</li></ol>
 </dd>
-<dt>     <a href="#" 
+<dt><li>      <a href="#" 
   onclick="return grouperHideShow(event, 'removeMemberFromGroup');">Remove a member from a group</a></dt>
 <dd id="removeMemberFromGroup0" style="display:none;visibility:hidden;">(requires UPDATE privilege or greater)
 <ol><li>      <a href="#" 
@@ -175,7 +175,7 @@ next to the member listing(s).</li>
 <li>      Click the "Remove selected members" button</li>
 </ol>
 </dd>
-<dt>     <a href="#" 
+<dt><li>      <a href="#" 
   onclick="return grouperHideShow(event, 'assignManagerToGroup');">Assign someone to be able to manage a group</a></dt>
 <dd id="assignManagerToGroup0" style="display:none;visibility:hidden;">(requires ADMIN privilege or greater)
 <ol><li>      <a href="#" 
@@ -196,7 +196,7 @@ clicking the checkbox next to the entity listing, then click the "Assign privile
 </dd>
      <a name="createNewGroupAnchor"></a>
 
-<dt>       <a href="#" 
+<dt><li>        <a href="#" 
   onclick="return grouperHideShow(event, 'createNewGroup');">Create a new group</a></dt>
 <dd id="createNewGroup0" style="display:none;visibility:hidden;">(requires CREATE GROUP privilege or greater)
 <ol><li>      <a href="" 
@@ -215,7 +215,7 @@ enter in each field</li></ul></li>
 saved and you will be taken to step 4c.</li></ul></li>
 </ol>
 </dd>
-<dt><a href="#" 
+<dt><li> <a href="#" 
   onclick="return grouperHideShow(event, 'createCompositeGroup');">Create a composite group</a></dt>
 <dd id="createCompositeGroup0" style="display:none;visibility:hidden;">(requires CREATE GROUP privilege or greater) 
 Grouper allows you to use two existing groups (called "factors") to define a third (composite) group.  
@@ -261,7 +261,7 @@ are using COMPLEMENT ("left minus right") to combine the groups.</li></ul></li>
         <li type="a">     Click the "Create composite group" button at the bottom of the
 panel to create the new composite group.</li></ol></li></ol>
 </dd>
-<dt>     <a href="#" 
+<dt><li>      <a href="#" 
   onclick="return grouperHideShow(event, 'createNewFolder');">Create a new folder</a></dt>
 <dd id="createNewFolder0" style="display:none;visibility:hidden;">(requires CREATE FOLDER privilege or greater)
 <ol><li>      <a href="#" 
@@ -277,7 +277,7 @@ enter in each field</li></ul></li>
         <ul><li>        If you click the "Add members" button, your new group will be
 saved and can add search for and members to the group</li></ul></li></ol>
 </dd>
-<dt>    <a href="#" 
+<dt><li>     <a href="#" 
   onclick="return grouperHideShow(event, 'assignFolderManager');">Assign someone to be 
   able to create new folders or groups within a
 parent folder</a></dt>
