@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.197 2008-09-30 05:29:25 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.198 2008-10-02 21:12:36 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -264,16 +264,25 @@
     <copy file="${dist.binary.zip}/bin/gsh.example.sh" tofile="${dist.binary.zip}/bin/gsh.sh" />
     <copy file="${dist.binary.zip}/bin/groupertest.example.bat" tofile="${dist.binary.zip}/bin/groupertest.bat" />
     <copy file="${dist.binary.zip}/bin/groupertest.example.sh" tofile="${dist.binary.zip}/bin/groupertest.sh" />
-    
+
     <!-- take out dist lib from bat file -->
     <replace dir="${dist.binary.zip}/bin" value=" ">
       <include name="*" />
       <replacetoken><![CDATA[-cpjar %GROUPER_HOME%/dist/lib/grouper.jar]]></replacetoken>
     </replace>
+    <!-- take out dist lib from bat file -->
+    <replace dir="${dist.binary.zip}/bin" value=" " summary="true" >
+      <include name="*" />
+      <replacetoken><![CDATA[-cpjar ${GROUPER_HOME}/dist/lib/grouper.jar]]></replacetoken>
+    </replace>
     <!-- fix the groupertest jar location, it will be in subdir of lib, so remove -->
-    <replace dir="${dist.binary.zip}/bin" value=" ">
+    <replace dir="${dist.binary.zip}/bin" value=" " summary="true">
       <include name="*" />
       <replacetoken><![CDATA[-cpjar %GROUPER_HOME%/dist/binary/zip/lib/test/grouper-test.jar]]></replacetoken>
+    </replace>
+    <replace dir="${dist.binary.zip}/bin" value=" " summary="true">
+      <include name="*" />
+      <replacetoken><![CDATA[-cpjar ${GROUPER_HOME}/dist/binary/zip/lib/test/grouper-test.jar]]></replacetoken>
     </replace>
     
     <!-- fix line endings and permissions of scripts -->
