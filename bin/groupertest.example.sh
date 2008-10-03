@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # if not in bin dir, but in grouper_home, then cd to bin
-[ -e bin/groupertest.sh ] || cd bin
+[ -e groupertest.sh ] || cd bin
 
 [ -e groupertest.sh ] || echo "Cant find groupertest.sh.  Are you in the grouper_home dir or grouper_home\bin dir?"
 [ -e groupertest.sh ] || exit 1
