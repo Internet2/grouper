@@ -18,8 +18,9 @@
 package edu.internet2.middleware.grouper.app.gsh;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URL;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperTest;
@@ -31,7 +32,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Test {@link ChildGroupFilter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestGsh.java,v 1.4 2008-10-03 05:11:02 mchyzer Exp $
+ * @version $Id: TestGsh.java,v 1.5 2008-10-03 14:37:51 mchyzer Exp $
  * @since   1.2.1
  */
 public class TestGsh extends GrouperTest {
@@ -126,13 +127,8 @@ public class TestGsh extends GrouperTest {
     
     System.err.println("Running GSH test: " + gshScript);
     
-    File oneFile = GrouperUtil.fileFromResourceName("edu/internet2/middleware/grouper/app/gsh/composites.gsh");
+    URL url = GrouperUtil.computeUrl("edu/internet2/middleware/grouper/app/gsh/" + gshScript, true);
     
-    String parentDirName = oneFile.getParentFile().getAbsolutePath(); 
-    
-    if (!parentDirName.endsWith(File.separator)) {
-      parentDirName += File.separator;
-    }
     
     PrintStream originalOut = System.out;
     PrintStream originalErr = System.err;
@@ -145,7 +141,9 @@ public class TestGsh extends GrouperTest {
     
     try {
     
-      GrouperShell.grouperShellHelper(new String[]{parentDirName + gshScript});
+      GrouperShell.grouperShellHelper(null, url.openStream());
+    } catch (IOException ioe) {
+      throw new RuntimeException("Problem with file: " + gshScript);
     } finally {
       System.out.flush();
       System.err.flush();

@@ -6,6 +6,7 @@
  */
 
 package edu.internet2.middleware.grouper.app.gsh;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +26,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.5 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: GrouperShell.java,v 1.6 2008-10-03 14:37:51 mchyzer Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -81,7 +82,7 @@ public class GrouperShell {
     }
     exitOnFailure = true;
     try {
-      grouperShellHelper(args);
+      grouperShellHelper(args, null);
     }
     catch (GrouperShellException eGS) {
       System.err.println(eGS.getMessage());
@@ -93,15 +94,16 @@ public class GrouperShell {
   /**
    * helper method to kick off GSH without exiting
    * @param args
+   * @param inputStreamParam if passing in an inputStream
    * @throws GrouperShellException
    */
-  static void grouperShellHelper(String args[]) throws GrouperShellException {
+  static void grouperShellHelper(String args[], InputStream inputStreamParam) throws GrouperShellException {
     
     System.out.println("Type help() for instructions");
     
     GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GSH);
     
-    new GrouperShell( new ShellCommandReader(args) ).run();
+    new GrouperShell( new ShellCommandReader(args, inputStreamParam )).run();
   }
   
 
