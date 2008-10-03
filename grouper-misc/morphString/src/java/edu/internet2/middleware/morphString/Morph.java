@@ -1,5 +1,5 @@
 /*
- * $Id: Morph.java,v 1.1 2008-09-13 18:51:48 mchyzer Exp $
+ * $Id: Morph.java,v 1.2 2008-10-03 17:18:11 mchyzer Exp $
  * 
  * Copyright University of Pennsylvania 2004
  */
@@ -91,11 +91,17 @@ public class Morph {
     }
     return in; 
   }
+  
+  /** if testing, and not relying on morph key being there, use this */
+  public static String testMorphKey = null;
 
   /**
    * @return the key to encrypt/decrypt
    */
   private static String key() {
+    if (testMorphKey != null && !"".equals(testMorphKey.trim())) {
+      return testMorphKey;
+    }
     String decryptKey = MorphPropertyFileUtils.retrievePropertyString(ENCRYPT_KEY);
     
     if (MorphStringUtils.isBlank(decryptKey)) {
