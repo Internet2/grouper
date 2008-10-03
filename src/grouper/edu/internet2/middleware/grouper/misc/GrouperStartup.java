@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.5 2008-09-29 03:38:31 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.6 2008-10-03 04:15:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -70,7 +70,7 @@ public class GrouperStartup {
           
         } catch (Exception e) {
           String error = "Couldnt auto-create data: " + e.getMessage();
-          LOG.fatal(error);
+          LOG.fatal(error, e);
         }
       } else {
         LOG.fatal("grouper.properties registry.autoinit is false, so not auto initting.  " +

@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.42 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.43 2008-10-03 04:15:26 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -50,8 +50,13 @@ public class SuiteDefault extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    GrouperDdlUtils.bootstrapHelper(true, false, true, false, true, false, true, null, true);
-    TestRunner.run(SuiteDefault.suite());
+    try {
+      GrouperDdlUtils.bootstrapHelper(true, false, true, false, true, false, true, null, true);
+      TestRunner.run(SuiteDefault.suite());
+    } catch (RuntimeException re) {
+      LOG.error("Error in testing", re);
+      throw re;
+    }
   }
 
   /**

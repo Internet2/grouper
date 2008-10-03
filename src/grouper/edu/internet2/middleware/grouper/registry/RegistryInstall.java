@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * this will put the base records that grouper needs to operate (e.g. root stem)
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.5 2008-09-29 03:38:31 mchyzer Exp $    
+ * @version $Id: RegistryInstall.java,v 1.6 2008-10-03 04:15:26 mchyzer Exp $    
  */
 public class RegistryInstall {
 
@@ -84,7 +84,7 @@ public class RegistryInstall {
         throwable = throwable.getCause();
       }
       String msg = "unable to initialize registry: " + throwable.getMessage();
-      LOG.fatal(msg);
+      LOG.fatal(msg, throwable);
       throw new GrouperRuntimeException(msg, throwable);
     }
 
