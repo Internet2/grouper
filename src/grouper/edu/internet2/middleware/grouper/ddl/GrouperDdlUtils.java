@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.17 2008-09-30 05:29:25 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.18 2008-10-03 05:11:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -254,7 +254,7 @@ public class GrouperDdlUtils {
       boolean promptUser) {
         
     if (promptUser) {
-      String prompt = "schemaexport all tables (dropThenCreate=" + (theDropBeforeCreate ? "T" : "F")
+      String prompt = GrouperUtil.PROMPT_KEY_SCHEMA_EXPORT_ALL_TABLES + " (dropThenCreate=" + (theDropBeforeCreate ? "T" : "F")
         + ",writeAndRunScript=" + (theWriteAndRunScript ? "T" : "F") + ")";
      
      //make sure it is ok to change db

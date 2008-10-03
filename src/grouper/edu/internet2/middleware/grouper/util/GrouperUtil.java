@@ -488,12 +488,25 @@ public class GrouperUtil {
     return false;
   }
   
+  /** prompt key for schema export */
+  public static String PROMPT_KEY_SCHEMA_EXPORT_ALL_TABLES = "schemaexport all tables";
+  
+  /** prompt key for reset data */
+  public static String PROMPT_KEY_RESET_DATA = "delete all grouper data";
+  
+  /** dont prompt while testing etc, but make sure there has been at least one prompt */
+  public static boolean stopPromptingUser = false;
+  
+  /** if string is not in here, echo to screen */
+  private static Set<String> stopPromptingUserPrintlns = new HashSet<String>();
+  
   /**
    * prompt the user about db changes
    * @param reason e.g. delete all tables
    * @param checkResponse true if the response from the user should be checked, or just display the prompt
    */
   public static void promptUserAboutDbChanges(String reason, boolean checkResponse) {
+    
     Properties grouperHibernateProperties = GrouperUtil.propertiesFromResourceName("grouper.hibernate.properties");
     
     String url = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.url"));
@@ -503,6 +516,17 @@ public class GrouperUtil {
     
     //if already ok'ed this question in the jre instance, then we are all set
     if (dbChangeWhitelist.contains(cacheKey)) {
+      return;
+    }
+
+    //maybe stop due to testing and at least one
+    if (dbChangeWhitelist.size() > 0 && stopPromptingUser) {
+      String message = "DB prompting has been disabled (e.g. due to testing), so this user '"
+          + user + "' and url '" + url + "' are allowed for: " + reason;
+      if (!stopPromptingUserPrintlns.contains(message)) { 
+        System.out.println(message);
+      }
+      stopPromptingUserPrintlns.add(message);
       return;
     }
     

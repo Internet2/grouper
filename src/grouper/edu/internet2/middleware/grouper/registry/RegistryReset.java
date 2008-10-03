@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.3 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: RegistryReset.java,v 1.4 2008-10-03 05:11:03 mchyzer Exp $
  */
 public class RegistryReset {
 
@@ -78,7 +78,7 @@ public class RegistryReset {
   public static void reset() {
     
     //make sure it is ok to change db
-    GrouperUtil.promptUserAboutDbChanges("delete all grouper data", true);
+    GrouperUtil.promptUserAboutDbChanges(GrouperUtil.PROMPT_KEY_RESET_DATA, true);
     
     GrouperStartup.startup();
     

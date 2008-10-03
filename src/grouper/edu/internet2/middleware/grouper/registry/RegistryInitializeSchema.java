@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInitializeSchema.java,v 1.4 2008-09-29 03:38:31 mchyzer Exp $    
+ * @version $Id: RegistryInitializeSchema.java,v 1.5 2008-10-03 05:11:03 mchyzer Exp $    
  * @since   1.2.0
  */
 public class RegistryInitializeSchema {
@@ -77,6 +77,23 @@ public class RegistryInitializeSchema {
     }
   }
 
+  /**
+   * init ddl for tests (drop and create, run now, etc)
+   */
+  public static void initializeSchemaForTests() {
+    inInitSchema = true;
+    try {
+      //dont run from startup, run from here
+      GrouperStartup.runDdlBootstrap = false;
+
+      GrouperStartup.startup();
+
+      GrouperDdlUtils.bootstrapHelper(true, false, true, false, true, false, true, null, true);
+    } finally {
+      inInitSchema = false;
+    }
+
+  }
   
   /**
    * if schema should be initted after schemaexport
