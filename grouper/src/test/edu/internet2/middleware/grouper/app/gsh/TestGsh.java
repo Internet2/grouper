@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Test {@link ChildGroupFilter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestGsh.java,v 1.3 2008-09-22 15:06:40 mchyzer Exp $
+ * @version $Id: TestGsh.java,v 1.4 2008-10-03 05:11:02 mchyzer Exp $
  * @since   1.2.1
  */
 public class TestGsh extends GrouperTest {
@@ -57,7 +57,7 @@ public class TestGsh extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new TestGsh("testGshGroups"));
+    TestRunner.run(new TestGsh("testGshTest"));
 
     //TestRunner.run(TestGsh.class);
   }

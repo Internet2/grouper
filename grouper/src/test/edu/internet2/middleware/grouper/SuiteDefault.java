@@ -27,8 +27,8 @@ import edu.internet2.middleware.grouper.app.gsh.AllGshTests;
 import edu.internet2.middleware.grouper.app.loader.db.AllLoaderDbTests;
 import edu.internet2.middleware.grouper.app.usdu.AllUsduTests;
 import edu.internet2.middleware.grouper.ddl.AllDdlTests;
-import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hooks.AllHooksTests;
+import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.43 2008-10-03 04:15:26 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.44 2008-10-03 05:11:03 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -51,7 +51,9 @@ public class SuiteDefault extends TestCase {
    */
   public static void main(String[] args) {
     try {
-      GrouperDdlUtils.bootstrapHelper(true, false, true, false, true, false, true, null, true);
+      //dont keep prompting user about DB
+      GrouperUtil.stopPromptingUser = true;
+      RegistryInitializeSchema.initializeSchemaForTests();
       TestRunner.run(SuiteDefault.suite());
     } catch (RuntimeException re) {
       LOG.error("Error in testing", re);
@@ -64,6 +66,7 @@ public class SuiteDefault extends TestCase {
    * @return the suite
    */
   static public Test suite() {
+    GrouperUtil.stopPromptingUser = true;
     TestSuite suite = new TestSuite();
     
     //do this first so all tests are done on new ddl

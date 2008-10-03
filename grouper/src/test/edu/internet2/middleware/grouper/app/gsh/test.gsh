@@ -1,6 +1,6 @@
 #
 # GrouperShell Tests
-# $Id: test.gsh,v 1.2 2008-09-16 05:11:53 mchyzer Exp $
+# $Id: test.gsh,v 1.3 2008-10-03 05:11:02 mchyzer Exp $
 #
 
 #
@@ -12,7 +12,6 @@
 #
 GSH_DEVEL = true
 # TODO 20070402 this is fragile
-version   = "0.1.1"
 rootExtn  = "uchicago"
 nsExtn    = "nsit"
 gExtn     = "nbs"
@@ -26,7 +25,6 @@ subjNameA = "subject a"
 # TEST
 #
 #
-assertTrue( "gsh version " + version    , version().equals(version)               )
 assertTrue("resetRegistry is not null", resetRegistry() != null);
 assertTrue("registryInstall is not null", registryInstall() != null);
 assertTrue( "3 sources"                 , getSources().size() == 3                )
