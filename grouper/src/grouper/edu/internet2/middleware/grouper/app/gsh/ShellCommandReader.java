@@ -10,6 +10,7 @@ import  bsh.Interpreter;
 import  java.io.BufferedReader;
 import  java.io.FileNotFoundException;
 import  java.io.FileReader;
+import java.io.InputStream;
 import  java.io.InputStreamReader;
 import  java.io.IOException;
 import  java.util.List;
@@ -28,13 +29,16 @@ class ShellCommandReader implements CommandReader {
   private String          prompt  = null;
 
 
-  // CONSTRUCTORS //
-
-  // @since   0.0.1
-  protected ShellCommandReader(String[] args) 
+  /**
+   * 
+   * @param args
+   * @param inputStreamParam
+   * @throws GrouperShellException
+   */
+  protected ShellCommandReader(String[] args, InputStream inputStreamParam) 
     throws  GrouperShellException
   {
-    if (args.length > 0) {
+    if (args != null && args.length > 0) {
       String file = args[0];
       if ("-".equals( file )) {
         this.in = new BufferedReader( new InputStreamReader(System.in) );
@@ -49,8 +53,12 @@ class ShellCommandReader implements CommandReader {
       }
     }
     else {
-      this.in     = new BufferedReader( new InputStreamReader(System.in) );
-      this.prompt = GrouperShell.NAME + " ";
+      if (inputStreamParam != null) {
+        this.in = new BufferedReader(new InputStreamReader(inputStreamParam));
+      } else {
+        this.in     = new BufferedReader( new InputStreamReader(System.in) );
+        this.prompt = GrouperShell.NAME + " ";
+      }
     }
     this.i = new Interpreter(this.in, System.out, System.err, false);
   } // protected ShellCommandReader(args)
