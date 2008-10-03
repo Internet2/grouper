@@ -210,30 +210,37 @@ public class GrouperUtil {
           break;
         }
       }
-      Enumeration allAppenders = log4jLogger.getAllAppenders();
-      if (allAppenders!=null) {
-        while (allAppenders.hasMoreElements()) {
-          writesLogs = true;
-          Appender appender = (Appender) allAppenders.nextElement();
-          if (appender instanceof ConsoleAppender) {
-            printGrouperLogsToConsole = true;
-            rootLoggerAppender.append("console, ");
-          } else if (appender instanceof FileAppender) {
-            String path = ((FileAppender)appender).getFile();
-            if (StringUtils.isBlank(path)) {
-              resultMessage.append("Grouper error, file appender path is empty, maybe dir doesnt exist\n");
-            } else {
-              File logFile = new File(path);
-              if (logFile.getParentFile() != null && !logFile.getParentFile().exists()) {
-                resultMessage.append("Grouper warning: parent dir of log file doesnt exist: " + logFile.getAbsolutePath() + "\n");
-                mkdirs(logFile.getParentFile());
-                resultMessage.append("Grouper note: auto-created parent dir of log file: " + logFile.getAbsolutePath() + "\n");
-              }
-              rootLoggerAppender.append(logFile.getAbsolutePath()).append(", ");
-            }
+      //add all appenders from here and parents
+      Set<Appender> allAppenders = new LinkedHashSet<Appender>();
+      Category currentAppenderLogger = log4jLogger;
+      while (currentAppenderLogger != null) {
+        Enumeration allAppendersEnumeration = currentAppenderLogger.getAllAppenders();
+        while (allAppendersEnumeration.hasMoreElements()) {
+          allAppenders.add((Appender)allAppendersEnumeration.nextElement());
+        }
+        currentAppenderLogger = currentAppenderLogger.getParent();
+      }
+      
+      for (Appender appender : allAppenders) {
+        writesLogs = true;
+        if (appender instanceof ConsoleAppender) {
+          printGrouperLogsToConsole = true;
+          rootLoggerAppender.append("console, ");
+        } else if (appender instanceof FileAppender) {
+          String path = ((FileAppender)appender).getFile();
+          if (StringUtils.isBlank(path)) {
+            resultMessage.append("Grouper error, file appender path is empty, maybe dir doesnt exist\n");
           } else {
-            rootLoggerAppender.append("appender type: " + appender.getClass().getSimpleName()).append(", ");
+            File logFile = new File(path);
+            if (logFile.getParentFile() != null && !logFile.getParentFile().exists()) {
+              resultMessage.append("Grouper warning: parent dir of log file doesnt exist: " + logFile.getAbsolutePath() + "\n");
+              mkdirs(logFile.getParentFile());
+              resultMessage.append("Grouper note: auto-created parent dir of log file: " + logFile.getAbsolutePath() + "\n");
+            }
+            rootLoggerAppender.append(logFile.getAbsolutePath()).append(", ");
           }
+        } else {
+          rootLoggerAppender.append("appender type: " + appender.getClass().getSimpleName()).append(", ");
         }
       }
       if (!writesLogs || !rootLogger.isErrorEnabled()) {
