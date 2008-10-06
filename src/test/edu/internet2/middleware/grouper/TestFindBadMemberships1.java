@@ -154,7 +154,7 @@ public class TestFindBadMemberships1 extends TestCase {
       SBgE.setUuid("testuuid");
       mof.addSave(SBgE);
       GrouperDAOFactory.getFactory().getMembership().update(mof);
-      goodGroups.remove(gE);
+      goodGroups.clear();
       badGroups.add(gE);
       MembershipTestHelper.checkBadGroupMemberships("SB -> gE gets duplicated", goodGroups, badGroups);
 

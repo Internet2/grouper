@@ -39,6 +39,8 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.commons.logging.Log;
 
+import org.hibernate.HibernateException;
+
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -320,7 +322,14 @@ public class FindBadMemberships {
 
       // add the immediate membership and get back the membership objects that are created.
       DefaultMemberOf mof = new DefaultMemberOf();
-      mof.addImmediateWithoutValidation(GrouperSession.staticGrouperSession(), stem, FieldFinder.find(currentMembership.getListName()), currentMember);
+
+      try {
+        // if this throws a HibernateException, we might have bad data in the database.
+        mof.addImmediateWithoutValidation(GrouperSession.staticGrouperSession(), stem, FieldFinder.find(currentMembership.getListName()), currentMember);
+      } catch (HibernateException e) {
+        return false;
+      }
+
       Set<GrouperAPI> shouldBeforeFilter = mof.getSaves();
  
       Iterator<GrouperAPI> shouldBeforeFilterIterator = shouldBeforeFilter.iterator();
@@ -411,7 +420,14 @@ public class FindBadMemberships {
     Set<Membership> should = new LinkedHashSet<Membership>();
 
     DefaultMemberOf mof = new DefaultMemberOf();
-    mof.addComposite(GrouperSession.staticGrouperSession(), group, c);
+
+    try {
+      // if this throws a HibernateException, we might have bad data in the database.
+      mof.addComposite(GrouperSession.staticGrouperSession(), group, c);
+    } catch (HibernateException e) {
+      return false;
+    }
+
     Set<GrouperAPI> shouldBeforeFilter = mof.getEffectiveSaves();
     Iterator<GrouperAPI> shouldBeforeFilterIterator = shouldBeforeFilter.iterator();
     while (shouldBeforeFilterIterator.hasNext()) {
@@ -514,7 +530,14 @@ public class FindBadMemberships {
 
       // add the immediate membership and lets see what effective memberships are created.
       DefaultMemberOf mof = new DefaultMemberOf();
-      mof.addImmediateWithoutValidation(GrouperSession.staticGrouperSession(), group, FieldFinder.find(currentMembership.getListName()), currentMember);
+
+      try {
+        // if this throws a HibernateException, we might have bad data in the database.
+        mof.addImmediateWithoutValidation(GrouperSession.staticGrouperSession(), group, FieldFinder.find(currentMembership.getListName()), currentMember);
+      } catch (HibernateException e) {
+        return false;
+      }
+
       Set<GrouperAPI> shouldBeforeFilter = mof.getSaves();
 
       Iterator<GrouperAPI> shouldBeforeFilterIterator = shouldBeforeFilter.iterator();
