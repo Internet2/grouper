@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
@@ -53,7 +54,7 @@ import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.4 2008-09-10 14:29:40 shilen Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.5 2008-10-06 16:46:13 shilen Exp $
  * @since   1.2.0
  */
 @GrouperIgnoreDbVersion
@@ -365,7 +366,72 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     return parentToChildrenMap;
   }
 
-  private Set _addHasMembersRecursively(Membership startMembership, 
+  /**
+   * Check if the given memberUUID is the memberUUID for the group with a UUID of ownerUUID.
+   *
+   * @param memberUUID
+   * @param ownerUUID
+   * @return
+   */
+  private boolean checkEquality(String memberUUID, String ownerUUID) {
+    try {
+      Member m1 = GrouperDAOFactory.getFactory().getMember().findByUuid(memberUUID);
+      Member m2 = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerUUID).toMember();
+      if (m1.equals(m2)) {
+        return true;
+      }
+    } catch (MemberNotFoundException e) {
+      throw new IllegalStateException("Member object not found while testing for circular membership.", e);
+    } catch (GroupNotFoundException e) {
+      throw new IllegalStateException("Group object not found while testing for circular membership.", e);
+    }
+
+    return false;
+  }
+  
+  /**
+   * Check if the new membership being added will cause a circular membership.
+   *
+   * @param newMembership membership being added
+   * @param startMembership membership that's a parent of newMembership which will be used
+   *                        as a starting point to check if we're forming a circular membership
+   * @returns true if the new membership will cause a circular membership.
+   */
+  private boolean isCircular(Membership newMembership, Membership startMembership) {
+    // for the default list, a group should not be an indirect member of itself ....
+
+    if (newMembership.getFieldId().equals(Group.getDefaultList().getUuid()) && 
+      checkEquality(newMembership.getMemberUuid(), newMembership.getOwnerUuid())) {
+      return true;
+    }
+
+    // now let's go through the parent memberships... 
+    // if the member uuid of a parent is equal to the member uuid of the new membership,
+    // then we have a circular membership.
+    if (newMembership.getDepth() < 2) {
+      return false;
+    }
+
+    try {
+      Membership currentMembership = startMembership;
+      while (true) {
+        if (currentMembership.getMemberUuid().equals(newMembership.getMemberUuid())) {
+          return true;
+        }
+        if (currentMembership.getDepth() > 0) {
+          currentMembership = currentMembership.getParentMembership();
+        } else {
+          break;
+        }
+      }
+    } catch (MembershipNotFoundException e) {
+      throw new IllegalStateException(e.getMessage(), e);
+    }
+
+    return false;
+  }
+
+  private Set<Membership> _addHasMembersRecursively(Membership startMembership, 
     Membership currentMembership, Membership parentMembership, Map<String, Set> parentToChildrenMap, 
     String ownerUUID, String creatorUUID, String fieldId,
     boolean isStartMembershipViaGroupComposite) {
@@ -393,6 +459,12 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     } else {
       _newMembership.setViaUuid(currentMembership.getViaUuid());
     }
+
+    // if we're forming a circular path, return an empty Set.
+    if (isCircular(_newMembership, startMembership)) {
+      return new LinkedHashSet<Membership>();
+    }
+
     
     GrouperValidator v = EffectiveMembershipValidator.validate(_newMembership);
     if (v.isInvalid()) {
@@ -447,7 +519,6 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
 
     while (itIM.hasNext()) {
       isMS = itIM.next();
-
       boolean isViaGroupComposite = isViaGroupComposite(isMS);
 
       String ownerUUID = isMS.getOwnerUuid();
@@ -456,30 +527,42 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
       String uuid = isMS.getUuid();
       int depth = isMS.getDepth();
 
-      if (!isComposite && !type.equals(Membership.COMPOSITE)) {
-        _ms = new Membership();
-        _ms.setCreatorUuid( creatorUUID );
-        if (isViaGroupComposite) {
-          _ms.setDepth( depth );
-          _ms.setViaUuid( isMS.getViaUuid() );
-          _ms.setParentUuid( isMS.getParentUuid() );
+      // If the isMember's owner is the same as the immediate member's owner and this is for a default member, 
+      // then we can skip this isMember.
+      if (fieldId.equals(Group.getDefaultList().getUuid()) && isMS.getOwnerUuid().equals(this.getGroup().getUuid())) {
+        continue;
+      }
+
+      if (!isComposite) {
+        if (!type.equals(Membership.COMPOSITE)) {
+          _ms = new Membership();
+          _ms.setCreatorUuid( creatorUUID );
+          if (isViaGroupComposite) {
+            _ms.setDepth( depth );
+            _ms.setViaUuid( isMS.getViaUuid() );
+            _ms.setParentUuid( isMS.getParentUuid() );
+          } else {
+            _ms.setDepth( depth + 1 );
+            _ms.setViaUuid( this.getMembership().getOwnerUuid() );
+            _ms.setParentUuid( uuid );
+          }
+          _ms.setFieldId( fieldId );
+          _ms.setMemberUuid( this.getMembership().getMemberUuid() );
+          _ms.setOwnerUuid( ownerUUID );
+          _ms.setType(Membership.EFFECTIVE);
+
+          GrouperValidator v = EffectiveMembershipValidator.validate(_ms);
+          if (v.isInvalid()) {
+            throw new IllegalStateException( v.getErrorMessage() );
+          }
+
+          // if we're forming a circular path, skip this isMember
+          if (isCircular(_ms, isMS)) {
+            continue;
+          }
+
+          mships.add(_ms);
         } else {
-          _ms.setDepth( depth + 1 );
-          _ms.setViaUuid( this.getMembership().getOwnerUuid() );
-          _ms.setParentUuid( uuid );
-        }
-        _ms.setFieldId( fieldId );
-        _ms.setMemberUuid( this.getMembership().getMemberUuid() );
-        _ms.setOwnerUuid( ownerUUID );
-        _ms.setType(Membership.EFFECTIVE);
-
-        GrouperValidator v = EffectiveMembershipValidator.validate(_ms);
-        if (v.isInvalid()) {
-          throw new IllegalStateException( v.getErrorMessage() );
-        }
-
-        mships.add(_ms);
-      } else if (!isComposite && type.equals(Membership.COMPOSITE)) {
           _ms = new Membership();
           _ms.setCreatorUuid( creatorUUID );
           _ms.setDepth(0);
@@ -489,12 +572,23 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
           _ms.setParentUuid(null);
           _ms.setType(Membership.COMPOSITE);
           _ms.setViaUuid( isMS.getViaUuid() );
-    
-          GrouperValidator v = CompositeMembershipValidator.validate(_ms);
-          if (v.isInvalid()) {
-            throw new IllegalStateException( v.getErrorMessage() );
+          // since the composite membership might already exist, let's check first
+          if (!GrouperDAOFactory.getFactory().getMembership().exists(
+            _ms.getOwnerUuid(), _ms.getMemberUuid(), _ms.getListName(), _ms.getType())) {
+            GrouperValidator v = CompositeMembershipValidator.validate(_ms);
+            if (v.isInvalid()) {
+              throw new IllegalStateException( v.getErrorMessage() );
+            }
+
+            // if we're forming a circular path, skip this isMember
+            if (isCircular(_ms, isMS)) {
+              continue;
+            }
+
+            // Note that _ms may already exist in mships, but since this is a Set, that shouldn't matter.
+            mships.add(_ms);
           }
-          mships.add(_ms);
+        }
       }
 
       if (type.equals(Membership.COMPOSITE)) {
@@ -510,12 +604,22 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
           _ms.setParentUuid(null);
           _ms.setType(Membership.COMPOSITE);
           _ms.setViaUuid( isMS.getViaUuid() );
-    
-          GrouperValidator v = CompositeMembershipValidator.validate(_ms);
-          if (v.isInvalid()) {
-            throw new IllegalStateException( v.getErrorMessage() );
+          // since the composite membership might already exist, let's check first
+          if (!GrouperDAOFactory.getFactory().getMembership().exists(
+            _ms.getOwnerUuid(), _ms.getMemberUuid(), _ms.getListName(), _ms.getType())) {
+            GrouperValidator v = CompositeMembershipValidator.validate(_ms);
+            if (v.isInvalid()) {
+              throw new IllegalStateException( v.getErrorMessage() );
+            }
+
+            // if we're forming a circular path, skip this hasMember
+            if (isCircular(_ms, isMS)) {
+              continue;
+            }
+
+            // Note that _ms may already exist in mships, but since this is a Set, that shouldn't matter.
+            mships.add(_ms);
           }
-          mships.add(_ms);
         } 
       } else {
         Iterator<Membership> itHM = hasMembersZeroDepth.iterator();
@@ -537,14 +641,29 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     return mships;
   } 
 
+
+  /**
+   * Checks if the membership is via a composite group.
+   *
+   * @param membership the membership to check
+   * @returns true if the membership is via a composite group.
+   * @throws IllegalStateException
+   */
   private boolean isViaGroupComposite(Membership membership) 
     throws IllegalStateException {
 
+    // return false if there's no via uuid.
     String uuid = membership.getViaUuid();
     if (uuid == null) {
       return false;
     }
 
+    // we might be adding the composite group right now...
+    if (this.getComposite() != null && this.getGroup().getUuid().equals(uuid)) {
+      return true;
+    }
+
+    // check the database to see if the via uuid is a composite group.
     try {
       Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid);
       GrouperDAOFactory.getFactory().getComposite().findAsOwner(group);
@@ -627,6 +746,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     Set memberUUIDs = new LinkedHashSet();
     memberUUIDs.addAll( this._findMemberUUIDs( this.getComposite().getLeftFactorUuid() ) );
     memberUUIDs.removeAll( this._findMemberUUIDs(this.getComposite() .getRightFactorUuid() ) );
+    memberUUIDs.remove(this.getGroup().toMember().getUuid());
     return this._createNewCompositeMembershipObjects(memberUUIDs);
   } 
   
@@ -637,6 +757,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     Set memberUUIDs = new LinkedHashSet();
     memberUUIDs.addAll( this._findMemberUUIDs( this.getComposite().getLeftFactorUuid() ) );
     memberUUIDs.retainAll( this._findMemberUUIDs( this.getComposite().getRightFactorUuid() ) );
+    memberUUIDs.remove(this.getGroup().toMember().getUuid());
     return this._createNewCompositeMembershipObjects(memberUUIDs);
   } 
 
@@ -647,6 +768,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     Set memberUUIDs = new LinkedHashSet();
     memberUUIDs.addAll( this._findMemberUUIDs( this.getComposite().getLeftFactorUuid() ) );
     memberUUIDs.addAll( this._findMemberUUIDs( this.getComposite().getRightFactorUuid() ) );
+    memberUUIDs.remove(this.getGroup().toMember().getUuid());
     return this._createNewCompositeMembershipObjects(memberUUIDs);
   } 
 

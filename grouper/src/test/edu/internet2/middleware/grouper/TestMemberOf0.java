@@ -26,7 +26,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMemberOf0.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestMemberOf0.java,v 1.7 2008-10-06 16:46:13 shilen Exp $
  */
 public class TestMemberOf0 extends TestCase {
 
@@ -78,27 +78,12 @@ public class TestMemberOf0 extends TestCase {
       // Add gA to gB
 
       gB.addMember(gA.toSubject());
-      // gA -> gB
-      //
-      // * subjA -> gA
-      // * gB -> gA
-      // * subjB -> gB -> gA
-      // + gA -> gB -> gA
-      // + subjA -> gA -> gB -> gA
-      // + gB -> gA -> gB -> gA
-      // + subjB -> gB -> gA -> gB -> gA
-      //
-      // * subjB -> gB
-      // + gA -> gB
-      // + subjA -> gA -> gB
-      // + gB -> gA -> gB
-      // + subjB -> gB -> gA -> gB
-      T.getMemberships(gA, 7);
-      T.getMemberships(gB, 5);
+      T.getMemberships(gA, 3);
+      T.getMemberships(gB, 3);
       T.getImmediateMemberships(gA, 2);
       T.getImmediateMemberships(gB, 2);
-      T.getEffectiveMemberships(gA, 5);
-      T.getEffectiveMemberships(gB, 3);
+      T.getEffectiveMemberships(gA, 1);
+      T.getEffectiveMemberships(gB, 1);
 
       r.rs.stop();
     }
