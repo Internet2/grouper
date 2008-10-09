@@ -41,7 +41,7 @@ import  org.apache.commons.logging.*;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.100.8.2 2008-09-04 11:15:27 isgwb Exp $
+ * @version $Id: XmlExporter.java,v 1.100.8.3 2008-10-09 15:03:19 isgwb Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1584,7 +1584,7 @@ public class XmlExporter {
     this.xml.internal_indent();
     this.xml.internal_puts("<source id=" + Quote.single( XML.escape( sa.getId() ) )  );
     this.xml.internal_indent();
-    this.xml.internal_puts("name="       + Quote.single( sa.getName() )                 );
+    this.xml.internal_puts("name="       + Quote.single( XML.escape(sa.getName()) )                 );
     this.xml.internal_puts("class="      + Quote.single( sa.getClass().getName() )      );
     this.xml.internal_undent();
     this.xml.internal_puts(">");
