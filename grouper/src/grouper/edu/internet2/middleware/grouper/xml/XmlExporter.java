@@ -90,7 +90,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.4 2008-10-09 14:58:02 isgwb Exp $
+ * @version $Id: XmlExporter.java,v 1.5 2008-10-09 15:08:09 isgwb Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -202,6 +202,12 @@ public class XmlExporter {
    * <td>true/false</td>
    * <td>false</td>
    * <td>If true and only exporting a partial hierarchy then privileges for parent stems will be exported.</td>
+   * </tr>
+   * <tr>
+   * <td>export.data.fail-on-unresolvable-subject</td>
+   * <td>true/false</td>
+   * <td>false</td>
+   * <td>If true and there is a problem resolving a subject attribute abort.</td>
    * </tr>
    * <tr>
    * <td>export.subject-attributes.source.&lt;source name&gt;.&lt;subject type&gt;</td>
