@@ -90,7 +90,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.3 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: XmlExporter.java,v 1.4 2008-10-09 14:58:02 isgwb Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1617,7 +1617,7 @@ public class XmlExporter {
     this.xml.internal_indent();
     this.xml.internal_puts("<source id=" + Quote.single( XML.escape( sa.getId() ) )  );
     this.xml.internal_indent();
-    this.xml.internal_puts("name="       + Quote.single( sa.getName() )                 );
+    this.xml.internal_puts("name="       + Quote.single( XML.escape(sa.getName()) )                 );
     this.xml.internal_puts("class="      + Quote.single( sa.getClass().getName() )      );
     this.xml.internal_undent();
     this.xml.internal_puts(">");
