@@ -1,6 +1,6 @@
 #You can override the default browse stem, however, you must ensure that the stem
 #exists by creating it using the Grouper API
-#default.browse.stem=root
+#default.browse.stem=<stem_name>
 
 #If you want to save your debug preferences, set debug.prefs.dir to an existing directory 
 #on you system, where the user Tomcat runs as, has write privilege
