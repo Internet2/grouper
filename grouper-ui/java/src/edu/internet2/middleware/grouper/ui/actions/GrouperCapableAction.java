@@ -178,7 +178,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.17 2008-07-20 21:18:43 mchyzer Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.18 2008-10-10 07:37:55 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -461,6 +461,17 @@ public abstract class GrouperCapableAction
 		//Store page id in session
 		data[0].put("_thisPageId",id);
 		
+		
+		
+	}
+	
+	protected void augmentCallerPageRequest(HttpServletRequest request, String name, String value) {
+		String id = (String)request.getAttribute("thisPageId");
+		if(id==null) return;
+		Map callerPageHistory=(Map)request.getSession().getAttribute("callerPageHistory");
+		Map[] data = (Map[])callerPageHistory.get(id);
+		if(data==null) return;
+		data[0].put(name, value);
 		
 		
 	}
