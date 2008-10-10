@@ -38,6 +38,8 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.InitialStems;
+import edu.internet2.middleware.grouper.ui.Message;
+import edu.internet2.middleware.grouper.ui.MissingGroupOrStemException;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
@@ -215,7 +217,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.17 2008-10-09 13:20:44 isgwb Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.18 2008-10-10 10:16:04 isgwb Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -325,8 +327,28 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
         curGroupOrStem = GroupOrStem.findByID(grouperSession,currentNodeId);
       } catch (RuntimeException re) {
         //if not found (e.g. if current gorup deleted), then go back to root
-        if (re.getCause() instanceof GroupNotFoundException) {
-          currentNodeId="ROOT";
+        if (re instanceof MissingGroupOrStemException ||
+        		re.getCause() instanceof GroupNotFoundException || re.getCause() instanceof MissingGroupOrStemException) {
+        	if(GrouperHelper.NS_ROOT.equals(defaultStem)) {
+				curNodeStem = StemFinder.findRootStem(grouperSession);
+				curGroupOrStem = GroupOrStem.findByStem(grouperSession, curNodeStem);
+			}else {
+				try{
+					curNodeStem = StemFinder.findByName(grouperSession, defaultStem);
+					curGroupOrStem = GroupOrStem.findByStem(grouperSession, curNodeStem);
+				}catch(StemNotFoundException e){
+					LOG.error("Cannot retrieve defaultStem: " + defaultStem,e);
+					throw new UnrecoverableErrorException("error.browse.bad-current-id",e,defaultStem);
+				
+				}
+			}
+			
+			if(curNodeStem!=null && !"ROOT".equals(currentNodeId)) {
+				currentNodeId = curNodeStem.getUuid();
+			}
+			Message msg=new Message("error.browse.reset",currentNodeId);
+			msg.setWarning(true);
+			addMessage(msg, request);
         } else {
           //not group not found, something wrong
           throw re;

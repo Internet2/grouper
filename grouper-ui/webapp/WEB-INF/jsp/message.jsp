@@ -4,7 +4,7 @@
 		 'message'
 --%><%--
   @author Gary Brown.
-  @version $Id: message.jsp,v 1.6 2008-09-09 20:03:40 mchyzer Exp $
+  @version $Id: message.jsp,v 1.7 2008-10-10 10:16:04 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -19,7 +19,7 @@ request.setAttribute("messages",messages);
 %>
 </c:if>
 <c:forEach var="message" items="${messages}">
-<div class="grouperMessage <c:out value="${message.containerId}"/>"  >
+<div class="<c:out value="${message.containerId}"/>"  >
 
 <%-- print out prefix --%>
 <grouper:message key="message.${message.containerId}" />
@@ -33,6 +33,6 @@ request.setAttribute("messages",messages);
 <!--/message-->
 </div>
 </c:forEach> 
-</div>
+</div><c:remove var="message" scope="request" /><c:remove var="messages" scope="request" />
 <p>&nbsp;</p>
 </grouper:recordTile>

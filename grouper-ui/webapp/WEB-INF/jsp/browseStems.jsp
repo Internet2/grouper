@@ -4,10 +4,13 @@
 		  active stem
 --%><%--
   @author Gary Brown.
-  @version $Id: browseStems.jsp,v 1.3 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: browseStems.jsp,v 1.4 2008-10-10 10:16:04 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
+<c:if test="${!empty message || !empty messages}">
+                    <tiles:insert definition="messageDef" />   
+            </c:if>
 <div class="sectionBody">
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <c:choose>
