@@ -16,12 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper.cache;
+import java.io.File;
 import java.net.URL;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Statistics;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -31,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Base class for common cache operations.
  * @author  blair christensen.
- * @version $Id: EhcacheController.java,v 1.10 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: EhcacheController.java,v 1.11 2008-10-12 17:15:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class EhcacheController implements CacheController {
@@ -203,7 +205,24 @@ public class EhcacheController implements CacheController {
         throw new RuntimeException("Cant find resourse /grouper.ehcache.xml, " +
         		"make sure it is on the classpath");
       }
-      this.mgr = new CacheManager(url);
+      //trying to avoid warning of using the same dir
+      String tempDirKey = "java.io.tmpdir";
+      String tmpdir = System.getProperty(tempDirKey);
+      try {
+        String newTmpdir = StringUtils.trimToEmpty(tmpdir);
+        if (!newTmpdir.endsWith("\\") && !newTmpdir.endsWith("/")) {
+          newTmpdir += File.separator;
+        }
+        newTmpdir += "grouper_ehcache_auto_" + GrouperUtil.uniqueId();
+        System.setProperty(tempDirKey, newTmpdir);
+        
+        //now it should be using a unique directory
+        this.mgr = new CacheManager(url);
+      } finally {
+        //put tmpdir back
+        System.setProperty(tempDirKey, tmpdir);
+      }
+      
     }
   }
   
