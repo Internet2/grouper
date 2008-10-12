@@ -142,8 +142,9 @@ public class WsGroupDetail {
           throw new RuntimeException(gnfe);
         }
       }
-
-      this.setModifySource(group.getModifySource());
+      //note modify source is not in the grouper api anymore..., since you get the 
+      //modify member, then get the source from the member object
+      this.setModifySource(null);
 
       String modifySubjectIdString = null;
       try {

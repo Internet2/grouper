@@ -176,11 +176,11 @@ public class WsSubjectLookup {
 
         //cant have source without type
         if (hasSubjectSource) {
-          this.subject = SubjectFinder.getSource(this.subjectSourceId).getSubject(
+          this.subject = SubjectFinder.getSource(this.subjectSourceId).getSubjectByIdentifier(
               this.subjectIdentifier);
           return;
         }
-        this.subject = SubjectFinder.findByIdentifier(this.subjectId);
+        this.subject = SubjectFinder.findByIdentifier(this.subjectIdentifier);
         return;
 
       }

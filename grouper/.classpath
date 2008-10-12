@@ -4,7 +4,6 @@
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="src" path="confForTest"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="lib/ant/ant-contrib-1.0b3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/activation.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/ant.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/antlr.jar"/>
@@ -47,5 +46,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/ojdbc14.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/postgresql.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/junit.jar"/>
+	<classpathentry kind="lib" path="lib/ant/ant-contrib.jar"/>
+	<classpathentry kind="lib" path="lib/custom/ojdbc14.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

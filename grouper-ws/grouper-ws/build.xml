@@ -3,7 +3,7 @@
 	<tstamp/>
 	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
 		<classpath>
-			<pathelement location="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
+			<pathelement location="${basedir}/lib/ant/ant-contrib.jar" />
 		</classpath>
 	</taskdef>
 
@@ -330,12 +330,13 @@
 	  <copy todir="${webapp.folder}/WEB-INF/lib">
 			<fileset dir="${basedir}/lib/axis" includes="*.jar" />
       <fileset dir="${basedir}/lib/rampart" includes="*.jar" />
-			<fileset dir="${grouper.lib.dir}">
+			<fileset dir="${grouper.lib.dir}/grouper">
 			  <include name="*.jar"/>
         <exclude name="grouper*.jar"/>
 			</fileset>
       <fileset file="${grouper.jar.name}" />
 			<fileset dir="${basedir}/lib/grouper-ws" includes="*.jar" />
+      <fileset dir="${basedir}/lib/custom" includes="*.jar" />
 			<fileset dir="${dist.home}" includes="grouper-ws.jar" />
 		</copy>
 
