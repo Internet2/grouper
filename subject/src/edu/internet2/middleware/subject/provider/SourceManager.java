@@ -1,6 +1,6 @@
 /*--
-$Id: SourceManager.java,v 1.6 2008-10-13 08:04:29 mchyzer Exp $
-$Date: 2008-10-13 08:04:29 $
+$Id: SourceManager.java,v 1.7 2008-10-13 09:10:28 mchyzer Exp $
+$Date: 2008-10-13 09:10:28 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -8,6 +8,7 @@ See doc/license.txt in this distribution.
 
 package edu.internet2.middleware.subject.provider;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 
@@ -22,13 +23,16 @@ import java.util.HashSet;
 import org.xml.sax.SAXException;
 
 import org.apache.commons.digester.Digester;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
  * Factory to load and get Sources.  Sources are defined
@@ -38,6 +42,36 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class SourceManager {
 
+  /**
+   * print out the config for the subject API
+   * @return the config
+   */
+  public String printConfig() {
+    try {  
+      StringBuilder result = new StringBuilder();
+      
+      File sourcesXmlFile = SubjectUtils.fileFromResourceName("sources.xml");
+      String sourcesXmlFileLocation = sourcesXmlFile == null ? " [cant find sources.xml]" :
+        SubjectUtils.fileCanonicalPath(sourcesXmlFile);
+  
+      result.append("sources.xml read from:        " + sourcesXmlFileLocation + "\n");
+  
+      //at this point, we have a sources.xml...  now check it out
+      Collection<Source> sources = SourceManager.getInstance().getSources();
+      for (Source source: sources) {
+        result.append(source.printConfig()).append("\n");
+      }
+      //dont end in newline
+      if (result.toString().endsWith("\n")) {
+        result.deleteCharAt(result.length()-1);
+      }
+      return result.toString();
+    } catch (Exception e) {
+      log.error("Cant print subject API configs", e);
+    }
+    return "Cant print subject API configs";
+
+  }
     private static final String CONFIG_FILE = "/sources.xml";
 
     private static Log log = LogFactory.getLog(SourceManager.class);

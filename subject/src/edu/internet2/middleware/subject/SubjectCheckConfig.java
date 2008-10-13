@@ -1,9 +1,10 @@
 /*
  * @author mchyzer
- * $Id: SubjectCheckConfig.java,v 1.1 2008-10-13 08:04:29 mchyzer Exp $
+ * $Id: SubjectCheckConfig.java,v 1.2 2008-10-13 09:10:28 mchyzer Exp $
  */
 package edu.internet2.middleware.subject;
 
+import java.io.File;
 import java.net.URL;
 import java.util.Collection;
 
@@ -69,8 +70,9 @@ public class SubjectCheckConfig {
       log.error(error, e);
       return;
     }
-    
+    int sourceCount = 0;
     for (Source source: sources) {
+      sourceCount++;
       String error = "error with subject source id: " + source.getId() + ", name: " + source.getName()
         + ", ";
       try {
@@ -84,6 +86,7 @@ public class SubjectCheckConfig {
         String theError = error + "problem with getSubject by id, in sources.xml: serachType searchSubject: ";
         System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getFullStackTrace(e));
         log.error(theError, e);
+        continue;
       }
 
       try {
@@ -95,6 +98,7 @@ public class SubjectCheckConfig {
         String theError = error + "problem with getSubject by identifier, in sources.xml: serachType searchSubjectByIdentifier: ";
         System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getFullStackTrace(e));
         log.error(theError, e);
+        continue;
       }
     
       try {
@@ -105,8 +109,14 @@ public class SubjectCheckConfig {
         String theError = error + "problem with search, in sources.xml: serachType search: ";
         System.err.println("Subject API error: " + theError + ", " + ExceptionUtils.getFullStackTrace(e));
         log.error(theError, e);
+        continue;
       }
     }
+    if (sourceCount == 0) {
+      System.err.println("Subject API warning: there are no sources available from sources.xml");
+      log.warn("there are no sources available from sources.xml");
+    }
+
   }
   
 }

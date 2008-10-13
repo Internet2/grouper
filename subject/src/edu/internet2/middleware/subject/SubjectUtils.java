@@ -1,9 +1,10 @@
 /*
  * @author mchyzer
- * $Id: SubjectUtils.java,v 1.3 2008-10-13 08:04:29 mchyzer Exp $
+ * $Id: SubjectUtils.java,v 1.4 2008-10-13 09:10:28 mchyzer Exp $
  */
 package edu.internet2.middleware.subject;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -1662,6 +1663,40 @@ public class SubjectUtils {
       } catch (IOException e) {
         //swallow, its ok
       }
+    }
+  }
+
+  /**
+   * get a file name from a resource name
+   * 
+   * @param resourceName
+   *          is the classpath location
+   * 
+   * @return the file path on the system
+   */
+  public static File fileFromResourceName(String resourceName) {
+    
+    URL url = computeUrl(resourceName, true);
+  
+    if (url == null) {
+      return null;
+    }
+  
+    File configFile = new File(url.getFile());
+  
+    return configFile;
+  }
+
+  /**
+   * get canonical path of file
+   * @param file
+   * @return the path
+   */
+  public static String fileCanonicalPath(File file) {
+    try {
+      return file.getCanonicalPath();
+    } catch (IOException ioe) {
+      throw new RuntimeException(ioe);
     }
   }
 

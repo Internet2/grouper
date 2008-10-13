@@ -1,6 +1,6 @@
 /*--
-$Id: NullSourceAdapter.java,v 1.2 2008-10-13 08:04:29 mchyzer Exp $
-$Date: 2008-10-13 08:04:29 $
+$Id: NullSourceAdapter.java,v 1.3 2008-10-13 09:10:28 mchyzer Exp $
+$Date: 2008-10-13 09:10:28 $
 
 Copyright (C) 2006 Internet2 and The University Of Chicago.  
 All Rights Reserved.
@@ -15,7 +15,7 @@ import org.apache.commons.logging.*;
 /**
  * Null {@link Source} which will never return any {@link Subject}s.
  * @author  blair christensen.
- * @version $Id: NullSourceAdapter.java,v 1.2 2008-10-13 08:04:29 mchyzer Exp $
+ * @version $Id: NullSourceAdapter.java,v 1.3 2008-10-13 09:10:28 mchyzer Exp $
  */
 public class NullSourceAdapter extends BaseSourceAdapter {
 
@@ -96,6 +96,14 @@ public class NullSourceAdapter extends BaseSourceAdapter {
    * @see edu.internet2.middleware.subject.Source#checkConfig()
    */
   public void checkConfig() {
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#printConfig()
+   */
+  public String printConfig() {
+    String message = "sources.xml null source id:   " + this.getId();
+    return message;
   }
 
 }

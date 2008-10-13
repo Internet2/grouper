@@ -1,6 +1,6 @@
 /*--
-$Id: JNDISourceAdapter.java,v 1.10 2008-10-13 08:04:29 mchyzer Exp $
-$Date: 2008-10-13 08:04:29 $
+$Id: JNDISourceAdapter.java,v 1.11 2008-10-13 09:10:28 mchyzer Exp $
+$Date: 2008-10-13 09:10:28 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -399,5 +399,19 @@ public class JNDISourceAdapter
      * @see edu.internet2.middleware.subject.Source#checkConfig()
      */
     public void checkConfig() {
+    }
+    /**
+     * @see edu.internet2.middleware.subject.Source#printConfig()
+     */
+    public String printConfig() {
+      Properties props = this.getInitParams();
+      String dbUrl = props.getProperty("PROVIDER_URL");
+      String dbUser = props.getProperty("SECURITY_PRINCIPAL");
+      String dbResult = dbUser + "@" + dbUrl;
+
+      String message = "sources.xml jndi source id:   " + this.getId() + ": " + 
+        dbResult;
+      return message;
+
     }
 }

@@ -68,4 +68,10 @@ public interface Source {
 	 * make sure the config is ok, and log descriptive errors if not
 	 */
 	public void checkConfig();
+
+  /**
+   * in the startup on this i2mi app, print helpful and brief info about this source
+   * @return the info
+   */
+  public String printConfig();
 }

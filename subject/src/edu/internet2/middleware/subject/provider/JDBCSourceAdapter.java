@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.14 2008-10-13 08:04:29 mchyzer Exp $
-$Date: 2008-10-13 08:04:29 $
+$Id: JDBCSourceAdapter.java,v 1.15 2008-10-13 09:10:28 mchyzer Exp $
+$Date: 2008-10-13 09:10:28 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -614,5 +614,22 @@ public class JDBCSourceAdapter
       }
 
     }
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#printConfig()
+   */
+  public String printConfig() {
+    
+    Properties props = this.getInitParams();
+    String dbResult = this.jdbcConnectionProvider.getClass().getSimpleName();
+    if (this.jdbcConnectionProvider.requiresJdbcConfigInSourcesXml()) {
+      String dbUrl = props.getProperty("dbUrl");
+      String dbUser = props.getProperty("dbUser");
+      dbResult = dbUser + "@" + dbUrl;
+    }                 
+    String message = "sources.xml jdbc source id:   " + this.getId() + ": " + 
+      dbResult;
+    return message;
   }
 }
