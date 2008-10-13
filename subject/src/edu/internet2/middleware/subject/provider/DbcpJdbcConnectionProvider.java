@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: DbcpJdbcConnectionProvider.java,v 1.1 2008-09-16 05:12:09 mchyzer Exp $
+ * @author mchyzer $Id: DbcpJdbcConnectionProvider.java,v 1.2 2008-10-13 08:04:29 mchyzer Exp $
  */
 package edu.internet2.middleware.subject.provider;
 
@@ -78,7 +78,6 @@ public class DbcpJdbcConnectionProvider implements JdbcConnectionProvider {
   /** data source */
   protected DataSource dataSource;
 
-
   /** logger */
   private static Log log = LogFactory.getLog(DbcpJdbcConnectionProvider.class);
 
@@ -128,6 +127,13 @@ public class DbcpJdbcConnectionProvider implements JdbcConnectionProvider {
     }
     this.dataSource = new PoolingDataSource(objectPool);
 
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.JdbcConnectionProvider#requiresJdbcConfigInSourcesXml()
+   */
+  public boolean requiresJdbcConfigInSourcesXml() {
+    return true;
   }
 
 }

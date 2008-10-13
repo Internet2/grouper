@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: C3p0JdbcConnectionProvider.java,v 1.1 2008-09-16 05:12:09 mchyzer Exp $
+ * $Id: C3p0JdbcConnectionProvider.java,v 1.2 2008-10-13 08:04:29 mchyzer Exp $
  */
 package edu.internet2.middleware.subject.provider;
 
@@ -131,6 +131,13 @@ public class C3p0JdbcConnectionProvider implements JdbcConnectionProvider {
     checkoutTimeout = checkoutTimeout < 0 ? (5 * 60 * 1000) : checkoutTimeout; 
     this.comboPooledDataSource.setCheckoutTimeout(checkoutTimeout);
     this.connectionReadOnly = SubjectUtils.defaultIfNull(readOnly, readOnlyDefault);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.JdbcConnectionProvider#requiresJdbcConfigInSourcesXml()
+   */
+  public boolean requiresJdbcConfigInSourcesXml() {
+    return true;
   }
 
 }

@@ -1,12 +1,13 @@
 /*
  * @author mchyzer
- * $Id: SubjectUtils.java,v 1.2 2008-09-16 05:12:09 mchyzer Exp $
+ * $Id: SubjectUtils.java,v 1.3 2008-10-13 08:04:29 mchyzer Exp $
  */
 package edu.internet2.middleware.subject;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -16,6 +17,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -23,8 +28,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
 
 import net.sf.cglib.proxy.Enhancer;
 
@@ -32,6 +39,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hsqldb.Session;
 
 
 /**
@@ -97,6 +105,10 @@ public class SubjectUtils {
   public static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
   /** logger */
   private static Log log = LogFactory.getLog(SubjectUtils.class);
+  /**
+   * cache the properties read from resource 
+   */
+  private static Map<String, Properties> resourcePropertiesCache = new HashMap<String, Properties>();
 
   /**
    * If we can, inject this into the exception, else return false
@@ -334,7 +346,7 @@ public class SubjectUtils {
    * or get a constructor with one param, and call it
    * @return the object of that instance converted into something else
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "cast" })
   public static <T> T typeCast(Object value, Class<T> theClass, 
       boolean convertNullToDefaultPrimitive, boolean useNewInstanceHooks) {
     
@@ -1469,6 +1481,188 @@ public class SubjectUtils {
    */
   public static String defaultIfBlank(String string, String defaultStringIfBlank) {
     return StringUtils.isBlank(string) ? defaultStringIfBlank : string;
+  }
+
+  /**
+   * read properties from a resource, dont modify the properties returned since they are cached
+   * @param resourceName
+   * @return the properties
+   */
+  public synchronized static Properties propertiesFromResourceName(String resourceName) {
+    Properties properties = resourcePropertiesCache.get(resourceName);
+    if (properties == null) {
+  
+      properties = new Properties();
+  
+      URL url = computeUrl(resourceName, true);
+      InputStream inputStream = null;
+      try {
+        inputStream = url.openStream();
+        properties.load(inputStream);
+      } catch (Exception e) {
+        throw new RuntimeException("Problem with resource: '" + resourceName + "'", e);
+      } finally {
+        closeQuietly(inputStream);
+      }
+      resourcePropertiesCache.put(resourceName, properties);
+    }
+    return properties;
+  }
+
+  /**
+   * compute a url of a resource
+   * @param resourceName
+   * @param canBeNull if cant be null, throw runtime
+   * @return the URL
+   */
+  public static URL computeUrl(String resourceName, boolean canBeNull) {
+    //get the url of the navigation file
+    ClassLoader cl = classLoader();
+  
+    URL url = null;
+  
+    try {
+      //CH 20081012: sometimes it starts with slash and it shouldnt...
+      String newResourceName = resourceName.startsWith("/") 
+        ? resourceName.substring(1) : resourceName;
+      url = cl.getResource(newResourceName);
+    } catch (NullPointerException npe) {
+      String error = "computeUrl() Could not find resource file: " + resourceName;
+      throw new RuntimeException(error, npe);
+    }
+  
+    if (!canBeNull && url == null) {
+      throw new RuntimeException("Cant find resource: " + resourceName);
+    }
+  
+    return url;
+  }
+
+  /**
+   * fast class loader
+   * @return the class loader
+   */
+  public static ClassLoader classLoader() {
+    return SubjectUtils.class.getClassLoader();
+  }
+
+  /**
+   * close a connection null safe and dont throw exception
+   * @param connection
+   */
+  public static void closeQuietly(Connection connection) {
+    if (connection != null) {
+      try {
+        connection.close();
+      } catch (Exception e) {
+        //ignore
+      }
+    }
+  }
+
+  /**
+   * Unconditionally close an <code>InputStream</code>.
+   * Equivalent to {@link InputStream#close()}, except any exceptions will be ignored.
+   * @param input A (possibly null) InputStream
+   */
+  public static void closeQuietly(InputStream input) {
+    if (input == null) {
+      return;
+    }
+  
+    try {
+      input.close();
+    } catch (IOException ioe) {
+    }
+  }
+
+  /**
+   * Unconditionally close an <code>OutputStream</code>.
+   * Equivalent to {@link OutputStream#close()}, except any exceptions will be ignored.
+   * @param output A (possibly null) OutputStream
+   */
+  public static void closeQuietly(OutputStream output) {
+    if (output == null) {
+      return;
+    }
+  
+    try {
+      output.close();
+    } catch (IOException ioe) {
+    }
+  }
+
+  /**
+   * Unconditionally close an <code>Reader</code>.
+   * Equivalent to {@link Reader#close()}, except any exceptions will be ignored.
+   *
+   * @param input A (possibly null) Reader
+   */
+  public static void closeQuietly(Reader input) {
+    if (input == null) {
+      return;
+    }
+  
+    try {
+      input.close();
+    } catch (IOException ioe) {
+    }
+  }
+
+  /**
+   * close a resultSet null safe and dont throw exception
+   * @param resultSet
+   */
+  public static void closeQuietly(ResultSet resultSet) {
+    if (resultSet != null) {
+      try {
+        resultSet.close();
+      } catch (Exception e) {
+        //ignore
+      }
+    }
+  }
+
+  /**
+   * close a session null safe and dont throw exception
+   * @param session
+   */
+  public static void closeQuietly(Session session) {
+    if (session != null) {
+      try {
+        session.close();
+      } catch (Exception e) {
+        //ignore
+      }
+    }
+  }
+
+  /**
+   * close a statement null safe and dont throw exception
+   * @param statement
+   */
+  public static void closeQuietly(Statement statement) {
+    if (statement != null) {
+      try {
+        statement.close();
+      } catch (Exception e) {
+        //ignore
+      }
+    }
+  }
+
+  /**
+   * close a writer quietly
+   * @param writer
+   */
+  public static void closeQuietly(Writer writer) {
+    if (writer != null) {
+      try {
+        writer.close();
+      } catch (IOException e) {
+        //swallow, its ok
+      }
+    }
   }
 
 }

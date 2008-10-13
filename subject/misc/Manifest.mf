@@ -1,4 +1,0 @@
-Manifest-Version: 1.0
-Implementation-Title: Subject API
-Implementation-Version: 0.4.1
-Implementation-Vendor: internet2.edu

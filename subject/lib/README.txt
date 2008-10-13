@@ -20,6 +20,7 @@ Contains:
 * dom4j-1.6.1.jar
 * junit-4.1.jar
 * odmg-3.0.jar
+* p6spy.jar
 
 * Version:  0.1.0
 * Source:   <http://viewvc.internet2.edu/viewvc.py/i2mi-common/?root=I2MI>
@@ -28,5 +29,5 @@ Contains:
 
 ---
 
-$Id: README.txt,v 1.1 2006-08-07 19:25:51 blair Exp $
+$Id: README.txt,v 1.2 2008-10-13 08:04:29 mchyzer Exp $
 

@@ -64,4 +64,8 @@ public interface Source {
 	public void init()
 		throws SourceUnavailableException;
 
+	/**
+	 * make sure the config is ok, and log descriptive errors if not
+	 */
+	public void checkConfig();
 }

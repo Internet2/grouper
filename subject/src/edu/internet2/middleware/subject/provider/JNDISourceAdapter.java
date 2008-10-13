@@ -1,6 +1,6 @@
 /*--
-$Id: JNDISourceAdapter.java,v 1.9 2008-09-14 04:54:05 mchyzer Exp $
-$Date: 2008-09-14 04:54:05 $
+$Id: JNDISourceAdapter.java,v 1.10 2008-10-13 08:04:29 mchyzer Exp $
+$Date: 2008-10-13 08:04:29 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -394,5 +394,10 @@ public class JNDISourceAdapter
         escapedStr = escapedStr.replaceAll("\\)","\\\\29");
         escapedStr = escapedStr.replaceAll("\\"+Character.toString('\u0000'), "\\\\00");
         return escapedStr;
+    }
+    /**
+     * @see edu.internet2.middleware.subject.Source#checkConfig()
+     */
+    public void checkConfig() {
     }
 }

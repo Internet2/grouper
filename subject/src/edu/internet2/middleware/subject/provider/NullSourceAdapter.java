@@ -1,6 +1,6 @@
 /*--
-$Id: NullSourceAdapter.java,v 1.1 2006-04-28 17:43:36 blair Exp $
-$Date: 2006-04-28 17:43:36 $
+$Id: NullSourceAdapter.java,v 1.2 2008-10-13 08:04:29 mchyzer Exp $
+$Date: 2008-10-13 08:04:29 $
 
 Copyright (C) 2006 Internet2 and The University Of Chicago.  
 All Rights Reserved.
@@ -15,7 +15,7 @@ import org.apache.commons.logging.*;
 /**
  * Null {@link Source} which will never return any {@link Subject}s.
  * @author  blair christensen.
- * @version $Id: NullSourceAdapter.java,v 1.1 2006-04-28 17:43:36 blair Exp $
+ * @version $Id: NullSourceAdapter.java,v 1.2 2008-10-13 08:04:29 mchyzer Exp $
  */
 public class NullSourceAdapter extends BaseSourceAdapter {
 
@@ -91,6 +91,12 @@ public class NullSourceAdapter extends BaseSourceAdapter {
   public Set search(String searchValue) {
     return new HashSet();
   } // public Set search()
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#checkConfig()
+   */
+  public void checkConfig() {
+  }
 
 }
 

@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.13 2008-09-27 00:49:58 ddonn Exp $
-$Date: 2008-09-27 00:49:58 $
+$Id: JDBCSourceAdapter.java,v 1.14 2008-10-13 08:04:29 mchyzer Exp $
+$Date: 2008-10-13 08:04:29 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -8,6 +8,7 @@ See doc/license.txt in this distribution.
 package edu.internet2.middleware.subject.provider;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -17,13 +18,19 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.p6spy.engine.spy.P6SpyDriver;
+
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.InvalidQueryRuntimeException;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectCheckConfig;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectUtils;
@@ -115,12 +122,13 @@ public class JDBCSourceAdapter
             subject = createUniqueSubject(rs, search,  id, search.getParam("sql"));
             jdbcConnectionBean.doneWithConnection();
         } catch (SQLException ex) {
+          String error = "problem in sources.xml source: " + this.getId() + ", sql: " + search.getParam("sql");
           try {
             jdbcConnectionBean.doneWithConnectionError(ex);
           } catch (RuntimeException e) {
-            log.error(e);
+            log.error(error, e);
           }
-          log.error(ex.getMessage() + ", source: " + this.getId() + ", sql: " + search.getParam("sql"), ex);
+          log.error(error, ex);
         } finally {
             closeStatement(stmt);
             if (jdbcConnectionBean != null) {
@@ -381,7 +389,7 @@ public class JDBCSourceAdapter
             setupDataSource(props);
         } catch (Exception ex) {
             throw new SourceUnavailableException(
-                    "Unable to init JDBC source, source: " + this.getId(), ex);
+                    "Unable to init sources.xml JDBC source, source: " + this.getId(), ex);
         }
     }
     
@@ -398,7 +406,7 @@ public class JDBCSourceAdapter
             log.debug("Loading JDBC driver: " + driver);
         } catch (Exception ex) {
             throw new SourceUnavailableException(
-                    "Error loading JDBC driver: " + driver + ", source: " + sourceId, ex);
+                    "Error loading sources.xml JDBC driver: " + driver + ", source: " + sourceId, ex);
         }
         log.info("JDBC driver loaded.");
     }
@@ -510,4 +518,101 @@ public class JDBCSourceAdapter
 	public String getSubjectTypeString() {
 		return subjectTypeString;
 	}
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#checkConfig()
+   */
+  public void checkConfig() {
+    
+    //see if has jdbc in provider
+    if (this.jdbcConnectionProvider.requiresJdbcConfigInSourcesXml()) {
+      String error = "problem with sources.xml source id: " + this.getId() + ", "; 
+      Properties props = this.getInitParams();
+      String driver = props.getProperty("dbDriver");
+      if (StringUtils.isBlank(driver)) {
+        System.err.println("Subject API error: " + error + ", driver param is required");
+        log.error(error + ", driver param is required");
+        return;
+      }
+      String dbUrl = props.getProperty("dbUrl");
+      if (StringUtils.isBlank(dbUrl)) {
+        System.err.println("Subject API error: " + error + ", dbUrl param is required");
+        log.error(error + ", dbUrl param is required");
+        return;
+      }
+      String dbUser = props.getProperty("dbUser");
+      if (StringUtils.isBlank(dbUser)) {
+        System.err.println("Subject API error: " + error + ", dbUser param is required");
+        log.error(error + ", dbUser param is required");
+        return;
+      }
+      String dbPwd = props.getProperty("dbPwd");
+      if (StringUtils.isBlank(dbPwd)) {
+        System.err.println("Subject API error: " + error + ", dbPwd param is required");
+        log.error(error + ", dbPwd param is required");
+        return;
+      }
+      dbPwd = Morph.decryptIfFile(dbPwd);
+      
+      try {
+      
+        Class driverClass = null;
+        try {
+          driverClass = Class.forName(driver);
+        } catch (Exception e) {
+          String theError = error + "Error finding database driver class: " 
+            + driver
+            + ", perhaps you did not put the database driver jar in the lib/custom dir or lib dir, " +
+                "or you have the wrong driver listed";
+          System.err.println("Subject API error: " + theError + ": " + ExceptionUtils.getFullStackTrace(e));
+          log.error(theError, e);
+          return;
+        }
+        
+        //check out P6Spy
+        String spyInsert = "";
+        if (driverClass.equals(P6SpyDriver.class)) {
+          spyInsert = " and spy.properties";
+          if (!SubjectCheckConfig.checkConfig("spy.properties")) {
+            return;
+          }
+          Properties spyProperties = SubjectUtils.propertiesFromResourceName("spy.properties");
+          driver = spyProperties.getProperty("realdriver");
+          try {
+            driverClass = SubjectUtils.forName(driver);
+          } catch (Exception e) {
+            String theError = error + "Error finding database driver class from spy.properties: " 
+              + driver
+              + ", perhaps you did not put the database driver jar in the lib/custom dir or lib dir, " +
+                  "or you have the wrong driver listed";
+            System.err.println("Subject API error: " + theError + ": " + ExceptionUtils.getFullStackTrace(e));
+            log.error(theError, e);
+            return;
+          }
+        }
+        
+        //lets make a db connection
+        Connection dbConnection = null;
+        try {
+          dbConnection = DriverManager.getConnection(dbUrl, dbUser, dbPwd);
+          @SuppressWarnings("unused")
+          String version = dbConnection.getMetaData().getDatabaseProductVersion();
+        } catch( SQLException sqlException) {
+          String theError = error + "Error connecting to the database with credentials from sources.xml"
+            + spyInsert + ", url: " + dbUrl + ", driver: " + driver + ", user: " + dbUser;
+          System.out.println("Subject API error: " + theError + ", " + ExceptionUtils.getFullStackTrace(sqlException));
+          log.error(theError, sqlException);
+          return;
+        } finally {
+          SubjectUtils.closeQuietly(dbConnection);
+        }
+        
+      } catch (Exception e) {
+        String theError = error + "Error verifying sources.xml database configuration: ";
+        System.err.println("Subject API error: " + theError + ExceptionUtils.getFullStackTrace(e));
+        log.error(theError, e);
+      }
+
+    }
+  }
 }

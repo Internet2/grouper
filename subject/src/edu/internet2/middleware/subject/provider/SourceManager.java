@@ -1,6 +1,6 @@
 /*--
-$Id: SourceManager.java,v 1.5 2006-06-07 18:57:04 esluss Exp $
-$Date: 2006-06-07 18:57:04 $
+$Id: SourceManager.java,v 1.6 2008-10-13 08:04:29 mchyzer Exp $
+$Date: 2008-10-13 08:04:29 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -13,6 +13,7 @@ import java.io.IOException;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
@@ -42,8 +43,8 @@ public class SourceManager {
     private static Log log = LogFactory.getLog(SourceManager.class);
 
     private static SourceManager manager;
-    private Map source2TypeMap = new HashMap();
-    private Map sourceMap       = new HashMap();
+    private Map<SubjectType, Set<Source>> source2TypeMap = new HashMap<SubjectType, Set<Source>>();
+    private Map<String, Source> sourceMap = new HashMap<String, Source>();
 
     /**
      * Default constructor.
@@ -74,7 +75,7 @@ public class SourceManager {
      */
     public Source getSource(String sourceId)
     throws SourceUnavailableException {
-        Source source = (Source)this.sourceMap.get(sourceId);
+        Source source = this.sourceMap.get(sourceId);
         if (source == null) {
             throw new SourceUnavailableException("Source not found.");
         }
@@ -85,8 +86,8 @@ public class SourceManager {
      * Returns a Collection of Sources.
      * @return Collection
      */
-    public Collection getSources() {
-        return this.sourceMap.values();
+    public Collection<Source> getSources() {
+        return new LinkedHashSet<Source>(this.sourceMap.values());
     }
 
     /**
@@ -94,11 +95,11 @@ public class SourceManager {
      * supports the argument SubjectType.
      * @return Collection
      */
-    public Collection getSources(SubjectType type) {
+    public Collection<Source> getSources(SubjectType type) {
         if (this.source2TypeMap.containsKey(type)) {
-            return (Collection)this.source2TypeMap.get(type);
+            return this.source2TypeMap.get(type);
         }
-        return (Collection) new HashSet();
+        return new HashSet<Source>();
     }
 
     /**
@@ -128,15 +129,15 @@ public class SourceManager {
             this.sourceMap.put(source.getId(), source);
             for (Iterator it = source.getSubjectTypes().iterator(); it.hasNext(); ) {
                 SubjectType type = (SubjectType)it.next();
-                Set sources = (Set)this.source2TypeMap.get(type);
+                Set<Source> sources = this.source2TypeMap.get(type);
                 if (sources == null) {
-                    sources = new HashSet();
+                    sources = new HashSet<Source>();
                     this.source2TypeMap.put(type, sources);
                 }
                 sources.add(source);
             }
         } catch (SourceUnavailableException ex) {
-            log.error("Unable to init Source: " + source.getId(), ex);
+            log.error("Unable to init sources.xml Source: " + source.getId(), ex);
         }
     }
 

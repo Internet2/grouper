@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: JdbcConnectionProvider.java,v 1.1 2008-09-16 05:12:09 mchyzer Exp $
+ * $Id: JdbcConnectionProvider.java,v 1.2 2008-10-13 08:04:29 mchyzer Exp $
  */
 package edu.internet2.middleware.subject.provider;
 
@@ -15,6 +15,12 @@ import edu.internet2.middleware.subject.SourceUnavailableException;
  */
 public interface JdbcConnectionProvider {
 
+  /**
+   * if the provider requires jdbc data in the sources.xml
+   * @return true if provider requires data in sources.xml
+   */
+  public boolean requiresJdbcConfigInSourcesXml();
+  
   /** 
    * init the pool 
    * @param sourceId mainly for logging

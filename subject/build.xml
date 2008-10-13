@@ -9,7 +9,7 @@
 	<property name="test.dir" value="tests" />
 	<property name="lib.dir" value="lib" />
 	<property name="conf.dir" value="conf" />
-	<property name="build.dir" value="build" />
+	<property name="build.dir" value="dist/build" />
 	<property name="dist.dir" value="dist" />
 	<property name="doc.dir" value="doc" />
 	<property name="javadoc.dir" value="${doc.dir}/api" />
@@ -107,7 +107,17 @@
 	</target>
 
 	<target name="jar" depends="compile" >
-        	<jar jarfile="${jarfile}" manifest="misc/Manifest.mf">
+    <tstamp>
+       <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss" />
+    </tstamp>
+        	<jar jarfile="${jarfile}">
+            <manifest>
+              <attribute name="Built-By"                value="${user.name}"/>
+              <attribute name="Implementation-Vendor"   value="internet2.edu"/>
+              <attribute name="Implementation-Title"    value="Subject API"/>
+              <attribute name="Implementation-Version"  value="${version}"/>
+              <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
+            </manifest>
             <fileset dir="${src.dir}" />
             <fileset dir="${build.dir}" />
         	</jar>
