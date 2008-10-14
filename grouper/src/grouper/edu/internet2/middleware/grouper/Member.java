@@ -56,6 +56,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
@@ -75,7 +76,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.110 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: Member.java,v 1.111 2008-10-14 09:43:21 isgwb Exp $
  */
 public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -640,17 +641,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
     throws  SubjectNotFoundException
   {
     if (this.subj == null) {
-      try {
-        this.subj = SubjectFinder.findById(
-          this.getSubjectId(), this.getSubjectTypeId(), this.getSubjectSourceId()
-        );
-      }
-      catch (SourceUnavailableException eSU) {
-        throw new SubjectNotFoundException(eSU.getMessage(), eSU);
-      }
-      catch (SubjectNotUniqueException eSNU) {
-        throw new SubjectNotFoundException(eSNU.getMessage(), eSNU);
-      }
+    	this.subj = new LazySubject(this);
     }
     return this.subj;
   } // public Subject getSubject()

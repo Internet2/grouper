@@ -16,11 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.Field;
@@ -39,7 +44,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.20 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.21 2008-10-14 09:43:21 isgwb Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -60,7 +65,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         + "and  ms.memberUuid = :member           "
         + "and  ms.fieldId = field.uuid "
         + "and  field.name   = :fname            "
-        + "and  ms.type       = :type             ")
+        + "and  ms.type       = :type             "
+        )
       .setCacheable(false)
       .setCacheRegion(KLASS + ".Exists")
       .setString( "owner",  ownerUUID  )
@@ -81,17 +87,19 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Membership> findAllByCreatedAfter(Date d, Field f) 
     throws  GrouperDAOException
   {
-    return HibernateSession.byHqlStatic()
-      .createQuery("select ms from Membership as ms, Field as field where  "
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery("select ms, m from Membership as ms,Member as m, Field as field where  "
         + "     ms.createTimeLong > :time             "
         + "and  ms.fieldId = field.uuid "
         + "and  field.name   = :fname            "
-        + "and  field.typeString       = :ftype             ")
+        + "and  field.typeString       = :ftype             "
+        + "and  ms.memberUuid  = m.uuid         ")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByCreatedAfter")
       .setLong(   "time",  d.getTime()            )
       .setString( "fname", f.getName()            )
-      .setString( "ftype", f.getType().toString() ).listSet(Membership.class);
+      .setString( "ftype", f.getType().toString() ).listSet(Object[].class);
+	  return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
 
   /**
@@ -100,18 +108,21 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Membership> findAllByCreatedBefore(Date d, Field f) 
     throws  GrouperDAOException
   {
-    return HibernateSession.byHqlStatic()
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
       .createQuery(
-        "select ms from Membership as ms, Field as field where  "
+        "select ms, m from Membership as ms, Member as m, Field as field where  "
         + "     ms.createTimeLong < :time             "
         + "and  ms.fieldId = field.uuid "
         + "and  field.name   = :fname            "
-        + "and  field.typeString       = :ftype             ")
+        + "and  field.typeString       = :ftype             "
+        + "and  ms.memberUuid  = m.uuid         ")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByCreatedAfter")
       .setLong(   "time",  d.getTime()            )
       .setString( "fname", f.getName()            )
-      .setString( "ftype", f.getType().toString() ).listSet(Membership.class);
+      .setString( "ftype", f.getType().toString() ).listSet(Object[].class);
+	  
+	  return _getMembershipsFromMembershipAndMemberQuery(mships);
     
   } 
 
@@ -120,12 +131,14 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    */
   public Set<Membership> findAllByMember(String memberUUID) 
     throws  GrouperDAOException {
-    return HibernateSession.byHqlStatic()
-      .createQuery("from Membership as ms where ms.memberUuid = :member")
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery("select ms, m from Membership as ms, Member as m where ms.memberUuid = :member "
+    		     + "and  ms.memberUuid  = m.uuid         ")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByMember")
       .setString("member", memberUUID)
-      .listSet(Membership.class);
+      .listSet(Object[].class);
+	  return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
 
   /**
@@ -134,14 +147,16 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Membership> findAllByMemberAndVia(String memberUUID, String viaUUID) 
     throws  GrouperDAOException {
 
-    return HibernateSession.byHqlStatic()
+	  Set<Object[]> mships =  HibernateSession.byHqlStatic()
       .createQuery(
-        "from Membership as ms where  "
+        "select ms, m from Membership as ms, Member as m where  "
         + "     ms.memberUuid  = :member          "
         + "and  ms.viaUuid     = :via             "
+        + "and  ms.memberUuid  = m.uuid         "
       )
       .setString( "member", memberUUID )
-      .setString( "via",    viaUUID    ).listSet(Membership.class);
+      .setString( "via",    viaUUID    ).listSet(Object[].class);
+    return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
 
   /**
@@ -150,19 +165,21 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Membership> findAllByOwnerAndField(String ownerUUID, Field f) 
     throws  GrouperDAOException
   {
-    return HibernateSession.byHqlStatic()
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
       .createQuery(
-        "select ms from Membership as ms, Field as field where  "
+        "select ms, m from Membership as ms, Member as m, Field as field where  "
         + "     ms.ownerUuid   = :owner            "
         + "and  ms.fieldId = field.uuid "
         + "and  field.name   = :fname            "
-        + "and  field.typeString       = :ftype             ")
+        + "and  field.typeString       = :ftype             "
+        + "and  ms.memberUuid  = m.uuid         ")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByOwnerAndField")
       .setString( "owner", ownerUUID                )
       .setString( "fname", f.getName()            )
       .setString( "ftype", f.getType().toString() ) 
-      .listSet(Membership.class);
+      .listSet(Object[].class);
+	  return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
 
   /**
@@ -170,20 +187,22 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    */
   public Set<Membership> findAllByOwnerAndFieldAndType(String ownerUUID, Field f, String type) 
     throws  GrouperDAOException {
-    return HibernateSession.byHqlStatic()
-      .createQuery("select ms from Membership as ms, Field as field where  "
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery("select ms, m from Membership as ms, Member as m, Field as field where  "
         + "     ms.ownerUuid   = :owner            "
         + "and  ms.fieldId = field.uuid "
         + "and  field.name   = :fname            "
         + "and  field.typeString       = :ftype             "
-        + "and  ms.type = :type             ")
+        + "and  ms.type = :type             "
+        + "and  ms.memberUuid  = m.uuid         ")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindMembershipsByType")
       .setString( "owner" , ownerUUID                 )
       .setString( "fname" , f.getName()             )
       .setString( "ftype" , f.getType().toString()  )
       .setString( "type"  , type                    )
-      .listSet(Membership.class);
+      .listSet(Object[].class);
+	  return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
 
   /**
@@ -191,21 +210,23 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    */
   public Set<Membership> findAllByOwnerAndMemberAndField(String ownerUUID, String memberUUID, Field f) 
     throws  GrouperDAOException {
-    return HibernateSession.byHqlStatic()
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
       .createQuery(
-        "select ms from Membership as ms, Field as field where  "
+        "select ms, m from Membership as ms, Member as m, Field as field where  "
         + "     ms.ownerUuid   = :owner            "  
         + "and  ms.memberUuid  = :member           "
         + "and  ms.fieldId = field.uuid "
         + "and  field.name   = :fname            "
-        + "and  field.typeString       = :ftype             ")
+        + "and  field.typeString       = :ftype             "
+        + "and  ms.memberUuid  = m.uuid         ")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByOwnerAndMemberAndField")
       .setString( "owner",  ownerUUID              )
       .setString( "member", memberUUID             )
       .setString( "fname",  f.getName()            )
       .setString( "ftype",  f.getType().toString() )
-      .listSet(Membership.class);
+      .listSet(Object[].class);
+       return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
 
   /**
@@ -238,15 +259,16 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Membership findByOwnerAndMemberAndFieldAndType(String ownerUUID, String memberUUID, Field f, String type)
     throws  GrouperDAOException,
             MembershipNotFoundException {
-    Membership membershipDto = HibernateSession.byHqlStatic()
+    Object[] result = HibernateSession.byHqlStatic()
       .createQuery(
-        "select ms from Membership as ms, Field as field where  "
+        "select ms, m from Membership as ms, Member as m, Field as field where  "
         + "     ms.ownerUuid  = :owner            "
         + "and  ms.memberUuid = :member           "
         + "and  ms.fieldId = field.uuid "
         + "and  field.name   = :fname            "
         + "and  field.typeString       = :ftype             "
-        + "and  ms.type       = :type             ")
+        + "and  ms.type       = :type             "
+        + "and  ms.memberUuid = m.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByOwnerAndMemberAndFieldAndType")
       .setString( "owner",  ownerUUID              )
@@ -254,11 +276,14 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .setString( "fname",  f.getName()            )
       .setString( "ftype",  f.getType().toString() ) 
       .setString( "type",   type                   )
-      .uniqueResult(Membership.class);
-    if (membershipDto == null) {
+      .uniqueResult(Object[].class);
+    if (result==null || result[0]==null) {
       throw new MembershipNotFoundException();
     }
-    return membershipDto;
+    Membership ms = (Membership)result[0];
+    Member m = (Member)result[1];
+    ms.setMember(m);
+    return ms;
   } 
 
   /**
@@ -267,12 +292,14 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Membership> findAllChildMemberships(Membership _ms) 
     throws  GrouperDAOException
   {
-    return HibernateSession.byHqlStatic()
-      .createQuery("from Membership as ms where ms.parentUuid = :uuid")
+    Set<Object[]> mships =  HibernateSession.byHqlStatic()
+      .createQuery("select ms, m from Membership as ms, Member as m where ms.parentUuid = :uuid "
+    		     + "and ms.memberUuid = m.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindChildMemberships")
       .setString( "uuid", _ms.getUuid() )
-      .listSet(Membership.class);
+      .listSet(Object[].class);
+    return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
 
   /**
@@ -281,9 +308,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Membership> findAllEffective(String ownerUUID, String memberUUID, Field f, String viaUUID, int depth) 
     throws  GrouperDAOException
   {
-    return HibernateSession.byHqlStatic()
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
       .createQuery(
-        "select ms from Membership as ms, Field as field where  "
+        "select ms, m from Membership as ms, Member as m, Field as field where  "
         + "     ms.ownerUuid  = :owner            "
         + "and  ms.memberUuid = :member           "
         + "and  ms.fieldId = field.uuid "
@@ -291,7 +318,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         + "and  field.typeString       = :ftype             "
         + "and  ms.type       = :type             "
         + "and  ms.viaUuid    = :via              "
-        + "and  ms.depth      = :depth            ")
+        + "and  ms.depth      = :depth            "
+        + "and ms.memberUuid = m.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllEffective")
       .setString( "owner",  ownerUUID              )
@@ -301,7 +329,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .setString( "type",   Membership.EFFECTIVE   )
       .setString( "via",    viaUUID                )
       .setInteger("depth",  depth                  )
-      .listSet(Membership.class);
+      .listSet(Object[].class);
+	  return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
 
   /**
@@ -310,21 +339,23 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Membership> findAllEffectiveByMemberAndField(String memberUUID, Field f) 
     throws  GrouperDAOException
   {
-    return HibernateSession.byHqlStatic()
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
       .createQuery(
-        "select ms from Membership as ms, Field as field where  "
+        "select ms, m from Membership as ms, Member as m, Field as field where  "
         + "     ms.memberUuid  = :member          "
         + "and  ms.fieldId = field.uuid "
         + "and  field.name   = :fname            "
         + "and  field.typeString       = :ftype             "
-        + "and  ms.type = :type                   ")
+        + "and  ms.type = :type                   "
+        + "and ms.memberUuid = m.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllEffectiveByMemberAndField")
       .setString( "member", memberUUID             )
       .setString( "fname",  f.getName()            )
       .setString( "ftype",  f.getType().toString() )
       .setString( "type",   Membership.EFFECTIVE   )
-      .listSet(Membership.class);
+      .listSet(Object[].class);
+	  return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
 
   /**
@@ -332,15 +363,16 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    */
   public Set<Membership> findAllEffectiveByOwnerAndMemberAndField(String ownerUUID, String memberUUID, Field f)
     throws  GrouperDAOException {
-    return HibernateSession.byHqlStatic()
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
       .createQuery(
-        "select ms from Membership as ms, Field as field where  "
+        "select ms, m from Membership as ms, Member as m, Field as field where  "
         + "     ms.ownerUuid  = :owner            "
         + "and  ms.memberUuid = :member           "
         + "and  ms.fieldId = field.uuid "
         + "and  field.name   = :fname            "
         + "and  field.typeString       = :ftype             "
-        + "and  ms.type       = :type             ")
+        + "and  ms.type       = :type             "
+        + "and ms.memberUuid = m.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllEffectiveByOwnerAndMemberAndField")
       .setString( "owner",  ownerUUID              )
@@ -348,7 +380,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .setString( "fname",  f.getName()            )
       .setString( "ftype",  f.getType().toString() )
       .setString( "type",   Membership.EFFECTIVE   )
-      .listSet(Membership.class);
+      .listSet(Object[].class);
+	  return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
   
   /**
@@ -359,16 +392,18 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     //Added by Gary Brown 2007-11-01 so that getPrivs can do one query rather than 6
 
-    return HibernateSession.byHqlStatic()
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
       .createQuery(
-        "from Membership as ms where  "
+        "select ms, m from Membership as ms, Member as m where  "
         + "     ms.ownerUuid   = :owner            "  
         + "and  ms.memberUuid  = :member           "
+        + "and ms.memberUuid = m.uuid"
       ).setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByOwnerAndMemberAndField")
       .setString( "owner",  ownerUUID              )
       .setString( "member", memberUUID             )
-      .listSet(Membership.class);
+      .listSet(Object[].class);
+	  return _getMembershipsFromMembershipAndMemberQuery(mships);
   }
 
   /**
@@ -377,17 +412,18 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Membership> findAllImmediateByMember(String memberUUID) 
     throws  GrouperDAOException
   {
-     Set<Membership> mships = HibernateSession.byHqlStatic()
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
       .createQuery(
-        "from Membership as ms where  "
+        "select ms, m from Membership as ms, Member as m where  "
         + "     ms.memberUuid = :member           "
-        + "and  ms.type       = :type             ")
+        + "and  ms.type       = :type             "
+        + "and ms.memberUuid = m.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllImmediateByMember")
       .setString( "member", memberUUID             )
       .setString( "type",   Membership.IMMEDIATE   )
-      .listSet(Membership.class);
-    return mships;
+      .listSet(Object[].class);
+    return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
 
   /**
@@ -396,14 +432,15 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public List<Membership> findAllByOwner(String ownerUUID)
     throws  GrouperDAOException
   {
-    List<Membership> mships = HibernateSession.byHqlStatic()
+	  List<Object[]> mships = HibernateSession.byHqlStatic()
       .createQuery(
-        "from Membership as ms where ms.ownerUuid = :owner")
+        "select ms, m from Membership as ms, Member as m where ms.ownerUuid = :owner "
+      + "and ms.memberUuid = m.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByOwner")
       .setString("owner", ownerUUID)
-      .list(Membership.class);
-    return mships;
+      .list(Object[].class);
+    return new ArrayList<Membership>(_getMembershipsFromMembershipAndMemberQuery(mships));
   }
 
 
@@ -413,17 +450,18 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public List<Membership> findAllMembershipsWithInvalidOwners()
     throws  GrouperDAOException
   {
-    List<Membership> mships = HibernateSession.byHqlStatic()
+	  List<Object[]> mships = HibernateSession.byHqlStatic()
       .createQuery(
-        "from Membership as ms where  "
+        "select ms, m from Membership as ms, Member as m where  "
         + "     ms.ownerUuid not in " 
         + "        (select g.uuid from Group g) "
         + "     and ms.ownerUuid not in "
-        + "        (select ns.uuid from Stem ns)")
+        + "        (select ns.uuid from Stem ns)"
+        + "and ms.memberUuid = m.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllMembershipsWithInvalidOwners")
-      .list(Membership.class);
-    return mships;
+      .list(Object[].class);
+	  return new ArrayList<Membership>(_getMembershipsFromMembershipAndMemberQuery(mships));
   }
 
   /**
@@ -432,21 +470,23 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Membership> findAllImmediateByMemberAndField(String memberUUID, Field f) 
     throws  GrouperDAOException
   {
-    return HibernateSession.byHqlStatic()
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
       .createQuery(
-        "select ms from Membership as ms, Field as field where  "
+        "select ms, m from Membership as ms, Member as m, Field as field where  "
         + "     ms.memberUuid = :member           "
         + "and  ms.fieldId = field.uuid "
         + "and  field.name   = :fname            "
         + "and  field.typeString       = :ftype             "
-        + "and  ms.type       = :type             ")
+        + "and  ms.type       = :type             "
+        + "and ms.memberUuid = m.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllImmediateByMemberAndField")
       .setString( "member", memberUUID             )
       .setString( "fname",  f.getName()            )
       .setString( "ftype",  f.getType().toString() )
       .setString( "type",   Membership.IMMEDIATE   )
-      .listSet(Membership.class);
+      .listSet(Object[].class);
+	  return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
 
   /**
@@ -456,16 +496,20 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     throws  GrouperDAOException,
             MembershipNotFoundException 
   {
-    Membership membershipDto = HibernateSession.byHqlStatic()
-      .createQuery("from Membership as ms where ms.uuid = :uuid")
+    Object[] result = HibernateSession.byHqlStatic()
+      .createQuery("select ms, m from Membership as ms, Member as m where ms.uuid = :uuid "
+    		     + "and ms.memberUuid = m.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByUuid")
       .setString("uuid", uuid)
-      .uniqueResult(Membership.class);
-    if (membershipDto == null) {
+      .uniqueResult(Object[].class);
+    if (result==null || result[0] == null) {
       throw new MembershipNotFoundException("could not find membership with uuid: " + Quote.single(uuid));
     }
-    return membershipDto;
+    Membership ms = (Membership)result[0];
+    Member m = (Member)result[1];
+    ms.setMember(m);
+    return ms;
   } 
 
   /**
@@ -474,19 +518,21 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Membership> findMembershipsByMemberAndField(String memberUUID, Field f)
     throws  GrouperDAOException
   {
-    return HibernateSession.byHqlStatic()
+    Set<Object[]> mships = HibernateSession.byHqlStatic()
       .createQuery(
-        "select ms from Membership as ms, Field as field where  "
+        "select ms, m from Membership as ms, Member as m, Field as field where  "
         + "     ms.memberUuid = :member           "
         + "and  ms.fieldId = field.uuid "
         + "and  field.name   = :fname            "
-        + "and  field.typeString       = :ftype             ")
+        + "and  field.typeString       = :ftype             "
+        + "and ms.memberUuid = m.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindMemberships")
       .setString( "member", memberUUID             )
       .setString( "fname" , f.getName()            )
       .setString( "ftype" , f.getType().toString() )
-      .listSet(Membership.class);
+      .listSet(Object[].class);
+    return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
 
   /**
@@ -543,6 +589,25 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     }
 
   }
+  
+//@since 1.4.0
+  private Set<Membership> _getMembershipsFromMembershipAndMemberQuery(Collection<Object[]> mships)
+    throws  HibernateException
+  {
+    Set<Membership> memberships = new LinkedHashSet<Membership>();
+    
+    for(Object[] tuple:mships) {
+      Membership currMembership = (Membership)tuple[0];
+      Member currMember = (Member)tuple[1];
+      currMembership.setMember(currMember);
+      memberships.add(currMembership);
+    }
+    return memberships;
+      
+
+  } // private Set<MembershipDAO> _getMembershipsFromMembershipAndmemberQuery(Set<Object[]>)
 
 } 
+
+ 
 

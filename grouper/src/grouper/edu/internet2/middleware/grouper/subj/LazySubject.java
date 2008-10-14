@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.SubjectType;
  * necessary to instantiate all the Subjects (and Members) 
  * <p/>
  * @author  Gary Brown.
- * @version $Id: LazySubject.java,v 1.3 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: LazySubject.java,v 1.4 2008-10-14 09:43:21 isgwb Exp $
  */
 
 public class LazySubject implements Subject {
@@ -196,10 +196,21 @@ public Map getAttributes() {
 	 * 
 	 * @return the subject
 	 * @throws SubjectNotFoundException
-	 * @throws MemberNotFoundException
 	 */
-	private Subject getSubject() throws SubjectNotFoundException,MemberNotFoundException{
-		  if(subject==null) subject=member.getSubject();
+	private Subject getSubject() throws SubjectNotFoundException{
+		  if(subject==null) {
+			  try {
+			        this.subject = SubjectFinder.findById(
+			          this.member.getSubjectId(), this.member.getSubjectTypeId(), this.member.getSubjectSourceId()
+			        );
+			      }
+			      catch (SourceUnavailableException eSU) {
+			        throw new SubjectNotFoundException(eSU.getMessage(), eSU);
+			      }
+			      catch (SubjectNotUniqueException eSNU) {
+			        throw new SubjectNotFoundException(eSNU.getMessage(), eSNU);
+			      }
+		  }
 		  return subject;
 	 }
 	
