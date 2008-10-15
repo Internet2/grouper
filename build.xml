@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.200 2008-10-15 03:57:06 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.201 2008-10-15 06:13:21 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -188,8 +188,8 @@
     </target>
   <!-- target: db.reset -->
 
-  <!-- TODO put back javadoc,  -->
-  <target name="distBinary" depends="clean, init.conf, test.compile, dist" description="make a binary distribution">
+  <!--  -->
+  <target name="distBinary" depends="clean, init.conf, test.compile, javadoc, dist" description="make a binary distribution">
     
     <property name="dist.binary.zip" value="${dist.binary}/grouper.binary.${version}" />
     
@@ -316,7 +316,7 @@
       </fileset>
     </copy>
 
-    <!-- TODO tar basedir="${dist.binary}" compression="gzip"
+    <tar basedir="${dist.binary}" compression="gzip"
       destfile="${dist.binary}/grouper.binary.${version}.tar.gz">
       <include name="grouper.binary.${version}/**" />
     </tar>
@@ -324,7 +324,7 @@
     <zip basedir="${dist.binary}" 
           destfile="${dist.binary}/grouper.binary.${version}.zip">
           <include name="grouper.binary.${version}/**" />
-     </zip -->
+     </zip>
   </target>
   
   <!-- target: dist -->
