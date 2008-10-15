@@ -37,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
  * XML Utilities.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlUtils.java,v 1.3 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: XmlUtils.java,v 1.4 2008-10-15 03:57:06 mchyzer Exp $
  * @since   1.1.0
  */
 public class XmlUtils {
@@ -65,10 +65,9 @@ public class XmlUtils {
   } // protected static Properties internal-getSystemProperties(log, file);
 
   // @since   1.2.0
-  protected static Properties internal_getUserProperties(Log log, String file) 
+  public static Properties internal_getUserProperties(Log log, String file) 
     throws  FileNotFoundException,
-            IOException
-  {
+            IOException {
     Properties props = new Properties();
     if (file != null) {
       log.debug("loading user-specified properties: " + file);

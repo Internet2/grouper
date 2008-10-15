@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.199 2008-10-12 14:13:59 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.200 2008-10-15 03:57:06 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -188,8 +188,8 @@
     </target>
   <!-- target: db.reset -->
 
-  <!--  -->
-  <target name="distBinary" depends="clean, init.conf, test.compile, javadoc, dist" description="make a binary distribution">
+  <!-- TODO put back javadoc,  -->
+  <target name="distBinary" depends="clean, init.conf, test.compile, dist" description="make a binary distribution">
     
     <property name="dist.binary.zip" value="${dist.binary}/grouper.binary.${version}" />
     
@@ -309,13 +309,14 @@
     <copy file="${dist.binary.zip}/conf/spy.example.properties" tofile="${dist.binary.zip}/conf/spy.properties" />
     
     <mkdir dir="${dist.binary.zip}/api"/>
+    <mkdir dir="${dist.dir.javadoc}" />
     <copy todir="${dist.binary.zip}/api">
       <fileset dir="${dist.dir.javadoc}">
         <include name="**"/>
       </fileset>
     </copy>
 
-    <tar basedir="${dist.binary}" compression="gzip"
+    <!-- TODO tar basedir="${dist.binary}" compression="gzip"
       destfile="${dist.binary}/grouper.binary.${version}.tar.gz">
       <include name="grouper.binary.${version}/**" />
     </tar>
@@ -323,7 +324,7 @@
     <zip basedir="${dist.binary}" 
           destfile="${dist.binary}/grouper.binary.${version}.zip">
           <include name="grouper.binary.${version}/**" />
-     </zip>
+     </zip -->
   </target>
   
   <!-- target: dist -->
@@ -332,6 +333,18 @@
           description="Create Grouper API jar"
   >
     <mkdir dir="${dist.dir}/lib"/>
+    <!-- keep this in the jar so we know where it is -->
+    <copy file="${basedir}/misc/version.properties" 
+      tofile="${build.dir.grouper}/grouper.version.properties" />
+    <copy file="${conf.dir}/grouper.example.properties" 
+      todir="${build.dir.grouper}" />
+    <copy file="${conf.dir}/grouper.hibernate.example.properties" 
+      todir="${build.dir.grouper}" />
+    <copy file="${conf.dir}/grouper-loader.example.properties" 
+      todir="${build.dir.grouper}" />
+    <tstamp>
+       <format property="the.timestamp" pattern="yyyy/MM/dd HH:mm:ss" />
+    </tstamp>
     <jar destfile="${dist.dir}/lib/${app.name}-${DSTAMP}.jar" basedir="${build.dir.grouper}">
       <manifest>
         <attribute name="Built-By"                value="${user.name}"/>
@@ -339,6 +352,7 @@
         <attribute name="Implementation-Title"    value="${app.name}"/>
         <attribute name="Implementation-Version"  value="${version}"/>
         <attribute name="Implementation-URL"      value="${impl.url}"/>
+        <attribute name="Build-Timestamp"         value="${the.timestamp}"/>
       </manifest>
     </jar>
     <copy file="${dist.dir}/lib/${app.name}-${DSTAMP}.jar"   

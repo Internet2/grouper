@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper.cfg;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 import  java.io.IOException;
 import  java.io.InputStream;
@@ -28,7 +29,7 @@ import java.util.Set;
  * Access {@link Configuration} in a <i>Properties</i> file.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PropertiesConfiguration.java,v 1.7 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: PropertiesConfiguration.java,v 1.8 2008-10-15 03:57:06 mchyzer Exp $
  * @since   1.2.1
  */
 public class PropertiesConfiguration implements Configuration {
@@ -58,9 +59,9 @@ public class PropertiesConfiguration implements Configuration {
   private Properties getProperties() {
     if ( this.cfg == null ) {
       try {
-        this.cfg = this.readProperties( new Properties() );
+        this.cfg = GrouperUtil.propertiesFromResourceName(this.resource);
       }
-      catch (GrouperException eInitializingError) {
+      catch (Exception eInitializingError) {
         throw new GrouperRuntimeException( 
           "error reading configuration: " + eInitializingError.getMessage(), eInitializingError 
         );
@@ -79,26 +80,6 @@ public class PropertiesConfiguration implements Configuration {
     this.helper.validateParamsNotNull(property);
     String val = this.getProperties().getProperty(property);
     return val == null ? null : val.trim();
-  }
-
-  /**
-   * Load properties from file.
-   * @since   1.2.1
-   */
-  private Properties readProperties(Properties props) 
-    throws  GrouperException
-  {
-    try {
-      InputStream in = this.getClass().getResourceAsStream(this.resource);
-      if (in == null) {
-        throw new GrouperException("null input stream reading resource: " + this.resource);
-      }
-      props.load(in);
-      return props;
-    }
-    catch (IOException eIO) {
-      throw new GrouperException( eIO.getMessage(), eIO );
-    }
   }
 
   /**

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperVersion.java,v 1.2 2008-09-10 05:45:58 mchyzer Exp $
+ * $Id: GrouperVersion.java,v 1.3 2008-10-15 03:57:06 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -32,6 +32,9 @@ public class GrouperVersion {
 
   /** build number */
   private int build;
+  
+  /** rc number (release cnadidate) */
+  private Integer rc;
 
   /**
    * private constructor
@@ -40,7 +43,13 @@ public class GrouperVersion {
   private GrouperVersion(String versionString) {
     Matcher grouperMatcher = pattern.matcher(versionString);
     if (!grouperMatcher.matches()) {
-      throw new RuntimeException("Invalid grouper version: " + versionString);
+      grouperMatcher = rcPattern.matcher(versionString);
+      if (!grouperMatcher.matches()) {
+        
+        throw new RuntimeException("Invalid grouper version: " + versionString
+            + ", expecting something like: 1.2.3 or 1.2.3rc4");
+      }
+      this.rc = GrouperUtil.intValue(grouperMatcher.group(4));
     }
     //get the grouper versions
     this.major = GrouperUtil.intValue(grouperMatcher.group(1));
@@ -66,6 +75,16 @@ public class GrouperVersion {
    * </pre>
    */
   private static Pattern pattern = Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)$");
+  
+  /**
+   * <pre>
+   * start of string, first digit, period, second digit, period, third digit, 
+   * period, rc, 4th digit, end of string
+   * parens are for capturing
+   * ^(\\d+)\\.(\\d+)\\.(\\d+)$
+   * </pre>
+   */
+  private static Pattern rcPattern = Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)rc(\\d+)$");
   
   /**
    * helper method for unit testing
@@ -98,7 +117,21 @@ public class GrouperVersion {
       return false;
     }
     //note its greater or equal
-    return this.build >= anotherVersion.build;
-
+    if (this.build > anotherVersion.build) {
+      return true;
+    } else if (this.build < anotherVersion.build) {
+      return false;
+    }
+    if (this.rc == anotherVersion.rc) {
+      return true;
+    }
+    //not having a release candidate version is higher than having one
+    if (this.rc == null) {
+      return true;
+    }
+    if (anotherVersion.rc == null) {
+      return false;
+    }
+    return this.rc >= anotherVersion.rc;
   }
 }

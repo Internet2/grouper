@@ -25,7 +25,7 @@ import junit.textui.TestRunner;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_U_API_XmlExporter_internal_groupToXML.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_U_API_XmlExporter_internal_groupToXML.java,v 1.5 2008-10-15 03:57:06 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_U_API_XmlExporter_internal_groupToXML extends GrouperTest {
@@ -64,7 +64,7 @@ public class Test_U_API_XmlExporter_internal_groupToXML extends GrouperTest {
 
   public void setUp() {
     super.setUp();
-    try {    
+    try {
       s       = GrouperSession.start( SubjectFinder.findRootSubject() );
       parent  = StemFinder.findRootStem(s).addChildStem("parent", "parent");
       child   = parent.addChildGroup("parent > child", "parent > child");

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperJdbcConnectionProvider.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
+ * $Id: GrouperJdbcConnectionProvider.java,v 1.3 2008-10-15 03:57:06 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.subj;
 
@@ -128,6 +128,13 @@ public class GrouperJdbcConnectionProvider implements JdbcConnectionProvider {
     HibernateSession hibernateSession = null;
     hibernateSession = HibernateSession._internal_hibernateSession(grouperTransactionType);
     return new GrouperJdbcConnectionBean(hibernateSession);
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.provider.JdbcConnectionProvider#requiresJdbcConfigInSourcesXml()
+   */
+  public boolean requiresJdbcConfigInSourcesXml() {
+    return false;
   }
 
 }

@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * <li><i>GrouperSystem</i></li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.3 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.4 2008-10-15 03:57:06 mchyzer Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 
@@ -213,5 +213,18 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
 	  return name;
   }
 
+  /**
+   * @see edu.internet2.middleware.subject.Source#checkConfig()
+   */
+  public void checkConfig() {
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#printConfig()
+   */
+  public String printConfig() {
+    String message = "sources.xml internalsource id:" + this.getId();
+    return message;
+  }
 } // public class InternalSourceAdapter
 

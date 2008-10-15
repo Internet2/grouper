@@ -40,7 +40,7 @@ import edu.internet2.middleware.morphString.Morph;
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.18 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.19 2008-10-15 03:57:06 mchyzer Exp $
  * @since   @HEAD@
  */
 public abstract class Hib3DAO {
@@ -88,12 +88,7 @@ public abstract class Hib3DAO {
 
     try {
       // Find the custom configuration file
-      if (Hib3DAO.class.getResource(GrouperConfig.HIBERNATE_CF) == null) {
-        throw new RuntimeException("Cant find resource " + GrouperConfig.HIBERNATE_CF + ", make sure it is on the classpath.");
-      }
-      InputStream in  = Hib3DAO.class.getResourceAsStream(GrouperConfig.HIBERNATE_CF);  
-      Properties  p   = new Properties();
-      p.load(in);
+      Properties  p   = GrouperUtil.propertiesFromResourceName(GrouperConfig.HIBERNATE_CF);
       
       //unencrypt pass
       if (p.containsKey("hibernate.connection.password")) {
