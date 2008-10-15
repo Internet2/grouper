@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
 Main-Class: edu.internet2.middleware.morphString.Encrypt
-Specification-Title: morphString
-Specification-Version: 1.0
+Implementation-Title: morphString
+Implementation-Version: 1.0
 
