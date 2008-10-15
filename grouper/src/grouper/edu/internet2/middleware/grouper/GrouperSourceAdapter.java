@@ -60,7 +60,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.27 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.28 2008-10-15 03:57:06 mchyzer Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -266,5 +266,18 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     return this.rootSession;
   } // private GrouperSession _getSession()
 
+  /**
+   * @see edu.internet2.middleware.subject.Source#checkConfig()
+   */
+  public void checkConfig() {
+  }
+
+  /**
+   * @see edu.internet2.middleware.subject.Source#printConfig()
+   */
+  public String printConfig() {
+    String message = "sources.xml groupersource id: " + this.getId();
+    return message;
+  }
 }
 

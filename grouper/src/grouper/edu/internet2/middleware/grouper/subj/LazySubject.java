@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.SubjectType;
  * necessary to instantiate all the Subjects (and Members) 
  * <p/>
  * @author  Gary Brown.
- * @version $Id: LazySubject.java,v 1.4 2008-10-14 09:43:21 isgwb Exp $
+ * @version $Id: LazySubject.java,v 1.5 2008-10-15 03:57:06 mchyzer Exp $
  */
 
 public class LazySubject implements Subject {
@@ -323,6 +323,19 @@ public Map getAttributes() {
 			getSource().setName(name);
 			
 		}
+
+    /**
+     * @see edu.internet2.middleware.subject.Source#checkConfig()
+     */
+    public void checkConfig() {
+    }
+    /**
+     * @see edu.internet2.middleware.subject.Source#printConfig()
+     */
+    public String printConfig() {
+      String message = "sources.xml lazy source id:   " + this.getId();
+      return message;
+    }
 		
 	}
 	

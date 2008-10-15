@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupAttributeNameValidationHook.java,v 1.1 2008-07-20 21:18:57 mchyzer Exp $
+ * $Id: GroupAttributeNameValidationHook.java,v 1.2 2008-10-15 03:57:06 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -80,7 +80,7 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
       //if we are done checking
       if (StringUtils.isBlank(attributeName)) {
         if (!StringUtils.isBlank(regex) || !StringUtils.isBlank(vetoMessage)) {
-          throw new RuntimeException("Dont configure a regex or veotMessage without an attribute name! index: " + index
+          throw new RuntimeException("Dont configure a regex or vetoMessage without an attribute name! index: " + index
               + ", check the grouper.properties");
         }
         break;

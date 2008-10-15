@@ -15,7 +15,7 @@ import bsh.Interpreter;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.5 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: help.java,v 1.6 2008-10-15 03:57:06 mchyzer Exp $
  * @since   0.0.1
  */
 public class help {
@@ -28,7 +28,86 @@ public class help {
    */
   public static void invoke(Interpreter interpreter, CallStack callStack,
       String helpOn) {
-    if (StringUtils.equals(helpOn, "transaction") || StringUtils.equals(helpOn, "transactions")) {
+    if (StringUtils.equalsIgnoreCase(helpOn, "XmlExport") ) {
+      interpreter.println("XmlExport help:\n"
+          + "There is an object: XmlExport which has various chaining methods, \n" +
+          		"which should be ended with an exportTo() method.  You can export to file or string.\n\n"
+          + "XmlExport xmlExport.stem(stem)  The stem to export. Defaults to the ROOT stem.\n"
+          + "XmlExport xmlExport.group(group)  The group to export\n"
+          + "XmlExport xmlExport.relative(boolean)  If group or stem specified do not export parent Stems.\n"
+          + "XmlExport xmlExport.includeParent(boolean)  If group specified, export from the parent stem\n"
+          + "XmlExport xmlExport.userProperties(file)  Properties file for extra settings for import\n"
+          + "XmlExport xmlExport.grouperSession(grouperSession)  Operate " +
+          		"\n   within a certain grouper session (defaults to root session)\n"
+          + "void xmlExport.exportToFile(file)  Export to an XML file\n"
+          + "void xmlExport.exportToString(string)  Export to an XML string\n"
+          + "\n"
+          + " Examples:\n"
+          + "\n"
+          + "gsh 1% new XmlExport().exportToFile(new File(\"c:\\\\temp\\\\export.xml\"))\n"
+          + "\n\n\n"
+          + "gsh 1% grouperSession = GrouperSession.start(SubjectFinder.findById(\"mchyzer\"));\n"
+          + "\n"
+          + "gsh 2% stem = StemFinder.findByName(grouperSession, \"aStem\");\n"
+          + "\n"
+          + "gsh 3% new XmlExport().stem(stem).relative(true).userProperties(\n" +
+          		"new File(\"C:\\temp\\some.properties\")).grouperSession(grouperSession)\n" +
+          		".exportToFile(new File(\"c:\\\\temp\\\\export.xml\"));\n"
+          + "\n"
+          + " -or- (without chaining)\n"
+          + "\n"
+          + "gsh 3% xmlExport = new XmlExport();\n"
+          + "\n"
+          + "gsh 4% xmlExport.stem(stem);\n"
+          + "\n"
+          + "gsh 5% xmlExport.grouperSession(grouperSession);\n"
+          + "\n"
+          + "gsh 6% xmlExport.exportToFile(new File(\"c:\\\\temp\\\\export.xml\"))\n"
+          );
+      return;
+    }
+    if (StringUtils.equalsIgnoreCase(helpOn, "XmlImport") ) {
+      interpreter.println("XmlImport help:\n"
+          + "There is an object: XmlImport which has various chaining methods,\n"
+          + "which should be ended with an importFrom() method.  You can import from file, string, or url.\n\n"
+          + "XmlImport xmlImport.stem(stem)  The Stem into which\n" +
+          		"   data will be imported. Defaults to the ROOT stem.\n"
+          + "XmlImport xmlImport.updateList(boolean)   XML contains\n" +
+          		"   a flat list of Stems or Groups which may be updated.\n"
+          + "Missing Stems and Groups are not created.\n"
+          + "XmlImport xmlImport.userProperties(file)\n"
+          + "  Properties file for extra settings for import\n"
+          + "XmlImport xmlImport.grouperSession(grouperSession)\n"
+          + "  Operate within a certain grouper session (defaults to root session)\n"
+          + "void xmlImport.importFromFile(file)  Import from an XML file\n"
+          + "void xmlImport.importFromString(string)  Import from an XML string\n"
+          + "void xmlImport.importFromUrl(url)  Import XML from a URL\n"
+          + "\n"
+          + " Examples:\n"
+          + " \n"
+          + "gsh 1% new XmlImport().importFromFile(new File(\"c:\\\\temp\\\\export.xml\"))\n"
+          + "\n\n\n"
+          + "gsh 1% grouperSession = GrouperSession.start(SubjectFinder.findById(\"mchyzer\"));\n"
+          + "\n"
+          + "gsh 2% stem = StemFinder.findByName(grouperSession, \"aStem\");\n"
+          + "\n"
+          + "gsh 3% new XmlImport().stem(stem).updateList(true).userProperties(\n"
+          + "    new File(\"C:\\\\temp\\\\some.properties\")).grouperSession(grouperSession)\n"
+          + "    .importFromUrl(new URL(\"http://whatever.xml\"));\n"
+          + "    \n"
+          + " -or- (without chaining)\n"
+          + "\n"
+          + "gsh 3% xmlImport = new XmlImport();\n"
+          + "\n"
+          + "gsh 4% xmlImport.stem(stem);\n"
+          + "\n"
+          + "gsh 5% xmlImport.grouperSession(grouperSession);\n"
+          + "\n"
+          + "gsh 6% xmlImport.importFromFile(new File(\"c:\\\\temp\\\\export.xml\"))\n"
+          + "\n");
+      return;
+    }
+    if (StringUtils.equalsIgnoreCase(helpOn, "transaction") || StringUtils.equalsIgnoreCase(helpOn, "transactions")) {
       interpreter.println("transaction help:\n"
         + "- help(\"transaction\")       print help information\n"
         + "\nTransactions facilitate all commands succeeding or failing together, and perhaps some level of " +
@@ -128,10 +207,14 @@ public class help {
     i.println("* findSubject(id, type, source)"                       );
     i.println("* getGroupAttr(stem, attr)"                            );
     i.println("* getGroups(name)"                                     );
+    i.println("* GroupFinder.findByName(grouperSession, name)");
+    i.println("* GroupFinder.findByUuid(grouperSession, uuid)");
     i.println("* getMembers(group)"                                   );
     i.println("* getSources()"                                        );
     i.println("* getStemAttr(stem, attr)"                             );
     i.println("* getStems(name)"                                      );
+    i.println("* StemFinder.findByName(grouperSession, name)");
+    i.println("* StemFinder.findByUuid(grouperSession, uuid)");
     i.println("* grantPriv(name, subject id, Privilege)"              );
     i.println("* hasMember(group, subject id)"                        );
     i.println("* hasPriv(name, subject id, Privilege)"                );
@@ -160,6 +243,8 @@ public class help {
     i.println("* typeFind(name)"                                      );
     i.println("* typeGetFields(name)"                                 );
     i.println("* usdu: type  help(\"usdu\")  for more info on unresolvable subject deletion utility");
+    i.println("* XmlExport: type  help(\"XmlExport\")  for more info on xml export");
+    i.println("* XmlImport: type  help(\"XmlImport\")  for more info on xml import");
     i.println("* version()"                                           );
     i.println(""                                                      );
     i.println("# VARIABLES"                                           );

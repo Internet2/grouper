@@ -106,13 +106,7 @@ public class GrouperUtil {
     logDirsCreated = true;
     
     String location = "log4j.properties";
-    Properties properties = new Properties();
-    try {
-      URL url = computeUrl(location, false);
-      properties.load(url.openStream());
-    } catch (IOException ioe) {
-      throw new RuntimeException("Cant read log4j.properties", ioe);
-    }
+    Properties properties = GrouperUtil.propertiesFromResourceName(location);
     Set<String> keySet = (Set<String>)(Object)properties.keySet();
     for (String key : keySet) {
       //if its a file property
@@ -674,7 +668,10 @@ public class GrouperUtil {
     URL url = null;
 
     try {
-      url = cl.getResource(resourceName);
+      //CH 20081012: sometimes it starts with slash and it shouldnt...
+      String newResourceName = resourceName.startsWith("/") 
+        ? resourceName.substring(1) : resourceName;
+      url = cl.getResource(newResourceName);
     } catch (NullPointerException npe) {
       String error = "computeUrl() Could not find resource file: " + resourceName;
       throw new RuntimeException(error, npe);
@@ -972,6 +969,30 @@ public class GrouperUtil {
     }
   }
 
+  /**
+   * convert a set to a string (comma separate)
+   * @param set
+   * @return the String
+   */
+  public static String setToString(Set set) {
+    if (set == null) {
+      return "null";
+    }
+    if (set.size() == 0) {
+      return "empty";
+    }
+    StringBuilder result = new StringBuilder();
+    boolean first = true;
+    for (Object object : set) {
+      if (!first) {
+        result.append(", ");
+      }
+      first = false;
+      result.append(object);
+    }
+    return result.toString();
+  }
+  
   /**
    * print out various types of objects
    * 
@@ -5437,11 +5458,11 @@ public class GrouperUtil {
         inputStream = url.openStream();
         properties.load(inputStream);
       } catch (Exception e) {
-        throw new RuntimeException("Problem with resource: '" + resourceName + "'");
+        throw new RuntimeException("Problem with resource: '" + resourceName + "'", e);
       } finally {
         GrouperUtil.closeQuietly(inputStream);
       }
-  
+      resourcePropertiesCache.put(resourceName, properties);
     }
     return properties;
   }
@@ -5503,6 +5524,17 @@ public class GrouperUtil {
     return result;
   }
 
+  /**
+   * get a value (trimmed to e) from a property file
+   * @param properties
+   * @param key
+   * @return the property value
+   */
+  public static String propertiesValue(Properties properties, String key) {
+    String value = properties.getProperty(key);
+    return StringUtils.trim(value);
+  }
+  
   /**
    * close a connection null safe and dont throw exception
    * @param connection

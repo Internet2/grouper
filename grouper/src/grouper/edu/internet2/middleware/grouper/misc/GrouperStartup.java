@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.6 2008-10-03 04:15:26 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.7 2008-10-15 03:57:06 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -42,6 +42,10 @@ public class GrouperStartup {
       return false;
     }
     started = true;
+    
+    //make sure configuration is ok
+    GrouperCheckConfig.checkConfig();
+    
     //startup hooks
     GrouperHooksUtils.fireGrouperStartupHooksIfNotFiredAlready();
 

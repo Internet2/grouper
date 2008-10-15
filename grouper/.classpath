@@ -3,9 +3,9 @@
 	<classpathentry kind="src" path="src/grouper"/>
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="src" path="confForTest"/>
+	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/activation.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/ant.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/antlr.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/asm.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/asm-attrs.jar"/>
@@ -19,7 +19,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-cli.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-collections.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-digester.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-discovery-0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-lang.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-logging.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-math.jar"/>
@@ -29,7 +28,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/invoker.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/jakarta-oro.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/jamon-2.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/jsr107cache.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/jta.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/jug.jar"/>
@@ -48,5 +46,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/test/junit.jar"/>
 	<classpathentry kind="lib" path="lib/ant/ant-contrib.jar"/>
 	<classpathentry kind="lib" path="lib/custom/ojdbc14.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/commons-discovery.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/jamon.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/ant.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

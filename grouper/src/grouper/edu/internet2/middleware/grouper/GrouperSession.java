@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.88 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.89 2008-10-15 03:57:06 mchyzer Exp $
  */
 public class GrouperSession {
 
@@ -179,6 +179,25 @@ public class GrouperSession {
     throws SessionException {
     
     return start(subject, true);
+  }
+
+  /**
+   * Start a session for interacting with the Grouper API.
+   * This adds the session to the threadlocal.    This has 
+   * threadlocal implications, so start and stop these hierarchically,
+   * do not alternate.  If you need to, use the callback inverse of control.
+   * This uses 
+   * <pre class="eg">
+   * // Start a Grouper API session.
+   * GrouperSession s = GrouperSession.start(subject);
+   * </pre>
+   * @return  A Grouper API session.
+   * @throws  SessionException
+   */
+  public static GrouperSession startRootSession()
+    throws SessionException {
+    
+    return start(SubjectFinder.findRootSubject());
   }
 
   /**
@@ -575,7 +594,7 @@ public class GrouperSession {
   }
 
   /**
-   * call this to send a callback for the hibernate session object. cant use
+   * call this to send a callback for the grouper session object. cant use
    * inverse of control for this since it runs it.  Any method in the inverse of
    * control can access the grouper session in a threadlocal
    * 
