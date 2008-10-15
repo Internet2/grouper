@@ -15,7 +15,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/axis/xml-apis-1.3.03.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/XmlSchema-1.3.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-discovery-0.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/grouper.jar" sourcepath="/Grouper"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/grouper.jar" sourcepath="/grouper"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws-non-webapp/servlet.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/asm.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/asm-attrs.jar"/>

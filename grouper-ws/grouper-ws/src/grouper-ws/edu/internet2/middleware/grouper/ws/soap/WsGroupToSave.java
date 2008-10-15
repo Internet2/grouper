@@ -75,7 +75,7 @@ public class WsGroupToSave {
   }
 
   /**
-   * save this stem
+   * save this group
    * 
    * @param grouperSession
    *            to save

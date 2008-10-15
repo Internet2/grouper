@@ -1279,7 +1279,7 @@ public class GrouperService {
   }
 
   /**
-   * save a stem or many (insert or update).  Note, you cannot rename an existing stem.
+   * save a stem or many (insert or update).  Note, you cannot move an existing stem.
    * 
    * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @see {@link Group#saveGroup(GrouperSession, String, String, String, String, boolean, boolean, boolean)}
