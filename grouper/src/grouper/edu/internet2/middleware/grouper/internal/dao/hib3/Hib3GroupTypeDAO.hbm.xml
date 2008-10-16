@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3GroupTypeDAO.hbm.xml,v 1.6 2008-07-28 20:12:27 mchyzer Exp $ -->
+<!-- $Id: Hib3GroupTypeDAO.hbm.xml,v 1.7 2008-10-16 05:45:47 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
   <class name="GroupType" table="grouper_types" >
@@ -57,7 +57,7 @@
     <!-- TODO 20070119 make `not-null="true"` once i fix `RegistryInstall` -->
     <property name="creatorUuid"
               type="string"
-              update="false"
+              update="true"
     >
       <column name="creator_uuid"
               length="128"

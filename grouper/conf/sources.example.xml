@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.example.xml,v 1.5 2008-09-29 03:38:30 mchyzer Exp $
+$Id: sources.example.xml,v 1.6 2008-10-16 05:45:47 mchyzer Exp $
 -->
 
 <sources>
@@ -23,6 +23,7 @@ $Id: sources.example.xml,v 1.5 2008-09-29 03:38:30 mchyzer Exp $
     <id>jdbc</id>
     <name>Example JDBC Source Adapter</name>
      <type>person</type>
+     
      <!-- edu.internet2.middleware.subject.provider.C3p0JdbcConnectionProvider (default)
           edu.internet2.middleware.subject.provider.DbcpJdbcConnectionProvider (legacy) 
           edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider 
@@ -31,6 +32,10 @@ $Id: sources.example.xml,v 1.5 2008-09-29 03:38:30 mchyzer Exp $
        <param-name>jdbcConnectionProvider</param-name>
        <param-value>edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider </param-value>
      </init-param>
+     
+     <!-- note: again, if you use GrouperJdbcConnectionProvider, then you should not fill out maxActive, maxIdle,
+       maxWait, dbDriver, dbUrl, dbUser, dbPwd, since it will use the grouper.hibernate.properties db settings -->
+
      <!--   init-param>
        <param-name>maxActive</param-name>
        <param-value>16</param-value>
@@ -42,15 +47,32 @@ $Id: sources.example.xml,v 1.5 2008-09-29 03:38:30 mchyzer Exp $
      <init-param>
        <param-name>maxWait</param-name>
        <param-value>-1</param-value>
-     </init-param>
-     <init-param>
+     </init-param -->
+     
+     <!--      
+       e.g. mysql:           com.mysql.jdbc.Driver
+       e.g. p6spy (log sql): com.p6spy.engine.spy.P6SpyDriver
+         for p6spy, put the underlying driver in spy.properties
+       e.g. oracle:          oracle.jdbc.driver.OracleDriver
+       e.g. hsqldb:          org.hsqldb.jdbcDriver
+       e.g. postgres:        org.postgresql.Driver -->
+
+     <!-- init-param>
        <param-name>dbDriver</param-name>
        <param-value>org.hsqldb.jdbcDriver</param-value>
-     </init-param>
-     <init-param>
+     </init-param -->
+     
+     <!-- 
+       e.g. mysql:           jdbc:mysql://localhost:3306/grouper
+       e.g. p6spy (log sql): [use the URL that your DB requires]
+       e.g. oracle:          jdbc:oracle:thin:@server.school.edu:1521:sid
+       e.g. hsqldb (a):      jdbc:hsqldb:dist/run/grouper;create=true
+       e.g. hsqldb (b):      jdbc:hsqldb:hsql://localhost:9001
+       e.g. postgres:        jdbc:postgresql:grouper -->
+     
+     <!-- init-param>
        <param-name>dbUrl</param-name>
-  <param-value>jdbc:hsqldb:C:/projects/GrouperI2MI_1-2/grouper/dist/run/grouper</param-value>
-  <param-value>jdbc:hsqldb:hsql://localhost:9001</param-value>
+       <param-value>jdbc:hsqldb:C:/projects/GrouperI2MI_1-2/grouper/dist/run/grouper</param-value>
      </init-param>
      <init-param>
        <param-name>dbUser</param-name>
@@ -60,6 +82,7 @@ $Id: sources.example.xml,v 1.5 2008-09-29 03:38:30 mchyzer Exp $
        <param-name>dbPwd</param-name>
        <param-value></param-value>
      </init-param -->
+     
       <init-param>
        <param-name>SubjectID_AttributeType</param-name>
        <param-value>id</param-value>

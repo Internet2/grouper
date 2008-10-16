@@ -18,14 +18,16 @@
 package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 
 /** 
  * Basic <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupTypeDAO.java,v 1.6 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: GroupTypeDAO.java,v 1.7 2008-10-16 05:45:47 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupTypeDAO extends GrouperDAO {
@@ -74,5 +76,11 @@ public interface GroupTypeDAO extends GrouperDAO {
             SchemaException
             ;
 
+  /**
+   * find all groupTypes by creator
+   * @param member
+   * @return the groupTypes
+   */
+  Set<GroupType> findAllByCreator(Member member);  
 } 
 

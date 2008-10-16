@@ -21,10 +21,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 
+import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -36,7 +39,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeDAO.java,v 1.8 2008-08-14 06:35:47 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeDAO.java,v 1.9 2008-10-16 05:45:47 mchyzer Exp $
  */
 public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
 
@@ -143,5 +146,21 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
     }
   }
 
+  /**
+   * find all group types by creator
+   * @param member
+   * @return the group types
+   */
+  public Set<GroupType> findAllByCreator(Member member) {
+    if (member == null || StringUtils.isBlank(member.getUuid())) {
+      throw new RuntimeException("Need to pass in a member");
+    }
+    Set<GroupType> groupTypes = HibernateSession.byHqlStatic()
+      .createQuery("from GroupType as gt where gt.creatorUuid = :uuid")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindByCreator")
+      .setString( "uuid", member.getUuid() ).listSet(GroupType.class);
+    return groupTypes;
+  }
 } 
 

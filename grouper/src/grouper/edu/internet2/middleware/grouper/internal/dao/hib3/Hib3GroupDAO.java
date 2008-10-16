@@ -25,13 +25,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Attribute;
+import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.ByHql;
@@ -51,7 +54,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.18 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.19 2008-10-16 05:45:47 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -716,6 +719,25 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     });
 
     return resultGroups;
+  }
+
+  /**
+   * find groups by creator or modifier
+   * @param member
+   * @return the groups
+   */
+  public Set<Group> findByCreatorOrModifier(Member member) {
+    if (member == null || StringUtils.isBlank(member.getUuid())) {
+      throw new RuntimeException("Need to pass in a member");
+    }
+    Set<Group> groups = HibernateSession.byHqlStatic()
+      .createQuery("from Group as g where g.creatorUuid = :uuid1 or g.modifierUuid = :uuid2")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindByCreatorOrModifier")
+      .setString( "uuid1", member.getUuid() ).setString("uuid2", member.getUuid())
+      .listSet(Group.class);
+    return groups;
+
   }
 
 } 

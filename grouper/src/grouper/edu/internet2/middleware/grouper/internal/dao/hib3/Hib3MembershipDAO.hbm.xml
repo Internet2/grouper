@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.9 2008-08-14 06:35:47 mchyzer Exp $ -->
+<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.10 2008-10-16 05:45:47 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
   <!-- TODO 20070124 revisit the batch-size setting now that i've completely altered this mapping -->
@@ -66,7 +66,7 @@
     <!-- [@since 1.2.0] Refers to member's UUID, not ID -->
     <property name="memberUuid"
               type="string"
-              update="false"
+              update="true"
     >
       <column name="member_id"
               not-null="true"
@@ -139,7 +139,7 @@
     <!-- [@since 1.2.0] Refers to member's UUID, not ID -->
     <property name="creatorUuid"
               type="string"
-              update="false"
+              update="true"
     >
       <column name="creator_id"
               index="membership_creator_idx"
