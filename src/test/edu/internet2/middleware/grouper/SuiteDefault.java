@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.46 2008-10-03 15:24:49 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.47 2008-10-16 05:45:47 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -82,6 +82,7 @@ public class SuiteDefault extends TestCase {
     suite.addTestSuite( Test_api_GrouperSession.class );
     suite.addTestSuite( Test_api_MembershipFinder.class );
     suite.addTestSuite( Test_api_Stem.class );
+    suite.addTestSuite( TestMemberChangeSubject.class);
 
     suite.addTestSuite( Test_cache_EhcacheStats.class );
 

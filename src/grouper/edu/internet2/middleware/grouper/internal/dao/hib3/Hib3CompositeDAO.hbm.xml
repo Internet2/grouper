@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3CompositeDAO.hbm.xml,v 1.7 2008-07-28 20:12:27 mchyzer Exp $ -->
+<!-- $Id: Hib3CompositeDAO.hbm.xml,v 1.8 2008-10-16 05:45:47 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper"  default-lazy="false">
   <class name="Composite" table="grouper_composites">
@@ -103,7 +103,7 @@
     <!-- [@since 1.2.0] Refers to creator's UUID, not ID -->
     <property name="creatorUuid"
               type="string"
-              update="false"
+              update="true"
     >
       <column name="creator_id"
               not-null="true"

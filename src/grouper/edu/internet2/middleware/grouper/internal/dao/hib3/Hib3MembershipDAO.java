@@ -24,11 +24,13 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
@@ -44,7 +46,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.21 2008-10-14 09:43:21 isgwb Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.22 2008-10-16 05:45:47 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -52,6 +54,24 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = Hib3MembershipDAO.class.getName();
 
+  /**
+   * find all memberships that have this member or have this creator
+   * @param member
+   * @return the memberships
+   */
+  public Set<Membership> findAllByCreatorOrMember(Member member) {
+    if (member == null || StringUtils.isBlank(member.getUuid())) {
+      throw new RuntimeException("Need to pass in a member");
+    }
+    Set<Membership> memberships = HibernateSession.byHqlStatic()
+      .createQuery("from Membership as m where m.creatorUuid = :uuid1 or m.memberUuid = :uuid2")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindByCreatorOrMember")
+      .setString( "uuid1", member.getUuid() ).setString("uuid2", member.getUuid())
+      .listSet(Membership.class);
+    return memberships;
+
+  }
 
   /**
    * <p/>

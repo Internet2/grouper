@@ -20,12 +20,13 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 
 /** 
  * Basic <code>Composite</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: CompositeDAO.java,v 1.8 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: CompositeDAO.java,v 1.9 2008-10-16 05:45:47 mchyzer Exp $
  * @since   1.2.0
  */
 public interface CompositeDAO extends GrouperDAO {
@@ -64,5 +65,11 @@ public interface CompositeDAO extends GrouperDAO {
   void update(Set toAdd, Set toDelete, Set modGroups, Set modStems) 
     throws  GrouperDAOException;
 
+  /**
+   * find all composites by creator
+   * @param member
+   * @return the composites
+   */
+  Set<Composite> findByCreator(Member member);  
 } 
 

@@ -40,9 +40,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
  * Schema specification for a Group attribute or list.
+ * Reference to members list is: Group.getDefaultList()
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.34 2008-09-23 04:26:23 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.35 2008-10-16 05:45:47 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements Hib3GrouperVersioned {
 

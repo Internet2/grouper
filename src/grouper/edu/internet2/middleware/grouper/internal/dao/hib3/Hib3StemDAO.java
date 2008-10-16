@@ -22,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
 
@@ -44,7 +45,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.13 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.14 2008-10-16 05:45:47 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -598,8 +599,24 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       .setString("id", null)
       .setLong("time", new Long(0))
       .executeUpdate();
-      ;
+  }
 
+  /**
+   * find stems by creator or modifier
+   * @param member
+   * @return the stems
+   */
+  public Set<Stem> findByCreatorOrModifier(Member member) {
+    if (member == null || StringUtils.isBlank(member.getUuid())) {
+      throw new RuntimeException("Need to pass in a member");
+    }
+    Set<Stem> stems = HibernateSession.byHqlStatic()
+      .createQuery("from Stem as s where s.creatorUuid = :uuid1 or s.modifierUuid = :uuid2")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindByCreatorOrModifier")
+      .setString( "uuid1", member.getUuid() ).setString("uuid2", member.getUuid())
+      .listSet(Stem.class);
+    return stems;
   }
 
 } 

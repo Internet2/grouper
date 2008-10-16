@@ -24,6 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -41,7 +42,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: GrouperTest.java,v 1.9 2008-10-16 05:45:47 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -525,6 +526,8 @@ public class GrouperTest extends TestCase {
     //GrouperUtil.sleep(100);
     LOG.debug("setUp");
     RegistryReset.reset();
+    //remove any settings in testconfig
+    ApiConfig.testConfig.clear();
   } 
 
   // @since   1.2.0

@@ -25,14 +25,15 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 /** 
- * Privilege schema specification.
+ * Privilege schema specification.  Access the constants for Groups from AccessPrivilege
+ * and Stems from NamingPrivilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.3 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: Privilege.java,v 1.4 2008-10-16 05:45:47 mchyzer Exp $
  */
 public class Privilege implements Serializable {
 
-  // PUBLIC CLASS CONSTANTS ///
+  /** constant */
   public static final long serialVersionUID = 931658631999330719L;
 
   /**

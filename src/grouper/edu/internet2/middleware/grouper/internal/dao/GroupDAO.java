@@ -22,6 +22,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
@@ -29,7 +30,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.12 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: GroupDAO.java,v 1.13 2008-10-16 05:45:47 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -195,5 +196,11 @@ public interface GroupDAO extends GrouperDAO {
   void update(Group _g)
     throws  GrouperDAOException;
 
+  /**
+   * find groups by creator or modifier
+   * @param member
+   * @return the groups
+   */
+  Set<Group> findByCreatorOrModifier(Member member);
 } 
 

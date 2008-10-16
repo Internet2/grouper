@@ -18,10 +18,12 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -34,7 +36,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Basic Hibernate <code>Composite</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3CompositeDAO.java,v 1.7 2008-09-10 05:45:58 mchyzer Exp $
+ * @version $Id: Hib3CompositeDAO.java,v 1.8 2008-10-16 05:45:47 mchyzer Exp $
  */
 public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
 
@@ -77,6 +79,10 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
   } // public Composite findAsOwner(_g)
 
   /**
+   * @param uuid 
+   * @return the composite
+   * @throws CompositeNotFoundException 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Composite findByUuid(String uuid) 
@@ -148,6 +154,23 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
   {
     hibernateSession.byHql().createQuery("delete from Composite").executeUpdate();
   } 
+
+  /**
+   * find all composites by creator
+   * @param member
+   * @return the composites
+   */
+  public Set<Composite> findByCreator(Member member) {
+    if (member == null || StringUtils.isBlank(member.getUuid())) {
+      throw new RuntimeException("Need to pass in a member");
+    }
+    Set<Composite> composites = HibernateSession.byHqlStatic()
+      .createQuery("from Composite as c where c.creatorUuid = :uuid")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindByCreator")
+      .setString( "uuid", member.getUuid() ).listSet(Composite.class);
+    return composites;
+  }
 
 } 
 

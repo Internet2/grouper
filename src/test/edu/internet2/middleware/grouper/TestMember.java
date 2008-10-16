@@ -41,18 +41,25 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Member}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMember.java,v 1.10 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestMember.java,v 1.11 2008-10-16 05:45:47 mchyzer Exp $
  */
 public class TestMember extends TestCase {
 
-  // Private Class Constants
+  /** logger */
   private static final Log LOG = GrouperUtil.getLog(TestMember.class);
 
-
+  /**
+   * 
+   * @param name
+   */
   public TestMember(String name) {
     super(name);
   }
 
+  /**
+   * 
+   * @see junit.framework.TestCase#setUp()
+   */
   protected void setUp () {
     LOG.debug("setUp");
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
