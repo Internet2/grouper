@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMemberChangeSubjectBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
@@ -82,7 +83,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.112 2008-10-16 05:45:47 mchyzer Exp $
+ * @version $Id: Member.java,v 1.113 2008-10-17 12:06:37 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -163,6 +164,17 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
   /** change a subject to a subject which did exist */
   static int changeSubjectExist = 0;
   
+  /** number of memberships edited */
+  static int changeSubjectMembershipAddCount = 0;
+  
+  /** number of memberships deleted due to duplicates */
+  static int changeSubjectMembershipDeleteCount = 0;
+  
+  
+  public void changeSubject(Subject newSubject) {
+    this.changeSubject(newSubject, true);
+  }
+  
   /**
    * change the subject of a member to another subject.  This new subject might already exist, and it
    * might not.  If it doesnt exist, then this member object will have its subject and source information
@@ -170,11 +182,18 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * the member_id updated to the new member_id, and the old member_id will be removed.
    * 
    * @param newSubject
+   * @param deleteOldMember is only applicable if the new member exists.  If true, it will delete the old one.
+   * Generally you want this as true, and only set to false if there is a foreign key violation, and you want to 
+   * get as far as you can.
    */
-  public void changeSubject(final Subject newSubject) {
+  public void changeSubject(final Subject newSubject, final boolean deleteOldMember) {
 
     final String thisSubjectId = this.getSubjectId();
     final String thisSourceId = this.getSubjectSourceId();
+    
+    //dont try to resolve, but might be resolvable
+    final Subject oldSubject = new LazySubject(this);
+    
     final String newSubjectId = newSubject.getId();
     final String newSourceId = newSubject.getSource().getId();
     
@@ -190,35 +209,46 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
     }
     
     //static grouper session should exist at this point
-    Member newMember = null;
-    boolean memberDidntExist = false;
+    Member theNewMember = null;
+    boolean theMemberDidntExist = false;
     try {
-      newMember = GrouperDAOFactory.getFactory().getMember().findBySubject(newSubject);
+      theNewMember = GrouperDAOFactory.getFactory().getMember().findBySubject(newSubject);
     } catch (MemberNotFoundException mnfe) {
-      memberDidntExist = true;
+      theMemberDidntExist = true;
     }
 
+    final boolean memberDidntExist = theMemberDidntExist;
+    final Member newMember = theNewMember;
     
-    if (memberDidntExist) {
-      changeSubjectDidntExist++;
-      
-      //since it didnt exist, we can just change the subject id and source id of the existing member object
-      this.setSubjectIdDb(newSubjectId);
-      this.setSubjectSourceIdDb(newSourceId);
-      this.setSubjectTypeId(newSubject.getType().getName());
+    //this needs to run in a transaction
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+        new HibernateHandler() {
 
-      this.store();
+      public Object callback(HibernateSession hibernateSession)
+          throws GrouperDAOException {
 
-    } else {
-      changeSubjectExist++;
-      final String newMemberUuid = newMember.getUuid();
-      //this needs to run in a transaction
-      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
-          new HibernateHandler() {
+        //hooks bean
+        HooksMemberChangeSubjectBean hooksMemberChangeSubjectBean = new HooksMemberChangeSubjectBean(
+            Member.this, newSubject, thisSubjectId, thisSourceId, deleteOldMember, memberDidntExist);
 
-        public Object callback(HibernateSession hibernateSession)
-            throws GrouperDAOException {
+        //call pre-hooks if registered
+        GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
+            MemberHooks.METHOD_MEMBER_PRE_CHANGE_SUBJECT, 
+            hooksMemberChangeSubjectBean, VetoTypeGrouper.MEMBER_PRE_CHANGE_SUBJECT);
+        
+        if (memberDidntExist) {
+          changeSubjectDidntExist++;
           
+          //since it didnt exist, we can just change the subject id and source id of the existing member object
+          Member.this.setSubjectIdDb(newSubjectId);
+          Member.this.setSubjectSourceIdDb(newSourceId);
+          Member.this.setSubjectTypeId(newSubject.getType().getName());
+
+          Member.this.store();
+
+        } else {
+          changeSubjectExist++;
+          final String newMemberUuid = newMember.getUuid();
           {
             //grouper_composites.creator_id
             Set<Composite> composites = GrouperDAOFactory.getFactory().getComposite().findByCreator(Member.this);
@@ -258,16 +288,18 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
               Set<Membership> membershipsNew = GrouperDAOFactory.getFactory().getMembership().findAllByMember(newMemberUuid);
               Set<Membership> membershipsToUpdate = new HashSet<Membership>();
               Set<Membership> membershipsToDelete = new HashSet<Membership>();
-
+  
               for (Membership membershipPrevious : membershipsPrevious) {
-
+  
                 if (StringUtils.equals(Member.this.getUuid(), membershipPrevious.getMemberUuid())) {
                   
                   membershipPrevious.setMemberUuid(newMemberUuid);
                   //dont add a duplicate
                   if (membershipsNew.contains(membershipPrevious)) {
+                    changeSubjectMembershipDeleteCount++;
                     membershipsToDelete.add(membershipPrevious);
                   } else {
+                    changeSubjectMembershipAddCount++;
                     membershipsToUpdate.add(membershipPrevious);
                   }
                 } else {
@@ -287,7 +319,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
               }
             }
           }
-
+  
           {
             //grouper_stems.creator_id, 
             //  modifier_id
@@ -317,20 +349,31 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
           }
           
           //finally delete this member object
-          hibernateSession.byObject().delete(Member.this);
-          
-          return null;
-        }
+          if (deleteOldMember) {
+            hibernateSession.byObject().delete(Member.this);
+          }
+        }        
+        hibernateSession.getSession().flush();
         
-      });
-      
-      this.setSubjectIdDb(newSubjectId);
-      this.setSubjectSourceIdDb(newSourceId);
-      this.setSubjectTypeId(newSubject.getType().getName());
-      
-    }
+        
+        GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBER, 
+            MemberHooks.METHOD_MEMBER_POST_COMMIT_CHANGE_SUBJECT, 
+            hooksMemberChangeSubjectBean);
 
+        GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
+            MemberHooks.METHOD_MEMBER_POST_CHANGE_SUBJECT, 
+            hooksMemberChangeSubjectBean, VetoTypeGrouper.MEMBER_POST_CHANGE_SUBJECT);
 
+        
+        return null;
+      }
+      
+    });
+    
+    this.setSubjectIdDb(newSubjectId);
+    this.setSubjectSourceIdDb(newSourceId);
+    this.setSubjectTypeId(newSubject.getType().getName());
+      
   }
 
   /**
@@ -1748,7 +1791,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
     super.onPostDelete(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.MEMBER, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_POST_COMMIT_DELETE, HooksMemberBean.class, 
         this, Member.class);
 
@@ -1765,7 +1808,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
     super.onPostSave(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.MEMBER, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_POST_COMMIT_INSERT, HooksMemberBean.class, 
         this, Member.class);
 
@@ -1782,7 +1825,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
     super.onPostUpdate(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.MEMBER, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_POST_COMMIT_UPDATE, HooksMemberBean.class, 
         this, Member.class);
 

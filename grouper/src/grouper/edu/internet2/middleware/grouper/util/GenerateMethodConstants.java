@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GenerateMethodConstants.java,v 1.5 2008-09-29 03:38:30 mchyzer Exp $
+ * $Id: GenerateMethodConstants.java,v 1.6 2008-10-17 12:06:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.hooks.StemHooks;
+import edu.internet2.middleware.grouper.hooks.MemberHooks;
 
 
 /**
@@ -21,7 +21,7 @@ public class GenerateMethodConstants {
    * @param args
    */
   public static void main(String[] args) {
-    generateConstants(StemHooks.class);
+    generateConstants(MemberHooks.class);
   }
   /**
    * <pre>

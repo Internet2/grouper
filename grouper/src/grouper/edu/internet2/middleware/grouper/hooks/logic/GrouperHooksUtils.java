@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHooksUtils.java,v 1.14 2008-09-29 03:38:31 mchyzer Exp $
+ * $Id: GrouperHooksUtils.java,v 1.15 2008-10-17 12:06:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -163,6 +163,21 @@ public class GrouperHooksUtils {
 
   /**
    * 
+   * @param grouperHookTypeInterface e.g. GrouperHookType.GROUP
+   * @param hookMethodName is method name in hook to call e.g. groupPreInsert
+   * @param hooksBean hooks bean
+   * @param vetoType is default vetoType, e.g. VetoTypeGrouper.GROUP_PRE_INSERT
+   * @throws HookVeto if there is a veto (if applicable)
+   */
+  public static void callHooksIfRegistered(GrouperHookTypeInterface grouperHookTypeInterface, String hookMethodName,
+      HooksBean hooksBean,
+      VetoType vetoType) throws HookVeto {
+    callHooksIfRegistered(null, grouperHookTypeInterface, hookMethodName, hooksBean, null, 
+        null, null, vetoType, false, false);
+  }
+
+  /**
+   * 
    * @param object that the hook is about
    * @param grouperHookTypeInterface e.g. GrouperHookType.GROUP
    * @param hookMethodName is method name in hook to call e.g. groupPreInsert
@@ -178,7 +193,30 @@ public class GrouperHooksUtils {
       final GrouperHookTypeInterface grouperHookTypeInterface, final String hookMethodName,
       final Class<? extends HooksBean> hooksBeanClass, Object[] businessObjects, Class[] businessClasses,
       final VetoType vetoType, boolean resetDbVersion, boolean clearDbVersion) throws HookVeto {
+    callHooksIfRegistered(object, grouperHookTypeInterface, hookMethodName, null, hooksBeanClass, 
+        businessObjects, businessClasses, vetoType, resetDbVersion, clearDbVersion);
+  }
+
+  /**
+   * 
+   * @param object that the hook is about
+   * @param grouperHookTypeInterface e.g. GrouperHookType.GROUP
+   * @param hookMethodName is method name in hook to call e.g. groupPreInsert
+   * @param hooksBean if passing bean, pass it here, otherwise pass the reflection details
+   * @param hooksBeanClass e.g. HooksGroupPreInsertBean.class
+   * @param businessObjects are the intances to pass to bean constructor.  e.g. group
+   * @param businessClasses are the types passed to bean constructor.  e.g. Group.class
+   * @param vetoType is default vetoType, e.g. VetoTypeGrouper.GROUP_PRE_INSERT
+   * @param resetDbVersion if the db version should be saved, assigned, reset, etc (for low level hooks)
+   * @param clearDbVersion if the db version should be cleared (e.g. on delete) (for low level hooks)
+   * @throws HookVeto if there is a veto (if applicable)
+   */
+  private static void callHooksIfRegistered(final Object object, 
+      final GrouperHookTypeInterface grouperHookTypeInterface, final String hookMethodName, final HooksBean hooksBean,
+      final Class<? extends HooksBean> hooksBeanClass, Object[] businessObjects, Class[] businessClasses,
+      final VetoType vetoType, boolean resetDbVersion, boolean clearDbVersion) throws HookVeto {
     
+    Class<? extends HooksBean> theHooksBeanClass = hooksBeanClass != null ? hooksBeanClass : hooksBean.getClass();
     Object dbVersion = null;
     Object objectVersion = null;
     GrouperAPI grouperAPI = object instanceof GrouperAPI ? (GrouperAPI)object : null;
@@ -197,10 +235,14 @@ public class GrouperHooksUtils {
     
     //see if there is a hook class
     List<GrouperHookMethodAndObject> hooks = GrouperHookType.hooksInstances(grouperHookTypeInterface, 
-        hookMethodName, hooksBeanClass);
+        hookMethodName, theHooksBeanClass);
     
     if (hooks != null && hooks.size() > 0) {
       
+      //instantiate bean or use existing
+      HooksBean theHooksBean = hooksBean != null ? hooksBean : 
+        GrouperUtil.construct(hooksBeanClass, businessClasses, businessObjects);
+
       //loop through each hook
       for (final GrouperHookMethodAndObject hookMethodAndObject : hooks) {
         
@@ -208,14 +250,11 @@ public class GrouperHooksUtils {
 
         boolean asychronous = hook instanceof HookAsynchronousMarker;
         
-        //instantiate bean
-        HooksBean hooksBean = GrouperUtil.construct(hooksBeanClass, businessClasses, businessObjects);
-
         HooksContext hooksContext = new HooksContext();
         
         final Method method = hookMethodAndObject.getHookMethod();
         
-        executeHook(method, hook, hooksBean, hooksContext,vetoType, asychronous);
+        executeHook(method, hook, theHooksBean, hooksContext,vetoType, asychronous);
       
       }
       
@@ -233,7 +272,6 @@ public class GrouperHooksUtils {
 
   /**
    * if there are hooks available, schedule the post commit call
-   * @param object that the hook is about
    * @param grouperHookTypeInterface e.g. GrouperHookType.GROUP
    * @param hookMethodName is method name in hook to call e.g. groupPreInsert
    * @param hooksBeanClass e.g. HooksGroupPreInsertBean.class
@@ -241,10 +279,10 @@ public class GrouperHooksUtils {
    * @param businessClass are the types passed to bean constructor.  e.g. Group.class
    * @throws HookVeto if there is a veto (if applicable)
    */
-  public static void schedulePostCommitHooksIfRegistered(final Object object, 
+  public static void schedulePostCommitHooksIfRegistered(
       final GrouperHookTypeInterface grouperHookTypeInterface, final String hookMethodName,
       final Class<? extends HooksBean> hooksBeanClass, Object businessObject, Class businessClass) {
-    schedulePostCommitHooksIfRegistered(object, grouperHookTypeInterface, hookMethodName, hooksBeanClass, 
+    schedulePostCommitHooksIfRegistered(grouperHookTypeInterface, hookMethodName, hooksBeanClass, 
         businessClass == null ? null : new Object[]{businessObject},
             businessClass == null ? null : new Class[]{businessClass});
     
@@ -252,7 +290,20 @@ public class GrouperHooksUtils {
 
   /**
    * if there are hooks available, schedule the post commit call
-   * @param object that the hook is about
+   * @param grouperHookTypeInterface e.g. GrouperHookType.GROUP
+   * @param hookMethodName is method name in hook to call e.g. groupPreInsert
+   * @param hooksBean as argument to hook
+   * @throws HookVeto if there is a veto (if applicable)
+   */
+  public static void schedulePostCommitHooksIfRegistered(
+      final GrouperHookTypeInterface grouperHookTypeInterface, final String hookMethodName,
+      HooksBean hooksBean) {
+    schedulePostCommitHooksIfRegistered(grouperHookTypeInterface, hookMethodName, hooksBean, null, null, null);
+    
+  }
+
+  /**
+   * if there are hooks available, schedule the post commit call
    * @param grouperHookTypeInterface e.g. GrouperHookType.GROUP
    * @param hookMethodName is method name in hook to call e.g. groupPreInsert
    * @param hooksBeanClass e.g. HooksGroupPreInsertBean.class
@@ -260,11 +311,32 @@ public class GrouperHooksUtils {
    * @param businessClasses are the types passed to bean constructor.  e.g. Group.class
    * @throws HookVeto if there is a veto (if applicable)
    */
-  public static void schedulePostCommitHooksIfRegistered(final Object object,
+  public static void schedulePostCommitHooksIfRegistered(
       final GrouperHookTypeInterface grouperHookTypeInterface,
       final String hookMethodName, final Class<? extends HooksBean> hooksBeanClass,
       final Object[] businessObjects, final Class[] businessClasses) {
+    schedulePostCommitHooksIfRegistered(grouperHookTypeInterface, hookMethodName, 
+        null, hooksBeanClass, businessObjects, businessClasses);
+  }
+  
+  /**
+   * if there are hooks available, schedule the post commit call
+   * @param grouperHookTypeInterface e.g. GrouperHookType.GROUP
+   * @param hookMethodName is method name in hook to call e.g. groupPreInsert
+   * @param hooksBean hooks bean
+   * @param theHooksBeanClass e.g. HooksGroupPreInsertBean.class
+   * @param businessObjects are the intances to pass to bean constructor.  e.g. group
+   * @param businessClasses are the types passed to bean constructor.  e.g. Group.class
+   * @throws HookVeto if there is a veto (if applicable)
+   */
+  private static void schedulePostCommitHooksIfRegistered(
+      final GrouperHookTypeInterface grouperHookTypeInterface,
+      final String hookMethodName, final HooksBean hooksBean, final Class<? extends HooksBean> theHooksBeanClass,
+      final Object[] businessObjects, final Class[] businessClasses) {
 
+    final boolean hasBean = hooksBean != null;
+    final Class<? extends HooksBean> hooksBeanClass = hasBean ? hooksBean.getClass() : theHooksBeanClass;
+    
     //see if there is a hook class
     final List<GrouperHookMethodAndObject> hooks = GrouperHookType.hooksInstances(
         grouperHookTypeInterface, hookMethodName, hooksBeanClass);
@@ -283,22 +355,24 @@ public class GrouperHooksUtils {
               }
 
               Transaction transaction = hibernateSession.getSession().getTransaction();
+              
+              HooksBean localHooksBean = hasBean ? hooksBean : GrouperUtil.construct(hooksBeanClass,
+                  businessClasses, businessObjects);
+
               //loop through each hook
               for (final GrouperHookMethodAndObject hookMethodAndObject : hooks) {
 
                 final Object hook = hookMethodAndObject.getHookLogicInstance();
                 
                 final boolean asychronous = hook instanceof HookAsynchronousMarker;
-
+                
                 //clone all the args here since this is a post commit, everything needs
                 //a snapshot now...  only do this if not asynchronous, since asynchronous
                 //will clone already
-                Object[] localBusinessObjects = !asychronous ? GrouperUtil.cloneValue(businessObjects) : businessObjects;
-
-                //instantiate bean
-                final HooksBean hooksBean = GrouperUtil.construct(hooksBeanClass,
-                    businessClasses, localBusinessObjects);
-        
+                localHooksBean = !asychronous ? localHooksBean.clone() : localHooksBean;
+                
+                final HooksBean finalHooksBean = localHooksBean;
+                
                 final HooksContext hooksContext = new HooksContext();
         
                 final Method method = hookMethodAndObject.getHookMethod();
@@ -311,7 +385,7 @@ public class GrouperHooksUtils {
                     //only do this if committed
                     if (status == Status.STATUS_COMMITTED) {
 
-                      executeHook(method, hook, hooksBean, hooksContext, null,
+                      executeHook(method, hook, finalHooksBean, hooksContext, null,
                           asychronous);
 
                     }

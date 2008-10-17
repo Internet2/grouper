@@ -58,7 +58,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.68 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.69 2008-10-17 12:06:37 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVersioned {
 
@@ -709,7 +709,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
     super.onPostDelete(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE, 
         GroupTypeHooks.METHOD_GROUP_TYPE_POST_COMMIT_DELETE, HooksGroupTypeBean.class, 
         this, GroupType.class);
 
@@ -726,7 +726,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
     super.onPostSave(hibernateSession);
 
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE, 
         GroupTypeHooks.METHOD_GROUP_TYPE_POST_COMMIT_INSERT, HooksGroupTypeBean.class, 
         this, GroupType.class);
 
@@ -743,7 +743,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
     super.onPostUpdate(hibernateSession);
 
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE, 
         GroupTypeHooks.METHOD_GROUP_TYPE_POST_COMMIT_UPDATE, HooksGroupTypeBean.class, 
         this, GroupType.class);
 

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MemberHooksTest.java,v 1.4 2008-07-21 04:43:58 mchyzer Exp $
+ * $Id: MemberHooksTest.java,v 1.5 2008-10-17 12:06:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -19,10 +19,12 @@ import edu.internet2.middleware.grouper.StemHelper;
 import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
+import edu.internet2.middleware.grouper.exception.MemberDeleteException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
@@ -177,6 +179,29 @@ public class MemberHooksTest extends GrouperTest {
     assertEquals(SubjectTestHelper.SUBJ2.getId(), ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
   }
 
+  /**
+   * @throws Exception 
+   */
+  public void testMemberPostDelete() throws Exception {
+    
+    MemberHooksImpl.mostRecentPostDeleteMemberSubjectId = null;
+    
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
+    HibernateSession.byObjectStatic().delete(member);
+
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), MemberHooksImpl.mostRecentPostDeleteMemberSubjectId);
+    
+    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ6);
+    
+    try {
+      HibernateSession.byObjectStatic().delete(member);
+      fail("Should veto " + SubjectTestHelper.SUBJ6);
+    } catch (HookVeto hookVeto) {
+      assertEquals("subjectId cannot be " + SubjectTestHelper.SUBJ6.getId(), hookVeto.getReason());
+      assertEquals(VetoTypeGrouper.MEMBER_POST_DELETE, hookVeto.getVetoType());
+    }
+  }
+
 
   
   /** grouper sesion */
@@ -271,11 +296,11 @@ public class MemberHooksTest extends GrouperTest {
       MemberNotFoundException {
     
     group.addMember(SubjectTestHelper.SUBJ0);
-
+  
     final Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
-
+  
     MemberHooksImpl.mostRecentPostCommitUpdateMemberSubjectId = null;
-
+  
     GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
   
       public Object callback(GrouperTransaction grouperTransaction)
@@ -295,7 +320,175 @@ public class MemberHooksTest extends GrouperTest {
         return null;
       }
     });    
+  
+    
+  }
 
+  /**
+   * @throws MemberAddException 
+   * @throws InsufficientPrivilegeException 
+   * @throws MemberNotFoundException 
+   * 
+   */
+  public void testMemberPostCommitDelete() throws MemberAddException, InsufficientPrivilegeException,
+      MemberNotFoundException {
+    
+  
+    final Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
+  
+    MemberHooksImpl.mostRecentPostCommitDeleteMemberSubjectId = null;
+  
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+  
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        HibernateSession.byObjectStatic().delete(member0);
+        
+        assertNull("shouldnt fire yet", MemberHooksImpl.mostRecentPostCommitDeleteMemberSubjectId);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals(SubjectTestHelper.SUBJ0_ID, MemberHooksImpl.mostRecentPostCommitDeleteMemberSubjectId);
+        return null;
+      }
+    });    
+  
+    
+  }
+
+  /**
+   * @throws MemberAddException 
+   * @throws InsufficientPrivilegeException 
+   * @throws MemberNotFoundException 
+   * 
+   */
+  public void testMemberPostCommitChange() throws MemberAddException, InsufficientPrivilegeException,
+      MemberNotFoundException {
+
+    final Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
+
+    MemberHooksImpl.mostRecentPostCommitChangeMemberSubjectId = null;
+
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+  
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        member0.changeSubject(SubjectTestHelper.SUBJ1);
+        
+        assertNull("shouldnt fire yet", MemberHooksImpl.mostRecentPostCommitChangeMemberSubjectId);
+        grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
+        
+        assertEquals(SubjectTestHelper.SUBJ0_ID, MemberHooksImpl.mostRecentPostCommitChangeMemberSubjectId);
+        return null;
+      }
+    });    
+    
+  }
+
+  /**
+   * @throws MemberAddException 
+   * @throws InsufficientPrivilegeException 
+   * @throws MemberNotFoundException 
+   * 
+   */
+  public void testMemberPreDelete() throws MemberAddException, InsufficientPrivilegeException,
+      MemberNotFoundException {
+    
+    MemberHooksImpl.mostRecentPreDeleteMemberSubjectId = null;
+    
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
+    HibernateSession.byObjectStatic().delete(member);
+    
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), MemberHooksImpl.mostRecentPreDeleteMemberSubjectId);
+    
+    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ5);
+    
+    try {
+      HibernateSession.byObjectStatic().delete(member);
+      fail("Should veto subj5");
+    } catch (HookVeto hookVeto) {
+      assertEquals("subjectId cannot be " + SubjectTestHelper.SUBJ5.getId(), hookVeto.getReason());
+      assertEquals(VetoTypeGrouper.MEMBER_PRE_DELETE, hookVeto.getVetoType());
+    }
+    
+  }
+
+  /**
+   * @throws MemberAddException 
+   * @throws InsufficientPrivilegeException 
+   * @throws MemberNotFoundException 
+   * @throws MemberDeleteException 
+   * 
+   */
+  public void testMemberPreChange() throws MemberAddException, InsufficientPrivilegeException,
+      MemberNotFoundException, MemberDeleteException {
+    
+    MemberHooksImpl.mostRecentPreChangeMemberSubjectId = null;
+    
+    group.addMember(SubjectTestHelper.SUBJ0);
+    
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
+
+    member.changeSubject(SubjectTestHelper.SUBJ1);
+    
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), MemberHooksImpl.mostRecentPreChangeMemberSubjectId);
+    
+    group.deleteMember(group.getMembers().iterator().next());
+    
+    group.addMember(SubjectTestHelper.SUBJ8);
+    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ8);
+    try {
+      member.changeSubject(SubjectTestHelper.SUBJ9);
+      fail("Should veto subj8");
+    } catch (HookVeto hookVeto) {
+      assertEquals("subjectId cannot be " + SubjectTestHelper.SUBJ8.getId(), hookVeto.getReason());
+      assertEquals(VetoTypeGrouper.MEMBER_PRE_CHANGE_SUBJECT, hookVeto.getVetoType());
+    }
+    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ8);
+    assertEquals(SubjectTestHelper.SUBJ8_ID, member.getSubjectId());
+    Set<Membership> memberships = group.getMemberships();
+    assertEquals(1, memberships.size());
+    assertEquals(SubjectTestHelper.SUBJ8_ID, ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
+    
+  }
+
+  /**
+   * @throws MemberAddException 
+   * @throws InsufficientPrivilegeException 
+   * @throws MemberNotFoundException 
+   * @throws MemberDeleteException 
+   * 
+   */
+  public void testMemberPostChange() throws MemberAddException, InsufficientPrivilegeException,
+      MemberNotFoundException, MemberDeleteException {
+    
+    MemberHooksImpl.mostRecentPostChangeMemberSubjectId = null;
+    
+    group.addMember(SubjectTestHelper.SUBJ0);
+    
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
+  
+    member.changeSubject(SubjectTestHelper.SUBJ1);
+    
+    assertEquals(SubjectTestHelper.SUBJ0.getId(), MemberHooksImpl.mostRecentPostChangeMemberSubjectId);
+    
+    group.deleteMember(group.getMembers().iterator().next());
+    
+    group.addMember(SubjectTestHelper.SUBJ7);
+    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ7);
+    try {
+      member.changeSubject(SubjectTestHelper.SUBJ9);
+      fail("Should veto subj7");
+    } catch (HookVeto hookVeto) {
+      assertEquals("subjectId cannot be " + SubjectTestHelper.SUBJ7.getId(), hookVeto.getReason());
+      assertEquals(VetoTypeGrouper.MEMBER_POST_CHANGE_SUBJECT, hookVeto.getVetoType());
+    }
+    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ7);
+    assertEquals(SubjectTestHelper.SUBJ7_ID, member.getSubjectId());
+    Set<Membership> memberships = group.getMemberships();
+    assertEquals(1, memberships.size());
+    assertEquals(SubjectTestHelper.SUBJ7_ID, ((Membership)memberships.toArray()[0]).getMember().getSubjectId());
     
   }
 

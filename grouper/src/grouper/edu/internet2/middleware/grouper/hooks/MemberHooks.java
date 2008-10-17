@@ -1,11 +1,12 @@
 /*
  * @author mchyzer
- * $Id: MemberHooks.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
+ * $Id: MemberHooks.java,v 1.3 2008-10-17 12:06:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMemberChangeSubjectBean;
 
 
 /**
@@ -15,6 +16,12 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean;
 public abstract class MemberHooks {
 
   //*****  START GENERATED WITH GenerateMethodConstants.java *****//
+
+  /** constant for method name for: memberPostChangeSubject */
+  public static final String METHOD_MEMBER_POST_CHANGE_SUBJECT = "memberPostChangeSubject";
+
+  /** constant for method name for: memberPostCommitChangeSubject */
+  public static final String METHOD_MEMBER_POST_COMMIT_CHANGE_SUBJECT = "memberPostCommitChangeSubject";
 
   /** constant for method name for: memberPostCommitDelete */
   public static final String METHOD_MEMBER_POST_COMMIT_DELETE = "memberPostCommitDelete";
@@ -34,6 +41,9 @@ public abstract class MemberHooks {
   /** constant for method name for: memberPostUpdate */
   public static final String METHOD_MEMBER_POST_UPDATE = "memberPostUpdate";
 
+  /** constant for method name for: memberPreChangeSubject */
+  public static final String METHOD_MEMBER_PRE_CHANGE_SUBJECT = "memberPreChangeSubject";
+
   /** constant for method name for: memberPreDelete */
   public static final String METHOD_MEMBER_PRE_DELETE = "memberPreDelete";
 
@@ -44,6 +54,36 @@ public abstract class MemberHooks {
   public static final String METHOD_MEMBER_PRE_UPDATE = "memberPreUpdate";
 
   //*****  END GENERATED WITH GenerateMethodConstants.java *****//
+
+  /**
+   * in the transaction, but before any work is done, in a change subject
+   * @param hooksContext
+   * @param hooksMemberChangeSubjectBean
+   */
+  public void memberPreChangeSubject(HooksContext hooksContext, 
+      HooksMemberChangeSubjectBean hooksMemberChangeSubjectBean) {
+    
+  }
+  
+  /**
+   * in the transaction, but after all work is done, in a change subject
+   * @param hooksContext
+   * @param hooksMemberChangeSubjectBean
+   */
+  public void memberPostChangeSubject(HooksContext hooksContext, 
+      HooksMemberChangeSubjectBean hooksMemberChangeSubjectBean) {
+    
+  }
+
+  /**
+   * called after a change subject is committed
+   * @param hooksContext
+   * @param hooksMemberChangeSubjectBean
+   */
+  public void memberPostCommitChangeSubject(HooksContext hooksContext, 
+      HooksMemberChangeSubjectBean hooksMemberChangeSubjectBean) {
+    
+  }
 
   /**
    * called right before a member update

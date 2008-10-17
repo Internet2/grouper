@@ -107,7 +107,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.202 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: Group.java,v 1.203 2008-10-17 12:06:37 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
@@ -1226,7 +1226,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
               
               GrouperDAOFactory.getFactory().getMembership().update(mof);
 
-              GrouperHooksUtils.schedulePostCommitHooksIfRegistered(mof, GrouperHookType.MEMBERSHIP, 
+              GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
                   MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_REMOVE_MEMBER, HooksMembershipChangeBean.class, 
                   mof, DefaultMemberOf.class);
 
@@ -1831,7 +1831,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    * @return  A set of {@link Member} objects.
    * @throws  GrouperRuntimeException
    */
-  public Set getMembers() 
+  public Set<Member> getMembers() 
     throws  GrouperRuntimeException
   {
     try {
@@ -1854,7 +1854,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    * @return  A set of {@link Member} objects.
    * @throws  SchemaException
    */
-  public Set getMembers(Field f) 
+  public Set<Member> getMembers(Field f) 
     throws  SchemaException
   {
     return MembershipFinder.findMembers(this, f);
@@ -3234,7 +3234,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
     GrouperDAOFactory.getFactory().getGroup()._updateAttributes(hibernateSession, false, this);
     super.onPostSave(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_POST_COMMIT_INSERT, HooksGroupBean.class, 
         this, Group.class);
 
@@ -3252,7 +3252,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
     
     super.onPostUpdate(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_POST_COMMIT_UPDATE, HooksGroupBean.class, 
         this, Group.class);
 
@@ -3270,7 +3270,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   public void onPostDelete(HibernateSession hibernateSession) {
     super.onPostDelete(hibernateSession);
 
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_POST_COMMIT_DELETE, HooksGroupBean.class, 
         this, Group.class);
 

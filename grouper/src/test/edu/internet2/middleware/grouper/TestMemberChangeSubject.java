@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: TestMemberChangeSubject.java,v 1.1 2008-10-16 05:45:47 mchyzer Exp $
+ * $Id: TestMemberChangeSubject.java,v 1.2 2008-10-17 12:06:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -120,9 +120,13 @@ public class TestMemberChangeSubject extends GrouperTest {
       edu.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
       group = StemHelper.addChildGroup(this.edu, "group", "the group");
       group.addMember(SubjectTestHelper.SUBJ0);
+      //this group has subject0 and subject1 so we see that the subject0
+      //membership is deleted since the renamed subejct exists
       group.addMember(SubjectTestHelper.SUBJ1);
       
       group2 = StemHelper.addChildGroup(this.edu, "group2", "group2");
+      group2.addMember(SubjectTestHelper.SUBJ0);
+      
       groupComposite = StemHelper.addChildGroup(this.edu, "groupComposite", "groupComposite");
       
       groupComposite.addCompositeMember(CompositeType.UNION, group, group2);
@@ -247,6 +251,9 @@ public class TestMemberChangeSubject extends GrouperTest {
     HibernateSession.byObjectStatic().saveOrUpdate(member0);
     
     int subjectsExist = Member.changeSubjectExist;
+    int subjectAddCount = Member.changeSubjectMembershipAddCount;
+    int subjectDeleteCount = Member.changeSubjectMembershipDeleteCount;
+    
     String member0uuid = member0.getUuid();
 
     //grouper_composites.creator_id
@@ -292,7 +299,9 @@ public class TestMemberChangeSubject extends GrouperTest {
     assertEquals("subject id should change", member0.getSubjectId(), SubjectTestHelper.SUBJ1_ID);
     assertEquals("source id should change", member0.getSubjectSourceId(), SubjectTestHelper.SUBJ1.getSource().getId());
     assertEquals("should have detected that it didnt change", subjectsExist+1, Member.changeSubjectExist);
-    
+    assertTrue("should have detected at least one delete", Member.changeSubjectMembershipDeleteCount > subjectDeleteCount+1);
+    assertTrue("should have detected at least one update", Member.changeSubjectMembershipAddCount > subjectAddCount+1);
+
     try {
       member0 = GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectTestHelper.SUBJ0);
       fail("Should not find this subject anymore");

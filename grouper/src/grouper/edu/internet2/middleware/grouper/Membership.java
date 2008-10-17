@@ -75,7 +75,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.105 2008-09-23 04:26:23 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.106 2008-10-17 12:06:37 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -498,7 +498,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
             
             GrouperDAOFactory.getFactory().getMembership().update(mof);
 
-            GrouperHooksUtils.schedulePostCommitHooksIfRegistered(mof, GrouperHookType.MEMBERSHIP, 
+            GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
                 MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_ADD_MEMBER, HooksMembershipChangeBean.class, 
                 mof, DefaultMemberOf.class);
 
@@ -1039,7 +1039,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 
     super.onPostDelete(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_DELETE, HooksMembershipBean.class, 
         this, Membership.class);
 
@@ -1056,7 +1056,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 
     super.onPostSave(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_INSERT, HooksMembershipBean.class, 
         this, Membership.class);
 
@@ -1073,7 +1073,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 
     super.onPostUpdate(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_UPDATE, HooksMembershipBean.class, 
         this, Membership.class);
 
