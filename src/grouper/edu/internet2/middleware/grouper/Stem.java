@@ -89,7 +89,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.165 2008-10-15 03:57:06 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.166 2008-10-17 12:06:37 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
@@ -1832,7 +1832,7 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
     super.onPostDelete(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.STEM, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_POST_COMMIT_DELETE, HooksStemBean.class, 
         this, Stem.class);
 
@@ -1849,7 +1849,7 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
     super.onPostSave(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.STEM, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_POST_COMMIT_INSERT, HooksStemBean.class, 
         this, Stem.class);
 
@@ -1866,7 +1866,7 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
     super.onPostUpdate(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.STEM, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_POST_COMMIT_UPDATE, HooksStemBean.class, 
         this, Stem.class);
 

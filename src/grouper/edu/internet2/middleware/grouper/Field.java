@@ -43,7 +43,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Reference to members list is: Group.getDefaultList()
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.35 2008-10-16 05:45:47 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.36 2008-10-17 12:06:37 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -350,7 +350,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   public void onPostDelete(HibernateSession hibernateSession) {
     super.onPostDelete(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.FIELD, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.FIELD, 
         FieldHooks.METHOD_FIELD_POST_COMMIT_DELETE, HooksFieldBean.class, 
         this, Field.class);
 
@@ -366,7 +366,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.FIELD, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.FIELD, 
         FieldHooks.METHOD_FIELD_POST_COMMIT_INSERT, HooksFieldBean.class, 
         this, Field.class);
 
@@ -382,7 +382,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   public void onPostUpdate(HibernateSession hibernateSession) {
     super.onPostUpdate(hibernateSession);
 
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.FIELD, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.FIELD, 
         FieldHooks.METHOD_FIELD_POST_COMMIT_UPDATE, HooksFieldBean.class, 
         this, Field.class);
     

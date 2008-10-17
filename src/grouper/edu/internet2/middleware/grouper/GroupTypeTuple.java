@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DTO implementation.
  * @author  blair christensen.
- * @version $Id: GroupTypeTuple.java,v 1.6 2008-09-23 04:26:23 mchyzer Exp $
+ * @version $Id: GroupTypeTuple.java,v 1.7 2008-10-17 12:06:37 mchyzer Exp $
  * @since   @HEAD@
  */
 public class GroupTypeTuple extends GrouperAPI implements Hib3GrouperVersioned {
@@ -154,7 +154,7 @@ public class GroupTypeTuple extends GrouperAPI implements Hib3GrouperVersioned {
 
     super.onPostDelete(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_COMMIT_DELETE, HooksGroupTypeTupleBean.class, 
         this, GroupTypeTuple.class);
 
@@ -171,7 +171,7 @@ public class GroupTypeTuple extends GrouperAPI implements Hib3GrouperVersioned {
 
     super.onPostSave(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_COMMIT_INSERT, HooksGroupTypeTupleBean.class, 
         this, GroupTypeTuple.class);
 
@@ -188,7 +188,7 @@ public class GroupTypeTuple extends GrouperAPI implements Hib3GrouperVersioned {
 
     super.onPostUpdate(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_COMMIT_UPDATE, HooksGroupTypeTupleBean.class, 
         this, GroupTypeTuple.class);
 

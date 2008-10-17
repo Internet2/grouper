@@ -61,7 +61,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.61 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.62 2008-10-17 12:06:37 mchyzer Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
@@ -655,7 +655,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   public void onPostDelete(HibernateSession hibernateSession) {
     super.onPostDelete(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.COMPOSITE, 
         CompositeHooks.METHOD_COMPOSITE_POST_COMMIT_DELETE, HooksCompositeBean.class, 
         this, Composite.class);
     
@@ -671,7 +671,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
 
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.COMPOSITE, 
         CompositeHooks.METHOD_COMPOSITE_POST_COMMIT_INSERT, HooksCompositeBean.class, 
         this, Composite.class);
 
@@ -687,7 +687,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   public void onPostUpdate(HibernateSession hibernateSession) {
     super.onPostUpdate(hibernateSession);
 
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.COMPOSITE, 
         CompositeHooks.METHOD_COMPOSITE_POST_COMMIT_UPDATE, HooksCompositeBean.class, 
         this, Composite.class);
     

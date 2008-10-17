@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MemberHooksImpl.java,v 1.2 2008-07-11 05:11:28 mchyzer Exp $
+ * $Id: MemberHooksImpl.java,v 1.3 2008-10-17 12:06:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMemberChangeSubjectBean;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 
 
@@ -89,6 +90,36 @@ public class MemberHooksImpl extends MemberHooks {
   static String mostRecentPostCommitUpdateMemberSubjectId;
 
   /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPostCommitDeleteMemberSubjectId;
+
+  /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPostDeleteMemberSubjectId;
+
+  /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPreDeleteMemberSubjectId;
+
+  /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPostCommitChangeMemberSubjectId;
+
+  /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPostChangeMemberSubjectId;
+
+  /**
+   * most recent extension for testing 
+   */
+  static String mostRecentPreChangeMemberSubjectId;
+
+  /**
    * @see edu.internet2.middleware.grouper.hooks.MemberHooks#memberPreUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean)
    */
   @Override
@@ -127,6 +158,97 @@ public class MemberHooksImpl extends MemberHooks {
     Member member = postUpdateBean.getMember();
     String subjectId = (String)member.getSubjectId();
     mostRecentPostCommitUpdateMemberSubjectId = subjectId;
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.MemberHooks#memberPostUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean)
+   */
+  @Override
+  public void memberPostCommitDelete(HooksContext hooksContext,
+      HooksMemberBean postUpdateBean) {
+    
+    Member member = postUpdateBean.getMember();
+    String subjectId = (String)member.getSubjectId();
+    mostRecentPostCommitDeleteMemberSubjectId = subjectId;
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.MemberHooks#memberPostUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean)
+   */
+  @Override
+  public void memberPostDelete(HooksContext hooksContext,
+      HooksMemberBean postUpdateBean) {
+    
+    Member member = postUpdateBean.getMember();
+    String subjectId = (String)member.getSubjectId();
+    mostRecentPostDeleteMemberSubjectId = subjectId;
+    if (StringUtils.equals(SubjectTestHelper.SUBJ6_ID, subjectId)) {
+      throw new HookVeto("hook.veto.member.delete.subjectId.not." + SubjectTestHelper.SUBJ6_ID, 
+          "subjectId cannot be " + SubjectTestHelper.SUBJ6_ID);
+    }
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.MemberHooks#memberPreUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean)
+   */
+  @Override
+  public void memberPreDelete(HooksContext hooksContext,
+      HooksMemberBean preUpdateBean) {
+    
+    Member member = preUpdateBean.getMember();
+    String subjectId = (String)member.getSubjectId();
+    mostRecentPreDeleteMemberSubjectId = subjectId;
+    if (StringUtils.equals(SubjectTestHelper.SUBJ5_ID, subjectId)) {
+      throw new HookVeto("hook.veto.member.delete.subjectId.not." + SubjectTestHelper.SUBJ5_ID, 
+          "subjectId cannot be " + SubjectTestHelper.SUBJ5_ID);
+    }
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.MemberHooks#memberPostUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean)
+   */
+  @Override
+  public void memberPostCommitChangeSubject(HooksContext hooksContext,
+      HooksMemberChangeSubjectBean hooksMemberChangeSubjectBean) {
+    
+    String subjectId = hooksMemberChangeSubjectBean.getOldSubjectId();
+    mostRecentPostCommitChangeMemberSubjectId = subjectId;
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.MemberHooks#memberPostUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean)
+   */
+  @Override
+  public void memberPostChangeSubject(HooksContext hooksContext,
+      HooksMemberChangeSubjectBean hooksMemberChangeSubjectBean) {
+    
+    String subjectId = hooksMemberChangeSubjectBean.getOldSubjectId();
+    mostRecentPostChangeMemberSubjectId = subjectId;
+    if (StringUtils.equals(SubjectTestHelper.SUBJ7_ID, subjectId)) {
+      throw new HookVeto("hook.veto.member.update.subjectId.not." + SubjectTestHelper.SUBJ7_ID, 
+          "subjectId cannot be " + SubjectTestHelper.SUBJ7_ID);
+    }
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hooks.MemberHooks#memberPreUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean)
+   */
+  @Override
+  public void memberPreChangeSubject(HooksContext hooksContext,
+      HooksMemberChangeSubjectBean hooksMemberChangeSubjectBean) {
+    
+    String subjectId = hooksMemberChangeSubjectBean.getOldSubjectId();
+    mostRecentPreChangeMemberSubjectId = subjectId;
+    if (StringUtils.equals(SubjectTestHelper.SUBJ8_ID, subjectId)) {
+      throw new HookVeto("hook.veto.member.update.subjectId.not." + SubjectTestHelper.SUBJ8_ID, 
+          "subjectId cannot be " + SubjectTestHelper.SUBJ8_ID);
+    }
   
   }
 
