@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.textui.TestRunner;
 import  edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.privs.AccessAdapter;
@@ -26,12 +27,34 @@ import edu.internet2.middleware.grouper.privs.NamingAdapter;
  * Test {@link GrouperSession}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_GrouperSession.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_api_GrouperSession.java,v 1.5 2008-10-18 07:14:39 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_GrouperSession extends GrouperTest {
 
 
+  /**
+   * 
+   */
+  public Test_api_GrouperSession() {
+    super();
+  }
+
+  /**
+   * @param name
+   */
+  public Test_api_GrouperSession(String name) {
+    super(name);
+  }
+  
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new Test_api_GrouperSession("test_getAccessClass_notNull"));
+  }
+  
   private ApiConfig       cfg;
   private GrouperSession  s;
   private String          prop_valid    = "privileges.access.interface";

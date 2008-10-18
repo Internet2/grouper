@@ -46,7 +46,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.22 2008-10-16 05:45:47 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.23 2008-10-18 07:14:39 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -64,7 +64,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       throw new RuntimeException("Need to pass in a member");
     }
     Set<Membership> memberships = HibernateSession.byHqlStatic()
-      .createQuery("from Membership as m where m.creatorUuid = :uuid1 or m.memberUuid = :uuid2")
+      .createQuery("select distinct m from Membership as m where m.creatorUuid = :uuid1 or m.memberUuid = :uuid2")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByCreatorOrMember")
       .setString( "uuid1", member.getUuid() ).setString("uuid2", member.getUuid())
