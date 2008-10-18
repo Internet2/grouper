@@ -15,7 +15,7 @@ import bsh.Interpreter;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.6 2008-10-15 03:57:06 mchyzer Exp $
+ * @version $Id: help.java,v 1.7 2008-10-18 07:14:39 mchyzer Exp $
  * @since   0.0.1
  */
 public class help {
@@ -213,8 +213,8 @@ public class help {
     i.println("* getSources()"                                        );
     i.println("* getStemAttr(stem, attr)"                             );
     i.println("* getStems(name)"                                      );
-    i.println("* StemFinder.findByName(grouperSession, name)");
-    i.println("* StemFinder.findByUuid(grouperSession, uuid)");
+    i.println("* stem = StemFinder.findByName(grouperSession, name)");
+    i.println("* stem = StemFinder.findByUuid(grouperSession, uuid)");
     i.println("* grantPriv(name, subject id, Privilege)"              );
     i.println("* hasMember(group, subject id)"                        );
     i.println("* hasPriv(name, subject id, Privilege)"                );
@@ -223,6 +223,10 @@ public class help {
     i.println("* history(n)"                                          );
     i.println("* last()"                                              );
     i.println("* last(n)"                                             );
+    i.println("* member = MemberFinder.findBySubject(grouperSession, subject)");
+    i.println("* member.changeSubject(newSubject)");
+    i.println("* member.changeSubject(newSubject, false)   [do not delete old member]");
+    i.println("* member.changeSubjectReport(newSubject)");
     i.println("* p(command)"                                          );
     i.println("* quit"                                                );
     i.println("* resetRegistry()"                                     );

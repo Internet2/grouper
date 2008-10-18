@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: TestMemberChangeSubject.java,v 1.2 2008-10-17 12:06:37 mchyzer Exp $
+ * $Id: TestMemberChangeSubject.java,v 1.3 2008-10-18 07:14:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -170,8 +170,25 @@ public class TestMemberChangeSubject extends GrouperTest {
    */
   public void testChangeSubjectSameSubject() throws Exception {
     Member member0 = MemberFinder.findBySubject(this.rootGrouperSession, SubjectTestHelper.SUBJ0);
-    int sameSubjects = Member.changeSubjectSameSubject;
     String member0uuid = member0.getUuid();
+    
+    GrouperSession nonRootSession = GrouperSession.start(SubjectTestHelper.SUBJ9);
+    
+    try {
+      member0.changeSubject(SubjectTestHelper.SUBJ9);
+      fail("Should throw exception");
+    } catch (Exception e) {
+      //good
+    }
+
+    GrouperSession.stopQuietly(nonRootSession);
+    this.rootGrouperSession = GrouperSession.startRootSession();
+    
+    @SuppressWarnings("unused")
+    String report = member0.changeSubjectReport(SubjectTestHelper.SUBJ0, true);
+    //System.out.println(report);
+    int sameSubjects = Member.changeSubjectSameSubject;
+
     member0.changeSubject(SubjectTestHelper.SUBJ0);
     assertEquals("subject id should not change", member0.getSubjectId(), SubjectTestHelper.SUBJ0_ID);
     assertEquals("source id should not change", member0.getSubjectSourceId(), SubjectTestHelper.SUBJ0.getSource().getId());
@@ -194,7 +211,6 @@ public class TestMemberChangeSubject extends GrouperTest {
     
     HibernateSession.byObjectStatic().saveOrUpdate(member0);
     
-    int subjectsDidntExist = Member.changeSubjectDidntExist;
     String member0uuid = member0.getUuid();
     String eduStemCreateUuid = this.edu.getCreatorUuid();
     Member member2 = null;
@@ -214,8 +230,15 @@ public class TestMemberChangeSubject extends GrouperTest {
     }catch (MemberNotFoundException mnfe) {
       //good
     }
+    this.rootGrouperSession = GrouperSession.startRootSession();
+    @SuppressWarnings("unused")
+    String report = member0.changeSubjectReport(SubjectTestHelper.SUBJ2, true);
+    //System.out.println(report);
+    int subjectsDidntExist = Member.changeSubjectDidntExist;
     member0.changeSubject(SubjectTestHelper.SUBJ2);
     
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ9);
+
     assertEquals("subject id should change", member0.getSubjectId(), SubjectTestHelper.SUBJ2_ID);
     assertEquals("source id should change", member0.getSubjectSourceId(), SubjectTestHelper.SUBJ2.getSource().getId());
     assertEquals("should have detected that it didnt change", subjectsDidntExist+1, Member.changeSubjectDidntExist);
@@ -249,10 +272,6 @@ public class TestMemberChangeSubject extends GrouperTest {
     member0.setSubjectSourceIdDb("abc");
     
     HibernateSession.byObjectStatic().saveOrUpdate(member0);
-    
-    int subjectsExist = Member.changeSubjectExist;
-    int subjectAddCount = Member.changeSubjectMembershipAddCount;
-    int subjectDeleteCount = Member.changeSubjectMembershipDeleteCount;
     
     String member0uuid = member0.getUuid();
 
@@ -294,8 +313,20 @@ public class TestMemberChangeSubject extends GrouperTest {
     
     String member1uuid = member1.getUuid();
     
-    member0.changeSubject(SubjectTestHelper.SUBJ1);
+    this.rootGrouperSession = GrouperSession.startRootSession();
     
+    @SuppressWarnings("unused")
+    String report = member0.changeSubjectReport(SubjectTestHelper.SUBJ1, true);
+    //System.out.println(report);
+
+    int subjectsExist = Member.changeSubjectExist;
+    int subjectAddCount = Member.changeSubjectMembershipAddCount;
+    int subjectDeleteCount = Member.changeSubjectMembershipDeleteCount;
+
+    member0.changeSubject(SubjectTestHelper.SUBJ1);
+
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ6);
+
     assertEquals("subject id should change", member0.getSubjectId(), SubjectTestHelper.SUBJ1_ID);
     assertEquals("source id should change", member0.getSubjectSourceId(), SubjectTestHelper.SUBJ1.getSource().getId());
     assertEquals("should have detected that it didnt change", subjectsExist+1, Member.changeSubjectExist);

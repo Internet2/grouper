@@ -75,7 +75,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.106 2008-10-17 12:06:37 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.107 2008-10-18 07:14:39 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -187,6 +187,30 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
    * memberships
    */
   public static final String EFFECTIVE = "effective";
+  
+  /**
+   * get the name of the owner (group or stem)
+   * @return the name
+   */
+  public String getOwnerName() {
+    if (StringUtils.isBlank(this.ownerUUID)) {
+      return null;
+    }
+    try {
+      Group owner = this.getGroup();
+      return owner.getName();
+    } catch (GroupNotFoundException gnfe) {
+      //its ok, hopefully its a stem
+    }
+    try {
+      Stem owner = this.getStem();
+      return owner.getName();
+    } catch (StemNotFoundException snfe) {
+      //this is not ok
+      throw new RuntimeException("Cannot find group/stem with uuid: " + this.ownerUUID);
+    }
+  }
+  
   /**
    * An immediate member is directly assigned to a group.
    * A composite group has no immediate members.  Note that a 

@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemModifyException;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -83,7 +84,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.113 2008-10-17 12:06:37 mchyzer Exp $
+ * @version $Id: Member.java,v 1.114 2008-10-18 07:14:39 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -187,23 +188,73 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * get as far as you can.
    */
   public void changeSubject(final Subject newSubject, final boolean deleteOldMember) {
+    this.changeSubjectHelper(newSubject, deleteOldMember, null);
+  }
+  
+  /**
+   * <pre>
+   * This is the readonly dry run report version of this operation...  this will not call hooks
+   * 
+   * change the subject of a member to another subject.  This new subject might already exist, and it
+   * might not.  If it doesnt exist, then this member object will have its subject and source information
+   * updated.  If it does, then all objects in the system which use this member_id will be queried, and
+   * the member_id updated to the new member_id, and the old member_id will be removed.
+   * 
+   * </pre>
+   * @param newSubject
+   * @param deleteOldMember is only applicable if the new member exists.  If true, it will delete the old one.
+   * Generally you want this as true, and only set to false if there is a foreign key violation, and you want to 
+   * get as far as you can.
+   * @return the report
+   */
+  public String changeSubjectReport(final Subject newSubject, final boolean deleteOldMember) {
+    StringBuilder result = new StringBuilder();
+    this.changeSubjectHelper(newSubject, deleteOldMember, result);
+    return result.toString();
+  }
 
+  /**
+   * change the subject of a member to another subject.  This new subject might already exist, and it
+   * might not.  If it doesnt exist, then this member object will have its subject and source information
+   * updated.  If it does, then all objects in the system which use this member_id will be queried, and
+   * the member_id updated to the new member_id, and the old member_id will be removed.
+   * 
+   * @param newSubject
+   * @param deleteOldMember is only applicable if the new member exists.  If true, it will delete the old one.
+   * Generally you want this as true, and only set to false if there is a foreign key violation, and you want to 
+   * get as far as you can.
+   * @param report pass in report if only a dry run, dont actually do anything...
+   */
+  private void changeSubjectHelper(final Subject newSubject, final boolean deleteOldMember, final StringBuilder report) {
+    
+    //make sure root session
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    if (grouperSession == null  ||
+        !PrivilegeHelper.isRoot(grouperSession)) {
+      throw new RuntimeException("changeSubject requires GrouperSystem " +
+      		"or wheel/sysAdmin group grouperSession");
+    }
+    
     final String thisSubjectId = this.getSubjectId();
     final String thisSourceId = this.getSubjectSourceId();
-    
-    //dont try to resolve, but might be resolvable
-    final Subject oldSubject = new LazySubject(this);
     
     final String newSubjectId = newSubject.getId();
     final String newSourceId = newSubject.getSource().getId();
     
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("changing subject from '" + thisSubjectId + "@" + thisSourceId + "' to '"
-          + newSubjectId + "@" + newSourceId + "'");
+    String firstSummary = "changing subject from '" + thisSubjectId + "@" + thisSourceId + "' to '"
+        + newSubjectId + "@" + newSourceId + "'";
+    LOG.debug(firstSummary);
+    if (report != null) {
+      report.append(firstSummary).append("\n");
     }
+    
     if (StringUtils.equals(thisSubjectId, newSubjectId)
         && StringUtils.equals(thisSourceId, newSourceId)) {
-      LOG.debug("new subject is same as current subject");
+      String sameSubject = "new subject is same as current subject";
+      LOG.debug(sameSubject);
+      if (report != null) {
+        report.append(sameSubject).append("\n");
+      }
       changeSubjectSameSubject++;
       return;
     }
@@ -226,154 +277,236 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
       public Object callback(HibernateSession hibernateSession)
           throws GrouperDAOException {
-
-        //hooks bean
-        HooksMemberChangeSubjectBean hooksMemberChangeSubjectBean = new HooksMemberChangeSubjectBean(
-            Member.this, newSubject, thisSubjectId, thisSourceId, deleteOldMember, memberDidntExist);
-
-        //call pre-hooks if registered
-        GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
-            MemberHooks.METHOD_MEMBER_PRE_CHANGE_SUBJECT, 
-            hooksMemberChangeSubjectBean, VetoTypeGrouper.MEMBER_PRE_CHANGE_SUBJECT);
-        
-        if (memberDidntExist) {
-          changeSubjectDidntExist++;
-          
-          //since it didnt exist, we can just change the subject id and source id of the existing member object
-          Member.this.setSubjectIdDb(newSubjectId);
-          Member.this.setSubjectSourceIdDb(newSourceId);
-          Member.this.setSubjectTypeId(newSubject.getType().getName());
-
-          Member.this.store();
-
-        } else {
-          changeSubjectExist++;
-          final String newMemberUuid = newMember.getUuid();
-          {
-            //grouper_composites.creator_id
-            Set<Composite> composites = GrouperDAOFactory.getFactory().getComposite().findByCreator(Member.this);
-            if (GrouperUtil.length(composites) > 0) {
-              for (Composite composite : composites) {
-                composite.setCreatorUuid(newMemberUuid);
-              }
-              hibernateSession.byObject().saveOrUpdate(composites);
-            }
+        try {
+          //hooks bean
+          HooksMemberChangeSubjectBean hooksMemberChangeSubjectBean = new HooksMemberChangeSubjectBean(
+              Member.this, newSubject, thisSubjectId, thisSourceId, deleteOldMember, memberDidntExist);
+  
+          if (report == null) {
+            //call pre-hooks if registered
+            GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
+                MemberHooks.METHOD_MEMBER_PRE_CHANGE_SUBJECT, 
+                hooksMemberChangeSubjectBean, VetoTypeGrouper.MEMBER_PRE_CHANGE_SUBJECT);
           }
           
-          {
-            //grouper_groups.creator_id, 
-            //  modifier_id
-            Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().findByCreatorOrModifier(Member.this);
-            if (GrouperUtil.length(groups) > 0) {
-              for (Group group : groups) {
-                if (StringUtils.equals(Member.this.getUuid(), group.getCreatorUuid())) {
-                  group.setCreatorUuid(newMemberUuid);
-                }
-                if (StringUtils.equals(Member.this.getUuid(), group.getModifierUuid())) {
-                  group.setModifierUuid(newMemberUuid);
-                }
-              }
-              hibernateSession.byObject().saveOrUpdate(groups);
-            }
-          }
-          
-          {
-            //this one is a little complicated since if the new member id already has a comparable membership,
-            //then we dont want to create another one
+          if (memberDidntExist) {
+            changeSubjectDidntExist++;
             
-            //grouper_memberships.member_id, 
-            //  creator_id
-            Set<Membership> membershipsPrevious = GrouperDAOFactory.getFactory().getMembership().findAllByCreatorOrMember(Member.this);
-            if (GrouperUtil.length(membershipsPrevious) > 0) {
-              Set<Membership> membershipsNew = GrouperDAOFactory.getFactory().getMembership().findAllByMember(newMemberUuid);
-              Set<Membership> membershipsToUpdate = new HashSet<Membership>();
-              Set<Membership> membershipsToDelete = new HashSet<Membership>();
-  
-              for (Membership membershipPrevious : membershipsPrevious) {
-  
-                if (StringUtils.equals(Member.this.getUuid(), membershipPrevious.getMemberUuid())) {
-                  
-                  membershipPrevious.setMemberUuid(newMemberUuid);
-                  //dont add a duplicate
-                  if (membershipsNew.contains(membershipPrevious)) {
-                    changeSubjectMembershipDeleteCount++;
-                    membershipsToDelete.add(membershipPrevious);
+            if (report == null) {
+              //since it didnt exist, we can just change the subject id and source id of the existing member object
+              Member.this.setSubjectIdDb(newSubjectId);
+              Member.this.setSubjectSourceIdDb(newSourceId);
+              Member.this.setSubjectTypeId(newSubject.getType().getName());
+    
+              Member.this.store();
+            } else {
+              report.append("[new member does not exist], CHANGE the " +
+              		"subject id, source, type of old member: " + Member.this.getUuid()
+              		+ " FROM: " + Member.this.subjectID + ", " + Member.this.subjectSourceID
+              		+ ", " + Member.this.subjectTypeID + "  TO: " + newSubjectId
+              		+ ", " + newSourceId + ", " + newSubject.getType().getName()).append("\n");
+            }
+          } else {
+            changeSubjectExist++;
+            final String newMemberUuid = newMember.getUuid();
+            {
+              //grouper_composites.creator_id
+              Set<Composite> composites = GrouperDAOFactory.getFactory().getComposite().findByCreator(Member.this);
+              if (GrouperUtil.length(composites) > 0) {
+                for (Composite composite : composites) {
+                  if (report == null) {
+                    composite.setCreatorUuid(newMemberUuid);
                   } else {
-                    changeSubjectMembershipAddCount++;
-                    membershipsToUpdate.add(membershipPrevious);
+                    report.append("CHANGE composite: " + composite.getUuid() + ", " + composite.getOwnerGroup().getName()
+                        + ", creator id FROM: " + composite.getCreatorUuid() + ", TO: " + newMemberUuid + "\n");
                   }
-                } else {
-                  //if not updating member, then it must be update creator
-                  membershipsToUpdate.add(membershipPrevious);
                 }
-                if (StringUtils.equals(Member.this.getUuid(), membershipPrevious.getCreatorUuid())) {
-                  membershipPrevious.setCreatorUuid(newMemberUuid);
+                if (report == null) {
+                  hibernateSession.byObject().saveOrUpdate(composites);
                 }
-              }
-              //see if there are objects to update or delete
-              if (GrouperUtil.length(membershipsToUpdate) > 0) {
-                hibernateSession.byObject().saveOrUpdate(membershipsToUpdate);
-              }
-              if (GrouperUtil.length(membershipsToDelete) > 0) {
-                hibernateSession.byObject().delete(membershipsToDelete);
               }
             }
-          }
-  
-          {
-            //grouper_stems.creator_id, 
-            //  modifier_id
-            Set<Stem> stems = GrouperDAOFactory.getFactory().getStem().findByCreatorOrModifier(Member.this);
-            if (GrouperUtil.length(stems) > 0) {
-              for (Stem stem : stems) {
-                if (StringUtils.equals(Member.this.getUuid(), stem.getCreatorUuid())) {
-                  stem.setCreatorUuid(newMemberUuid);
+            
+            {
+              //grouper_groups.creator_id, 
+              //  modifier_id
+              Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().findByCreatorOrModifier(Member.this);
+              if (GrouperUtil.length(groups) > 0) {
+                for (Group group : groups) {
+                  if (StringUtils.equals(Member.this.getUuid(), group.getCreatorUuid())) {
+                    if (report == null) {
+                      group.setCreatorUuid(newMemberUuid);
+                    } else {
+                      report.append("CHANGE group: " + group.getUuid() + ", " + group.getName()
+                          + ", creator id FROM: " + group.getCreatorUuid() + ", TO: " + newMemberUuid + "\n");
+                    }
+                  }
+                  if (StringUtils.equals(Member.this.getUuid(), group.getModifierUuid())) {
+                    if (report == null) {
+                      group.setModifierUuid(newMemberUuid);
+                    } else {
+                      report.append("CHANGE group: " + group.getUuid() + ", " + group.getName()
+                          + ", modifier id FROM: " + group.getCreatorUuid() + ", TO: " + newMemberUuid + "\n");
+                      
+                    }
+                  }
                 }
-                if (StringUtils.equals(Member.this.getUuid(), stem.getModifierUuid())) {
-                  stem.setModifierUuid(newMemberUuid);
+                if (report == null) {
+                  hibernateSession.byObject().saveOrUpdate(groups);
                 }
               }
-              hibernateSession.byObject().saveOrUpdate(stems);
             }
-          }
+            
+            {
+              //this one is a little complicated since if the new member id already has a comparable membership,
+              //then we dont want to create another one
+              
+              //grouper_memberships.member_id, 
+              //  creator_id
+              Set<Membership> membershipsPrevious = GrouperDAOFactory.getFactory().getMembership().findAllByCreatorOrMember(Member.this);
+              if (GrouperUtil.length(membershipsPrevious) > 0) {
+                Set<Membership> membershipsNew = GrouperDAOFactory.getFactory().getMembership().findAllByMember(newMemberUuid);
+                Set<Membership> membershipsToUpdate = new HashSet<Membership>();
+                Set<Membership> membershipsToDelete = new HashSet<Membership>();
+    
+                for (Membership membershipPrevious : membershipsPrevious) {
+                  boolean isDeleting = false;
+                  if (StringUtils.equals(Member.this.getUuid(), membershipPrevious.getMemberUuid())) {
+                    
+                    membershipPrevious.setMemberUuid(newMemberUuid);
+                    //dont add a duplicate
+                    if (membershipsNew.contains(membershipPrevious)) {
+                      changeSubjectMembershipDeleteCount++;
+                      isDeleting = true;
+                      if (report == null) {
+                        membershipsToDelete.add(membershipPrevious);
+                      } else {
+                        report.append("DELETE membership [since will already exist]: " 
+                            + membershipPrevious.getUuid() + ", " + membershipPrevious.getOwnerName()
+                            + ", " + membershipPrevious.getListType() + "-" + membershipPrevious.getListName() + "\n");
+                      }
+                    } else {
+                      changeSubjectMembershipAddCount++;
+                      if (report == null) {
+                        membershipsToUpdate.add(membershipPrevious);
+                      } else {
+                        report.append("CHANGE membership: " 
+                            + membershipPrevious.getUuid() + ", " + membershipPrevious.getOwnerName()
+                            + ", " + membershipPrevious.getListType() + "-" + membershipPrevious.getListName()
+                            + ", member id FROM: " + membershipPrevious.getMemberUuid() + ", TO: " + newMemberUuid + "\n");
+                      }
+                    }
+                  }
+                  if (!isDeleting && StringUtils.equals(Member.this.getUuid(), membershipPrevious.getCreatorUuid())) {
+                    if (report == null) {
+                      membershipPrevious.setCreatorUuid(newMemberUuid);
+                      membershipsToUpdate.add(membershipPrevious);
+                    } else {
+                      report.append("CHANGE membership: " 
+                          + membershipPrevious.getUuid() + ", " + membershipPrevious.getOwnerName() 
+                          + ", " + membershipPrevious.getListType() + "-" + membershipPrevious.getListName()
+                          + ", creator id FROM: " + membershipPrevious.getCreatorUuid() + ", TO: " + newMemberUuid + "\n");
+                      
+                    }
+                  }
+                }
+                if (report == null) {
+                  //see if there are objects to update or delete
+                  if (GrouperUtil.length(membershipsToUpdate) > 0) {
+                    hibernateSession.byObject().saveOrUpdate(membershipsToUpdate);
+                  }
+                  if (GrouperUtil.length(membershipsToDelete) > 0) {
+                    hibernateSession.byObject().delete(membershipsToDelete);
+                  }
+                }
+              }
+            }
+    
+            {
+              //grouper_stems.creator_id, 
+              //  modifier_id
+              Set<Stem> stems = GrouperDAOFactory.getFactory().getStem().findByCreatorOrModifier(Member.this);
+              if (GrouperUtil.length(stems) > 0) {
+                for (Stem stem : stems) {
+                  if (StringUtils.equals(Member.this.getUuid(), stem.getCreatorUuid())) {
+                    if (report == null) {
+                      stem.setCreatorUuid(newMemberUuid);
+                    } else {
+                      report.append("CHANGE stem: " 
+                          + stem.getUuid() + ", " + stem.getName()
+                          + ", creator id FROM: " + stem.getCreatorUuid() + ", TO: " + newMemberUuid + "\n");
+                    }
+                  }
+                  if (StringUtils.equals(Member.this.getUuid(), stem.getModifierUuid())) {
+                    if (report == null) {
+                      stem.setModifierUuid(newMemberUuid);
+                    } else {
+                      report.append("CHANGE stem: " 
+                          + stem.getUuid() + ", " + stem.getName()
+                          + ", modifier id FROM: " + stem.getModifierUuid() + ", TO: " + newMemberUuid + "\n");
+                    }
+                  }
+                }
+                if (report == null) {
+                  hibernateSession.byObject().saveOrUpdate(stems);
+                }
+              }
+            }
+            
+            {
+              //grouper_types.creator_uuid
+              Set<GroupType> groupTypes = GrouperDAOFactory.getFactory().getGroupType().findAllByCreator(Member.this);
+              if (GrouperUtil.length(groupTypes) > 0) {
+                for (GroupType groupType : groupTypes) {
+                  if (report == null) {
+                    groupType.setCreatorUuid(newMemberUuid);
+                  } else {
+                    report.append("CHANGE groupType: " 
+                        + groupType.getUuid() + ", " + groupType.getName()
+                        + ", creator id FROM: " + groupType.getCreatorUuid() + ", TO: " + newMemberUuid + "\n");
+                  }
+                }
+                if (report == null) {
+                  hibernateSession.byObject().saveOrUpdate(groupTypes);
+                }
+              }
+            }
+            
+            //finally delete this member object
+            if (deleteOldMember) {
+              if (report == null) {
+                hibernateSession.getSession().flush();          
+                hibernateSession.byObject().delete(Member.this);
+              } else {
+                report.append("DELETE member: " 
+                    + Member.this.getUuid() + ", " + Member.this.subjectID + "\n");
+              }
+            }
+          }        
+          if (report == null) {
+            hibernateSession.getSession().flush();          
           
-          {
-            //grouper_types.creator_uuid
-            Set<GroupType> groupTypes = GrouperDAOFactory.getFactory().getGroupType().findAllByCreator(Member.this);
-            if (GrouperUtil.length(groupTypes) > 0) {
-              for (GroupType groupType : groupTypes) {
-                groupType.setCreatorUuid(newMemberUuid);
-              }
-              hibernateSession.byObject().saveOrUpdate(groupTypes);
-            }
-          }
+            GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBER, 
+                MemberHooks.METHOD_MEMBER_POST_COMMIT_CHANGE_SUBJECT, 
+                hooksMemberChangeSubjectBean);
+    
+            GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
+                MemberHooks.METHOD_MEMBER_POST_CHANGE_SUBJECT, 
+                hooksMemberChangeSubjectBean, VetoTypeGrouper.MEMBER_POST_CHANGE_SUBJECT);
+          }  
           
-          //finally delete this member object
-          if (deleteOldMember) {
-            hibernateSession.byObject().delete(Member.this);
-          }
-        }        
-        hibernateSession.getSession().flush();
-        
-        
-        GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBER, 
-            MemberHooks.METHOD_MEMBER_POST_COMMIT_CHANGE_SUBJECT, 
-            hooksMemberChangeSubjectBean);
-
-        GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBER, 
-            MemberHooks.METHOD_MEMBER_POST_CHANGE_SUBJECT, 
-            hooksMemberChangeSubjectBean, VetoTypeGrouper.MEMBER_POST_CHANGE_SUBJECT);
-
-        
-        return null;
+          return null;
+        } catch (GroupNotFoundException gnfe) {
+          throw new GrouperDAOException(gnfe);
+        }
       }
       
     });
-    
-    this.setSubjectIdDb(newSubjectId);
-    this.setSubjectSourceIdDb(newSourceId);
-    this.setSubjectTypeId(newSubject.getType().getName());
-      
+    if (report == null) {
+      this.setSubjectIdDb(newSubjectId);
+      this.setSubjectSourceIdDb(newSourceId);
+      this.setSubjectTypeId(newSubject.getType().getName());
+    }      
   }
 
   /**
