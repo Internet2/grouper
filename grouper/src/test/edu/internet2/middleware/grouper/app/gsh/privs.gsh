@@ -1,6 +1,6 @@
 #
 # GrouperShell Composite Tests
-# $Id: privs.gsh,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+# $Id: privs.gsh,v 1.2 2008-10-20 14:41:20 mchyzer Exp $
 #
 
 #
@@ -30,6 +30,12 @@ assertTrue( "ALL VIEW"          , hasPriv(g.getName()    , subj.getId(), AccessP
 assertTrue( "grant ALL ADMIN"   , grantPriv(g.getName()   , subj.getId(), AccessPrivilege.ADMIN)  )
 assertTrue( "ALL now ADMIN"     , hasPriv(g.getName()     , subj.getId(), AccessPrivilege.ADMIN)  )
 assertTrue( "revoke ALL ADMIN"  , revokePriv(g.getName()  , subj.getId(), AccessPrivilege.ADMIN)  )
+
+grouperSession = grouperSession = GrouperSession.startRootSession();
+member = MemberFinder.findBySubject(grouperSession, subj);
+member.changeSubject(subj);
+member.changeSubject(subj, !Member.DELETE_OLD_MEMBER);
+member.changeSubjectReport(subj, Member.DELETE_OLD_MEMBER);
 
 #
 # TEARDOWN

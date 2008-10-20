@@ -15,7 +15,7 @@ import bsh.Interpreter;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.7 2008-10-18 07:14:39 mchyzer Exp $
+ * @version $Id: help.java,v 1.8 2008-10-20 14:41:20 mchyzer Exp $
  * @since   0.0.1
  */
 public class help {
@@ -223,10 +223,15 @@ public class help {
     i.println("* history(n)"                                          );
     i.println("* last()"                                              );
     i.println("* last(n)"                                             );
-    i.println("* member = MemberFinder.findBySubject(grouperSession, subject)");
-    i.println("* member.changeSubject(newSubject)");
-    i.println("* member.changeSubject(newSubject, false)   [do not delete old member]");
-    i.println("* member.changeSubjectReport(newSubject)");
+    i.println("");
+    i.println("* grouperSession = GrouperSession.startRootSession();");
+    i.println("* oldSubject = findSubject(\"10021368\");");
+    i.println("* member = MemberFinder.findBySubject(grouperSession, oldSubject);");
+    i.println("* newSubject = findSubject(\"10021366\");");
+    i.println("* member.changeSubject(newSubject);");
+    i.println("* member.changeSubject(newSubject, !Member.DELETE_OLD_MEMBER);");
+    i.println("* member.changeSubjectReport(newSubject, Member.DELETE_OLD_MEMBER);");
+    i.println("");
     i.println("* p(command)"                                          );
     i.println("* quit"                                                );
     i.println("* resetRegistry()"                                     );
@@ -251,10 +256,10 @@ public class help {
     i.println("* XmlImport: type  help(\"XmlImport\")  for more info on xml import");
     i.println("* version()"                                           );
     i.println(""                                                      );
-    i.println("# VARIABLES"                                           );
-    i.println("* GSH_DEBUG"                                           );
-    i.println("* GSH_DEVEL"                                           );
-    i.println("* GSH_TIMER"                                           );
+    i.println("# VARIABLES");
+    i.println("* GSH_DEBUG=true");
+    i.println("* GSH_DEVEL=true");
+    i.println("* GSH_TIMER=true");
     i.println("Note: you cannot encrypt passwords with GSH since the passwords end up in the GSH history.  To encrypt passwords, issue the command:");
     i.println("  C:\\mchyzer\\isc\\dev\\grouper-qs-1.2.0\\grouper>java -jar lib\\morphString.jar");
     i.println("  Enter the location of morphString.properties: conf/morphString.properties");
