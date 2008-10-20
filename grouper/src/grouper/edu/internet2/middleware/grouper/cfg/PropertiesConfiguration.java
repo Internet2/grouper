@@ -29,7 +29,7 @@ import java.util.Set;
  * Access {@link Configuration} in a <i>Properties</i> file.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PropertiesConfiguration.java,v 1.8 2008-10-15 03:57:06 mchyzer Exp $
+ * @version $Id: PropertiesConfiguration.java,v 1.9 2008-10-20 15:27:31 mchyzer Exp $
  * @since   1.2.1
  */
 public class PropertiesConfiguration implements Configuration {
@@ -59,7 +59,7 @@ public class PropertiesConfiguration implements Configuration {
   private Properties getProperties() {
     if ( this.cfg == null ) {
       try {
-        this.cfg = GrouperUtil.propertiesFromResourceName(this.resource);
+        this.cfg = GrouperUtil.propertiesFromResourceName(this.resource, false);
       }
       catch (Exception eInitializingError) {
         throw new GrouperRuntimeException( 
