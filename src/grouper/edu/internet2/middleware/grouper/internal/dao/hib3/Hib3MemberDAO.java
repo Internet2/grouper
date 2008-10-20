@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -24,6 +25,7 @@ import org.hibernate.HibernateException;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -36,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.10 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.11 2008-10-20 14:41:20 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
@@ -135,7 +137,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   public Member findBySubject(String id, String src, String type) 
     throws  GrouperDAOException,
             MemberNotFoundException {
-    Member memberDto = HibernateSession.byHqlStatic()
+    Member member = HibernateSession.byHqlStatic()
       .createQuery("from Member as m where "
         + "     m.subjectIdDb       = :sid    "  
         + "and  m.subjectSourceIdDb = :source "
@@ -146,11 +148,11 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         .setString( "type",   type )
         .setString( "source", src  )
         .uniqueResult(Member.class);
-    if (memberDto == null) {
+    if (member == null) {
       throw new MemberNotFoundException();
     }
-    uuid2dtoCache.put( memberDto.getUuid(), memberDto );
-    return memberDto;
+    uuid2dtoCache.put( member.getUuid(), member );
+    return member;
   } 
 
   /**
@@ -228,6 +230,44 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
       .executeUpdate()
       ;
     existsCache.clear();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MemberDAO#findBySubject(java.lang.String)
+   */
+  public Member findBySubject(String subjectId) throws GrouperDAOException,
+      MemberNotFoundException, MemberNotUniqueException {
+    List<Member> members = HibernateSession.byHqlStatic().createQuery(
+        "from Member as m where m.subjectIdDb       = :sid")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindBySubjectId").setString("sid", subjectId)
+        .list(Member.class);
+    if (GrouperUtil.length(members) ==0) {
+      throw new MemberNotFoundException("Cant find member with subjectId: '" + subjectId + "'");
+    }
+    if (GrouperUtil.length(members) > 1) {
+      throw new MemberNotUniqueException("Subject id '" + subjectId + "' is not unique in the members table");
+    }
+    Member member = members.get(0);
+    uuid2dtoCache.put(member.getUuid(), member);
+    return member;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MemberDAO#findBySubject(java.lang.String, java.lang.String)
+   */
+  public Member findBySubject(String subjectId, String src) throws GrouperDAOException,
+      MemberNotFoundException {
+    Member member = HibernateSession.byHqlStatic().createQuery(
+        "from Member as m where " + "     m.subjectIdDb       = :sid    "
+            + "and  m.subjectSourceIdDb = :source ").setCacheable(true).setCacheRegion(
+        KLASS + ".FindBySubjectIdSrc").setString("sid", subjectId).setString("source",
+        src).uniqueResult(Member.class);
+    if (member == null) {
+      throw new MemberNotFoundException();
+    }
+    uuid2dtoCache.put(member.getUuid(), member);
+    return member;
   } 
 
 } 

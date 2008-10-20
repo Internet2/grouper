@@ -38,11 +38,10 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeRuntimeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
-import edu.internet2.middleware.grouper.exception.StemModifyException;
-import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -71,10 +70,8 @@ import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.MemberModifyValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.subject.Source;
-import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
-import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectType;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
@@ -84,7 +81,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.114 2008-10-18 07:14:39 mchyzer Exp $
+ * @version $Id: Member.java,v 1.115 2008-10-20 14:41:20 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -135,25 +132,31 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
+  /**  */
   @GrouperIgnoreFieldConstant 
   @GrouperIgnoreDbVersion
   @GrouperIgnoreClone
   private transient Group   g     = null;
   
+  /**  */
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private transient Subject subj  = null;
 
+  /**  */
   private String  memberUUID;
 
 
+  /**  */
   private String  subjectID;
 
 
+  /**  */
   private String  subjectSourceID;
 
 
+  /**  */
   private String  subjectTypeID;
 
   /** change a subject to the same subject (for testing) */
@@ -172,10 +175,6 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
   static int changeSubjectMembershipDeleteCount = 0;
   
   
-  public void changeSubject(Subject newSubject) {
-    this.changeSubject(newSubject, true);
-  }
-  
   /**
    * change the subject of a member to another subject.  This new subject might already exist, and it
    * might not.  If it doesnt exist, then this member object will have its subject and source information
@@ -183,11 +182,26 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * the member_id updated to the new member_id, and the old member_id will be removed.
    * 
    * @param newSubject
+   * @throws InsufficientPrivilegeRuntimeException if not a root user
+   */
+  public void changeSubject(Subject newSubject) throws InsufficientPrivilegeRuntimeException {
+    this.changeSubject(newSubject, true);
+  }
+  
+  /**
+   * change the subject of a member to another subject.  This new subject might already exist, and it
+   * might not.  If it doesnt exist, then this member object will have its subject and source information
+   * updated.  If it does, then all objects in the system which use this member_id will be queried, and
+   * the member_id updated to the new member_id, and the old member_id will be removed if deleteOldMember is true.
+   * 
+   * @param newSubject
    * @param deleteOldMember is only applicable if the new member exists.  If true, it will delete the old one.
    * Generally you want this as true, and only set to false if there is a foreign key violation, and you want to 
    * get as far as you can.
+   * @throws InsufficientPrivilegeRuntimeException if not a root user
    */
-  public void changeSubject(final Subject newSubject, final boolean deleteOldMember) {
+  public void changeSubject(final Subject newSubject, final boolean deleteOldMember) 
+      throws InsufficientPrivilegeRuntimeException {
     this.changeSubjectHelper(newSubject, deleteOldMember, null);
   }
   
@@ -213,6 +227,9 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
     return result.toString();
   }
 
+  /** boolean constant for gsh param */
+  public static final boolean DELETE_OLD_MEMBER = true; 
+  
   /**
    * change the subject of a member to another subject.  This new subject might already exist, and it
    * might not.  If it doesnt exist, then this member object will have its subject and source information
@@ -224,14 +241,16 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * Generally you want this as true, and only set to false if there is a foreign key violation, and you want to 
    * get as far as you can.
    * @param report pass in report if only a dry run, dont actually do anything...
+   * @throws InsufficientPrivilegeRuntimeException if not a root user
    */
-  private void changeSubjectHelper(final Subject newSubject, final boolean deleteOldMember, final StringBuilder report) {
+  private void changeSubjectHelper(final Subject newSubject, final boolean deleteOldMember, 
+      final StringBuilder report) throws InsufficientPrivilegeRuntimeException {
     
     //make sure root session
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     if (grouperSession == null  ||
         !PrivilegeHelper.isRoot(grouperSession)) {
-      throw new RuntimeException("changeSubject requires GrouperSystem " +
+      throw new InsufficientPrivilegeRuntimeException("changeSubject requires GrouperSystem " +
       		"or wheel/sysAdmin group grouperSession");
     }
     
@@ -515,6 +534,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * boolean rv = m.canAdmin(g);
    * </pre>
    * @param   g   Check privileges on this {@link Group}.
+   * @return if admin
    * @throws  IllegalArgumentException if null {@link Group}
    * @since   1.0
    */
@@ -539,6 +559,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * boolean rv = m.canCreate(ns);
    * </pre>
    * @param   ns  Check privileges on this {@link Stem}.
+   * @return if can create stem
    * @throws  IllegalArgumentException if null {@link Stem}
    * @since   1.0
    */
@@ -563,6 +584,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * boolean rv = m.canAdmin(g);
    * </pre>
    * @param   g   Check privileges on this {@link Group}.
+   * @return if can optin
    * @throws  IllegalArgumentException if null {@link Group}
    * @since   1.0
    */
@@ -587,6 +609,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * boolean rv = m.canOptout(g);
    * </pre>
    * @param   g   Check privileges on this {@link Group}.
+   * @return if can optout
    * @throws  IllegalArgumentException if null {@link Group}
    * @since   1.0
    */
@@ -611,6 +634,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * boolean rv = m.canRead(g);
    * </pre>
    * @param   g   Check privileges on this {@link Group}.
+   * @return if can read
    * @throws  IllegalArgumentException if null {@link Group}
    * @since   1.0
    */
@@ -635,6 +659,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * boolean rv = m.canStem(ns);
    * </pre>
    * @param   ns  Check privileges on this {@link Stem}.
+   * @return if can stem
    * @throws  IllegalArgumentException if null {@link Stem}
    * @since   1.0
    */
@@ -659,6 +684,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * boolean rv = m.canUpdate(g);
    * </pre>
    * @param   g   Check privileges on this {@link Group}.
+   * @return if can update
    * @throws  IllegalArgumentException if null {@link Group}
    * @since   1.0
    */
@@ -683,6 +709,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * boolean rv = m.canView(g);
    * </pre>
    * @param   g   Check privileges on this {@link Group}.
+   * @return if can view
    * @throws  IllegalArgumentException if null {@link Group}
    * @since   1.0
    */
@@ -1657,7 +1684,6 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
   /**
    * will be implemented soon
-   * @throws StemModifyException if problem
    */
   public void store() {
     if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
@@ -1730,6 +1756,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * }
    * </pre>
    * @return  {@link Member} as a {@link Group}
+   * @throws GroupNotFoundException 
    */
   public Group toGroup() 
     throws GroupNotFoundException 
@@ -1743,14 +1770,19 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
     throw new GroupNotFoundException("member is not a group");
   }
 
+  /**
+   * @see java.lang.Object#toString()
+   */
   public String toString() {
     return SubjectHelper.getPretty( this );
   } // public String toString()
 
 
-  // PROTECTED INSTANCE METHODS //
-
-  // @since   1.2.0
+  /**
+   * @param ownerUUID
+   * @param f
+   * @return if is member
+   */
   public boolean isMember(String ownerUUID, Field f) {
     boolean       rv      = false;
     MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
@@ -1771,8 +1803,11 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
   } // protected boolean isMember(ownerUUID, f);
 
 
-  // @since   1.1.0
-  private Set _getGroups(Iterator it) {
+  /**
+   * @param it
+   * @return groups
+   */
+  private Set<Group> _getGroups(Iterator it) {
     Group       g;
     Set         groups  = new LinkedHashSet();
     Membership  ms;
@@ -1793,7 +1828,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
   } // private Set _getGroups(it)
 
   /**
-   * @since   ???
+   * 
+   * @param g
+   * @param priv
+   * @return if has priv
    */
   private boolean _hasPriv(Group g, Privilege priv) {
     boolean rv = false;
@@ -1807,7 +1845,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
   } 
 
   /**
-   * @since   ???
+   * 
+   * @param ns
+   * @param priv
+   * @return if has priv
    */
   private boolean _hasPriv(Stem ns, Privilege priv) {
     boolean rv = false;
@@ -1820,11 +1861,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
     return rv;
   }
 
-  // PUBLIC INSTANCE METHODS //
-  
   /**
-   * @since   1.2.0
-   */  
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
   public boolean equals(Object other) {
     if (this == other) {
       return true;
@@ -1841,21 +1881,24 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
   } // public boolean equals(other)
 
   /**
-   * @since   1.2.0
+   * 
+   * @return subject id
    */
   public String getSubjectId() {
     return this.subjectID;
   }
 
   /**
-   * @since   1.2.0
+   * 
+   * @return subject id db
    */
   public String getSubjectIdDb() {
     return this.subjectID;
   }
 
   /**
-   * @since   1.2.0
+   * 
+   * @see java.lang.Object#hashCode()
    */
   public int hashCode() {
     return new HashCodeBuilder()
@@ -1891,21 +1934,24 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
-   * @since   1.2.0
+   * 
+   * @param subjectTypeID
    */
   public void setSubjectTypeId(String subjectTypeID) {
     this.subjectTypeID = subjectTypeID;
   }
 
   /**
-   * @since   1.2.0
+   * 
+   * @param memberUUID
    */
   public void setUuid(String memberUUID) {
     this.memberUUID = memberUUID;
   }
 
   /**
-   * @since   1.2.0
+   * 
+   * @return string
    */
   public String toStringDto() {
     return new ToStringBuilder(this)
