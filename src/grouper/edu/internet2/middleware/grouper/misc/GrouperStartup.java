@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.7 2008-10-15 03:57:06 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.8 2008-10-20 17:51:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -33,6 +33,9 @@ public class GrouperStartup {
    */
   private static boolean started = false;
   
+  /** if we should ignore checkconfig */
+  public static boolean ignoreCheckConfig = false;
+  
   /**
    * call this when grouper starts up
    * @return false if already started, true if this started it
@@ -43,8 +46,10 @@ public class GrouperStartup {
     }
     started = true;
     
-    //make sure configuration is ok
-    GrouperCheckConfig.checkConfig();
+    if (!ignoreCheckConfig) {
+      //make sure configuration is ok
+      GrouperCheckConfig.checkConfig();
+    }
     
     //startup hooks
     GrouperHooksUtils.fireGrouperStartupHooksIfNotFiredAlready();

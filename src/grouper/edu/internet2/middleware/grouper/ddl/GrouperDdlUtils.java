@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.18 2008-10-03 05:11:03 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.19 2008-10-20 17:51:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -186,7 +186,7 @@ public class GrouperDdlUtils {
   private static boolean bootstrapDone = false;
   
   /** if everything is the right version */
-  static boolean everythingRightVersion = true;
+  public static boolean everythingRightVersion = true;
   
   /** set to true if versions will mismatch but we want to continue anyways... */
   static boolean justTesting = false;
@@ -253,6 +253,9 @@ public class GrouperDdlUtils {
       boolean dropOnly, boolean installDefaultGrouperData, Map<String, DdlVersionable> maxVersions,
       boolean promptUser) {
         
+    //start with success
+    everythingRightVersion = true;
+    
     if (promptUser) {
       String prompt = GrouperUtil.PROMPT_KEY_SCHEMA_EXPORT_ALL_TABLES + " (dropThenCreate=" + (theDropBeforeCreate ? "T" : "F")
         + ",writeAndRunScript=" + (theWriteAndRunScript ? "T" : "F") + ")";

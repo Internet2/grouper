@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.48 2008-10-20 15:27:31 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.49 2008-10-20 17:51:23 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -51,9 +51,6 @@ public class SuiteDefault extends TestCase {
    */
   public static void main(String[] args) {
     try {
-      //dont keep prompting user about DB
-      GrouperUtil.stopPromptingUser = true;
-      RegistryInitializeSchema.initializeSchemaForTests();
       TestRunner.run(SuiteDefault.suite());
     } catch (RuntimeException re) {
       LOG.error("Error in testing", re);
@@ -63,14 +60,24 @@ public class SuiteDefault extends TestCase {
 
   /**
    * 
+   */
+  public static void setupTests() {
+    //dont keep prompting user about DB
+    GrouperUtil.stopPromptingUser = true;
+    RegistryInitializeSchema.initializeSchemaForTests();
+  }
+
+  /**
+   * 
    * @return the suite
    */
   static public Test suite() {
-    GrouperUtil.stopPromptingUser = true;
+    setupTests();
+
     TestSuite suite = new TestSuite();
     
     //do this first so all tests are done on new ddl
-    //suite.addTest(AllDdlTests.suite());
+    suite.addTest(AllDdlTests.suite());
 
     suite.addTestSuite( GrouperVersionTest.class );
     suite.addTestSuite( Test_api_ChildGroupFilter.class );

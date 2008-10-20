@@ -45,7 +45,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/jdbcSamples/postgresql.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/junit.jar"/>
 	<classpathentry kind="lib" path="lib/ant/ant-contrib.jar"/>
-	<classpathentry kind="lib" path="lib/custom/ojdbc14.jar"/>
 	<classpathentry kind="lib" path="lib/grouper/commons-discovery.jar"/>
 	<classpathentry kind="lib" path="lib/grouper/jamon.jar"/>
 	<classpathentry kind="lib" path="lib/grouper/ant.jar"/>
