@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.201 2008-10-15 06:13:21 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.202 2008-10-20 17:51:23 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -462,7 +462,6 @@
     <mkdir dir="${ext.dir}/conf"/>
     <!-- only define our classpath once -->
     <path id="project.classpath">
-      <pathelement path="${java.class.path}"/>
       <!-- for configuration files -->
       <pathelement location="${conf.dir}"/>
       <pathelement location="${ext.dir}/conf"/>
@@ -476,6 +475,7 @@
       <pathelement  location="${build.dir.grouper}"/>
       <pathelement  location="${build.dir.test}"/>
       <pathelement  location="${user.home}/.ant/lib/clover.jar"/>
+      <pathelement path="${java.class.path}"/>
     </path>
     <pathconvert  targetos="unix"
                   property="project.classpath.string" 
@@ -645,22 +645,6 @@
   </target>
   <!-- target: javadoc -->
 
-  <!-- target: schemaexport -->
-  <target name="schemaexport" 
-          depends="init, compile"
-  >
-    <record name="${schemaexport.log}" action="start"/>
-    <mkdir dir="${dist.dir}"/>
-    <mkdir dir="${dist.dir.run}"/>
-    <java fork="true"  
-          maxmemory="${memory.max}"
-          classpathref="project.classpath"
-          classname="edu.internet2.middleware.grouper.registry.RegistryInitializeSchema"
-          failonerror="true" />
-    <record name="${schemaexport.log}" action="stop"/>
-  </target>
-  <!-- target: schemaexport -->
-
   <!-- target: sql -->
   <target name="sql"
           depends="ensure.name"
@@ -697,7 +681,7 @@
 
   <!-- target: test -->
   <target name="test" 
-          depends="test.compile, schemaexport"
+          depends="test.compile"
           description="Run Grouper Tests"
   >
     <echo/>
@@ -705,7 +689,22 @@
     <echo/>
     <record name="${test.log}" action="start" append="yes"/>
     <mkdir dir="${dist.dir.test}"/>
-    <!-- rely on db init prompting the user -->
+    <!-- prompt the user -->
+    <java fork="false"
+              maxmemory="${memory.max}"
+              classpathref="test.classpath"
+              classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
+              failonerror="true"
+        />
+    
+    <input validargs="y,n"
+        addproperty="do.sql"
+      />
+      <condition property="do.abort.sql">
+        <equals arg1="n" arg2="${do.sql}"/>
+      </condition>
+      <fail if="do.abort.sql">Build aborted by user.</fail>
+
     <junit  fork="yes"
             haltonerror="yes"
             haltonfailure="yes"

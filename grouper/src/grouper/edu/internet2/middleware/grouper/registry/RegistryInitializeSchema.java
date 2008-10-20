@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -27,7 +28,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInitializeSchema.java,v 1.5 2008-10-03 05:11:03 mchyzer Exp $    
+ * @version $Id: RegistryInitializeSchema.java,v 1.6 2008-10-20 17:51:23 mchyzer Exp $    
  * @since   1.2.0
  */
 public class RegistryInitializeSchema {
@@ -64,10 +65,15 @@ public class RegistryInitializeSchema {
       //set vars so nothing else happens...
       GrouperDdlUtils.compareFromDbDllVersion = false;
       
+      GrouperStartup.ignoreCheckConfig = true;
+      
       GrouperStartup.startup();
       
       //run the bootstrap
       GrouperDdlUtils.bootstrap(fromCommandLine, isInstallGrouperData(), true);
+
+      //now check config
+      GrouperCheckConfig.checkConfig();
       
     } catch (Throwable t) {
       t.printStackTrace();
@@ -86,9 +92,18 @@ public class RegistryInitializeSchema {
       //dont run from startup, run from here
       GrouperStartup.runDdlBootstrap = false;
 
+      GrouperStartup.ignoreCheckConfig = true;
+
       GrouperStartup.startup();
 
-      GrouperDdlUtils.bootstrapHelper(true, false, true, false, true, false, true, null, true);
+      GrouperDdlUtils.bootstrapHelper(true, false, true, true, true, false, true, null, true);
+
+      //everything right version
+      GrouperDdlUtils.everythingRightVersion = true;
+      
+      //now check config
+      GrouperCheckConfig.checkConfig();
+
     } finally {
       inInitSchema = false;
     }
