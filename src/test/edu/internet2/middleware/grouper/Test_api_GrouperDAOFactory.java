@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  * Test {@link GrouperDAOFactory}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_GrouperDAOFactory.java,v 1.5 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_api_GrouperDAOFactory.java,v 1.6 2008-10-20 15:27:31 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_GrouperDAOFactory extends GrouperTest {
@@ -43,7 +43,7 @@ public class Test_api_GrouperDAOFactory extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new Test_api_GrouperDAOFactory("test_getFactory_returnDefaultFactoryWhenNotConfigured"));
+    TestRunner.run(new Test_api_GrouperDAOFactory("test_getFactory_getInvalidFactory"));
   }
 
   /**
@@ -78,9 +78,15 @@ public class Test_api_GrouperDAOFactory extends GrouperTest {
       assertTrue("threw expected exception", true);
     }
   }
-
+  /**
+   * 
+   */
   public void test_getFactory_getInvalidFactory() {
+
     ApiConfig cfg = new ApiConfig();
+
+    String value = cfg.getProperty(prop);
+    
     cfg.setProperty(prop, invalid);
     try {
       GrouperDAOFactory.getFactory(cfg);
@@ -88,7 +94,13 @@ public class Test_api_GrouperDAOFactory extends GrouperTest {
     }
     catch (GrouperRuntimeException eExpected) {
       assertTrue("threw expected exception", true);
-    }
+    } 
+    
+    //make a new one so it goes back
+    cfg = new ApiConfig();
+    
+    assertEquals(value, cfg.getProperty(prop));
+    
   }
 
   public void test_getFactory_defaultNotNull() {

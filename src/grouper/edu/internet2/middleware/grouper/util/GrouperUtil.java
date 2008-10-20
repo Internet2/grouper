@@ -5447,8 +5447,19 @@ public class GrouperUtil {
    * @return the properties
    */
   public synchronized static Properties propertiesFromResourceName(String resourceName) {
+    return propertiesFromResourceName(resourceName, true);
+  }
+
+  /**
+   * read properties from a resource, dont modify the properties returned since they are cached
+   * @param resourceName
+   * @param useCache 
+   * @return the properties
+   */
+  public synchronized static Properties propertiesFromResourceName(String resourceName, boolean useCache) {
     Properties properties = resourcePropertiesCache.get(resourceName);
-    if (properties == null) {
+    
+    if (!useCache || properties == null) {
   
       properties = new Properties();
 
@@ -5462,7 +5473,9 @@ public class GrouperUtil {
       } finally {
         GrouperUtil.closeQuietly(inputStream);
       }
-      resourcePropertiesCache.put(resourceName, properties);
+      if (useCache) {
+        resourcePropertiesCache.put(resourceName, properties);
+      }
     }
     return properties;
   }
