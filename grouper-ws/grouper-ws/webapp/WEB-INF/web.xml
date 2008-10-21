@@ -81,4 +81,9 @@
 		</description>
 		<role-name>grouper_user</role-name>
 	</security-role>
+  
+  <session-config>
+    <session-timeout>1</session-timeout> 
+  </session-config>
+  
 </web-app>
