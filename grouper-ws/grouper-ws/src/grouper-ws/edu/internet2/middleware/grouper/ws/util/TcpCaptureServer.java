@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: TcpCaptureServer.java,v 1.2 2008-09-09 20:25:33 mchyzer Exp $
+ * @author mchyzer $Id: TcpCaptureServer.java,v 1.3 2008-10-21 18:12:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.util;
 
@@ -101,7 +101,7 @@ public class TcpCaptureServer {
       //for now just do this once
       //      while (true) {
       // now listen for connections
-      sock.setSoTimeout(20000);
+      sock.setSoTimeout(30000);
       Socket client = sock.accept();
 
       if (TcpCaptureServer.this.debug) {

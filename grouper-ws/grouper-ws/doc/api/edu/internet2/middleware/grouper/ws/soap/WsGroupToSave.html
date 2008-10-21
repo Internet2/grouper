@@ -165,7 +165,7 @@ Class WsGroupToSave</H2>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupToSave.html?root=I2MI&view=co&pathrev=HEAD#save(edu.internet2.middleware.grouper.GrouperSession)">save</A></B>(edu.internet2.middleware.grouper.GrouperSession&nbsp;grouperSession)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;save this stem</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;save this group</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -280,27 +280,27 @@ public void <B>validate</B>()</PRE>
 save</H3>
 <PRE>
 public edu.internet2.middleware.grouper.Group <B>save</B>(edu.internet2.middleware.grouper.GrouperSession&nbsp;grouperSession)
-                                            throws edu.internet2.middleware.grouper.StemNotFoundException,
-                                                   edu.internet2.middleware.grouper.GroupNotFoundException,
-                                                   edu.internet2.middleware.grouper.StemAddException,
-                                                   edu.internet2.middleware.grouper.InsufficientPrivilegeException,
-                                                   edu.internet2.middleware.grouper.GroupModifyException,
-                                                   edu.internet2.middleware.grouper.GroupAddException</PRE>
+                                            throws edu.internet2.middleware.grouper.exception.StemNotFoundException,
+                                                   edu.internet2.middleware.grouper.exception.GroupNotFoundException,
+                                                   edu.internet2.middleware.grouper.exception.StemAddException,
+                                                   edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException,
+                                                   edu.internet2.middleware.grouper.exception.GroupModifyException,
+                                                   edu.internet2.middleware.grouper.exception.GroupAddException</PRE>
 <DL>
-<DD>save this stem
+<DD>save this group
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>grouperSession</CODE> - to save
 <DT><B>Returns:</B><DD>the stem that was inserted or updated
 <DT><B>Throws:</B>
-<DD><CODE>edu.internet2.middleware.grouper.StemNotFoundException</CODE>
-<DD><CODE>edu.internet2.middleware.grouper.GroupNotFoundException</CODE>
-<DD><CODE>edu.internet2.middleware.grouper.GroupNotFoundException</CODE>
-<DD><CODE>edu.internet2.middleware.grouper.StemAddException</CODE>
-<DD><CODE>edu.internet2.middleware.grouper.GroupAddException</CODE>
-<DD><CODE>edu.internet2.middleware.grouper.InsufficientPrivilegeException</CODE>
-<DD><CODE>edu.internet2.middleware.grouper.GroupModifyException</CODE>
-<DD><CODE>edu.internet2.middleware.grouper.GroupAddException</CODE></DL>
+<DD><CODE>edu.internet2.middleware.grouper.exception.StemNotFoundException</CODE>
+<DD><CODE>edu.internet2.middleware.grouper.exception.GroupNotFoundException</CODE>
+<DD><CODE>edu.internet2.middleware.grouper.exception.GroupNotFoundException</CODE>
+<DD><CODE>edu.internet2.middleware.grouper.exception.StemAddException</CODE>
+<DD><CODE>edu.internet2.middleware.grouper.exception.GroupAddException</CODE>
+<DD><CODE>edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException</CODE>
+<DD><CODE>edu.internet2.middleware.grouper.exception.GroupModifyException</CODE>
+<DD><CODE>edu.internet2.middleware.grouper.exception.GroupAddException</CODE></DL>
 </DD>
 </DL>
 <HR>

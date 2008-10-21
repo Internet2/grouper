@@ -61,10 +61,19 @@ public class WsSampleMemberChangeSubjectLite implements WsSampleGenerated {
 
             // set the act as id
             memberChangeSubjectLite.setActAsSubjectId("GrouperSystem");
+            memberChangeSubjectLite.setActAsSubjectSourceId("");
+            memberChangeSubjectLite.setActAsSubjectIdentifier("");
 
             memberChangeSubjectLite.setOldSubjectId("test.subject.0");
+            memberChangeSubjectLite.setOldSubjectSourceId("");
+            memberChangeSubjectLite.setOldSubjectIdentifier("");
+            
             memberChangeSubjectLite.setNewSubjectId("test.subject.1");
-
+            memberChangeSubjectLite.setNewSubjectSourceId("");
+            memberChangeSubjectLite.setNewSubjectIdentifier("");
+            
+            memberChangeSubjectLite.setDeleteOldMember("T");
+            
             memberChangeSubjectLite.setIncludeSubjectDetail("T");
             memberChangeSubjectLite.setSubjectAttributeNames("loginid,description");
             

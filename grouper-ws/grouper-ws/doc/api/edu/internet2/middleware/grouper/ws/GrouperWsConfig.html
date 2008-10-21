@@ -148,6 +148,27 @@ config constants for WS
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?root=I2MI&view=co&pathrev=HEAD#WS_CLIENT_USER_GROUP_CACHE_MINUTES">WS_CLIENT_USER_GROUP_CACHE_MINUTES</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of param: ws.client.user.group.cache.minutes
+ cache the decision to allow a user to user web services, so it doesnt have to be calculated each time
+ defaults to 30 minutes:</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?root=I2MI&view=co&pathrev=HEAD#WS_CLIENT_USER_GROUP_NAME">WS_CLIENT_USER_GROUP_NAME</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of param: ws.client.user.group.name
+ If there is an entry here for group name, then all web service client 
+ users must be in this group (before the actAs)
+ e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?root=I2MI&view=co&pathrev=HEAD#WS_DELETE_MEMBER_SUBJECTS_MAX">WS_DELETE_MEMBER_SUBJECTS_MAX</A></B></CODE>
 
 <BR>
@@ -221,12 +242,41 @@ config constants for WS
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?root=I2MI&view=co&pathrev=HEAD#WS_MEMBER_CHANGE_SUBJECT_MAX">WS_MEMBER_CHANGE_SUBJECT_MAX</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of param for member change subject web service max, default is 1000000
+  # Max number of members to pass to memberChangeSubject,
+ default is 1000000 ws.member.change.subject.max = 20000</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?root=I2MI&view=co&pathrev=HEAD#WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE">WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name of param: ws.rest.default.response.content.type
  if the request has no content type (http params), and the response content type is not
  specified in the url, then put it here.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?root=I2MI&view=co&pathrev=HEAD#WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS">WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to provide custom authentication (instead of the default httpServletRequest.getUserPrincipal()
+ for non-Rampart authentication.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?root=I2MI&view=co&pathrev=HEAD#WS_SECURITY_RAMPART_AUTHENTICATION_CLASS">WS_SECURITY_RAMPART_AUTHENTICATION_CLASS</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to provide rampart authentication, Class must implement the interface:
+ edu.internet2.middleware.grouper.ws.security.GrouperWssecAuthentication
+ class must be fully qualified.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -325,6 +375,15 @@ config constants for WS
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get a Grouper configuration parameter.</TD>
 </TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?root=I2MI&view=co&pathrev=HEAD#getPropertyString(java.lang.String, java.lang.String)">getPropertyString</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;property,
+                  <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;defaultValue)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Get a Grouper configuration parameter.</TD>
+</TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
 <TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
@@ -359,6 +418,20 @@ public static final <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/S
 <P>
 <DL>
 <DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?root=I2MI&view=co&pathrev=HEAD#edu.internet2.middleware.grouper.ws.GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="WS_MEMBER_CHANGE_SUBJECT_MAX"><!-- --></A><H3>
+WS_MEMBER_CHANGE_SUBJECT_MAX</H3>
+<PRE>
+public static final <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>WS_MEMBER_CHANGE_SUBJECT_MAX</B></PRE>
+<DL>
+<DD>name of param for member change subject web service max, default is 1000000
+  # Max number of members to pass to memberChangeSubject,
+ default is 1000000 ws.member.change.subject.max = 20000
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?root=I2MI&view=co&pathrev=HEAD#edu.internet2.middleware.grouper.ws.GrouperWsConfig.WS_MEMBER_CHANGE_SUBJECT_MAX">Constant Field Values</A></DL>
 </DL>
 <HR>
 
@@ -597,6 +670,67 @@ public static final <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/S
 <DL>
 <DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?root=I2MI&view=co&pathrev=HEAD#edu.internet2.middleware.grouper.ws.GrouperWsConfig.WS_REST_DEFAULT_RESPONSE_CONTENT_TYPE">Constant Field Values</A></DL>
 </DL>
+<HR>
+
+<A NAME="WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS"><!-- --></A><H3>
+WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS</H3>
+<PRE>
+public static final <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS</B></PRE>
+<DL>
+<DD>to provide custom authentication (instead of the default httpServletRequest.getUserPrincipal()
+ for non-Rampart authentication.  Class must implement the interface:
+ edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication
+ class must be fully qualified.  e.g. edu.school.whatever.MyAuthenticator
+ blank means use default: edu.internet2.middleware.grouper.ws.security.WsGrouperDefaultAuthentication
+ ws.security.non-rampart.authentication.class =
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?root=I2MI&view=co&pathrev=HEAD#edu.internet2.middleware.grouper.ws.GrouperWsConfig.WS_SECURITY_NON_RAMPART_AUTHENTICATION_CLASS">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="WS_SECURITY_RAMPART_AUTHENTICATION_CLASS"><!-- --></A><H3>
+WS_SECURITY_RAMPART_AUTHENTICATION_CLASS</H3>
+<PRE>
+public static final <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>WS_SECURITY_RAMPART_AUTHENTICATION_CLASS</B></PRE>
+<DL>
+<DD>to provide rampart authentication, Class must implement the interface:
+ edu.internet2.middleware.grouper.ws.security.GrouperWssecAuthentication
+ class must be fully qualified.  e.g. edu.school.whatever.MyAuthenticator
+ blank means rampart will throw 404 status code
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?root=I2MI&view=co&pathrev=HEAD#edu.internet2.middleware.grouper.ws.GrouperWsConfig.WS_SECURITY_RAMPART_AUTHENTICATION_CLASS">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="WS_CLIENT_USER_GROUP_NAME"><!-- --></A><H3>
+WS_CLIENT_USER_GROUP_NAME</H3>
+<PRE>
+public static final <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>WS_CLIENT_USER_GROUP_NAME</B></PRE>
+<DL>
+<DD>name of param: ws.client.user.group.name
+ If there is an entry here for group name, then all web service client 
+ users must be in this group (before the actAs)
+ e.g. etc:webServiceClientUsers
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?root=I2MI&view=co&pathrev=HEAD#edu.internet2.middleware.grouper.ws.GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="WS_CLIENT_USER_GROUP_CACHE_MINUTES"><!-- --></A><H3>
+WS_CLIENT_USER_GROUP_CACHE_MINUTES</H3>
+<PRE>
+public static final <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>WS_CLIENT_USER_GROUP_CACHE_MINUTES</B></PRE>
+<DL>
+<DD>name of param: ws.client.user.group.cache.minutes
+ cache the decision to allow a user to user web services, so it doesnt have to be calculated each time
+ defaults to 30 minutes:
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../../../constant-values.html?root=I2MI&view=co&pathrev=HEAD#edu.internet2.middleware.grouper.ws.GrouperWsConfig.WS_CLIENT_USER_GROUP_CACHE_MINUTES">Constant Field Values</A></DL>
+</DL>
 
 <!-- ============ METHOD DETAIL ========== -->
 
@@ -623,6 +757,27 @@ public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.
 <DT><B>Parameters:</B><DD><CODE>property</CODE> - to lookup
 <DT><B>Returns:</B><DD>Value of configuration parameter or an empty string if parameter
          is invalid.<DT><B>Since:</B></DT>
+  <DD>1.1.0</DD>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getPropertyString(java.lang.String, java.lang.String)"><!-- --></A><H3>
+getPropertyString</H3>
+<PRE>
+public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>getPropertyString</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;property,
+                                       <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;defaultValue)</PRE>
+<DL>
+<DD>Get a Grouper configuration parameter.
+ 
+ <pre class="eg">
+ String wheel = GrouperConfig.getProperty(&quot;groups.wheel.group&quot;);
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>property</CODE> - to lookup<DD><CODE>defaultValue</CODE> - is the value if the property isnt found
+<DT><B>Returns:</B><DD>Value of configuration parameter or the default value (will trim the value)<DT><B>Since:</B></DT>
   <DD>1.1.0</DD>
 </DL>
 </DD>

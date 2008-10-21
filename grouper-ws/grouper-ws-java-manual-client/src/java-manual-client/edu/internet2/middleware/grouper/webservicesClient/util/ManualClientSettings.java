@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: ManualClientSettings.java,v 1.2 2008-03-30 09:00:33 mchyzer Exp $
+ * @author mchyzer $Id: ManualClientSettings.java,v 1.3 2008-10-21 18:12:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.webservicesClient.util;
 
@@ -9,7 +9,7 @@ package edu.internet2.middleware.grouper.webservicesClient.util;
  */
 public class ManualClientSettings {
     /** client version.  keep this updated as the version changes */
-    public static final String VERSION = "v1_3_000";
+    public static final String VERSION = "v1_4_000";
 
     /** user to login as */
     public static final String USER = "GrouperSystem";

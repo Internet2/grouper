@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.3 2008-10-21 03:51:03 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.4 2008-10-21 18:12:45 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -253,6 +253,7 @@ public class GrouperCheckConfig {
 
     propertyValueBoolean(GROUPER_PROPERTIES_NAME, "registry.autoinit", true);
     propertyValueBoolean(GROUPER_PROPERTIES_NAME, "configuration.detect.errors", true);
+    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "configuration.display.startup.message", true);
 
     propertyValueClass(GROUPER_PROPERTIES_NAME, "dao.factory", 
         GrouperDAOFactory.class, true);

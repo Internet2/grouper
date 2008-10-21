@@ -1,12 +1,14 @@
 package edu.internet2.middleware.grouper.ws.samples.rest.group;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
@@ -32,9 +34,8 @@ public class WsSampleGroupDeleteRestLite2 implements WsSampleRest {
     try {
       HttpClient httpClient = new HttpClient();
       
-      org.apache.commons.httpclient.DefaultMethodRetryHandler retryhandler = new org.apache.commons.httpclient.DefaultMethodRetryHandler();
-      retryhandler.setRequestSentRetryEnabled(false);
-      httpClient.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, retryhandler);
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon

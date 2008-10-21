@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperServiceAxisServlet.java,v 1.1 2008-04-01 08:38:34 mchyzer Exp $
+ * $Id: GrouperServiceAxisServlet.java,v 1.2 2008-10-21 18:12:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -9,7 +9,9 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.axis2.transport.http.AxisServlet;
 
@@ -46,6 +48,11 @@ public class GrouperServiceAxisServlet extends AxisServlet {
     
     //else pass to axis
     super.service(req, res);
+    
+    HttpSession httpSession = ((HttpServletRequest)req).getSession(false);
+    if (httpSession != null) {
+      httpSession.invalidate();
+    }
   }
 
   

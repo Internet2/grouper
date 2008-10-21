@@ -50,7 +50,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/stem/package-summary.html?root=I2MI&view=co&pathrev=HEAD"><B>PREV PACKAGE</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/security/package-summary.html?root=I2MI&view=co&pathrev=HEAD"><B>PREV PACKAGE</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/package-summary.html?root=I2MI&view=co&pathrev=HEAD"><B>NEXT PACKAGE</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -199,7 +199,7 @@ All beans that are needed by Axis are here so there is only one namespace.
 <TD>
  Class to lookup a group via web service
  
- developers make sure each setter calls this.clearSubject();</TD>
+ developers make sure each setter calls this.clearGroup();</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupSaveLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupSaveLiteResult</A></B></TD>
@@ -233,6 +233,24 @@ All beans that are needed by Axis are here so there is only one namespace.
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsHasMemberResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsHasMemberResults</A></B></TD>
 <TD>
  results for the has member call.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMemberChangeSubject.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsMemberChangeSubject</A></B></TD>
+<TD>
+ Class with data about a member who's subject needs to change</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMemberChangeSubjectLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsMemberChangeSubjectLiteResult</A></B></TD>
+<TD>Result of one member changing its subject</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMemberChangeSubjectResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsMemberChangeSubjectResult</A></B></TD>
+<TD>Result of one member changing its subject</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMemberChangeSubjectResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsMemberChangeSubjectResults</A></B></TD>
+<TD>
+ results for the member change subject call.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembership.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsMembership</A></B></TD>
@@ -454,6 +472,18 @@ All beans that are needed by Axis are here so there is only one namespace.
 <TD>result code of a request</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMemberChangeSubjectLiteResult.WsMemberChangeSubjectLiteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsMemberChangeSubjectLiteResult.WsMemberChangeSubjectLiteResultCode</A></B></TD>
+<TD>result code of a request</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMemberChangeSubjectResult.WsMemberChangeSubjectResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsMemberChangeSubjectResult.WsMemberChangeSubjectResultCode</A></B></TD>
+<TD>result code of a request</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMemberChangeSubjectResults.WsMemberChangeSubjectResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsMemberChangeSubjectResults.WsMemberChangeSubjectResultsCode</A></B></TD>
+<TD>result code of a request</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsMembership.WsGetMembershipResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsMembership.WsGetMembershipResultCode</A></B></TD>
 <TD>result code of a request</TD>
 </TR>
@@ -488,6 +518,10 @@ All beans that are needed by Axis are here so there is only one namespace.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubject.WsSubjectResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsSubject.WsSubjectResultCode</A></B></TD>
 <TD>result code of a request</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.MemberFindResult.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup.MemberFindResult</A></B></TD>
+<TD>result of a subject find</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.SubjectFindResult.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup.SubjectFindResult</A></B></TD>
@@ -555,7 +589,7 @@ XML gets pretty messy when things in various packages.
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/stem/package-summary.html?root=I2MI&view=co&pathrev=HEAD"><B>PREV PACKAGE</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/security/package-summary.html?root=I2MI&view=co&pathrev=HEAD"><B>PREV PACKAGE</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/package-summary.html?root=I2MI&view=co&pathrev=HEAD"><B>NEXT PACKAGE</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;

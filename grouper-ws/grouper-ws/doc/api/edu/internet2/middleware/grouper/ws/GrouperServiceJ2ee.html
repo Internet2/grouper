@@ -50,7 +50,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceAxisServlet.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -137,6 +137,14 @@ Extend the servlet to get user info
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceJ2ee.html?root=I2MI&view=co&pathrev=HEAD#assignHttpServlet(javax.servlet.http.HttpServlet)">assignHttpServlet</A></B>(<A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/servlet/http/HttpServlet.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in javax.servlet.http">HttpServlet</A>&nbsp;httpServlet)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public method to get the http servlet</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceJ2ee.html?root=I2MI&view=co&pathrev=HEAD#destroy()">destroy</A></B>()</CODE>
 
@@ -170,6 +178,14 @@ Extend the servlet to get user info
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get a single parameter value for key.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/servlet/http/HttpServlet.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in javax.servlet.http">HttpServlet</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceJ2ee.html?root=I2MI&view=co&pathrev=HEAD#retrieveHttpServlet()">retrieveHttpServlet</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;public method to get the http servlet</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -221,6 +237,14 @@ Extend the servlet to get user info
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve the user principal (who is authenticated) from the (threadlocal)
  request object</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceJ2ee.html?root=I2MI&view=co&pathrev=HEAD#wssecServlet()">wssecServlet</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;is this a wssec servlet?  must have servlet init param</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -372,6 +396,56 @@ public static <A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/servl
 </DL>
 <HR>
 
+<A NAME="retrieveHttpServlet()"><!-- --></A><H3>
+retrieveHttpServlet</H3>
+<PRE>
+public static <A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/servlet/http/HttpServlet.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in javax.servlet.http">HttpServlet</A> <B>retrieveHttpServlet</B>()</PRE>
+<DL>
+<DD>public method to get the http servlet
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the http servlet</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="wssecServlet()"><!-- --></A><H3>
+wssecServlet</H3>
+<PRE>
+public static boolean <B>wssecServlet</B>()</PRE>
+<DL>
+<DD>is this a wssec servlet?  must have servlet init param
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>true if wssec</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignHttpServlet(javax.servlet.http.HttpServlet)"><!-- --></A><H3>
+assignHttpServlet</H3>
+<PRE>
+public static void <B>assignHttpServlet</B>(<A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/servlet/http/HttpServlet.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in javax.servlet.http">HttpServlet</A>&nbsp;httpServlet)</PRE>
+<DL>
+<DD>public method to get the http servlet
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>httpServlet</CODE> - is servlet to assign</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="retrieveHttpServletResponse()"><!-- --></A><H3>
 retrieveHttpServletResponse</H3>
 <PRE>
@@ -473,7 +547,7 @@ public void <B>init</B>(<A HREF="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/j
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;PREV CLASS&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceAxisServlet.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;

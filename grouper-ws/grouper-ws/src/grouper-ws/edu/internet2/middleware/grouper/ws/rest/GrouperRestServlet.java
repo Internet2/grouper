@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperRestServlet.java,v 1.7 2008-04-01 08:38:35 mchyzer Exp $
+ * @author mchyzer $Id: GrouperRestServlet.java,v 1.8 2008-10-21 18:12:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -11,6 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -204,6 +205,12 @@ public class GrouperRestServlet extends HttpServlet {
 
       IOUtils.closeQuietly(response.getWriter());
     }
+    
+    HttpSession httpSession = request.getSession(false);
+    if (httpSession != null) {
+      httpSession.invalidate();
+    }
+
   }
 
   /**

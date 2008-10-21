@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SampleCapture.java,v 1.3 2008-09-09 20:25:36 mchyzer Exp $
+ * $Id: SampleCapture.java,v 1.4 2008-10-21 18:12:40 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples;
 
@@ -9,15 +9,19 @@ import java.io.File;
 import java.io.PrintStream;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.webservicesClient.RampartSampleGetGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMember;
@@ -38,6 +42,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupSave;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupSaveLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleHasMember;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleHasMemberLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleMemberChangeSubject;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleMemberChangeSubjectLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemDelete;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemDeleteLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSave;
@@ -66,6 +72,8 @@ import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleGetMember
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleHasMemberRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleHasMemberRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleHasMemberRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleMemberChangeSubjectRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.member.WsSampleMemberChangeSubjectRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleFindStemsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleFindStemsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemDeleteRest;
@@ -76,13 +84,16 @@ import edu.internet2.middleware.grouper.ws.samples.rest.stem.WsSampleStemSaveRes
 import edu.internet2.middleware.grouper.ws.samples.types.WsSample;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleClientType;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import edu.internet2.middleware.grouper.ws.util.TcpCaptureServer;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
 /**
- * capture a sample and put in text file
+ * capture a sample and put in text file.  To run this, I have my properties files set correctly,
+ * and run a server (or tcp forwarder) on 8091.  make sure 8092 is available for the capture server port.
+ * set the web service properties to go to 8092
  */
 public class SampleCapture {
 
@@ -98,8 +109,13 @@ public class SampleCapture {
     
     setupData();
     
-//    captureRampart();
+//  captureRampart();
+//    captureSample(WsSampleClientType.REST_BEANS,  
+//        WsSampleMemberChangeSubjectRest.class, "memberChangeSubject", null);
     
+    captureMemberChangeSubject();
+    
+    /**
     captureAddMember();
     captureDeleteMember();
     captureHasMember();
@@ -111,12 +127,16 @@ public class SampleCapture {
     captureStemSave();
     captureGroupDelete();
     captureGroupSave();
+    */
   }
 
   /** certain data has to exist for samples to run */
   private static void setupData() {
     GrouperSession grouperSession = null;
     try {
+      
+      RegistryReset.internal_resetRegistryAndAddTestSubjects();
+      
       Subject grouperSystemSubject = SubjectFinder.findById("GrouperSystem");
       
       try {
@@ -146,14 +166,16 @@ public class SampleCapture {
       try {
         SubjectFinder.findById("mchyzer");
       } catch (SubjectNotFoundException snfe) {
-        RegistrySubject registrySubject = new RegistrySubject();
-        registrySubject.setId("mchyzer");
-        registrySubject.setName("mchyzer");
-        registrySubject.setTypeString("person");
-        GrouperDAOFactory.getFactory().getRegistrySubject().create(registrySubject);
+        try {
+          SubjectFinder.findByIdentifier("mchyzer");
+        } catch (SubjectNotFoundException snfe2) {
+          RegistrySubject registrySubject = new RegistrySubject();
+          registrySubject.setId("mchyzer");
+          registrySubject.setName("mchyzer");
+          registrySubject.setTypeString("person");
+          GrouperDAOFactory.getFactory().getRegistrySubject().create(registrySubject);
+        }
       }
-      Subject mchyzer = SubjectFinder.findById("mchyzer");
-      
       grouperSession = GrouperSession.start(grouperSystemSubject);
       
       Stem.saveStem(grouperSession, "aStem", null,"aStem", "a stem",  "a stem description", null, false);
@@ -172,12 +194,25 @@ public class SampleCapture {
       aGroup2.addMember(subject1, false);
       aGroup2.addMember(subject2, false);
        
-      Group webServiceActAsGroup = Group.saveGroup(grouperSession, "etc:webServiceActAsGroup", 
-          null,"etc:webServiceActAsGroup", 
-          "webServiceActAsGroup","webServiceActAsGroup",   null, true);
+      String userGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
+      Group wsUserGroup = Group.saveGroup(grouperSession, null, null, userGroupName, null, null, null, true);
+      Subject userSubject = SubjectFinder.findByIdentifier(RestClientSettings.USER);
+      wsUserGroup.addMember(userSubject);
+
+      String actAsGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_ACT_AS_GROUP);
+      Group actAsGroup = Group.saveGroup(grouperSession, null, null, actAsGroupName, null, null, null, true);
+      actAsGroup.addMember(userSubject, false);
+      actAsGroup.addMember(subject2, false);
       
-      webServiceActAsGroup.addMember(mchyzer, false);
+      String wheelGroupName = GrouperConfig.getProperty(GrouperConfig.PROP_WHEEL_GROUP);
+      Group wheelGroup = Group.saveGroup(grouperSession, null, null, wheelGroupName, null, null, null, true);
+      wheelGroup.addMember(userSubject, false);
+      wheelGroup.addMember(subject2, false);
       
+      //add the member
+      MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.0"));
+      MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.2"));
+      MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.3"));
       
       //anything else?
       
@@ -206,6 +241,24 @@ public class SampleCapture {
     
   }
 
+  /**
+   * all member change subject captures
+   */
+  public static void captureMemberChangeSubject() {
+    captureSampleHelper(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleMemberChangeSubject.class, "memberChangeSubject", (String)null, RESET_DATA_BEFORE_LOAD);
+    captureSampleHelper(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleMemberChangeSubjectLite.class, "memberChangeSubject", null, RESET_DATA_BEFORE_LOAD);
+    captureSampleHelper(WsSampleClientType.REST_BEANS,  
+        WsSampleMemberChangeSubjectRest.class, "memberChangeSubject", null, RESET_DATA_BEFORE_LOAD);
+    captureSampleHelper(WsSampleClientType.REST_BEANS,  
+        WsSampleMemberChangeSubjectRestLite.class, "memberChangeSubject", null, RESET_DATA_BEFORE_LOAD);
+    
+  }
+
+  /** constant for readability in method */
+  private static final Boolean RESET_DATA_BEFORE_LOAD = true;
+  
   /**
    * all delete member captures
    */
@@ -381,7 +434,7 @@ public class SampleCapture {
         WsSampleGetGroupsRestLite2.class, "getGroups", "_withInput");
     
   }
-  
+
   /**
    * run a sample and capture the output, and put it in the 
    * @param clientType
@@ -392,6 +445,20 @@ public class SampleCapture {
   public static void captureSample(WsSampleClientType clientType,
         Class<? extends WsSample> clientClass, 
         String samplesFolderName, String fileNameInfo) {
+    captureSampleHelper(clientType, clientClass, samplesFolderName, fileNameInfo, false);
+  }
+
+  /**
+   * run a sample and capture the output, and put it in the 
+   * @param clientType
+   * @param clientClass
+   * @param samplesFolderName is the for
+   * @param fileNameInfo to specify description of example, or none
+   * @param resetDataBeforeLoad if the DB needs to be reset before load
+   */
+  public static void captureSampleHelper(WsSampleClientType clientType,
+        Class<? extends WsSample> clientClass, 
+        String samplesFolderName, String fileNameInfo, boolean resetDataBeforeLoad) {
     
     Object[] formats = clientType.formats();
     //just pass null if none
@@ -400,6 +467,9 @@ public class SampleCapture {
     for (Object format : formats) {
       //make sure example supports the type
       if (clientType.validFormat(clientClass, format)) {
+        if (resetDataBeforeLoad) {
+          setupData();
+        }
         captureSample(clientType, clientClass, samplesFolderName, fileNameInfo, format);
       }
     }
@@ -546,7 +616,7 @@ public class SampleCapture {
     } catch (Exception e) {
       String error = "Problem with: " + clientType.name() + ", " 
           + clientClass.toString() + ", " + format + ", " + e.getMessage();
-      System.out.println(error);
+      System.out.println(error + ", " + ExceptionUtils.getFullStackTrace(e));
       LOG.error(error, e);
     }
   }

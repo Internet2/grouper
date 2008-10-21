@@ -51,7 +51,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubject.WsSubjectResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.SubjectFindResult.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.MemberFindResult.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="WsSubjectLookup.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -119,6 +119,14 @@ Class WsSubjectLookup</H2>
 <TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
 <TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
 <B>Nested Class Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.MemberFindResult.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup.MemberFindResult</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result of a subject find</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -193,6 +201,43 @@ Class WsSubjectLookup</H2>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;optional: source of subject in the subject api source list</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?root=I2MI&view=co&pathrev=HEAD#main(java.lang.String[])">main</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>[]&nbsp;args)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;edu.internet2.middleware.grouper.Member</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?root=I2MI&view=co&pathrev=HEAD#retrieveMember()">retrieveMember</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ Retrieve the member object for this subject, do not create if not there
+ Note: this is not a javabean property because we dont want it in the web service</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;edu.internet2.middleware.grouper.Member</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?root=I2MI&view=co&pathrev=HEAD#retrieveMember(java.lang.String)">retrieveMember</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;invalidInputReason)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ 
+ Note: this is not a javabean property because we dont want it in the web service</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.MemberFindResult.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup.MemberFindResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.html?root=I2MI&view=co&pathrev=HEAD#retrieveMemberFindResult()">retrieveMemberFindResult</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ Note: this is not a javabean property because we dont want it in the web service</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -322,6 +367,17 @@ public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?ro
 </DL>
 <HR>
 
+<A NAME="main(java.lang.String[])"><!-- --></A><H3>
+main</H3>
+<PRE>
+public static void <B>main</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>[]&nbsp;args)</PRE>
+<DL>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>args</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="blank()"><!-- --></A><H3>
 blank</H3>
 <PRE>
@@ -380,6 +436,42 @@ public edu.internet2.middleware.subject.Subject <B>retrieveSubject</B>()</PRE>
 </DL>
 <HR>
 
+<A NAME="retrieveMember()"><!-- --></A><H3>
+retrieveMember</H3>
+<PRE>
+public edu.internet2.middleware.grouper.Member <B>retrieveMember</B>()</PRE>
+<DL>
+<DD><pre>
+ Retrieve the member object for this subject, do not create if not there
+ Note: this is not a javabean property because we dont want it in the web service
+ </pre>
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the member</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveMember(java.lang.String)"><!-- --></A><H3>
+retrieveMember</H3>
+<PRE>
+public edu.internet2.middleware.grouper.Member <B>retrieveMember</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;invalidInputReason)</PRE>
+<DL>
+<DD><pre>
+ 
+ Note: this is not a javabean property because we dont want it in the web service
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>invalidInputReason</CODE> - label to be put in WsInvalidQueryException
+<DT><B>Returns:</B><DD>the subject
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/exceptions/WsInvalidQueryException.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.exceptions">WsInvalidQueryException</A></CODE></DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="retrieveSubject(java.lang.String)"><!-- --></A><H3>
 retrieveSubject</H3>
 <PRE>
@@ -412,6 +504,22 @@ public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSub
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the subjectFindResult, this is never null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveMemberFindResult()"><!-- --></A><H3>
+retrieveMemberFindResult</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.MemberFindResult.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup.MemberFindResult</A> <B>retrieveMemberFindResult</B>()</PRE>
+<DL>
+<DD><pre>
+ Note: this is not a javabean property because we dont want it in the web service
+ </pre>
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the memberFindResult, this is never null</DL>
 </DD>
 </DL>
 <HR>
@@ -499,7 +607,7 @@ public void <B>setSubjectIdentifier</B>(<A HREF="http://java.sun.com/j2se/1.4.2/
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubject.WsSubjectResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.SubjectFindResult.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.MemberFindResult.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="WsSubjectLookup.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>NO FRAMES</B></A>  &nbsp;

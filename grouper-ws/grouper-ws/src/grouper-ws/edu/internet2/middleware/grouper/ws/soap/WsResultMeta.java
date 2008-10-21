@@ -1,9 +1,11 @@
 /*
- * @author mchyzer $Id: WsResultMeta.java,v 1.3 2008-03-31 07:22:02 mchyzer Exp $
+ * @author mchyzer $Id: WsResultMeta.java,v 1.4 2008-10-21 18:12:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
 import org.apache.commons.lang.StringUtils;
+
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -19,6 +21,7 @@ public class WsResultMeta {
   private WsParam[] params = null;
   
   /** stash this just in case, but not a javabean */
+  @XStreamOmitField
   private WsResultCode wsResultCode;
 
   /**
