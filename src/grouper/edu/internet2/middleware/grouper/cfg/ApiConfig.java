@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * you should probably use GrouperConfig
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.15 2008-10-15 03:57:06 mchyzer Exp $
+ * @version $Id: ApiConfig.java,v 1.16 2008-10-21 18:12:45 mchyzer Exp $
  * @since   1.2.1
  */
 public class ApiConfig implements Configuration {
@@ -124,10 +124,21 @@ public class ApiConfig implements Configuration {
    * print where config is read from, to sys out and log warn
    */
   private static void printConfigOnce() {
+    
     if (printedConfigLocation) {
       return;
     }
+
     printedConfigLocation = true;
+
+    Properties properties = GrouperUtil.propertiesFromResourceName("grouper.properties");
+    
+    String displayMessageString = GrouperUtil.propertiesValue(properties, "configuration.display.startup.message");
+    
+    if (!GrouperUtil.booleanValue(displayMessageString, true)) {
+      return;
+    }
+
     StringBuilder resultString = new StringBuilder();
     String buildTimestamp = null;
     try {
