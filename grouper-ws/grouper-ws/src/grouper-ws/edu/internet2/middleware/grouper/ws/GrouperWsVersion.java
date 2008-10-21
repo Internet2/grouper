@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsVersion.java,v 1.4 2008-09-09 20:25:33 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsVersion.java,v 1.5 2008-10-21 05:27:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -14,7 +14,12 @@ public enum GrouperWsVersion {
   /**
    * grouper version 1.3.1, second build
    */
-  v1_3_001(true, 2),
+  v1_4_000(true, 2),
+
+  /**
+   * grouper version 1.3.1, second build
+   */
+  v1_3_001(false, 2),
   
   /**
    * grouper version 1.3, first build

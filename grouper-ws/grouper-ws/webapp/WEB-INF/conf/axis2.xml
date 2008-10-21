@@ -30,7 +30,17 @@
     <!--parameter name="cacheAttachments">true</parameter>
     <parameter name="attachmentDIR"></parameter>
     <parameter name="sizeThreshold">4000</parameter-->
+    
+    <!--Uncomment if you want to plugin your own attachments lifecycle implementation -->
+    <!--<attachmentsLifecycleManager class="org.apache.axiom.attachments.lifecycle.impl.LifecycleManagerImpl"/>-->
 
+
+    <!--Uncomment if you want to enable the reduction of the in-memory cache of WSDL definitions -->
+    <!--In some server environments, the available memory heap is limited and can fill up under load -->
+    <!--Since in-memory copies of WSDL definitions can be large, some steps can be taken-->
+    <!--to reduce the memory needed for the cached WSDL definitions. -->
+    <!--parameter name="reduceWSDLMemoryCache">true</parameter-->
+                                                       
     <!--This will give out the timout of the configuration contexts, in milliseconds-->
     <parameter name="ConfigContextTimeoutInterval">30000</parameter>
 
@@ -50,7 +60,7 @@
     <!--To override repository/services you need to uncomment following parameter and value SHOULD be absolute file path.-->
     <!--ServicesDirectory only works on the following cases-->
     <!---File based configurator and in that case the value should be a file URL (http:// not allowed)-->
-    <!---When creating URL Based configurator with URL “file://”  -->
+    <!---When creating URL Based configurator with URL file:// -->
     <!--- War based configurator with expanded case , -->
 
     <!--All the other scenarios it will be ignored.-->
@@ -72,9 +82,15 @@
 
     <!-- Following parameter will completely disable REST handling in Axis2-->
     <parameter name="disableREST" locked="true">false</parameter>
+    <!-- Following parameter will suppress generation of SOAP 1.2 bindings in auto-generated WSDL files -->
+    <parameter name="disableSOAP12" locked="true">false</parameter>
 
     <!--POJO deployer , this will alow users to drop .class file and make that into a service-->
     <deployer extension=".class" directory="pojo" class="org.apache.axis2.deployment.POJODeployer"/>
+    <deployer extension=".jar" directory="servicejars" class="org.apache.axis2.jaxws.framework.JAXWSDeployer"/>
+
+    <!--<deployer extension=".jsa" directory="rmiservices" class="org.apache.axis2.rmi.deploy.RMIServiceDeployer"/>-->
+    
 
     <!-- Following parameter will set the host name for the epr-->
     <!--<parameter name="hostname" locked="true">myhost.com</parameter>-->
@@ -88,6 +104,10 @@
     <!--    <listener class="org.apache.axis2.ObserverIMPL">-->
     <!--        <parameter name="RSS_URL">http://127.0.0.1/rss</parameter>-->
     <!--    </listener>-->
+    
+    <threadContextMigrators>
+        <threadContextMigrator listId="JAXWS-ThreadContextMigrator-List" class="org.apache.axis2.jaxws.addressing.migrator.EndpointContextMapMigrator"/>
+    </threadContextMigrators>
 
     <!-- ================================================= -->
     <!-- Message Receivers -->
@@ -119,6 +139,10 @@
                          class="org.apache.axis2.transport.http.MultipartFormDataFormatter"/>
         <messageFormatter contentType="application/xml"
                          class="org.apache.axis2.transport.http.ApplicationXMLFormatter"/>
+        <messageFormatter contentType="text/xml"
+                         class="org.apache.axis2.transport.http.SOAPMessageFormatter"/>
+        <messageFormatter contentType="application/soap+xml"
+                         class="org.apache.axis2.transport.http.SOAPMessageFormatter"/>
     </messageFormatters>
 
     <!-- ================================================= -->
@@ -127,6 +151,8 @@
     <!--Following content type to builder mapping can be used to implement support for different message -->
     <!--formats in Axis2. These message formats are expected to be resolved based on the content type. -->
     <messageBuilders>
+        <messageBuilder contentType="application/xml"
+                         class="org.apache.axis2.builder.ApplicationXMLBuilder"/>
         <messageBuilder contentType="application/xml"
                          class="org.apache.axis2.builder.ApplicationXMLBuilder"/>
         <messageBuilder contentType="application/x-www-form-urlencoded"
@@ -160,7 +186,7 @@
         <!-- <parameter name="requestTimeout">10000</parameter>                   -->
         <!-- <parameter name="requestTcpNoDelay">false</parameter>                   -->
         <!-- <parameter name="requestCoreThreadPoolSize">50</parameter>                      -->
-        <!-- <parameter name="RequestMaxThreadPoolSize">100</parameter>                     -->
+        <!-- <parameter name="requestMaxThreadPoolSize">100</parameter>                     -->
         <!-- <parameter name="threadKeepAliveTime">240000</parameter>                  -->
         <!-- <parameter name="threadKeepAliveTimeUnit">MILLISECONDS</parameter>            -->
     </transportReceiver>
@@ -267,6 +293,11 @@
         <parameter name="PROTOCOL">HTTP/1.1</parameter>
         <parameter name="Transfer-Encoding">chunked</parameter>
     </transportSender>
+    
+    <!-- Please enable this if you need the java transport -->
+    <!-- <transportSender name="java"
+                     class="org.apache.axis2.transport.java.JavaTransportSender"/> -->
+
     <!--<transportSender name="jms"-->
                      <!--class="org.apache.axis2.transport.jms.JMSSender"/>-->
 
@@ -330,6 +361,8 @@
     <cluster class="org.apache.axis2.cluster.tribes.TribesClusterManager">
         <parameter name="param1">value1</parameter>
         <parameter name="domain">apache.axis2.domain</parameter>
+        <parameter name="synchronizeAll">true</parameter>
+        <parameter name="maxRetries">10</parameter>
     	<configurationManager class="org.apache.axis2.cluster.configuration.TribesConfigurationManager">
     	    <listener class="org.apache.axis2.cluster.configuration.DefaultConfigurationManagerListener"/>
     	</configurationManager>
@@ -374,11 +407,20 @@
 
             <handler name="HTTPLocationBasedDispatcher"
                      class="org.apache.axis2.dispatchers.HTTPLocationBasedDispatcher"/>
+            <handler name="GenericProviderDispatcher"
+                     class="org.apache.axis2.jaxws.dispatchers.GenericProviderDispatcher"/>
+            <handler name="MustUnderstandValidationDispatcher"
+                     class="org.apache.axis2.jaxws.dispatchers.MustUnderstandValidationDispatcher"/>
         </phase>
         <phase name="RMPhase"/>
         <!--  System predefined phases       -->
         <!--   After Postdispatch phase module author or service author can add any phase he want      -->
-        <phase name="OperationInPhase"/>
+        <phase name="OperationInPhase">
+            <handler name="MustUnderstandChecker"
+                     class="org.apache.axis2.jaxws.dispatchers.MustUnderstandChecker">
+                <order phase="OperationInPhase"/>
+            </handler>
+        </phase>
         <phase name="soapmonitorPhase"/>
     </phaseOrder>
     <phaseOrder type="OutFlow">
@@ -413,6 +455,10 @@
 
             <handler name="HTTPLocationBasedDispatcher"
                      class="org.apache.axis2.dispatchers.HTTPLocationBasedDispatcher"/>
+            <handler name="GenericProviderDispatcher"
+                     class="org.apache.axis2.jaxws.dispatchers.GenericProviderDispatcher"/>
+            <handler name="MustUnderstandValidationDispatcher"
+                     class="org.apache.axis2.jaxws.dispatchers.MustUnderstandValidationDispatcher"/>
         </phase>
         <phase name="RMPhase"/>
         <!--      user can add his own phases to this area  -->
@@ -426,5 +472,6 @@
         <phase name="RMPhase"/>
         <phase name="PolicyDetermination"/>
         <phase name="MessageOut"/>
+        <phase name="Security"/>
     </phaseOrder>
 </axisconfig>

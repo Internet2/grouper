@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.webservicesClient;
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
@@ -39,10 +40,8 @@ public class WsSampleMemberChangeSubjectLite implements WsSampleGenerated {
             //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
             GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
             
-            org.apache.commons.httpclient.DefaultMethodRetryHandler retryhandler = 
-              new org.apache.commons.httpclient.DefaultMethodRetryHandler();
-            retryhandler.setRequestSentRetryEnabled(false);
-            HttpClientParams.getDefaultParams().setParameter(HttpClientParams.RETRY_HANDLER, retryhandler);
+            HttpClientParams.getDefaultParams().setParameter(
+                HttpClientParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
             
             Options options = stub._getServiceClient().getOptions();
             HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();

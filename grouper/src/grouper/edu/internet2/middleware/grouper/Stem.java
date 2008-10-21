@@ -89,7 +89,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.166 2008-10-17 12:06:37 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.167 2008-10-21 05:27:42 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
@@ -2097,6 +2097,8 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
                 String parentStemNameNew = GrouperUtil.parentStemNameFromName(name);
                 String extensionNew = GrouperUtil.extensionFromName(name);
                 
+                String theDisplayExtension = StringUtils.isBlank(displayExtension) ? extensionNew : displayExtension;
+                
                 //lets find the stem
                 Stem parentStem = null;
                 
@@ -2150,18 +2152,18 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
                 if (!isUpdate) {
                   if (StringUtils.isBlank(uuid)) {
                     //if no uuid
-                    theStem = parentStem.addChildStem(extensionNew, displayExtension);
+                    theStem = parentStem.addChildStem(extensionNew, theDisplayExtension);
                   } else {
                     //if uuid
-                    theStem = parentStem.internal_addChildStem(extensionNew, displayExtension, uuid);
+                    theStem = parentStem.internal_addChildStem(extensionNew, theDisplayExtension, uuid);
                   }
                 } else {
                   //check if different so it doesnt make unneeded queries
                   if (!StringUtils.equals(theStem.getExtension(), extensionNew)) {
                     theStem.setExtension(extensionNew);
                   }
-                  if (!StringUtils.equals(theStem.getDisplayExtension(), displayExtension)) {
-                    theStem.setDisplayExtension(displayExtension);
+                  if (!StringUtils.equals(theStem.getDisplayExtension(), theDisplayExtension)) {
+                    theStem.setDisplayExtension(theDisplayExtension);
                   }
                 }
                 

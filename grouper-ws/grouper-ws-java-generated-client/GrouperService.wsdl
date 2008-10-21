@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:axis2="http://soap.ws.grouper.middleware.internet2.edu" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:ns0="http://soap.ws.grouper.middleware.internet2.edu/xsd" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" targetNamespace="http://soap.ws.grouper.middleware.internet2.edu">
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:axis2="http://soap.ws.grouper.middleware.internet2.edu" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:ns1="http://org.apache.axis2/xsd" xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl" xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" targetNamespace="http://soap.ws.grouper.middleware.internet2.edu">
     <wsdl:types>
-        <xs:schema xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd" attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://soap.ws.grouper.middleware.internet2.edu/xsd">
+        <xs:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://soap.ws.grouper.middleware.internet2.edu/xsd">
             <xs:element name="addMemberLite">
                 <xs:complexType>
                     <xs:sequence>
@@ -98,7 +98,6 @@
                     <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="sourceId" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="success" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="SUBJECT_ATTRIBUTE_PREFIX" nillable="true" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="addMember">
@@ -772,7 +771,6 @@
             </xs:element>
             <xs:complexType name="WsMemberChangeSubjectLiteResult">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
                     <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
@@ -964,190 +962,238 @@
             </xs:complexType>
         </xs:schema>
     </wsdl:types>
-    <wsdl:message name="findStemsRequest">
-        <wsdl:part name="parameters" element="ns0:findStems"/>
-    </wsdl:message>
-    <wsdl:message name="findStemsResponse">
-        <wsdl:part name="parameters" element="ns0:findStemsResponse"/>
-    </wsdl:message>
-    <wsdl:message name="getGroupsLiteRequest">
-        <wsdl:part name="parameters" element="ns0:getGroupsLite"/>
-    </wsdl:message>
-    <wsdl:message name="getGroupsLiteResponse">
-        <wsdl:part name="parameters" element="ns0:getGroupsLiteResponse"/>
-    </wsdl:message>
-    <wsdl:message name="stemDeleteRequest">
-        <wsdl:part name="parameters" element="ns0:stemDelete"/>
-    </wsdl:message>
-    <wsdl:message name="stemDeleteResponse">
-        <wsdl:part name="parameters" element="ns0:stemDeleteResponse"/>
-    </wsdl:message>
-    <wsdl:message name="getMembersRequest">
-        <wsdl:part name="parameters" element="ns0:getMembers"/>
-    </wsdl:message>
-    <wsdl:message name="getMembersResponse">
-        <wsdl:part name="parameters" element="ns0:getMembersResponse"/>
-    </wsdl:message>
-    <wsdl:message name="groupDeleteLiteRequest">
-        <wsdl:part name="parameters" element="ns0:groupDeleteLite"/>
-    </wsdl:message>
-    <wsdl:message name="groupDeleteLiteResponse">
-        <wsdl:part name="parameters" element="ns0:groupDeleteLiteResponse"/>
-    </wsdl:message>
-    <wsdl:message name="groupDeleteRequest">
-        <wsdl:part name="parameters" element="ns0:groupDelete"/>
-    </wsdl:message>
-    <wsdl:message name="groupDeleteResponse">
-        <wsdl:part name="parameters" element="ns0:groupDeleteResponse"/>
-    </wsdl:message>
-    <wsdl:message name="deleteMemberRequest">
-        <wsdl:part name="parameters" element="ns0:deleteMember"/>
-    </wsdl:message>
-    <wsdl:message name="deleteMemberResponse">
-        <wsdl:part name="parameters" element="ns0:deleteMemberResponse"/>
-    </wsdl:message>
     <wsdl:message name="stemSaveLiteRequest">
-        <wsdl:part name="parameters" element="ns0:stemSaveLite"/>
+        <wsdl:part name="parameters" element="ns:stemSaveLite"/>
     </wsdl:message>
     <wsdl:message name="stemSaveLiteResponse">
-        <wsdl:part name="parameters" element="ns0:stemSaveLiteResponse"/>
-    </wsdl:message>
-    <wsdl:message name="addMemberLiteRequest">
-        <wsdl:part name="parameters" element="ns0:addMemberLite"/>
-    </wsdl:message>
-    <wsdl:message name="addMemberLiteResponse">
-        <wsdl:part name="parameters" element="ns0:addMemberLiteResponse"/>
-    </wsdl:message>
-    <wsdl:message name="stemSaveRequest">
-        <wsdl:part name="parameters" element="ns0:stemSave"/>
-    </wsdl:message>
-    <wsdl:message name="stemSaveResponse">
-        <wsdl:part name="parameters" element="ns0:stemSaveResponse"/>
-    </wsdl:message>
-    <wsdl:message name="findStemsLiteRequest">
-        <wsdl:part name="parameters" element="ns0:findStemsLite"/>
-    </wsdl:message>
-    <wsdl:message name="findStemsLiteResponse">
-        <wsdl:part name="parameters" element="ns0:findStemsLiteResponse"/>
-    </wsdl:message>
-    <wsdl:message name="findGroupsLiteRequest">
-        <wsdl:part name="parameters" element="ns0:findGroupsLite"/>
-    </wsdl:message>
-    <wsdl:message name="findGroupsLiteResponse">
-        <wsdl:part name="parameters" element="ns0:findGroupsLiteResponse"/>
-    </wsdl:message>
-    <wsdl:message name="deleteMemberLiteRequest">
-        <wsdl:part name="parameters" element="ns0:deleteMemberLite"/>
-    </wsdl:message>
-    <wsdl:message name="deleteMemberLiteResponse">
-        <wsdl:part name="parameters" element="ns0:deleteMemberLiteResponse"/>
-    </wsdl:message>
-    <wsdl:message name="hasMemberLiteRequest">
-        <wsdl:part name="parameters" element="ns0:hasMemberLite"/>
-    </wsdl:message>
-    <wsdl:message name="hasMemberLiteResponse">
-        <wsdl:part name="parameters" element="ns0:hasMemberLiteResponse"/>
+        <wsdl:part name="parameters" element="ns:stemSaveLiteResponse"/>
     </wsdl:message>
     <wsdl:message name="hasMemberRequest">
-        <wsdl:part name="parameters" element="ns0:hasMember"/>
+        <wsdl:part name="parameters" element="ns:hasMember"/>
     </wsdl:message>
     <wsdl:message name="hasMemberResponse">
-        <wsdl:part name="parameters" element="ns0:hasMemberResponse"/>
+        <wsdl:part name="parameters" element="ns:hasMemberResponse"/>
     </wsdl:message>
-    <wsdl:message name="groupSaveLiteRequest">
-        <wsdl:part name="parameters" element="ns0:groupSaveLite"/>
+    <wsdl:message name="hasMemberLiteRequest">
+        <wsdl:part name="parameters" element="ns:hasMemberLite"/>
     </wsdl:message>
-    <wsdl:message name="groupSaveLiteResponse">
-        <wsdl:part name="parameters" element="ns0:groupSaveLiteResponse"/>
+    <wsdl:message name="hasMemberLiteResponse">
+        <wsdl:part name="parameters" element="ns:hasMemberLiteResponse"/>
     </wsdl:message>
-    <wsdl:message name="groupSaveRequest">
-        <wsdl:part name="parameters" element="ns0:groupSave"/>
+    <wsdl:message name="groupDeleteLiteRequest">
+        <wsdl:part name="parameters" element="ns:groupDeleteLite"/>
     </wsdl:message>
-    <wsdl:message name="groupSaveResponse">
-        <wsdl:part name="parameters" element="ns0:groupSaveResponse"/>
+    <wsdl:message name="groupDeleteLiteResponse">
+        <wsdl:part name="parameters" element="ns:groupDeleteLiteResponse"/>
     </wsdl:message>
-    <wsdl:message name="stemDeleteLiteRequest">
-        <wsdl:part name="parameters" element="ns0:stemDeleteLite"/>
+    <wsdl:message name="stemSaveRequest">
+        <wsdl:part name="parameters" element="ns:stemSave"/>
     </wsdl:message>
-    <wsdl:message name="stemDeleteLiteResponse">
-        <wsdl:part name="parameters" element="ns0:stemDeleteLiteResponse"/>
-    </wsdl:message>
-    <wsdl:message name="memberChangeSubjectLiteRequest">
-        <wsdl:part name="parameters" element="ns0:memberChangeSubjectLite"/>
-    </wsdl:message>
-    <wsdl:message name="memberChangeSubjectLiteResponse">
-        <wsdl:part name="parameters" element="ns0:memberChangeSubjectLiteResponse"/>
-    </wsdl:message>
-    <wsdl:message name="memberChangeSubjectRequest">
-        <wsdl:part name="parameters" element="ns0:memberChangeSubject"/>
-    </wsdl:message>
-    <wsdl:message name="memberChangeSubjectResponse">
-        <wsdl:part name="parameters" element="ns0:memberChangeSubjectResponse"/>
-    </wsdl:message>
-    <wsdl:message name="getGroupsRequest">
-        <wsdl:part name="parameters" element="ns0:getGroups"/>
-    </wsdl:message>
-    <wsdl:message name="getGroupsResponse">
-        <wsdl:part name="parameters" element="ns0:getGroupsResponse"/>
+    <wsdl:message name="stemSaveResponse">
+        <wsdl:part name="parameters" element="ns:stemSaveResponse"/>
     </wsdl:message>
     <wsdl:message name="addMemberRequest">
-        <wsdl:part name="parameters" element="ns0:addMember"/>
+        <wsdl:part name="parameters" element="ns:addMember"/>
     </wsdl:message>
     <wsdl:message name="addMemberResponse">
-        <wsdl:part name="parameters" element="ns0:addMemberResponse"/>
+        <wsdl:part name="parameters" element="ns:addMemberResponse"/>
     </wsdl:message>
-    <wsdl:message name="getMembersLiteRequest">
-        <wsdl:part name="parameters" element="ns0:getMembersLite"/>
+    <wsdl:message name="findStemsRequest">
+        <wsdl:part name="parameters" element="ns:findStems"/>
     </wsdl:message>
-    <wsdl:message name="getMembersLiteResponse">
-        <wsdl:part name="parameters" element="ns0:getMembersLiteResponse"/>
+    <wsdl:message name="findStemsResponse">
+        <wsdl:part name="parameters" element="ns:findStemsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getMembersRequest">
+        <wsdl:part name="parameters" element="ns:getMembers"/>
+    </wsdl:message>
+    <wsdl:message name="getMembersResponse">
+        <wsdl:part name="parameters" element="ns:getMembersResponse"/>
+    </wsdl:message>
+    <wsdl:message name="memberChangeSubjectRequest">
+        <wsdl:part name="parameters" element="ns:memberChangeSubject"/>
+    </wsdl:message>
+    <wsdl:message name="memberChangeSubjectResponse">
+        <wsdl:part name="parameters" element="ns:memberChangeSubjectResponse"/>
+    </wsdl:message>
+    <wsdl:message name="groupDeleteRequest">
+        <wsdl:part name="parameters" element="ns:groupDelete"/>
+    </wsdl:message>
+    <wsdl:message name="groupDeleteResponse">
+        <wsdl:part name="parameters" element="ns:groupDeleteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getGroupsRequest">
+        <wsdl:part name="parameters" element="ns:getGroups"/>
+    </wsdl:message>
+    <wsdl:message name="getGroupsResponse">
+        <wsdl:part name="parameters" element="ns:getGroupsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="deleteMemberRequest">
+        <wsdl:part name="parameters" element="ns:deleteMember"/>
+    </wsdl:message>
+    <wsdl:message name="deleteMemberResponse">
+        <wsdl:part name="parameters" element="ns:deleteMemberResponse"/>
+    </wsdl:message>
+    <wsdl:message name="groupSaveRequest">
+        <wsdl:part name="parameters" element="ns:groupSave"/>
+    </wsdl:message>
+    <wsdl:message name="groupSaveResponse">
+        <wsdl:part name="parameters" element="ns:groupSaveResponse"/>
+    </wsdl:message>
+    <wsdl:message name="stemDeleteRequest">
+        <wsdl:part name="parameters" element="ns:stemDelete"/>
+    </wsdl:message>
+    <wsdl:message name="stemDeleteResponse">
+        <wsdl:part name="parameters" element="ns:stemDeleteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="groupSaveLiteRequest">
+        <wsdl:part name="parameters" element="ns:groupSaveLite"/>
+    </wsdl:message>
+    <wsdl:message name="groupSaveLiteResponse">
+        <wsdl:part name="parameters" element="ns:groupSaveLiteResponse"/>
     </wsdl:message>
     <wsdl:message name="findGroupsRequest">
-        <wsdl:part name="parameters" element="ns0:findGroups"/>
+        <wsdl:part name="parameters" element="ns:findGroups"/>
     </wsdl:message>
     <wsdl:message name="findGroupsResponse">
-        <wsdl:part name="parameters" element="ns0:findGroupsResponse"/>
+        <wsdl:part name="parameters" element="ns:findGroupsResponse"/>
+    </wsdl:message>
+    <wsdl:message name="deleteMemberLiteRequest">
+        <wsdl:part name="parameters" element="ns:deleteMemberLite"/>
+    </wsdl:message>
+    <wsdl:message name="deleteMemberLiteResponse">
+        <wsdl:part name="parameters" element="ns:deleteMemberLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getMembersLiteRequest">
+        <wsdl:part name="parameters" element="ns:getMembersLite"/>
+    </wsdl:message>
+    <wsdl:message name="getMembersLiteResponse">
+        <wsdl:part name="parameters" element="ns:getMembersLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="getGroupsLiteRequest">
+        <wsdl:part name="parameters" element="ns:getGroupsLite"/>
+    </wsdl:message>
+    <wsdl:message name="getGroupsLiteResponse">
+        <wsdl:part name="parameters" element="ns:getGroupsLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="memberChangeSubjectLiteRequest">
+        <wsdl:part name="parameters" element="ns:memberChangeSubjectLite"/>
+    </wsdl:message>
+    <wsdl:message name="memberChangeSubjectLiteResponse">
+        <wsdl:part name="parameters" element="ns:memberChangeSubjectLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="addMemberLiteRequest">
+        <wsdl:part name="parameters" element="ns:addMemberLite"/>
+    </wsdl:message>
+    <wsdl:message name="addMemberLiteResponse">
+        <wsdl:part name="parameters" element="ns:addMemberLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="stemDeleteLiteRequest">
+        <wsdl:part name="parameters" element="ns:stemDeleteLite"/>
+    </wsdl:message>
+    <wsdl:message name="stemDeleteLiteResponse">
+        <wsdl:part name="parameters" element="ns:stemDeleteLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="findStemsLiteRequest">
+        <wsdl:part name="parameters" element="ns:findStemsLite"/>
+    </wsdl:message>
+    <wsdl:message name="findStemsLiteResponse">
+        <wsdl:part name="parameters" element="ns:findStemsLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="findGroupsLiteRequest">
+        <wsdl:part name="parameters" element="ns:findGroupsLite"/>
+    </wsdl:message>
+    <wsdl:message name="findGroupsLiteResponse">
+        <wsdl:part name="parameters" element="ns:findGroupsLiteResponse"/>
     </wsdl:message>
     <wsdl:portType name="GrouperServicePortType">
-        <wsdl:operation name="findStems">
-            <wsdl:input message="axis2:findStemsRequest" wsaw:Action="urn:findStems"/>
-            <wsdl:output message="axis2:findStemsResponse" wsaw:Action="urn:findStemsResponse"/>
+        <wsdl:operation name="stemSaveLite">
+            <wsdl:input message="axis2:stemSaveLiteRequest" wsaw:Action="urn:stemSaveLite"/>
+            <wsdl:output message="axis2:stemSaveLiteResponse" wsaw:Action="urn:stemSaveLiteResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="getGroupsLite">
-            <wsdl:input message="axis2:getGroupsLiteRequest" wsaw:Action="urn:getGroupsLite"/>
-            <wsdl:output message="axis2:getGroupsLiteResponse" wsaw:Action="urn:getGroupsLiteResponse"/>
+        <wsdl:operation name="hasMember">
+            <wsdl:input message="axis2:hasMemberRequest" wsaw:Action="urn:hasMember"/>
+            <wsdl:output message="axis2:hasMemberResponse" wsaw:Action="urn:hasMemberResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="stemDelete">
-            <wsdl:input message="axis2:stemDeleteRequest" wsaw:Action="urn:stemDelete"/>
-            <wsdl:output message="axis2:stemDeleteResponse" wsaw:Action="urn:stemDeleteResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="getMembers">
-            <wsdl:input message="axis2:getMembersRequest" wsaw:Action="urn:getMembers"/>
-            <wsdl:output message="axis2:getMembersResponse" wsaw:Action="urn:getMembersResponse"/>
+        <wsdl:operation name="hasMemberLite">
+            <wsdl:input message="axis2:hasMemberLiteRequest" wsaw:Action="urn:hasMemberLite"/>
+            <wsdl:output message="axis2:hasMemberLiteResponse" wsaw:Action="urn:hasMemberLiteResponse"/>
         </wsdl:operation>
         <wsdl:operation name="groupDeleteLite">
             <wsdl:input message="axis2:groupDeleteLiteRequest" wsaw:Action="urn:groupDeleteLite"/>
             <wsdl:output message="axis2:groupDeleteLiteResponse" wsaw:Action="urn:groupDeleteLiteResponse"/>
         </wsdl:operation>
+        <wsdl:operation name="stemSave">
+            <wsdl:input message="axis2:stemSaveRequest" wsaw:Action="urn:stemSave"/>
+            <wsdl:output message="axis2:stemSaveResponse" wsaw:Action="urn:stemSaveResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="addMember">
+            <wsdl:input message="axis2:addMemberRequest" wsaw:Action="urn:addMember"/>
+            <wsdl:output message="axis2:addMemberResponse" wsaw:Action="urn:addMemberResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="findStems">
+            <wsdl:input message="axis2:findStemsRequest" wsaw:Action="urn:findStems"/>
+            <wsdl:output message="axis2:findStemsResponse" wsaw:Action="urn:findStemsResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getMembers">
+            <wsdl:input message="axis2:getMembersRequest" wsaw:Action="urn:getMembers"/>
+            <wsdl:output message="axis2:getMembersResponse" wsaw:Action="urn:getMembersResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="memberChangeSubject">
+            <wsdl:input message="axis2:memberChangeSubjectRequest" wsaw:Action="urn:memberChangeSubject"/>
+            <wsdl:output message="axis2:memberChangeSubjectResponse" wsaw:Action="urn:memberChangeSubjectResponse"/>
+        </wsdl:operation>
         <wsdl:operation name="groupDelete">
             <wsdl:input message="axis2:groupDeleteRequest" wsaw:Action="urn:groupDelete"/>
             <wsdl:output message="axis2:groupDeleteResponse" wsaw:Action="urn:groupDeleteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getGroups">
+            <wsdl:input message="axis2:getGroupsRequest" wsaw:Action="urn:getGroups"/>
+            <wsdl:output message="axis2:getGroupsResponse" wsaw:Action="urn:getGroupsResponse"/>
         </wsdl:operation>
         <wsdl:operation name="deleteMember">
             <wsdl:input message="axis2:deleteMemberRequest" wsaw:Action="urn:deleteMember"/>
             <wsdl:output message="axis2:deleteMemberResponse" wsaw:Action="urn:deleteMemberResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="stemSaveLite">
-            <wsdl:input message="axis2:stemSaveLiteRequest" wsaw:Action="urn:stemSaveLite"/>
-            <wsdl:output message="axis2:stemSaveLiteResponse" wsaw:Action="urn:stemSaveLiteResponse"/>
+        <wsdl:operation name="groupSave">
+            <wsdl:input message="axis2:groupSaveRequest" wsaw:Action="urn:groupSave"/>
+            <wsdl:output message="axis2:groupSaveResponse" wsaw:Action="urn:groupSaveResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="stemDelete">
+            <wsdl:input message="axis2:stemDeleteRequest" wsaw:Action="urn:stemDelete"/>
+            <wsdl:output message="axis2:stemDeleteResponse" wsaw:Action="urn:stemDeleteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="groupSaveLite">
+            <wsdl:input message="axis2:groupSaveLiteRequest" wsaw:Action="urn:groupSaveLite"/>
+            <wsdl:output message="axis2:groupSaveLiteResponse" wsaw:Action="urn:groupSaveLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="findGroups">
+            <wsdl:input message="axis2:findGroupsRequest" wsaw:Action="urn:findGroups"/>
+            <wsdl:output message="axis2:findGroupsResponse" wsaw:Action="urn:findGroupsResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="deleteMemberLite">
+            <wsdl:input message="axis2:deleteMemberLiteRequest" wsaw:Action="urn:deleteMemberLite"/>
+            <wsdl:output message="axis2:deleteMemberLiteResponse" wsaw:Action="urn:deleteMemberLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getMembersLite">
+            <wsdl:input message="axis2:getMembersLiteRequest" wsaw:Action="urn:getMembersLite"/>
+            <wsdl:output message="axis2:getMembersLiteResponse" wsaw:Action="urn:getMembersLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="getGroupsLite">
+            <wsdl:input message="axis2:getGroupsLiteRequest" wsaw:Action="urn:getGroupsLite"/>
+            <wsdl:output message="axis2:getGroupsLiteResponse" wsaw:Action="urn:getGroupsLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="memberChangeSubjectLite">
+            <wsdl:input message="axis2:memberChangeSubjectLiteRequest" wsaw:Action="urn:memberChangeSubjectLite"/>
+            <wsdl:output message="axis2:memberChangeSubjectLiteResponse" wsaw:Action="urn:memberChangeSubjectLiteResponse"/>
         </wsdl:operation>
         <wsdl:operation name="addMemberLite">
             <wsdl:input message="axis2:addMemberLiteRequest" wsaw:Action="urn:addMemberLite"/>
             <wsdl:output message="axis2:addMemberLiteResponse" wsaw:Action="urn:addMemberLiteResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="stemSave">
-            <wsdl:input message="axis2:stemSaveRequest" wsaw:Action="urn:stemSave"/>
-            <wsdl:output message="axis2:stemSaveResponse" wsaw:Action="urn:stemSaveResponse"/>
+        <wsdl:operation name="stemDeleteLite">
+            <wsdl:input message="axis2:stemDeleteLiteRequest" wsaw:Action="urn:stemDeleteLite"/>
+            <wsdl:output message="axis2:stemDeleteLiteResponse" wsaw:Action="urn:stemDeleteLiteResponse"/>
         </wsdl:operation>
         <wsdl:operation name="findStemsLite">
             <wsdl:input message="axis2:findStemsLiteRequest" wsaw:Action="urn:findStemsLite"/>
@@ -1157,176 +1203,11 @@
             <wsdl:input message="axis2:findGroupsLiteRequest" wsaw:Action="urn:findGroupsLite"/>
             <wsdl:output message="axis2:findGroupsLiteResponse" wsaw:Action="urn:findGroupsLiteResponse"/>
         </wsdl:operation>
-        <wsdl:operation name="deleteMemberLite">
-            <wsdl:input message="axis2:deleteMemberLiteRequest" wsaw:Action="urn:deleteMemberLite"/>
-            <wsdl:output message="axis2:deleteMemberLiteResponse" wsaw:Action="urn:deleteMemberLiteResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="hasMemberLite">
-            <wsdl:input message="axis2:hasMemberLiteRequest" wsaw:Action="urn:hasMemberLite"/>
-            <wsdl:output message="axis2:hasMemberLiteResponse" wsaw:Action="urn:hasMemberLiteResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="hasMember">
-            <wsdl:input message="axis2:hasMemberRequest" wsaw:Action="urn:hasMember"/>
-            <wsdl:output message="axis2:hasMemberResponse" wsaw:Action="urn:hasMemberResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="groupSaveLite">
-            <wsdl:input message="axis2:groupSaveLiteRequest" wsaw:Action="urn:groupSaveLite"/>
-            <wsdl:output message="axis2:groupSaveLiteResponse" wsaw:Action="urn:groupSaveLiteResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="groupSave">
-            <wsdl:input message="axis2:groupSaveRequest" wsaw:Action="urn:groupSave"/>
-            <wsdl:output message="axis2:groupSaveResponse" wsaw:Action="urn:groupSaveResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="stemDeleteLite">
-            <wsdl:input message="axis2:stemDeleteLiteRequest" wsaw:Action="urn:stemDeleteLite"/>
-            <wsdl:output message="axis2:stemDeleteLiteResponse" wsaw:Action="urn:stemDeleteLiteResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="memberChangeSubjectLite">
-            <wsdl:input message="axis2:memberChangeSubjectLiteRequest" wsaw:Action="urn:memberChangeSubjectLite"/>
-            <wsdl:output message="axis2:memberChangeSubjectLiteResponse" wsaw:Action="urn:memberChangeSubjectLiteResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="memberChangeSubject">
-            <wsdl:input message="axis2:memberChangeSubjectRequest" wsaw:Action="urn:memberChangeSubject"/>
-            <wsdl:output message="axis2:memberChangeSubjectResponse" wsaw:Action="urn:memberChangeSubjectResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="getGroups">
-            <wsdl:input message="axis2:getGroupsRequest" wsaw:Action="urn:getGroups"/>
-            <wsdl:output message="axis2:getGroupsResponse" wsaw:Action="urn:getGroupsResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="addMember">
-            <wsdl:input message="axis2:addMemberRequest" wsaw:Action="urn:addMember"/>
-            <wsdl:output message="axis2:addMemberResponse" wsaw:Action="urn:addMemberResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="getMembersLite">
-            <wsdl:input message="axis2:getMembersLiteRequest" wsaw:Action="urn:getMembersLite"/>
-            <wsdl:output message="axis2:getMembersLiteResponse" wsaw:Action="urn:getMembersLiteResponse"/>
-        </wsdl:operation>
-        <wsdl:operation name="findGroups">
-            <wsdl:input message="axis2:findGroupsRequest" wsaw:Action="urn:findGroups"/>
-            <wsdl:output message="axis2:findGroupsResponse" wsaw:Action="urn:findGroupsResponse"/>
-        </wsdl:operation>
     </wsdl:portType>
-    <wsdl:binding name="GrouperServiceSOAP11Binding" type="axis2:GrouperServicePortType">
+    <wsdl:binding name="GrouperServiceSoap11Binding" type="axis2:GrouperServicePortType">
         <soap:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-        <wsdl:operation name="findStems">
-            <soap:operation soapAction="urn:findStems" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="getGroupsLite">
-            <soap:operation soapAction="urn:getGroupsLite" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="stemDelete">
-            <soap:operation soapAction="urn:stemDelete" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="getMembers">
-            <soap:operation soapAction="urn:getMembers" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="groupDeleteLite">
-            <soap:operation soapAction="urn:groupDeleteLite" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="groupDelete">
-            <soap:operation soapAction="urn:groupDelete" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="deleteMember">
-            <soap:operation soapAction="urn:deleteMember" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
         <wsdl:operation name="stemSaveLite">
             <soap:operation soapAction="urn:stemSaveLite" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="addMemberLite">
-            <soap:operation soapAction="urn:addMemberLite" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="stemSave">
-            <soap:operation soapAction="urn:stemSave" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="findStemsLite">
-            <soap:operation soapAction="urn:findStemsLite" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="findGroupsLite">
-            <soap:operation soapAction="urn:findGroupsLite" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="deleteMemberLite">
-            <soap:operation soapAction="urn:deleteMemberLite" style="document"/>
-            <wsdl:input>
-                <soap:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="hasMemberLite">
-            <soap:operation soapAction="urn:hasMemberLite" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1343,8 +1224,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupSaveLite">
-            <soap:operation soapAction="urn:groupSaveLite" style="document"/>
+        <wsdl:operation name="hasMemberLite">
+            <soap:operation soapAction="urn:hasMemberLite" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1352,8 +1233,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupSave">
-            <soap:operation soapAction="urn:groupSave" style="document"/>
+        <wsdl:operation name="groupDeleteLite">
+            <soap:operation soapAction="urn:groupDeleteLite" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1361,8 +1242,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="stemDeleteLite">
-            <soap:operation soapAction="urn:stemDeleteLite" style="document"/>
+        <wsdl:operation name="stemSave">
+            <soap:operation soapAction="urn:stemSave" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1370,8 +1251,35 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="memberChangeSubjectLite">
-            <soap:operation soapAction="urn:memberChangeSubjectLite" style="document"/>
+        <wsdl:operation name="findStems">
+            <soap:operation soapAction="urn:findStems" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addMember">
+            <soap:operation soapAction="urn:addMember" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMembers">
+            <soap:operation soapAction="urn:getMembers" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupDelete">
+            <soap:operation soapAction="urn:groupDelete" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1397,8 +1305,8 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="addMember">
-            <soap:operation soapAction="urn:addMember" style="document"/>
+        <wsdl:operation name="deleteMember">
+            <soap:operation soapAction="urn:deleteMember" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1406,8 +1314,35 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getMembersLite">
-            <soap:operation soapAction="urn:getMembersLite" style="document"/>
+        <wsdl:operation name="groupSave">
+            <soap:operation soapAction="urn:groupSave" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupSaveLite">
+            <soap:operation soapAction="urn:groupSaveLite" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="stemDelete">
+            <soap:operation soapAction="urn:stemDelete" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="deleteMemberLite">
+            <soap:operation soapAction="urn:deleteMemberLite" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1424,128 +1359,74 @@
                 <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-    </wsdl:binding>
-    <wsdl:binding name="GrouperServiceSOAP12Binding" type="axis2:GrouperServicePortType">
-        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
-        <wsdl:operation name="findStems">
-            <soap12:operation soapAction="urn:findStems" style="document"/>
+        <wsdl:operation name="getMembersLite">
+            <soap:operation soapAction="urn:getMembersLite" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal"/>
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal"/>
+                <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getGroupsLite">
-            <soap12:operation soapAction="urn:getGroupsLite" style="document"/>
+            <soap:operation soapAction="urn:getGroupsLite" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal"/>
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal"/>
+                <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="stemDelete">
-            <soap12:operation soapAction="urn:stemDelete" style="document"/>
+        <wsdl:operation name="memberChangeSubjectLite">
+            <soap:operation soapAction="urn:memberChangeSubjectLite" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal"/>
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="getMembers">
-            <soap12:operation soapAction="urn:getMembers" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="groupDeleteLite">
-            <soap12:operation soapAction="urn:groupDeleteLite" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="groupDelete">
-            <soap12:operation soapAction="urn:groupDelete" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="deleteMember">
-            <soap12:operation soapAction="urn:deleteMember" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="stemSaveLite">
-            <soap12:operation soapAction="urn:stemSaveLite" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
+                <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="addMemberLite">
-            <soap12:operation soapAction="urn:addMemberLite" style="document"/>
+            <soap:operation soapAction="urn:addMemberLite" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal"/>
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal"/>
+                <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="stemSave">
-            <soap12:operation soapAction="urn:stemSave" style="document"/>
+        <wsdl:operation name="stemDeleteLite">
+            <soap:operation soapAction="urn:stemDeleteLite" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal"/>
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="findStemsLite">
-            <soap12:operation soapAction="urn:findStemsLite" style="document"/>
-            <wsdl:input>
-                <soap12:body use="literal"/>
-            </wsdl:input>
-            <wsdl:output>
-                <soap12:body use="literal"/>
+                <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="findGroupsLite">
-            <soap12:operation soapAction="urn:findGroupsLite" style="document"/>
+            <soap:operation soapAction="urn:findGroupsLite" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal"/>
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal"/>
+                <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="deleteMemberLite">
-            <soap12:operation soapAction="urn:deleteMemberLite" style="document"/>
+        <wsdl:operation name="findStemsLite">
+            <soap:operation soapAction="urn:findStemsLite" style="document"/>
             <wsdl:input>
-                <soap12:body use="literal"/>
+                <soap:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <soap12:body use="literal"/>
+                <soap:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="hasMemberLite">
-            <soap12:operation soapAction="urn:hasMemberLite" style="document"/>
+    </wsdl:binding>
+    <wsdl:binding name="GrouperServiceSoap12Binding" type="axis2:GrouperServicePortType">
+        <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" style="document"/>
+        <wsdl:operation name="stemSaveLite">
+            <soap12:operation soapAction="urn:stemSaveLite" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1562,8 +1443,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupSaveLite">
-            <soap12:operation soapAction="urn:groupSaveLite" style="document"/>
+        <wsdl:operation name="hasMemberLite">
+            <soap12:operation soapAction="urn:hasMemberLite" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1571,8 +1452,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupSave">
-            <soap12:operation soapAction="urn:groupSave" style="document"/>
+        <wsdl:operation name="groupDeleteLite">
+            <soap12:operation soapAction="urn:groupDeleteLite" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1580,8 +1461,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="stemDeleteLite">
-            <soap12:operation soapAction="urn:stemDeleteLite" style="document"/>
+        <wsdl:operation name="stemSave">
+            <soap12:operation soapAction="urn:stemSave" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1589,8 +1470,35 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="memberChangeSubjectLite">
-            <soap12:operation soapAction="urn:memberChangeSubjectLite" style="document"/>
+        <wsdl:operation name="findStems">
+            <soap12:operation soapAction="urn:findStems" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addMember">
+            <soap12:operation soapAction="urn:addMember" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMembers">
+            <soap12:operation soapAction="urn:getMembers" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupDelete">
+            <soap12:operation soapAction="urn:groupDelete" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1616,8 +1524,8 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="addMember">
-            <soap12:operation soapAction="urn:addMember" style="document"/>
+        <wsdl:operation name="deleteMember">
+            <soap12:operation soapAction="urn:deleteMember" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1625,8 +1533,35 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getMembersLite">
-            <soap12:operation soapAction="urn:getMembersLite" style="document"/>
+        <wsdl:operation name="groupSave">
+            <soap12:operation soapAction="urn:groupSave" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupSaveLite">
+            <soap12:operation soapAction="urn:groupSaveLite" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="stemDelete">
+            <soap12:operation soapAction="urn:stemDelete" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="deleteMemberLite">
+            <soap12:operation soapAction="urn:deleteMemberLite" style="document"/>
             <wsdl:input>
                 <soap12:body use="literal"/>
             </wsdl:input>
@@ -1643,72 +1578,72 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-    </wsdl:binding>
-    <wsdl:binding name="GrouperServiceHttpBinding" type="axis2:GrouperServicePortType">
-        <http:binding verb="POST"/>
-        <wsdl:operation name="findStems">
-            <http:operation location="GrouperService/findStems"/>
+        <wsdl:operation name="getMembersLite">
+            <soap12:operation soapAction="urn:getMembersLite" style="document"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="findStems"/>
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="findStems"/>
+                <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getGroupsLite">
-            <http:operation location="GrouperService/getGroupsLite"/>
+            <soap12:operation soapAction="urn:getGroupsLite" style="document"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="getGroupsLite"/>
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="getGroupsLite"/>
+                <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="stemDelete">
-            <http:operation location="GrouperService/stemDelete"/>
+        <wsdl:operation name="memberChangeSubjectLite">
+            <soap12:operation soapAction="urn:memberChangeSubjectLite" style="document"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="stemDelete"/>
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="stemDelete"/>
+                <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getMembers">
-            <http:operation location="GrouperService/getMembers"/>
+        <wsdl:operation name="addMemberLite">
+            <soap12:operation soapAction="urn:addMemberLite" style="document"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="getMembers"/>
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="getMembers"/>
+                <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupDeleteLite">
-            <http:operation location="GrouperService/groupDeleteLite"/>
+        <wsdl:operation name="stemDeleteLite">
+            <soap12:operation soapAction="urn:stemDeleteLite" style="document"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="groupDeleteLite"/>
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="groupDeleteLite"/>
+                <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupDelete">
-            <http:operation location="GrouperService/groupDelete"/>
+        <wsdl:operation name="findGroupsLite">
+            <soap12:operation soapAction="urn:findGroupsLite" style="document"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="groupDelete"/>
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="groupDelete"/>
+                <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="deleteMember">
-            <http:operation location="GrouperService/deleteMember"/>
+        <wsdl:operation name="findStemsLite">
+            <soap12:operation soapAction="urn:findStemsLite" style="document"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="deleteMember"/>
+                <soap12:body use="literal"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="deleteMember"/>
+                <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:binding name="GrouperServiceHttpBinding" type="axis2:GrouperServicePortType">
+        <http:binding verb="POST"/>
         <wsdl:operation name="stemSaveLite">
             <http:operation location="GrouperService/stemSaveLite"/>
             <wsdl:input>
@@ -1716,60 +1651,6 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="stemSaveLite"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="addMemberLite">
-            <http:operation location="GrouperService/addMemberLite"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="addMemberLite"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="addMemberLite"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="stemSave">
-            <http:operation location="GrouperService/stemSave"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="stemSave"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="stemSave"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="findStemsLite">
-            <http:operation location="GrouperService/findStemsLite"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="findStemsLite"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="findStemsLite"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="findGroupsLite">
-            <http:operation location="GrouperService/findGroupsLite"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="findGroupsLite"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="findGroupsLite"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="deleteMemberLite">
-            <http:operation location="GrouperService/deleteMemberLite"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="deleteMemberLite"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="deleteMemberLite"/>
-            </wsdl:output>
-        </wsdl:operation>
-        <wsdl:operation name="hasMemberLite">
-            <http:operation location="GrouperService/hasMemberLite"/>
-            <wsdl:input>
-                <mime:content type="text/xml" part="hasMemberLite"/>
-            </wsdl:input>
-            <wsdl:output>
-                <mime:content type="text/xml" part="hasMemberLite"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="hasMember">
@@ -1781,40 +1662,67 @@
                 <mime:content type="text/xml" part="hasMember"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupSaveLite">
-            <http:operation location="GrouperService/groupSaveLite"/>
+        <wsdl:operation name="hasMemberLite">
+            <http:operation location="GrouperService/hasMemberLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="groupSaveLite"/>
+                <mime:content type="text/xml" part="hasMemberLite"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="groupSaveLite"/>
+                <mime:content type="text/xml" part="hasMemberLite"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="groupSave">
-            <http:operation location="GrouperService/groupSave"/>
+        <wsdl:operation name="groupDeleteLite">
+            <http:operation location="GrouperService/groupDeleteLite"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="groupSave"/>
+                <mime:content type="text/xml" part="groupDeleteLite"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="groupSave"/>
+                <mime:content type="text/xml" part="groupDeleteLite"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="stemDeleteLite">
-            <http:operation location="GrouperService/stemDeleteLite"/>
+        <wsdl:operation name="stemSave">
+            <http:operation location="GrouperService/stemSave"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="stemDeleteLite"/>
+                <mime:content type="text/xml" part="stemSave"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="stemDeleteLite"/>
+                <mime:content type="text/xml" part="stemSave"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="memberChangeSubjectLite">
-            <http:operation location="GrouperService/memberChangeSubjectLite"/>
+        <wsdl:operation name="findStems">
+            <http:operation location="GrouperService/findStems"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="memberChangeSubjectLite"/>
+                <mime:content type="text/xml" part="findStems"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="memberChangeSubjectLite"/>
+                <mime:content type="text/xml" part="findStems"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addMember">
+            <http:operation location="GrouperService/addMember"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="addMember"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="addMember"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getMembers">
+            <http:operation location="GrouperService/getMembers"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="getMembers"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="getMembers"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupDelete">
+            <http:operation location="GrouperService/groupDelete"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="groupDelete"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="groupDelete"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="memberChangeSubject">
@@ -1835,22 +1743,49 @@
                 <mime:content type="text/xml" part="getGroups"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="addMember">
-            <http:operation location="GrouperService/addMember"/>
+        <wsdl:operation name="deleteMember">
+            <http:operation location="GrouperService/deleteMember"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="addMember"/>
+                <mime:content type="text/xml" part="deleteMember"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="addMember"/>
+                <mime:content type="text/xml" part="deleteMember"/>
             </wsdl:output>
         </wsdl:operation>
-        <wsdl:operation name="getMembersLite">
-            <http:operation location="GrouperService/getMembersLite"/>
+        <wsdl:operation name="groupSave">
+            <http:operation location="GrouperService/groupSave"/>
             <wsdl:input>
-                <mime:content type="text/xml" part="getMembersLite"/>
+                <mime:content type="text/xml" part="groupSave"/>
             </wsdl:input>
             <wsdl:output>
-                <mime:content type="text/xml" part="getMembersLite"/>
+                <mime:content type="text/xml" part="groupSave"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="groupSaveLite">
+            <http:operation location="GrouperService/groupSaveLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="groupSaveLite"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="groupSaveLite"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="stemDelete">
+            <http:operation location="GrouperService/stemDelete"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="stemDelete"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="stemDelete"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="deleteMemberLite">
+            <http:operation location="GrouperService/deleteMemberLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="deleteMemberLite"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="deleteMemberLite"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="findGroups">
@@ -1862,15 +1797,78 @@
                 <mime:content type="text/xml" part="findGroups"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="getMembersLite">
+            <http:operation location="GrouperService/getMembersLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="getMembersLite"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="getMembersLite"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="getGroupsLite">
+            <http:operation location="GrouperService/getGroupsLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="getGroupsLite"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="getGroupsLite"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="memberChangeSubjectLite">
+            <http:operation location="GrouperService/memberChangeSubjectLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="memberChangeSubjectLite"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="memberChangeSubjectLite"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="addMemberLite">
+            <http:operation location="GrouperService/addMemberLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="addMemberLite"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="addMemberLite"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="stemDeleteLite">
+            <http:operation location="GrouperService/stemDeleteLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="stemDeleteLite"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="stemDeleteLite"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="findGroupsLite">
+            <http:operation location="GrouperService/findGroupsLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="findGroupsLite"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="findGroupsLite"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="findStemsLite">
+            <http:operation location="GrouperService/findStemsLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="findStemsLite"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="findStemsLite"/>
+            </wsdl:output>
+        </wsdl:operation>
     </wsdl:binding>
     <wsdl:service name="GrouperService">
-        <wsdl:port name="GrouperServiceSOAP11port_http" binding="axis2:GrouperServiceSOAP11Binding">
+        <wsdl:port name="GrouperServiceHttpSoap11Endpoint" binding="axis2:GrouperServiceSoap11Binding">
             <soap:address location="http://localhost:8090/grouper-ws/services/GrouperService"/>
         </wsdl:port>
-        <wsdl:port name="GrouperServiceSOAP12port_http" binding="axis2:GrouperServiceSOAP12Binding">
+        <wsdl:port name="GrouperServiceHttpSoap12Endpoint" binding="axis2:GrouperServiceSoap12Binding">
             <soap12:address location="http://localhost:8090/grouper-ws/services/GrouperService"/>
         </wsdl:port>
-        <wsdl:port name="GrouperServiceHttpport" binding="axis2:GrouperServiceHttpBinding">
+        <wsdl:port name="GrouperServiceHttpEndpoint" binding="axis2:GrouperServiceHttpBinding">
             <http:address location="http://localhost:8090/grouper-ws/services/GrouperService"/>
         </wsdl:port>
     </wsdl:service>

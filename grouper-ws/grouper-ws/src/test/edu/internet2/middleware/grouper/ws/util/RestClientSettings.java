@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: RestClientSettings.java,v 1.5 2008-10-21 03:50:59 mchyzer Exp $
+ * @author mchyzer $Id: RestClientSettings.java,v 1.6 2008-10-21 05:27:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.util;
 
@@ -12,6 +12,7 @@ import org.apache.commons.io.IOUtils;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -99,6 +100,7 @@ public class RestClientSettings {
         MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.2"));
         MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.3"));
         
+        Stem.saveStem(grouperSession, null, null, "aStem", null, null, null, true);
 
       } catch (Exception e) {
         throw new RuntimeException(e);
