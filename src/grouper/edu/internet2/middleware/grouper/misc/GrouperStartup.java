@@ -1,9 +1,10 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.8 2008-10-20 17:51:23 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.9 2008-10-21 03:51:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -16,6 +17,7 @@ import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
+import edu.internet2.middleware.grouper.util.GrouperToStringStyle;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -45,6 +47,9 @@ public class GrouperStartup {
       return false;
     }
     started = true;
+
+    //dont print big classname, dont print nulls
+    ToStringBuilder.setDefaultStyle(new GrouperToStringStyle());
     
     if (!ignoreCheckConfig) {
       //make sure configuration is ok
