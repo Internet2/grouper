@@ -1,0 +1,265 @@
+Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubject, code generated classes, format: soap, for version: v1_4_000
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouperWs/services/GrouperService HTTP/1.1
+Content-Type: application/soap+xml; charset=UTF-8; action="urn:memberChangeSubject"
+User-Agent: Axis2
+Authorization: Basic sdfasdfasdfasdfasdf==
+Host: localhost:8092
+Transfer-Encoding: chunked
+
+420
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Body>
+    <ns1:memberChangeSubject xmlns:ns1="http://soap.ws.grouper.middleware.internet2.edu/xsd">
+      <ns1:clientVersion>v1_3_000</ns1:clientVersion>
+      <ns1:wsMemberChangeSubjects>
+        <ns1:newSubjectLookup>
+          <ns1:subjectId>test.subject.1</ns1:subjectId>
+        </ns1:newSubjectLookup>
+        <ns1:oldSubjectLookup>
+          <ns1:subjectIdentifier>id.test.subject.0</ns1:subjectIdentifier>
+        </ns1:oldSubjectLookup>
+      </ns1:wsMemberChangeSubjects>
+      <ns1:wsMemberChangeSubjects>
+        <ns1:deleteOldMember>F</ns1:deleteOldMember>
+        <ns1:newSubjectLookup>
+          <ns1:subjectId>GrouperSystem</ns1:subjectId>
+        </ns1:newSubjectLookup>
+        <ns1:oldSubjectLookup>
+          <ns1:subjectIdentifier>id.test.subject.2</ns1:subjectIdentifier>
+        </ns1:oldSubjectLookup>
+      </ns1:wsMemberChangeSubjects>
+      <ns1:actAsSubjectLookup />
+      <ns1:txType></ns1:txType>
+      <ns1:includeSubjectDetail>T</ns1:includeSubjectDetail>
+      <ns1:subjectAttributeNames>loginid,description</ns1:subjectAttributeNames>
+    </ns1:memberChangeSubject>
+  </soapenv:Body>
+</soapenv:Envelope>
+0
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 200 OK
+Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=369FA46708C20C5FEC7306BEE4FAD5B6; Path=/grouperWs
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: application/soap+xml; action="urn:memberChangeSubjectResponse";charset=UTF-8
+Transfer-Encoding: chunked
+Date: Tue, 21 Oct 2008 15:53:34 GMT
+
+d40
+<?xml version='1.0' encoding='UTF-8'?>
+<soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+  <soapenv:Body>
+    <ns:memberChangeSubjectResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
+      <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResults">
+        <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
+          <ns:millis>672</ns:millis>
+          <ns:resultWarnings></ns:resultWarnings>
+          <ns:serverVersion>v1_4_000</ns:serverVersion>
+        </ns:responseMetadata>
+        <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+          <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:resultCode>SUCCESS</ns:resultCode>
+          <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
+[1]: WsMemberChangeSubject[oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],newSubjectLookup=WsSubjectLookup[subjectId=GrouperSystem],deleteOldMember=F]
+
+, actAsSubject: WsSubjectLookup[], txType: NONE
+, params: Empty array</ns:resultMessage>
+          <ns:success>T</ns:success>
+        </ns:resultMetadata>
+        <ns:results type="edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResult">
+          <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+            <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:resultCode>SUCCESS</ns:resultCode>
+            <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:resultMessage></ns:resultMessage>
+            <ns:success>T</ns:success>
+          </ns:resultMetadata>
+          <ns:wsSubjectNew type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
+            <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:id>test.subject.1</ns:id>
+            <ns:name xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:resultCode>SUCCESS</ns:resultCode>
+            <ns:sourceId>jdbc</ns:sourceId>
+            <ns:success>T</ns:success>
+          </ns:wsSubjectNew>
+          <ns:wsSubjectOld xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        </ns:results>
+        <ns:results type="edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResult">
+          <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
+            <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:resultCode>SUCCESS</ns:resultCode>
+            <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:resultMessage></ns:resultMessage>
+            <ns:success>T</ns:success>
+          </ns:resultMetadata>
+          <ns:wsSubjectNew type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
+            <ns:attributeValues></ns:attributeValues>
+            <ns:id>GrouperSystem</ns:id>
+            <ns:name xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:resultCode>SUCCESS</ns:resultCode>
+            <ns:sourceId>g:isa</ns:sourceId>
+            <ns:success>T</ns:success>
+          </ns:wsSubjectNew>
+          <ns:wsSubjectOld xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        </ns:results>
+        <ns:subjectAttributeNames xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+      </ns:return>
+    </ns:memberChangeSubjectResponse>
+  </soapenv:Body>
+</soapenv:Envelope>
+0
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
+/**
+ *
+ */
+package edu.internet2.middleware.grouper.webservicesClient;
+
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.MemberChangeSubject;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsMemberChangeSubject;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
+import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+
+
+/**
+ *
+ * @author mchyzer
+ *
+ */
+public class WsSampleMemberChangeSubject implements WsSampleGenerated {
+    /**
+     * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType)
+     */
+    public void executeSample(WsSampleGeneratedType wsSampleGeneratedType) {
+        memberChangeSubject(wsSampleGeneratedType);
+    }
+
+    /**
+     * @param wsSampleGeneratedType can run as soap or xml/http
+     */
+    @SuppressWarnings("deprecation")
+    public static void memberChangeSubject(
+        WsSampleGeneratedType wsSampleGeneratedType) {
+        try {
+            //URL, e.g. http://localhost:8091/grouper-ws/services/GrouperService
+            GrouperServiceStub stub = new GrouperServiceStub(GeneratedClientSettings.URL);
+            
+            HttpClientParams.getDefaultParams().setParameter(
+                HttpClientParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+            
+            Options options = stub._getServiceClient().getOptions();
+            HttpTransportProperties.Authenticator auth = new HttpTransportProperties.Authenticator();
+            auth.setUsername(GeneratedClientSettings.USER);
+            auth.setPassword(GeneratedClientSettings.PASS);
+            auth.setPreemptiveAuthentication(true);
+
+            options.setProperty(HTTPConstants.AUTHENTICATE, auth);
+            options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
+            options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,
+                new Integer(3600000));
+
+            MemberChangeSubject memberChangeSubject = new MemberChangeSubject();
+
+            //version, e.g. v1_3_000
+            memberChangeSubject.setClientVersion(GeneratedClientSettings.VERSION);
+
+            WsMemberChangeSubject[] wsMemberChangeSubjects = new WsMemberChangeSubject[2];
+            
+            memberChangeSubject.setWsMemberChangeSubjects(wsMemberChangeSubjects);
+            
+            // set the act as id
+            wsMemberChangeSubjects[0] = new WsMemberChangeSubject();
+
+            WsSubjectLookup oldSubject0 = new WsSubjectLookup();
+            oldSubject0.setSubjectIdentifier("id.test.subject.0");
+            wsMemberChangeSubjects[0].setOldSubjectLookup(oldSubject0);
+
+            WsSubjectLookup newSubject0 = new WsSubjectLookup();
+            newSubject0.setSubjectId("test.subject.1");
+            wsMemberChangeSubjects[0].setNewSubjectLookup(newSubject0);
+
+            wsMemberChangeSubjects[1] = new WsMemberChangeSubject();
+
+            WsSubjectLookup oldSubject1 = new WsSubjectLookup();
+            oldSubject1.setSubjectIdentifier("id.test.subject.2");
+            wsMemberChangeSubjects[1].setOldSubjectLookup(oldSubject1);
+
+            WsSubjectLookup newSubject1 = new WsSubjectLookup();
+            newSubject1.setSubjectId("test.subject.3");
+            wsMemberChangeSubjects[1].setNewSubjectLookup(newSubject1);
+            
+            wsMemberChangeSubjects[1].setDeleteOldMember("F");
+
+            WsSubjectLookup actAsSubject = new WsSubjectLookup();
+            newSubject1.setSubjectId("GrouperSystem");
+            memberChangeSubject.setActAsSubjectLookup(actAsSubject);
+
+            memberChangeSubject.setTxType("");
+            memberChangeSubject.setIncludeSubjectDetail("T");
+            memberChangeSubject.setSubjectAttributeNames(new String[]{"loginid,description"});
+            
+            WsMemberChangeSubjectResults wsMemberChangeSubjectResults = 
+              stub.memberChangeSubject(memberChangeSubject).get_return();
+
+            String resultString = ToStringBuilder.reflectionToString(
+                wsMemberChangeSubjectResults);
+            
+            if (!"T".equals(wsMemberChangeSubjectResults.getResultMetadata().getSuccess())) {
+              throw new RuntimeException("Didnt get success: " + resultString);
+            }
+            
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        memberChangeSubject(WsSampleGeneratedType.soap);
+    }
+}
