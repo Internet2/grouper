@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceRest.java,v 1.7 2008-03-31 07:22:03 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceRest.java,v 1.8 2008-10-21 03:51:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -21,6 +21,8 @@ import edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberLiteReq
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersRequest;
+import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemDeleteLiteRequest;
@@ -45,6 +47,8 @@ import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResults;
+import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectLiteResult;
+import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResults;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResults;
 import edu.internet2.middleware.grouper.ws.soap.WsStemSaveLiteResult;
@@ -307,25 +311,25 @@ public class GrouperServiceRest {
    */
   public static WsDeleteMemberResults deleteMember(GrouperWsVersion clientVersion,
       String groupName, WsRestDeleteMemberRequest wsRestDeleteMembersRequest) {
-
+  
     //cant be null
     GrouperUtil.assertion(wsRestDeleteMembersRequest != null,
         "Body of request must contain an instance of "
             + WsRestDeleteMemberRequest.class.getSimpleName()
             + " in xml, xhtml, json, etc");
-
+  
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
         wsRestDeleteMembersRequest.getClientVersion(), false, "clientVersion");
-
+  
     WsGroupLookup wsGroupLookup = wsRestDeleteMembersRequest.getWsGroupLookup();
     if (wsGroupLookup == null) {
       wsGroupLookup = new WsGroupLookup();
     }
-
+  
     groupName = GrouperServiceUtils.pickOne(groupName, wsGroupLookup.getGroupName(),
         false, "groupName");
     wsGroupLookup.setGroupName(groupName);
-
+  
     //get the results
     WsDeleteMemberResults wsDeleteMemberResults = new GrouperService().deleteMember(
         clientVersionString, wsGroupLookup, wsRestDeleteMembersRequest
@@ -335,10 +339,10 @@ public class GrouperServiceRest {
             .getIncludeGroupDetail(), wsRestDeleteMembersRequest
             .getIncludeSubjectDetail(), wsRestDeleteMembersRequest
             .getSubjectAttributeNames(), wsRestDeleteMembersRequest.getParams());
-
+  
     //return result
     return wsDeleteMemberResults;
-
+  
   }
 
   /**
@@ -437,11 +441,11 @@ public class GrouperServiceRest {
   public static WsHasMemberLiteResult hasMemberLite(GrouperWsVersion clientVersion,
       String groupName, String subjectId, String sourceId,
       WsRestHasMemberLiteRequest wsRestHasMemberLiteRequest) {
-
+  
     //make sure not null
     wsRestHasMemberLiteRequest = wsRestHasMemberLiteRequest == null ? new WsRestHasMemberLiteRequest()
         : wsRestHasMemberLiteRequest;
-
+  
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
         wsRestHasMemberLiteRequest.getClientVersion(), false, "clientVersion");
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestHasMemberLiteRequest
@@ -450,7 +454,7 @@ public class GrouperServiceRest {
         .getSubjectId(), false, "subjectId");
     sourceId = GrouperServiceUtils.pickOne(sourceId, wsRestHasMemberLiteRequest
         .getSubjectSourceId(), true, "sourceId");
-
+  
     //get the results
     WsHasMemberLiteResult wsHasMemberLiteResult = new GrouperService().hasMemberLite(
         clientVersionString, groupName, wsRestHasMemberLiteRequest.getGroupUuid(),
@@ -464,9 +468,91 @@ public class GrouperServiceRest {
             .getSubjectAttributeNames(), wsRestHasMemberLiteRequest.getParamName0(),
         wsRestHasMemberLiteRequest.getParamValue0(), wsRestHasMemberLiteRequest
             .getParamName1(), wsRestHasMemberLiteRequest.getParamValue1());
-
+  
     //return result
     return wsHasMemberLiteResult;
+  
+  }
+
+  /**
+   * <pre>
+   * based on a member, change the subject  e.g. url:
+   * /v1_3_000/members
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param oldSubjectId from url if applicable
+   * @param oldSubjectSourceId from url is applicable
+   * @param wsRestMemberChangeSubjectRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsMemberChangeSubjectResults memberChangeSubject(GrouperWsVersion clientVersion,
+      WsRestMemberChangeSubjectRequest wsRestMemberChangeSubjectRequest) {
+
+    //cant be null
+    GrouperUtil.assertion(wsRestMemberChangeSubjectRequest != null,
+        "Body of request must contain an instance of "
+            + WsRestDeleteMemberRequest.class.getSimpleName()
+            + " in xml, xhtml, json, etc");
+
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
+        wsRestMemberChangeSubjectRequest.getClientVersion(), false, "clientVersion");
+
+    //get the results
+    WsMemberChangeSubjectResults wsMemberChangeSubjectResults = new GrouperService().memberChangeSubject(
+        clientVersionString, wsRestMemberChangeSubjectRequest.getWsMemberChangeSubjects(), 
+          wsRestMemberChangeSubjectRequest.getActAsSubjectLookup(),
+            wsRestMemberChangeSubjectRequest.getTxType(), wsRestMemberChangeSubjectRequest
+            .getIncludeSubjectDetail(), wsRestMemberChangeSubjectRequest
+            .getSubjectAttributeNames(), wsRestMemberChangeSubjectRequest.getParams());
+
+    //return result
+    return wsMemberChangeSubjectResults;
+
+  }
+
+  /**
+   * <pre>
+   * based on a member, change the subject
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param oldSubjectId from url, e.g. /v1_3_000/members/subjectId/123412345
+   * @param oldSubjectSourceId from url (optional) e.g.
+   * /v1_3_000/members/sourceId/someSource/subjectId/123412345/sourceId/12342
+   * @param wsRestMemberChangeSubjectLiteRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsMemberChangeSubjectLiteResult memberChangeSubjectLite(GrouperWsVersion clientVersion,
+      String oldSubjectId, String oldSubjectSourceId, WsRestMemberChangeSubjectLiteRequest wsRestMemberChangeSubjectLiteRequest) {
+
+    //make sure not null
+    wsRestMemberChangeSubjectLiteRequest = wsRestMemberChangeSubjectLiteRequest == null ? new WsRestMemberChangeSubjectLiteRequest()
+        : wsRestMemberChangeSubjectLiteRequest;
+
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
+        wsRestMemberChangeSubjectLiteRequest.getClientVersion(), false, "clientVersion");
+    oldSubjectId = GrouperServiceUtils.pickOne(oldSubjectId, wsRestMemberChangeSubjectLiteRequest
+        .getOldSubjectId(), false, "oldSubjectId");
+    oldSubjectSourceId = GrouperServiceUtils.pickOne(oldSubjectSourceId, wsRestMemberChangeSubjectLiteRequest
+        .getOldSubjectSourceId(), true, "oldSubjectSourceId");
+
+    //get the results
+    WsMemberChangeSubjectLiteResult wsMemberChangeSubjectLiteResult = new GrouperService().memberChangeSubjectLite(
+        clientVersionString,oldSubjectId, oldSubjectSourceId, wsRestMemberChangeSubjectLiteRequest.getOldSubjectIdentifier(),
+        wsRestMemberChangeSubjectLiteRequest.getNewSubjectId(),
+        wsRestMemberChangeSubjectLiteRequest.getNewSubjectSourceId(),
+        wsRestMemberChangeSubjectLiteRequest.getNewSubjectIdentifier(),
+        wsRestMemberChangeSubjectLiteRequest
+            .getActAsSubjectId(), wsRestMemberChangeSubjectLiteRequest.getActAsSubjectSourceId(),
+            wsRestMemberChangeSubjectLiteRequest.getActAsSubjectIdentifier(),
+            wsRestMemberChangeSubjectLiteRequest.getDeleteOldMember(), 
+            wsRestMemberChangeSubjectLiteRequest.getIncludeSubjectDetail(),
+            wsRestMemberChangeSubjectLiteRequest
+            .getSubjectAttributeNames(), wsRestMemberChangeSubjectLiteRequest.getParamName0(),
+            wsRestMemberChangeSubjectLiteRequest.getParamValue0(), wsRestMemberChangeSubjectLiteRequest
+            .getParamName1(), wsRestMemberChangeSubjectLiteRequest.getParamValue1());
+
+    //return result
+    return wsMemberChangeSubjectLiteResult;
 
   }
 

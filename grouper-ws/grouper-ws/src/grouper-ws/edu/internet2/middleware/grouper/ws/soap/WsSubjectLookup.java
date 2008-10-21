@@ -8,7 +8,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResult.WsHasMemberResultCode;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -30,8 +35,14 @@ public class WsSubjectLookup {
   /** find the subject */
   private Subject subject = null;
 
+  /** find the member */
+  private Member member = null;
+
   /** if there is an exception in find, list it here */
   private Exception cause = null;
+
+  /** if there is an exception in find member, list it here */
+  private Exception causeMember = null;
 
   /**
    * result of a subject find
@@ -115,8 +126,37 @@ public class WsSubjectLookup {
 
   }
 
+  /**
+   * result of a subject find
+   *
+   */
+  public static enum MemberFindResult {
+  
+    /** found the member */
+    SUCCESS,
+    
+    /** invalid query (e.g. everything blank or subject 
+     * identifier specified with no subject id) */
+    INVALID_QUERY,
+    
+    /** cant find member */
+    MEMBER_NOT_FOUND;
+  
+    /**
+     * if this is a successful result
+     * @return true if success
+     */
+    public boolean isSuccess() {
+      return this == SUCCESS;
+    }
+  
+  }
+
   /** result of subject find */
   private SubjectFindResult subjectFindResult = null;
+
+  /** result of subject find */
+  private MemberFindResult memberFindResult = null;
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(WsSubjectLookup.class);
@@ -129,6 +169,17 @@ public class WsSubjectLookup {
     return ToStringBuilder.reflectionToString(this);
   }
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    GrouperStartup.startup();
+    WsSubjectLookup wsSubjectLookup = new WsSubjectLookup();
+    wsSubjectLookup.setSubjectId("whatever");
+    System.out.println(wsSubjectLookup);
+  }
+  
   /**
    * see if there is a blank query (if there is not id or identifier
    * @return true or false
@@ -149,21 +200,21 @@ public class WsSubjectLookup {
     try {
       //assume success (set otherwise if ther is a proble
       this.subjectFindResult = SubjectFindResult.SUCCESS;
-
+  
       boolean hasSubjectId = !StringUtils.isBlank(this.subjectId);
       boolean hasSubjectIdentifier = !StringUtils.isBlank(this.subjectIdentifier);
       boolean hasSubjectSource = !StringUtils.isBlank(this.subjectSourceId);
-
+  
       //must have an id
       if (!hasSubjectId && !hasSubjectIdentifier) {
         this.subjectFindResult = SubjectFindResult.INVALID_QUERY;
         LOG.warn("Invalid query: " + this);
         return;
       }
-
+  
       //note this doesnt test if both id and identifier are passed in.  if one, assumes it is valid
       if (hasSubjectId) {
-
+  
         //cant have source without type
         if (hasSubjectSource) {
           this.subject = SubjectFinder.getSource(this.subjectSourceId).getSubject(
@@ -173,7 +224,7 @@ public class WsSubjectLookup {
         this.subject = SubjectFinder.findById(this.subjectId);
         return;
       } else if (hasSubjectIdentifier) {
-
+  
         //cant have source without type
         if (hasSubjectSource) {
           this.subject = SubjectFinder.getSource(this.subjectSourceId).getSubjectByIdentifier(
@@ -182,9 +233,9 @@ public class WsSubjectLookup {
         }
         this.subject = SubjectFinder.findByIdentifier(this.subjectIdentifier);
         return;
-
+  
       }
-
+  
     } catch (SourceUnavailableException sue) {
       LOG.warn(this, sue);
       this.subjectFindResult = SubjectFindResult.SOURCE_UNAVAILABLE;
@@ -197,6 +248,48 @@ public class WsSubjectLookup {
       LOG.warn(this, snfe);
       this.subjectFindResult = SubjectFindResult.SUBJECT_NOT_FOUND;
       this.cause = snfe;
+    }
+  
+  }
+
+  /**
+   * lazy load the member
+   */
+  private void retrieveMemberIfNeeded() {
+    //see if we already retrieved
+    if (this.memberFindResult != null) {
+      return;
+    }
+    try {
+      //assume success (set otherwise if ther is a proble
+      this.memberFindResult = MemberFindResult.SUCCESS;
+
+      boolean hasSubjectId = !StringUtils.isBlank(this.subjectId);
+      boolean hasSubjectSource = !StringUtils.isBlank(this.subjectSourceId);
+      
+      Subject theSubject = this.retrieveSubject();
+      
+      if (theSubject != null) {
+        this.member = GrouperDAOFactory.getFactory().getMember().findBySubject(theSubject);
+      } else {
+        //we need to find with the params passed in
+        if (hasSubjectId && hasSubjectSource) {
+          this.member = GrouperDAOFactory.getFactory().getMember().findBySubject(this.subjectId, this.subjectSourceId);
+        } else if (hasSubjectId) {
+          this.member = GrouperDAOFactory.getFactory().getMember().findBySubject(this.subjectId);
+        } else {
+          this.memberFindResult = MemberFindResult.INVALID_QUERY;
+          LOG.warn("Cannot find subject: " + this);
+        }
+      }
+    } catch (MemberNotUniqueException mnue) {
+      LOG.warn("Member not unique: " + this, mnue);
+      this.memberFindResult = MemberFindResult.INVALID_QUERY;
+      this.cause = mnue;
+    } catch (MemberNotFoundException mnfe) {
+      LOG.warn(this, mnfe);
+      this.memberFindResult = MemberFindResult.MEMBER_NOT_FOUND;
+      this.cause = mnfe;
     }
 
   }
@@ -248,6 +341,38 @@ public class WsSubjectLookup {
   }
 
   /**
+   * 
+   * <pre>
+   * Retrieve the member object for this subject, do not create if not there
+   * Note: this is not a javabean property because we dont want it in the web service
+   * </pre>
+   * @return the member
+   */
+  public Member retrieveMember() {
+    this.retrieveMemberIfNeeded();
+    return this.member;
+  }
+
+  /**
+   * <pre>
+   * 
+   * Note: this is not a javabean property because we dont want it in the web service
+   * </pre>
+   * @param invalidInputReason label to be put in WsInvalidQueryException
+   * @return the subject
+   * @throws WsInvalidQueryException
+   */
+  public Member retrieveMember(String invalidInputReason) {
+    Member member1 = this.retrieveMember();
+    if (member1 == null) {
+      //pass on the cause so it can be acted on
+      throw new WsInvalidQueryException("Problem with " + invalidInputReason + ", "
+          + this.memberFindResult + ", " + this, this.causeMember);
+    }
+    return member1;
+  }
+
+  /**
    * <pre>
    * 
    * Note: this is not a javabean property because we dont want it in the web service
@@ -276,6 +401,17 @@ public class WsSubjectLookup {
   public SubjectFindResult retrieveSubjectFindResult() {
     this.retrieveSubjectIfNeeded();
     return this.subjectFindResult;
+  }
+
+  /**
+   * <pre>
+   * Note: this is not a javabean property because we dont want it in the web service
+   * </pre>
+   * @return the memberFindResult, this is never null
+   */
+  public MemberFindResult retrieveMemberFindResult() {
+    this.retrieveMemberIfNeeded();
+    return this.memberFindResult;
   }
 
   /**

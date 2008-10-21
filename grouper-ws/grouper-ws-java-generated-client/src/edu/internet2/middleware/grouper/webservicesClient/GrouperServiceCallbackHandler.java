@@ -309,6 +309,36 @@ public abstract class GrouperServiceCallbackHandler {
     }
 
     /**
+     * auto generated Axis2 call back method for memberChangeSubjectLite method
+     * override this method for handling normal response from memberChangeSubjectLite operation
+     */
+    public void receiveResultmemberChangeSubjectLite(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.MemberChangeSubjectLiteResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from memberChangeSubjectLite operation
+     */
+    public void receiveErrormemberChangeSubjectLite(java.lang.Exception e) {
+    }
+
+    /**
+     * auto generated Axis2 call back method for memberChangeSubject method
+     * override this method for handling normal response from memberChangeSubject operation
+     */
+    public void receiveResultmemberChangeSubject(
+        edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.MemberChangeSubjectResponse result) {
+    }
+
+    /**
+     * auto generated Axis2 Error handler
+     * override this method for handling error response from memberChangeSubject operation
+     */
+    public void receiveErrormemberChangeSubject(java.lang.Exception e) {
+    }
+
+    /**
      * auto generated Axis2 call back method for getGroups method
      * override this method for handling normal response from getGroups operation
      */

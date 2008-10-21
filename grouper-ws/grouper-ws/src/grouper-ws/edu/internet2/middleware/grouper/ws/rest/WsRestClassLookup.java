@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestClassLookup.java,v 1.7 2008-03-31 07:22:03 mchyzer Exp $
+ * $Id: WsRestClassLookup.java,v 1.8 2008-10-21 03:51:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -27,6 +27,8 @@ import edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberLiteReq
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersRequest;
+import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemDeleteLiteRequest;
@@ -63,6 +65,10 @@ import edu.internet2.middleware.grouper.ws.soap.WsGroupToSave;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResults;
+import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectLiteResult;
+import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResult;
+import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResults;
 import edu.internet2.middleware.grouper.ws.soap.WsMembership;
 import edu.internet2.middleware.grouper.ws.soap.WsParam;
 import edu.internet2.middleware.grouper.ws.soap.WsPrivilege;
@@ -124,6 +130,14 @@ public class WsRestClassLookup {
     addAliasClass(WsHasMemberResult.class);
     addAliasClass(WsHasMemberResults.class);
     addAliasClass(WsMembership.class);
+
+    addAliasClass(WsMemberChangeSubject.class);
+    addAliasClass(WsMemberChangeSubjectLiteResult.class);
+    addAliasClass(WsMemberChangeSubjectResult.class);
+    addAliasClass(WsMemberChangeSubjectResults.class);
+    addAliasClass(WsRestMemberChangeSubjectRequest.class);
+    addAliasClass(WsRestMemberChangeSubjectLiteRequest.class);
+    
     addAliasClass(WsParam.class);
     addAliasClass(WsPrivilege.class);
     addAliasClass(WsQueryFilter.class);

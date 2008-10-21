@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.10 2008-07-21 05:16:05 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.11 2008-10-21 03:50:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -18,6 +18,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeRuntimeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
@@ -59,6 +60,10 @@ import edu.internet2.middleware.grouper.ws.soap.WsGroupToSave;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResults;
+import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectLiteResult;
+import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResult;
+import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResults;
 import edu.internet2.middleware.grouper.ws.soap.WsParam;
 import edu.internet2.middleware.grouper.ws.soap.WsQueryFilter;
 import edu.internet2.middleware.grouper.ws.soap.WsStem;
@@ -82,6 +87,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDelet
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult.WsGroupSaveResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResult.WsHasMemberResultCode;
+import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResult.WsMemberChangeSubjectResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult.WsStemDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsStemLookup.StemFindResult;
 import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResult.WsStemSaveResultCode;
@@ -1768,6 +1774,197 @@ public class GrouperServiceLogic {
     return new WsHasMemberLiteResult(wsHasMemberResults);
   }
 
+  /**
+   * see if a group has a member (if already a direct member, ignore)
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param oldSubjectId subject id of old member object.  This is the preferred way to look up the 
+   * old subject, but subjectIdentifier could also be used
+   * @param oldSubjectSourceId source id of old member object (optional)
+   * @param oldSubjectIdentifier subject identifier of old member object.  It is preferred to lookup the 
+   * old subject by id, but if identifier is used, that is ok instead (as long as subject is resolvable).
+   * @param newSubjectId preferred way to identify the new subject id
+   * @param newSubjectSourceId preferres way to identify the new subject id
+   * @param newSubjectIdentifier subjectId is the preferred way to lookup the new subject, but identifier is
+   * ok to use instead
+   * @param actAsSubjectId
+   *            optional: is the subject id of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param actAsSubjectSourceId is source of act as subject to narrow the result and prevent
+   * duplicates
+   * @param actAsSubjectIdentifier
+   *            optional: is the subject identifier of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param deleteOldMember T or F as to whether the old member should be deleted (if new member does exist).
+   * This defaults to T if it is blank
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated)
+   * @param paramName0
+   *            reserved for future use
+   * @param paramValue0
+   *            reserved for future use
+   * @param paramName1
+   *            reserved for future use
+   * @param paramValue1
+   *            reserved for future use
+   * @return the result of one member query
+   */
+  public static WsMemberChangeSubjectLiteResult memberChangeSubjectLite(final GrouperWsVersion clientVersion, 
+      String oldSubjectId, String oldSubjectSourceId, String oldSubjectIdentifier,
+      String newSubjectId, String newSubjectSourceId, String newSubjectIdentifier,      
+      String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
+      boolean deleteOldMember, 
+      boolean includeSubjectDetail, String subjectAttributeNames, 
+      String paramName0,
+      String paramValue0, String paramName1, String paramValue1) {
+  
+    String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
+
+    WsMemberChangeSubject wsMemberChangeSubject = new WsMemberChangeSubject();
+    
+    WsSubjectLookup oldSubjectLookup = new WsSubjectLookup(oldSubjectId, oldSubjectSourceId, oldSubjectIdentifier);
+    WsSubjectLookup newSubjectLookup = new WsSubjectLookup(newSubjectId, newSubjectSourceId, newSubjectIdentifier);
+    
+    wsMemberChangeSubject.assignDeleteOldMemberBoolean(deleteOldMember);
+    wsMemberChangeSubject.setOldSubjectLookup(oldSubjectLookup);
+    wsMemberChangeSubject.setNewSubjectLookup(newSubjectLookup);
+    
+    WsMemberChangeSubject[] wsMemberChangeSubjects = {wsMemberChangeSubject};
+    
+    // setup the subject lookup
+    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+        actAsSubjectSourceId, actAsSubjectIdentifier);
+  
+    WsParam[] params = GrouperServiceUtils.params(paramName0, paramValue0, paramValue1, paramValue1);
+  
+    WsMemberChangeSubjectResults wsMemberChangeSubjectResults = memberChangeSubject(clientVersion, 
+        wsMemberChangeSubjects,
+        actAsSubjectLookup, null, includeSubjectDetail, subjectAttributeArray, params);
+  
+    return new WsMemberChangeSubjectLiteResult(wsMemberChangeSubjectResults);
+  }
+
+  /**
+   * change the subject in a member or some members
+   * 
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param wsMemberChangeSubjects objects that describe one member renaming
+   * @param actAsSubjectLookup
+   *            to act as a different user than the logged in user
+   * @param includeGroupDetail T or F as to if the group detail should be returned
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent
+   * @param params optional: reserved for future use
+   * @param txType is the GrouperTransactionType for the request.  If blank, defaults to
+   * NONE (will finish as much as possible).  Generally the only values for this param that make sense
+   * are NONE (or blank), and READ_WRITE_NEW.
+   * @return the results
+   */
+  @SuppressWarnings("unchecked")
+  public static WsMemberChangeSubjectResults memberChangeSubject(final GrouperWsVersion clientVersion,
+      final WsMemberChangeSubject[] wsMemberChangeSubjects,
+      final WsSubjectLookup actAsSubjectLookup, GrouperTransactionType txType, 
+      final boolean includeSubjectDetail, 
+      final String[] subjectAttributeNames, final WsParam[] params) {
+    final WsMemberChangeSubjectResults wsMemberChangeSubjectResults = new WsMemberChangeSubjectResults();
+    
+    GrouperSession session = null;
+    String theSummary = null;
+    try {
+  
+      txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
+      final GrouperTransactionType TX_TYPE = txType;
+      
+      theSummary = "clientVersion: " + clientVersion + ", wsMemberChangeSubject: "
+          + GrouperUtil.toStringForLog(wsMemberChangeSubjects, 500) + "\n, actAsSubject: "
+          + actAsSubjectLookup + ", txType: " + txType
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+      
+      final String THE_SUMMARY = theSummary;
+  
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+  
+      //start a transaction (or not if none)
+      GrouperTransaction.callbackGrouperTransaction(txType,
+          new GrouperTransactionHandler() {
+  
+            public Object callback(GrouperTransaction grouperTransaction)
+                throws GrouperDAOException {
+  
+              //convert the options to a map for easy access, and validate them
+              @SuppressWarnings("unused")
+              Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+                  params);
+  
+              int membersToChangeLength = GrouperServiceUtils.arrayLengthAtLeastOne(
+                  wsMemberChangeSubjects, GrouperWsConfig.WS_ADD_MEMBER_SUBJECTS_MAX, 1000000, "subjectLookups");
+  
+              wsMemberChangeSubjectResults.setResults(new WsMemberChangeSubjectResult[membersToChangeLength]);
+  
+              int resultIndex = 0;
+  
+              //loop through all subjects and do the delete
+              for (WsMemberChangeSubject wsMemberChangeSubject : wsMemberChangeSubjects) {
+                WsMemberChangeSubjectResult wsMemberChangeSubjectResult = new WsMemberChangeSubjectResult();
+                wsMemberChangeSubjectResults.getResults()[resultIndex++] = wsMemberChangeSubjectResult;
+                try {
+  
+                  Member oldMember = wsMemberChangeSubject.getOldSubjectLookup().retrieveMember();
+                  wsMemberChangeSubjectResult.processMemberOld(wsMemberChangeSubject.getOldSubjectLookup());
+                  if (oldMember == null) {
+                    continue;
+                  }
+                  Subject newSubject = wsMemberChangeSubject.getNewSubjectLookup().retrieveSubject();
+                  
+                  wsMemberChangeSubjectResult.processSubjectNew(wsMemberChangeSubject.getNewSubjectLookup(), 
+                      subjectAttributeNames);
+  
+                  //make sure we have the right data, if not, then keep going
+                  if (newSubject == null) {
+                    continue;
+                  }
+
+                  boolean deleteOldMember = wsMemberChangeSubject.retrieveDeleteOldMemberBoolean();
+                  
+                  oldMember.changeSubject(newSubject, deleteOldMember);
+                  
+                  //assign one of 4 success codes
+                  wsMemberChangeSubjectResult.assignResultCode(WsMemberChangeSubjectResultCode.SUCCESS);
+  
+                } catch (InsufficientPrivilegeRuntimeException ipe) {
+                  wsMemberChangeSubjectResult
+                      .assignResultCode(WsMemberChangeSubjectResultCode.INSUFFICIENT_PRIVILEGES);
+                } catch (Exception e) {
+                  wsMemberChangeSubjectResult.assignResultCodeException(e, wsMemberChangeSubject);
+                }
+              }
+              //see if any inner failures cause the whole tx to fail, and/or change the outer status
+              if (!wsMemberChangeSubjectResults.tallyResults(TX_TYPE, THE_SUMMARY)) {
+                grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
+              }
+  
+              return null;
+            }
+          });
+    } catch (Exception e) {
+      wsMemberChangeSubjectResults.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  
+    return wsMemberChangeSubjectResults;
+
+  }
+  
   /**
    * delete a stem or many (if doesnt exist, ignore)
    * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000

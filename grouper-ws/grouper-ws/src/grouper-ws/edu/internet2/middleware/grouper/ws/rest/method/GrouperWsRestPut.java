@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestPut.java,v 1.7 2008-05-12 04:23:50 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestPut.java,v 1.8 2008-10-21 03:51:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -16,6 +16,8 @@ import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveRequest;
+import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -25,11 +27,11 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  */
 public enum GrouperWsRestPut {
 
-  /** group get requests */
+  /** group put requests */
   groups {
 
     /**
-     * handle the incoming request based on GET HTTP method and group resource
+     * handle the incoming request based on PUT HTTP method and group resource
      * @param clientVersion version of client, e.g. v1_3_000
      * @param urlStrings not including the app name or servlet.  
      * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/groups/a:b
@@ -74,11 +76,11 @@ public enum GrouperWsRestPut {
 
   },
   
-  /** stem get requests */
+  /** stem put requests */
   stems {
 
     /**
-     * handle the incoming request based on GET HTTP method and group resource
+     * handle the incoming request based on PUT HTTP method and group resource
      * @param clientVersion version of client, e.g. v1_3_000
      * @param urlStrings not including the app name or servlet.  
      * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/groups/a:b
@@ -120,7 +122,48 @@ public enum GrouperWsRestPut {
           + GrouperUtil.toStringForLog(urlStrings) + ", " + GrouperUtil.className(requestObject));
     }
 
-  };
+  }, 
+  /** group put requests */
+  members{
+  
+      /**
+       * handle the incoming request based on PUT HTTP method and members resource
+       * @param clientVersion version of client, e.g. v1_3_000
+       * @param urlStrings not including the app name or servlet.  
+       * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/members/a:b
+       * the urlStrings would be size two: {"group", "a:b"}
+       * @param requestObject is the request body converted to object
+       * @return the result object
+       */
+      @Override
+      public WsResponseBean service(
+          GrouperWsVersion clientVersion, List<String> urlStrings,
+          WsRequestBean requestObject) {
+  
+        //url should be: /v1_3_000/members/123412345
+        //or url should be: /v1_3_000/members/sourceId/someSource/subjectId/123412345
+        String subjectId = GrouperServiceUtils.extractSubjectInfoFromUrlStrings(urlStrings, 0, false, false);
+        String sourceId = GrouperServiceUtils.extractSubjectInfoFromUrlStrings(urlStrings, 0, true, true);
+
+        if (requestObject instanceof WsRestMemberChangeSubjectRequest) {
+          if (!StringUtils.isBlank(subjectId)) {
+            throw new WsInvalidQueryException("Dont pass subjectId when changing subjects of batch members: '" + subjectId + "'");
+          }
+          if (!StringUtils.isBlank(sourceId)) {
+            throw new WsInvalidQueryException("Dont pass sourceId when changing subjects of batch members: '" + sourceId + "'");
+          }
+          return GrouperServiceRest.memberChangeSubject(clientVersion, (WsRestMemberChangeSubjectRequest)requestObject);
+        }
+  
+        if (requestObject instanceof WsRestMemberChangeSubjectLiteRequest) {
+          return GrouperServiceRest.memberChangeSubjectLite(clientVersion, subjectId, sourceId, 
+              (WsRestMemberChangeSubjectLiteRequest)requestObject);
+        }
+        
+        throw new RuntimeException("Cants find handler for object: " + GrouperUtil.className(requestObject));
+      }
+  
+    };
 
   /**
    * handle the incoming request based on HTTP method

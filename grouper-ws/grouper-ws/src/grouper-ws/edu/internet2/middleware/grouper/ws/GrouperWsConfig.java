@@ -139,6 +139,14 @@ public final class GrouperWsConfig {
   public static final String WS_ADD_MEMBER_SUBJECTS_MAX = "ws.add.member.subjects.max";
 
   /**
+   * name of param for member change subject web service max, default is 1000000
+   *  # Max number of members to pass to memberChangeSubject,
+   * default is 1000000 ws.member.change.subject.max = 20000
+   * 
+   */
+  public static final String WS_MEMBER_CHANGE_SUBJECT_MAX = "ws.member.change.subject.max";
+
+  /**
    * name of param for get groups web service max, default is 1000000
    *  # Max number of subjects to be able to pass to getGroups service,
    * default is 1000000 ws.get.groups.subjects.max = 20000

@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * <p/>
  * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubject.java,v 1.14 2008-09-23 04:26:23 mchyzer Exp $
+ * @version $Id: RegistrySubject.java,v 1.15 2008-10-21 03:51:03 mchyzer Exp $
  * @since   1.2.0
  */
 public class RegistrySubject extends GrouperAPI implements Subject {
@@ -152,14 +153,17 @@ public class RegistrySubject extends GrouperAPI implements Subject {
       throw new GrouperException( eDAO.getMessage(), eDAO );
     }
   }
+  
+  /** attributes */
+  private Map<String, String> attributes = new HashMap<String, String>();
+  
   /**
    * Return the subject's attribute.
-   *  <p/>
-   * <p><b>NOTE:</b> This is not currently implemented and will always return an empty map.</p>
+   * @return  the map
    * @since   1.2.0
    */
-  public Map getAttributes() {
-    return new HashMap();
+  public Map<String, String> getAttributes() {
+    return this.attributes;
   } // public Map getAttributes()
 
   /**
@@ -169,7 +173,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    * @since   1.2.0
    */
   public String getAttributeValue(String name) {
-    return GrouperConfig.EMPTY_STRING;
+    return this.attributes.get(name);
   } // public String getAttributevalue(name)
 
   /**
@@ -178,8 +182,8 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    * <p><b>NOTE:</b> This is not currently implemented and will always return an empty set.</p>
    * @since   1.2.0
    */
-  public Set getAttributeValues(String name) {
-    return new LinkedHashSet();
+  public Set<String> getAttributeValues(String name) {
+    return new HashSet<String>(this.attributes.values());
   } // public Set getAttributeValues(name)
 
   /**

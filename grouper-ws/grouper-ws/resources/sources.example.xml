@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.example.xml,v 1.1 2008-01-14 16:09:07 mchyzer Exp $
+$Id: sources.example.xml,v 1.2 2008-10-21 03:50:59 mchyzer Exp $
 -->
 
 <sources>
@@ -19,11 +19,24 @@ $Id: sources.example.xml,v 1.1 2008-01-14 16:09:07 mchyzer Exp $
   </source>
   <!-- Group Subject Resolver -->
 
- <source adapterClass="edu.internet2.middleware.subject.provider.JDBCSourceAdapter">
-    <id>qsuob</id>
-    <name>QSUOB JDBC Source Adapter</name>
+ <source adapterClass="edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter">
+    <id>jdbc</id>
+    <name>Example JDBC Source Adapter</name>
      <type>person</type>
+     
+     <!-- edu.internet2.middleware.subject.provider.C3p0JdbcConnectionProvider (default)
+          edu.internet2.middleware.subject.provider.DbcpJdbcConnectionProvider (legacy) 
+          edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider 
+            (same settings as grouper.hibernate.properties, the driver, url, pass, maxActive, maxIdle, maxWait are forbidden -->
      <init-param>
+       <param-name>jdbcConnectionProvider</param-name>
+       <param-value>edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider </param-value>
+     </init-param>
+     
+     <!-- note: again, if you use GrouperJdbcConnectionProvider, then you should not fill out maxActive, maxIdle,
+       maxWait, dbDriver, dbUrl, dbUser, dbPwd, since it will use the grouper.hibernate.properties db settings -->
+
+     <!--   init-param>
        <param-name>maxActive</param-name>
        <param-value>16</param-value>
      </init-param>
@@ -34,28 +47,42 @@ $Id: sources.example.xml,v 1.1 2008-01-14 16:09:07 mchyzer Exp $
      <init-param>
        <param-name>maxWait</param-name>
        <param-value>-1</param-value>
-     </init-param>
-     <init-param>
+     </init-param -->
+     
+     <!--      
+       e.g. mysql:           com.mysql.jdbc.Driver
+       e.g. p6spy (log sql): com.p6spy.engine.spy.P6SpyDriver
+         for p6spy, put the underlying driver in spy.properties
+       e.g. oracle:          oracle.jdbc.driver.OracleDriver
+       e.g. hsqldb:          org.hsqldb.jdbcDriver
+       e.g. postgres:        org.postgresql.Driver -->
+
+     <!-- init-param>
        <param-name>dbDriver</param-name>
-       <param-value>oracle.jdbc.driver.OracleDriver</param-value>
-       <!-- param-value>org.hsqldb.jdbcDriver</param-value -->
-     </init-param>
-     <init-param>
+       <param-value>org.hsqldb.jdbcDriver</param-value>
+     </init-param -->
+     
+     <!-- 
+       e.g. mysql:           jdbc:mysql://localhost:3306/grouper
+       e.g. p6spy (log sql): [use the URL that your DB requires]
+       e.g. oracle:          jdbc:oracle:thin:@server.school.edu:1521:sid
+       e.g. hsqldb (a):      jdbc:hsqldb:dist/run/grouper;create=true
+       e.g. hsqldb (b):      jdbc:hsqldb:hsql://localhost:9001
+       e.g. postgres:        jdbc:postgresql:grouper -->
+     
+     <!-- init-param>
        <param-name>dbUrl</param-name>
- <!--<param-value>jdbc:hsqldb:C:/projects/GrouperI2MI_1-2/grouper/dist/run/grouper</param-value>-->
-  <!-- param-value>jdbc:hsqldb:hsql://localhost:9001</param-value -->
-       <param-value>jdbc:oracle:thin:@server.com:1521:sid</param-value>
+       <param-value>jdbc:hsqldb:C:/projects/GrouperI2MI_1-2/grouper/dist/run/grouper</param-value>
      </init-param>
      <init-param>
        <param-name>dbUser</param-name>
-       <param-value>some_schema</param-value>
-       <!-- param-value>sa</param-value -->
+       <param-value>sa</param-value>
      </init-param>
      <init-param>
        <param-name>dbPwd</param-name>
-       <!-- param-value></param-value -->
-       <param-value>the_pass</param-value>
-     </init-param>
+       <param-value></param-value>
+     </init-param -->
+     
       <init-param>
        <param-name>SubjectID_AttributeType</param-name>
        <param-value>id</param-value>
@@ -71,98 +98,62 @@ $Id: sources.example.xml,v 1.1 2008-01-14 16:09:07 mchyzer Exp $
 
      <search>
          <searchType>searchSubject</searchType>
-		  <param>
-        	<param-name>numParameters</param-name>
-        	<param-value>1</param-value>
-        </param>
          <param>
              <param-name>sql</param-name>
              <param-value>
 select
-   subject.subjectid as id, subject.name as name,
-   lfnamet.lfname as lfname, loginidt.loginid as loginid,
-   desct.description as description
+   s.subjectid as id, s.name as name,
+   (select sa2.value from subjectattribute sa2 where name='name' and sa2.SUBJECTID = s.subjectid) as lfname,
+   (select sa3.value from subjectattribute sa3 where name='loginid' and sa3.SUBJECTID = s.subjectid) as loginid,
+   (select sa4.value from subjectattribute sa4 where name='description' and sa4.SUBJECTID = s.subjectid) as description
 from
-   subject
-   left join (select subjectid, value as lfname from subjectattribute
-     where name='name') lfnamet
-     on subject.subjectid=lfnamet.subjectid
-   left join (select subjectid, value as loginid from subjectattribute
-     where name='loginid') loginidt
-     on subject.subjectid=loginidt.subjectid
-   left join (select subjectid, value as description from subjectattribute
-      where name='description') desct
-     on subject.subjectid=desct.subjectid
+   subject s
 where
-   subject.subjectid = ?
-             </param-value>
+   s.subjectid = ?
+            </param-value>
          </param>
      </search>
      <search>
          <searchType>searchSubjectByIdentifier</searchType>
-		  <param>
-        	<param-name>numParameters</param-name>
-        	<param-value>1</param-value>
-        </param>
          <param>
              <param-name>sql</param-name>
              <param-value>
 select
-   subject.subjectid as id, subject.name as name,
-   lfnamet.lfname as lfname, loginidt.loginid as loginid,
-   desct.description as description
+   s.subjectid as id, s.name as name,
+   (select sa2.value from subjectattribute sa2 where name='name' and sa2.SUBJECTID = s.subjectid) as lfname,
+   (select sa3.value from subjectattribute sa3 where name='loginid' and sa3.SUBJECTID = s.subjectid) as loginid,
+   (select sa4.value from subjectattribute sa4 where name='description' and sa4.SUBJECTID = s.subjectid) as description
 from
-   subject
-   left join (select subjectid, value as lfname from subjectattribute
-     where name='name') lfnamet
-     on subject.subjectid=lfnamet.subjectid
-   left join (select subjectid, value as loginid from subjectattribute
-     where name='loginid') loginidt
-     on subject.subjectid=loginidt.subjectid
-   left join (select subjectid, value as description from subjectattribute
-      where name='description') desct
-     on subject.subjectid=desct.subjectid
+   subject s, subjectattribute a
 where
-   loginidt.loginid = ?
+   a.value = ? and a.name='loginid' and s.subjectid = a.subjectid
              </param-value>
          </param>
      </search>
      <search>
         <searchType>search</searchType>
-		 <param>
-        	<param-name>numParameters</param-name>
-        	<param-value>4</param-value>
-        </param>
          <param>
              <param-name>sql</param-name>
              <param-value>
 select
-   subject.subjectid as id, subject.name as name,
-   lfnamet.lfname as lfname, loginidt.loginid as loginid,
-   desct.description as description
-from
-   subject
-   left join (select subjectid, value as lfname from subjectattribute
-     where name='name') lfnamet
-     on subject.subjectid=lfnamet.subjectid
-   left join (select subjectid, value as loginid from subjectattribute
-     where name='loginid') loginidt
-     on subject.subjectid=loginidt.subjectid
-   left join (select subjectid, value as description from subjectattribute
-      where name='description') desct
-     on subject.subjectid=desct.subjectid
+   s.subjectid as id, s.name as name,
+   (select sa2.value from subjectattribute sa2 where name='name' and sa2.SUBJECTID = s.subjectid) as lfname,
+   (select sa3.value from subjectattribute sa3 where name='loginid' and sa3.SUBJECTID = s.subjectid) as loginid,
+   (select sa4.value from subjectattribute sa4 where name='description' and sa4.SUBJECTID = s.subjectid) as description
+from 
+   subject s
 where
-   (lower(name) like concat('%',concat(?,'%')))
-   or (lower(lfnamet.lfname) like concat('%',concat(?,'%')))
-   or (lower(loginidt.loginid) like concat('%',concat(?,'%')))
-   or (lower(desct.description) like concat('%',concat(?,'%')))
+   s.subjectid in (
+      select subjectid from subject where lower(name) like concat('%',concat(?,'%')) union
+      select subjectid from subjectattribute where searchvalue like concat('%',concat(?,'%'))
+   )
              </param-value>
          </param>
      </search>
    </source>
    
    <!--
-  <source adapterClass="edu.internet2.middleware.subject.provider.JNDISourceAdapter">
+  <source adapterClass="edu.internet2.middleware.grouper.subj.GrouperJndiSourceAdapter">
     <id>example</id>
     <name>Example Edu</name>
     <type>person</type>

@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.RegistrySubject;
+import edu.internet2.middleware.grouper.RegistrySubjectAttribute;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
@@ -27,7 +28,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 /**
  * Basic Hibernate <code>RegistrySubject</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3RegistrySubjectDAO.java,v 1.4 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Hib3RegistrySubjectDAO.java,v 1.5 2008-10-21 03:51:03 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDAO {
@@ -38,6 +39,17 @@ public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDA
   public void create(RegistrySubject _subj)
     throws  GrouperDAOException {
     HibernateSession.byObjectStatic().save(_subj);
+    
+    for (String key : _subj.getAttributes().keySet()) {
+      RegistrySubjectAttribute registrySubjectAttribute = new RegistrySubjectAttribute();
+      registrySubjectAttribute.setName(key);
+      String value = _subj.getAttributes().get(key);
+      registrySubjectAttribute.setValue(value);
+      registrySubjectAttribute.setSearchValue(value == null ? null : value.toLowerCase());
+      registrySubjectAttribute.setSubjectId(_subj.getId());
+      HibernateSession.byObjectStatic().save(registrySubjectAttribute);    
+    }
+    
   } 
 
   /**

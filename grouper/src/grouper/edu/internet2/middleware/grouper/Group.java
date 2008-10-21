@@ -107,7 +107,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.203 2008-10-17 12:06:37 mchyzer Exp $
+ * @version $Id: Group.java,v 1.204 2008-10-21 03:51:03 mchyzer Exp $
  */
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
@@ -208,6 +208,8 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
                   String parentStemNameNew = GrouperUtil.parentStemNameFromName(name);
                   String extensionNew = GrouperUtil.extensionFromName(name);
                   
+                  String theDisplayExtension = StringUtils.isBlank(displayExtension) ? extensionNew : displayExtension;
+                  
                   //lets find the stem
                   Stem parentStem = null;
                   
@@ -261,14 +263,14 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
                     if (StringUtils.isBlank(uuid)) {
                       try {
                         //if no uuid
-                        theGroup = parentStem.addChildGroup(extensionNew, displayExtension);
+                        theGroup = parentStem.addChildGroup(extensionNew, theDisplayExtension);
                       } catch (GroupAddException gae) {
                         //here for debugging
                         throw new GrouperSessionException(gae);
                       }
                     } else {
                       //if uuid
-                      theGroup = parentStem.internal_addChildGroup(extensionNew, displayExtension, uuid);
+                      theGroup = parentStem.internal_addChildGroup(extensionNew, theDisplayExtension, uuid);
                     }
                   } else {
                     //check if different so it doesnt make unneeded queries
@@ -276,8 +278,8 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
                       theGroup.setExtension(extensionNew);
                       theGroup.store();
                     }
-                    if (!StringUtils.equals(theGroup.getDisplayExtension(), displayExtension)) {
-                      theGroup.setDisplayExtension(displayExtension);
+                    if (!StringUtils.equals(theGroup.getDisplayExtension(), theDisplayExtension)) {
+                      theGroup.setDisplayExtension(theDisplayExtension);
                       theGroup.store();
                     }
                   }

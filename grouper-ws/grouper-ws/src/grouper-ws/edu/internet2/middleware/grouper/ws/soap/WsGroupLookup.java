@@ -20,7 +20,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDelet
  * <pre>
  * Class to lookup a group via web service
  * 
- * developers make sure each setter calls this.clearSubject();
+ * developers make sure each setter calls this.clearGroup();
  * </pre>
  * @author mchyzer
  */
@@ -29,7 +29,7 @@ public class WsGroupLookup {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(WsSubjectLookup.class);
+  private static final Log LOG = LogFactory.getLog(WsGroupLookup.class);
 
   /** find the group */
   private Group group = null;
@@ -37,7 +37,7 @@ public class WsGroupLookup {
   /** result of group find */
   public enum GroupFindResult {
 
-    /** found the subject */
+    /** found the group */
     SUCCESS {
 
       /**
@@ -81,7 +81,7 @@ public class WsGroupLookup {
       }
     },
 
-    /** cant find the subject */
+    /** cant find the group */
     GROUP_NOT_FOUND {
 
       /**
@@ -190,7 +190,7 @@ public class WsGroupLookup {
    * 
    * Note: this is not a javabean property because we dont want it in the web service
    * </pre>
-   * @return the subjectFindResult, this is never null
+   * @return the groupFindResult, this is never null
    */
   public GroupFindResult retrieveGroupFindResult() {
     return this.groupFindResult;
@@ -277,7 +277,7 @@ public class WsGroupLookup {
   }
 
   /**
-   * clear the subject if a setter is called
+   * clear the group if a setter is called
    */
   private void clearGroup() {
     this.group = null;
@@ -287,7 +287,7 @@ public class WsGroupLookup {
   /** name of the group to find (includes stems, e.g. stem1:stem2:groupName */
   private String groupName;
 
-  /** result of subject find */
+  /** result of group find */
   private GroupFindResult groupFindResult = null;
 
   /**

@@ -740,6 +740,88 @@
                     <xs:element minOccurs="0" name="wsGroup" nillable="true" type="ns:WsGroup"/>
                 </xs:sequence>
             </xs:complexType>
+            <xs:element name="memberChangeSubjectLite">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="oldSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="oldSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="oldSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="newSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="newSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="newSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="deleteOldMember" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue0" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramName1" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="paramValue1" nillable="true" type="xs:string"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="memberChangeSubjectLiteResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsMemberChangeSubjectLiteResult"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsMemberChangeSubjectLiteResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="wsSubjectNew" nillable="true" type="ns:WsSubject"/>
+                    <xs:element minOccurs="0" name="wsSubjectOld" nillable="true" type="ns:WsSubject"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="memberChangeSubject">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="clientVersion" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="wsMemberChangeSubjects" nillable="true" type="ns:WsMemberChangeSubject"/>
+                        <xs:element minOccurs="0" name="actAsSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                        <xs:element minOccurs="0" name="txType" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="includeSubjectDetail" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                        <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsMemberChangeSubject">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="deleteOldMember" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="newSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                    <xs:element minOccurs="0" name="oldSubjectLookup" nillable="true" type="ns:WsSubjectLookup"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:element name="memberChangeSubjectResponse">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element minOccurs="0" name="return" nillable="true" type="ns:WsMemberChangeSubjectResults"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+            <xs:complexType name="WsMemberChangeSubjectResults">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="results" nillable="true" type="ns:WsMemberChangeSubjectResult"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsMemberChangeSubjectResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
+                    <xs:element minOccurs="0" name="wsSubjectNew" nillable="true" type="ns:WsSubject"/>
+                    <xs:element minOccurs="0" name="wsSubjectOld" nillable="true" type="ns:WsSubject"/>
+                </xs:sequence>
+            </xs:complexType>
             <xs:element name="stemDeleteLite">
                 <xs:complexType>
                     <xs:sequence>
@@ -990,6 +1072,18 @@
     <wsdl:message name="stemDeleteLiteResponse">
         <wsdl:part name="parameters" element="ns0:stemDeleteLiteResponse"/>
     </wsdl:message>
+    <wsdl:message name="memberChangeSubjectLiteRequest">
+        <wsdl:part name="parameters" element="ns0:memberChangeSubjectLite"/>
+    </wsdl:message>
+    <wsdl:message name="memberChangeSubjectLiteResponse">
+        <wsdl:part name="parameters" element="ns0:memberChangeSubjectLiteResponse"/>
+    </wsdl:message>
+    <wsdl:message name="memberChangeSubjectRequest">
+        <wsdl:part name="parameters" element="ns0:memberChangeSubject"/>
+    </wsdl:message>
+    <wsdl:message name="memberChangeSubjectResponse">
+        <wsdl:part name="parameters" element="ns0:memberChangeSubjectResponse"/>
+    </wsdl:message>
     <wsdl:message name="getGroupsRequest">
         <wsdl:part name="parameters" element="ns0:getGroups"/>
     </wsdl:message>
@@ -1086,6 +1180,14 @@
         <wsdl:operation name="stemDeleteLite">
             <wsdl:input message="axis2:stemDeleteLiteRequest" wsaw:Action="urn:stemDeleteLite"/>
             <wsdl:output message="axis2:stemDeleteLiteResponse" wsaw:Action="urn:stemDeleteLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="memberChangeSubjectLite">
+            <wsdl:input message="axis2:memberChangeSubjectLiteRequest" wsaw:Action="urn:memberChangeSubjectLite"/>
+            <wsdl:output message="axis2:memberChangeSubjectLiteResponse" wsaw:Action="urn:memberChangeSubjectLiteResponse"/>
+        </wsdl:operation>
+        <wsdl:operation name="memberChangeSubject">
+            <wsdl:input message="axis2:memberChangeSubjectRequest" wsaw:Action="urn:memberChangeSubject"/>
+            <wsdl:output message="axis2:memberChangeSubjectResponse" wsaw:Action="urn:memberChangeSubjectResponse"/>
         </wsdl:operation>
         <wsdl:operation name="getGroups">
             <wsdl:input message="axis2:getGroupsRequest" wsaw:Action="urn:getGroups"/>
@@ -1261,6 +1363,24 @@
         </wsdl:operation>
         <wsdl:operation name="stemDeleteLite">
             <soap:operation soapAction="urn:stemDeleteLite" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="memberChangeSubjectLite">
+            <soap:operation soapAction="urn:memberChangeSubjectLite" style="document"/>
+            <wsdl:input>
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="memberChangeSubject">
+            <soap:operation soapAction="urn:memberChangeSubject" style="document"/>
             <wsdl:input>
                 <soap:body use="literal"/>
             </wsdl:input>
@@ -1469,6 +1589,24 @@
                 <soap12:body use="literal"/>
             </wsdl:output>
         </wsdl:operation>
+        <wsdl:operation name="memberChangeSubjectLite">
+            <soap12:operation soapAction="urn:memberChangeSubjectLite" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="memberChangeSubject">
+            <soap12:operation soapAction="urn:memberChangeSubject" style="document"/>
+            <wsdl:input>
+                <soap12:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
         <wsdl:operation name="getGroups">
             <soap12:operation soapAction="urn:getGroups" style="document"/>
             <wsdl:input>
@@ -1668,6 +1806,24 @@
             </wsdl:input>
             <wsdl:output>
                 <mime:content type="text/xml" part="stemDeleteLite"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="memberChangeSubjectLite">
+            <http:operation location="GrouperService/memberChangeSubjectLite"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="memberChangeSubjectLite"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="memberChangeSubjectLite"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="memberChangeSubject">
+            <http:operation location="GrouperService/memberChangeSubject"/>
+            <wsdl:input>
+                <mime:content type="text/xml" part="memberChangeSubject"/>
+            </wsdl:input>
+            <wsdl:output>
+                <mime:content type="text/xml" part="memberChangeSubject"/>
             </wsdl:output>
         </wsdl:operation>
         <wsdl:operation name="getGroups">

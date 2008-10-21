@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.2 2008-10-15 06:13:21 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.3 2008-10-21 03:51:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -999,7 +999,7 @@ public class GrouperCheckConfig {
   public static File jarFile(Class sampleClass) {
     try {
       CodeSource codeSource = sampleClass.getProtectionDomain().getCodeSource();
-      if (codeSource.getLocation() != null) {
+      if (codeSource != null && codeSource.getLocation() != null) {
         return new File(codeSource.getLocation().getFile());
       }
       String resourcePath = sampleClass.getName();

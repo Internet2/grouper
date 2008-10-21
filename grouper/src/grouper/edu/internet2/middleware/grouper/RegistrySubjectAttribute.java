@@ -24,7 +24,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 /** 
  * Hibernate representation of the JDBC <code>SubjectAttribute</code> table.
  * @author  blair christensen.
- * @version $Id: RegistrySubjectAttribute.java,v 1.1 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: RegistrySubjectAttribute.java,v 1.2 2008-10-21 03:51:03 mchyzer Exp $
  * @since   @HEAD@
  */
 public class RegistrySubjectAttribute implements Serializable {
@@ -93,38 +93,38 @@ public class RegistrySubjectAttribute implements Serializable {
   // PRIVATE INSTANCE METHODS //
   
   // @since   @HEAD@
-  private String getName() {
+  public String getName() {
     return this.name;
   }
   // @since   @HEAD@
-  private String getSearchValue() {
+  public String getSearchValue() {
     return this.searchValue;
   }
   // @since   @HEAD@
-  private String getSubjectId() {
+  public String getSubjectId() {
     return this.subjectId;
   }
   // @since   @HEAD@
-  private String getValue() {
+  public String getValue() {
     return this.value;
   }
   // @since   @HEAD@
-  private RegistrySubjectAttribute setName(String name) {
+  public RegistrySubjectAttribute setName(String name) {
     this.name = name;
     return this;
   }
   // @since   @HEAD@
-  private RegistrySubjectAttribute setSearchValue(String value) {
+  public RegistrySubjectAttribute setSearchValue(String value) {
     this.searchValue = value;
     return this;
   }
   // @since   @HEAD@
-  private RegistrySubjectAttribute setSubjectId(String subjectId) {
+  public RegistrySubjectAttribute setSubjectId(String subjectId) {
     this.subjectId = subjectId;
     return this;
   }
   // @since   @HEAD@
-  private RegistrySubjectAttribute setValue(String value) {
+  public RegistrySubjectAttribute setValue(String value) {
     this.value = value;
     return this;
   }

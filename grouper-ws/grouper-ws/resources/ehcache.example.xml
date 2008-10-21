@@ -30,9 +30,17 @@
   <defaultCache
     maxElementsInMemory="1000"
     eternal="false"
-    timeToIdleSeconds="10"
-    timeToLiveSeconds="20"
+    timeToIdleSeconds="0"
+    timeToLiveSeconds="0"
     overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO"
+          maxElementsInMemory="500"
+          eternal="false"
+          timeToIdleSeconds="1"
+          timeToLiveSeconds="1"
+          overflowToDisk="false"
   />
 
   <!--
@@ -55,7 +63,28 @@
           overflowToDisk="false"  
   />
 -->
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateMemberDAO.FindBySubject"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="5"
+          timeToLiveSeconds="10"
+          overflowToDisk="false"  
+  />
+
   <!-- class: HibernateMemberDAO -->
+
+  <!-- class: Hib3MemberDAO -->
+
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.FindBySubject"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="5"
+          timeToLiveSeconds="10"
+          overflowToDisk="false"  
+  />
+
+  <!-- class: Hib3MemberDAO -->
 
 
   <!-- Queries -->
@@ -78,6 +107,110 @@
     timeToIdleSeconds="10"
     timeToLiveSeconds="20"
     overflowToDisk="false"
+  />
+
+  <cache name="org.hibernate.cache.StandardQueryCache"
+    maxElementsInMemory="500"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="20"
+    overflowToDisk="false"
+  />
+
+  <cache name="org.hibernate.cache.UpdateTimestampsCache"
+    maxElementsInMemory="5000"
+    eternal="false"
+    timeToIdleSeconds="10"
+    timeToLiveSeconds="20"
+    overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.RegistrySubject"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="1"
+          timeToLiveSeconds="1"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.GroupTypeTuple"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="1"
+          timeToLiveSeconds="1"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.Field"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="1"
+          timeToLiveSeconds="1"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.RegistrySubjectAttribute"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="1"
+          timeToLiveSeconds="1"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.Attribute"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="1"
+          timeToLiveSeconds="1"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.Composite"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="1"
+          timeToLiveSeconds="1"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.GroupType"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="1"
+          timeToLiveSeconds="1"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.Membership"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="1"
+          timeToLiveSeconds="1"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.Group"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="1"
+          timeToLiveSeconds="1"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.Stem"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="1"
+          timeToLiveSeconds="1"
+          overflowToDisk="false"
+  />
+
+  <cache  name="edu.internet2.middleware.grouper.Member"
+          maxElementsInMemory="1000"
+          eternal="false"
+          timeToIdleSeconds="1"
+          timeToLiveSeconds="1"
+          overflowToDisk="false"
   />
 
 </ehcache>

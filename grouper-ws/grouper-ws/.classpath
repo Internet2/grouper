@@ -14,16 +14,13 @@
 	<classpathentry exported="true" kind="lib" path="lib/axis/xercesImpl-2.8.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/xml-apis-1.3.03.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/XmlSchema-1.3.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-discovery-0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/grouper.jar" sourcepath="/grouper"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws-non-webapp/servlet.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/asm.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/asm-attrs.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/asm-util.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/backport-util-concurrent-3.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/p6spy.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/commons-io-1.4.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/dom4j-1.6.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/jdom-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/joda-time-1.5.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws/stax-1.2.0.jar"/>
@@ -63,13 +60,11 @@
 	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-saaj-api-1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-spring-1.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/axis2-xmlbeans-1.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/backport-util-concurrent-2.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/geronimo-annotation_1.0_spec-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/geronimo-jms_1.1_spec-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/httpcore-4.0-alpha5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/httpcore-nio-4.0-alpha5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/httpcore-niossl-4.0-alpha5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/axis/jalopy-1.5rc3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/jaxen-1.1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/jibx-bind-1.1.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/axis/jibx-run-1.1.5.jar"/>
@@ -106,7 +101,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/hibernate.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/invoker.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/jakarta-oro.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/jamon-2.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/jsr107cache.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/jta.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/jug.jar"/>
@@ -117,5 +111,11 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/quartz.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/subject.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/junit.jar"/>
+	<classpathentry kind="lib" path="lib/jdbcSamples/hsqldb.jar"/>
+	<classpathentry kind="lib" path="lib/jdbcSamples/mysql-connector-java-bin.jar"/>
+	<classpathentry kind="lib" path="lib/jdbcSamples/ojdbc14.jar"/>
+	<classpathentry kind="lib" path="lib/jdbcSamples/postgresql.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/commons-discovery.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/jamon.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
