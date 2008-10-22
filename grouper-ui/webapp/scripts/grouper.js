@@ -134,6 +134,18 @@ function eventCancelBubble(event) {
   }
 }
 
+/** go to an anchor link on the same page */
+function goToAnchor(anchor) {
+  var location = ""+window.location;
+  var charIndex = location.indexOf("#");
+  if (charIndex >= 0) {
+    location = location.substring(0, charIndex);
+  }
+  window.location = location + "#" + anchor;
+  return false;
+}
+
+
 /** hide or show an element by id, return false to not navigate to link */
 function grouperHideShow(event, elementIdToHideShow, forceShow) {
 
