@@ -13,7 +13,10 @@ import  java.io.FileReader;
 import java.io.InputStream;
 import  java.io.InputStreamReader;
 import  java.io.IOException;
+import java.io.StringReader;
 import  java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * {@link GrouperShell} Shell Command Reader.
@@ -38,7 +41,17 @@ class ShellCommandReader implements CommandReader {
   protected ShellCommandReader(String[] args, InputStream inputStreamParam) 
     throws  GrouperShellException
   {
-    if (args != null && args.length > 0) {
+    if (args != null && args.length > 0 && StringUtils.equals(args[0], "-runarg")) {
+      if (args.length != 2) {
+        throw new RuntimeException("When passing -runarg, pass one other argument, the gsh command to run");
+      }
+      String commands = args[1];
+      //if \\n was in there, then make it a newline...
+      commands = commands.replace("\\n", "\n");
+      this.in = new BufferedReader(new StringReader(commands));
+      System.out.println("Running command(s):\n\n" + commands + "\n\n");
+      
+    } else if (args != null && args.length > 0) {
       String file = args[0];
       if ("-".equals( file )) {
         this.in = new BufferedReader( new InputStreamReader(System.in) );
@@ -51,8 +64,7 @@ class ShellCommandReader implements CommandReader {
           throw new GrouperShellException(eFNF);
         }
       }
-    }
-    else {
+    } else {
       if (inputStreamParam != null) {
         this.in = new BufferedReader(new InputStreamReader(inputStreamParam));
       } else {
