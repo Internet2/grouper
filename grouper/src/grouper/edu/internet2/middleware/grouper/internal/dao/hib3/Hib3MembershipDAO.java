@@ -46,7 +46,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.23 2008-10-18 07:14:39 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.24 2008-10-22 23:24:12 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -449,7 +449,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @since   @HEAD@
    */
-  public List<Membership> findAllByOwner(String ownerUUID)
+  public List<Membership> findAllByOwnerAsList(String ownerUUID)
     throws  GrouperDAOException
   {
 	  List<Object[]> mships = HibernateSession.byHqlStatic()
@@ -460,7 +460,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .setCacheRegion(KLASS + ".FindAllByOwner")
       .setString("owner", ownerUUID)
       .list(Object[].class);
-    return new ArrayList<Membership>(_getMembershipsFromMembershipAndMemberQuery(mships));
+    return _getMembershipsFromMembershipAndMemberQueryAsList(mships);
   }
 
 
@@ -626,6 +626,23 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       
 
   } // private Set<MembershipDAO> _getMembershipsFromMembershipAndmemberQuery(Set<Object[]>)
+
+//@since 1.4.0
+  private List<Membership> _getMembershipsFromMembershipAndMemberQueryAsList(Collection<Object[]> mships)
+    throws  HibernateException
+  {
+    List<Membership> memberships = new ArrayList<Membership>();
+    
+    for(Object[] tuple:mships) {
+      Membership currMembership = (Membership)tuple[0];
+      Member currMember = (Member)tuple[1];
+      currMembership.setMember(currMember);
+      memberships.add(currMembership);
+    }
+    return memberships;
+      
+
+  } // private List<MembershipDAO> _getMembershipsFromMembershipAndmemberQueryAsList(Collection<Object[]>)
 
 } 
 
