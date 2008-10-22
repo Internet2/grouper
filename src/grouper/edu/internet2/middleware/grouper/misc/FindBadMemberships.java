@@ -292,7 +292,7 @@ public class FindBadMemberships {
     String ownerUUID = stem.getUuid();
 
     // get all memberships for this stem.
-    List<Membership> current = GrouperDAOFactory.getFactory().getMembership().findAllByOwner(ownerUUID);
+    List<Membership> current = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAsList(ownerUUID);
 
     // we'll store all the effective memberships for the stem here.
     Set<Membership> currentEffective = new LinkedHashSet<Membership>();
@@ -483,7 +483,7 @@ public class FindBadMemberships {
     String ownerUUID = group.getUuid();
 
     // get all memberships for this group.
-    List<Membership> current = GrouperDAOFactory.getFactory().getMembership().findAllByOwner(ownerUUID);
+    List<Membership> current = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAsList(ownerUUID);
 
     // we'll store all the effective memberships for the group here.
     Set<Membership> currentEffective = new LinkedHashSet<Membership>();
