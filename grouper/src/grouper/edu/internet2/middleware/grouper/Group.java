@@ -107,7 +107,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.204 2008-10-21 03:51:03 mchyzer Exp $
+ * @version $Id: Group.java,v 1.205 2008-10-23 20:52:05 shilen Exp $
  */
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
@@ -515,7 +515,6 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
       mof.addComposite( GrouperSession.staticGrouperSession(), this, c );
       GrouperDAOFactory.getFactory().getMembership().update(mof);
       EventLog.groupAddComposite( GrouperSession.staticGrouperSession(), c, mof, sw );
-      Composite.internal_update(this);
       sw.stop();
     }
     catch (GrouperDAOException eDAO) {
@@ -697,7 +696,6 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
     }
     Membership.internal_addImmediateMembership( GrouperSession.staticGrouperSession(), this, subj, f );
     EVENT_LOG.groupAddMember(GrouperSession.staticGrouperSession(), this.getName(), subj, f, sw);
-    Composite.internal_update(this);
     sw.stop();
   } // public void addMember(subj, f)
 
@@ -1041,7 +1039,6 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
       mof.deleteComposite( GrouperSession.staticGrouperSession(), this, c );
       GrouperDAOFactory.getFactory().getMembership().update(mof);
       EventLog.groupDelComposite( GrouperSession.staticGrouperSession(), c, mof, sw );
-      Composite.internal_update(this);
       sw.stop();
     }
     catch (CompositeNotFoundException eCNF) {
@@ -1248,7 +1245,6 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
     sw.stop();
     EVENT_LOG.groupDelMember(GrouperSession.staticGrouperSession(), this.getName(), subj, f, sw);
     EVENT_LOG.delEffMembers(GrouperSession.staticGrouperSession(), this, subj, f, mof.getEffectiveDeletes());
-    Composite.internal_update(this);
   } // public void deleteMember(subj, f)
 
   /**

@@ -22,7 +22,7 @@ import junit.framework.TestSuite;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteMemberships.java,v 1.11 2008-10-06 16:46:13 shilen Exp $
+ * @version $Id: SuiteMemberships.java,v 1.12 2008-10-23 20:52:05 shilen Exp $
  */
 public class SuiteMemberships extends TestCase {
 
@@ -37,6 +37,9 @@ public class SuiteMemberships extends TestCase {
     suite.addTestSuite(TestMembership6.class);  // test of effective memberships with access and naming privileges and composite groups
     suite.addTestSuite(TestMembership7.class);  // test of circular memberships without composite groups
     suite.addTestSuite(TestMembership8.class);  // test of circular memberships without composite groups where a group is added as a member to itself
+    suite.addTestSuite(TestMembership9.class);  // test of composite with a composite type of interesection
+    suite.addTestSuite(TestMembership10.class);  // test of composite with a composite type of complement
+    suite.addTestSuite(TestMembership11.class);  // test of nested composite groups with complements, unions, and intersections
 
     suite.addTestSuite(TestFindBadMemberships0.class); // test with effective memberships without composite groups
     suite.addTestSuite(TestFindBadMemberships1.class); // test with effective memberships with composite groups

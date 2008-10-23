@@ -99,6 +99,7 @@ public class TestFindBadMemberships1 extends TestCase {
       gH.addMember(gQ.toSubject());
       gR.addMember(gS.toSubject());
       gF.addMember(gR.toSubject());
+      gR.addMember(gQ.toSubject());
 
       Set<Group> goodGroups = new LinkedHashSet<Group>();
       Set<Group> badGroups = new LinkedHashSet<Group>();

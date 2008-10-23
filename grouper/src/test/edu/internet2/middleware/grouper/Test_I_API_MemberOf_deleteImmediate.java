@@ -25,7 +25,7 @@ import  edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_deleteImmediate.java,v 1.5 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_I_API_MemberOf_deleteImmediate.java,v 1.6 2008-10-23 20:52:05 shilen Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
@@ -123,13 +123,13 @@ public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
     }
 
     MemberOf mof = new DefaultMemberOf(); // TODO 20070524 should use a factory or equiv
-    mof.deleteImmediate(s, gA, _ms, mX);
+    mof.deleteImmediate(s, gB, _ms, mX);
 
     // immediate membership in gA (1)
-    assertEquals( "mof deletes",        1, mof.getDeletes().size() );
+    assertEquals( "mof deletes",        3, mof.getDeletes().size() );
     assertEquals( "mof saves",          0, mof.getSaves().size() );
     // membership owner gA (1)
-    assertEquals( "mof modifiedGroups", 1, mof.getModifiedGroups().size() );
+    assertEquals( "mof modifiedGroups", 3, mof.getModifiedGroups().size() );
     assertEquals( "mof modifiedStems",  0, mof.getModifiedStems().size() );
   }
 
