@@ -24,13 +24,13 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.FindBadMemberships;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -38,18 +38,22 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestMembership8 extends TestCase {
 
-  private static final Log LOG = LogFactory.getLog(TestMembership8.class);
+  private static final Log LOG = GrouperUtil.getLog(TestMembership6.class);
 
   Date before;
   R       r;
   Group   gA;
   Group   gB;
+  Group   gC;
+  Group   gD;
   Subject subjA;
   Subject subjB;
   Subject subjC;
 
   Field fieldMembers;
   Field fieldUpdaters;
+  Field fieldCustom1;
+  Field fieldCustom2;
 
   public TestMembership8(String name) {
     super(name);
@@ -69,23 +73,26 @@ public class TestMembership8 extends TestCase {
     try {
       before   = DateHelper.getPastDate();
 
-      r     = R.populateRegistry(1, 2, 3);
+      r     = R.populateRegistry(1, 4, 3);
       gA    = r.getGroup("a", "a");
       gB    = r.getGroup("a", "b");
+      gC    = r.getGroup("a", "c");
+      gD    = r.getGroup("a", "d");
       subjA = r.getSubject("a");
       subjB = r.getSubject("b");
       subjC = r.getSubject("c");
+
+      GroupType customType  = GroupType.createType(r.rs, "customType");
+      gB.addType(customType);
+      fieldCustom1 = customType.addList(r.rs, "customField1", AccessPrivilege.READ, AccessPrivilege.UPDATE);
+      fieldCustom2 = customType.addList(r.rs, "customField2", AccessPrivilege.READ, AccessPrivilege.UPDATE);
 
       fieldMembers = Group.getDefaultList();
       fieldUpdaters = FieldFinder.find("updaters");
       Set<Membership> listMemberships;
       Set<Membership> updateMemberships;
-
-      Set<Group> goodGroups = new LinkedHashSet<Group>();
-      Set<Group> badGroups = new LinkedHashSet<Group>();
-
-      goodGroups.add(gA);
-      goodGroups.add(gB);
+      Set<Membership> custom1Memberships;
+      Set<Membership> custom2Memberships;
 
 
       // Test 1
@@ -96,26 +103,14 @@ public class TestMembership8 extends TestCase {
       gB.addMember(subjA);
       gB.addMember(subjB);
       gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+      gC.addMember(gA.toSubject());
+      gD.addMember(gB.toSubject());
+      gB.addMember(gB.toSubject(), fieldCustom1);
+      gB.addMember(gA.toSubject(), fieldCustom2);
 
       verifyMemberships();
+      deleteMemberships();
 
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
-
-      // clear out memberships
-      gA.deleteMember(gB.toSubject());
-      gB.deleteMember(gA.toSubject());
-      gA.deleteMember(subjA);
-      gA.deleteMember(subjC);
-      gB.deleteMember(subjA);
-      gB.deleteMember(subjB);
-      gA.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
-
-      listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-      T.amount("Number of list memberships after test 1", 0, listMemberships.size());
-
-      updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-      T.amount("Number of update privileges after test 1", 0, updateMemberships.size());
 
       // Test 2
       gB.addMember(gA.toSubject());
@@ -124,27 +119,15 @@ public class TestMembership8 extends TestCase {
       gB.addMember(subjA);
       gB.addMember(subjB);
       gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+      gC.addMember(gA.toSubject());
+      gD.addMember(gB.toSubject());
+      gB.addMember(gB.toSubject(), fieldCustom1);
+      gB.addMember(gA.toSubject(), fieldCustom2);
       gA.addMember(gB.toSubject());
 
       verifyMemberships();
+      deleteMemberships();
 
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
-
-      // clear out memberships
-      gA.deleteMember(gB.toSubject());
-      gB.deleteMember(gA.toSubject());
-      gA.deleteMember(subjA);
-      gA.deleteMember(subjC);
-      gB.deleteMember(subjA);
-      gB.deleteMember(subjB);
-      gA.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
-
-      listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-      T.amount("Number of list memberships after test 2", 0, listMemberships.size());
-
-      updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-      T.amount("Number of update privileges after test 2", 0, updateMemberships.size());
 
       // Test 3
       gA.addMember(subjA);
@@ -152,90 +135,58 @@ public class TestMembership8 extends TestCase {
       gB.addMember(subjA);
       gB.addMember(subjB);
       gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+      gC.addMember(gA.toSubject());
+      gD.addMember(gB.toSubject());
+      gB.addMember(gB.toSubject(), fieldCustom1);
+      gB.addMember(gA.toSubject(), fieldCustom2);
       gA.addMember(gB.toSubject());
       gB.addMember(gA.toSubject());
 
       verifyMemberships();
+      deleteMemberships();
 
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
-
-      // clear out memberships
-      gA.deleteMember(gB.toSubject());
-      gB.deleteMember(gA.toSubject());
-      gA.deleteMember(subjA);
-      gA.deleteMember(subjC);
-      gB.deleteMember(subjA);
-      gB.deleteMember(subjB);
-      gA.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
-
-      listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-      T.amount("Number of list memberships after test 3", 0, listMemberships.size());
-
-      updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-      T.amount("Number of update privileges after test 3", 0, updateMemberships.size());
 
       // Test 4
       gA.addMember(subjC);
       gB.addMember(subjA);
       gB.addMember(subjB);
       gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+      gC.addMember(gA.toSubject());
+      gD.addMember(gB.toSubject());
+      gB.addMember(gB.toSubject(), fieldCustom1);
+      gB.addMember(gA.toSubject(), fieldCustom2);
       gA.addMember(gB.toSubject());
       gB.addMember(gA.toSubject());
       gA.addMember(subjA);
 
       verifyMemberships();
+      deleteMemberships();
 
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
-
-      // clear out memberships
-      gA.deleteMember(gB.toSubject());
-      gB.deleteMember(gA.toSubject());
-      gA.deleteMember(subjA);
-      gA.deleteMember(subjC);
-      gB.deleteMember(subjA);
-      gB.deleteMember(subjB);
-      gA.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
-
-      listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-      T.amount("Number of list memberships after test 4", 0, listMemberships.size());
-
-      updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-      T.amount("Number of update privileges after test 4", 0, updateMemberships.size());
 
       // Test 5
       gB.addMember(subjA);
       gB.addMember(subjB);
       gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+      gC.addMember(gA.toSubject());
+      gD.addMember(gB.toSubject());
+      gB.addMember(gB.toSubject(), fieldCustom1);
+      gB.addMember(gA.toSubject(), fieldCustom2);
       gA.addMember(gB.toSubject());
       gB.addMember(gA.toSubject());
       gA.addMember(subjA);
       gA.addMember(subjC);
 
       verifyMemberships();
+      deleteMemberships();
 
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
-
-      // clear out memberships
-      gA.deleteMember(gB.toSubject());
-      gB.deleteMember(gA.toSubject());
-      gA.deleteMember(subjA);
-      gA.deleteMember(subjC);
-      gB.deleteMember(subjA);
-      gB.deleteMember(subjB);
-      gA.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
-
-      listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-      T.amount("Number of list memberships after test 5", 0, listMemberships.size());
-
-      updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-      T.amount("Number of update privileges after test 5", 0, updateMemberships.size());
 
       // Test 6
       gB.addMember(subjB);
       gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+      gC.addMember(gA.toSubject());
+      gD.addMember(gB.toSubject());
+      gB.addMember(gB.toSubject(), fieldCustom1);
+      gB.addMember(gA.toSubject(), fieldCustom2);
       gA.addMember(gB.toSubject());
       gB.addMember(gA.toSubject());
       gA.addMember(subjA);
@@ -243,27 +194,15 @@ public class TestMembership8 extends TestCase {
       gB.addMember(subjA);
 
       verifyMemberships();
+      deleteMemberships();
 
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
-
-      // clear out memberships
-      gA.deleteMember(gB.toSubject());
-      gB.deleteMember(gA.toSubject());
-      gA.deleteMember(subjA);
-      gA.deleteMember(subjC);
-      gB.deleteMember(subjA);
-      gB.deleteMember(subjB);
-      gA.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
-
-      listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-      T.amount("Number of list memberships after test 6", 0, listMemberships.size());
-
-      updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-      T.amount("Number of update privileges after test 6", 0, updateMemberships.size());
 
       // Test 7
       gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+      gC.addMember(gA.toSubject());
+      gD.addMember(gB.toSubject());
+      gB.addMember(gB.toSubject(), fieldCustom1);
+      gB.addMember(gA.toSubject(), fieldCustom2);
       gA.addMember(gB.toSubject());
       gB.addMember(gA.toSubject());
       gA.addMember(subjA);
@@ -272,24 +211,75 @@ public class TestMembership8 extends TestCase {
       gB.addMember(subjB);
 
       verifyMemberships();
+      deleteMemberships();
 
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
 
-      // clear out memberships
-      gA.deleteMember(gB.toSubject());
-      gB.deleteMember(gA.toSubject());
-      gA.deleteMember(subjA);
-      gA.deleteMember(subjC);
-      gB.deleteMember(subjA);
-      gB.deleteMember(subjB);
-      gA.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
+      // Test 8
+      gC.addMember(gA.toSubject());
+      gD.addMember(gB.toSubject());
+      gB.addMember(gB.toSubject(), fieldCustom1);
+      gB.addMember(gA.toSubject(), fieldCustom2);
+      gA.addMember(gB.toSubject());
+      gB.addMember(gA.toSubject());
+      gA.addMember(subjA);
+      gA.addMember(subjC);
+      gB.addMember(subjA);
+      gB.addMember(subjB);
+      gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
 
-      listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-      T.amount("Number of list memberships after test 7", 0, listMemberships.size());
+      verifyMemberships();
+      deleteMemberships();
 
-      updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-      T.amount("Number of update privileges after test 7", 0, updateMemberships.size());
+
+      // Test 9
+      gD.addMember(gB.toSubject());
+      gB.addMember(gB.toSubject(), fieldCustom1);
+      gB.addMember(gA.toSubject(), fieldCustom2);
+      gA.addMember(gB.toSubject());
+      gB.addMember(gA.toSubject());
+      gA.addMember(subjA);
+      gA.addMember(subjC);
+      gB.addMember(subjA);
+      gB.addMember(subjB);
+      gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+      gC.addMember(gA.toSubject());
+
+      verifyMemberships();
+      deleteMemberships();
+
+
+      // Test 10
+      gB.addMember(gB.toSubject(), fieldCustom1);
+      gB.addMember(gA.toSubject(), fieldCustom2);
+      gA.addMember(gB.toSubject());
+      gB.addMember(gA.toSubject());
+      gA.addMember(subjA);
+      gA.addMember(subjC);
+      gB.addMember(subjA);
+      gB.addMember(subjB);
+      gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+      gC.addMember(gA.toSubject());
+      gD.addMember(gB.toSubject());
+
+      verifyMemberships();
+      deleteMemberships();
+
+
+      // Test 11
+      gB.addMember(gA.toSubject(), fieldCustom2);
+      gA.addMember(gB.toSubject());
+      gB.addMember(gA.toSubject());
+      gA.addMember(subjA);
+      gA.addMember(subjC);
+      gB.addMember(subjA);
+      gB.addMember(subjB);
+      gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+      gC.addMember(gA.toSubject());
+      gD.addMember(gB.toSubject());
+      gB.addMember(gB.toSubject(), fieldCustom1);
+
+      verifyMemberships();
+      deleteMemberships();
 
 
 
@@ -301,14 +291,78 @@ public class TestMembership8 extends TestCase {
   }
 
 
-  public  void verifyMemberships() throws Exception {
+  public void verifyMemberships() throws Exception {
+    // SC -> gB (custom1 field)
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SC -> gB", gB, subjC, gA, 2, gB, gA.toSubject(), gB, 1, fieldCustom1);
+
+    // SA -> gB (custom2 field)
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SA -> gB", gB, subjA, gB, 2, gB, gB.toSubject(), gA, 1, fieldCustom2);
+
+    // SA -> gC (default field)
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SA -> gC", gC, subjA, gB, 2, gC, gB.toSubject(), gA, 1, fieldMembers);
+
+    // SA -> gA (update field)
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SA -> gA", gA, subjA, gB, 2, gA, gB.toSubject(), gA, 1, fieldUpdaters);
+
+    // SA -> gD (default field)
+    MembershipTestHelper.verifyEffectiveMembership(r.rs, "SA -> gD", gD, subjA, gA, 2, gD, gA.toSubject(), gB, 1, fieldMembers);
+
+
     // verify the total number of list memberships
     Set<Membership> listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-    T.amount("Number of list memberships", 10, listMemberships.size());
+    T.amount("Number of list memberships", 22, listMemberships.size());
 
     // verify the total number of update privileges
     Set<Membership> updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
     T.amount("Number of update privileges", 6, updateMemberships.size());
+
+    // verify the total number of custom1 privileges
+    Set<Membership> custom1Memberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldCustom1);
+    T.amount("Number of custom1 privileges", 6, custom1Memberships.size());
+
+    // verify the total number of custom2 privileges
+    Set<Membership> custom2Memberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldCustom2);
+    T.amount("Number of custom2 privileges", 6, custom2Memberships.size());
+
+    // verify that this works with the bad membership finder utility
+    Set<Group> goodGroups = new LinkedHashSet<Group>();
+    Set<Group> badGroups = new LinkedHashSet<Group>();
+
+    goodGroups.add(gA);
+    goodGroups.add(gB);
+    goodGroups.add(gC);
+    goodGroups.add(gD);
+
+    MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
+    Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
+  }
+
+  public void deleteMemberships() throws Exception {
+
+    // clear out memberships
+    gA.deleteMember(gB.toSubject());
+    gB.deleteMember(gA.toSubject());
+    gA.deleteMember(subjA);
+    gA.deleteMember(subjC);
+    gB.deleteMember(subjA);
+    gB.deleteMember(subjB);
+    gA.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
+    gC.deleteMember(gA.toSubject());
+    gD.deleteMember(gB.toSubject());
+    gB.deleteMember(gB.toSubject(), fieldCustom1);
+    gB.deleteMember(gA.toSubject(), fieldCustom2);
+      
+    Set<Membership> listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
+    T.amount("Number of list memberships", 0, listMemberships.size());
+
+    Set<Membership> updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
+    T.amount("Number of update privileges", 0, updateMemberships.size());
+
+    Set<Membership> custom1Memberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldCustom1);
+    T.amount("Number of custom1 privileges", 0, custom1Memberships.size());
+
+    Set<Membership> custom2Memberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldCustom2);
+    T.amount("Number of custom2 privileges", 0, custom2Memberships.size());
   }
 
 }

@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.Subject;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: EventLog.java,v 1.3 2008-10-23 20:52:05 shilen Exp $
  */
 public class EventLog {
 
@@ -410,12 +410,12 @@ public class EventLog {
     }
     else {
       try {
-        Group _g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid);
+        g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid);
         this.groupCache.put(uuid, g);
       }
       catch (GroupNotFoundException eGNF) {
         try {
-          Stem _ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid);
+          ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid);
           this.stemCache.put(uuid, ns);
         }
         catch (StemNotFoundException eSNF) {

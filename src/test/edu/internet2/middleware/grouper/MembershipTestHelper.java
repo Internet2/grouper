@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipTestHelper.java,v 1.11 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: MembershipTestHelper.java,v 1.12 2008-10-23 20:52:05 shilen Exp $
  */
 public class MembershipTestHelper {
 
@@ -489,6 +489,25 @@ public class MembershipTestHelper {
     return mship;
   }
 
+  protected static Membership findEffectiveMembership(GrouperSession s, Group g, Subject subj, Group via, int depth, Field f, Membership parent) {
+    try {
+      Set<Membership> memberships = MembershipFinder.findEffectiveMemberships(s, g, subj,
+        f, via, depth);
+      
+      Iterator<Membership> it = memberships.iterator();
+      while (it.hasNext()) {
+        Membership curr = it.next();
+        if (curr.getParentUuid().equals(parent.getUuid())) {
+          return curr;
+        }
+      }
+    } catch (Exception e) {
+      // do nothing 
+    }
+    
+    return null;
+  } 
+
   protected static Membership findEffectiveMembership(GrouperSession s, Stem stem, Subject subj, Group via, int depth, Field f) {
   
     Membership mship = null;
@@ -508,7 +527,7 @@ public class MembershipTestHelper {
     return mship;
   } 
   
-  protected static void verifyImmediateMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject, Field f) {
+  protected static Membership verifyImmediateMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject, Field f) {
   
     // first verify that the membership exists
     Membership childMembership = findImmediateMembership(s, childGroup, childSubject, f);
@@ -535,10 +554,12 @@ public class MembershipTestHelper {
     }
 
     Assert.assertNull(comment + ": find parent membership", parentMembership);
+
+    return childMembership;
   }
 
-  protected static void verifyImmediateMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject) {
-    verifyImmediateMembership(s, comment, childGroup, childSubject, Group.getDefaultList());
+  protected static Membership verifyImmediateMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject) {
+    return verifyImmediateMembership(s, comment, childGroup, childSubject, Group.getDefaultList());
   }
 
   protected static void verifyImmediateMembership(GrouperSession s, String comment, Stem childStem, Subject childSubject, Field f) {
@@ -611,7 +632,7 @@ public class MembershipTestHelper {
     Assert.assertNull(comment + ": find parent membership", parentMembership);
   }
 
-  protected static void verifyEffectiveMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject, Group childVia,
+  protected static Membership verifyEffectiveMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject, Group childVia,
     int childDepth, Group parentGroup, Subject parentSubject, Group parentVia, int parentDepth, Field f) {
 
     // first verify that the membership exists
@@ -638,11 +659,23 @@ public class MembershipTestHelper {
       // do nothing
     }
     Assert.assertTrue(comment + ": verify parent membership", parentCheck);
+
+    return childMembership;
   }
 
-  protected static void verifyEffectiveMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject, Group childVia,
+  protected static Membership verifyEffectiveMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject, Group childVia,
+    int childDepth, Membership parent) {
+
+    // verify that the membership exists
+    Membership childMembership = findEffectiveMembership(s, childGroup, childSubject, childVia, childDepth, Group.getDefaultList(), parent);
+    Assert.assertNotNull(comment + ": find membership", childMembership);
+
+    return childMembership;
+  }
+
+  protected static Membership verifyEffectiveMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject, Group childVia,
     int childDepth, Group parentGroup, Subject parentSubject, Group parentVia, int parentDepth) {
-    verifyEffectiveMembership(s, comment, childGroup, childSubject, childVia, childDepth, parentGroup, parentSubject,
+    return verifyEffectiveMembership(s, comment, childGroup, childSubject, childVia, childDepth, parentGroup, parentSubject,
       parentVia, parentDepth, Group.getDefaultList());
   }
 
