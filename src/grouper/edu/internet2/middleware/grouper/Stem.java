@@ -89,7 +89,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.167 2008-10-21 05:27:42 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.168 2008-10-23 04:48:58 mchyzer Exp $
  */
 public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
@@ -675,7 +675,7 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    * @param   subj  Get privileges for this subject.
    * @return  Set of {@link NamingPrivilege} objects.
    */
-  public Set getPrivs(Subject subj) {
+  public Set<NamingPrivilege> getPrivs(Subject subj) {
     return GrouperSession.staticGrouperSession().getNamingResolver().getPrivileges(this, subj);
   } 
 

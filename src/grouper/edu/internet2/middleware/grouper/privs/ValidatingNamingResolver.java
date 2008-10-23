@@ -27,7 +27,7 @@ import  java.util.Set;
  * Decorator that provides parameter validation for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingNamingResolver.java,v 1.4 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: ValidatingNamingResolver.java,v 1.5 2008-10-23 04:48:57 mchyzer Exp $
  * @since   1.2.1
  */
 public class ValidatingNamingResolver extends NamingResolverDecorator {
@@ -73,7 +73,7 @@ public class ValidatingNamingResolver extends NamingResolverDecorator {
    * @see     NamingResolver#getPrivileges(Stem, Subject)
    * @since   1.2.1
    */
-  public Set<Privilege> getPrivileges(Stem stem, Subject subject)
+  public Set<NamingPrivilege> getPrivileges(Stem stem, Subject subject)
     throws  IllegalArgumentException
   {
     this.param.notNullStem(stem).notNullSubject(subject);

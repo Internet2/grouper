@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.3 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.4 2008-10-23 04:48:57 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperPrivilegeAdapter {
@@ -86,7 +86,7 @@ public class GrouperPrivilegeAdapter {
   //Discard those which are not privileges i.e. members / custom lists
   //Added Owner to signature so we don't need to compute it 
   //consequently all Memberships must be of the same Owner
-  public static Set internal_getPrivs(
+  public static Set<? extends GrouperPrivilege> internal_getPrivs(
     GrouperSession s, final Owner ownerGroupOrStem,final Subject subj, final Member m, final Privilege p, final Iterator it
   )
     throws  SchemaException

@@ -20,6 +20,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
@@ -28,7 +29,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Mock {@link NamingResolver}.
  * @author  blair christensen.
- * @version $Id: MockNamingResolver.java,v 1.5 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: MockNamingResolver.java,v 1.6 2008-10-23 04:48:58 mchyzer Exp $
  * @since   1.2.1
  */
 public class MockNamingResolver implements NamingResolver {
@@ -75,7 +76,7 @@ public class MockNamingResolver implements NamingResolver {
    * @throws  GrouperRuntimeException
    * @since   1.2.1
    */
-  public Set<Privilege> getPrivileges(Stem stem, Subject subject)
+  public Set<NamingPrivilege> getPrivileges(Stem stem, Subject subject)
     throws  IllegalArgumentException
   {
     throw E;

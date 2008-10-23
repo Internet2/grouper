@@ -28,7 +28,7 @@ import edu.internet2.middleware.subject.Subject;
  * Facade for the {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingResolver.java,v 1.5 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: NamingResolver.java,v 1.6 2008-10-23 04:48:57 mchyzer Exp $
  * @since   1.2.1
  */
 public interface NamingResolver {
@@ -58,7 +58,7 @@ public interface NamingResolver {
    * @see     edu.internet2.middleware.grouper.privs.NamingAdapter#getPrivs(GrouperSession, Stem, Subject)
    * @since   1.2.1
    */
-  Set<Privilege> getPrivileges(Stem stem, Subject subject)
+  Set<NamingPrivilege> getPrivileges(Stem stem, Subject subject)
     throws  IllegalArgumentException;
 
   /**

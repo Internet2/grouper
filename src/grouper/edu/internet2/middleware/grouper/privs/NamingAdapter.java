@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
  * wrapped by methods in the {@link Stem} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: NamingAdapter.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: NamingAdapter.java,v 1.3 2008-10-23 04:48:57 mchyzer Exp $
  */
 public interface NamingAdapter {
 
@@ -89,7 +89,7 @@ public interface NamingAdapter {
    * @param   subj  Get privileges for this subject.
    * @return  Set of {@link NamingPrivilege} objects.
    */
-  Set getPrivs(GrouperSession s, Stem ns, Subject subj);
+  Set<NamingPrivilege> getPrivs(GrouperSession s, Stem ns, Subject subj);
 
   /**
    * Grant the privilege to the subject on this stem.

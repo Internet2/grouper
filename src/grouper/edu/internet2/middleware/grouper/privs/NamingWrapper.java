@@ -33,7 +33,7 @@ import  java.util.Set;
  * Class implementing wrapper around {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingWrapper.java,v 1.6 2008-07-27 07:37:24 mchyzer Exp $
+ * @version $Id: NamingWrapper.java,v 1.7 2008-10-23 04:48:57 mchyzer Exp $
  * @since   1.2.1
  */
 public class NamingWrapper implements NamingResolver {
@@ -93,7 +93,7 @@ public class NamingWrapper implements NamingResolver {
    * @see     NamingAdapter#getPrivs(GrouperSession, Stem, Subject)
    * @since   1.2.1
    */
-  public Set<Privilege> getPrivileges(Stem stem, Subject subject)
+  public Set<NamingPrivilege> getPrivileges(Stem stem, Subject subject)
     throws  IllegalArgumentException
   {
     return this.naming.getPrivs(this.s, stem, subject);
