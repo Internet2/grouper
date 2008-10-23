@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper.privs;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.subject.Subject;
 
@@ -25,9 +26,9 @@ import edu.internet2.middleware.subject.Subject;
  * An instance of a granted naming privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingPrivilege.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: NamingPrivilege.java,v 1.3 2008-10-23 04:48:57 mchyzer Exp $
  */
-public class NamingPrivilege {
+public class NamingPrivilege implements GrouperPrivilege {
 
   // Public Class Constants
   public static final Privilege CREATE  = Privilege.getInstance("create");
@@ -120,6 +121,21 @@ public class NamingPrivilege {
            .append("owner"          , this.getOwner()               )
            .toString(); 
   } // public String toString()
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.GrouperPrivilege#getGrouperApi()
+   */
+  public GrouperAPI getGrouperApi() {
+    return this.getStem();
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.GrouperPrivilege#getType()
+   */
+  public String getType() {
+    return "naming";
+  }
 
 }
 

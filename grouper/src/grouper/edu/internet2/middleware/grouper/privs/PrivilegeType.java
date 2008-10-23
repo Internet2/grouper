@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.privs;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -76,8 +75,8 @@ public enum PrivilegeType {
    * @param string
    * @return the enum or null or exception if not found
    */
-  public static GrouperTransactionType valueOfIgnoreCase(String string) {
-    return GrouperUtil.enumValueOfIgnoreCase(GrouperTransactionType.class,string, false );
+  public static PrivilegeType valueOfIgnoreCase(String string) {
+    return GrouperUtil.enumValueOfIgnoreCase(PrivilegeType.class,string, false );
   }
   
 }

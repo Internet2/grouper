@@ -16,21 +16,24 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import  edu.internet2.middleware.grouper.Stem;
-import  edu.internet2.middleware.grouper.cache.CacheStats;
-import  edu.internet2.middleware.grouper.cache.EhcacheController;
+import java.util.Set;
+
+import net.sf.ehcache.Element;
+
+import org.apache.commons.collections.keyvalue.MultiKey;
+
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.cache.CacheStats;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
-import  edu.internet2.middleware.subject.Subject;
-import  java.util.Set;
-import  net.sf.ehcache.Element;
-import  org.apache.commons.collections.keyvalue.MultiKey;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
  * Decorator that provides caching for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingNamingResolver.java,v 1.5 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: CachingNamingResolver.java,v 1.6 2008-10-23 04:48:57 mchyzer Exp $
  * @since   1.2.1
  */
 public class CachingNamingResolver extends NamingResolverDecorator {
@@ -100,7 +103,7 @@ public class CachingNamingResolver extends NamingResolverDecorator {
    * @see     NamingResolver#getPrivileges(Stem, Subject)
    * @since   1.2.1
    */
-  public Set<Privilege> getPrivileges(Stem stem, Subject subject)
+  public Set<NamingPrivilege> getPrivileges(Stem stem, Subject subject)
     throws  IllegalArgumentException
   {
     // TODO 20070816 add caching

@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.privs;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -26,9 +27,9 @@ import edu.internet2.middleware.subject.Subject;
  * An instance of a granted access privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: AccessPrivilege.java,v 1.3 2008-10-23 04:48:57 mchyzer Exp $
  */
-public class AccessPrivilege {
+public class AccessPrivilege implements GrouperPrivilege {
 
   // Public Class Constants
   public static final Privilege ADMIN   = Privilege.getInstance("admin");
@@ -133,6 +134,22 @@ public class AccessPrivilege {
            .append("owner"          , this.getOwner()               )
            .toString(); 
   } // public String toString()
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.GrouperPrivilege#getGrouperApi()
+   */
+  public GrouperAPI getGrouperApi() {
+    return this.getGroup();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.GrouperPrivilege#getType()
+   */
+  public String getType() {
+    return "access";
+  }
+  
+  
 
 }
 

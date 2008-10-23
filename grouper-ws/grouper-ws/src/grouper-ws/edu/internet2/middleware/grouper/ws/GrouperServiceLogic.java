@@ -1,12 +1,14 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.11 2008-10-21 03:50:59 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.12 2008-10-23 04:49:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,6 +16,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
@@ -28,6 +31,9 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.privs.GrouperPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
@@ -42,6 +48,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults;
+import edu.internet2.middleware.grouper.ws.soap.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResults;
@@ -57,6 +64,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupToSave;
+import edu.internet2.middleware.grouper.ws.soap.WsGrouperPrivilegeResult;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResult;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResults;
@@ -83,6 +91,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults.WsAddMemberRe
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResult.WsDeleteMemberResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsFindGroupsResults.WsFindGroupsResultsCode;
 import edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults.WsFindStemsResultsCode;
+import edu.internet2.middleware.grouper.ws.soap.WsGetGrouperPrivilegesLiteResult.WsGetPrivilegesLiteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup.GroupFindResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResult.WsGroupSaveResultCode;
@@ -2687,6 +2696,195 @@ public class GrouperServiceLogic {
 //    return wsViewOrEditAttributesResults;
 //  }
 //
+  
+  /**
+   * <pre>
+   * see if a group has a member (if already a direct member, ignore)
+   * e.g. /grouperPrivileges/subjects/1234567/groups/aStem:aGroup
+   * e.g. /grouperPrivileges/subjects/sources/someSource/subjectId/1234567/stems/aStem1:aStem2/
+   * </pre>
+   * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
+   * @param subjectId subject id of subject to search for privileges.  Mutually exclusive with subjectIdentifier
+   * @param subjectSourceId source id of subject object (optional)
+   * @param subjectIdentifier subject identifier of subject.  Mutuallyexclusive with subjectId
+   * @param groupName if this is a group privilege.  mutually exclusive with groupUuid
+   * @param groupUuid if this is a group privilege.  mutually exclusive with groupName
+   * @param stemName if this is a stem privilege.  mutually exclusive with stemUuid
+   * @param stemUuid if this is a stem privilege.  mutually exclusive with stemName
+   * @param actAsSubjectId
+   *            optional: is the subject id of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param actAsSubjectSourceId is source of act as subject to narrow the result and prevent
+   * duplicates
+   * @param actAsSubjectIdentifier
+   *            optional: is the subject identifier of subject to act as (if
+   *            proxying). Only pass one of actAsSubjectId or
+   *            actAsSubjectIdentifer
+   * @param deleteOldMember T or F as to whether the old member should be deleted (if new member does exist).
+   * This defaults to T if it is blank
+   * @param privilegeType (e.g. "access" for groups and "naming" for stems)
+   * @param privilegeName (e.g. for groups: read, view, update, admin, optin, optout.  e.g. for stems:
+   * stem, create)
+   * @param includeSubjectDetail
+   *            T|F, for if the extended subject information should be
+   *            returned (anything more than just the id)
+   * @param subjectAttributeNames are the additional subject attributes (data) to return.
+   * If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated)
+   * @param includeGroupDetail T or F as for if group detail should be included
+   * @param paramName0
+   *            reserved for future use
+   * @param paramValue0
+   *            reserved for future use
+   * @param paramName1
+   *            reserved for future use
+   * @param paramValue1
+   *            reserved for future use
+   * @return the result of one member query
+   */
+  public static WsGetGrouperPrivilegesLiteResult getGrouperPrivilegesLite(final GrouperWsVersion clientVersion, 
+      String subjectId, String subjectSourceId, String subjectIdentifier,
+      String groupName, String groupUuid, 
+      String stemName, String stemUuid, 
+      PrivilegeType privilegeType, Privilege privilegeName,
+      String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
+      boolean includeSubjectDetail, String subjectAttributeNames, 
+      boolean includeGroupDetail, String paramName0,
+      String paramValue0, String paramName1, String paramValue1) {
+
+    String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
+
+    WsSubjectLookup subjectLookup = new WsSubjectLookup(subjectId, 
+        subjectSourceId, subjectIdentifier);
+
+    WsStemLookup wsStemLookup = new WsStemLookup(stemName, stemUuid);
+
+    WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, groupUuid);
+    
+    // setup the subject lookup
+    WsSubjectLookup actAsSubjectLookup = new WsSubjectLookup(actAsSubjectId,
+        actAsSubjectSourceId, actAsSubjectIdentifier);
+
+    WsParam[] params = GrouperServiceUtils.params(paramName0, 
+        paramValue0, paramValue1, paramValue1);
+
+    WsGetGrouperPrivilegesLiteResult wsGetGrouperPrivilegesLiteResult = 
+      new WsGetGrouperPrivilegesLiteResult();
+      
+    GrouperSession session = null;
+    String theSummary = null;
+    
+    try {
+  
+      theSummary = "clientVersion: " + clientVersion + ", wsSubject: "
+          + subjectLookup + ", group: " +  wsGroupLookup + ", stem: " + wsStemLookup 
+          + ", privilege: " + privilegeType.name() + "-" + privilegeName.getName()
+          + ", actAsSubject: "
+          + actAsSubjectLookup 
+          + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
+        
+      //start session based on logged in user or the actAs passed in
+      session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
+
+      if (wsGroupLookup.hasData() && wsStemLookup.hasData()) {
+        throw new WsInvalidQueryException("Cant pass both group and stem.  Pass one or the other");
+      }
+      if (!wsGroupLookup.hasData() && !wsStemLookup.hasData()) {
+        throw new WsInvalidQueryException("Cant pass neither group nor stem.  Pass one or the other");
+      }
+      
+      //convert the options to a map for easy access, and validate them
+      @SuppressWarnings("unused")
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
+          params);
+    
+      Subject subject = subjectLookup.retrieveSubject();
+      
+      wsGetGrouperPrivilegesLiteResult.processSubject(subjectLookup, subjectAttributeArray);
+      
+      //need to check to see status
+      
+      if (subject != null) {
+
+        Set<? extends GrouperPrivilege> privileges = null;
+        if (wsGroupLookup.hasData()) {
+          
+          if (!privilegeType.equals(PrivilegeType.ACCESS)) {
+            throw new WsInvalidQueryException("If you are querying a group, you need to pass in an " +
+            		"access privilege type: '" + privilegeType + "'");
+          }
+
+          Group group = wsGroupLookup.retrieveGroupIfNeeded(session, "wsGroupLookup");
+
+          privileges = group.getPrivs(subject);
+
+        } else if (wsStemLookup.hasData()) {
+
+          wsStemLookup.retrieveStemIfNeeded(session, true);
+          Stem stem = wsStemLookup.retrieveStem();
+
+          privileges = stem.getPrivs(subject);
+        }
+
+        //see if we need to remove, if specifying privs, and this doesnt match
+        Iterator<? extends GrouperPrivilege> iterator = privileges.iterator();
+        while (iterator.hasNext()) {
+          GrouperPrivilege current = iterator.next();
+          if (privilegeName != null && !StringUtils.equals(privilegeName.getName(), current.getName())){
+            iterator.remove();
+          }          
+        }
+
+        WsGrouperPrivilegeResult[] privilegeResults = new WsGrouperPrivilegeResult[privileges.size()];
+
+        int i=0;
+        for (GrouperPrivilege grouperPrivilege : privileges) {
+          
+          WsGrouperPrivilegeResult wsGrouperPrivilegeResult = new WsGrouperPrivilegeResult();
+          privilegeResults[i] = wsGrouperPrivilegeResult;
+          
+          wsGrouperPrivilegeResult.setAllowed("T");
+          Subject owner = grouperPrivilege.getOwner();
+          wsGrouperPrivilegeResult.setOwnerSubject(owner == null ? null : new WsSubject(subject, subjectAttributeArray));
+
+          String thePrivilegeName = grouperPrivilege.getName();
+          wsGrouperPrivilegeResult.setPrivilegeName(thePrivilegeName);
+          wsGrouperPrivilegeResult.setPrivilegeType(grouperPrivilege.getType());
+          
+          wsGrouperPrivilegeResult.setRevokable(grouperPrivilege.isRevokable() ? "T" : "F");
+
+          GrouperAPI groupOrStem = grouperPrivilege.getGrouperApi();
+          if (groupOrStem instanceof Group) {
+            Group group = (Group)groupOrStem;
+            wsGrouperPrivilegeResult.setWsGroup(new WsGroup(group, null, includeGroupDetail));
+          } else if (groupOrStem instanceof Stem) {
+            Stem stem = (Stem)groupOrStem;
+            wsGrouperPrivilegeResult.setWsStem(new WsStem(stem));
+          }
+
+          wsGrouperPrivilegeResult.setWsSubject(new WsSubject(grouperPrivilege.getSubject(), subjectAttributeArray));
+          
+          i++;
+        }
+        
+        //assign one of 4 success codes
+        wsGetGrouperPrivilegesLiteResult.assignResultCode(WsGetPrivilegesLiteResultCode.SUCCESS);
+
+      }
+    } catch (InsufficientPrivilegeRuntimeException ipe) {
+      wsGetGrouperPrivilegesLiteResult
+          .assignResultCode(WsGetPrivilegesLiteResultCode.INSUFFICIENT_PRIVILEGES);
+    } catch (Exception e) {
+      wsGetGrouperPrivilegesLiteResult.assignResultCodeException(null, theSummary, e);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+  
+    return wsGetGrouperPrivilegesLiteResult;
+
+    
+  }
+
 //  /**
 //   * If all privilege params are empty, then it is viewonly. If any are set,
 //   * then the privileges will be set (and returned)

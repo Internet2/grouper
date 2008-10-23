@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsViewOrEditPrivilegesResult.java,v 1.1 2008-03-24 20:19:48 mchyzer Exp $
+ * @author mchyzer $Id: WsViewOrEditPrivilegesResult.java,v 1.2 2008-10-23 04:49:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
@@ -53,7 +53,7 @@ public class WsViewOrEditPrivilegesResult {
   private WsResultMeta resultMetadata = new WsResultMeta();
 
   /** privilege this result refers to */
-  private WsPrivilege wsPrivilege = null;
+  private WsGrouperPrivilegeResult wsPrivilege = null;
 
   /**
    * @return the resultMetadata
@@ -66,7 +66,7 @@ public class WsViewOrEditPrivilegesResult {
    * privilege this result refers to
    * @return the wsPrivilege
    */
-  public WsPrivilege getWsPrivilege() {
+  public WsGrouperPrivilegeResult getWsPrivilege() {
     return this.wsPrivilege;
   }
 
@@ -74,7 +74,7 @@ public class WsViewOrEditPrivilegesResult {
    * privilege this result refers to
    * @param wsPrivilege1 the wsPrivilege to set
    */
-  public void setWsPrivilege(WsPrivilege wsPrivilege1) {
+  public void setWsPrivilege(WsGrouperPrivilegeResult wsPrivilege1) {
     this.wsPrivilege = wsPrivilege1;
   }
 

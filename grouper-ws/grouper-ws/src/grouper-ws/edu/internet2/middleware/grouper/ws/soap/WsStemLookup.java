@@ -26,6 +26,15 @@ import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult.WsStemDeleteR
 public class WsStemLookup {
 
   /**
+   * see if this stem lookup has data
+   * @return true if it has data
+   */
+  public boolean hasData() {
+    return !StringUtils.isBlank(this.stemName) || !StringUtils.isBlank(this.uuid);
+  }
+  
+
+  /**
    * logger 
    */
   private static final Log LOG = LogFactory.getLog(WsSubjectLookup.class);

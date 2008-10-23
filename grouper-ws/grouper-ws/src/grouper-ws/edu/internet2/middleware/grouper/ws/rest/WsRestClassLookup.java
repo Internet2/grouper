@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestClassLookup.java,v 1.8 2008-10-21 03:51:00 mchyzer Exp $
+ * $Id: WsRestClassLookup.java,v 1.9 2008-10-23 04:49:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -71,7 +71,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResult;
 import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResults;
 import edu.internet2.middleware.grouper.ws.soap.WsMembership;
 import edu.internet2.middleware.grouper.ws.soap.WsParam;
-import edu.internet2.middleware.grouper.ws.soap.WsPrivilege;
+import edu.internet2.middleware.grouper.ws.soap.WsGrouperPrivilegeResult;
 import edu.internet2.middleware.grouper.ws.soap.WsQueryFilter;
 import edu.internet2.middleware.grouper.ws.soap.WsResponseMeta;
 import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
@@ -139,7 +139,7 @@ public class WsRestClassLookup {
     addAliasClass(WsRestMemberChangeSubjectLiteRequest.class);
     
     addAliasClass(WsParam.class);
-    addAliasClass(WsPrivilege.class);
+    addAliasClass(WsGrouperPrivilegeResult.class);
     addAliasClass(WsQueryFilter.class);
     addAliasClass(WsResponseMeta.class);
     addAliasClass(WsResultMeta.class);

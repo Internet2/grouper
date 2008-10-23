@@ -55,7 +55,7 @@ import edu.internet2.middleware.subject.Subject;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.69 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.70 2008-10-23 04:48:58 mchyzer Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -162,7 +162,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @param   subj  Get privileges for this subject.
    * @return  Set of {@link NamingPrivilege} objects.
    */
-  public Set getPrivs(GrouperSession s, Stem ns, Subject subj) {
+  public Set<NamingPrivilege> getPrivs(GrouperSession s, Stem ns, Subject subj) {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Set privs = new LinkedHashSet();
