@@ -19,14 +19,13 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
-import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.6 2008-10-03 14:37:51 mchyzer Exp $
+ * @version $Id: GrouperShell.java,v 1.7 2008-10-24 05:51:47 mchyzer Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -52,7 +51,9 @@ public class GrouperShell {
   private Interpreter   interpreter = null;
   private CommandReader r = null;
 
-
+  /** if running from GSH */
+  public static boolean runFromGsh = false;
+  
   // MAIN //
 
   /**
@@ -71,6 +72,8 @@ public class GrouperShell {
    * @since 0.0.1
    */
   public static void main(String args[]) {
+    runFromGsh = true;
+    GrouperStartup.runFromMain = true;
     GrouperStartup.startup();
     //turn on logging
     Log bshLogger = LogFactory.getLog("bsh");

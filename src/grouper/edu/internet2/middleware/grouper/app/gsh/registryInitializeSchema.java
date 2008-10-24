@@ -16,7 +16,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Create tables and init schema (if configured)
  * <p/>
  * @author  Chris Hyzer
- * @version $Id: registryInitializeSchema.java,v 1.1 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: registryInitializeSchema.java,v 1.2 2008-10-24 05:51:47 mchyzer Exp $
  * @since   0.0.1
  */
 public class registryInitializeSchema {
@@ -49,13 +49,18 @@ public class registryInitializeSchema {
    * @since   0.0.1
    */
   public static String invoke(Interpreter interpreter, CallStack stack, int options) {
-    GrouperShell.setOurCommand(interpreter, true);
-    boolean dropThenCreate = GrouperUtil.hasOption(options, DROP_THEN_CREATE);
-    boolean writeAndRunScript = GrouperUtil.hasOption(options, WRITE_AND_RUN_SCRIPT);
-    boolean installGrouperData = RegistryInitializeSchema.isInstallGrouperData();
-    GrouperDdlUtils.bootstrapHelper(true, false, true, dropThenCreate, writeAndRunScript, false, installGrouperData, null, true);
-    return "Registry DDL created: dropThenCreate: " + dropThenCreate 
-      + ", writeAndRunScript: " + writeAndRunScript;    
+    RegistryInitializeSchema.inInitSchema = true;
+    try {
+      GrouperShell.setOurCommand(interpreter, true);
+      boolean dropThenCreate = GrouperUtil.hasOption(options, DROP_THEN_CREATE);
+      boolean writeAndRunScript = GrouperUtil.hasOption(options, WRITE_AND_RUN_SCRIPT);
+      boolean installGrouperData = RegistryInitializeSchema.isInstallGrouperData();
+      GrouperDdlUtils.bootstrapHelper(true, false, true, dropThenCreate, writeAndRunScript, false, installGrouperData, null, true);
+      return "Registry DDL created: dropThenCreate: " + dropThenCreate 
+        + ", writeAndRunScript: " + writeAndRunScript;    
+    } finally {
+      RegistryInitializeSchema.inInitSchema = false;
+    }
   } // public static boolean invoke(i, stack, name)
 
 } // public class resetRegistry

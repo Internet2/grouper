@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.4 2008-10-21 18:12:45 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.5 2008-10-24 05:51:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -139,12 +139,16 @@ public class GrouperCheckConfig {
       //e.printStackTrace();
       //having problems
     }
-    String error = "jarfile mismath, expecting name: '" + name + "' size: " + size 
-      + " manifest version: " + manifestVersion + ".  However the jar detected is: " 
-      + jarFileFullName + ", name: " + jarFileName + " size: " + jarFileSize
-      + " manifest version: " + jarVersion;
-    System.err.println("Grouper warning: " + error);
-    LOG.warn(error);
+    
+    //dont penalize activation.jar if the class is found...  sometimes its in java
+    if (!StringUtils.equals("activation.jar", name)) {
+      String error = "jarfile mismath, expecting name: '" + name + "' size: " + size 
+        + " manifest version: " + manifestVersion + ".  However the jar detected is: " 
+        + jarFileFullName + ", name: " + jarFileName + " size: " + jarFileSize
+        + " manifest version: " + jarVersion;
+      System.err.println("Grouper warning: " + error);
+      LOG.warn(error);
+    }
   }
   
   /**
@@ -272,8 +276,6 @@ public class GrouperCheckConfig {
     propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.groupTypeTuple.class", GroupTypeTupleHooks.class, false);
 
     propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.exclude.subject.tables", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.schemaexport.dropThenCreate", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.schemaexport.writeAndRunScript", true);
     propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.schemaexport.installGrouperData", true);
     propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.failIfNotRightVersion", true);
     propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.dropBackupUuidCols", true);
@@ -393,6 +395,9 @@ public class GrouperCheckConfig {
     checkConfigProperties();
     
     checkGrouperDb();
+    
+    //might as well try to init data at this point...
+    GrouperStartup.initData(false);
     
     checkGroups();
     

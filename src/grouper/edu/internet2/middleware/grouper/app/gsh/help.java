@@ -15,7 +15,7 @@ import bsh.Interpreter;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.8 2008-10-20 14:41:20 mchyzer Exp $
+ * @version $Id: help.java,v 1.9 2008-10-24 05:51:47 mchyzer Exp $
  * @since   0.0.1
  */
 public class help {
@@ -243,6 +243,7 @@ public class help {
     i.println("* revokePriv(name, subject id, Privilege)"             );
     i.println("* setGroupAttr(stem, attr, value)"                     );
     i.println("* setStemAttr(stem, attr, value)"                      );
+    i.println("* sqlRun(new File(\"C:\\\\temp\\\\grouperDdl_20081024_01_46_46_296.sql\"));");
     i.println("* transaction: type  help(\"transaction\")  for more info");
     i.println("* typeAdd(name)"                                       );
     i.println("* typeAddAttr(type, name, read, write, req)"           );
