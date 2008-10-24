@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInitializeSchema.java,v 1.6 2008-10-20 17:51:23 mchyzer Exp $    
+ * @version $Id: RegistryInitializeSchema.java,v 1.7 2008-10-24 05:51:47 mchyzer Exp $    
  * @since   1.2.0
  */
 public class RegistryInitializeSchema {
@@ -58,8 +58,6 @@ public class RegistryInitializeSchema {
       GrouperStartup.runDdlBootstrap = false;
       
       //NOTE, dont make any calls other than outside of grouper until we call startup...
-      System.err.println("Based on grouper.properties: " + "ddlutils.schemaexport.dropThenCreate" + "=" + isDropBeforeCreate());
-      System.err.println("Based on grouper.properties: " + "ddlutils.schemaexport.writeAndRunScript" + "=" + isWriteAndRunScript());
       System.err.println("Based on grouper.properties: " + "ddlutils.schemaexport.installGrouperData" + "=" + isInstallGrouperData());
       
       //set vars so nothing else happens...
@@ -118,21 +116,5 @@ public class RegistryInitializeSchema {
     return GrouperConfig.getPropertyBoolean("ddlutils.schemaexport.installGrouperData", true);
   }
   
-  /**
-   * if we should drop everything before creating stuff
-   * @return the deleteBeforeCreate
-   */
-  public static boolean isDropBeforeCreate() {
-    return GrouperConfig.getPropertyBoolean("ddlutils.schemaexport.dropThenCreate", true);
-  }
-  
-  /**
-   * if we should run this after writing it
-   * @return the writeAndRunScript
-   */
-  public static boolean isWriteAndRunScript() {
-    return GrouperConfig.getPropertyBoolean("ddlutils.schemaexport.writeAndRunScript", false);
-  } 
-
 }
 

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.19 2008-10-20 17:51:23 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.20 2008-10-24 05:51:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -45,6 +45,7 @@ import org.apache.tools.ant.taskdefs.SQLExec;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
@@ -211,8 +212,8 @@ public class GrouperDdlUtils {
       bootstrapDone = true;
   
       bootstrapHelper(callFromCommandLine, false, !callFromCommandLine || compareFromDbDllVersion, 
-          callFromCommandLine && RegistryInitializeSchema.isDropBeforeCreate(), 
-          callFromCommandLine && RegistryInitializeSchema.isWriteAndRunScript(), false, installDefaultGrouperData, null, promptUser);
+          false, 
+          false, false, installDefaultGrouperData, null, promptUser);
     } catch (RuntimeException re) {
       everythingRightVersion = false;
       throw re;
@@ -344,24 +345,16 @@ public class GrouperDdlUtils {
           //this is the version in the db
           int realDbVersion = retrieveDdlDbVersion(objectName);
           
-          String versionStatus = "Ddl object type '" + objectName + "' has dbVersion: " 
+          String versionStatus = "Grouper ddl object type '" + objectName + "' has dbVersion: " 
             + realDbVersion + " and java version: " + javaVersion;
           
           boolean versionMismatch = javaVersion != realDbVersion;
   
-          if (callFromCommandLine) {
+          if (versionMismatch) {
             System.err.println(versionStatus);
+            LOG.error(versionStatus);
           } else {
-            if (versionMismatch) {
-              if (!LOG.isErrorEnabled()) {
-                System.err.println(versionStatus);
-              } else {
-                LOG.error(versionStatus);
-              }
-            } else {
-              LOG.info(versionStatus);
-            }
-            
+            LOG.info(versionStatus);
           }
   
           //one originally in the DB
@@ -601,83 +594,18 @@ public class GrouperDdlUtils {
         GrouperUtil.saveStringIntoFile(scriptFile, resultString);
   
         String logMessage = "Grouper database schema DDL requires updates\n(should run script manually and carefully, in sections, verify data before drop statements, backup/export important data before starting, follow change log on confluence, dont run exact same script in multiple envs - generate a new one for each env),\nscript file is:\n" + scriptFile.getAbsolutePath();
-        if (LOG.isErrorEnabled()) {
-          LOG.error(logMessage);
-          if (callFromCommandLine) {
-            System.err.println(logMessage);
-          }
-        } else {
-          System.err.println(logMessage);
-        }
+        LOG.error(logMessage);
+        System.err.println(logMessage);
         logMessage = "";
         if (theWriteAndRunScript) {
-  
-          PrintStream err = System.err;
-          PrintStream out = System.out;
-          InputStream in = System.in;
-  
-          //dont let ant mess up or close the streams
-          ByteArrayOutputStream baosOutErr = new ByteArrayOutputStream();
-          PrintStream newOutErr = new PrintStream(baosOutErr);
-  
-          System.setErr(newOutErr);
-          System.setOut(newOutErr);
+          sqlRun(scriptFile, grouperDb.getDriver(), grouperDb.getUrl(), 
+              grouperDb.getUser(), grouperDb.getPass(), fromUnitTest, callFromCommandLine);
           
-          SQLExec sqlExec = new SQLExec();
-          
-          sqlExec.setSrc(scriptFile);
-          
-          sqlExec.setDriver(grouperDb.getDriver());
-  
-          sqlExec.setUrl(grouperDb.getUrl());
-          sqlExec.setUserid(grouperDb.getUser());
-          sqlExec.setPassword(grouperDb.getPass());
-  
-          Project project = new GrouperAntProject();
-  
-          //tell output where to go
-          DefaultLogger defaultLogger = new DefaultLogger();
-          defaultLogger.setErrorPrintStream(newOutErr);
-          defaultLogger.setOutputPrintStream(newOutErr);
-          project.addBuildListener(defaultLogger);
-          
-          try {
-            sqlExec.setProject(project);
-  
-            sqlExec.execute();
-
-            logMessage += "Script was executed successfully\n";
-          } catch (Exception e) {
-            String error = "Error running script: " + scriptFile.getAbsolutePath();
-            logMessage += error + ", " + ExceptionUtils.getFullStackTrace(e) + "\n";
-            if (fromUnitTest) {
-              throw new RuntimeException(error, e);
-            }
-          } finally {
-          
-            newOutErr.flush();
-            newOutErr.close();
-            
-            System.setErr(err);
-            System.setOut(out);
-            System.setIn(in);
-          }
-          
-          String antOutput = StringUtils.trimToEmpty(baosOutErr.toString());
-  
-          if (!StringUtils.isBlank(antOutput)) {
-            logMessage += antOutput + "\n";
-          }
-          //if call from command line, print to screen
-          if (LOG.isErrorEnabled() && !callFromCommandLine) {
-            LOG.error(logMessage);
-          } else {
-            System.out.println(logMessage);
-          }
         } else {
-          if (callFromCommandLine) {
+          if (callFromCommandLine || GrouperShell.runFromGsh) {
             System.err.println("Note: this script was not executed per the grouper.properties: ddlutils.schemaexport.writeAndRunScript");
-            System.err.println("To run script via ant, carefully review it, then run this:\nant -Dname=" + scriptFile.getAbsolutePath() + " sql");
+            System.err.println("To run script via gsh, carefully review it, then run this in gsh:\nsqlRun(new File(\"" 
+                + scriptFile.getAbsolutePath().replace("\\", "\\\\") + "\"));");
           }
         }
       } else {
@@ -700,10 +628,12 @@ public class GrouperDdlUtils {
         try {
           RegistryInstall.install();
         } catch (RuntimeException e) {
-          if (callFromCommandLine && !theWriteAndRunScript) {
-            String error = "FATAL: could not install grouper data, you need to run the SQL script, then try again.  The specifics are not logged: " + e.getMessage();
+          if (!GrouperShell.runFromGsh && callFromCommandLine && !theWriteAndRunScript) {
+            String addendum = LOG.isInfoEnabled() ? "" : ".  The specifics are not logged";
+            String error = "FATAL: could not install grouper data, you need to run the SQL script, then try again" + addendum + ": " + e.getMessage();
             System.err.println(error);
             LOG.fatal(error);
+            LOG.info("stack", e);
             System.exit(1);
           } else {
             
@@ -717,6 +647,79 @@ public class GrouperDdlUtils {
     }
     return resultString;
   }
+  
+
+  /**
+   * run some sql
+   * @param scriptFile
+   * @return the output
+   */
+  public static String sqlRun(File scriptFile, String driver, String url, String user, String pass, boolean fromUnitTest, boolean printErrorToStdOut) {
+    
+    PrintStream err = System.err;
+    PrintStream out = System.out;
+    InputStream in = System.in;
+
+    //dont let ant mess up or close the streams
+    ByteArrayOutputStream baosOutErr = new ByteArrayOutputStream();
+    PrintStream newOutErr = new PrintStream(baosOutErr);
+
+    System.setErr(newOutErr);
+    System.setOut(newOutErr);
+    
+    SQLExec sqlExec = new SQLExec();
+    
+    sqlExec.setSrc(scriptFile);
+    
+    sqlExec.setDriver(driver);
+    sqlExec.setUrl(url);
+    sqlExec.setUserid(user);
+    sqlExec.setPassword(pass);
+
+    Project project = new GrouperAntProject();
+
+    //tell output where to go
+    DefaultLogger defaultLogger = new DefaultLogger();
+    defaultLogger.setErrorPrintStream(newOutErr);
+    defaultLogger.setOutputPrintStream(newOutErr);
+    project.addBuildListener(defaultLogger);
+    String logMessage = null;
+    try {
+      sqlExec.setProject(project);
+
+      sqlExec.execute();
+
+      logMessage = "Script was executed successfully\n";
+    } catch (Exception e) {
+      String error = "Error running script: " + scriptFile.getAbsolutePath();
+      logMessage = error + ", " + ExceptionUtils.getFullStackTrace(e) + "\n";
+      if (fromUnitTest) {
+        throw new RuntimeException(error, e);
+      }
+    } finally {
+    
+      newOutErr.flush();
+      newOutErr.close();
+      
+      System.setErr(err);
+      System.setOut(out);
+      System.setIn(in);
+    }
+    
+    String antOutput = StringUtils.trimToEmpty(baosOutErr.toString());
+
+    if (!StringUtils.isBlank(antOutput)) {
+      logMessage += antOutput + "\n";
+    }
+    //if call from command line, print to screen
+    if (LOG.isErrorEnabled() && !printErrorToStdOut) {
+      LOG.error(logMessage);
+    } else {
+      System.out.println(logMessage);
+    }
+    return logMessage;
+  } 
+  
   /**
    * <pre>
    * helper method to run custom db ddl, which is more easily testable

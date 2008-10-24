@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.9 2008-10-21 03:51:03 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.10 2008-10-24 05:51:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -26,6 +26,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GrouperStartup {
 
+  /** if running from main and expecting to print to the screen */
+  public static boolean runFromMain = false;
+  
   /**
    * logger 
    */
@@ -66,6 +69,22 @@ public class GrouperStartup {
       //first make sure the DB ddl is up to date
       GrouperDdlUtils.bootstrap(false, false, false);
     }
+    
+    if (!GrouperConfig.getPropertyBoolean("registry.autoinit", true)) {
+      LOG.fatal("grouper.properties registry.autoinit is false, so not auto initting.  " +
+          "But the registry needs to be auto-initted.  Please init the registry with GSH: registryInstall()  " +
+          "Initting means adding some default data like the root stem, built in fields, etc.");
+    } else {
+      initData(true);
+    }
+    
+    return true;
+  }
+  
+  /**
+   * init data
+   */
+  public static void initData(boolean logError) {
     //lets see if we need to
     boolean needsInit;
     try {
@@ -83,19 +102,15 @@ public class GrouperStartup {
           RegistryInstall.install();
           
         } catch (Exception e) {
-          String error = "Couldnt auto-create data: " + e.getMessage();
-          LOG.fatal(error, e);
+          if (logError) {
+            String error = "Couldnt auto-create data: " + e.getMessage();
+            LOG.fatal(error, e);
+          }
         }
-      } else {
-        LOG.fatal("grouper.properties registry.autoinit is false, so not auto initting.  " +
-        		"But the registry needs to be auto-initted.  Please init the registry with GSH: registryInstall()  " +
-        		"Initting means adding some default data like the root stem, built in fields, etc.");
       }
     }
-
-    return true;
   }
-
+  
   /** if we should run the boot strap from startup */
   public static boolean runDdlBootstrap = true;
   
