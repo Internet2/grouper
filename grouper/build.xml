@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.202 2008-10-20 17:51:23 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.203 2008-10-24 06:00:04 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -644,40 +644,6 @@
     <record name="${javadoc.log}" action="stop"/>
   </target>
   <!-- target: javadoc -->
-
-  <!-- target: sql -->
-  <target name="sql"
-          depends="ensure.name"
-          description="Apply sql file to Groups Registry [Pass -Dname=filename.sql]"
-  >
-    
-    <!-- CH example of prompting user with ant, then pass env var to init schema -->
-    <java fork="false"
-              maxmemory="${memory.max}"
-              classpathref="test.classpath"
-              classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
-              failonerror="true"
-        />
-    
-    <input validargs="y,n"
-        addproperty="do.sql"
-      />
-      <condition property="do.abort.sql">
-        <equals arg1="n" arg2="${do.sql}"/>
-      </condition>
-      <fail if="do.abort.sql">Build aborted by user.</fail>
-
-    
-    <property file="${conf.dir}/grouper.hibernate.properties"/>
-    <sql  classpathref="project.classpath"
-          driver="${hibernate.connection.driver_class}"
-          url="${hibernate.connection.url}"
-          userid="${hibernate.connection.username}"
-          password="${hibernate.connection.password}"
-          src="${name}"
-    />
-  </target>
-  <!-- target: sql -->
 
   <!-- target: test -->
   <target name="test" 
