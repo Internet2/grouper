@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCache.java,v 1.2 2008-07-27 07:37:24 mchyzer Exp $
+ * $Id: GrouperCache.java,v 1.3 2008-10-25 18:53:16 shilen Exp $
  */
 package edu.internet2.middleware.grouper.cache;
 
@@ -31,7 +31,10 @@ public class GrouperCache<K,V> {
     Collection<V> result = new ArrayList<V>();
     for (K key : this.keySet()) {
       
-      result.add(this.get(key));
+      V value = this.get(key);
+      if (value != null) {
+        result.add(value);
+      }
       
     }
     return result;
