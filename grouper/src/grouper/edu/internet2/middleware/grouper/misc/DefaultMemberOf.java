@@ -56,7 +56,7 @@ import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.6 2008-10-23 20:52:05 shilen Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.7 2008-10-25 16:31:39 shilen Exp $
  * @since   1.2.0
  */
 @GrouperIgnoreDbVersion
@@ -1008,7 +1008,9 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         DefaultMemberOf.this.addEffectiveDeletes(children);
         // Find all effective memberships that need deletion
         try {
-          DefaultMemberOf.this.addEffectiveDeletes( MembershipFinder.internal_findAllForwardMembershipsNoPriv(_ms, children) );
+          if (DefaultMemberOf.this.getGroup() != null && DefaultMemberOf.this.getField().equals(Group.getDefaultList())) {
+            DefaultMemberOf.this.addEffectiveDeletes( MembershipFinder.internal_findAllForwardMembershipsNoPriv(_ms, children) );
+          }
         }
         catch (SchemaException eS) {
           throw new IllegalStateException( eS.getMessage(), eS );

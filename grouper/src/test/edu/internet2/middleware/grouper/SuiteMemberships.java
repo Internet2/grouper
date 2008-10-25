@@ -22,7 +22,7 @@ import junit.framework.TestSuite;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteMemberships.java,v 1.12 2008-10-23 20:52:05 shilen Exp $
+ * @version $Id: SuiteMemberships.java,v 1.13 2008-10-25 16:31:39 shilen Exp $
  */
 public class SuiteMemberships extends TestCase {
 
@@ -40,6 +40,13 @@ public class SuiteMemberships extends TestCase {
     suite.addTestSuite(TestMembership9.class);  // test of composite with a composite type of interesection
     suite.addTestSuite(TestMembership10.class);  // test of composite with a composite type of complement
     suite.addTestSuite(TestMembership11.class);  // test of nested composite groups with complements, unions, and intersections
+
+    suite.addTestSuite(TestMembershipDeletes0.class); // test of membership deletes with union composite groups
+    suite.addTestSuite(TestMembershipDeletes1.class); // test of membership deletes with nested composite groups including complements and intersections
+    suite.addTestSuite(TestMembershipDeletes2.class); // test of membership deletes with access and naming privileges and composite groups
+    suite.addTestSuite(TestMembershipDeletes3.class); // test of membership deletes without composites but deletes that involve largely nested memberships
+    suite.addTestSuite(TestMembershipDeletes4.class); // test of membership deletes with circular memberships but without composites
+    suite.addTestSuite(TestMembershipDeletes5.class); // test of membership deletes with circular and self memberships but without composites
 
     suite.addTestSuite(TestFindBadMemberships0.class); // test with effective memberships without composite groups
     suite.addTestSuite(TestFindBadMemberships1.class); // test with effective memberships with composite groups
