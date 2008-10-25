@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestMembership11 extends TestCase {
 
-  private static final Log LOG = GrouperUtil.getLog(TestMembership6.class);
+  private static final Log LOG = GrouperUtil.getLog(TestMembership11.class);
 
   Date before;
   R       r;
