@@ -78,7 +78,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.108 2008-10-27 10:03:36 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.109 2008-10-27 19:26:15 shilen Exp $
  */
 public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -554,6 +554,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
       mof.addImmediate( s, g, f, m );
       internal_insertPersistDefaultMemberOf(mof);
       EL.addEffMembers( s, g, subj, f, mof.getEffectiveSaves() );
+      EL.delEffMembers( s, g, subj, f, mof.getEffectiveDeletes() );
     } catch (HookVeto hookVeto) {
       //just throw, this is ok
       throw hookVeto;

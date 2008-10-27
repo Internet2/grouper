@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper.log;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.time.StopWatch;
@@ -49,7 +50,7 @@ import edu.internet2.middleware.subject.Subject;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.4 2008-10-27 10:03:36 mchyzer Exp $
+ * @version $Id: EventLog.java,v 1.5 2008-10-27 19:26:15 shilen Exp $
  */
 public class EventLog {
 
@@ -83,41 +84,43 @@ public class EventLog {
   // PROTECTED CLASS METHODS //
 
   // @since 1.0
-  public static void compositeUpdate(
-    Composite c, Set saves, Set deletes, StopWatch sw
-  )
-  {
-    EventLog.groupAddAndDelCompositeMembers( GrouperSession.staticGrouperSession(), c, saves, deletes, sw );
-  } // protected static void compositeUpdate(c, saves, deletes)
-
-  // @since 1.0
-  protected static void groupAddAndDelCompositeMembers(
+  protected void groupAddAndDelCompositeMembers(
     GrouperSession s, Composite c, Set saves, Set deletes, StopWatch sw
   )
   {
     //note, no need for GrouperSession inverse of control
     Object      obj;
     Membership  ms;
+    String groupName = c.internal_getOwnerName();
+    Set<Membership> membershipSaves = new LinkedHashSet<Membership>();
+    Set<Membership> membershipDeletes = new LinkedHashSet<Membership>();
+
     Iterator    it  = saves.iterator();
     while (it.hasNext()) {
       obj = it.next();
       if (obj instanceof Membership) {
         ms = (Membership) obj;
-        _member( s, M.COMP_MEMADD, c.internal_getOwnerName(), ms, sw );
+        membershipSaves.add(ms);
       }
     }
+
+    _addEffs(s, "group=" + Quote.single(groupName), null, null, membershipSaves, sw);
+
     it = deletes.iterator();
     while (it.hasNext()) {
       obj = it.next();
       if (obj instanceof Membership) {
         ms = (Membership) obj;
-        _member( s, M.COMP_MEMDEL, c.internal_getOwnerName(), ms, sw );
+        membershipDeletes.add(ms);
       }
     }
-  } // protected static void groupAddAndDelCompositeMembers(s, c, mof, sw)
+
+    _delEffs(s, "group=" + Quote.single(groupName), null, null, membershipDeletes, sw);
+
+  } // protected void groupAddAndDelCompositeMembers(s, c, mof, sw)
 
   // @since 1.0
-  public static void groupAddComposite(
+  public void groupAddComposite(
     GrouperSession s, Composite c, DefaultMemberOf mof, StopWatch sw
   )
   {
@@ -133,13 +136,13 @@ public class EventLog {
       ,
       sw
     );
-    EventLog.groupAddAndDelCompositeMembers(
+    this.groupAddAndDelCompositeMembers(
       s, c, mof.getSaves(), mof.getDeletes(), sw
     );
-  } // protected static void groupAddComposite(s, c, mof, sw)
+  } // protected void groupAddComposite(s, c, mof, sw)
 
   // @since 1.0
-  public static void groupDelComposite(
+  public void groupDelComposite(
     GrouperSession s, Composite c, DefaultMemberOf mof, StopWatch sw
   )
   {
@@ -154,10 +157,10 @@ public class EventLog {
       ,
       sw
     );
-    EventLog.groupAddAndDelCompositeMembers(
+    this.groupAddAndDelCompositeMembers(
       s, c, mof.getSaves(), mof.getDeletes(), sw
     );
-  } // protected static void groupDelComposite(s, c, mof, sw)
+  } // protected void groupDelComposite(s, c, mof, sw)
 
   // @since 1.0
   public static void info(String msg) {
@@ -190,14 +193,14 @@ public class EventLog {
   // @since   1.2.0
   public void addEffMembers(GrouperSession s, Group g, Subject subj, Field f, Set effs) {
     if (this.log_eff_group_add) {
-      this._addEffs(s, "group=" + Quote.single( g.getName() ), subj, f, effs);
+      this._addEffs(s, "group=" + Quote.single( g.getName() ), subj, f, effs, null);
     }
   } // protected void addEffMembers(s, g, subj, f, effs)
 
   // @since   1.2.0
   public void addEffMembers(GrouperSession s, Stem ns, Subject subj, Field f, Set effs) {
     if (this.log_eff_stem_add) {
-      this._addEffs(s, "stem=" + Quote.single( ns.getName() ), subj, f, effs);
+      this._addEffs(s, "stem=" + Quote.single( ns.getName() ), subj, f, effs, null);
     }
   } // protected void addEffMembers(s, ns, subj, f, effs)
 
@@ -207,12 +210,12 @@ public class EventLog {
   {
     if      (o instanceof Group) {
       if (this.log_eff_group_del == true) {
-        this._delEffs(s, "group=" + Quote.single( ( (Group) o).getName() ), subj, f, effs);
+        this._delEffs(s, "group=" + Quote.single( ( (Group) o).getName() ), subj, f, effs, null);
       }
     }
     else if (o instanceof Stem) {
       if (this.log_eff_stem_del == true) {
-        this._delEffs(s, "stem=" + Quote.single( ( (Stem) o).getName() ), subj, f, effs);
+        this._delEffs(s, "stem=" + Quote.single( ( (Stem) o).getName() ), subj, f, effs, null);
       }
     }
     else {
@@ -311,20 +314,30 @@ public class EventLog {
     catch (Exception e) {
       subject = Quote.single(e.getMessage());
     }
-    EventLog.info(
-      s,
-      msg           + Quote.single(where) 
-      + " list="    + Quote.single( ms.getList().getName() )  
-      + " subject=" + subject,
-      sw
-    );
+
+    if (sw != null) {
+      EventLog.info(
+        s,
+        msg           + Quote.single(where) 
+        + " list="    + Quote.single( ms.getList().getName() )  
+        + " subject=" + subject,
+        sw
+      );
+    } else {
+      EventLog.info(
+        s,
+        msg           + Quote.single(where) 
+        + " list="    + Quote.single( ms.getList().getName() )  
+        + " subject=" + subject
+      );
+    }
   } // private void _member(s, msg, where, subj, f, sw)
 
 
   // PRIVATE INSTANCE METHODS //
 
   private void _addEffs(
-    GrouperSession s, String name, Subject subj, Field f, Set effs
+    GrouperSession s, String name, Subject subj, Field f, Set effs, StopWatch sw
   )
   {
     //note, no need for GrouperSession inverse of control
@@ -336,7 +349,11 @@ public class EventLog {
         this._eff(s, M.G_GP_E, name, subj, f, eff, "priv="); 
       }
       else if ( eff.getListType().equals(FieldType.LIST.toString()) )    {
-        this._eff(s, M.G_AM_E, name, subj, f, eff, "list="); 
+        if (eff.isComposite()) {
+          _member(s, M.COMP_MEMADD, this._getEffOwnerMsg(eff), eff, sw);
+        } else {
+          this._eff(s, M.G_AM_E, name, subj, f, eff, "list="); 
+        }
       }
       else if ( eff.getListType().equals(FieldType.NAMING.toString()) )  {
         this._eff(s, M.S_GP_E, name, subj, f, eff, "priv="); 
@@ -345,7 +362,7 @@ public class EventLog {
   }
 
   private void _delEffs(
-    GrouperSession s, String name, Subject subj, Field f, Set effs
+    GrouperSession s, String name, Subject subj, Field f, Set effs, StopWatch sw
   )
   {
     //note, no need for GrouperSession inverse of control
@@ -357,7 +374,11 @@ public class EventLog {
         this._eff(s, M.G_RP_E, name, subj, f, eff, "priv="); 
       }
       else if ( eff.getListType().equals(FieldType.LIST.toString()) )    {
-        this._eff(s, M.G_DM_E, name, subj, f, eff, "list="); 
+        if (eff.isComposite()) {
+          _member(s, M.COMP_MEMDEL, this._getEffOwnerMsg(eff), eff, sw);
+        } else {
+          this._eff(s, M.G_DM_E, name, subj, f, eff, "list="); 
+        }
       }
       else if ( eff.getListType().equals(FieldType.NAMING.toString()) )  {
         this._eff(s, M.S_RP_E, name, subj, f, eff, "priv="); 
@@ -370,24 +391,26 @@ public class EventLog {
   )
   {
     //note, no need for GrouperSession inverse of control
-    msg += this._getEffOwnerMsg(eff);
+    msg += Quote.single(this._getEffOwnerMsg(eff));
     // Get eff field
     msg += " " + field + Quote.single( eff.getListName() );
     msg += this._getEffSubjectMsg(eff);
-    // Get added or removed message that caused this effective membership change
-    msg += " (" + name + " ";
-    if      ( f.getType().equals(FieldType.ACCESS) )  {
-      msg += "priv=" + Quote.single( f.getName() );
+    if (subj != null) {
+      // Get added or removed message that caused this effective membership change
+      msg += " (" + name + " ";
+      if      ( f.getType().equals(FieldType.ACCESS) )  {
+        msg += "priv=" + Quote.single( f.getName() );
+      }
+      else if ( f.getType().equals(FieldType.LIST) )    {
+        msg += "list=" + Quote.single( f.getName() );
+      }
+      else if ( f.getType().equals(FieldType.NAMING) )  {
+        msg += "priv=" + Quote.single( f.getName() );
+      }
+      // Get added or removed subject that caused this effective
+      // membership change
+      msg += " subject=" + SubjectHelper.getPretty(subj) + ")";
     }
-    else if ( f.getType().equals(FieldType.LIST) )    {
-      msg += "list=" + Quote.single( f.getName() );
-    }
-    else if ( f.getType().equals(FieldType.NAMING) )  {
-      msg += "priv=" + Quote.single( f.getName() );
-    }
-    // Get added or removed subject that caused this effective
-    // membership change
-    msg += " subject=" + SubjectHelper.getPretty(subj) + ")";
     // Now log it
     LOG.info( LogHelper.internal_formatMsg(s, msg) );
   } 
@@ -422,13 +445,13 @@ public class EventLog {
       }   
     }
     if (g != null) {
-      msg += "group=" + Quote.single( g.getName() );
+      msg += g.getName();
     }
     else if (ns != null ) {
-      msg += "stem=" + Quote.single( ns.getName() );
+      msg += ns.getName();
     }
     else {
-      msg += "owner=???";
+      msg += "???";
     }
     return msg;
   } // private String _getEffOwnerMsg(_eff)

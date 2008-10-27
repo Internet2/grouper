@@ -61,7 +61,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.62 2008-10-17 12:06:37 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.63 2008-10-27 19:26:15 shilen Exp $
  * @since   1.0
  */
 public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
@@ -492,7 +492,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
       if ( adds.size() > 0 || deletes.size() > 0 || modGroups.size() > 0 || modStems.size() > 0 ) {
         GrouperDAOFactory.getFactory().getComposite().update(adds, deletes, modGroups, modStems);
         sw.stop();
-        EventLog.compositeUpdate(this, adds, deletes, sw);
+        //EventLog.compositeUpdate(this, adds, deletes, sw);
         //_updateComposites( GrouperSession.staticGrouperSession(), deletes);
         //_updateComposites( GrouperSession.staticGrouperSession(), adds);
         Composite.internal_update(g);

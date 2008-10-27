@@ -111,7 +111,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.206 2008-10-27 10:03:36 mchyzer Exp $
+ * @version $Id: Group.java,v 1.207 2008-10-27 19:26:15 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
@@ -519,7 +519,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
       DefaultMemberOf mof = new DefaultMemberOf();
       mof.addComposite( GrouperSession.staticGrouperSession(), this, c );
       GrouperDAOFactory.getFactory().getMembership().update(mof);
-      EventLog.groupAddComposite( GrouperSession.staticGrouperSession(), c, mof, sw );
+      EVENT_LOG.groupAddComposite( GrouperSession.staticGrouperSession(), c, mof, sw );
       sw.stop();
     }
     catch (GrouperDAOException eDAO) {
@@ -1046,7 +1046,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
       DefaultMemberOf  mof = new DefaultMemberOf();
       mof.deleteComposite( GrouperSession.staticGrouperSession(), this, c );
       GrouperDAOFactory.getFactory().getMembership().update(mof);
-      EventLog.groupDelComposite( GrouperSession.staticGrouperSession(), c, mof, sw );
+      EVENT_LOG.groupDelComposite( GrouperSession.staticGrouperSession(), c, mof, sw );
       sw.stop();
     }
     catch (CompositeNotFoundException eCNF) {
@@ -1406,6 +1406,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
     if (notAlreadyDeleted) {
       EVENT_LOG.groupDelMember(GrouperSession.staticGrouperSession(), this.getName(), subj, f, sw);
       EVENT_LOG.delEffMembers(GrouperSession.staticGrouperSession(), this, subj, f, theMof.getEffectiveDeletes());
+      EVENT_LOG.addEffMembers(GrouperSession.staticGrouperSession(), this, subj, f, theMof.getEffectiveSaves());
     }
     return notAlreadyDeleted;
   } // public void deleteMember(subj, f)
