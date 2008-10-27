@@ -48,13 +48,17 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
+import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
@@ -107,8 +111,9 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.205 2008-10-23 20:52:05 shilen Exp $
+ * @version $Id: Group.java,v 1.206 2008-10-27 10:03:36 mchyzer Exp $
  */
+@SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
   /** name of the groups table in the db */
@@ -581,20 +586,17 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    * @param   subj  Add this {@link Subject}
    * @param exceptionIfAlreadyMember if false, and subject is already a member,
    * then dont throw a MemberAddException if the member is already in the group
+   * @return false if it already existed, true if it didnt already exist
    * @throws  InsufficientPrivilegeException
    * @throws  MemberAddException
    */
-  public void addMember(Subject subj, boolean exceptionIfAlreadyMember) 
+  public boolean addMember(Subject subj, boolean exceptionIfAlreadyMember) 
     throws  InsufficientPrivilegeException,
             MemberAddException
   {
-    //CH 20080301: if not want an exception, and already a member, then exit normally
-    if (!exceptionIfAlreadyMember && this.hasMember(subj)) {
-      return;
-    }
     try {
       Field defaultList = getDefaultList();
-      this.addMember(subj, defaultList);
+      return this.addMember(subj, defaultList, exceptionIfAlreadyMember);
     }
     catch (SchemaException eS) {
       throw new MemberAddException(eS.getMessage(), eS);
@@ -670,12 +672,11 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    * @throws  InsufficientPrivilegeException
    * @throws  MemberAddException
    * @throws  SchemaException
+   * @return false if it already existed, true if it didnt already exist
    */
-  public void addMember(Subject subj, Field f, boolean exceptionIfAlreadyMember)
+  public boolean addMember(Subject subj, Field f, boolean exceptionIfAlreadyMember)
     throws  InsufficientPrivilegeException,
-            MemberAddException,
-            SchemaException
-  {
+            MemberAddException, SchemaException {
     StopWatch sw = new StopWatch();
     sw.start();
     if ( !FieldType.LIST.equals( f.getType() ) ) {
@@ -690,13 +691,20 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
     if ( ( Group.getDefaultList().equals(f) ) && ( this.hasComposite() ) ) {
       throw new MemberAddException(E.GROUP_AMTC);
     }
-    //CH 20080301: if not want an exception, and already a member, then exit normally
-    if (!exceptionIfAlreadyMember && this.hasMember(subj, f)) {
-      return;
+    boolean doesntExist = true;
+    try {
+      Membership.internal_addImmediateMembership( GrouperSession.staticGrouperSession(), this, subj, f );
+    } catch (MemberAddAlreadyExistsException maaee) {
+      if (exceptionIfAlreadyMember) {
+        throw maaee;
+      }
+      doesntExist = false;
     }
-    Membership.internal_addImmediateMembership( GrouperSession.staticGrouperSession(), this, subj, f );
-    EVENT_LOG.groupAddMember(GrouperSession.staticGrouperSession(), this.getName(), subj, f, sw);
+    if (doesntExist) {
+      EVENT_LOG.groupAddMember(GrouperSession.staticGrouperSession(), this.getName(), subj, f, sw);
+    }
     sw.stop();
+    return doesntExist;
   } // public void addMember(subj, f)
 
   /**
@@ -1052,6 +1060,47 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
     }
   } // public void deleteCompositeMember()
 
+  
+  
+  /** 
+   * Delete a member from this group, and member must be immediate
+   * member.  Will not delete the effective membership.
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * try {
+   *   g.deleteMember(member);
+   * } 
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to delete this subject
+   * }
+   * catch (MemberDeleteException eMD) {
+   *   // Unable to delete subject
+   * }
+   * </pre>
+   * @param   member  Delete this {@link Member}
+   * @param exceptionIfAlreadyDeleted throw exception if already deleted
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberDeleteException
+   * @return false if it was already deleted, true if it wasnt already deleted
+   */
+  public boolean deleteMember(Member member, boolean exceptionIfAlreadyDeleted)
+    throws  InsufficientPrivilegeException, MemberDeleteException {
+    try {
+      return this.deleteMember(member, getDefaultList(), exceptionIfAlreadyDeleted);
+    }
+    catch (SchemaException eS) {
+      throw new MemberDeleteException(eS.getMessage(), eS);
+    }
+
+  }
+  
   /** 
    * Delete a member from this group, and member must be immediate
    * member.  Will not delete the effective membership.
@@ -1080,13 +1129,46 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    */
   public void deleteMember(Member member)
     throws  InsufficientPrivilegeException, MemberDeleteException {
-    try {
-      this.deleteMember(member, getDefaultList());
-    }
-    catch (SchemaException eS) {
-      throw new MemberDeleteException(eS.getMessage(), eS);
-    }
-  } // public void deleteMember(subj)
+    deleteMember(member, true);
+  }
+
+  /** 
+   * Delete a member from this group, and member must be immediate
+   * member.  Will not delete the effective membership.
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * try {
+   *   g.deleteMember(m, f);
+   * } 
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to delete this subject
+   * }
+   * catch (MemberDeleteException eMD) {
+   *   // Unable to delete subject
+   * }
+   * </pre>
+   * @param   member  Delete this {@link Member}.
+   * @param   f     Delete subject from this {@link Field}.
+   * @return false if it was already deleted, true if it wasnt already deleted
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberDeleteException
+   * @throws  SchemaException
+   */
+  public boolean  deleteMember(Member member, Field f, boolean exceptionIfAlreadyDeleted) 
+      throws  InsufficientPrivilegeException, MemberDeleteException, SchemaException {
+    
+    Subject lazySubject = new LazySubject(member);
+    
+    return deleteMember(lazySubject, f, exceptionIfAlreadyDeleted);
+    
+  }
 
   /** 
    * Delete a member from this group, and member must be immediate
@@ -1118,14 +1200,11 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    */
   public void deleteMember(Member member, Field f) 
       throws  InsufficientPrivilegeException, MemberDeleteException, SchemaException {
-    
-    Subject lazySubject = new LazySubject(member);
-    
-    deleteMember(lazySubject, f);
-    
+    deleteMember(member, f, true);
   }
 
-
+  
+  
   /** 
    * Delete a subject from this group, and subject must be immediate
    * member.  Will not delete the effective membership.
@@ -1154,15 +1233,48 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    */
   public void deleteMember(Subject subj)
     throws  InsufficientPrivilegeException,
+            MemberDeleteException {
+    deleteMember(subj, true);
+  }
+  
+  /** 
+   * Delete a subject from this group, and subject must be immediate
+   * member.  Will not delete the effective membership.
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * try {
+   *   g.deleteMember(subj);
+   * } 
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to delete this subject
+   * }
+   * catch (MemberDeleteException eMD) {
+   *   // Unable to delete subject
+   * }
+   * </pre>
+   * @param   subj  Delete this {@link Subject}
+   * @return false if it was already deleted, true if it wasnt already deleted
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberDeleteException
+   */
+  public boolean deleteMember(Subject subj, boolean exceptionIfAlreadyDeleted)
+    throws  InsufficientPrivilegeException,
             MemberDeleteException
   {
     try {
-      this.deleteMember(subj, getDefaultList());
+      return this.deleteMember(subj, getDefaultList(), exceptionIfAlreadyDeleted);
     }
     catch (SchemaException eS) {
       throw new MemberDeleteException(eS.getMessage(), eS);
     }
-  } // public void deleteMember(subj)
+  }
 
   /** 
    * Delete a subject from this group, and subject must be immediate
@@ -1195,8 +1307,46 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   public void deleteMember(Subject subj, Field f) 
     throws  InsufficientPrivilegeException, 
             MemberDeleteException,
+            SchemaException {
+    deleteMember(subj, f, true);
+  }
+  
+  /** 
+   * Delete a subject from this group, and subject must be immediate
+   * member.  Will not delete the effective membership.
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * try {
+   *   g.deleteMember(m, f);
+   * } 
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to delete this subject
+   * }
+   * catch (MemberDeleteException eMD) {
+   *   // Unable to delete subject
+   * }
+   * </pre>
+   * @param   subj  Delete this {@link Subject}.
+   * @param   f     Delete subject from this {@link Field}.
+   * @param exceptionIfAlreadyDeleted true if an exception should be thrown
+   * if the member is already deleted
+   * @return false if it was already deleted, true if it wasnt already deleted
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberDeleteException
+   * @throws  SchemaException
+   */
+  public boolean  deleteMember(Subject subj, Field f, boolean exceptionIfAlreadyDeleted) 
+    throws  InsufficientPrivilegeException, 
+            MemberDeleteException,
             SchemaException
-  {
+  { boolean notAlreadyDeleted = true;
     StopWatch sw  = new StopWatch();
     sw.start();
     if ( !FieldType.LIST.equals( f.getType() ) ) {
@@ -1211,40 +1361,53 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
     if ( (f.equals( Group.getDefaultList() ) ) && ( this.hasComposite() ) ) {
       throw new MemberDeleteException(E.GROUP_DMFC);
     }
-    final DefaultMemberOf  mof = Membership.internal_delImmediateMembership( GrouperSession.staticGrouperSession(), this, subj, f );
+    DefaultMemberOf  theMof = null;
     try {
-      GrouperTransaction.callbackGrouperTransaction(
-          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
-
-            public Object callback(GrouperTransaction grouperTransaction)
-                throws GrouperDAOException {
-              GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                  MembershipHooks.METHOD_MEMBERSHIP_PRE_REMOVE_MEMBER,
-                  HooksMembershipChangeBean.class, mof, DefaultMemberOf.class, 
-                  VetoTypeGrouper.MEMBERSHIP_PRE_REMOVE_MEMBER);
+      theMof = Membership.internal_delImmediateMembership( GrouperSession.staticGrouperSession(), this, subj, f );
+      final DefaultMemberOf  mof = theMof; 
+      
+      try {
+        GrouperTransaction.callbackGrouperTransaction(
+            GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
+  
+              public Object callback(GrouperTransaction grouperTransaction)
+                  throws GrouperDAOException {
+                GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+                    MembershipHooks.METHOD_MEMBERSHIP_PRE_REMOVE_MEMBER,
+                    HooksMembershipChangeBean.class, mof, DefaultMemberOf.class, 
+                    VetoTypeGrouper.MEMBERSHIP_PRE_REMOVE_MEMBER);
+                
+                GrouperDAOFactory.getFactory().getMembership().update(mof);
+  
+                GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+                    MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_REMOVE_MEMBER, HooksMembershipChangeBean.class, 
+                    mof, DefaultMemberOf.class);
+  
+                GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+                    MembershipHooks.METHOD_MEMBERSHIP_POST_REMOVE_MEMBER,
+                    HooksMembershipChangeBean.class, mof, DefaultMemberOf.class, 
+                    VetoTypeGrouper.MEMBERSHIP_POST_REMOVE_MEMBER);
+                return null;
+              }
               
-              GrouperDAOFactory.getFactory().getMembership().update(mof);
-
-              GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                  MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_REMOVE_MEMBER, HooksMembershipChangeBean.class, 
-                  mof, DefaultMemberOf.class);
-
-              GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                  MembershipHooks.METHOD_MEMBERSHIP_POST_REMOVE_MEMBER,
-                  HooksMembershipChangeBean.class, mof, DefaultMemberOf.class, 
-                  VetoTypeGrouper.MEMBERSHIP_POST_REMOVE_MEMBER);
-              return null;
-            }
-            
-          });
-
-    }
-    catch (GrouperDAOException eDAO) {
-      throw new MemberDeleteException( eDAO.getMessage(), eDAO );
+            });
+  
+      }
+      catch (GrouperDAOException eDAO) {
+        throw new MemberDeleteException( eDAO.getMessage(), eDAO );
+      }
+    } catch (MemberDeleteAlreadyDeletedException mdade) {
+      if (exceptionIfAlreadyDeleted) {
+        throw mdade;
+      }
+      notAlreadyDeleted = false;
     }
     sw.stop();
-    EVENT_LOG.groupDelMember(GrouperSession.staticGrouperSession(), this.getName(), subj, f, sw);
-    EVENT_LOG.delEffMembers(GrouperSession.staticGrouperSession(), this, subj, f, mof.getEffectiveDeletes());
+    if (notAlreadyDeleted) {
+      EVENT_LOG.groupDelMember(GrouperSession.staticGrouperSession(), this.getName(), subj, f, sw);
+      EVENT_LOG.delEffMembers(GrouperSession.staticGrouperSession(), this, subj, f, theMof.getEffectiveDeletes());
+    }
+    return notAlreadyDeleted;
   } // public void deleteMember(subj, f)
 
   /**
@@ -2149,7 +2312,8 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   } 
 
   /**
-   * Grant privilege to a subject on this group.
+   * Grant privilege to a subject on this group.  This
+   * will throw an exception if the privilege already exists
    * <pre class="eg">
    * try {
    *   g.grantPriv(subj, AccessPrivilege.ADMIN);
@@ -2170,20 +2334,58 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   public void grantPriv(Subject subj, Privilege priv)
     throws  GrantPrivilegeException,
             InsufficientPrivilegeException,
-            SchemaException
-  {
+            SchemaException {
+    
+    grantPriv(subj, priv, true);
+    
+  }
+  
+  /**
+   * Grant privilege to a subject on this group.
+   * <pre class="eg">
+   * try {
+   *   g.grantPriv(subj, AccessPrivilege.ADMIN);
+   * }
+   * catch (GrantPrivilegeException e0) {
+   *   // Not privileged to grant this privilege
+   * }
+   * catch (InsufficientPrivilegeException e1) {
+   *   // Unable to grant this privilege
+   * }
+   * </pre>
+   * @param   subj  Grant privilege to this subject.
+   * @param   priv  Grant this privilege.
+   * @param exceptionIfAlreadyMember if false, and subject is already a member,
+   * then dont throw a MemberAddException if the member is already in the group
+   * @throws  GrantPrivilegeException
+   * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
+   * @return false if it already existed, true if it didnt already exist
+   */
+  public boolean grantPriv(Subject subj, Privilege priv, boolean exceptionIfAlreadyMember)
+    throws  GrantPrivilegeException,
+            InsufficientPrivilegeException,
+            SchemaException {
     StopWatch sw = new StopWatch();
     sw.start();
+    boolean assignedPrivilege = false;
     try {
       GrouperSession.staticGrouperSession().getAccessResolver().grantPrivilege(this, subj, priv);
-    }
-    catch (UnableToPerformException eUTP) {
+      assignedPrivilege = true;
+    } catch (UnableToPerformAlreadyExistsException eUTP) {
+      if (exceptionIfAlreadyMember) {
+        throw new GrantPrivilegeAlreadyExistsException(eUTP.getMessage(), eUTP);
+      }
+    } catch (UnableToPerformException eUTP) {
       throw new GrantPrivilegeException( eUTP.getMessage(), eUTP );
     }
     sw.stop();
-    EVENT_LOG.groupGrantPriv(GrouperSession.staticGrouperSession(), this.getName(), subj, priv, sw);
+    if (assignedPrivilege) {
+      EVENT_LOG.groupGrantPriv(GrouperSession.staticGrouperSession(), this.getName(), subj, priv, sw);
+    }
+    return assignedPrivilege;
   } 
-
+  
   /**
    * Check whether the subject has ADMIN on this group.
    * <pre class="eg">
@@ -2616,6 +2818,36 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
             RevokePrivilegeException,
             SchemaException
   {
+    revokePriv(subj, priv, true);
+  }
+  
+  /**
+   * Revoke a privilege from the specified subject.
+   * <pre class="eg">
+   * try {
+   *   g.revokePriv(subj, AccessPrivilege.OPTIN);
+   * }
+   * catch (InsufficientPrivilegeException e1) {
+   *   // Not privileged to revoke this privilege
+   * }
+   * catch (RevokePrivilegeException eRP) {
+   *   // Error revoking privilege
+   * }
+   * </pre>
+   * @param   subj  Revoke privilege from this subject.
+   * @param   priv  Revoke this privilege.
+   * @param exceptionIfAlreadyRevoked if false, and subject is already a member,
+   * then dont throw a MemberAddException if the member is already in the group
+   * @return false if it was already revoked, true if it wasnt already deleted
+   * @throws  InsufficientPrivilegeException
+   * @throws  RevokePrivilegeException
+   * @throws  SchemaException
+   */
+  public boolean revokePriv(Subject subj, Privilege priv, 
+      boolean exceptionIfAlreadyRevoked) 
+    throws  InsufficientPrivilegeException,
+            RevokePrivilegeException, SchemaException {
+    boolean wasntAlreadyRevoked = true;
     StopWatch sw = new StopWatch();
     sw.start();
     if ( Privilege.isNaming(priv) ) {
@@ -2623,12 +2855,19 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
     }
     try {
       GrouperSession.staticGrouperSession().getAccessResolver().revokePrivilege(this, subj, priv);
-    }
-    catch (UnableToPerformException eUTP) {
+    } catch (UnableToPerformAlreadyExistsException eUTP) {
+      if (exceptionIfAlreadyRevoked) {
+        throw new RevokePrivilegeAlreadyRevokedException( eUTP.getMessage(), eUTP );
+      }
+      wasntAlreadyRevoked = false;
+    } catch (UnableToPerformException eUTP) {
       throw new RevokePrivilegeException( eUTP.getMessage(), eUTP );
     }
     sw.stop();
-    EVENT_LOG.groupRevokePriv(GrouperSession.staticGrouperSession(), this.getName(), subj, priv, sw);
+    if (wasntAlreadyRevoked) {
+      EVENT_LOG.groupRevokePriv(GrouperSession.staticGrouperSession(), this.getName(), subj, priv, sw);
+    }
+    return wasntAlreadyRevoked;
   } 
 
   /**

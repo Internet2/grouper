@@ -41,12 +41,14 @@ import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
 import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
@@ -89,8 +91,9 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.168 2008-10-23 04:48:58 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.169 2008-10-27 10:03:36 mchyzer Exp $
  */
+@SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
   /** table for stems table in the db */
@@ -720,16 +723,53 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
             InsufficientPrivilegeException, // TODO 20070820 stop throwing
             SchemaException                 // TODO 20070820 stop throwing
   {
+    grantPriv(subj, priv, true);
+    
+  }
+  /**
+   * Grant a privilege on this stem.
+   * <pre class="eg">
+   * try {
+   *   ns.grantPriv(subj, NamingPrivilege.CREATE);
+   * }
+   * catch (GrantPrivilegeException e) {
+   *   // Error granting privilege
+   * }
+   * </pre>
+   * @param   subj  Grant privilege to this subject.
+   * @param   priv  Grant this privilege.
+   * @param exceptionIfAlreadyMember if false, and subject is already a member,
+   * then dont throw a MemberAddException if the member is already in the group
+   * @throws  GrantPrivilegeException
+   * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
+   * @return false if it already existed, true if it didnt already exist
+   */
+  public boolean grantPriv(Subject subj, Privilege priv, boolean exceptionIfAlreadyMember) 
+    throws  GrantPrivilegeException,        // TODO 20070820 stop throwing
+            InsufficientPrivilegeException, // TODO 20070820 stop throwing
+            SchemaException                 // TODO 20070820 stop throwing
+  {
     StopWatch sw = new StopWatch();
     sw.start();
+    boolean didNotExist = true;
     try {
       GrouperSession.staticGrouperSession().getNamingResolver().grantPrivilege(this, subj, priv);
+    }
+    catch (UnableToPerformAlreadyExistsException eUTP) {
+      if (exceptionIfAlreadyMember) {
+        throw new GrantPrivilegeAlreadyExistsException( eUTP.getMessage(), eUTP );
+      }
+      didNotExist = false;
     }
     catch (UnableToPerformException eUTP) {
       throw new GrantPrivilegeException( eUTP.getMessage(), eUTP );
     }
     sw.stop();
-    EL.stemGrantPriv(GrouperSession.staticGrouperSession(), this.getName(), subj, priv, sw);
+    if (didNotExist) {
+      EL.stemGrantPriv(GrouperSession.staticGrouperSession(), this.getName(), subj, priv, sw);
+    }
+    return didNotExist;
   } 
 
   /**
@@ -906,6 +946,37 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
             RevokePrivilegeException,
             SchemaException                 // TODO 20070820 stop throwing this
   {
+    revokePriv(subj, priv, true);
+  }
+
+  /**
+   * Revoke a privilege on this stem.
+   * <pre class="eg">
+   * try {
+   *   ns.revokePriv(subj, NamingPrivilege.CREATE);
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to revoke this privilege
+   * }
+   * catch (RevokePrivilegeException eRP) {
+   *   // Error revoking privilege
+   * }
+   * </pre>
+   * @param   subj  Revoke privilege from this subject.
+   * @param   priv  Revoke this privilege.
+   * @param exceptionIfAlreadyRevoked if false, and subject is already a member,
+   * then dont throw a MemberAddException if the member is already in the group
+   * @return false if it was already revoked, true if it wasnt already deleted
+   * @throws  InsufficientPrivilegeException
+   * @throws  RevokePrivilegeException
+   * @throws  SchemaException
+   */
+  public boolean revokePriv(Subject subj, Privilege priv, boolean exceptionIfAlreadyRevoked)
+    throws  InsufficientPrivilegeException, // TODO 20070820 stop throwing this
+            RevokePrivilegeException,
+            SchemaException                 // TODO 20070820 stop throwing this
+  {
+    boolean wasntAlreadyRevoked = true;
     StopWatch sw = new StopWatch();
     sw.start();
     if ( Privilege.isAccess(priv) ) {
@@ -913,14 +984,21 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
     }
     try {
       GrouperSession.staticGrouperSession().getNamingResolver().revokePrivilege(this, subj, priv);
-    }
-    catch (UnableToPerformException e) {
+    } catch (UnableToPerformAlreadyExistsException eUTP) {
+      if (exceptionIfAlreadyRevoked) {
+        throw new RevokePrivilegeAlreadyRevokedException( eUTP.getMessage(), eUTP );
+      }
+      wasntAlreadyRevoked = false;
+    } catch (UnableToPerformException e) {
       throw new RevokePrivilegeException( e.getMessage(), e );
     }
     sw.stop();
-    EL.stemRevokePriv(GrouperSession.staticGrouperSession(), this.getName(), subj, priv, sw);
+    if (wasntAlreadyRevoked) {
+      EL.stemRevokePriv(GrouperSession.staticGrouperSession(), this.getName(), subj, priv, sw);
+    }
+    return wasntAlreadyRevoked;
   } 
- 
+
   /**
    * Set stem description.
    * <pre class="eg">

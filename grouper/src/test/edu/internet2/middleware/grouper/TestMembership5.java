@@ -20,9 +20,11 @@ import java.util.Date;
 import java.util.Set;
 
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -33,6 +35,15 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestMembership5 extends TestCase {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestMembership5("testEffectiveMembershipsWithPrivileges"));
+  }
+  
+  /** logger */
   private static final Log LOG = GrouperUtil.getLog(TestMembership5.class);
 
   Date before;
@@ -119,6 +130,18 @@ public class TestMembership5 extends TestCase {
       gB.deleteMember( gD.toSubject() );
       gB.deleteMember( gE.toSubject() );
       gB.revokePriv( gC.toSubject(), AccessPrivilege.UPDATE );
+      
+
+      try {
+        gB.revokePriv( gC.toSubject(), AccessPrivilege.UPDATE );
+        fail("Should throw an exception about already existing");
+      } catch (RevokePrivilegeException rpe) {
+        //good
+      }
+
+      gB.revokePriv( gC.toSubject(), AccessPrivilege.UPDATE );
+      //shouldnt throw an exception
+      
       gD.deleteMember( subjD );
       gD.deleteMember( gF.toSubject() );
       gE.revokePriv( subjC, AccessPrivilege.UPDATE );

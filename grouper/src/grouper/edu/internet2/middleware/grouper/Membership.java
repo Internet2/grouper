@@ -37,9 +37,12 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
+import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.MembershipAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
@@ -75,7 +78,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.107 2008-10-18 07:14:39 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.108 2008-10-27 10:03:36 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -554,7 +557,10 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
     } catch (HookVeto hookVeto) {
       //just throw, this is ok
       throw hookVeto;
-    } catch (IllegalStateException eIS)           {
+    } catch (IllegalStateException eIS) {
+      if (eIS instanceof MembershipAlreadyExistsException) {
+        throw new MemberAddAlreadyExistsException(eIS.getMessage(), eIS);
+      }
       throw new MemberAddException( eIS.getMessage(), eIS );
     }    
     catch (InsufficientPrivilegeException eIP)  {
@@ -578,8 +584,9 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
       mof.addImmediate( s, ns, f, m );
       internal_insertPersistDefaultMemberOf(mof);
       EL.addEffMembers( s, ns, subj, f, mof.getEffectiveSaves() );
-    }
-    catch (IllegalStateException eIS)           {
+    } catch (MembershipAlreadyExistsException eIS) {
+      throw new MemberAddAlreadyExistsException( eIS.getMessage(), eIS );
+    } catch (IllegalStateException eIS) {
       throw new MemberAddException( eIS.getMessage(), eIS );
     }    
     catch (InsufficientPrivilegeException eIP)  {
@@ -614,7 +621,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
       throw new MemberDeleteException( eMNF.getMessage(), eMNF );
     }
     catch (MembershipNotFoundException eMSNF)   {
-      throw new MemberDeleteException(eMSNF.getMessage(), eMSNF);
+      throw new MemberDeleteAlreadyDeletedException(eMSNF.getMessage(), eMSNF);
     }
   } // public static void internal_delImmediateMembership(s, g, subj, f)
 
@@ -644,7 +651,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
       throw new MemberDeleteException( eMNF.getMessage(), eMNF );
     }
     catch (MembershipNotFoundException eMSNF)   {
-      throw new MemberDeleteException(eMSNF.getMessage(), eMSNF);
+      throw new MemberDeleteAlreadyDeletedException(eMSNF.getMessage(), eMSNF);
     }
   } // public static void internal_delImmediateMembership(s, ns, subj, f)
 

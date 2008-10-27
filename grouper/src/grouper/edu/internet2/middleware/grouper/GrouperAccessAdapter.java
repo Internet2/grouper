@@ -28,9 +28,12 @@ import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
+import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
@@ -54,7 +57,7 @@ import edu.internet2.middleware.subject.Subject;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.69 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.70 2008-10-27 10:03:36 mchyzer Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -239,6 +242,9 @@ public class GrouperAccessAdapter implements AccessAdapter {
             }
             Membership.internal_addImmediateMembership(grouperSession, g, subj, f);
           } catch (MemberAddException eMA) {
+            if (eMA instanceof MemberAddAlreadyExistsException) {
+              throw new GrouperSessionException(new GrantPrivilegeAlreadyExistsException(eMA.getMessage(), eMA));
+            }
             throw new GrouperSessionException(new GrantPrivilegeException(eMA.getMessage(), eMA));
           } catch (SchemaException se) {
             throw new GrouperSessionException(se);
@@ -378,8 +384,9 @@ public class GrouperAccessAdapter implements AccessAdapter {
       DefaultMemberOf mof = Membership.internal_delImmediateMembership(s, g, subj, f);
       g.internal_setModified();
       GrouperDAOFactory.getFactory().getGroup().revokePriv( g, mof);
-    }
-    catch (MemberDeleteException eMD) {
+    } catch (MemberDeleteAlreadyDeletedException eMD) {
+      throw new RevokePrivilegeAlreadyRevokedException( eMD.getMessage(), eMD );
+    } catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );
     }
   } // public void revokePriv(s, g, subj, priv)

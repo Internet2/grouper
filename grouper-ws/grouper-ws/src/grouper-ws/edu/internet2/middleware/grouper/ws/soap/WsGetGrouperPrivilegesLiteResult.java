@@ -20,7 +20,9 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
- * Result of one member changing its subject
+ * Result of retrieving privileges for a user/group combo (and perhaps 
+ * filtered by type), will
+ * return a list of permissions
  * 
  * @author mchyzer
  */
@@ -38,16 +40,16 @@ public class WsGetGrouperPrivilegesLiteResult implements WsResponseBean {
 
     switch (subjectFindResult) {
       case INVALID_QUERY:
-        this.assignResultCode(WsGetPrivilegesLiteResultCode.INVALID_QUERY);
+        this.assignResultCode(WsGetGrouperPrivilegesLiteResultCode.INVALID_QUERY);
         break;
       case SOURCE_UNAVAILABLE:
-        this.assignResultCode(WsGetPrivilegesLiteResultCode.EXCEPTION);
+        this.assignResultCode(WsGetGrouperPrivilegesLiteResultCode.EXCEPTION);
         break;
       case SUBJECT_DUPLICATE:
-        this.assignResultCode(WsGetPrivilegesLiteResultCode.SUBJECT_DUPLICATE);
+        this.assignResultCode(WsGetGrouperPrivilegesLiteResultCode.SUBJECT_DUPLICATE);
         break;
       case SUBJECT_NOT_FOUND:
-        this.assignResultCode(WsGetPrivilegesLiteResultCode.SUBJECT_NOT_FOUND);
+        this.assignResultCode(WsGetGrouperPrivilegesLiteResultCode.SUBJECT_NOT_FOUND);
         break;
       case SUCCESS:
         return;
@@ -77,26 +79,26 @@ public class WsGetGrouperPrivilegesLiteResult implements WsResponseBean {
    * @param e
    */
   public void assignResultCodeException(
-      WsGetPrivilegesLiteResultCode wsMemberChangeSubjectLiteResultCodeOverride, 
+      WsGetGrouperPrivilegesLiteResultCode wsMemberChangeSubjectLiteResultCodeOverride, 
       String theError, Exception e) {
 
     if (e instanceof WsInvalidQueryException) {
       wsMemberChangeSubjectLiteResultCodeOverride = GrouperUtil.defaultIfNull(
-          wsMemberChangeSubjectLiteResultCodeOverride, WsGetPrivilegesLiteResultCode.INVALID_QUERY);
+          wsMemberChangeSubjectLiteResultCodeOverride, WsGetGrouperPrivilegesLiteResultCode.INVALID_QUERY);
       if (e.getCause() instanceof StemNotFoundException) {
-        wsMemberChangeSubjectLiteResultCodeOverride = WsGetPrivilegesLiteResultCode.STEM_NOT_FOUND;
+        wsMemberChangeSubjectLiteResultCodeOverride = WsGetGrouperPrivilegesLiteResultCode.STEM_NOT_FOUND;
       }
       if (e.getCause() instanceof GroupNotFoundException) {
-        wsMemberChangeSubjectLiteResultCodeOverride = WsGetPrivilegesLiteResultCode.GROUP_NOT_FOUND;
+        wsMemberChangeSubjectLiteResultCodeOverride = WsGetGrouperPrivilegesLiteResultCode.GROUP_NOT_FOUND;
       }
       if (e.getCause() instanceof SubjectNotFoundException) {
-        wsMemberChangeSubjectLiteResultCodeOverride = WsGetPrivilegesLiteResultCode.SUBJECT_NOT_FOUND;
+        wsMemberChangeSubjectLiteResultCodeOverride = WsGetGrouperPrivilegesLiteResultCode.SUBJECT_NOT_FOUND;
       }
       if (e.getCause() instanceof SubjectNotUniqueException) {
-        wsMemberChangeSubjectLiteResultCodeOverride = WsGetPrivilegesLiteResultCode.SUBJECT_DUPLICATE;
+        wsMemberChangeSubjectLiteResultCodeOverride = WsGetGrouperPrivilegesLiteResultCode.SUBJECT_DUPLICATE;
       }
       if (e.getCause() instanceof InsufficientPrivilegeRuntimeException) {
-        wsMemberChangeSubjectLiteResultCodeOverride = WsGetPrivilegesLiteResultCode.INSUFFICIENT_PRIVILEGES;
+        wsMemberChangeSubjectLiteResultCodeOverride = WsGetGrouperPrivilegesLiteResultCode.INSUFFICIENT_PRIVILEGES;
       }
       //a helpful exception will probably be in the getMessage()
       this.assignResultCode(wsMemberChangeSubjectLiteResultCodeOverride);
@@ -106,7 +108,7 @@ public class WsGetGrouperPrivilegesLiteResult implements WsResponseBean {
 
     } else {
       wsMemberChangeSubjectLiteResultCodeOverride = GrouperUtil.defaultIfNull(
-          wsMemberChangeSubjectLiteResultCodeOverride, WsGetPrivilegesLiteResultCode.EXCEPTION);
+          wsMemberChangeSubjectLiteResultCodeOverride, WsGetGrouperPrivilegesLiteResultCode.EXCEPTION);
       LOG.error(theError, e);
 
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
@@ -121,7 +123,7 @@ public class WsGetGrouperPrivilegesLiteResult implements WsResponseBean {
    * assign the code from the enum
    * @param memberChangeSubjectLiteResultCode1
    */
-  public void assignResultCode(WsGetPrivilegesLiteResultCode memberChangeSubjectLiteResultCode1) {
+  public void assignResultCode(WsGetGrouperPrivilegesLiteResultCode memberChangeSubjectLiteResultCode1) {
     this.getResultMetadata().assignResultCode(memberChangeSubjectLiteResultCode1);
   }
 
@@ -143,10 +145,16 @@ public class WsGetGrouperPrivilegesLiteResult implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsGetPrivilegesLiteResultCode implements WsResultCode {
+  public enum WsGetGrouperPrivilegesLiteResultCode implements WsResultCode {
 
-    /** made the update (rest http status code 200) (success: T) */
+    /** didnt have problems (rest http status code 200) (success: T) */
     SUCCESS(200),
+
+    /** didnt have problems, queried for one privilege, and it is allowed (rest http status code 200) (success: T) */
+    SUCCESS_ALLOWED(200),
+
+    /** didnt have problems, queried for one privilege, and it wasnt allowed (rest http status code 200) (success: T) */
+    SUCCESS_NOT_ALLOWED(200),
 
     /** some exception occurred (rest http status code 500) (success: F) */
     EXCEPTION(500),
@@ -191,7 +199,7 @@ public class WsGetGrouperPrivilegesLiteResult implements WsResponseBean {
      * status code for rest/lite e.g. 200
      * @param statusCode
      */
-    private WsGetPrivilegesLiteResultCode(int statusCode) {
+    private WsGetGrouperPrivilegesLiteResultCode(int statusCode) {
       this.httpStatusCode = statusCode;
     }
 

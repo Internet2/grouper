@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.Subject;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.3 2008-10-23 20:52:05 shilen Exp $
+ * @version $Id: EventLog.java,v 1.4 2008-10-27 10:03:36 mchyzer Exp $
  */
 public class EventLog {
 
@@ -236,15 +236,13 @@ public class EventLog {
 
   public void groupDelMember(
     GrouperSession s, String group, Subject subj, Field f, StopWatch sw
-  )
-  {
+  ) {
     this._member(s, M.G_DM, group, subj, f, sw);
   } // protected void groupDelMember(s, group, subj, f, sw)
 
   public void groupGrantPriv(
     GrouperSession s, String group, Subject subj, Privilege p, StopWatch sw
-  )
-  {
+  ) {
     this._grantPriv(s, M.G_GP, group, subj, p, sw);
   } // protected void groupGrantPriv(s, group, subj, p, sw)
 

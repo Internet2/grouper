@@ -12,6 +12,11 @@
 	For example, CLASSPATH would be accessible in Ant as ${env.CLASSPATH}. 
 	-->
 	<property environment="env" />
+	
+  <if><not><available file="build.properties" /></not>
+    <then><copy file="build.example.properties" tofile="build.properties" /></then>
+  </if> 
+	
 	<available file="build.properties" property="build.properties.exists" value="true"/>
 
 	<fail message="Couldnt detect build.properties file, copy the build.example.properties to build.properties in the project base dir, and customize" unless="build.properties.exists" />
@@ -330,7 +335,7 @@
 	  <copy todir="${webapp.folder}/WEB-INF/lib">
 			<fileset dir="${basedir}/lib/axis" includes="*.jar" />
       <fileset dir="${basedir}/lib/rampart" includes="*.jar" />
-			<fileset dir="${grouper.lib.dir}/grouper">
+			<fileset dir="${grouper.lib.dir}">
 			  <include name="*.jar"/>
         <exclude name="grouper*.jar"/>
 			</fileset>

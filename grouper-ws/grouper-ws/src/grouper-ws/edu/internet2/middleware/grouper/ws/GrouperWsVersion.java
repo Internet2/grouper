@@ -1,9 +1,13 @@
 /*
- * @author mchyzer $Id: GrouperWsVersion.java,v 1.5 2008-10-21 05:27:11 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsVersion.java,v 1.6 2008-10-27 10:03:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
@@ -25,6 +29,63 @@ public enum GrouperWsVersion {
    * grouper version 1.3, first build
    */
   v1_3_000(false, 1);
+  
+  /**
+   * regex pattern for ws version
+   */
+  private static Pattern versionPattern = Pattern.compile("^(\\d+)_(\\d+)_(\\d+)$");
+  
+  /**
+   * see if this version is less than the argument one
+   * @param other
+   * @return true if less than, false if equal or greater
+   */
+  public boolean lessThanArg(GrouperWsVersion other) {
+    Matcher matcher = versionPattern.matcher(this.name());
+    int thisMajorNumber = GrouperUtil.intValue(matcher.group(1));
+    int thisMinorNumber = GrouperUtil.intValue(matcher.group(2));
+    int thisBuildNumber = GrouperUtil.intValue(matcher.group(3));
+    
+    matcher = versionPattern.matcher(other.name());
+    int otherMajorNumber = GrouperUtil.intValue(matcher.group(1));
+    int otherMinorNumber = GrouperUtil.intValue(matcher.group(2));
+    int otherBuildNumber = GrouperUtil.intValue(matcher.group(3));
+    
+    if (thisMajorNumber < otherMajorNumber) {
+      return true;
+    }
+    if (thisMajorNumber > otherBuildNumber) {
+      return false;
+    }
+    if (thisMinorNumber < otherMinorNumber) {
+      return true;
+    }
+    if (thisMinorNumber > otherMinorNumber) {
+      return false;
+    }
+    if (thisBuildNumber < otherBuildNumber) {
+      return true;
+    }
+    if (thisBuildNumber > otherBuildNumber) {
+      return false;
+    }
+    throw new RuntimeException("Should not get here! " + this + ", " + other);
+  }
+
+  /**
+   * result code changed in 1.4 to include a response for if the membership already existed
+   * @param didntAlreadyExist
+   * @return the code success or if it already existed
+   */
+  public WsAddMemberResultCode addMemberSuccessResultCode(boolean didntAlreadyExist) {
+    
+    //before 1.4, all we had was success
+    if (this.lessThanArg(v1_4_000)) {
+      return WsAddMemberResultCode.SUCCESS;
+    }
+    //now we have two codes
+    return didntAlreadyExist ? WsAddMemberResultCode.SUCCESS : WsAddMemberResultCode.SUCCESS_ALREADY_EXISTED;
+  }
 
   /** current version */
   private static GrouperWsVersion currentVersion = null;

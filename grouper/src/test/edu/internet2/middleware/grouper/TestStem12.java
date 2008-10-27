@@ -16,8 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.textui.TestRunner;
+
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
+import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -25,17 +29,33 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem12.java,v 1.5 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestStem12.java,v 1.6 2008-10-27 10:03:36 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestStem12 extends GrouperTest {
 
+  /** logger */
   private static final Log LOG = GrouperUtil.getLog(TestStem12.class);
 
+  /**
+   * 
+   * @param name
+   */
   public TestStem12(String name) {
     super(name);
   }
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestStem12("testStemModifyAttributesUpdatedAfterRevokingImmediatePriv"));
+  }
+  
+  /**
+   * 
+   */
   protected void setUp () {
     LOG.debug("setUp");
     RegistryReset.reset();
@@ -57,13 +77,22 @@ public class TestStem12 extends GrouperTest {
 
       long    orig  = nsA.getModifyTime().getTime();
       long    pre   = new java.util.Date().getTime();
-      nsA.grantPriv(subjA, NamingPrivilege.STEM);
+      assertTrue(nsA.grantPriv(subjA, NamingPrivilege.STEM, true));
       long    post  = new java.util.Date().getTime();
       long    mtime = nsA.getModifyTime().getTime();
       assertTrue( "nsA modify time updated (" + mtime + " >= " + orig + ")", mtime >= orig );
       assertTrue( "nsA modify time >= pre (" + mtime + " >= " + pre + ")", mtime >= pre );
       assertTrue( "nsA modify time <= post (" + mtime + " <= " + post + ")", mtime <= post );
 
+      try {
+        nsA.grantPriv(subjA, NamingPrivilege.STEM);
+        fail("Should throw already exists exception");
+      } catch (GrantPrivilegeException gpe) {
+        
+      }
+
+      assertFalse(nsA.grantPriv(subjA, NamingPrivilege.STEM, false));
+      
       r.rs.stop();
     }
     catch (Exception e) {
@@ -84,6 +113,17 @@ public class TestStem12 extends GrouperTest {
       long    pre   = new java.util.Date().getTime();
       Thread.sleep(1); // TODO 20070430 hack!
       nsA.revokePriv(subjA, NamingPrivilege.STEM);
+
+      //try again
+      try {
+        nsA.revokePriv(subjA, NamingPrivilege.STEM);
+        fail("Problem revoking priv");
+      } catch (RevokePrivilegeAlreadyRevokedException rpare) {
+        //good
+      }
+
+      nsA.revokePriv(subjA, NamingPrivilege.STEM, false);
+
       Thread.sleep(1); // TODO 20070430 hack!
       long    post  = new java.util.Date().getTime();
       long    mtime = nsA.getModifyTime().getTime();

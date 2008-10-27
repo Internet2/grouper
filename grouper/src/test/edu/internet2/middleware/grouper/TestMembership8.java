@@ -22,9 +22,11 @@ import java.util.Set;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.FindBadMemberships;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -36,8 +38,17 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * @author Shilen Patel.
  */
-public class TestMembership8 extends TestCase {
+public class TestMembership8 extends GrouperTest {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestMembership8("testCircularMembershipsWithoutComposites2"));
+  }
+  
+  /** logger */
   private static final Log LOG = GrouperUtil.getLog(TestMembership8.class);
 
   Date before;
@@ -57,15 +68,6 @@ public class TestMembership8 extends TestCase {
 
   public TestMembership8(String name) {
     super(name);
-  }
-
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
   }
 
   public void testCircularMembershipsWithoutComposites2() {
@@ -350,6 +352,18 @@ public class TestMembership8 extends TestCase {
     gC.deleteMember(gA.toSubject());
     gD.deleteMember(gB.toSubject());
     gB.deleteMember(gB.toSubject(), fieldCustom1);
+
+    //try again
+    try {
+      gB.deleteMember(gB.toSubject(), fieldCustom1);
+      fail("should fail since already done");
+    } catch (MemberDeleteAlreadyDeletedException mdade) {
+      //good
+    }
+    
+    //try again but dont throw exception if problem
+    assertFalse(gB.deleteMember(gB.toSubject(), fieldCustom1, false));
+    
     gB.deleteMember(gA.toSubject(), fieldCustom2);
       
     Set<Membership> listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);

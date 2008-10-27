@@ -92,6 +92,20 @@ public class WsAddMemberResult {
 
     },
 
+    /** successful addition if already a member (success: T) */
+    SUCCESS_ALREADY_EXISTED {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsAddMemberResultsCode
+       */
+      @Override
+      public WsAddMemberLiteResultCode convertToLiteCode() {
+        return WsAddMemberLiteResultCode.SUCCESS_ALREADY_EXISTED;
+      }
+
+    },
+
     /** the subject was not found (success: F) */
     SUBJECT_NOT_FOUND {
 
@@ -168,7 +182,7 @@ public class WsAddMemberResult {
      * @return true if success
      */
     public boolean isSuccess() {
-      return this == SUCCESS;
+      return this.name().startsWith("SUCCESS");
     }
 
     /** 

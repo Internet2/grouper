@@ -126,7 +126,7 @@ public class WsAddMemberLiteResult implements WsResponseBean {
     /** cant find group (rest http status code 404) (success: F) */
     GROUP_NOT_FOUND(404),
 
-    /** found the subject (rest http status code 201) (success: T) */
+    /** added member (rest http status code 201) (success: T) */
     SUCCESS(201),
 
     /** found the subject (rest http status code 500) (success: F) */
@@ -148,7 +148,10 @@ public class WsAddMemberLiteResult implements WsResponseBean {
     INSUFFICIENT_PRIVILEGES(403),
 
     /** something in one assignment wasnt successful (rest http status code 500) (success: F) */
-    PROBLEM_WITH_ASSIGNMENT(500);
+    PROBLEM_WITH_ASSIGNMENT(500),
+
+    /** success but it was already a member */
+    SUCCESS_ALREADY_EXISTED(200);
 
     /**
      * if this is a successful result
@@ -156,7 +159,7 @@ public class WsAddMemberLiteResult implements WsResponseBean {
      * @return true if success
      */
     public boolean isSuccess() {
-      return this == SUCCESS;
+      return this.name().startsWith("SUCCESS");
     }
 
     /** http status code for rest/lite e.g. 200 */

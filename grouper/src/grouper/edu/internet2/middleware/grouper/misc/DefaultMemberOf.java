@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
@@ -40,6 +41,7 @@ import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.MembershipAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
@@ -56,7 +58,7 @@ import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.7 2008-10-25 16:31:39 shilen Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.8 2008-10-27 10:03:36 mchyzer Exp $
  * @since   1.2.0
  */
 @GrouperIgnoreDbVersion
@@ -731,6 +733,10 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     if (DefaultMemberOf.this.validateImmediateMembership == true) {
         GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
         if (v.isInvalid()) {
+          //throw a specific exception so we can trap this case
+          if (StringUtils.equals(v.getErrorMessage(), ImmediateMembershipValidator.INVALID_EXISTS)) {
+            throw new MembershipAlreadyExistsException(v.getErrorMessage());
+          }
           throw new IllegalStateException( v.getErrorMessage() );
         }
     }
@@ -1009,8 +1015,8 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         // Find all effective memberships that need deletion
         try {
           if (DefaultMemberOf.this.getGroup() != null && DefaultMemberOf.this.getField().equals(Group.getDefaultList())) {
-            DefaultMemberOf.this.addEffectiveDeletes( MembershipFinder.internal_findAllForwardMembershipsNoPriv(_ms, children) );
-          }
+          DefaultMemberOf.this.addEffectiveDeletes( MembershipFinder.internal_findAllForwardMembershipsNoPriv(_ms, children) );
+        }
         }
         catch (SchemaException eS) {
           throw new IllegalStateException( eS.getMessage(), eS );
