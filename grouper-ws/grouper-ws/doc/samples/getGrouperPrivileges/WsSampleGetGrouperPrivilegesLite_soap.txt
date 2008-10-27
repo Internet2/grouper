@@ -12,7 +12,7 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 POST /grouperWs/services/GrouperService HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:getGrouperPrivilegesLite"
 User-Agent: Axis2
-Authorization: Basic abcabcabcbasdfhsdfasdfsadf==
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
@@ -53,15 +53,15 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=2AC340583D3B3F38CD0C501786CFC3B5; Path=/grouperWs
+Set-Cookie: JSESSIONID=EB117B4F445052C6E9923048F33A95B3; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_NOT_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getGrouperPrivilegesLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 27 Oct 2008 18:52:12 GMT
+Date: Mon, 27 Oct 2008 20:07:28 GMT
 
-4f8
+4f7
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
@@ -70,7 +70,7 @@ Date: Mon, 27 Oct 2008 18:52:12 GMT
         <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
         <ns:privilegeResults xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>8546</ns:millis>
+          <ns:millis>703</ns:millis>
           <ns:resultWarnings></ns:resultWarnings>
           <ns:serverVersion>v1_4_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -217,6 +217,6 @@ public class WsSampleGetGrouperPrivilegesLite implements WsSampleGenerated {
 GrouperServiceStub.WsGetGrouperPrivilegesLiteResult[
   localParams={<null>},localParamsTracker=true,
   localPrivilegeResults={<null>},localPrivilegeResultsTracker=true,
-  localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@22fe09,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@1542c06,localResultMetadataTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@3cb1e1,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@c23942,localResultMetadataTracker=true,
   localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true]

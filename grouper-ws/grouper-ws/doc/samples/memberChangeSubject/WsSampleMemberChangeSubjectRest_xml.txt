@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: xml, for version: v1_3_000
+Grouper web service sample of service: memberChangeSubject, WsSampleMemberChangeSubjectRest, manually written lite/rest, format: xml, for version: v1_4_000
 
 
 #########################################
@@ -9,40 +9,38 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually 
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_3_000/stems HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_000/members HTTP/1.1
 Connection: close
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
-User-Agent: Jakarta Commons-HttpClient/3.0.1
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 589
+Content-Length: 659
 Content-Type: text/xml; charset=UTF-8
 
-<WsRestStemSaveRequest>
-  <wsStemToSaves>
-    <WsStemToSave>
-      <wsStemLookup>
-        <stemName>aStem:whateverStem</stemName>
-      </wsStemLookup>
-      <wsStem>
-        <extension>whateverStem</extension>
-        <displayExtension>disp1</displayExtension>
-        <description>desc1</description>
-        <name>aStem:whateverStem</name>
-      </wsStem>
-    </WsStemToSave>
-    <WsStemToSave>
-      <wsStemLookup>
-        <stemName>aStem:whateverStem2</stemName>
-      </wsStemLookup>
-      <wsStem>
-        <extension>whateverStem2</extension>
-        <displayExtension>disp2</displayExtension>
-        <description>descs</description>
-        <name>aStem:whateverStem2</name>
-      </wsStem>
-    </WsStemToSave>
-  </wsStemToSaves>
-</WsRestStemSaveRequest>
+<WsRestMemberChangeSubjectRequest>
+  <actAsSubjectLookup>
+    <subjectId>GrouperSystem</subjectId>
+  </actAsSubjectLookup>
+  <wsMemberChangeSubjects>
+    <WsMemberChangeSubject>
+      <oldSubjectLookup>
+        <subjectIdentifier>id.test.subject.0</subjectIdentifier>
+      </oldSubjectLookup>
+      <newSubjectLookup>
+        <subjectId>test.subject.1</subjectId>
+      </newSubjectLookup>
+    </WsMemberChangeSubject>
+    <WsMemberChangeSubject>
+      <oldSubjectLookup>
+        <subjectIdentifier>id.test.subject.2</subjectIdentifier>
+      </oldSubjectLookup>
+      <newSubjectLookup>
+        <subjectId>test.subject.3</subjectId>
+      </newSubjectLookup>
+      <deleteOldMember>F</deleteOldMember>
+    </WsMemberChangeSubject>
+  </wsMemberChangeSubjects>
+</WsRestMemberChangeSubjectRequest>
 
 
 #########################################
@@ -53,66 +51,68 @@ Content-Type: text/xml; charset=UTF-8
 #########################################
 
 
-HTTP/1.1 201 Created
+HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=C1886719F7CF54F420DCC5E5916AB109; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 31 Mar 2008 06:49:28 GMT
+Date: Mon, 27 Oct 2008 21:23:14 GMT
 Connection: close
 
-<WsStemSaveResults>
+<WsMemberChangeSubjectResults>
   <results>
-    <WsStemSaveResult>
-      <wsStem>
-        <extension>whateverStem</extension>
-        <displayExtension>disp1</displayExtension>
-        <description>desc1</description>
-        <displayName>a stem:disp1</displayName>
-        <name>aStem:whateverStem</name>
-        <uuid>da1d058d-a56d-49ba-92af-e0f7d52f1377</uuid>
-      </wsStem>
+    <WsMemberChangeSubjectResult>
+      <wsSubjectNew>
+        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+        <id>test.subject.1</id>
+        <sourceId>jdbc</sourceId>
+      </wsSubjectNew>
       <resultMetadata>
         <resultCode>SUCCESS</resultCode>
         <resultMessage></resultMessage>
         <success>T</success>
         <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
-    </WsStemSaveResult>
-    <WsStemSaveResult>
-      <wsStem>
-        <extension>whateverStem2</extension>
-        <displayExtension>disp2</displayExtension>
-        <description>descs</description>
-        <displayName>a stem:disp2</displayName>
-        <name>aStem:whateverStem2</name>
-        <uuid>1fd3bd1c-7e95-447b-a08f-74ad435438b2</uuid>
-      </wsStem>
+    </WsMemberChangeSubjectResult>
+    <WsMemberChangeSubjectResult>
+      <wsSubjectNew>
+        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+        <id>test.subject.3</id>
+        <sourceId>jdbc</sourceId>
+      </wsSubjectNew>
       <resultMetadata>
         <resultCode>SUCCESS</resultCode>
         <resultMessage></resultMessage>
         <success>T</success>
         <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
-    </WsStemSaveResult>
+    </WsMemberChangeSubjectResult>
   </results>
   <resultMetadata>
-    <wsResultCode class="edu.internet2.middleware.grouper.ws.soap.WsStemSaveResults$WsStemSaveResultsCode">SUCCESS</wsResultCode>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@16c65a9[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1866a29[stem=&lt;null&gt;,uuid=&lt;null&gt;,stemName=aStem:w...
-, actAsSubject: null, txType: NONE, paramNames:
+    <resultMessage>Success for: clientVersion: v1_4_000, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
+oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
+newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
+[1]: WsMemberChangeSubject[
+oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],
+newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
+
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
 , params: null</resultMessage>
     <success>T</success>
-    <httpStatusCode>201</httpStatusCode>
+    <httpStatusCode>200</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>-1</millis>
-    <millisStart>1206946168725</millisStart>
-    <serverVersion>v1_3_000</serverVersion>
+    <millisStart>1225142594463</millisStart>
+    <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
-</WsStemSaveResults>
+</WsMemberChangeSubjectResults>
 
 
 #########################################
@@ -125,92 +125,94 @@ Connection: close
 #########################################
 
 
-package edu.internet2.middleware.grouper.ws.samples.rest.stem;
+package edu.internet2.middleware.grouper.ws.samples.rest.member;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
-import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
-import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveRequest;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsStem;
-import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResults;
-import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsStemToSave;
+import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
  * @author mchyzer
  */
-public class WsSampleStemSaveRest implements WsSampleRest {
+public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
 
   /**
-   * stem save lite web service with REST
+   * member change subject web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
-  public static void stemSaveLite(WsSampleRestType wsSampleRestType) {
+  @SuppressWarnings("deprecation")
+  public static void memberChangeSubject(WsSampleRestType wsSampleRestType) {
 
     try {
+      
       HttpClient httpClient = new HttpClient();
       
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+      
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+      //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/stems");
+            + "/members");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
-          ManualClientSettings.PASS);
-
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
+      
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
       //e.g. localhost and 8093
       httpClient.getState()
-          .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestStemSaveRequest stemSave = new WsRestStemSaveRequest();
-      
-      WsStemToSave wsStemToSave = new WsStemToSave();
-      wsStemToSave.setWsStemLookup(new WsStemLookup("aStem:whateverStem", null));
-      WsStem wsStem = new WsStem();
-      wsStem.setDescription("desc1");
-      wsStem.setDisplayExtension("disp1");
-      wsStem.setExtension("whateverStem");
-      wsStem.setName("aStem:whateverStem");
-      wsStemToSave.setWsStem(wsStem);
-      
-      WsStemToSave wsStemToSave2 = new WsStemToSave();
-      wsStemToSave2.setWsStemLookup(new WsStemLookup("aStem:whateverStem2", null));
-      WsStem wsStems = new WsStem();
-      wsStems.setDescription("descs");
-      wsStems.setDisplayExtension("disp2");
-      wsStems.setExtension("whateverStem2");
-      wsStems.setName("aStem:whateverStem2");
-      wsStemToSave2.setWsStem(wsStems);
+      WsRestMemberChangeSubjectRequest memberChangeSubject = new WsRestMemberChangeSubjectRequest();
 
-      WsStemToSave[] wsStemToSaves = new WsStemToSave[] {wsStemToSave, wsStemToSave2};
+      WsMemberChangeSubject[] wsMemberChangeSubjects = new WsMemberChangeSubject[2];
       
-      stemSave.setWsStemToSaves(wsStemToSaves);
-      
+      memberChangeSubject.setWsMemberChangeSubjects(wsMemberChangeSubjects);
+
+      // set the act as id
+      wsMemberChangeSubjects[0] = new WsMemberChangeSubject();
+      wsMemberChangeSubjects[0].setOldSubjectLookup(new WsSubjectLookup(null, null, "id.test.subject.0"));
+      wsMemberChangeSubjects[0].setNewSubjectLookup(new WsSubjectLookup("test.subject.1", null, null));
+      wsMemberChangeSubjects[1] = new WsMemberChangeSubject();
+      wsMemberChangeSubjects[1].setOldSubjectLookup(new WsSubjectLookup(null, null, "id.test.subject.2"));
+      wsMemberChangeSubjects[1].setNewSubjectLookup(new WsSubjectLookup("test.subject.3", null, null));
+      wsMemberChangeSubjects[1].setDeleteOldMember("F");
+
+      memberChangeSubject.setActAsSubjectLookup(new WsSubjectLookup("GrouperSystem", null, null));
+
       //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(stemSave);
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(memberChangeSubject);
       
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
       
       method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-      
+
       httpClient.executeMethod(method);
 
       //make sure a request came back
@@ -224,29 +226,36 @@ public class WsSampleStemSaveRest implements WsSampleRest {
       
       String response = RestClientSettings.responseBodyAsString(method);
 
-      Object result = wsSampleRestType
+      //convert to object (from xhtml, xml, json, etc)
+      WsMemberChangeSubjectResults wsMemberChangeSubjectResults = (WsMemberChangeSubjectResults)wsSampleRestType
         .getWsLiteResponseContentType().parseString(response);
       
-      //see if problem
-      if (result instanceof WsRestResultProblem) {
-        throw new RuntimeException(((WsRestResultProblem)result).getResultMetadata().getResultMessage());
-      }
-      
-      //convert to object (from xhtml, xml, json, etc)
-      WsStemSaveResults wsStemSaveResults = (WsStemSaveResults)result;
-      
-      String resultMessage = wsStemSaveResults.getResultMetadata().getResultMessage();
+      String resultMessage = wsMemberChangeSubjectResults.getResultMetadata().getResultMessage();
 
       // see if request worked or not
       if (!success) {
-        throw new RuntimeException("Bad response from web service: successString: " + successString 
-            + ", resultCode: " + resultCode
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
             + ", " + resultMessage);
       }
       
-      System.out.println("Server version: " + wsStemSaveResults.getResponseMetadata().getServerVersion()
+      System.out.println("Server version: " + wsMemberChangeSubjectResults.getResponseMetadata().getServerVersion()
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
+      
+      //lets make sure the old member was deleted
+      try {
+        GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findById("test.subject.0"));
+        throw new RuntimeException("Should not find renamed member: test.subject.0!");
+      } catch (MemberNotFoundException mnfe) {
+        //good
+      }
+      
+      //make sure old member was not deleted
+      try {
+        GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectFinder.findById("test.subject.2"));
+      } catch (MemberNotFoundException mnfe) {
+        throw new RuntimeException("Should find renamed member: test.subject.2!");
+      }
 
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -259,14 +268,17 @@ public class WsSampleStemSaveRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    stemSaveLite(WsSampleRestType.xhtml);
+
+    RestClientSettings.resetData();
+    
+    memberChangeSubject(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    stemSaveLite(wsSampleRestType);
+    memberChangeSubject(wsSampleRestType);
   }
 
   /**
@@ -286,6 +298,12 @@ public class WsSampleStemSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@16c65a9[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1866a29[stem=<null>,uuid=<null>,stemName=aStem:w...
-, actAsSubject: null, txType: NONE, paramNames: 
+Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
+  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
+  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
+[1]: WsMemberChangeSubject[
+  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],
+  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
+
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
 , params: null

@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite2, manually written lite/rest, type: _withInput, format: json, for version: v1_3_000
+Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite2, manually written lite/rest, type: _withInput, format: json, for version: v1_4_000
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite2
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_3_000/groups/aStem%3AaGroup123 HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup123 HTTP/1.1
 Connection: close
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
-User-Agent: Jakarta Commons-HttpClient/3.0.1
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 92
 Content-Type: text/x-json; charset=UTF-8
@@ -35,30 +35,27 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=EB8747B0DBB70B8F6C6B1B8A135EC81A; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_GROUP_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 31 Mar 2008 06:50:05 GMT
+Date: Mon, 27 Oct 2008 21:15:57 GMT
 Connection: close
 
 {
   "WsGroupDeleteLiteResult":{
     "resultMetadata":{
-      "wsResultCode":{
-        "@class":"edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult$WsGroupDeleteLiteResultCode",
-        "$":"SUCCESS_GROUP_NOT_FOUND"
-      },
       "resultCode":"SUCCESS_GROUP_NOT_FOUND",
-      "resultMessage":"Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1e97a73[group=<null>,uuid=<null>,groupName=aStem:aGroup123,groupFindResult=<null>]\n\n, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1662a8a[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], txType: READ_WRITE_OR_USE_EXISTING, includeGroupDetail: true, paramNames: \n, params: nullCant find group: 'edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1e97a73[group=<null>,uuid=<null>,groupName=aStem:aGroup123,groupFindResult=GROUP_NOT_FOUND]'.  ",
+      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup123]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames: \n, params: nullCant find group: 'WsGroupLookup[groupName=aStem:aGroup123,\n  groupFindResult=GROUP_NOT_FOUND]'.  ",
       "success":"T",
-      "httpStatusCode":200
+      "httpStatusCode":"200"
     },
     "responseMetadata":{
       "resultWarnings":"",
-      "millis":-1,
-      "millisStart":1206946205928,
-      "serverVersion":"v1_3_000"
+      "millis":"-1",
+      "millisStart":"1225142157335",
+      "serverVersion":"v1_4_000"
     },
     "wsGroup":{
       "extension":"aGroup123",
@@ -81,15 +78,17 @@ Connection: close
 package edu.internet2.middleware.grouper.ws.samples.rest.group;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
@@ -106,11 +105,15 @@ public class WsSampleGroupDeleteRestLite2 implements WsSampleRest {
    * group delete lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
+  @SuppressWarnings("deprecation")
   public static void groupDeleteLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
       
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
@@ -118,15 +121,15 @@ public class WsSampleGroupDeleteRestLite2 implements WsSampleRest {
             + "/groups/aStem%3AaGroup123");
       
       httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
-          ManualClientSettings.PASS);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
       
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
       //e.g. localhost and 8093
       httpClient.getState()
-          .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -218,7 +221,8 @@ public class WsSampleGroupDeleteRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1e97a73[group=<null>,uuid=<null>,groupName=aStem:aGroup123,groupFindResult=<null>]
+Server version: v1_4_000, result code: SUCCESS_GROUP_NOT_FOUND, result message: Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup123]
 
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1662a8a[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], txType: READ_WRITE_OR_USE_EXISTING, includeGroupDetail: true, paramNames: 
-, params: nullCant find group: 'edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1e97a73[group=<null>,uuid=<null>,groupName=aStem:aGroup123,groupFindResult=GROUP_NOT_FOUND]'.  
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames: 
+, params: nullCant find group: 'WsGroupLookup[groupName=aStem:aGroup123,
+  groupFindResult=GROUP_NOT_FOUND]'.  

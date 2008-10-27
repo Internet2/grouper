@@ -9,9 +9,9 @@ Grouper web service sample of service: memberChangeSubject, WsSampleMemberChange
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_3_000/members HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_000/members HTTP/1.1
 Connection: close
-Authorization: Basic sdfasdfasdfasdfasdf==
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 1415
@@ -25,42 +25,42 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestMemberChangeSubjectRequest">
-      <div class="actAsSubjectLookup" title="WsSubjectLookup">
-        <p class="subjectSourceId" />
-        <p class="subjectId">GrouperSystem</p>
-        <p class="subjectIdentifier" />
-      </div>
       <p class="clientVersion" />
-      <p class="includeSubjectDetail" />
-      <p class="txType" />
       <ul class="wsMemberChangeSubjects">
         <li title="WsMemberChangeSubject">
-          <div class="oldSubjectLookup" title="WsSubjectLookup">
-            <p class="subjectSourceId" />
-            <p class="subjectId" />
-            <p class="subjectIdentifier">id.test.subject.0</p>
-          </div>
+          <p class="deleteOldMember" />
           <div class="newSubjectLookup" title="WsSubjectLookup">
             <p class="subjectSourceId" />
             <p class="subjectId">test.subject.1</p>
             <p class="subjectIdentifier" />
           </div>
-          <p class="deleteOldMember" />
-        </li>
-        <li title="WsMemberChangeSubject">
           <div class="oldSubjectLookup" title="WsSubjectLookup">
             <p class="subjectSourceId" />
             <p class="subjectId" />
-            <p class="subjectIdentifier">id.test.subject.2</p>
+            <p class="subjectIdentifier">id.test.subject.0</p>
           </div>
+        </li>
+        <li title="WsMemberChangeSubject">
+          <p class="deleteOldMember">F</p>
           <div class="newSubjectLookup" title="WsSubjectLookup">
             <p class="subjectSourceId" />
             <p class="subjectId">test.subject.3</p>
             <p class="subjectIdentifier" />
           </div>
-          <p class="deleteOldMember">F</p>
+          <div class="oldSubjectLookup" title="WsSubjectLookup">
+            <p class="subjectSourceId" />
+            <p class="subjectId" />
+            <p class="subjectIdentifier">id.test.subject.2</p>
+          </div>
         </li>
       </ul>
+      <div class="actAsSubjectLookup" title="WsSubjectLookup">
+        <p class="subjectSourceId" />
+        <p class="subjectId">GrouperSystem</p>
+        <p class="subjectIdentifier" />
+      </div>
+      <p class="txType" />
+      <p class="includeSubjectDetail" />
     </div>
   </body>
 </html>
@@ -76,12 +76,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=3AD5CD5B22745E2F95D4B9849D2AC9A3; Path=/grouperWs
+Set-Cookie: JSESSIONID=883B40055EFBF59E775F4670079801D5; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Tue, 21 Oct 2008 17:21:12 GMT
+Date: Mon, 27 Oct 2008 21:23:01 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -129,15 +129,19 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
-[1]: WsMemberChangeSubject[oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
+        <p class="resultMessage">Success for: clientVersion: v1_4_000, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
+oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
+newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
+[1]: WsMemberChangeSubject[
+oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],
+newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
 , params: null</p>
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">6016</p>
+        <p class="millis">4031</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -194,8 +198,6 @@ public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
   public static void memberChangeSubject(WsSampleRestType wsSampleRestType) {
 
     try {
-      
-      RestClientSettings.resetData();
       
       HttpClient httpClient = new HttpClient();
       
@@ -301,6 +303,9 @@ public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
+
+    RestClientSettings.resetData();
+    
     memberChangeSubject(WsSampleRestType.xhtml);
   }
 
@@ -315,7 +320,8 @@ public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
-    return true;
+    //dont allow http params
+    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
   }
 }
 
@@ -327,8 +333,12 @@ public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
-[1]: WsMemberChangeSubject[oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
+Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsMemberChangeSubject: Array size: 2: [0]: WsMemberChangeSubject[
+  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.0],
+  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1]]
+[1]: WsMemberChangeSubject[
+  oldSubjectLookup=WsSubjectLookup[subjectIdentifier=id.test.subject.2],
+  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
 , params: null

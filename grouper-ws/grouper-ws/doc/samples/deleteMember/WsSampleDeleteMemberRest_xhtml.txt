@@ -1,4 +1,4 @@
-Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRest, manually written lite/rest, format: xhtml, for version: v1_3_000
+Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRest, manually written lite/rest, format: xhtml, for version: v1_4_000
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRest, m
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_3_000/groups/aStem%3AaGroup/members HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
-User-Agent: Jakarta Commons-HttpClient/3.0.1
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 970
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -30,19 +30,19 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <div class="wsGroupLookup" title="WsGroupLookup" />
       <ul class="subjectLookups">
         <li title="WsSubjectLookup">
-          <p class="subjectId">10021368</p>
           <p class="subjectSourceId" />
+          <p class="subjectId">10021368</p>
           <p class="subjectIdentifier" />
         </li>
         <li title="WsSubjectLookup">
-          <p class="subjectId">10039438</p>
           <p class="subjectSourceId" />
+          <p class="subjectId">10039438</p>
           <p class="subjectIdentifier" />
         </li>
       </ul>
       <div class="actAsSubjectLookup" title="WsSubjectLookup">
-        <p class="subjectId">GrouperSystem</p>
         <p class="subjectSourceId" />
+        <p class="subjectId">GrouperSystem</p>
         <p class="subjectIdentifier" />
       </div>
       <p class="txType" />
@@ -63,11 +63,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=FC9592FDF8884F57E36454CA129B29FD; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 31 Mar 2008 06:43:12 GMT
+Date: Mon, 27 Oct 2008 21:08:06 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -78,19 +79,6 @@ Connection: close
   </head>
   <body>
     <div title="WsDeleteMemberResults">
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@16d8356[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@c9b619[subject=&lt;null...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1aceb3c[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, txType: NONE
-, params: null</p>
-        <p class="resultCode2" />
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">2672</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">v1_3_000</p>
-      </div>
       <ul class="results">
         <li title="WsDeleteMemberResult">
           <div class="resultMetadata" title="WsResultMeta">
@@ -104,7 +92,7 @@ Connection: close
             <p class="id">10021368</p>
             <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
-            <p class="sourceId">qsuob</p>
+            <p class="sourceId">pennperson</p>
           </div>
         </li>
         <li title="WsDeleteMemberResult">
@@ -119,17 +107,32 @@ Connection: close
             <p class="id">10039438</p>
             <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
-            <p class="sourceId">qsuob</p>
+            <p class="sourceId">pennperson</p>
           </div>
         </li>
       </ul>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
+        <p class="resultMessage">Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+[1]: WsSubjectLookup[subjectId=10039438]
+
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE
+, params: null</p>
+        <p class="resultCode2" />
+      </div>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">4141</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">v1_4_000</p>
+      </div>
       <div class="wsGroup" title="WsGroup">
         <p class="name">aStem:aGroup</p>
         <p class="displayName">a stem:a group</p>
         <p class="description">a group description</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
-        <p class="uuid">c6c0bf03-9cb5-4965-9dcb-520020d5da51</p>
+        <p class="uuid">86cf72d4-8334-43ee-bf0e-ff882cdfa5fe</p>
         <p class="displayExtension">a group</p>
       </div>
     </div>
@@ -150,15 +153,17 @@ Connection: close
 package edu.internet2.middleware.grouper.ws.samples.rest.member;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
@@ -176,11 +181,15 @@ public class WsSampleDeleteMemberRest implements WsSampleRest {
    * delete member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
+  @SuppressWarnings("deprecation")
   public static void deleteMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
       
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
@@ -188,15 +197,15 @@ public class WsSampleDeleteMemberRest implements WsSampleRest {
             + "/groups/aStem%3AaGroup/members");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
-          ManualClientSettings.PASS);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
 
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
       //e.g. localhost and 8093
       httpClient.getState()
-          .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -295,6 +304,8 @@ public class WsSampleDeleteMemberRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@16d8356[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@c9b619[subject=<null...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1aceb3c[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: NONE
+Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+[1]: WsSubjectLookup[subjectId=10039438]
+
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE
 , params: null

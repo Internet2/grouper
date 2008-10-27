@@ -12,7 +12,7 @@ Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGr
 POST /grouperWs/services/GrouperService HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:assignGrouperPrivilegesLite"
 User-Agent: Axis2
-Authorization: Basic abcabcabcbasdfhsdfasdfsadf==
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
@@ -54,13 +54,13 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=42350E3A5F62742EBB06E692AA07B8F2; Path=/grouperWs
+Set-Cookie: JSESSIONID=AD3809273BB390CACFE3302E4D522D03; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:assignGrouperPrivilegesLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 27 Oct 2008 18:53:08 GMT
+Date: Mon, 27 Oct 2008 20:08:24 GMT
 
 968
 <?xml version='1.0' encoding='UTF-8'?>
@@ -74,7 +74,7 @@ Date: Mon, 27 Oct 2008 18:53:08 GMT
         <ns:privilegeResults xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
         <ns:privilegeType>ACCESS</ns:privilegeType>
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>641</ns:millis>
+          <ns:millis>516</ns:millis>
           <ns:resultWarnings></ns:resultWarnings>
           <ns:serverVersion>v1_4_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -93,7 +93,7 @@ Date: Mon, 27 Oct 2008 18:53:08 GMT
           <ns:displayName>a stem:a group</ns:displayName>
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
-          <ns:uuid>8a38ceab-0d9c-4223-8c4c-44080a65674f</ns:uuid>
+          <ns:uuid>73850685-4287-4d3e-81a2-3aa5c8dd316e</ns:uuid>
         </ns:wsGroup>
         <ns:wsStem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
         <ns:wsSubject type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
@@ -242,8 +242,8 @@ public class WsSampleAssignGrouperPrivilegesLite implements WsSampleGenerated {
 GrouperServiceStub.WsAssignGrouperPrivilegesLiteResult[localAllowedTracker=false,
   localParams={<null>},localParamsTracker=true,localPrivilegeName=optin,localPrivilegeNameTracker=true,
   localPrivilegeResults={<null>},localPrivilegeResultsTracker=true,localPrivilegeType=ACCESS,localPrivilegeTypeTracker=true,
-  localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@fc3f7,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@10abe66,localResultMetadataTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@e35571,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@fe9319,localResultMetadataTracker=true,
   localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@12dbb9b,localWsGroupTracker=true,localWsStemTracker=true,
-  localWsSubject=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsSubject@177bebe,localWsSubjectTracker=true]
+  localWsGroup=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@f5704f,localWsGroupTracker=true,localWsStemTracker=true,
+  localWsSubject=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsSubject@1a06ba5,localWsSubjectTracker=true]

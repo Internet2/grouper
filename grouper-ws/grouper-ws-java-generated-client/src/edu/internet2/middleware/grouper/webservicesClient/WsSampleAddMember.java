@@ -16,6 +16,7 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
@@ -99,6 +100,11 @@ public class WsSampleAddMember implements WsSampleGenerated {
                             wsAddMemberResult.getResultMetadata(),
                             ToStringStyle.MULTI_LINE_STYLE));
                 }
+            }
+
+            if (!StringUtils.equals("T", 
+                wsAddMemberResults.getResultMetadata().getSuccess())) {
+              throw new RuntimeException("didnt get success! ");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

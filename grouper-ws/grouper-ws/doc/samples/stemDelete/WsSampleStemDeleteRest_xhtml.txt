@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemDelete, WsSampleStemDeleteRest, manually written lite/rest, format: xhtml, for version: v1_3_000
+Grouper web service sample of service: stemDelete, WsSampleStemDeleteRest, manually written lite/rest, format: xhtml, for version: v1_4_000
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: stemDelete, WsSampleStemDeleteRest, manua
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_3_000/stems HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_000/stems HTTP/1.1
 Connection: close
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
-User-Agent: Jakarta Commons-HttpClient/3.0.1
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 652
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -53,11 +53,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=E0FCE5E6161C987A33939667F39A80F9; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 31 Mar 2008 06:48:48 GMT
+Date: Mon, 27 Oct 2008 21:13:35 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -68,54 +69,57 @@ Connection: close
   </head>
   <body>
     <div title="WsStemDeleteResults">
+      <ul class="results">
+        <li title="WsStemDeleteResult">
+          <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode">SUCCESS_STEM_NOT_FOUND</p>
+            <p class="success">T</p>
+            <p class="resultMessage">Cant find stem: 'WsStemLookup[stemName=aStem:whateverStem,
+stemFindResult=STEM_NOT_FOUND]'.  </p>
+            <p class="resultCode2" />
+          </div>
+          <div class="wsStem" title="WsStem">
+            <p class="name">aStem:whateverStem</p>
+            <p class="displayName" />
+            <p class="description" />
+            <p class="extension">whateverStem</p>
+            <p class="uuid" />
+            <p class="displayExtension" />
+          </div>
+        </li>
+        <li title="WsStemDeleteResult">
+          <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode">SUCCESS_STEM_NOT_FOUND</p>
+            <p class="success">T</p>
+            <p class="resultMessage">Cant find stem: 'WsStemLookup[stemName=aStem:whateverStem2,
+stemFindResult=STEM_NOT_FOUND]'.  </p>
+            <p class="resultCode2" />
+          </div>
+          <div class="wsStem" title="WsStem">
+            <p class="name">aStem:whateverStem2</p>
+            <p class="displayName" />
+            <p class="description" />
+            <p class="extension">whateverStem2</p>
+            <p class="uuid" />
+            <p class="displayExtension" />
+          </div>
+        </li>
+      </ul>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsStemLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemLookup@e8e8c1[stem=&lt;null>,uuid=&lt;null>,stemName=aStem:whateverStem,stemFindResult=&lt;null>]
-[1]: edu.internet2.middleware.grouper.ws....
+        <p class="resultMessage">Success for: clientVersion: v1_4_000, wsStemLookups: Array size: 2: [0]: WsStemLookup[stemName=aStem:whateverStem]
+[1]: WsStemLookup[stemName=aStem:whateverStem2]
+
 , actAsSubject: null, txType: NONE, paramNames:
 , params: null</p>
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">2172</p>
+        <p class="millis">750</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">v1_3_000</p>
+        <p class="serverVersion">v1_4_000</p>
       </div>
-      <ul class="results">
-        <li title="WsStemDeleteResult">
-          <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode">SUCCESS</p>
-            <p class="success">T</p>
-            <p class="resultMessage">Stem 'aStem:whateverStem' was deleted.</p>
-            <p class="resultCode2" />
-          </div>
-          <div class="wsStem" title="WsStem">
-            <p class="name">aStem:whateverStem</p>
-            <p class="displayName">a stem:disp1</p>
-            <p class="description">desc1</p>
-            <p class="extension">whateverStem</p>
-            <p class="uuid">f9223f4e-37b1-4fbe-99c3-96a550c4fa8d</p>
-            <p class="displayExtension">disp1</p>
-          </div>
-        </li>
-        <li title="WsStemDeleteResult">
-          <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode">SUCCESS</p>
-            <p class="success">T</p>
-            <p class="resultMessage">Stem 'aStem:whateverStem2' was deleted.</p>
-            <p class="resultCode2" />
-          </div>
-          <div class="wsStem" title="WsStem">
-            <p class="name">aStem:whateverStem2</p>
-            <p class="displayName">a stem:disp2</p>
-            <p class="description">descs</p>
-            <p class="extension">whateverStem2</p>
-            <p class="uuid">09fbd59b-6a6d-41da-9a6c-394418b02f13</p>
-            <p class="displayExtension">disp2</p>
-          </div>
-        </li>
-      </ul>
     </div>
   </body>
 </html>
@@ -134,15 +138,17 @@ Connection: close
 package edu.internet2.middleware.grouper.ws.samples.rest.stem;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemDeleteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
@@ -160,26 +166,30 @@ public class WsSampleStemDeleteRest implements WsSampleRest {
    * stem delete lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
+  @SuppressWarnings("deprecation")
   public static void stemDeleteLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
       
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
             + "/stems");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
-          ManualClientSettings.PASS);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
 
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
       //e.g. localhost and 8093
       httpClient.getState()
-          .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -273,7 +283,8 @@ public class WsSampleStemDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemLookup@e8e8c1[stem=<null>,uuid=<null>,stemName=aStem:whateverStem,stemFindResult=<null>]
-[1]: edu.internet2.middleware.grouper.ws....
+Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsStemLookups: Array size: 2: [0]: WsStemLookup[stemName=aStem:whateverStem]
+[1]: WsStemLookup[stemName=aStem:whateverStem2]
+
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

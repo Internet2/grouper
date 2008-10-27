@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsVersion.java,v 1.6 2008-10-27 10:03:31 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsVersion.java,v 1.7 2008-10-27 21:28:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -33,7 +33,7 @@ public enum GrouperWsVersion {
   /**
    * regex pattern for ws version
    */
-  private static Pattern versionPattern = Pattern.compile("^(\\d+)_(\\d+)_(\\d+)$");
+  private static Pattern versionPattern = Pattern.compile("^v(\\d+)_(\\d+)_(\\d+)$");
   
   /**
    * see if this version is less than the argument one
@@ -42,11 +42,20 @@ public enum GrouperWsVersion {
    */
   public boolean lessThanArg(GrouperWsVersion other) {
     Matcher matcher = versionPattern.matcher(this.name());
+    if (!matcher.matches()) {
+      throw new RuntimeException("Cant match string: " + this.name());
+    }
     int thisMajorNumber = GrouperUtil.intValue(matcher.group(1));
     int thisMinorNumber = GrouperUtil.intValue(matcher.group(2));
     int thisBuildNumber = GrouperUtil.intValue(matcher.group(3));
     
+    if (other == null) {
+      throw new NullPointerException("other is null");
+    }
     matcher = versionPattern.matcher(other.name());
+    if (!matcher.matches()) {
+      throw new RuntimeException("Cant match other string: " + other.name());
+    }
     int otherMajorNumber = GrouperUtil.intValue(matcher.group(1));
     int otherMinorNumber = GrouperUtil.intValue(matcher.group(2));
     int otherBuildNumber = GrouperUtil.intValue(matcher.group(3));

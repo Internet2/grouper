@@ -8,6 +8,7 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.MemberChangeSubjectLite;
@@ -82,6 +83,11 @@ public class WsSampleMemberChangeSubjectLite implements WsSampleGenerated {
 
             System.out.println(ToStringBuilder.reflectionToString(
                 wsMemberChangeSubjectLiteResult));
+            
+            if (!StringUtils.equals("T", 
+                wsMemberChangeSubjectLiteResult.getResultMetadata().getSuccess())) {
+              throw new RuntimeException("didnt get success! ");
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

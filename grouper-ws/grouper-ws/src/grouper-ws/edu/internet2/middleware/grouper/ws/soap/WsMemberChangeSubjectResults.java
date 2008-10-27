@@ -28,7 +28,7 @@ public class WsMemberChangeSubjectResults implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsMemberChangeSubjectResultsCode implements WsResultCode {
+  public static enum WsMemberChangeSubjectResultsCode implements WsResultCode {
 
     /** found the subject (rest http status code 200) (success: T) */
     SUCCESS(200),

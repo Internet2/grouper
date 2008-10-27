@@ -165,6 +165,7 @@
                         <xs:element minOccurs="0" name="stemUuid" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="privilegeType" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="privilegeName" nillable="true" type="xs:string"/>
+                        <xs:element minOccurs="0" name="allowed" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="actAsSubjectId" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="actAsSubjectSourceId" nillable="true" type="xs:string"/>
                         <xs:element minOccurs="0" name="actAsSubjectIdentifier" nillable="true" type="xs:string"/>

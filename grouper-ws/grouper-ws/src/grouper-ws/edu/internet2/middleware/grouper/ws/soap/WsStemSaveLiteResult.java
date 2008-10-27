@@ -28,7 +28,7 @@ public class WsStemSaveLiteResult implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsStemSaveLiteResultCode implements WsResultCode {
+  public static enum WsStemSaveLiteResultCode implements WsResultCode {
 
     /** found the stems, saved them (lite http status code 201) (success: T) */
     SUCCESS(201),

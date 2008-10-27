@@ -1,12 +1,14 @@
 /*
- * @author mchyzer $Id: GrouperServiceRest.java,v 1.8 2008-10-21 03:51:00 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceRest.java,v 1.9 2008-10-27 21:28:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteLiteRequest;
@@ -32,10 +34,12 @@ import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveRequest;
 import edu.internet2.middleware.grouper.ws.soap.GrouperService;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults;
+import edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsFindGroupsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsFindStemsResults;
+import edu.internet2.middleware.grouper.ws.soap.WsGetGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult;
@@ -553,6 +557,101 @@ public class GrouperServiceRest {
 
     //return result
     return wsMemberChangeSubjectLiteResult;
+
+  }
+
+  /**
+   * <pre>
+   * get privileges for a group or stem and subject
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param wsRestGetGrouperPrivilegesLiteRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsGetGrouperPrivilegesLiteResult getGrouperPrivilegesLite(GrouperWsVersion clientVersion,
+      WsRestGetGrouperPrivilegesLiteRequest wsRestGetGrouperPrivilegesLiteRequest) {
+  
+    //make sure not null
+    wsRestGetGrouperPrivilegesLiteRequest = wsRestGetGrouperPrivilegesLiteRequest == null ? new WsRestGetGrouperPrivilegesLiteRequest()
+        : wsRestGetGrouperPrivilegesLiteRequest;
+  
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
+        wsRestGetGrouperPrivilegesLiteRequest.getClientVersion(), false, "clientVersion");
+  
+    //get the results
+    WsGetGrouperPrivilegesLiteResult wsGetGrouperPrivilegesLiteResult = new GrouperService().getGrouperPrivilegesLite(
+        clientVersionString,
+        wsRestGetGrouperPrivilegesLiteRequest.getSubjectId(),
+        wsRestGetGrouperPrivilegesLiteRequest.getSubjectSourceId(),
+        wsRestGetGrouperPrivilegesLiteRequest.getSubjectIdentifier(), 
+        wsRestGetGrouperPrivilegesLiteRequest.getGroupName(), 
+        wsRestGetGrouperPrivilegesLiteRequest.getGroupUuid(), 
+        wsRestGetGrouperPrivilegesLiteRequest.getStemName(), 
+        wsRestGetGrouperPrivilegesLiteRequest.getStemUuid(), 
+        wsRestGetGrouperPrivilegesLiteRequest.getPrivilegeType(), 
+        wsRestGetGrouperPrivilegesLiteRequest.getPrivilegeName(),
+        wsRestGetGrouperPrivilegesLiteRequest.getActAsSubjectId(), 
+        wsRestGetGrouperPrivilegesLiteRequest.getActAsSubjectSourceId(),
+        wsRestGetGrouperPrivilegesLiteRequest.getActAsSubjectIdentifier(),
+        wsRestGetGrouperPrivilegesLiteRequest.getIncludeSubjectDetail(),
+        wsRestGetGrouperPrivilegesLiteRequest.getSubjectAttributeNames(), 
+        wsRestGetGrouperPrivilegesLiteRequest.getIncludeGroupDetail(),
+        wsRestGetGrouperPrivilegesLiteRequest.getParamName0(),
+        wsRestGetGrouperPrivilegesLiteRequest.getParamValue0(), 
+        wsRestGetGrouperPrivilegesLiteRequest.getParamName1(), 
+        wsRestGetGrouperPrivilegesLiteRequest.getParamValue1());
+  
+    //return result
+    return wsGetGrouperPrivilegesLiteResult;
+  
+  }
+
+  /**
+   * <pre>
+   * assign/revoke privileges for a group or stem and subject
+   * </pre>
+   * @param clientVersion version of client, e.g. v1_3_000
+   * @param wsRestAssignGrouperPrivilegesLiteRequest is the request body converted to an object
+   * @return the result
+   */
+  public static WsAssignGrouperPrivilegesLiteResult assignGrouperPrivilegesLite(GrouperWsVersion clientVersion,
+      WsRestAssignGrouperPrivilegesLiteRequest wsRestAssignGrouperPrivilegesLiteRequest) {
+
+    //make sure not null
+    wsRestAssignGrouperPrivilegesLiteRequest = wsRestAssignGrouperPrivilegesLiteRequest == null 
+      ? new WsRestAssignGrouperPrivilegesLiteRequest()
+        : wsRestAssignGrouperPrivilegesLiteRequest;
+
+    String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.name(),
+        wsRestAssignGrouperPrivilegesLiteRequest.getClientVersion(), false, "clientVersion");
+
+    //get the results
+    WsAssignGrouperPrivilegesLiteResult wsAssignGrouperPrivilegesLiteResult = new GrouperService()
+          .assignGrouperPrivilegesLite(
+        clientVersionString,
+        wsRestAssignGrouperPrivilegesLiteRequest.getSubjectId(),
+        wsRestAssignGrouperPrivilegesLiteRequest.getSubjectSourceId(),
+        wsRestAssignGrouperPrivilegesLiteRequest.getSubjectIdentifier(), 
+        wsRestAssignGrouperPrivilegesLiteRequest.getGroupName(), 
+        wsRestAssignGrouperPrivilegesLiteRequest.getGroupUuid(), 
+        wsRestAssignGrouperPrivilegesLiteRequest.getStemName(), 
+        wsRestAssignGrouperPrivilegesLiteRequest.getStemUuid(), 
+        wsRestAssignGrouperPrivilegesLiteRequest.getPrivilegeType(), 
+        wsRestAssignGrouperPrivilegesLiteRequest.getPrivilegeName(),
+        wsRestAssignGrouperPrivilegesLiteRequest.getAllowed(),
+        wsRestAssignGrouperPrivilegesLiteRequest.getActAsSubjectId(), 
+        wsRestAssignGrouperPrivilegesLiteRequest.getActAsSubjectSourceId(),
+        wsRestAssignGrouperPrivilegesLiteRequest.getActAsSubjectIdentifier(),
+        wsRestAssignGrouperPrivilegesLiteRequest.getIncludeSubjectDetail(),
+        wsRestAssignGrouperPrivilegesLiteRequest.getSubjectAttributeNames(), 
+        wsRestAssignGrouperPrivilegesLiteRequest.getIncludeGroupDetail(),
+        wsRestAssignGrouperPrivilegesLiteRequest.getParamName0(),
+        wsRestAssignGrouperPrivilegesLiteRequest.getParamValue0(), 
+        wsRestAssignGrouperPrivilegesLiteRequest.getParamName1(), 
+        wsRestAssignGrouperPrivilegesLiteRequest.getParamValue1());
+
+    //return result
+    return wsAssignGrouperPrivilegesLiteResult;
 
   }
 

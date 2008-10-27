@@ -24,7 +24,7 @@ public class WsFindStemsResults implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsFindStemsResultsCode implements WsResultCode {
+  public static enum WsFindStemsResultsCode implements WsResultCode {
 
     /** found the stem (or not) (lite http status code 200) (success: T) */
     SUCCESS(200),

@@ -1,4 +1,4 @@
-Grouper web service sample of service: addMember, WsSampleAddMemberRest, manually written lite/rest, format: json, for version: v1_3_000
+Grouper web service sample of service: addMember, WsSampleAddMemberRest, manually written lite/rest, format: json, for version: v1_4_000
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRest, manuall
 #########################################
 
 
-PUT /grouper-ws/servicesRest/v1_3_000/groups/aStem%3AaGroup/members HTTP/1.1
+PUT /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
-User-Agent: Jakarta Commons-HttpClient/3.0.1
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 189
 Content-Type: text/x-json; charset=UTF-8
@@ -48,14 +48,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Pragma: No-cache
-Cache-Control: no-cache
-Expires: Wed, 31 Dec 1969 19:00:00 EST
+Set-Cookie: JSESSIONID=A392B8C6D5554AB8E5D76395F242AC46; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 31 Mar 2008 17:40:58 GMT
+Date: Mon, 27 Oct 2008 20:28:03 GMT
 Connection: close
 
 {
@@ -66,14 +64,14 @@ Connection: close
           "wsSubject":{
             "resultCode":"SUCCESS",
             "success":"T",
-            "id":10021368,
-            "sourceId":"qsuob"
+            "id":"10021368",
+            "sourceId":"pennperson"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS",
+            "resultCode":"SUCCESS_ALREADY_EXISTED",
             "resultMessage":"",
             "success":"T",
-            "httpStatusCode":500
+            "httpStatusCode":"500"
           }
           
         },
@@ -81,14 +79,14 @@ Connection: close
           "wsSubject":{
             "resultCode":"SUCCESS",
             "success":"T",
-            "id":10039438,
-            "sourceId":"qsuob"
+            "id":"10039438",
+            "sourceId":"pennperson"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS",
+            "resultCode":"SUCCESS_ALREADY_EXISTED",
             "resultMessage":"",
             "success":"T",
-            "httpStatusCode":500
+            "httpStatusCode":"500"
           }
         }
       ]
@@ -100,23 +98,19 @@ Connection: close
       "description":"a group description",
       "displayName":"a stem:a group",
       "name":"aStem:aGroup",
-      "uuid":"c6c0bf03-9cb5-4965-9dcb-520020d5da51"
+      "uuid":"c2a29579-3bc8-478d-a20b-b86d3cda8600"
     },
     "resultMetadata":{
-      "wsResultCode":{
-        "@class":"edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults$WsAddMemberResultsCode",
-        "$":"SUCCESS"
-      },
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1254e47[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@363bce[subject=<null...\n, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1ba204d[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n, params: null",
+      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\n, replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n, params: null",
       "success":"T",
-      "httpStatusCode":201
+      "httpStatusCode":"201"
     },
     "responseMetadata":{
       "resultWarnings":"",
-      "millis":-1,
-      "millisStart":1206985257971,
-      "serverVersion":"v1_3_000"
+      "millis":"-1",
+      "millisStart":"1225139283083",
+      "serverVersion":"v1_4_000"
     }
   }
 }
@@ -135,12 +129,15 @@ Connection: close
 package edu.internet2.middleware.grouper.ws.samples.rest.member;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
@@ -160,11 +157,15 @@ public class WsSampleAddMemberRest implements WsSampleRest {
    * add member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
+  @SuppressWarnings("deprecation")
   public static void addMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
       
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PutMethod method = new PutMethod(
@@ -281,6 +282,8 @@ public class WsSampleAddMemberRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1254e47[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@363bce[subject=<null...
-, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1ba204d[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+[1]: WsSubjectLookup[subjectId=10039438]
+
+, replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null

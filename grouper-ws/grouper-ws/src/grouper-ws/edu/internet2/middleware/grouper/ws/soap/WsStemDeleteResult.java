@@ -55,7 +55,7 @@ public class WsStemDeleteResult {
   /**
    * result code of a request
    */
-  public enum WsStemDeleteResultCode {
+  public static enum WsStemDeleteResultCode {
 
     /** if transactional call, and rolled back, otherwise success */
     TRANSACTION_ROLLED_BACK {

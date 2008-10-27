@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite, manually written lite/rest, format: json, for version: v1_3_000
+Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite, manually written lite/rest, format: json, for version: v1_4_000
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite, m
 #########################################
 
 
-GET /grouper-ws/servicesRest/json/v1_3_000/groups/aStem%3AaGroup/members HTTP/1.1
+GET /grouperWs/servicesRest/json/v1_4_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
-User-Agent: Jakarta Commons-HttpClient/3.0.1
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
 
@@ -26,33 +26,27 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Pragma: No-cache
-Cache-Control: no-cache
-Expires: Wed, 31 Dec 1969 19:00:00 EST
+Set-Cookie: JSESSIONID=2606EDD1EA5DC67AC45F328FFA1FDECD; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 31 Mar 2008 06:47:14 GMT
+Date: Mon, 27 Oct 2008 21:11:52 GMT
 Connection: close
 
 {
   "WsGetMembersLiteResult":{
     "resultMetadata":{
-      "wsResultCode":{
-        "@class":"edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult$WsGetMembersLiteResultCode",
-        "$":"SUCCESS"
-      },
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@176ad02[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>]\n\n, memberFilter: All, includeSubjectDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@5883fc[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, subjectAttributeNames: null\n, paramNames: \n, params: null",
+      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]\n\n, memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[], fieldName: null, subjectAttributeNames: null\n, paramNames: \n, params: null",
       "success":"T",
-      "httpStatusCode":200
+      "httpStatusCode":"200"
     },
     "responseMetadata":{
       "resultWarnings":"",
-      "millis":-1,
-      "millisStart":1206946034349,
-      "serverVersion":"v1_3_000"
+      "millis":"-1",
+      "millisStart":"1225141911568",
+      "serverVersion":"v1_4_000"
     },
     "wsGroup":{
       "extension":"aGroup",
@@ -60,15 +54,29 @@ Connection: close
       "description":"a group description",
       "displayName":"a stem:a group",
       "name":"aStem:aGroup",
-      "uuid":"c6c0bf03-9cb5-4965-9dcb-520020d5da51"
+      "uuid":"5d430dc5-4963-40f9-8c09-694a53f40d03"
     },
     "wsSubjects":{
-      "WsSubject":{
-        "resultCode":"SUCCESS",
-        "success":"T",
-        "id":"GrouperSystem",
-        "sourceId":"g:isa"
-      }
+      "WsSubject":[
+        {
+          "resultCode":"SUCCESS",
+          "success":"T",
+          "id":"10039438",
+          "sourceId":"pennperson"
+        },
+        {
+          "resultCode":"SUCCESS",
+          "success":"T",
+          "id":"GrouperSystem",
+          "sourceId":"g:isa"
+        },
+        {
+          "resultCode":"SUCCESS",
+          "success":"T",
+          "id":"10021368",
+          "sourceId":"pennperson"
+        }
+      ]
     }
   }
 }
@@ -87,14 +95,16 @@ Connection: close
 package edu.internet2.middleware.grouper.ws.samples.rest.member;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult;
@@ -109,11 +119,15 @@ public class WsSampleGetMembersRestLite implements WsSampleRest {
    * get members lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
+  @SuppressWarnings("deprecation")
   public static void getMembersLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
       
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       GetMethod method = new GetMethod(
@@ -122,15 +136,15 @@ public class WsSampleGetMembersRestLite implements WsSampleRest {
             + "/groups/aStem%3AaGroup/members");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
-          ManualClientSettings.PASS);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
       
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
       //e.g. localhost and 8093
       httpClient.getState()
-          .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
       httpClient.executeMethod(method);
 
@@ -198,8 +212,8 @@ public class WsSampleGetMembersRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@176ad02[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>]
+Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
 
-, memberFilter: All, includeSubjectDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@5883fc[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, subjectAttributeNames: null
+, memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[], fieldName: null, subjectAttributeNames: null
 , paramNames: 
 , params: null

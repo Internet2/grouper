@@ -9,14 +9,14 @@ Grouper web service sample of service: memberChangeSubject, WsSampleMemberChange
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_3_000/members HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_000/members HTTP/1.1
 Connection: close
-Authorization: Basic sdfasdfasdfasdfasdf==
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 138
 
-wsLiteObjectType=WsRestMemberChangeSubjectLiteRequest&oldSubjectId=test.subject.0&newSubjectId=test.subject.1&actAsSubjectId=GrouperSystem
+wsLiteObjectType=WsRestMemberChangeSubjectLiteRequest&actAsSubjectId=GrouperSystem&oldSubjectId=test.subject.0&newSubjectId=test.subject.1
 
 
 #########################################
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestMemberChangeSubjectLiteRequest&oldSubjectId=test.subject.
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=E4FEF6313F7C8D87945C90D748CF554F; Path=/grouperWs
+Set-Cookie: JSESSIONID=B8DD4E98FB4797434E72E0AEF14FE432; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Tue, 21 Oct 2008 17:42:04 GMT
+Date: Mon, 27 Oct 2008 21:23:36 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -48,14 +48,16 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]
+        <p class="resultMessage">Success for: clientVersion: v1_4_000, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
+oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],
+newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
 , params: null</p>
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">406</p>
+        <p class="millis">375</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -118,8 +120,6 @@ public class WsSampleMemberChangeSubjectRestLite implements WsSampleRest {
   public static void memberChangeSubjectLite(WsSampleRestType wsSampleRestType) {
 
     try {
-      
-      RestClientSettings.resetData();
       
       HttpClient httpClient = new HttpClient();
       
@@ -210,6 +210,8 @@ public class WsSampleMemberChangeSubjectRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
+
+    RestClientSettings.resetData();
     memberChangeSubjectLite(WsSampleRestType.xhtml);
   }
 
@@ -236,7 +238,9 @@ public class WsSampleMemberChangeSubjectRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]
+Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[
+  oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],
+  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
 , params: null

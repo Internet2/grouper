@@ -3,6 +3,8 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 /**
  * Query for one privilege.
  * 
@@ -10,20 +12,35 @@ package edu.internet2.middleware.grouper.ws.soap;
  */
 public class WsGrouperPrivilegeResult {
 
+  /**
+   * make sure this is an explicit toString
+   */
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
+  }
+
   /** whether this privilege is allowed T/F */
   private String allowed;
+  
   /** owner subject of privilege */
   private WsSubject ownerSubject;
+  
   /** privilege name, e.g. read, update, stem */
   private String privilegeName;
+  
   /** privilege type, e.g. naming, or access */
   private String privilegeType;
+  
   /** If this privilege is revokable (maybe due to if effective privilege not immediate)  */
   private String revokable;
+  
   /** group querying */
   private WsGroup wsGroup;
+  
   /** stem querying */
   private WsStem wsStem;
+  
   /**
    * subject to switch to
    */

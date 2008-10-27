@@ -35,7 +35,7 @@ public class WsHasMemberLiteResult implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsHasMemberLiteResultCode implements WsResultCode {
+  public static enum WsHasMemberLiteResultCode implements WsResultCode {
 
     /** discovered if each was a member of not (lite http status code 404) (success: F) */
     GROUP_NOT_FOUND(404),

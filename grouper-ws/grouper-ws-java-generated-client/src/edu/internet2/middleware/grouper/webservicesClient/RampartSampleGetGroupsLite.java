@@ -14,6 +14,7 @@ import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.transport.http.HTTPConstants;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import org.apache.neethi.Policy;
@@ -104,6 +105,12 @@ public class RampartSampleGetGroupsLite implements WsSampleGenerated {
                             wsGroup));
                 }
             }
+            
+            if (!StringUtils.equals("T", 
+                wsGetGroupsLiteResult.getResultMetadata().getSuccess())) {
+              throw new RuntimeException("didnt get success! ");
+            }
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

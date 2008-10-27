@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: xhtml, for version: v1_3_000
+Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: xhtml, for version: v1_4_000
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually 
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_3_000/stems HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_000/stems HTTP/1.1
 Connection: close
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
-User-Agent: Jakarta Commons-HttpClient/3.0.1
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 1256
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -26,16 +26,14 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestStemSaveRequest">
       <p class="clientVersion" />
-      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
-      <p class="txType" />
       <ul class="wsStemToSaves">
         <li title="WsStemToSave">
           <p class="saveMode" />
           <div class="wsStem" title="WsStem">
             <p class="name">aStem:whateverStem</p>
             <p class="displayName" />
-            <p class="description">desc1</p>
             <p class="uuid" />
+            <p class="description">desc1</p>
             <p class="displayExtension">disp1</p>
             <p class="extension">whateverStem</p>
           </div>
@@ -49,8 +47,8 @@ Content-Type: application/xhtml+xml; charset=UTF-8
           <div class="wsStem" title="WsStem">
             <p class="name">aStem:whateverStem2</p>
             <p class="displayName" />
-            <p class="description">descs</p>
             <p class="uuid" />
+            <p class="description">descs</p>
             <p class="displayExtension">disp2</p>
             <p class="extension">whateverStem2</p>
           </div>
@@ -60,6 +58,8 @@ Content-Type: application/xhtml+xml; charset=UTF-8
           </div>
         </li>
       </ul>
+      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
+      <p class="txType" />
     </div>
   </body>
 </html>
@@ -75,11 +75,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=5A8F2A7138D43E60C5B19E961C025392; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 31 Mar 2008 06:49:24 GMT
+Date: Mon, 27 Oct 2008 21:14:56 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -90,19 +91,6 @@ Connection: close
   </head>
   <body>
     <div title="WsStemSaveResults">
-      <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@f3d69c[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@8ed7c0[stem=&lt;null>,uuid=&lt;null>,stemName=aStem:wha...
-, actAsSubject: null, txType: NONE, paramNames:
-, params: null</p>
-        <p class="resultCode2" />
-      </div>
-      <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">4954</p>
-        <p class="resultWarnings" />
-        <p class="serverVersion">v1_3_000</p>
-      </div>
       <ul class="results">
         <li title="WsStemSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
@@ -116,7 +104,7 @@ Connection: close
             <p class="displayName">a stem:disp1</p>
             <p class="description">desc1</p>
             <p class="extension">whateverStem</p>
-            <p class="uuid">da1d058d-a56d-49ba-92af-e0f7d52f1377</p>
+            <p class="uuid">efdb77aa-5c21-46d9-ad34-913f7d9366e5</p>
             <p class="displayExtension">disp1</p>
           </div>
         </li>
@@ -132,11 +120,26 @@ Connection: close
             <p class="displayName">a stem:disp2</p>
             <p class="description">descs</p>
             <p class="extension">whateverStem2</p>
-            <p class="uuid">1fd3bd1c-7e95-447b-a08f-74ad435438b2</p>
+            <p class="uuid">437d1558-4f11-4efd-86d4-ba683f635d24</p>
             <p class="displayExtension">disp2</p>
           </div>
         </li>
       </ul>
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
+        <p class="resultMessage">Success for: clientVersion: v1_4_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
+wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],
+wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...
+, actAsSubject: null, txType: NONE, paramNames:
+, params: null</p>
+        <p class="resultCode2" />
+      </div>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="millis">4219</p>
+        <p class="resultWarnings" />
+        <p class="serverVersion">v1_4_000</p>
+      </div>
     </div>
   </body>
 </html>
@@ -155,22 +158,24 @@ Connection: close
 package edu.internet2.middleware.grouper.ws.samples.rest.stem;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsStem;
-import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResults;
 import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResults;
 import edu.internet2.middleware.grouper.ws.soap.WsStemToSave;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
@@ -183,26 +188,30 @@ public class WsSampleStemSaveRest implements WsSampleRest {
    * stem save lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
+  @SuppressWarnings("deprecation")
   public static void stemSaveLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
       
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
             + "/stems");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
-          ManualClientSettings.PASS);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
 
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
       //e.g. localhost and 8093
       httpClient.getState()
-          .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -313,6 +322,8 @@ public class WsSampleStemSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@f3d69c[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@8ed7c0[stem=<null>,uuid=<null>,stemName=aStem:wha...
+Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
+  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],
+  wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

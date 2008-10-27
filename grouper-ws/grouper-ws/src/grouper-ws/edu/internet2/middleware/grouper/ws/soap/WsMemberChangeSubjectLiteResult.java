@@ -127,7 +127,7 @@ public class WsMemberChangeSubjectLiteResult implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsMemberChangeSubjectLiteResultCode implements WsResultCode {
+  public static enum WsMemberChangeSubjectLiteResultCode implements WsResultCode {
 
     /** cant find group (rest http status code 404) (success: F) */
     MEMBER_NOT_FOUND(404),

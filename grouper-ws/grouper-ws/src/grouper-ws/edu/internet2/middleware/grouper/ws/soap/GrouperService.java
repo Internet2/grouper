@@ -2484,6 +2484,9 @@ public class GrouperService {
       wsDeleteMemberResults.assignResultCodeException(null, null, e);
     }
 
+    //set response headers
+    GrouperServiceUtils.addResponseHeaders(wsDeleteMemberResults.getResultMetadata());
+
     //this should be the first and only return, or else it is exiting too early
     return wsDeleteMemberResults;
     
@@ -3237,8 +3240,6 @@ public class GrouperService {
    *            optional: is the subject identifier of subject to act as (if
    *            proxying). Only pass one of actAsSubjectId or
    *            actAsSubjectIdentifer
-   * @param deleteOldMember T or F as to whether the old member should be deleted (if new member does exist).
-   * This defaults to T if it is blank
    * @param privilegeType (e.g. "access" for groups and "naming" for stems)
    * @param privilegeName (e.g. for groups: read, view, update, admin, optin, optout.  e.g. for stems:
    * stem, create)
@@ -3273,7 +3274,7 @@ public class GrouperService {
 
       PrivilegeType privilegeTypeEnum = PrivilegeType.valueOfIgnoreCase(privilegeType);
       
-      Privilege privilege = privilegeTypeEnum.retrievePrivilege(privilegeName);
+      Privilege privilege = privilegeTypeEnum == null ? null : privilegeTypeEnum.retrievePrivilege(privilegeName);
   
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
@@ -3373,7 +3374,7 @@ public class GrouperService {
           includeSubjectDetail, false, "includeSubjectDetail");
   
       boolean allowedBoolean = GrouperServiceUtils.booleanValue(
-          allowed, false, "allowed");
+          allowed, true, "allowed");
   
       GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
           clientVersion, true);

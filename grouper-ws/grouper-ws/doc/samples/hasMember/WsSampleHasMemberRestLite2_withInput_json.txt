@@ -1,4 +1,4 @@
-Grouper web service sample of service: hasMember, WsSampleHasMemberRestLite2, manually written lite/rest, type: _withInput, format: json, for version: v1_3_000
+Grouper web service sample of service: hasMember, WsSampleHasMemberRestLite2, manually written lite/rest, type: _withInput, format: json, for version: v1_4_000
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: hasMember, WsSampleHasMemberRestLite2, ma
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_3_000/groups/aStem%3AaGroup/members/sources/qsuob/subjectId/10021368 HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members/sources/jdbc/subjectId/test.subject.0 HTTP/1.1
 Connection: close
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
-User-Agent: Jakarta Commons-HttpClient/3.0.1
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 65
 Content-Type: text/x-json; charset=UTF-8
@@ -34,11 +34,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-X-Grouper-resultCode: IS_MEMBER
+Set-Cookie: JSESSIONID=FF2DCF52375C44EEE98A128393F65578; Path=/grouperWs
+X-Grouper-resultCode: IS_NOT_MEMBER
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Wed, 02 Apr 2008 08:08:16 GMT
+Date: Mon, 27 Oct 2008 21:09:50 GMT
 Connection: close
 
 {
@@ -49,29 +50,25 @@ Connection: close
       "description":"a group description",
       "displayName":"a stem:a group",
       "name":"aStem:aGroup",
-      "uuid":"c6c0bf03-9cb5-4965-9dcb-520020d5da51"
+      "uuid":"76da0c17-485c-4b0a-8ebb-24ebe2e8b513"
     },
     "resultMetadata":{
-      "wsResultCode":{
-        "@class":"edu.internet2.middleware.grouper.ws.soap.WsHasMemberLiteResult$WsHasMemberLiteResultCode",
-        "$":"IS_MEMBER"
-      },
-      "resultCode":"IS_MEMBER",
-      "resultMessage":"Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@135fd95[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@19b619e[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId...\n memberFilter: All, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@260657[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n,params: null\n",
+      "resultCode":"IS_NOT_MEMBER",
+      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]\n\n memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n,params: null\n",
       "success":"T",
-      "httpStatusCode":200
+      "httpStatusCode":"200"
     },
     "responseMetadata":{
       "resultWarnings":"",
-      "millis":-1,
-      "millisStart":1207123696076,
-      "serverVersion":"v1_3_000"
+      "millis":"-1",
+      "millisStart":"1225141789802",
+      "serverVersion":"v1_4_000"
     },
     "wsSubject":{
       "resultCode":"SUCCESS",
       "success":"T",
-      "id":10021368,
-      "sourceId":"qsuob"
+      "id":"test.subject.0",
+      "sourceId":"jdbc"
     }
   }
 }
@@ -90,12 +87,15 @@ Connection: close
 package edu.internet2.middleware.grouper.ws.samples.rest.member;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
@@ -114,16 +114,20 @@ public class WsSampleHasMemberRestLite2 implements WsSampleRest {
    * has member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
+  @SuppressWarnings("deprecation")
   public static void hasMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
       
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/groups/aStem%3AaGroup/members/sources/qsuob/subjectId/10021368");
+            + "/groups/aStem%3AaGroup/members/sources/jdbc/subjectId/test.subject.0");
       
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
@@ -224,7 +228,8 @@ public class WsSampleHasMemberRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: IS_MEMBER, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@135fd95[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@19b619e[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId...
- memberFilter: All, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@260657[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+Server version: v1_4_000, result code: IS_NOT_MEMBER, result message: Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+
+ memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null
 

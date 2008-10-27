@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestPut.java,v 1.8 2008-10-21 03:51:00 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestPut.java,v 1.9 2008-10-27 21:28:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectLiteRequest;
@@ -123,6 +124,41 @@ public enum GrouperWsRestPut {
     }
 
   }, 
+  
+  /** grouperPrivileges put requests */
+  grouperPrivileges {
+
+    /**
+     * handle the incoming request based on PUT HTTP method and group resource
+     * @param clientVersion version of client, e.g. v1_3_000
+     * @param urlStrings not including the app name or servlet.  
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/grouperPrivileges
+     * the urlStrings would be size one: {"grouperPrivileges"}
+     * @param requestObject is the request body converted to object
+     * @return the result object
+     */
+    @Override
+    public WsResponseBean service(
+        GrouperWsVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+
+      //handle the URL: /groups with nothing after...
+      if (urlStrings.size() == 0) {
+        
+        if (requestObject instanceof WsRestAssignGrouperPrivilegesLiteRequest) {
+          
+          //find stems
+          return GrouperServiceRest.assignGrouperPrivilegesLite(clientVersion,
+              (WsRestAssignGrouperPrivilegesLiteRequest)requestObject);
+        }
+      }
+      throw new RuntimeException("Invalid put grouper privileges request: " + clientVersion 
+          + ", " + GrouperUtil.toStringForLog(urlStrings) + ", " + GrouperUtil.className(requestObject));
+    }
+
+  },
+  
+  
   /** group put requests */
   members{
   

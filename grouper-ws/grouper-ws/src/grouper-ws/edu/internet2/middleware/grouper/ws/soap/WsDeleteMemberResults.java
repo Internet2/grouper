@@ -68,7 +68,7 @@ public class WsDeleteMemberResults implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsDeleteMemberResultsCode implements WsResultCode {
+  public static enum WsDeleteMemberResultsCode implements WsResultCode {
 
     /** cant find group (rest http status code 404) (success: F) */
     GROUP_NOT_FOUND(404),

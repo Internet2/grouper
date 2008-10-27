@@ -11,7 +11,7 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 
 POST /grouperWs/servicesRest/v1_4_000/grouperPrivileges HTTP/1.1
 Connection: close
-Authorization: Basic abcabcabcbasdfhsdfasdfsadf==
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 174
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestGetGrouperPrivilegesLiteRequest&subjectId=test.subject.0&
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=D5FDF3D7CE7F4866A493AFC6202E3422; Path=/grouperWs
+Set-Cookie: JSESSIONID=BBCEFF9FD511E2ECA216E966CBB67EED; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_NOT_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 18:52:37 GMT
+Date: Mon, 27 Oct 2008 20:07:52 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>

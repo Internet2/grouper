@@ -13,6 +13,7 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -78,6 +79,11 @@ public class WsSampleGroupSaveLite implements WsSampleGenerated {
 
             System.out.println(ToStringBuilder.reflectionToString(
                     wsGroupSaveLiteResults));
+            
+            if (!StringUtils.equals("T", 
+                wsGroupSaveLiteResults.getResultMetadata().getSuccess())) {
+              throw new RuntimeException("didnt get success! ");
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

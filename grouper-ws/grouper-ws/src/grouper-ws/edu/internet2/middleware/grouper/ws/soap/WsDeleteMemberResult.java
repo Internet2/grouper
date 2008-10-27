@@ -28,7 +28,7 @@ public class WsDeleteMemberResult {
   /**
    * result code of a request
    */
-  public enum WsDeleteMemberResultCode {
+  public static enum WsDeleteMemberResultCode {
 
     /** cant find group */
     GROUP_NOT_FOUND {

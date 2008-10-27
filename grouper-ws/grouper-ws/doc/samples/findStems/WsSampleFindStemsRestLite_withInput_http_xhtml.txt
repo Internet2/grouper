@@ -1,4 +1,4 @@
-Grouper web service sample of service: findStems, WsSampleFindStemsRestLite, manually written lite/rest, type: _withInput, format: http_xhtml, for version: v1_3_000
+Grouper web service sample of service: findStems, WsSampleFindStemsRestLite, manually written lite/rest, type: _withInput, format: http_xhtml, for version: v1_4_000
 
 
 #########################################
@@ -9,14 +9,14 @@ Grouper web service sample of service: findStems, WsSampleFindStemsRestLite, man
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_3_000/stems HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_000/stems HTTP/1.1
 Connection: close
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
-User-Agent: Jakarta Commons-HttpClient/3.0.1
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 136
 
-wsLiteObjectType=WsRestFindStemsLiteRequest&stemName=aSte&actAsSubjectId=GrouperSystem&stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE
+wsLiteObjectType=WsRestFindStemsLiteRequest&stemName=aSte&stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE&actAsSubjectId=GrouperSystem
 
 
 #########################################
@@ -29,11 +29,12 @@ wsLiteObjectType=WsRestFindStemsLiteRequest&stemName=aSte&actAsSubjectId=Grouper
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=6A6B50E22F9C248B390937C386197D1D; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 31 Mar 2008 06:48:39 GMT
+Date: Mon, 27 Oct 2008 21:13:27 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -47,71 +48,23 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsStemQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter@8313c5[grouperSession=&lt;null>,stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte,parentStemName=&lt;null>,parentStemNameScope=&lt;null>,stemUuid=&lt;null>,stemAttributeValue=&lt;null>,stemAttributeName=&lt;null>,stemQueryFilter0=&lt;null>,stemQueryFilter1=&lt;null>], actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1871afc[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>]
+        <p class="resultMessage">Success for: clientVersion: v1_4_000, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null</p>
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">156</p>
+        <p class="millis">359</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">v1_3_000</p>
+        <p class="serverVersion">v1_4_000</p>
       </div>
       <ul class="stemResults">
-        <li title="WsStem">
-          <p class="name">a stem</p>
-          <p class="displayName">aStem</p>
-          <p class="description" />
-          <p class="extension">a stem</p>
-          <p class="uuid">a stem description</p>
-          <p class="displayExtension">aStem</p>
-        </li>
         <li title="WsStem">
           <p class="name">aStem</p>
           <p class="displayName">a stem</p>
           <p class="description">a stem description</p>
           <p class="extension">aStem</p>
-          <p class="uuid">d16f5fda-80f5-40ea-a845-5d67dd5fffac</p>
+          <p class="uuid">ffa584fe-0523-46f2-bfe5-2d67b4079e22</p>
           <p class="displayExtension">a stem</p>
-        </li>
-        <li title="WsStem">
-          <p class="name">aStem:testStem</p>
-          <p class="displayName">a stem:test stem</p>
-          <p class="description">the test stem</p>
-          <p class="extension">testStem</p>
-          <p class="uuid">163c8521-74fb-4975-ba95-df9ab284023c</p>
-          <p class="displayExtension">test stem</p>
-        </li>
-        <li title="WsStem">
-          <p class="name">aStem:test</p>
-          <p class="displayName">a stem:the test stem</p>
-          <p class="description">test stem</p>
-          <p class="extension">test</p>
-          <p class="uuid">2067512d-b25e-4a45-8668-507157dda1f8</p>
-          <p class="displayExtension">the test stem</p>
-        </li>
-        <li title="WsStem">
-          <p class="name">aStem:aStemToSave</p>
-          <p class="displayName">a stem:disp1</p>
-          <p class="description">desc1</p>
-          <p class="extension">aStemToSave</p>
-          <p class="uuid">87a28251-f2cc-4589-b67b-bd14ee3ff290</p>
-          <p class="displayExtension">disp1</p>
-        </li>
-        <li title="WsStem">
-          <p class="name">aStem:whateverStem</p>
-          <p class="displayName">a stem:disp1</p>
-          <p class="description">desc1</p>
-          <p class="extension">whateverStem</p>
-          <p class="uuid">f9223f4e-37b1-4fbe-99c3-96a550c4fa8d</p>
-          <p class="displayExtension">disp1</p>
-        </li>
-        <li title="WsStem">
-          <p class="name">aStem:whateverStem2</p>
-          <p class="displayName">a stem:disp2</p>
-          <p class="description">descs</p>
-          <p class="extension">whateverStem2</p>
-          <p class="uuid">09fbd59b-6a6d-41da-9a6c-394418b02f13</p>
-          <p class="displayExtension">disp2</p>
         </li>
       </ul>
     </div>
@@ -132,15 +85,17 @@ Connection: close
 package edu.internet2.middleware.grouper.ws.samples.rest.stem;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
 import edu.internet2.middleware.grouper.ws.query.WsStemQueryFilterType;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
@@ -158,11 +113,15 @@ public class WsSampleFindStemsRestLite implements WsSampleRest {
    * find stems lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
+  @SuppressWarnings("deprecation")
   public static void findStemsLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
       
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
@@ -170,15 +129,15 @@ public class WsSampleFindStemsRestLite implements WsSampleRest {
             + "/stems");
       
       httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
-          ManualClientSettings.PASS);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
       
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
       //e.g. localhost and 8093
       httpClient.getState()
-          .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -271,5 +230,5 @@ public class WsSampleFindStemsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter@8313c5[grouperSession=<null>,stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte,parentStemName=<null>,parentStemNameScope=<null>,stemUuid=<null>,stemAttributeValue=<null>,stemAttributeName=<null>,stemQueryFilter0=<null>,stemQueryFilter1=<null>], actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1871afc[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>]
+Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null

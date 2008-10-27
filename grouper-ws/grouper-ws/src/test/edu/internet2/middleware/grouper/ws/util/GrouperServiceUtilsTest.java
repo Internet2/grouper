@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperServiceUtilsTest.java,v 1.3 2008-03-30 09:01:03 mchyzer Exp $
+ * $Id: GrouperServiceUtilsTest.java,v 1.4 2008-10-27 21:28:14 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.util;
 
@@ -8,23 +8,43 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestRequestContentType;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersLiteRequest;
-
-
+import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult;
+import edu.internet2.middleware.grouper.ws.soap.WsResponseMeta;
+import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
 
 /**
  *
  */
 public class GrouperServiceUtilsTest extends TestCase {
-
+  
+  /**
+   * test marshal
+   */
+  public static void testMarshal() {
+    WsDeleteMemberLiteResult wsDeleteMemberLiteResult = new WsDeleteMemberLiteResult();
+    wsDeleteMemberLiteResult.setResponseMetadata(new WsResponseMeta());
+    
+    wsDeleteMemberLiteResult.setResultMetadata(new WsResultMeta());
+    
+    wsDeleteMemberLiteResult.getResultMetadata().assignResultCode(WsDeleteMemberLiteResult.WsDeleteMemberLiteResultCode.SUCCESS);
+    
+    String result = WsRestRequestContentType.xml.writeString(wsDeleteMemberLiteResult);
+    result = GrouperUtil.indent(result, true);
+    System.out.println(result);
+    
+  }
+  
   /**
    * 
    * @param args
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperServiceUtilsTest("testQueryStringsAddMemberSimple"));
+    TestRunner.run(new GrouperServiceUtilsTest("testMarshal"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
   }

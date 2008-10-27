@@ -1,9 +1,10 @@
 /*
- * @author mchyzer $Id: WsResponseMeta.java,v 1.2 2008-03-30 09:01:03 mchyzer Exp $
+ * @author mchyzer $Id: WsResponseMeta.java,v 1.3 2008-10-27 21:28:14 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
@@ -13,6 +14,14 @@ import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
  * response metadata (version, warnings, etc)
  */
 public class WsResponseMeta {
+
+  /**
+   * make sure this is an explicit toString
+   */
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
+  }
 
   /** 
    * if there are warnings, they will be there

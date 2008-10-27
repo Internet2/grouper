@@ -11,12 +11,12 @@ Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGr
 
 POST /grouperWs/servicesRest/v1_4_000/grouperPrivileges HTTP/1.1
 Connection: close
-Authorization: Basic abcabcabcbasdfhsdfasdfsadf==
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 177
+Content-Length: 187
 
-wsLiteObjectType=WsRestAssignGrouperPrivilegesLiteRequest&subjectId=test.subject.0&groupName=aStem%3AaGroup&privilegeType=access&privilegeName=optin&actAsSubjectId=GrouperSystem
+wsLiteObjectType=WsRestAssignGrouperPrivilegesLiteRequest&subjectId=test.subject.0&groupName=aStem%3AaGroup&privilegeType=access&privilegeName=optin&actAsSubjectId=GrouperSystem&allowed=T
 
 
 #########################################
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestAssignGrouperPrivilegesLiteRequest&subjectId=test.subject
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=7D07844DEBDC2D9081E62BE4280812A2; Path=/grouperWs
-X-Grouper-resultCode: SUCCESS_NOT_ALLOWED_DIDNT_EXIST
+Set-Cookie: JSESSIONID=D6CF0D6DD3B648787874135EA4E06D61; Path=/grouperWs
+X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 18:53:32 GMT
+Date: Mon, 27 Oct 2008 20:08:47 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -46,13 +46,13 @@ Connection: close
   <body>
     <div title="WsAssignGrouperPrivilegesLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS_NOT_ALLOWED_DIDNT_EXIST</p>
+        <p class="resultCode">SUCCESS_ALLOWED</p>
         <p class="success">T</p>
         <p class="resultMessage" />
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">484</p>
+        <p class="millis">594</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -62,7 +62,7 @@ Connection: close
         <p class="description">a group description</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
-        <p class="uuid">89723383-dab3-41b8-bd79-1ad706bfd777</p>
+        <p class="uuid">44c1680e-8fff-43d7-b536-9a034cf37703</p>
         <p class="displayExtension">a group</p>
       </div>
       <div class="wsStem" title="WsStem" />
@@ -162,7 +162,9 @@ public class WsSampleAssignGrouperPrivilegesRestLite implements WsSampleRest {
       
       wsRestAssignGrouperPrivilegesLiteRequest.setPrivilegeType("access");
       wsRestAssignGrouperPrivilegesLiteRequest.setPrivilegeName("optin");
-      
+
+      wsRestAssignGrouperPrivilegesLiteRequest.setAllowed("T");
+
       //get the xml / json / xhtml / paramString
       String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(wsRestAssignGrouperPrivilegesLiteRequest);
       
@@ -238,4 +240,4 @@ public class WsSampleAssignGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS_NOT_ALLOWED_DIDNT_EXIST, result message: 
+Server version: v1_4_000, result code: SUCCESS_ALLOWED, result message: 

@@ -39,7 +39,7 @@ public class WsGroupSaveResult {
   /**
    * result code of a request
    */
-  public enum WsGroupSaveResultCode {
+  public static enum WsGroupSaveResultCode {
 
     /** successful addition (success: T) */
     SUCCESS {

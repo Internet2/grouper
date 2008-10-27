@@ -37,7 +37,7 @@ public class WsGetGroupsResult {
   /**
    * result code of a request
    */
-  public enum WsGetGroupsResultCode implements WsResultCode {
+  public static enum WsGetGroupsResultCode implements WsResultCode {
 
     /** found the subject (lite http status code 200) (success: T) */
     SUCCESS(200) {

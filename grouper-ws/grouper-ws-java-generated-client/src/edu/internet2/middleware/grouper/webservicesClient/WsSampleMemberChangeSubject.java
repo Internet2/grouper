@@ -8,6 +8,7 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.MemberChangeSubject;
@@ -106,6 +107,11 @@ public class WsSampleMemberChangeSubject implements WsSampleGenerated {
               throw new RuntimeException("Didnt get success: " + resultString);
             }
             
+            if (!StringUtils.equals("T", 
+                wsMemberChangeSubjectResults.getResultMetadata().getSuccess())) {
+              throw new RuntimeException("didnt get success! ");
+            }
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

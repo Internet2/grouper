@@ -79,7 +79,7 @@ public class WsHasMemberResult {
   /**
    * result code of a request
    */
-  public enum WsHasMemberResultCode {
+  public static enum WsHasMemberResultCode {
 
     /** found multiple results */
     SUBJECT_DUPLICATE {

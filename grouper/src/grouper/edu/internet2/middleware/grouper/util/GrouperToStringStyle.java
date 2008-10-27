@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperToStringStyle.java,v 1.1 2008-10-21 03:51:03 mchyzer Exp $
+ * $Id: GrouperToStringStyle.java,v 1.2 2008-10-27 21:27:46 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -114,6 +114,10 @@ public class GrouperToStringStyle extends ToStringStyle {
     if (value == null) {
       return;
     }
+    String className = value.getClass().getName();
+    if (!(className.startsWith("java.lang") || className.startsWith("java.util"))) {
+      buffer.append("\n  ");
+    }
     super.append(buffer, fieldName, value, fullDetail);
   }
 
@@ -127,6 +131,7 @@ public class GrouperToStringStyle extends ToStringStyle {
     if (array == null) {
       return;
     }
+    buffer.append("\n");
     super.append(buffer, fieldName, array, fullDetail);
   }
 

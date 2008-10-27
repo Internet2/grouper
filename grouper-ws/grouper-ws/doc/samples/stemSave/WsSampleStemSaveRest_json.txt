@@ -1,4 +1,4 @@
-Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: json, for version: v1_3_000
+Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually written lite/rest, format: json, for version: v1_4_000
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually 
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_3_000/stems HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_000/stems HTTP/1.1
 Connection: close
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
-User-Agent: Jakarta Commons-HttpClient/3.0.1
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 397
 Content-Type: text/x-json; charset=UTF-8
@@ -60,11 +60,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=F7CFE198A485459B1FFC68A47FCE3535; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 31 Mar 2008 06:49:27 GMT
+Date: Mon, 27 Oct 2008 21:15:02 GMT
 Connection: close
 
 {
@@ -78,13 +79,13 @@ Connection: close
             "description":"desc1",
             "displayName":"a stem:disp1",
             "name":"aStem:whateverStem",
-            "uuid":"da1d058d-a56d-49ba-92af-e0f7d52f1377"
+            "uuid":"efdb77aa-5c21-46d9-ad34-913f7d9366e5"
           },
           "resultMetadata":{
             "resultCode":"SUCCESS",
             "resultMessage":"",
             "success":"T",
-            "httpStatusCode":500
+            "httpStatusCode":"500"
           }
           
         },
@@ -95,33 +96,29 @@ Connection: close
             "description":"descs",
             "displayName":"a stem:disp2",
             "name":"aStem:whateverStem2",
-            "uuid":"1fd3bd1c-7e95-447b-a08f-74ad435438b2"
+            "uuid":"437d1558-4f11-4efd-86d4-ba683f635d24"
           },
           "resultMetadata":{
             "resultCode":"SUCCESS",
             "resultMessage":"",
             "success":"T",
-            "httpStatusCode":500
+            "httpStatusCode":"500"
           }
         }
       ]
       
     },
     "resultMetadata":{
-      "wsResultCode":{
-        "@class":"edu.internet2.middleware.grouper.ws.soap.WsStemSaveResults$WsStemSaveResultsCode",
-        "$":"SUCCESS"
-      },
       "resultCode":"SUCCESS",
-      "resultMessage":"Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@14a86b2[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1d12e87[stem=<null>,uuid=<null>,stemName=aStem:w...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
+      "resultMessage":"Success for: clientVersion: v1_4_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[\n  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],\n  wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
       "success":"T",
-      "httpStatusCode":201
+      "httpStatusCode":"201"
     },
     "responseMetadata":{
       "resultWarnings":"",
-      "millis":-1,
-      "millisStart":1206946167553,
-      "serverVersion":"v1_3_000"
+      "millis":"-1",
+      "millisStart":"1225142102523",
+      "serverVersion":"v1_4_000"
     }
   }
 }
@@ -140,22 +137,24 @@ Connection: close
 package edu.internet2.middleware.grouper.ws.samples.rest.stem;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsStem;
-import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResults;
 import edu.internet2.middleware.grouper.ws.soap.WsStemLookup;
+import edu.internet2.middleware.grouper.ws.soap.WsStemSaveResults;
 import edu.internet2.middleware.grouper.ws.soap.WsStemToSave;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
@@ -168,26 +167,30 @@ public class WsSampleStemSaveRest implements WsSampleRest {
    * stem save lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
+  @SuppressWarnings("deprecation")
   public static void stemSaveLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
       
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
             + "/stems");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
-          ManualClientSettings.PASS);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
 
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
       //e.g. localhost and 8093
       httpClient.getState()
-          .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -298,6 +301,8 @@ public class WsSampleStemSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsStemToSaves: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsStemToSave@14a86b2[wsStemLookup=edu.internet2.middleware.grouper.ws.soap.WsStemLookup@1d12e87[stem=<null>,uuid=<null>,stemName=aStem:w...
+Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[
+  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],
+  wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

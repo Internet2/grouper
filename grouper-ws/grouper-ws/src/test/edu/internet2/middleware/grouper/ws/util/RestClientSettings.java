@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: RestClientSettings.java,v 1.6 2008-10-21 05:27:11 mchyzer Exp $
+ * @author mchyzer $Id: RestClientSettings.java,v 1.7 2008-10-27 21:28:14 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.util;
 
@@ -15,6 +15,8 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.subject.Subject;
@@ -96,12 +98,20 @@ public class RestClientSettings {
         wheelGroup.addMember(userSubject);
         
         //add the member
-        MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.0"));
+        Subject subject0 = SubjectFinder.findById("test.subject.0");
+        MemberFinder.findBySubject(grouperSession, subject0);
         MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.2"));
         MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.3"));
         
-        Stem.saveStem(grouperSession, null, null, "aStem", null, null, null, true);
+        Stem aStem = Stem.saveStem(grouperSession, null, null, "aStem", null, null, null, true);
 
+        aStem.grantPriv(subject0, NamingPrivilege.CREATE);
+        
+        Group aGroup = Group.saveGroup(grouperSession, null, null, "aStem:aGroup", null, null, null, true);
+        
+        //grant a priv
+        aGroup.grantPriv(subject0, AccessPrivilege.ADMIN);
+        
       } catch (Exception e) {
         throw new RuntimeException(e);
       }

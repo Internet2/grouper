@@ -28,7 +28,7 @@ public class WsMembership {
   /**
    * result code of a request
    */
-  public enum WsGetMembershipResultCode {
+  public static enum WsGetMembershipResultCode {
 
     /** found the stem (or not) */
     SUCCESS,

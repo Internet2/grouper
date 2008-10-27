@@ -1,4 +1,4 @@
-Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: v1_3_000
+Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: v1_4_000
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLit
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_3_000/groups/aStem%3AaGroup/members/sources/qsuob/subjectId/10021368 HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members/sources/jdbc/subjectId/test.subject.0 HTTP/1.1
 Connection: close
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
-User-Agent: Jakarta Commons-HttpClient/3.0.1
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 109
 Content-Type: text/xml; charset=UTF-8
@@ -32,19 +32,20 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=E0E9E5DA01AEEB859342E1B42D4C8CF8; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_WASNT_IMMEDIATE
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 31 Mar 2008 06:44:26 GMT
+Date: Mon, 27 Oct 2008 21:08:34 GMT
 Connection: close
 
 <WsDeleteMemberLiteResult>
   <resultMetadata>
-    <wsResultCode class="edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult$WsDeleteMemberLiteResultCode">SUCCESS_WASNT_IMMEDIATE</wsResultCode>
     <resultCode>SUCCESS_WASNT_IMMEDIATE</resultCode>
-    <resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@15f80d4[group=&lt;null&gt;,uuid=&lt;null&gt;,groupName=aStem:aGroup,groupFindResult=&lt;null&gt;], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@102e62e[subject=&lt;nul...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@155fa6e[subject=&lt;null&gt;,cause=&lt;null&gt;,subjectFindResult=&lt;null&gt;,subjectId=GrouperSystem,subjectIdentifier=&lt;null&gt;,subjectSourceId=&lt;null&gt;], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING
+    <resultMessage>Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE
 , params: null</resultMessage>
     <success>T</success>
     <httpStatusCode>200</httpStatusCode>
@@ -52,14 +53,14 @@ Connection: close
   <wsSubject>
     <resultCode>SUCCESS</resultCode>
     <success>T</success>
-    <id>10021368</id>
-    <sourceId>qsuob</sourceId>
+    <id>test.subject.0</id>
+    <sourceId>jdbc</sourceId>
   </wsSubject>
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>-1</millis>
-    <millisStart>1206945866661</millisStart>
-    <serverVersion>v1_3_000</serverVersion>
+    <millisStart>1225141714551</millisStart>
+    <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
   <wsGroup>
     <extension>aGroup</extension>
@@ -67,7 +68,7 @@ Connection: close
     <description>a group description</description>
     <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>c6c0bf03-9cb5-4965-9dcb-520020d5da51</uuid>
+    <uuid>86cf72d4-8334-43ee-bf0e-ff882cdfa5fe</uuid>
   </wsGroup>
 </WsDeleteMemberLiteResult>
 
@@ -85,15 +86,17 @@ Connection: close
 package edu.internet2.middleware.grouper.ws.samples.rest.member;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
@@ -110,27 +113,31 @@ public class WsSampleDeleteMemberRestLite2 implements WsSampleRest {
    * delete member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
+  @SuppressWarnings("deprecation")
   public static void deleteMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
       
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/groups/aStem%3AaGroup/members/sources/qsuob/subjectId/10021368");
+            + "/groups/aStem%3AaGroup/members/sources/jdbc/subjectId/test.subject.0");
       
       httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
-          ManualClientSettings.PASS);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
       
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
       //e.g. localhost and 8093
       httpClient.getState()
-          .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -220,6 +227,7 @@ public class WsSampleDeleteMemberRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@15f80d4[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@102e62e[subject=<nul...
-, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@155fa6e[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: READ_WRITE_OR_USE_EXISTING
+Server version: v1_4_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+
+, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE
 , params: null

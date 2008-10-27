@@ -1,11 +1,10 @@
 /*
- * @author mchyzer $Id: WsResultMeta.java,v 1.4 2008-10-21 18:12:34 mchyzer Exp $
+ * @author mchyzer $Id: WsResultMeta.java,v 1.5 2008-10-27 21:28:14 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
 import org.apache.commons.lang.StringUtils;
-
-import com.thoughtworks.xstream.annotations.XStreamOmitField;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -17,34 +16,26 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  */
 public class WsResultMeta {
 
+  /**
+   * make sure this is an explicit toString
+   */
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
+  }
+
   /** params for result */
   private WsParam[] params = null;
   
-  /** stash this just in case, but not a javabean */
-  @XStreamOmitField
-  private WsResultCode wsResultCode;
-
-  /**
-   * get result code (non javabean)
-   * @return ws result bean
-   */
-  public WsResultCode retrieveWsResultCode() {
-    return this.wsResultCode;
-  }
-
   /**
    * copy fields from another result meta.  will append warnings
    * and errors
    * @param wsResultMeta
    */
   public void copyFields(WsResultMeta wsResultMeta) {
-    if (wsResultMeta.wsResultCode != null) {
-      this.assignResultCode(wsResultMeta.wsResultCode);
-    } else {
-      this.httpStatusCode = wsResultMeta.httpStatusCode;
-      this.resultCode = wsResultMeta.resultCode;
-      this.success = wsResultMeta.success;
-    }
+    this.httpStatusCode = wsResultMeta.httpStatusCode;
+    this.resultCode = wsResultMeta.resultCode;
+    this.success = wsResultMeta.success;
     this.appendResultMessage(wsResultMeta.getResultMessage());
     this.setResultCode2(wsResultMeta.getResultCode2());
   }
@@ -176,7 +167,6 @@ public class WsResultMeta {
    * @param wsResultCode1 bean
    */
   public void assignResultCode(WsResultCode wsResultCode1) {
-    this.wsResultCode = wsResultCode1;
     this.assignResultCode(wsResultCode1.name());
     this.assignSuccess(GrouperServiceUtils.booleanToStringOneChar(wsResultCode1
         .isSuccess()));

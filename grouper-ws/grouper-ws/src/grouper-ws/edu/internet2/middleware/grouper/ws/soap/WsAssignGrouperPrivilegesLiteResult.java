@@ -4,6 +4,7 @@
 package edu.internet2.middleware.grouper.ws.soap;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -25,6 +26,14 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * @author mchyzer
  */
 public class WsAssignGrouperPrivilegesLiteResult implements WsResponseBean {
+
+  /**
+   * make sure this is an explicit toString
+   */
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
+  }
 
   /**
    * assign the code from the enum
@@ -143,7 +152,7 @@ public class WsAssignGrouperPrivilegesLiteResult implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsAssignGrouperPrivilegesLiteResultCode implements WsResultCode {
+  public static enum WsAssignGrouperPrivilegesLiteResultCode implements WsResultCode {
 
     /** made the update to allow (rest http status code 200) (success: T) */
     SUCCESS_ALLOWED(200),
@@ -152,16 +161,16 @@ public class WsAssignGrouperPrivilegesLiteResult implements WsResponseBean {
     SUCCESS_ALLOWED_ALREADY_EXISTED(200),
 
     /** made the update to deny (rest http status code 200) (success: T) */
-    SUCCESS_DENIED(200),
+    SUCCESS_NOT_ALLOWED(200),
 
     /** made the update to deny the immediate privilege, though the user still has an effective privilege, so is still allowed (rest http status code 200) (success: T) */
-    SUCCESS_DENIED_EXISTS_EFFECTIVE(200),
+    SUCCESS_NOT_ALLOWED_EXISTS_EFFECTIVE(200),
 
     /** privilege deny already existed (rest http status code 200) (success: T) */
-    SUCCESS_DENIED_DIDNT_EXIST(200),
+    SUCCESS_NOT_ALLOWED_DIDNT_EXIST(200),
 
     /** privilege deny already existed (rest http status code 200) (success: T) */
-    SUCCESS_DENIED_DIDNT_EXIST_BUT_EXISTS_EFFECTIVE(200),
+    SUCCESS_NOT_ALLOWED_DIDNT_EXIST_BUT_EXISTS_EFFECTIVE(200),
 
     /** some exception occurred (rest http status code 500) (success: F) */
     EXCEPTION(500),

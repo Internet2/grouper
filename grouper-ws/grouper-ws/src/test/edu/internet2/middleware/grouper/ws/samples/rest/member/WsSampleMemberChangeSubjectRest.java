@@ -37,8 +37,6 @@ public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
 
     try {
       
-      RestClientSettings.resetData();
-      
       HttpClient httpClient = new HttpClient();
       
       DefaultHttpParams.getDefaultParams().setParameter(
@@ -143,6 +141,9 @@ public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
+
+    RestClientSettings.resetData();
+    
     memberChangeSubject(WsSampleRestType.xhtml);
   }
 
@@ -157,6 +158,7 @@ public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
-    return true;
+    //dont allow http params
+    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
   }
 }

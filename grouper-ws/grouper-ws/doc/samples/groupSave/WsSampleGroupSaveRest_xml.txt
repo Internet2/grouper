@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manually written lite/rest, format: xml, for version: v1_3_000
+Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manually written lite/rest, format: xml, for version: v1_4_000
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manuall
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_3_000/groups HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
-User-Agent: Jakarta Commons-HttpClient/3.0.1
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 615
 Content-Type: text/xml; charset=UTF-8
@@ -55,11 +55,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=0439483666325524C39296C4EF917436; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 31 Mar 2008 06:50:17 GMT
+Date: Mon, 27 Oct 2008 21:16:13 GMT
 Connection: close
 
 <WsGroupSaveResults>
@@ -71,7 +72,7 @@ Connection: close
         <description>desc1</description>
         <displayName>a stem:disp1</displayName>
         <name>aStem:whateverGroup</name>
-        <uuid>adf9ce65-4a36-437f-b3f4-ec8b253cf512</uuid>
+        <uuid>deddf9c9-49ff-4d0f-ac7a-dce1c57beeaa</uuid>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS</resultCode>
@@ -87,7 +88,7 @@ Connection: close
         <description>descs</description>
         <displayName>a stem:disp2</displayName>
         <name>aStem:whateverGroup2</name>
-        <uuid>4783ca71-1d87-4b5a-b079-947e867b7910</uuid>
+        <uuid>60f2a275-cabb-4ce5-bca6-a841c15397b4</uuid>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS</resultCode>
@@ -98,9 +99,10 @@ Connection: close
     </WsGroupSaveResult>
   </results>
   <resultMetadata>
-    <wsResultCode class="edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults$WsGroupSaveResultsCode">SUCCESS</wsResultCode>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_3_000, wsGroupToSaves: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupToSave@1bbbe80[wsGroupLookup=edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@d7c870[group=&lt;null&gt;,uuid=&lt;null&gt;,groupName=aSt...
+    <resultMessage>Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
+wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroup],
+wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name=aStem:whatev...
 , actAsSubject: null, txType: NONE, paramNames:
 , params: null</resultMessage>
     <success>T</success>
@@ -109,8 +111,8 @@ Connection: close
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>-1</millis>
-    <millisStart>1206946216975</millisStart>
-    <serverVersion>v1_3_000</serverVersion>
+    <millisStart>1225142172726</millisStart>
+    <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
 </WsGroupSaveResults>
 
@@ -128,22 +130,24 @@ Connection: close
 package edu.internet2.middleware.grouper.ws.samples.rest.group;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsGroup;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupToSave;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
@@ -156,26 +160,30 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
    * group save lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
+  @SuppressWarnings("deprecation")
   public static void groupSaveLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
       
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
             + "/groups");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
-          ManualClientSettings.PASS);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
 
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
       //e.g. localhost and 8093
       httpClient.getState()
-          .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -286,6 +294,8 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupToSaves: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupToSave@1bbbe80[wsGroupLookup=edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@d7c870[group=<null>,uuid=<null>,groupName=aSt...
+Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[
+  wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroup],
+  wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name=aStem:whatev...
 , actAsSubject: null, txType: NONE, paramNames: 
 , params: null

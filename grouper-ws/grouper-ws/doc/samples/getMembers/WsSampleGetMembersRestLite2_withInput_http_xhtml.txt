@@ -1,4 +1,4 @@
-Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite2, manually written lite/rest, type: _withInput, format: http_xhtml, for version: v1_3_000
+Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite2, manually written lite/rest, type: _withInput, format: http_xhtml, for version: v1_4_000
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite2, 
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_3_000/groups/aStem%3AaGroup/members HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
-User-Agent: Jakarta Commons-HttpClient/3.0.1
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 73
 
@@ -29,11 +29,12 @@ wsLiteObjectType=WsRestGetMembersLiteRequest&actAsSubjectId=GrouperSystem
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=34531F4F394989BB041EF1C8AC7413C5; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 31 Mar 2008 06:47:27 GMT
+Date: Mon, 27 Oct 2008 21:12:06 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -47,17 +48,17 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1fa6743[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>]
+        <p class="resultMessage">Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
 
-, memberFilter: All, includeSubjectDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@919610[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, subjectAttributeNames: null
+, memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, subjectAttributeNames: null
 , paramNames:
 , params: null</p>
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">62</p>
+        <p class="millis">406</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">v1_3_000</p>
+        <p class="serverVersion">v1_4_000</p>
       </div>
       <div class="wsGroup" title="WsGroup">
         <p class="name">aStem:aGroup</p>
@@ -65,16 +66,30 @@ Connection: close
         <p class="description">a group description</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
-        <p class="uuid">c6c0bf03-9cb5-4965-9dcb-520020d5da51</p>
+        <p class="uuid">5d430dc5-4963-40f9-8c09-694a53f40d03</p>
         <p class="displayExtension">a group</p>
       </div>
       <ul class="wsSubjects">
+        <li title="WsSubject">
+          <p class="name" />
+          <p class="id">10039438</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
+          <p class="sourceId">pennperson</p>
+        </li>
         <li title="WsSubject">
           <p class="name" />
           <p class="id">GrouperSystem</p>
           <p class="resultCode">SUCCESS</p>
           <p class="success">T</p>
           <p class="sourceId">g:isa</p>
+        </li>
+        <li title="WsSubject">
+          <p class="name" />
+          <p class="id">10021368</p>
+          <p class="resultCode">SUCCESS</p>
+          <p class="success">T</p>
+          <p class="sourceId">pennperson</p>
         </li>
       </ul>
     </div>
@@ -95,15 +110,17 @@ Connection: close
 package edu.internet2.middleware.grouper.ws.samples.rest.member;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
@@ -120,11 +137,15 @@ public class WsSampleGetMembersRestLite2 implements WsSampleRest {
    * get members lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
+  @SuppressWarnings("deprecation")
   public static void getMembersLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
-      
+
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
@@ -132,15 +153,15 @@ public class WsSampleGetMembersRestLite2 implements WsSampleRest {
             + "/groups/aStem%3AaGroup/members");
       
       httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
-          ManualClientSettings.PASS);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
       
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
       //e.g. localhost and 8093
       httpClient.getState()
-          .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -230,8 +251,8 @@ public class WsSampleGetMembersRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1fa6743[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>]
+Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup]
 
-, memberFilter: All, includeSubjectDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@919610[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, subjectAttributeNames: null
+, memberFilter: All, includeSubjectDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, subjectAttributeNames: null
 , paramNames: 
 , params: null

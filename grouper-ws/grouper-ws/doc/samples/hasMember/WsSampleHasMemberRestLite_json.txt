@@ -1,4 +1,4 @@
-Grouper web service sample of service: hasMember, WsSampleHasMemberRestLite, manually written lite/rest, format: json, for version: v1_3_000
+Grouper web service sample of service: hasMember, WsSampleHasMemberRestLite, manually written lite/rest, format: json, for version: v1_4_000
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: hasMember, WsSampleHasMemberRestLite, man
 #########################################
 
 
-GET /grouper-ws/servicesRest/json/v1_3_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
+GET /grouperWs/servicesRest/json/v1_4_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
 Connection: close
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
-User-Agent: Jakarta Commons-HttpClient/3.0.1
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
 
@@ -26,14 +26,12 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Pragma: No-cache
-Cache-Control: no-cache
-Expires: Wed, 31 Dec 1969 19:00:00 EST
+Set-Cookie: JSESSIONID=36028F96D14E959834DF62364D55FB7F; Path=/grouperWs
 X-Grouper-resultCode: IS_MEMBER
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Wed, 02 Apr 2008 08:07:53 GMT
+Date: Mon, 27 Oct 2008 21:09:38 GMT
 Connection: close
 
 {
@@ -44,29 +42,25 @@ Connection: close
       "description":"a group description",
       "displayName":"a stem:a group",
       "name":"aStem:aGroup",
-      "uuid":"c6c0bf03-9cb5-4965-9dcb-520020d5da51"
+      "uuid":"76da0c17-485c-4b0a-8ebb-24ebe2e8b513"
     },
     "resultMetadata":{
-      "wsResultCode":{
-        "@class":"edu.internet2.middleware.grouper.ws.soap.WsHasMemberLiteResult$WsHasMemberLiteResultCode",
-        "$":"IS_MEMBER"
-      },
       "resultCode":"IS_MEMBER",
-      "resultMessage":"Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@e3262f[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@dff6e3[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId=...\n memberFilter: All, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1c9e4d2[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n,params: null\n",
+      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\n memberFilter: All, actAsSubject: WsSubjectLookup[], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n,params: null\n",
       "success":"T",
-      "httpStatusCode":200
+      "httpStatusCode":"200"
     },
     "responseMetadata":{
       "resultWarnings":"",
-      "millis":-1,
-      "millisStart":1207123673292,
-      "serverVersion":"v1_3_000"
+      "millis":"-1",
+      "millisStart":"1225141777786",
+      "serverVersion":"v1_4_000"
     },
     "wsSubject":{
       "resultCode":"SUCCESS",
       "success":"T",
-      "id":10021368,
-      "sourceId":"qsuob"
+      "id":"10021368",
+      "sourceId":"pennperson"
     }
   }
 }
@@ -85,11 +79,14 @@ Connection: close
 package edu.internet2.middleware.grouper.ws.samples.rest.member;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
@@ -106,11 +103,15 @@ public class WsSampleHasMemberRestLite implements WsSampleRest {
    * has member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
+  @SuppressWarnings("deprecation")
   public static void hasMemberLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
       
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       GetMethod method = new GetMethod(
@@ -195,7 +196,8 @@ public class WsSampleHasMemberRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: IS_MEMBER, result message: Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@e3262f[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 1: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@dff6e3[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=10021368,subjectIdentifier=<null>,subjectSourceId=...
- memberFilter: All, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1c9e4d2[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=<null>,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
+Server version: v1_4_000, result code: IS_MEMBER, result message: Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+
+ memberFilter: All, actAsSubject: WsSubjectLookup[], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null
 

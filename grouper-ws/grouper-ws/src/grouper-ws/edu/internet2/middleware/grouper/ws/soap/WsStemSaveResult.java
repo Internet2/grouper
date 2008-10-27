@@ -60,7 +60,7 @@ public class WsStemSaveResult {
   /**
    * result code of a request
    */
-  public enum WsStemSaveResultCode {
+  public static enum WsStemSaveResultCode {
 
     /** successful addition */
     SUCCESS {

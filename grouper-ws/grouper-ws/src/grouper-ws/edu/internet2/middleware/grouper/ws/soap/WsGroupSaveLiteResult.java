@@ -28,7 +28,7 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsGroupSaveLiteResultCode implements WsResultCode {
+  public static enum WsGroupSaveLiteResultCode implements WsResultCode {
 
     /** found the groups, saved them (lite http status code 201) (success: T) */
     SUCCESS(201),

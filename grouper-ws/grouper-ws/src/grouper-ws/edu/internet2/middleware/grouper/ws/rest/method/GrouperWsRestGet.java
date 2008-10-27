@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsRestGet.java,v 1.5 2008-03-30 09:01:03 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsRestGet.java,v 1.6 2008-10-27 21:28:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.method;
 
@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
@@ -119,6 +120,39 @@ public enum GrouperWsRestGet {
       }
       throw new RuntimeException("Invalid get stem request: " + clientVersion 
           + ", " + stemName + ", " + operation + ", " + GrouperUtil.toStringForLog(urlStrings) + ", " + GrouperUtil.className(requestObject));
+    }
+
+  },
+  
+  /** grouperPrivileges get requests */
+  grouperPrivileges {
+
+    /**
+     * handle the incoming request based on GET HTTP method and group resource
+     * @param clientVersion version of client, e.g. v1_3_000
+     * @param urlStrings not including the app name or servlet.  
+     * for http://localhost/grouper-ws/servicesRest/xhtml/v3_0_000/grouperPrivileges
+     * the urlStrings would be size one: {"grouperPrivileges"}
+     * @param requestObject is the request body converted to object
+     * @return the result object
+     */
+    @Override
+    public WsResponseBean service(
+        GrouperWsVersion clientVersion, List<String> urlStrings,
+        WsRequestBean requestObject) {
+
+      //handle the URL: /groups with nothing after...
+      if (urlStrings.size() == 0) {
+        
+        if (requestObject instanceof WsRestGetGrouperPrivilegesLiteRequest) {
+          
+          //find stems
+          return GrouperServiceRest.getGrouperPrivilegesLite(clientVersion,
+              (WsRestGetGrouperPrivilegesLiteRequest)requestObject);
+        }
+      }
+      throw new RuntimeException("Invalid get grouper privileges request: " + clientVersion 
+          + ", " + GrouperUtil.toStringForLog(urlStrings) + ", " + GrouperUtil.className(requestObject));
     }
 
   },

@@ -33,7 +33,7 @@ public class WsHasMemberResults implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsHasMemberResultsCode implements WsResultCode {
+  public static enum WsHasMemberResultsCode implements WsResultCode {
 
     /** problem discovering if each was a member of not (lite http status code 500) (success: F) */
     PROBLEM_CHECKING_MEMBERS(500),

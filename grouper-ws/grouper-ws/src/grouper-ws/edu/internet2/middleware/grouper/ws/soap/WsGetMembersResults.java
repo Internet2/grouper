@@ -40,7 +40,7 @@ public class WsGetMembersResults implements WsResponseBean {
    * of WsGetMembersResultCode (with http status codes) are:
    * SUCCESS(200), EXCEPTION(500), INVALID_QUERY(400)
    */
-  public enum WsGetMembersResultsCode implements WsResultCode {
+  public static enum WsGetMembersResultsCode implements WsResultCode {
 
     /** found the members (lite status code 200) (success: T) */
     SUCCESS(200),

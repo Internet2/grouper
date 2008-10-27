@@ -48,8 +48,6 @@ import edu.internet2.middleware.grouper.ws.rest.WsRestClassLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsParam;
 import edu.internet2.middleware.grouper.ws.soap.WsResultMeta;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsViewOrEditPrivilegesResults;
-import edu.internet2.middleware.grouper.ws.soap.WsViewOrEditPrivilegesResults.WsViewOrEditPrivilegesResultsCode;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -892,45 +890,6 @@ public final class GrouperServiceUtils {
       }
     }
     return result;
-  }
-
-  /**
-   * see if privilege is true or false and error handle and add to list to
-   * process
-   * 
-   * @param allowedString
-   * @param propertyName
-   * @param privilegesToAssign
-   * @param privilegesToRevoke
-   * @param privilege
-   * @param wsViewOrEditPrivilegesResults
-   * @return true if ok, false if not and done
-   */
-  public static boolean processPrivilegesHelper(String allowedString,
-      String propertyName, List<Privilege> privilegesToAssign,
-      List<Privilege> privilegesToRevoke, Privilege privilege,
-      WsViewOrEditPrivilegesResults wsViewOrEditPrivilegesResults) {
-    // lets validate all the privileges
-    Boolean allowedBoolean = null;
-    try {
-      allowedBoolean = GrouperUtil.booleanObjectValue(allowedString);
-      // see if we need to add to either the assign or revoke
-      if (allowedBoolean != null) {
-        if (allowedBoolean) {
-          privilegesToAssign.add(privilege);
-        } else {
-          privilegesToRevoke.add(privilege);
-        }
-      }
-    } catch (Exception e) {
-      wsViewOrEditPrivilegesResults
-          .assignResultCode(WsViewOrEditPrivilegesResultsCode.INVALID_QUERY);
-      wsViewOrEditPrivilegesResults.getResultMetadata().appendResultMessage(
-          "Invalid " + propertyName + ": " + ExceptionUtils.getFullStackTrace(e));
-      return false;
-
-    }
-    return true;
   }
 
   /**

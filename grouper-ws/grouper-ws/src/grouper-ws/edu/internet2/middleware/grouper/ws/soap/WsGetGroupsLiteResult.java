@@ -32,7 +32,7 @@ public class WsGetGroupsLiteResult implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsGetGroupsLiteResultCode implements WsResultCode {
+  public static enum WsGetGroupsLiteResultCode implements WsResultCode {
 
     /** found the subject (rest http status code 200) (success: T) */
     SUCCESS(200),

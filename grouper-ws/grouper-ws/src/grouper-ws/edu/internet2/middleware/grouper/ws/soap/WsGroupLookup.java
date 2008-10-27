@@ -43,7 +43,7 @@ public class WsGroupLookup {
   private Group group = null;
 
   /** result of group find */
-  public enum GroupFindResult {
+  public static enum GroupFindResult {
 
     /** found the group */
     SUCCESS {

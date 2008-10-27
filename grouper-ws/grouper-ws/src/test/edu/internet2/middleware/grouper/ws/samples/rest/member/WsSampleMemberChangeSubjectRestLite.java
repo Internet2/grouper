@@ -35,8 +35,6 @@ public class WsSampleMemberChangeSubjectRestLite implements WsSampleRest {
 
     try {
       
-      RestClientSettings.resetData();
-      
       HttpClient httpClient = new HttpClient();
       
       DefaultHttpParams.getDefaultParams().setParameter(
@@ -126,6 +124,8 @@ public class WsSampleMemberChangeSubjectRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
+
+    RestClientSettings.resetData();
     memberChangeSubjectLite(WsSampleRestType.xhtml);
   }
 

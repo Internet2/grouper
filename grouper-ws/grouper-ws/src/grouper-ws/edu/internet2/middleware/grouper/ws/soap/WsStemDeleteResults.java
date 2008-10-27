@@ -30,7 +30,7 @@ public class WsStemDeleteResults implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsStemDeleteResultsCode implements WsResultCode {
+  public static enum WsStemDeleteResultsCode implements WsResultCode {
 
     /** found the stems, deleted them (lite http status code 200) (success: T) */
     SUCCESS(200),

@@ -1,4 +1,4 @@
-Grouper web service sample of service: findGroups, WsSampleFindGroupsRest, manually written lite/rest, format: xhtml, for version: v1_3_000
+Grouper web service sample of service: findGroups, WsSampleFindGroupsRest, manually written lite/rest, format: xhtml, for version: v1_4_000
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: findGroups, WsSampleFindGroupsRest, manua
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_3_000/groups HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
-User-Agent: Jakarta Commons-HttpClient/3.0.1
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 992
 Content-Type: application/xhtml+xml; charset=UTF-8
@@ -27,8 +27,8 @@ Content-Type: application/xhtml+xml; charset=UTF-8
     <div title="WsRestFindGroupsRequest">
       <p class="clientVersion" />
       <div class="actAsSubjectLookup" title="WsSubjectLookup">
-        <p class="subjectId">GrouperSystem</p>
         <p class="subjectSourceId" />
+        <p class="subjectId">GrouperSystem</p>
         <p class="subjectIdentifier" />
       </div>
       <p class="includeGroupDetail" />
@@ -38,12 +38,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
         <p class="stemName">aStem</p>
         <p class="queryFilterType">FIND_BY_GROUP_NAME_APPROXIMATE</p>
         <p class="stemNameScope" />
-        <p class="queryTerm" />
         <p class="groupAttributeName" />
+        <p class="groupAttributeValue" />
         <p class="groupTypeName" />
+        <p class="queryTerm" />
         <div class="queryFilter0" title="WsQueryFilter" />
         <div class="queryFilter1" title="WsQueryFilter" />
-        <p class="groupAttributeValue" />
       </div>
     </div>
   </body>
@@ -60,11 +60,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=56BE64A79D0DF0A55A7F292A6EB13FEC; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 31 Mar 2008 06:47:42 GMT
+Date: Mon, 27 Oct 2008 21:12:14 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -78,15 +79,15 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_3_000, wsQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsQueryFilter@bd33f3[grouperSession=&lt;null>,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem,stemNameScope=&lt;null>,groupUuid=&lt;null>,groupAttributeValue=&lt;null>,groupAttributeName=&lt;null>,groupTypeName=&lt;null>,queryFilter0=&lt;null>,queryFilter1=&lt;null>]
-, includeGroupDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@19dd265[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], paramNames:
+        <p class="resultMessage">Success for: clientVersion: v1_4_000, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
+, includeGroupDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames:
 , params: null</p>
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">5016</p>
+        <p class="millis">859</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">v1_3_000</p>
+        <p class="serverVersion">v1_4_000</p>
       </div>
       <ul class="groupResults">
         <li title="WsGroup">
@@ -95,17 +96,8 @@ Connection: close
           <p class="description">a group description2</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">aGroup2</p>
-          <p class="uuid">f717c011-91c4-4684-8a4d-287be9ffe0bb</p>
+          <p class="uuid">220ad020-374a-4e5e-b3a7-d4c32773b2c8</p>
           <p class="displayExtension">a group2</p>
-        </li>
-        <li title="WsGroup">
-          <p class="name">aStem:aGroupToSave</p>
-          <p class="displayName">a stem:disp1</p>
-          <p class="description">desc1</p>
-          <div class="detail" title="WsGroupDetail" />
-          <p class="extension">aGroupToSave</p>
-          <p class="uuid">0bb7de04-bdd4-4371-810b-053db0052bf9</p>
-          <p class="displayExtension">disp1</p>
         </li>
         <li title="WsGroup">
           <p class="name">aStem:aGroup</p>
@@ -113,7 +105,7 @@ Connection: close
           <p class="description">a group description</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">aGroup</p>
-          <p class="uuid">c6c0bf03-9cb5-4965-9dcb-520020d5da51</p>
+          <p class="uuid">5d430dc5-4963-40f9-8c09-694a53f40d03</p>
           <p class="displayExtension">a group</p>
         </li>
       </ul>
@@ -135,15 +127,17 @@ Connection: close
 package edu.internet2.middleware.grouper.ws.samples.rest.group;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
 import edu.internet2.middleware.grouper.ws.query.WsQueryFilterType;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsRequest;
@@ -163,11 +157,15 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
    * find group lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
+  @SuppressWarnings("deprecation")
   public static void findGroupsLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
       
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
@@ -175,15 +173,15 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
             + "/groups");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
-          ManualClientSettings.PASS);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
 
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
       //e.g. localhost and 8093
       httpClient.getState()
-          .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -282,6 +280,6 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsQueryFilter: edu.internet2.middleware.grouper.ws.soap.WsQueryFilter@bd33f3[grouperSession=<null>,queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem,stemNameScope=<null>,groupUuid=<null>,groupAttributeValue=<null>,groupAttributeName=<null>,groupTypeName=<null>,queryFilter0=<null>,queryFilter1=<null>]
-, includeGroupDetail: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@19dd265[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], paramNames: 
+Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]
+, includeGroupDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], paramNames: 
 , params: null

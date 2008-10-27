@@ -4,6 +4,7 @@
 package edu.internet2.middleware.grouper.ws.soap;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +28,14 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * @author mchyzer
  */
 public class WsGetGrouperPrivilegesLiteResult implements WsResponseBean {
+
+  /**
+   * make sure this is an explicit toString
+   */
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
+  }
 
   /**
    * assign the code from the enum
@@ -145,7 +154,7 @@ public class WsGetGrouperPrivilegesLiteResult implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsGetGrouperPrivilegesLiteResultCode implements WsResultCode {
+  public static enum WsGetGrouperPrivilegesLiteResultCode implements WsResultCode {
 
     /** didnt have problems (rest http status code 200) (success: T) */
     SUCCESS(200),
@@ -189,7 +198,7 @@ public class WsGetGrouperPrivilegesLiteResult implements WsResponseBean {
      * @return true if success
      */
     public boolean isSuccess() {
-      return this == SUCCESS;
+      return this.name().startsWith("SUCCESS");
     }
 
     /** http status code for rest/lite e.g. 200 */

@@ -60,7 +60,7 @@ public class WsGroupDeleteResult {
   /**
    * result code of a request
    */
-  public enum WsGroupDeleteResultCode {
+  public static enum WsGroupDeleteResultCode {
 
     /** in group lookup, the uuid doesnt match name */
     GROUP_UUID_DOESNT_MATCH_NAME {

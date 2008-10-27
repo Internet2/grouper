@@ -42,7 +42,7 @@ public class WsGetMembersResult {
    * of WsGetMembersResultCode (with http status codes) are:
    * SUCCESS(200), EXCEPTION(500), INVALID_QUERY(400)
    */
-  public enum WsGetMembersResultCode {
+  public static enum WsGetMembersResultCode {
 
     /** cant find group  */
     GROUP_NOT_FOUND {

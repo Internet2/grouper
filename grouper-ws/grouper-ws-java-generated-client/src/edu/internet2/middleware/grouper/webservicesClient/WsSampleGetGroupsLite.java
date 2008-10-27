@@ -14,6 +14,7 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 
@@ -85,6 +86,12 @@ public class WsSampleGetGroupsLite implements WsSampleGenerated {
                             wsGroup));
                 }
             }
+            
+            if (!StringUtils.equals("T", 
+                wsGetGroupsLiteResult.getResultMetadata().getSuccess())) {
+              throw new RuntimeException("didnt get success! ");
+            }
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

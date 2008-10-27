@@ -31,7 +31,7 @@ public class WsAddMemberResults implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsAddMemberResultsCode implements WsResultCode {
+  public static enum WsAddMemberResultsCode implements WsResultCode {
 
     /** cant find group (rest http status code 404) (success: F) */
     GROUP_NOT_FOUND(404),

@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.ws.soap;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -21,9 +22,17 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 public class WsSubject {
 
   /**
+   * make sure this is an explicit toString
+   */
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
+  }
+
+  /**
    * result code of a request
    */
-  public enum WsSubjectResultCode {
+  public static enum WsSubjectResultCode {
 
     /** found the stem (or not) */
     SUCCESS,

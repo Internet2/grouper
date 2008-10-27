@@ -27,7 +27,7 @@ public class WsFindGroupsResults implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsFindGroupsResultsCode implements WsResultCode {
+  public static enum WsFindGroupsResultsCode implements WsResultCode {
 
     /** found the subject (lite http status code 200) (success: F) */
     SUCCESS(200),

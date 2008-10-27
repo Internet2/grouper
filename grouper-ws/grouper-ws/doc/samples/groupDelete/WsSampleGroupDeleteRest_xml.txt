@@ -1,4 +1,4 @@
-Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRest, manually written lite/rest, format: xml, for version: v1_3_000
+Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRest, manually written lite/rest, format: xml, for version: v1_4_000
 
 
 #########################################
@@ -9,10 +9,10 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRest, man
 #########################################
 
 
-POST /grouper-ws/servicesRest/v1_3_000/groups HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
-User-Agent: Jakarta Commons-HttpClient/3.0.1
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 223
 Content-Type: text/xml; charset=UTF-8
@@ -39,11 +39,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=9A8C19CAAB1D0472620559B7BC91D9F4; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 31 Mar 2008 06:49:56 GMT
+Date: Mon, 27 Oct 2008 21:15:40 GMT
 Connection: close
 
 <WsGroupDeleteResults>
@@ -55,7 +56,8 @@ Connection: close
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS_GROUP_NOT_FOUND</resultCode>
-        <resultMessage>Cant find group: &apos;edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@107d752[group=&lt;null&gt;,uuid=&lt;null&gt;,groupName=aStem:whatever,groupFindResult=GROUP_NOT_FOUND]&apos;.  </resultMessage>
+        <resultMessage>Cant find group: &apos;WsGroupLookup[groupName=aStem:whatever,
+groupFindResult=GROUP_NOT_FOUND]&apos;.  </resultMessage>
         <success>T</success>
         <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
@@ -67,17 +69,18 @@ Connection: close
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS_GROUP_NOT_FOUND</resultCode>
-        <resultMessage>Cant find group: &apos;edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@1c95033[group=&lt;null&gt;,uuid=&lt;null&gt;,groupName=aStem:whatever2,groupFindResult=GROUP_NOT_FOUND]&apos;.  </resultMessage>
+        <resultMessage>Cant find group: &apos;WsGroupLookup[groupName=aStem:whatever2,
+groupFindResult=GROUP_NOT_FOUND]&apos;.  </resultMessage>
         <success>T</success>
         <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
     </WsGroupDeleteResult>
   </results>
   <resultMetadata>
-    <wsResultCode class="edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResults$WsGroupDeleteResultsCode">SUCCESS</wsResultCode>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@107d752[group=&lt;null&gt;,uuid=&lt;null&gt;,groupName=aStem:whatever,groupFindResult=&lt;null&gt;]
-[1]: edu.internet2.middleware.grouper.ws...
+    <resultMessage>Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 2: [0]: WsGroupLookup[groupName=aStem:whatever]
+[1]: WsGroupLookup[groupName=aStem:whatever2]
+
 , actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames:
 , params: null</resultMessage>
     <success>T</success>
@@ -86,8 +89,8 @@ Connection: close
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>-1</millis>
-    <millisStart>1206946196022</millisStart>
-    <serverVersion>v1_3_000</serverVersion>
+    <millisStart>1225142140507</millisStart>
+    <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
 </WsGroupDeleteResults>
 
@@ -105,15 +108,17 @@ Connection: close
 package edu.internet2.middleware.grouper.ws.samples.rest.group;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.webservicesClient.util.ManualClientSettings;
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupDeleteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
@@ -131,26 +136,30 @@ public class WsSampleGroupDeleteRest implements WsSampleRest {
    * group delete lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
+  @SuppressWarnings("deprecation")
   public static void groupDeleteLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
       
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
             + "/groups");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
-      Credentials defaultcreds = new UsernamePasswordCredentials(ManualClientSettings.USER, 
-          ManualClientSettings.PASS);
+      Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
+          RestClientSettings.PASS);
 
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
       //e.g. localhost and 8093
       httpClient.getState()
-          .setCredentials(new AuthScope(ManualClientSettings.HOST, ManualClientSettings.PORT), defaultcreds);
+          .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -243,7 +252,8 @@ public class WsSampleGroupDeleteRest implements WsSampleRest {
 #########################################
 
 
-Server version: v1_3_000, result code: SUCCESS, result message: Success for: clientVersion: v1_3_000, wsGroupLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@107d752[group=<null>,uuid=<null>,groupName=aStem:whatever,groupFindResult=<null>]
-[1]: edu.internet2.middleware.grouper.ws...
+Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 2: [0]: WsGroupLookup[groupName=aStem:whatever]
+[1]: WsGroupLookup[groupName=aStem:whatever2]
+
 , actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames: 
 , params: null

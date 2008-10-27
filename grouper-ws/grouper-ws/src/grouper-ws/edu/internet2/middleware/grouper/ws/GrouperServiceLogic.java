@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.13 2008-10-27 10:03:31 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.14 2008-10-27 21:28:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -2784,7 +2784,8 @@ public class GrouperServiceLogic {
   
       theSummary = "clientVersion: " + clientVersion + ", wsSubject: "
           + subjectLookup + ", group: " +  wsGroupLookup + ", stem: " + wsStemLookup 
-          + ", privilege: " + privilegeType.name() + "-" + privilegeName.getName()
+          + ", privilege: " + (privilegeType == null ? null : privilegeType.name()) 
+          + "-" + (privilegeName == null ? null : privilegeName.getName())
           + ", actAsSubject: "
           + actAsSubjectLookup 
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
@@ -2826,6 +2827,11 @@ public class GrouperServiceLogic {
 
         } else if (wsStemLookup.hasData()) {
 
+          if (!privilegeType.equals(PrivilegeType.NAMING)) {
+            throw new WsInvalidQueryException("If you are querying a group, you need to pass in an " +
+                "access privilege type: '" + privilegeType + "'");
+          }
+
           wsStemLookup.retrieveStemIfNeeded(session, true);
           Stem stem = wsStemLookup.retrieveStem();
 
@@ -2842,7 +2848,10 @@ public class GrouperServiceLogic {
         }
 
         WsGrouperPrivilegeResult[] privilegeResults = new WsGrouperPrivilegeResult[privileges.size()];
-
+        if (privileges.size() > 0) {
+          wsGetGrouperPrivilegesLiteResult.setPrivilegeResults(privilegeResults);
+        }
+        
         int i=0;
         for (GrouperPrivilege grouperPrivilege : privileges) {
           
@@ -3348,7 +3357,7 @@ public class GrouperServiceLogic {
 
         if (subject != null) {
 
-          boolean privilegeAlreadyExisted = false;
+          boolean privilegeDidntAlreadyExist = false;
           boolean privilegeStillExists = false;
           if (wsGroupLookup.hasData()) {
             
@@ -3359,10 +3368,12 @@ public class GrouperServiceLogic {
   
             Group group = wsGroupLookup.retrieveGroupIfNeeded(session, "wsGroupLookup");
             
+            wsAssignGrouperPrivilegesLiteResult.setWsGroup(new WsGroup(group, wsGroupLookup, includeGroupDetail));
+            
             if (allowed) {
-              privilegeAlreadyExisted = group.grantPriv(subject, privilegeName, false);
+              privilegeDidntAlreadyExist = group.grantPriv(subject, privilegeName, false);
             } else {
-              privilegeAlreadyExisted = group.revokePriv(subject, privilegeName, false);
+              privilegeDidntAlreadyExist = group.revokePriv(subject, privilegeName, false);
               Set<AccessPrivilege> privileges = group.getPrivs(subject);
               
               for (AccessPrivilege accessPrivilege : GrouperUtil.nonNull(privileges)) {
@@ -3376,11 +3387,16 @@ public class GrouperServiceLogic {
   
             wsStemLookup.retrieveStemIfNeeded(session, true);
             Stem stem = wsStemLookup.retrieveStem();
-            
-            if (allowed) {
-              privilegeAlreadyExisted = stem.grantPriv(subject, privilegeName, false);
+            if (stem != null) {
+              wsAssignGrouperPrivilegesLiteResult.setWsStem(new WsStem(stem));
             } else {
-              privilegeAlreadyExisted = stem.revokePriv(subject, privilegeName, false);
+              wsAssignGrouperPrivilegesLiteResult.setWsStem(new WsStem(wsStemLookup));
+            }
+
+            if (allowed) {
+              privilegeDidntAlreadyExist = stem.grantPriv(subject, privilegeName, false);
+            } else {
+              privilegeDidntAlreadyExist = stem.revokePriv(subject, privilegeName, false);
               Set<NamingPrivilege> privileges = stem.getPrivs(subject);
               
               for (NamingPrivilege namingPrivilege : GrouperUtil.nonNull(privileges)) {
@@ -3401,23 +3417,23 @@ public class GrouperServiceLogic {
           //assign one of 6 success codes
           //setup the resultcode
           if (allowed) {
-            if (privilegeAlreadyExisted) {
+            if (!privilegeDidntAlreadyExist) {
               wsAssignGrouperPrivilegesLiteResult.assignResultCode(WsAssignGrouperPrivilegesLiteResultCode.SUCCESS_ALLOWED_ALREADY_EXISTED);
             } else {
               wsAssignGrouperPrivilegesLiteResult.assignResultCode(WsAssignGrouperPrivilegesLiteResultCode.SUCCESS_ALLOWED);
             }
           } else {
-            if (privilegeAlreadyExisted) {
+            if (!privilegeDidntAlreadyExist) {
               if (privilegeStillExists) {
-                wsAssignGrouperPrivilegesLiteResult.assignResultCode(WsAssignGrouperPrivilegesLiteResultCode.SUCCESS_DENIED_DIDNT_EXIST_BUT_EXISTS_EFFECTIVE);
+                wsAssignGrouperPrivilegesLiteResult.assignResultCode(WsAssignGrouperPrivilegesLiteResultCode.SUCCESS_NOT_ALLOWED_DIDNT_EXIST_BUT_EXISTS_EFFECTIVE);
               } else {
-                wsAssignGrouperPrivilegesLiteResult.assignResultCode(WsAssignGrouperPrivilegesLiteResultCode.SUCCESS_DENIED_DIDNT_EXIST);
+                wsAssignGrouperPrivilegesLiteResult.assignResultCode(WsAssignGrouperPrivilegesLiteResultCode.SUCCESS_NOT_ALLOWED_DIDNT_EXIST);
               }
             } else {
               if (privilegeStillExists) {
-                wsAssignGrouperPrivilegesLiteResult.assignResultCode(WsAssignGrouperPrivilegesLiteResultCode.SUCCESS_DENIED_EXISTS_EFFECTIVE);
+                wsAssignGrouperPrivilegesLiteResult.assignResultCode(WsAssignGrouperPrivilegesLiteResultCode.SUCCESS_NOT_ALLOWED_EXISTS_EFFECTIVE);
               } else {
-                wsAssignGrouperPrivilegesLiteResult.assignResultCode(WsAssignGrouperPrivilegesLiteResultCode.SUCCESS_DENIED);
+                wsAssignGrouperPrivilegesLiteResult.assignResultCode(WsAssignGrouperPrivilegesLiteResultCode.SUCCESS_NOT_ALLOWED);
               }
             }
           }

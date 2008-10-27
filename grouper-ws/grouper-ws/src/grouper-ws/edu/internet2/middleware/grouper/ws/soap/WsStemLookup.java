@@ -43,7 +43,7 @@ public class WsStemLookup {
   private Stem stem = null;
 
   /** result of stem find */
-  public enum StemFindResult {
+  public static enum StemFindResult {
 
     /** found the stem */
     SUCCESS {

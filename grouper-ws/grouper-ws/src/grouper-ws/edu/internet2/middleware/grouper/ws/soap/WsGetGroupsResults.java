@@ -28,7 +28,7 @@ public class WsGetGroupsResults implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsGetGroupsResultsCode implements WsResultCode {
+  public static enum WsGetGroupsResultsCode implements WsResultCode {
 
     /** found the subject (rest http status code 201) (success: T) */
     SUCCESS(201),

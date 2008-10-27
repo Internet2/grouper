@@ -1,4 +1,4 @@
-Grouper web service sample of service: addMember, WsSampleAddMember, code generated classes, format: soap, for version: v1_3_000
+Grouper web service sample of service: addMember, WsSampleAddMember, code generated classes, format: soap, for version: v1_4_000
 
 
 #########################################
@@ -9,27 +9,28 @@ Grouper web service sample of service: addMember, WsSampleAddMember, code genera
 #########################################
 
 
-POST /grouper-ws/services/GrouperService HTTP/1.1
+POST /grouperWs/services/GrouperService HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:addMember"
 User-Agent: Axis2
-Authorization: Basic R3JvdXBlclN5c3RlbTpwYXNz
+Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
-2af
+2f4
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns1:addMember xmlns:ns1="http://soap.ws.grouper.middleware.internet2.edu/xsd">
-      <ns1:clientVersion>v1_3_000</ns1:clientVersion>
+      <ns1:clientVersion>v1_4_000</ns1:clientVersion>
       <ns1:wsGroupLookup>
         <ns1:groupName>aStem:aGroup</ns1:groupName>
       </ns1:wsGroupLookup>
       <ns1:subjectLookups>
         <ns1:subjectId>10021368</ns1:subjectId>
+        <ns1:subjectSourceId>pennperson</ns1:subjectSourceId>
       </ns1:subjectLookups>
       <ns1:subjectLookups>
-        <ns1:subjectId>10039438</ns1:subjectId>
+        <ns1:subjectIdentifier>10039438</ns1:subjectIdentifier>
       </ns1:subjectLookups>
       <ns1:replaceAllExisting>F</ns1:replaceAllExisting>
       <ns1:actAsSubjectLookup>
@@ -51,37 +52,39 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=20C60F93503269764DAD5468DBBA7BE1; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:addMemberResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 31 Mar 2008 17:40:53 GMT
+Date: Mon, 27 Oct 2008 20:27:50 GMT
 
-f24
+e3d
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns:addMemberResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsAddMemberResults">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>63</ns:millis>
+          <ns:millis>547</ns:millis>
           <ns:resultWarnings></ns:resultWarnings>
-          <ns:serverVersion>v1_3_000</ns:serverVersion>
+          <ns:serverVersion>v1_4_000</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
           <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage>Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@172cbae[group=&lt;null>,uuid=&lt;null>,groupName=aStem:aGroup,groupFindResult=&lt;null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@140be55[subject=&lt;nul...
-, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1394424[subject=&lt;null>,cause=&lt;null>,subjectFindResult=&lt;null>,subjectId=GrouperSystem,subjectIdentifier=&lt;null>,subjectSourceId=&lt;null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: Empty array
+          <ns:resultMessage>Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368,subjectSourceId=pennperson]
+[1]: WsSubject...
+, replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: Empty array
 , params: Empty array</ns:resultMessage>
           <ns:success>T</ns:success>
         </ns:resultMetadata>
         <ns:results type="edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult">
           <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
             <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-            <ns:resultCode>SUCCESS</ns:resultCode>
+            <ns:resultCode>SUCCESS_ALREADY_EXISTED</ns:resultCode>
             <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultMessage></ns:resultMessage>
             <ns:success>T</ns:success>
@@ -91,14 +94,14 @@ f24
             <ns:id>10021368</ns:id>
             <ns:name xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultCode>SUCCESS</ns:resultCode>
-            <ns:sourceId>qsuob</ns:sourceId>
+            <ns:sourceId>pennperson</ns:sourceId>
             <ns:success>T</ns:success>
           </ns:wsSubject>
         </ns:results>
         <ns:results type="edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult">
           <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
             <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-            <ns:resultCode>SUCCESS</ns:resultCode>
+            <ns:resultCode>SUCCESS_ALREADY_EXISTED</ns:resultCode>
             <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultMessage></ns:resultMessage>
             <ns:success>T</ns:success>
@@ -108,7 +111,7 @@ f24
             <ns:id>10039438</ns:id>
             <ns:name xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:resultCode>SUCCESS</ns:resultCode>
-            <ns:sourceId>qsuob</ns:sourceId>
+            <ns:sourceId>pennperson</ns:sourceId>
             <ns:success>T</ns:success>
           </ns:wsSubject>
         </ns:results>
@@ -120,7 +123,7 @@ f24
           <ns:displayName>a stem:a group</ns:displayName>
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
-          <ns:uuid>c6c0bf03-9cb5-4965-9dcb-520020d5da51</ns:uuid>
+          <ns:uuid>c2a29579-3bc8-478d-a20b-b86d3cda8600</ns:uuid>
         </ns:wsGroupAssigned>
       </ns:return>
     </ns:addMemberResponse>
@@ -216,9 +219,10 @@ public class WsSampleAddMember implements WsSampleGenerated {
                     2);
             subjectLookups[0] = WsSubjectLookup.class.newInstance();
             subjectLookups[0].setSubjectId("10021368");
+            subjectLookups[0].setSubjectSourceId("pennperson");
 
             subjectLookups[1] = WsSubjectLookup.class.newInstance();
-            subjectLookups[1].setSubjectId("10039438");
+            subjectLookups[1].setSubjectIdentifier("10039438");
 
             addMember.setSubjectLookups(subjectLookups);
 
@@ -261,42 +265,43 @@ public class WsSampleAddMember implements WsSampleGenerated {
 #########################################
 
 
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsAddMemberResults@177fa9a[
-  localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@ac4d3b
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsAddMemberResults@1ee145b[
+  localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@8d12e4
   localResponseMetadataTracker=true
-  localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@1af9e98
+  localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@1d35bf2
   localResultMetadataTracker=true
-  localResults={edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsAddMemberResult@b3ae5c,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsAddMemberResult@7c218e}
+  localResults={edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsAddMemberResult@141d19,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsAddMemberResult@825459}
   localResultsTracker=true
   localSubjectAttributeNames={<null>}
   localSubjectAttributeNamesTracker=true
-  localWsGroupAssigned=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@54777e
+  localWsGroupAssigned=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@187a8e0
   localWsGroupAssignedTracker=true
 ]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@1af9e98[
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@1d35bf2[
   localParams={<null>}
   localParamsTracker=true
   localResultCode=SUCCESS
   localResultCodeTracker=true
   localResultCode2=<null>
   localResultCode2Tracker=false
-  localResultMessage=Success for: clientVersion: v1_3_000, wsGroupLookup: edu.internet2.middleware.grouper.ws.soap.WsGroupLookup@172cbae[group=<null>,uuid=<null>,groupName=aStem:aGroup,groupFindResult=<null>], subjectLookups: Array size: 2: [0]: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@140be55[subject=<nul...
-, replaceAllExisting: false, actAsSubject: edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup@1394424[subject=<null>,cause=<null>,subjectFindResult=<null>,subjectId=GrouperSystem,subjectIdentifier=<null>,subjectSourceId=<null>], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: Empty array
+  localResultMessage=Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368,subjectSourceId=pennperson]
+[1]: WsSubject...
+, replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: Empty array
 , params: Empty array
   localResultMessageTracker=true
   localSuccess=T
   localSuccessTracker=true
 ]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsAddMemberResult@b3ae5c[
-  localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@cf3539
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsAddMemberResult@141d19[
+  localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@9a5d54
   localResultMetadataTracker=true
-  localWsSubject=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsSubject@1af4309
+  localWsSubject=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsSubject@656758
   localWsSubjectTracker=true
 ]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@cf3539[
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@9a5d54[
   localParams={<null>}
   localParamsTracker=true
-  localResultCode=SUCCESS
+  localResultCode=SUCCESS_ALREADY_EXISTED
   localResultCodeTracker=true
   localResultCode2=<null>
   localResultCode2Tracker=false
@@ -305,16 +310,16 @@ edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMe
   localSuccess=T
   localSuccessTracker=true
 ]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsAddMemberResult@7c218e[
-  localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@172c47b
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsAddMemberResult@825459[
+  localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@197f158
   localResultMetadataTracker=true
-  localWsSubject=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsSubject@1c187c8
+  localWsSubject=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsSubject@65d588
   localWsSubjectTracker=true
 ]
-edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@172c47b[
+edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@197f158[
   localParams={<null>}
   localParamsTracker=true
-  localResultCode=SUCCESS
+  localResultCode=SUCCESS_ALREADY_EXISTED
   localResultCodeTracker=true
   localResultCode2=<null>
   localResultCode2Tracker=false

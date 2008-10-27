@@ -30,7 +30,7 @@ public class WsDeleteMemberLiteResult implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsDeleteMemberLiteResultCode implements WsResultCode {
+  public static enum WsDeleteMemberLiteResultCode implements WsResultCode {
 
     /** cant find group (rest http status code 404) (success: F) */
     GROUP_NOT_FOUND(404) {

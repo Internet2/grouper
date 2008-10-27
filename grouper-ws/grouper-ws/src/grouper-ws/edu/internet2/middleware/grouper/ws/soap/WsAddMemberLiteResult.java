@@ -121,7 +121,7 @@ public class WsAddMemberLiteResult implements WsResponseBean {
   /**
    * result code of a request
    */
-  public enum WsAddMemberLiteResultCode implements WsResultCode {
+  public static enum WsAddMemberLiteResultCode implements WsResultCode {
 
     /** cant find group (rest http status code 404) (success: F) */
     GROUP_NOT_FOUND(404),

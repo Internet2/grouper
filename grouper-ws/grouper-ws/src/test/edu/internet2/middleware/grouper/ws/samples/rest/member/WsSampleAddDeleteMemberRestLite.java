@@ -44,7 +44,7 @@ public class WsSampleAddDeleteMemberRestLite implements WsSampleRest {
       
       Group group = GroupFinder.findByName(grouperSession, "aStem:aGroup1");
       
-      Subject me = SubjectFinder.findById("mchyzer");
+      Subject me = SubjectFinder.findById("10021368");
       
       group.addMember(me, false);
       
@@ -65,7 +65,7 @@ public class WsSampleAddDeleteMemberRestLite implements WsSampleRest {
       
       Group group = GroupFinder.findByName(grouperSession, "aStem:aGroup1");
       
-      Subject me = SubjectFinder.findById("mchyzer");
+      Subject me = SubjectFinder.findById("10021368");
       
       if (group.hasImmediateMember(me)) {
         group.deleteMember(me);
@@ -95,7 +95,7 @@ public class WsSampleAddDeleteMemberRestLite implements WsSampleRest {
       PutMethod method = new PutMethod(
           RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
             + "/" + RestClientSettings.VERSION  
-            + "/groups/aStem%3AaGroup1/members/mchyzer");
+            + "/groups/aStem%3AaGroup1/members/10021368");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
@@ -161,7 +161,7 @@ public class WsSampleAddDeleteMemberRestLite implements WsSampleRest {
       DeleteMethod method = new DeleteMethod(
           RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
             + "/" + RestClientSettings.VERSION  
-            + "/groups/aStem%3AaGroup1/members/mchyzer");
+            + "/groups/aStem%3AaGroup1/members/10021368");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 

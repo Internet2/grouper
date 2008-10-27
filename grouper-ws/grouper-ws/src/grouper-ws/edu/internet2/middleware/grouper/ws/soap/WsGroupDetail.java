@@ -6,6 +6,8 @@ package edu.internet2.middleware.grouper.ws.soap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
@@ -24,6 +26,14 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * 
  */
 public class WsGroupDetail {
+
+  /**
+   * make sure this is an explicit toString
+   */
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this);
+  }
 
   /** if this group has a direct composite member, T|F */
   private String hasComposite = null;

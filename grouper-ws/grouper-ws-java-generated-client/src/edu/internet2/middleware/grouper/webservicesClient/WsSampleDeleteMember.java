@@ -15,6 +15,7 @@ import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import java.lang.reflect.Array;
@@ -67,6 +68,11 @@ public class WsSampleDeleteMember implements WsSampleGenerated {
             actAsSubject.setSubjectId("GrouperSystem");
             deleteMember.setActAsSubjectLookup(actAsSubject);
 
+            deleteMember.setFieldName("");
+            deleteMember.setIncludeGroupDetail("");
+            deleteMember.setIncludeSubjectDetail("");
+            deleteMember.setTxType("");
+            
             WsGroupLookup wsGroupLookup = WsGroupLookup.class.newInstance();
             wsGroupLookup.setGroupName("aStem:aGroup");
             deleteMember.setWsGroupLookup(wsGroupLookup);
@@ -87,6 +93,12 @@ public class WsSampleDeleteMember implements WsSampleGenerated {
 
             System.out.println(ToStringBuilder.reflectionToString(
                     wsDeleteMemberResults));
+            
+            if (!StringUtils.equals("T", 
+                wsDeleteMemberResults.getResultMetadata().getSuccess())) {
+              throw new RuntimeException("didnt get success! ");
+            }
+            
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
