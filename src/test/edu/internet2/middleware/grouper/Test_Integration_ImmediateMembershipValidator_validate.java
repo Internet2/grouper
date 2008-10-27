@@ -18,6 +18,10 @@
 package edu.internet2.middleware.grouper;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
+import edu.internet2.middleware.grouper.exception.MembershipAlreadyExistsException;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
@@ -25,7 +29,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.9 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.10 2008-10-27 10:03:36 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_ImmediateMembershipValidator_validate extends GrouperTest {
@@ -57,7 +61,7 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
    */
   public static void main(String[] args) {
     junit.textui.TestRunner.run(new Test_Integration_ImmediateMembershipValidator_validate(
-        "testValidate_InvalidGroupInCircularCheck"));
+        "testValidate_MembershipAlreadyExists"));
   }
 
 
@@ -150,7 +154,7 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       Group   g     = r.getGroup("i2mi:grouper", "grouper-dev");
       Member  m     = r.getGroup("i2mi:grouper", "grouper-users").toMember();
       Subject subj  = r.getGroup("i2mi:grouper", "grouper-users").toSubject();
-      g.addMember(subj);
+      assertTrue(g.addMember(subj, true));
 
       Membership _ms = new Membership();
       _ms.setType(Membership.IMMEDIATE);
@@ -163,12 +167,37 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       _ms.setMemberUuid( m.getUuid() );
       GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
       assertTrue( "v is invalid", v.isInvalid() );
-      assertEquals( "v error msg", ImmediateMembershipValidator.INVALID_EXISTS, v.getErrorMessage() );
-    }
-    catch (Exception e) {
+      assertEquals( "v error msg", 
+          ImmediateMembershipValidator.INVALID_EXISTS, v.getErrorMessage() );
+      
+      try {
+        g.addMember(subj);
+        fail("Should throw exception");
+      } catch (MemberAddAlreadyExistsException maaee) {
+        //this is good
+      }
+
+      //this shouldnt throw an exception
+      assertFalse(g.addMember(subj, false));
+      
+      //this should add it
+      assertTrue(g.grantPriv(subj, AccessPrivilege.ADMIN, true));
+
+      //this should fail
+      try {
+        g.grantPriv(subj, AccessPrivilege.ADMIN);
+        fail("Should throw already exists exception");
+      } catch (GrantPrivilegeAlreadyExistsException maee) {
+
+      }
+
+      assertFalse(g.grantPriv(subj, AccessPrivilege.ADMIN, false));
+      //should be ok
+
+    } catch (Exception e) {
       unexpectedException(e);
     }
-  } // public void testValidate_MembershipAlreadyExists()
+  }
 
   public void testValidate_InvalidMembership() {
     try {
@@ -192,7 +221,6 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
     catch (Exception e) {
       unexpectedException(e);
     }
-  } // public void testValidate_InvalidMembership()
-
-} // public class Test_Integration_ImmediateMembershipValidator_validate extends GrouperTest
+  }
+}
 

@@ -27,9 +27,12 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
+import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
@@ -55,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.70 2008-10-23 04:48:58 mchyzer Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.71 2008-10-27 10:03:36 mchyzer Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -240,6 +243,9 @@ public class GrouperNamingAdapter implements NamingAdapter {
             throw new GrouperSessionException(se);
           } catch (InsufficientPrivilegeException ipe) {
             throw new GrouperSessionException(ipe);
+          } catch (MemberAddAlreadyExistsException eMA) {
+            throw new GrouperSessionException(new GrantPrivilegeAlreadyExistsException(
+                eMA.getMessage(), eMA));
           } catch (MemberAddException eMA) {
             throw new GrouperSessionException(new GrantPrivilegeException(eMA.getMessage(), eMA));
           }
@@ -374,8 +380,9 @@ public class GrouperNamingAdapter implements NamingAdapter {
       DefaultMemberOf mof = Membership.internal_delImmediateMembership(s, ns, subj, f);
       ns.internal_setModified();
       GrouperDAOFactory.getFactory().getStem().revokePriv( ns, mof );
-    }
-    catch (MemberDeleteException eMD) {
+    } catch (MemberDeleteAlreadyDeletedException eMD) {
+      throw new RevokePrivilegeAlreadyRevokedException( eMD.getMessage(), eMD );
+    } catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );
     }
   } // public void revokePriv(s, ns, subj, priv)

@@ -16,13 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import edu.internet2.middleware.grouper.GrantPrivilegeAlreadyExistsException;
 import  edu.internet2.middleware.grouper.GrouperSession;
 import  edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import  edu.internet2.middleware.subject.Subject;
@@ -33,7 +36,7 @@ import  java.util.Set;
  * Class implementing wrapper around {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingWrapper.java,v 1.7 2008-10-23 04:48:57 mchyzer Exp $
+ * @version $Id: NamingWrapper.java,v 1.8 2008-10-27 10:03:36 mchyzer Exp $
  * @since   1.2.1
  */
 public class NamingWrapper implements NamingResolver {
@@ -127,6 +130,9 @@ public class NamingWrapper implements NamingResolver {
     try {
       this.naming.grantPriv(this.s, stem, subject, privilege);
     }
+    catch (GrantPrivilegeAlreadyExistsException eGrant) {
+      throw new UnableToPerformAlreadyExistsException( eGrant.getMessage(), eGrant );
+    }
     catch (GrantPrivilegeException eGrant) {
       throw new UnableToPerformException( eGrant.getMessage(), eGrant );
     }
@@ -189,14 +195,13 @@ public class NamingWrapper implements NamingResolver {
   {
     try {
       this.naming.revokePriv(this.s, stem, subject, privilege);
-    }
-    catch (InsufficientPrivilegeException ePrivs) {
+    } catch (InsufficientPrivilegeException ePrivs) {
       throw new UnableToPerformException( ePrivs.getMessage(), ePrivs );
-    }
-    catch (RevokePrivilegeException eRevoke) {
+    } catch (RevokePrivilegeAlreadyRevokedException eRevoke) {
+      throw new UnableToPerformAlreadyExistsException( eRevoke.getMessage(), eRevoke );
+    } catch (RevokePrivilegeException eRevoke) {
       throw new UnableToPerformException( eRevoke.getMessage(), eRevoke );
-    }
-    catch (SchemaException eSchema) {
+    } catch (SchemaException eSchema) {
       throw new GrouperRuntimeException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
     }
   }            

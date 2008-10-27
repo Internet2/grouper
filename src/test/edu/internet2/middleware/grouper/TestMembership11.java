@@ -21,23 +21,30 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.FindBadMemberships;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.privs.NamingPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author Shilen Patel.
  */
-public class TestMembership11 extends TestCase {
+public class TestMembership11 extends GrouperTest {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestMembership11("testNestedComposites"));
+  }
+  
   private static final Log LOG = GrouperUtil.getLog(TestMembership11.class);
 
   Date before;
@@ -68,15 +75,6 @@ public class TestMembership11 extends TestCase {
 
   public TestMembership11(String name) {
     super(name);
-  }
-
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
   }
 
   public void testNestedComposites() {
@@ -910,7 +908,20 @@ public class TestMembership11 extends TestCase {
     gF.deleteMember(subjD);
     gG.deleteMember(subjE);
     gG.deleteMember(gH.toSubject());
+    
     gH.revokePriv(gH.toSubject(), AccessPrivilege.UPDATE);
+
+    //try this again
+    try {
+      gH.revokePriv(gH.toSubject(), AccessPrivilege.UPDATE);
+      fail("Should throw already revoked exception");
+    } catch (RevokePrivilegeAlreadyRevokedException rpare) {
+      //good
+    }
+
+    assertFalse(gH.revokePriv(gH.toSubject(), AccessPrivilege.UPDATE, false));
+
+    
     gH.deleteCompositeMember();
     gI.deleteMember(subjA);
     gI.deleteMember(subjB);

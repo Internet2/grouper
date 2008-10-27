@@ -16,13 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import edu.internet2.middleware.grouper.GrantPrivilegeAlreadyExistsException;
 import  edu.internet2.middleware.grouper.Group;
 import  edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import  edu.internet2.middleware.subject.Subject;
@@ -33,7 +36,7 @@ import  java.util.Set;
  * Class implementing wrapper around {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessWrapper.java,v 1.7 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: AccessWrapper.java,v 1.8 2008-10-27 10:03:36 mchyzer Exp $
  * @since   1.2.1
  */
 public class AccessWrapper implements AccessResolver {
@@ -127,6 +130,9 @@ public class AccessWrapper implements AccessResolver {
       this.access.grantPriv(this.s, group, subject, privilege);
     }
     catch (GrantPrivilegeException eGrant) {
+      if (eGrant instanceof GrantPrivilegeAlreadyExistsException) {
+        throw new UnableToPerformAlreadyExistsException( eGrant.getMessage(), eGrant);
+      }
       throw new UnableToPerformException( eGrant.getMessage(), eGrant );
     }
     catch (InsufficientPrivilegeException ePrivs) {
@@ -191,8 +197,9 @@ public class AccessWrapper implements AccessResolver {
     }
     catch (InsufficientPrivilegeException ePrivs) {
       throw new UnableToPerformException( ePrivs.getMessage(), ePrivs );
-    }
-    catch (RevokePrivilegeException eRevoke) {
+    } catch (RevokePrivilegeAlreadyRevokedException eRevoke) {
+      throw new UnableToPerformAlreadyExistsException( eRevoke.getMessage(), eRevoke );
+    } catch (RevokePrivilegeException eRevoke) {
       throw new UnableToPerformException( eRevoke.getMessage(), eRevoke );
     }
     catch (SchemaException eSchema) {
