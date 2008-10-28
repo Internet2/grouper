@@ -208,6 +208,13 @@ public class FindBadMemberships {
   }
 
   /**
+   * Set whether to print errors to STDOUT.
+   */
+  public static void printErrorsToSTOUT(boolean v) {
+    printErrorsToSTOUT = v;
+  }
+
+  /**
    * Find all membership entries that have invalid owner uuids.
    * 
    * @return number of errors found

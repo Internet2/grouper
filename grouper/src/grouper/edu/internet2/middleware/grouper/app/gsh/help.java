@@ -15,7 +15,7 @@ import bsh.Interpreter;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.9 2008-10-24 05:51:47 mchyzer Exp $
+ * @version $Id: help.java,v 1.10 2008-10-28 14:43:52 shilen Exp $
  * @since   0.0.1
  */
 public class help {
@@ -155,16 +155,16 @@ public class help {
     }
     if (StringUtils.equalsIgnoreCase(helpOn, "findBadMemberships")) {
       interpreter.println("findBadMemberships help: \n"
-          + "- this command will find membership records in the database which are invalid, \n"
-          +   "and prints them on the screen, along with scripts that will fix the memberships\n"
+          + "- this command will find membership records in the database which are invalid \n"
+          +   "and print them on the screen.\n"
           + "- here is an example is a complete findBadMemberships run:\n\n"
           + "findBadMemberships()\n\n"
-          + "- find bad memberships in a specific stem (couple of commands):\n\n"
+          + "- find bad naming privileges for a specific stem (couple of commands):\n\n"
           + "subject=SubjectFinder.findById(\"GrouperSystem\")\n"
           + "session=GrouperSession.start(subject)\n"
           + "stem = StemFinder.findByName(session, \"test\")\n"
           + "findBadMembershipsByStem(stem)\n\n"
-          + "- find bad memberships in a specific group (couple of commands):\n\n"
+          + "- find bad memberships and access privileges for a specific group (couple of commands):\n\n"
           + "subject=SubjectFinder.findById(\"GrouperSystem\")\n"
           + "session=GrouperSession.start(subject)\n"
           + "group = GroupFinder.findByName(session, \"test:testGroup\")\n"
