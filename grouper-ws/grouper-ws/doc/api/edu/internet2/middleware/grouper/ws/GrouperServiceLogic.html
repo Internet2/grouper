@@ -173,6 +173,36 @@ Meant to be delegate from GrouperService which has the same params (and names)
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignGrouperPrivilegesLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignGrouperPrivilegesLiteResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co&pathrev=HEAD#assignGrouperPrivilegesLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.privs.PrivilegeType, edu.internet2.middleware.grouper.privs.Privilege, boolean, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String)">assignGrouperPrivilegesLite</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectSourceId,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectIdentifier,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupName,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupUuid,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;stemName,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;stemUuid,
+                            edu.internet2.middleware.grouper.privs.PrivilegeType&nbsp;privilegeType,
+                            edu.internet2.middleware.grouper.privs.Privilege&nbsp;privilegeName,
+                            boolean&nbsp;allowed,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectId,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectSourceId,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectIdentifier,
+                            boolean&nbsp;includeSubjectDetail,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectAttributeNames,
+                            boolean&nbsp;includeGroupDetail,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName0,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue0,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName1,
+                            <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ assign a privilege for a user/group/type/name combo
+ e.g.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsDeleteMemberResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsDeleteMemberResults</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co&pathrev=HEAD#deleteMember(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.soap.WsGroupLookup, edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup[], edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup, edu.internet2.middleware.grouper.Field, edu.internet2.middleware.grouper.hibernate.GrouperTransactionType, boolean, boolean, java.lang.String[], edu.internet2.middleware.grouper.ws.soap.WsParam[])">deleteMember</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
              <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup</A>&nbsp;wsGroupLookup,
@@ -280,6 +310,35 @@ Meant to be delegate from GrouperService which has the same params (and names)
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;find a stem or stems</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGrouperPrivilegesLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGrouperPrivilegesLiteResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperServiceLogic.html?root=I2MI&view=co&pathrev=HEAD#getGrouperPrivilegesLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.privs.PrivilegeType, edu.internet2.middleware.grouper.privs.Privilege, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String)">getGrouperPrivilegesLite</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectSourceId,
+                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectIdentifier,
+                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupName,
+                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupUuid,
+                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;stemName,
+                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;stemUuid,
+                         edu.internet2.middleware.grouper.privs.PrivilegeType&nbsp;privilegeType,
+                         edu.internet2.middleware.grouper.privs.Privilege&nbsp;privilegeName,
+                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectId,
+                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectSourceId,
+                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectIdentifier,
+                         boolean&nbsp;includeSubjectDetail,
+                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectAttributeNames,
+                         boolean&nbsp;includeGroupDetail,
+                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName0,
+                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue0,
+                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName1,
+                         <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ see if a group has a member (if already a direct member, ignore)
+ e.g.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -1334,6 +1393,99 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/W
             proxying). Only pass one of actAsSubjectId or
             actAsSubjectIdentifer<DD><CODE>includeGroupDetail</CODE> - T or F as to if the group detail should be returned<DD><CODE>paramName0</CODE> - reserved for future use<DD><CODE>paramValue0</CODE> - reserved for future use<DD><CODE>paramName1</CODE> - reserved for future use<DD><CODE>paramValue1</CODE> - reserved for future use
 <DT><B>Returns:</B><DD>the result of one member add<DT><B>See Also:</B><DD><CODE>Group#saveGroup(GrouperSession, String, String, String, String, boolean, boolean, boolean)}</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGrouperPrivilegesLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.privs.PrivilegeType, edu.internet2.middleware.grouper.privs.Privilege, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+getGrouperPrivilegesLite</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGrouperPrivilegesLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGrouperPrivilegesLiteResult</A> <B>getGrouperPrivilegesLite</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectSourceId,
+                                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectIdentifier,
+                                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupName,
+                                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupUuid,
+                                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;stemName,
+                                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;stemUuid,
+                                                                        edu.internet2.middleware.grouper.privs.PrivilegeType&nbsp;privilegeType,
+                                                                        edu.internet2.middleware.grouper.privs.Privilege&nbsp;privilegeName,
+                                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectId,
+                                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectSourceId,
+                                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectIdentifier,
+                                                                        boolean&nbsp;includeSubjectDetail,
+                                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectAttributeNames,
+                                                                        boolean&nbsp;includeGroupDetail,
+                                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName0,
+                                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue0,
+                                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName1,
+                                                                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue1)</PRE>
+<DL>
+<DD><pre>
+ see if a group has a member (if already a direct member, ignore)
+ e.g. /grouperPrivileges/subjects/1234567/groups/aStem:aGroup/types/access/names/update
+ e.g. /grouperPrivileges/subjects/sources/someSource/subjectId/1234567/stems/aStem1:aStem2/
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000<DD><CODE>subjectId</CODE> - subject id of subject to search for privileges.  Mutually exclusive with subjectIdentifier<DD><CODE>subjectSourceId</CODE> - source id of subject object (optional)<DD><CODE>subjectIdentifier</CODE> - subject identifier of subject.  Mutuallyexclusive with subjectId<DD><CODE>groupName</CODE> - if this is a group privilege.  mutually exclusive with groupUuid<DD><CODE>groupUuid</CODE> - if this is a group privilege.  mutually exclusive with groupName<DD><CODE>stemName</CODE> - if this is a stem privilege.  mutually exclusive with stemUuid<DD><CODE>stemUuid</CODE> - if this is a stem privilege.  mutually exclusive with stemName<DD><CODE>actAsSubjectId</CODE> - optional: is the subject id of subject to act as (if
+            proxying). Only pass one of actAsSubjectId or
+            actAsSubjectIdentifer<DD><CODE>actAsSubjectSourceId</CODE> - is source of act as subject to narrow the result and prevent
+ duplicates<DD><CODE>actAsSubjectIdentifier</CODE> - optional: is the subject identifier of subject to act as (if
+            proxying). Only pass one of actAsSubjectId or
+            actAsSubjectIdentifer<DD><CODE>deleteOldMember</CODE> - T or F as to whether the old member should be deleted (if new member does exist).
+ This defaults to T if it is blank<DD><CODE>privilegeType</CODE> - (e.g. "access" for groups and "naming" for stems)<DD><CODE>privilegeName</CODE> - (e.g. for groups: read, view, update, admin, optin, optout.  e.g. for stems:
+ stem, create)<DD><CODE>includeSubjectDetail</CODE> - T|F, for if the extended subject information should be
+            returned (anything more than just the id)<DD><CODE>subjectAttributeNames</CODE> - are the additional subject attributes (data) to return.
+ If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated)<DD><CODE>includeGroupDetail</CODE> - T or F as for if group detail should be included<DD><CODE>paramName0</CODE> - reserved for future use<DD><CODE>paramValue0</CODE> - reserved for future use<DD><CODE>paramName1</CODE> - reserved for future use<DD><CODE>paramValue1</CODE> - reserved for future use
+<DT><B>Returns:</B><DD>the result of one member query</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignGrouperPrivilegesLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, edu.internet2.middleware.grouper.privs.PrivilegeType, edu.internet2.middleware.grouper.privs.Privilege, boolean, java.lang.String, java.lang.String, java.lang.String, boolean, java.lang.String, boolean, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><!-- --></A><H3>
+assignGrouperPrivilegesLite</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignGrouperPrivilegesLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignGrouperPrivilegesLiteResult</A> <B>assignGrouperPrivilegesLite</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                                                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectId,
+                                                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectSourceId,
+                                                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectIdentifier,
+                                                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupName,
+                                                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupUuid,
+                                                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;stemName,
+                                                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;stemUuid,
+                                                                              edu.internet2.middleware.grouper.privs.PrivilegeType&nbsp;privilegeType,
+                                                                              edu.internet2.middleware.grouper.privs.Privilege&nbsp;privilegeName,
+                                                                              boolean&nbsp;allowed,
+                                                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectId,
+                                                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectSourceId,
+                                                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;actAsSubjectIdentifier,
+                                                                              boolean&nbsp;includeSubjectDetail,
+                                                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;subjectAttributeNames,
+                                                                              boolean&nbsp;includeGroupDetail,
+                                                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName0,
+                                                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue0,
+                                                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramName1,
+                                                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;paramValue1)</PRE>
+<DL>
+<DD><pre>
+ assign a privilege for a user/group/type/name combo
+ e.g. /grouperPrivileges/subjects/1234567/groups/aStem:aGroup/types/access/names/update
+ e.g. /grouperPrivileges/subjects/sources/someSource/subjectId/1234567/stems/aStem1:aStem2/
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000<DD><CODE>subjectId</CODE> - subject id of subject to search for privileges.  Mutually exclusive with subjectIdentifier<DD><CODE>subjectSourceId</CODE> - source id of subject object (optional)<DD><CODE>subjectIdentifier</CODE> - subject identifier of subject.  Mutuallyexclusive with subjectId<DD><CODE>groupName</CODE> - if this is a group privilege.  mutually exclusive with groupUuid<DD><CODE>groupUuid</CODE> - if this is a group privilege.  mutually exclusive with groupName<DD><CODE>stemName</CODE> - if this is a stem privilege.  mutually exclusive with stemUuid<DD><CODE>stemUuid</CODE> - if this is a stem privilege.  mutually exclusive with stemName<DD><CODE>actAsSubjectId</CODE> - optional: is the subject id of subject to act as (if
+            proxying). Only pass one of actAsSubjectId or
+            actAsSubjectIdentifer<DD><CODE>actAsSubjectSourceId</CODE> - is source of act as subject to narrow the result and prevent
+ duplicates<DD><CODE>actAsSubjectIdentifier</CODE> - optional: is the subject identifier of subject to act as (if
+            proxying). Only pass one of actAsSubjectId or
+            actAsSubjectIdentifer<DD><CODE>deleteOldMember</CODE> - T or F as to whether the old member should be deleted (if new member does exist).
+ This defaults to T if it is blank<DD><CODE>privilegeType</CODE> - (e.g. "access" for groups and "naming" for stems)<DD><CODE>privilegeName</CODE> - (e.g. for groups: read, view, update, admin, optin, optout.  e.g. for stems:
+ stem, create)<DD><CODE>allowed</CODE> - is T to allow this privilege, F to deny this privilege<DD><CODE>includeSubjectDetail</CODE> - T|F, for if the extended subject information should be
+            returned (anything more than just the id)<DD><CODE>subjectAttributeNames</CODE> - are the additional subject attributes (data) to return.
+ If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated)<DD><CODE>includeGroupDetail</CODE> - T or F as for if group detail should be included<DD><CODE>paramName0</CODE> - reserved for future use<DD><CODE>paramValue0</CODE> - reserved for future use<DD><CODE>paramName1</CODE> - reserved for future use<DD><CODE>paramValue1</CODE> - reserved for future use
+<DT><B>Returns:</B><DD>the result of one member query</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->

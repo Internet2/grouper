@@ -109,6 +109,10 @@ All beans that are needed by Axis are here so there is only one namespace.
  results for the add member call.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignGrouperPrivilegesLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignGrouperPrivilegesLiteResult</A></B></TD>
+<TD>Result of assigning or removing a privilege</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAttribute.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsAttribute</A></B></TD>
 <TD>attribute sent back to caller</TD>
 </TR>
@@ -136,6 +140,12 @@ All beans that are needed by Axis are here so there is only one namespace.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsFindStemsResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsFindStemsResults</A></B></TD>
 <TD>returned from the stem find query, if none found, return none</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGrouperPrivilegesLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGrouperPrivilegesLiteResult</A></B></TD>
+<TD>Result of retrieving privileges for a user/group combo (and perhaps 
+ filtered by type), will
+ return a list of permissions</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGroupsLiteResult</A></B></TD>
@@ -193,6 +203,10 @@ All beans that are needed by Axis are here so there is only one namespace.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupDetail.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupDetail</A></B></TD>
 <TD>Result for finding a group</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGrouperPrivilegeResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGrouperPrivilegeResult</A></B></TD>
+<TD>Query for one privilege.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGroupLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGroupLookup</A></B></TD>
@@ -259,10 +273,6 @@ All beans that are needed by Axis are here so there is only one namespace.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsParam.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsParam</A></B></TD>
 <TD>param for a web service operation</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsPrivilege.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsPrivilege</A></B></TD>
-<TD>Result of one subject having priveleges updated.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsQueryFilter.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsQueryFilter</A></B></TD>
@@ -337,30 +347,6 @@ All beans that are needed by Axis are here so there is only one namespace.
  
  developers make sure each setter calls this.clearSubject();</TD>
 </TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsViewOrEditAttributesResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsViewOrEditAttributesResult</A></B></TD>
-<TD>Result of one subject having priveleges updated.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsViewOrEditAttributesResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsViewOrEditAttributesResults</A></B></TD>
-<TD>
- results for the viewOrEditAttributes
- 
- result code:
- code of the result for this group overall
- SUCCESS: means everything ok
- GROUP_NOT_FOUND: cant find the group
- GROUP_DUPLICATE: found multiple groups</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsViewOrEditPrivilegesResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsViewOrEditPrivilegesResult</A></B></TD>
-<TD>&nbsp;</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsViewOrEditPrivilegesResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsViewOrEditPrivilegesResults</A></B></TD>
-<TD>
- results for the viewOrEditPrivileges call.</TD>
-</TR>
 </TABLE>
 &nbsp;
 
@@ -384,6 +370,10 @@ All beans that are needed by Axis are here so there is only one namespace.
 <TD>result code of a request</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignGrouperPrivilegesLiteResult.WsAssignGrouperPrivilegesLiteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsAssignGrouperPrivilegesLiteResult.WsAssignGrouperPrivilegesLiteResultCode</A></B></TD>
+<TD>result code of a request</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsDeleteMemberLiteResult.WsDeleteMemberLiteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsDeleteMemberLiteResult.WsDeleteMemberLiteResultCode</A></B></TD>
 <TD>result code of a request</TD>
 </TR>
@@ -401,6 +391,10 @@ All beans that are needed by Axis are here so there is only one namespace.
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsFindStemsResults.WsFindStemsResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsFindStemsResults.WsFindStemsResultsCode</A></B></TD>
+<TD>result code of a request</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGrouperPrivilegesLiteResult.WsGetGrouperPrivilegesLiteResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsGetGrouperPrivilegesLiteResult.WsGetGrouperPrivilegesLiteResultCode</A></B></TD>
 <TD>result code of a request</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
@@ -526,22 +520,6 @@ All beans that are needed by Axis are here so there is only one namespace.
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSubjectLookup.SubjectFindResult.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsSubjectLookup.SubjectFindResult</A></B></TD>
 <TD>result of a subject find</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsViewOrEditAttributesResult.WsViewOrEditAttributesResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsViewOrEditAttributesResult.WsViewOrEditAttributesResultCode</A></B></TD>
-<TD>result code of a request</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsViewOrEditAttributesResults.WsViewOrEditAttributesResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsViewOrEditAttributesResults.WsViewOrEditAttributesResultsCode</A></B></TD>
-<TD>result code of a request</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsViewOrEditPrivilegesResult.WsViewOrEditPrivilegesResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsViewOrEditPrivilegesResult.WsViewOrEditPrivilegesResultCode</A></B></TD>
-<TD>result code of a request</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD WIDTH="15%"><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsViewOrEditPrivilegesResults.WsViewOrEditPrivilegesResultsCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsViewOrEditPrivilegesResults.WsViewOrEditPrivilegesResultsCode</A></B></TD>
-<TD>result code of a request</TD>
 </TR>
 </TABLE>
 &nbsp;

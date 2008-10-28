@@ -156,6 +156,16 @@ consolidated static list of of rest web services (only web service methods here
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignGrouperPrivilegesLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignGrouperPrivilegesLiteResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?root=I2MI&view=co&pathrev=HEAD#assignGrouperPrivilegesLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest)">assignGrouperPrivilegesLite</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                            <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/group/WsRestAssignGrouperPrivilegesLiteRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestAssignGrouperPrivilegesLiteRequest</A>&nbsp;wsRestAssignGrouperPrivilegesLiteRequest)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ assign/revoke privileges for a group or stem and subject</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsDeleteMemberResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsDeleteMemberResults</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?root=I2MI&view=co&pathrev=HEAD#deleteMember(edu.internet2.middleware.grouper.ws.GrouperWsVersion, java.lang.String, edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberRequest)">deleteMember</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;groupName,
@@ -217,6 +227,16 @@ consolidated static list of of rest web services (only web service methods here
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
  based on a stem query, get the stems</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGrouperPrivilegesLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGrouperPrivilegesLiteResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/GrouperServiceRest.html?root=I2MI&view=co&pathrev=HEAD#getGrouperPrivilegesLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest)">getGrouperPrivilegesLite</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                         <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGrouperPrivilegesLiteRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGrouperPrivilegesLiteRequest</A>&nbsp;wsRestGetGrouperPrivilegesLiteRequest)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ get privileges for a group or stem and subject</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -658,6 +678,40 @@ public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soa
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - version of client, e.g. v1_3_000<DD><CODE>oldSubjectId</CODE> - from url, e.g. /v1_3_000/members/subjectId/123412345<DD><CODE>oldSubjectSourceId</CODE> - from url (optional) e.g.
  /v1_3_000/members/sourceId/someSource/subjectId/123412345/sourceId/12342<DD><CODE>wsRestMemberChangeSubjectLiteRequest</CODE> - is the request body converted to an object
+<DT><B>Returns:</B><DD>the result</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGrouperPrivilegesLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGrouperPrivilegesLiteRequest)"><!-- --></A><H3>
+getGrouperPrivilegesLite</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGrouperPrivilegesLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGetGrouperPrivilegesLiteResult</A> <B>getGrouperPrivilegesLite</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                                                                        <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/group/WsRestGetGrouperPrivilegesLiteRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestGetGrouperPrivilegesLiteRequest</A>&nbsp;wsRestGetGrouperPrivilegesLiteRequest)</PRE>
+<DL>
+<DD><pre>
+ get privileges for a group or stem and subject
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - version of client, e.g. v1_3_000<DD><CODE>wsRestGetGrouperPrivilegesLiteRequest</CODE> - is the request body converted to an object
+<DT><B>Returns:</B><DD>the result</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="assignGrouperPrivilegesLite(edu.internet2.middleware.grouper.ws.GrouperWsVersion, edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest)"><!-- --></A><H3>
+assignGrouperPrivilegesLite</H3>
+<PRE>
+public static <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignGrouperPrivilegesLiteResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsAssignGrouperPrivilegesLiteResult</A> <B>assignGrouperPrivilegesLite</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion,
+                                                                              <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/group/WsRestAssignGrouperPrivilegesLiteRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.rest.group">WsRestAssignGrouperPrivilegesLiteRequest</A>&nbsp;wsRestAssignGrouperPrivilegesLiteRequest)</PRE>
+<DL>
+<DD><pre>
+ assign/revoke privileges for a group or stem and subject
+ </pre>
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - version of client, e.g. v1_3_000<DD><CODE>wsRestAssignGrouperPrivilegesLiteRequest</CODE> - is the request body converted to an object
 <DT><B>Returns:</B><DD>the result</DL>
 </DD>
 </DL>

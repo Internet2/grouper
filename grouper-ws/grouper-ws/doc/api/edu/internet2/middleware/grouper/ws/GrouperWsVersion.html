@@ -145,11 +145,27 @@ grouper service version
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsAddMemberResult.WsAddMemberResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsAddMemberResult.WsAddMemberResultCode</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD#addMemberSuccessResultCode(boolean)">addMemberSuccessResultCode</A></B>(boolean&nbsp;didntAlreadyExist)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result code changed in 1.4 to include a response for if the membership already existed</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD#currentVersion()">currentVersion</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the current version</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD#lessThanArg(edu.internet2.middleware.grouper.ws.GrouperWsVersion)">lessThanArg</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;other)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if this version is less than the argument one</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -291,6 +307,34 @@ not permitted.)
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/IllegalArgumentException.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if this enum type has no constant
 with the specified name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="lessThanArg(edu.internet2.middleware.grouper.ws.GrouperWsVersion)"><!-- --></A><H3>
+lessThanArg</H3>
+<PRE>
+public boolean <B>lessThanArg</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;other)</PRE>
+<DL>
+<DD>see if this version is less than the argument one
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>other</CODE> - 
+<DT><B>Returns:</B><DD>true if less than, false if equal or greater</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addMemberSuccessResultCode(boolean)"><!-- --></A><H3>
+addMemberSuccessResultCode</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsAddMemberResult.WsAddMemberResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsAddMemberResult.WsAddMemberResultCode</A> <B>addMemberSuccessResultCode</B>(boolean&nbsp;didntAlreadyExist)</PRE>
+<DL>
+<DD>result code changed in 1.4 to include a response for if the membership already existed
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>didntAlreadyExist</CODE> - 
+<DT><B>Returns:</B><DD>the code success or if it already existed</DL>
 </DD>
 </DL>
 <HR>

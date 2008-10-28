@@ -404,20 +404,6 @@ E</CODE></FONT></TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>static&nbsp;boolean</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?root=I2MI&view=co&pathrev=HEAD#processPrivilegesHelper(java.lang.String, java.lang.String, java.util.List, java.util.List, edu.internet2.middleware.grouper.privs.Privilege, edu.internet2.middleware.grouper.ws.soap.WsViewOrEditPrivilegesResults)">processPrivilegesHelper</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;allowedString,
-                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;propertyName,
-                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/List.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.util">List</A>&lt;edu.internet2.middleware.grouper.privs.Privilege&gt;&nbsp;privilegesToAssign,
-                        <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/List.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.util">List</A>&lt;edu.internet2.middleware.grouper.privs.Privilege&gt;&nbsp;privilegesToRevoke,
-                        edu.internet2.middleware.grouper.privs.Privilege&nbsp;privilege,
-                        <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsViewOrEditPrivilegesResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsViewOrEditPrivilegesResults</A>&nbsp;wsViewOrEditPrivilegesResults)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if privilege is true or false and error handle and add to list to
- process</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;edu.internet2.middleware.grouper.Field</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/util/GrouperServiceUtils.html?root=I2MI&view=co&pathrev=HEAD#retrieveField(java.lang.String)">retrieveField</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;fieldName)</CODE>
 
@@ -975,26 +961,6 @@ public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.htm
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>accessPrivileges</CODE> - 
 <DT><B>Returns:</B><DD>the set of privileges, will never return null</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="processPrivilegesHelper(java.lang.String, java.lang.String, java.util.List, java.util.List, edu.internet2.middleware.grouper.privs.Privilege, edu.internet2.middleware.grouper.ws.soap.WsViewOrEditPrivilegesResults)"><!-- --></A><H3>
-processPrivilegesHelper</H3>
-<PRE>
-public static boolean <B>processPrivilegesHelper</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;allowedString,
-                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;propertyName,
-                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/List.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.util">List</A>&lt;edu.internet2.middleware.grouper.privs.Privilege&gt;&nbsp;privilegesToAssign,
-                                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/List.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.util">List</A>&lt;edu.internet2.middleware.grouper.privs.Privilege&gt;&nbsp;privilegesToRevoke,
-                                              edu.internet2.middleware.grouper.privs.Privilege&nbsp;privilege,
-                                              <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsViewOrEditPrivilegesResults.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsViewOrEditPrivilegesResults</A>&nbsp;wsViewOrEditPrivilegesResults)</PRE>
-<DL>
-<DD>see if privilege is true or false and error handle and add to list to
- process
-<P>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>allowedString</CODE> - <DD><CODE>propertyName</CODE> - <DD><CODE>privilegesToAssign</CODE> - <DD><CODE>privilegesToRevoke</CODE> - <DD><CODE>privilege</CODE> - <DD><CODE>wsViewOrEditPrivilegesResults</CODE> - 
-<DT><B>Returns:</B><DD>true if ok, false if not and done</DL>
 </DD>
 </DL>
 <HR>
