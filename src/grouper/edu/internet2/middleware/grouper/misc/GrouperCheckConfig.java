@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.5 2008-10-24 05:51:47 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.6 2008-10-29 05:32:20 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -780,7 +780,7 @@ public class GrouperCheckConfig {
     checkJar("jug.jar", 19091, "com.ccg.net.ethernet.BadAddressException", "1.1.1");
     checkJar("log4j.jar", 352668, "org.apache.log4j.Appender", "1.2.8");
     checkJar("mailapi.jar", 178533, "javax.mail.Address", "1.3.2");
-    checkJar("morphString.jar", 74805, "edu.internet2.middleware.morphString.Encrypt", "1.0");
+    checkJar("morphString.jar", 153260, "edu.internet2.middleware.morphString.Encrypt", "1.1");
     checkJar("odmg.jar", 42111, "org.odmg.ClassNotPersistenceCapableException", "0.1.0");
     checkJar("p6spy.jar", 388726, "com.p6spy.engine.common.FastExternalUtils", "1.0");
     checkJar("quartz.jar", 792769, "org.quartz.Calendar", "1.6.0");
