@@ -15,7 +15,7 @@ import bsh.Interpreter;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.10 2008-10-28 14:43:52 shilen Exp $
+ * @version $Id: help.java,v 1.11 2008-10-29 05:32:20 mchyzer Exp $
  * @since   0.0.1
  */
 public class help {
@@ -262,7 +262,7 @@ public class help {
     i.println("* GSH_DEVEL=true");
     i.println("* GSH_TIMER=true");
     i.println("Note: you cannot encrypt passwords with GSH since the passwords end up in the GSH history.  To encrypt passwords, issue the command:");
-    i.println("  C:\\mchyzer\\isc\\dev\\grouper-qs-1.2.0\\grouper>java -jar lib\\morphString.jar");
+    i.println("  C:\\mchyzer\\isc\\dev\\grouper-qs-1.2.0\\grouper>java -jar lib\\grouper\\morphString.jar");
     i.println("  Enter the location of morphString.properties: conf/morphString.properties");
 
   } // public static void invoke(i, stack)

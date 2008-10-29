@@ -1,5 +1,5 @@
 /*
- * $Id: Morph.java,v 1.2 2008-10-03 17:18:11 mchyzer Exp $
+ * $Id: Morph.java,v 1.3 2008-10-29 05:32:23 mchyzer Exp $
  * 
  * Copyright University of Pennsylvania 2004
  */
@@ -13,33 +13,7 @@ public class Morph {
   /**
    * 
    */
-  private static final String ENCRYPT_KEY = "encrypt.key";
-
-  /**
-   * Method decrypt.
-   * @param key String
-   * @param in String
-   * @return String
-   */
-  public static String decrypt(String key, String in) {
-    RijnMaker r1 = new RijnMaker(16, 16);
-
-    return r1.decrypt(in, key).trim();
-  }
-
-  /**
-   * @param key
-   *          $objectType$
-   * @param in
-   *          $objectType$
-   * 
-   * @return String
-   */
-  public static String encrypt(String key, String in) {
-    in = MorphStringUtils.trimToEmpty(in);
-    RijnMaker r1 = new RijnMaker(16, 16);
-    return r1.encrypt(in, key).trim();
-  }
+  public static final String ENCRYPT_KEY = "encrypt.key";
 
   /**
    * @param in
@@ -48,9 +22,9 @@ public class Morph {
    * @return String
    */
   public static String encrypt(String in) {
-    String encryptKey = key();
+    in = MorphStringUtils.trimToEmpty(in);
 
-    return encrypt(encryptKey, in);
+    return Crypto.getThreadLocalCrypto().encrypt(in);
   }
 
   /**
@@ -63,11 +37,10 @@ public class Morph {
     //make sure no extraneous spaces
     in = MorphStringUtils.trim(in);
     
-    String decryptKey = key();
     String result = null;
     //add something on end so it is more than just the key and rijndael
     try {
-      result = decrypt(decryptKey, in);
+      result = Crypto.getThreadLocalCrypto().decrypt(in);
     } catch (RuntimeException re) {
       //let be descriptive to help out here
       throw new RuntimeException("Problem decrypting string: " + re.getMessage(), re );
@@ -98,7 +71,7 @@ public class Morph {
   /**
    * @return the key to encrypt/decrypt
    */
-  private static String key() {
+  public static String key() {
     if (testMorphKey != null && !"".equals(testMorphKey.trim())) {
       return testMorphKey;
     }

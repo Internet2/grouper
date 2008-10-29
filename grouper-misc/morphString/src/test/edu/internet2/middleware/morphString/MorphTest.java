@@ -1,10 +1,11 @@
 /*
  * @author mchyzer
- * $Id: MorphTest.java,v 1.1 2008-09-13 18:51:48 mchyzer Exp $
+ * $Id: MorphTest.java,v 1.2 2008-10-29 05:32:23 mchyzer Exp $
  */
 package edu.internet2.middleware.morphString;
 
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 
 /**
@@ -12,6 +13,14 @@ import junit.framework.TestCase;
  */
 public class MorphTest extends TestCase {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new MorphTest("testEncrypt"));
+  }
+  
   /**
    * 
    * @param name
@@ -24,9 +33,11 @@ public class MorphTest extends TestCase {
    * test encryption
    */
   public void testEncrypt() {
-    String encryptString = Morph.encrypt("abc", "hey");
+    String encryptString = Morph.encrypt("hey");
+    System.out.println(encryptString);
     assertTrue(!"hey".equals(encryptString));
-    String decryptString = Morph.decrypt("abc", encryptString);
+    String decryptString = Morph.decrypt(encryptString);
+    System.out.println(decryptString);
     assertEquals("hey", decryptString);
     
   }
