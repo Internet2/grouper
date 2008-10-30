@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: XmlImport.java,v 1.1 2008-10-15 03:57:06 mchyzer Exp $
+ * $Id: XmlImport.java,v 1.2 2008-10-30 22:32:27 isgwb Exp $
  */
 package edu.internet2.middleware.grouper.app.gsh;
 
@@ -43,6 +43,9 @@ public class XmlImport {
   /** grouper session to use */
   private GrouperSession grouperSession = null;
   
+  /** if we should ignore internal attributes including uuids */
+  private boolean ignoreInternal = false;
+  
   /**
    * assign the grouper session to this importer
    * @param theGrouperSession
@@ -82,6 +85,17 @@ public class XmlImport {
     this.userProperties = theUserProperties;
     return this;
   }
+  
+  /**
+   * set external properties file
+   * @param theUserProperties
+   * @return the properties file
+   */
+  public XmlImport ignoreInternal(boolean isIgnoreInternal) {
+    this.ignoreInternal = isIgnoreInternal;
+    return this;
+  }
+  
   
   
   
@@ -162,7 +176,7 @@ public class XmlImport {
             }
 
             XmlImporter importer  = new XmlImporter(innerGrouperSession, properties);
-
+            importer.setIgnoreInternal(ignoreInternal);
             if (XmlImport.this.updateList) {
               if (XmlImport.this.stem != null) {
                 throw new RuntimeException("Cannot pass stem with updateList as true");

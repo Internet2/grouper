@@ -98,7 +98,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.4 2008-10-15 03:57:06 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.5 2008-10-30 22:32:27 isgwb Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -123,6 +123,7 @@ public class XmlImporter {
   private Properties      options         = new Properties();
   private GrouperSession  s;
   private boolean         updateOnly      = false;
+  private boolean         ignoreInternal  = false;
   
   
   // CONSTRUCTORS //
@@ -150,6 +151,12 @@ public class XmlImporter {
    * <td>true/false</td>
    * <td>true</td>
    * <td>If true create custom fields when importing.</td>
+   * </tr>
+   * <tr>
+   * <td>import.data.ignore-internal-attributes-and-uuids=false</td>
+   * <td>true/false</td>
+   * <td>false</td>
+   * <td>If true, do not attempt to set internal attributes or Group/Stem uuids</td>
    * </tr>
    * <tr>
    * <td>import.data.apply-new-group-types</td>
@@ -214,7 +221,8 @@ public class XmlImporter {
     GrouperUtil.promptUserAboutDbChanges("import data from xml", true);
     if (XmlArgs.internal_wantsHelp(args)) {
       System.out.println( _getUsage() );
-      System.exit(0);
+      //System.exit(0);
+      return;
     }
     Properties rc = new Properties();
     try {
@@ -224,7 +232,8 @@ public class XmlImporter {
       e.printStackTrace();
       System.err.println();
       System.err.println( _getUsage() );
-      System.exit(1);
+      //System.exit(1);
+      return;
     }
     XmlImporter importer = null;
     try {
@@ -239,7 +248,8 @@ public class XmlImporter {
     }
     catch (Exception e) {
       LOG.fatal("unable to import from xml: " + e.getMessage());
-      System.exit(1);
+      //System.exit(1);
+      return;
     }
     finally {
       if (importer != null) {
@@ -252,6 +262,7 @@ public class XmlImporter {
       }
     }
     System.exit(0);
+    return;
   } // public static void main(args)
 
 
@@ -332,7 +343,11 @@ public class XmlImporter {
     LOG.info("finished update");
   } // public void update(doc)
 
-
+  //@since 1.4.0
+  public void setIgnoreInternal(boolean ignoreInternal) {
+	  this.ignoreInternal=ignoreInternal;
+  }
+  
   // PROTECTED INSTANCE METHODS //
 
   // @since   1.2.0
@@ -396,7 +411,7 @@ public class XmlImporter {
     return  "Usage:"                                                                + GrouperConfig.NL
             + "args: -h,            Prints this message"                            + GrouperConfig.NL
             + "args: subjectIdentifier [(-id <id> | -name <name> | -list)]"         + GrouperConfig.NL
-            + "      filename [properties]"                                         + GrouperConfig.NL
+            + "      [-ignoreInternal] filename [properties]"                       + GrouperConfig.NL
             +                                                                         GrouperConfig.NL
             + "  subjectIdentifier, Identifies a Subject 'who' will create a"       + GrouperConfig.NL
             + "                     GrouperSession"                                 + GrouperConfig.NL
@@ -408,6 +423,11 @@ public class XmlImporter {
             + "  -list,             File contains a flat list of Stems or Groups"   + GrouperConfig.NL
             + "                     which may be updated. Missing Stems and Groups" + GrouperConfig.NL
             + "                     are not created"                                + GrouperConfig.NL
+            
+            + "  -ignoreInternal,   Do not attempt to import internal attributes"   + GrouperConfig.NL
+            + "                     including Group/Stem uuids. Overrides property:"+ GrouperConfig.NL
+            + "                     import.data.ignore-internal-attributes-and-uuids"+GrouperConfig.NL
+            
             + "  filename,          The file to import"                             + GrouperConfig.NL
             + "  properties,        The name of an optional Java properties file. " + GrouperConfig.NL
             + "                     Values specified in this properties file will " + GrouperConfig.NL
@@ -424,13 +444,14 @@ public class XmlImporter {
   public static void _handleArgs(final XmlImporter importer, final Properties rc) 
     throws  GrouperException {
     try {
+      importer.ignoreInternal = Boolean.parseBoolean( rc.getProperty(XmlArgs.RC_IGNORE) );
       GrouperSession.callbackGrouperSession(importer.s, new GrouperSessionHandler() {
   
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
           try {
             Document doc = XmlReader.getDocumentFromFile( rc.getProperty(XmlArgs.RC_IFILE) );
-            if (Boolean.getBoolean( rc.getProperty(XmlArgs.RC_UPDATELIST) )) {
+            if (Boolean.parseBoolean( rc.getProperty(XmlArgs.RC_UPDATELIST) )) {
               importer.update(doc);
             } 
             else {
@@ -524,7 +545,8 @@ public class XmlImporter {
 
   // @since   1.0
   private String _getAbsoluteName(String name, String stem) {
-    if (name != null && name.startsWith(".")) {
+	 name=name.replaceAll("^\\*",".:");
+    if (name != null && (name.startsWith("."))) {
       if (name.startsWith("." + Stem.ROOT_INT)) {
         name = stem + name.substring(1);
       } 
@@ -677,6 +699,13 @@ public class XmlImporter {
     return Boolean.valueOf( el.getAttribute("immediate") ).booleanValue();
   }
 
+  //@since   1.4.0
+  private boolean _isIgnoreInternalAttributes() {
+    return (this.ignoreInternal || 
+    	XmlUtils.internal_getBooleanOption(this.options, "import.data.ignore-internal-attributes-and-uuids"));
+  } // private boolean _isIgnoreInternalAttributes()
+  
+  
   // @since   1.1.0
   private boolean _isUpdatingAttributes() {
     return XmlUtils.internal_getBooleanOption(this.options, "import.data.update-attributes");
@@ -1075,10 +1104,14 @@ public class XmlImporter {
       return; // do not create groups when we are only updating
     }
     Stem  parent  = StemFinder.findByName(this.s, stem);
+    String id=null;
+    if(!_isIgnoreInternalAttributes()) {
+    	e.getAttribute("id");
+    }
     Group child   = parent.internal_addChildGroup(
       e.getAttribute(GrouperConfig.ATTR_EXTENSION),
       e.getAttribute(GrouperConfig.ATTR_DISPLAY_EXTENSION),
-      e.getAttribute("id")
+      id
     );
     String                  desc  = e.getAttribute(GrouperConfig.ATTR_DESCRIPTION);
     NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(desc);
@@ -1086,7 +1119,9 @@ public class XmlImporter {
       child.setDescription(desc);
       child.store();
     }
-    this._setInternalAttributes(child, e);
+    if(!_isIgnoreInternalAttributes()) {
+    	this._setInternalAttributes(child, e);
+    }
     this.importedGroups.put( child.getName(), SPECIAL_C );
   } // private void _processGroupCreate(e, stem)
 
@@ -1489,11 +1524,15 @@ public class XmlImporter {
     }
     else {
       parent = StemFinder.findByName(this.s, stem);
-    } 
+    }
+    String id = null;
+    if(!_isIgnoreInternalAttributes()) {
+    	id=e.getAttribute("id");
+    }
     Stem child = parent.internal_addChildStem(
       e.getAttribute(GrouperConfig.ATTR_EXTENSION),
       e.getAttribute(GrouperConfig.ATTR_DISPLAY_EXTENSION),
-      e.getAttribute("id")
+      id
     );
     String                  desc  = e.getAttribute(GrouperConfig.ATTR_DESCRIPTION);
     NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(desc);
@@ -1501,7 +1540,9 @@ public class XmlImporter {
       child.setDescription(desc);
       child.store();
     }
-    this._setInternalAttributes(child, e);
+    if(!_isIgnoreInternalAttributes()) {
+    	this._setInternalAttributes(child, e);
+    }
   } // private void _processPathCreate(e, stem)
 
   // @since   1.1.0

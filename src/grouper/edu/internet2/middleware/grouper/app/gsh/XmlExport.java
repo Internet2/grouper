@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: XmlExport.java,v 1.1 2008-10-15 03:57:06 mchyzer Exp $
+ * $Id: XmlExport.java,v 1.2 2008-10-30 22:32:27 isgwb Exp $
  */
 package edu.internet2.middleware.grouper.app.gsh;
 
@@ -53,6 +53,9 @@ public class XmlExport {
   
   /** if we should include parent */
   private boolean includeParent = false;
+  
+  /** if we should include export children only */
+  private boolean childrenOnly = false;
   
   /** grouper session to use */
   private GrouperSession grouperSession = null;
@@ -134,6 +137,17 @@ public class XmlExport {
    */
   public XmlExport includeParent(boolean isIncludeParent) {
     this.includeParent = isIncludeParent;
+    return this;
+  }
+  
+  /**
+   * for export of a stem if we should only export the children
+   * and not the stem itself
+   * @param isChildrenOnly
+   * @return if we should only export children
+   */
+  public XmlExport childrenOnly(boolean isChildrenOnly) {
+    this.childrenOnly = isChildrenOnly;
     return this;
   }
   
@@ -221,7 +235,7 @@ public class XmlExport {
           if (this.includeParent) {
             throw new RuntimeException("Cannot include parent when exporting stems");
           }
-          exporter.export(writer, this.stem, this.relative);
+          exporter.export(writer, this.stem, this.relative,this.childrenOnly);
         } else if (this.groupsAndStems != null) {
           exporter.export(writer, this.groupsAndStems, this.collectionMessage);
         }

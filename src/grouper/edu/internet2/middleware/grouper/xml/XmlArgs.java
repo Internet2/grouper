@@ -23,7 +23,7 @@ import  java.util.Properties;
  * XML Command Line Argument Processing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlArgs.java,v 1.1 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: XmlArgs.java,v 1.2 2008-10-30 22:32:27 isgwb Exp $
  * @since   1.1.0
  */
 public class XmlArgs {
@@ -36,6 +36,8 @@ public class XmlArgs {
   public static final String RC_NAME       = "owner.name";
   public static final String RC_PARENT     = "mystery.parent";
   public static final String RC_RELATIVE   = "mystery.relative";
+  public static final String RC_CHILDREN   = "mystery.children";
+  public static final String RC_IGNORE     = "mystery.ignore";
   public static final String RC_SUBJ       = "subject.identifier";
   public static final String RC_UPROPS     = "properties.user";
   public static final String RC_UPDATELIST = "update.list";
@@ -83,7 +85,12 @@ public class XmlArgs {
           rc.setProperty(RC_PARENT, "true");
           pos++;
           continue;
-        } else {
+        }
+        else if (arg.equalsIgnoreCase("-childrenonly")) {
+            rc.setProperty(RC_CHILDREN, "true");
+            pos++;
+            continue;
+          }else {
           throw new IllegalArgumentException(E_UNKNOWN_OPTION + arg);
         }
       }
@@ -121,7 +128,12 @@ public class XmlArgs {
           rc.setProperty(RC_UPDATELIST, "true");
           pos++;
           continue;
-        } 
+        }
+        else if (arg.equalsIgnoreCase("-ignoreInternal"))           {
+            rc.setProperty(RC_IGNORE, "true");
+            pos++;
+            continue;
+          } 
         else {
           throw new IllegalArgumentException(E_UNKNOWN_OPTION + arg);
         }
