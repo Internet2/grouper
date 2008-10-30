@@ -90,7 +90,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.5 2008-10-09 15:08:09 isgwb Exp $
+ * @version $Id: XmlExporter.java,v 1.6 2008-10-30 22:32:27 isgwb Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -104,8 +104,9 @@ public class XmlExporter {
   private GrouperSession  s;
   private String          fromStem      = null;
   // TODO 20070321 i need to figure out all the details of how "includeParent" and "isRelative" interact
-  private boolean         includeParent = true;
+  private boolean         includeParent = false;
   private boolean         isRelative    = false;
+  private boolean         childrenOnly= false;
   private Properties      options;
   private Date            startTime;
   private XmlWriter       xml           = null;
@@ -178,6 +179,12 @@ public class XmlExporter {
    * <td>true/false</td>
    * <td>true</td>
    * <td>If true only immediate list members will be exported.</td>
+   * </tr>
+   * <tr>
+   * <td>export.uuids</td>
+   * <td>true/false</td>
+   * <td>true</td>
+   * <td>If true group and stem uuids will be exported</td>
    * </tr>
    * <tr>
    * <td>export.group.internal-attributes</td>
@@ -256,7 +263,8 @@ public class XmlExporter {
   public static void main(String args[]) {
     if (XmlArgs.internal_wantsHelp(args)) {
       System.out.println( _getUsage() );
-      System.exit(0);
+      //System.exit(0);
+      return;
     }
     Properties rc = new Properties();
     try {
@@ -266,7 +274,8 @@ public class XmlExporter {
       e.printStackTrace();
       System.err.println();
       System.err.println( _getUsage() );
-      System.exit(1);
+      //System.exit(1);
+      return;
     }
     XmlExporter exporter = null;
     try {
@@ -282,7 +291,8 @@ public class XmlExporter {
       try {
       exporter.xml.internal_close();
       }catch(IOException ioe){}
-      System.exit(1);
+      //System.exit(1);
+      return;
     }
     finally {
       if (exporter != null) {
@@ -294,7 +304,8 @@ public class XmlExporter {
         }
       }
     }
-    System.exit(0);
+    //System.exit(0);
+    return;
   } // public static void main(args)
 
 
@@ -313,6 +324,7 @@ public class XmlExporter {
     this.xml            = new XmlWriter(writer);
     this.includeParent  = false;
     this.isRelative     = false;
+    this.childrenOnly   = true;
     this._export(StemFinder.findRootStem(s));
   } // public void export()
 
@@ -344,14 +356,16 @@ public class XmlExporter {
    * @throws  GrouperException
    * @since   1.1.0
    */
-  public void export(Writer writer, Stem ns, boolean relative)
+  public void export(Writer writer, Stem ns, boolean relative, boolean childrenOnly)
     throws  GrouperException 
   {
     this.xml            = new XmlWriter(writer);
     this.isRelative     = relative;
-    if (ns.isRootStem()) {
+    this.childrenOnly     = childrenOnly;
+    //if (ns.isRootStem()) {
+    //includeParent should just refer to groups
       this.includeParent = false; // TODO 20070321 includeParent is still sort of magic to /me
-    }
+    //}
     this._export(ns);
   } // public void export(writer, ns, relative)
 
@@ -407,10 +421,14 @@ public class XmlExporter {
    */
   public String internal_groupToXML(Group g, boolean writeAbsoluteName) {
     StringBuffer sb = new StringBuffer();
-    sb.append( "<groupRef id=" + Quote.single( XML.escape( g.getUuid() ) ) );
-    sb.append( GrouperConfig.NL );
+    sb.append( "<groupRef ");
+    if(_isUuidAttrsExportEnabled()){
+    	sb.append( "id=" + Quote.single( XML.escape( g.getUuid() ) ) );
+    	sb.append( GrouperConfig.NL );
+    }
+    
     sb.append( "        name=" );
-    if (writeAbsoluteName) {
+    if (!writeAbsoluteName) {
       sb.append( Quote.single( XML.escape( this._fixGroupName( g.getName() ) ) ) );
     }
     else {
@@ -550,7 +568,7 @@ public class XmlExporter {
     return  "Usage:"                                                                + GrouperConfig.NL
             + "args: -h,            Prints this message"                            + GrouperConfig.NL
             + "args: subjectIdentifier [(-id <id>] | [-name <name>)] [-relative]"   + GrouperConfig.NL
-            + "      [-includeParent] fileName [properties]"                        + GrouperConfig.NL
+            + "      [-includeParent] [-childrenOnly] fileName [properties]"        + GrouperConfig.NL
             +                                                                         GrouperConfig.NL
             + "  subjectIdentifier, Identifies a Subject 'who' will create a"       + GrouperConfig.NL
             + "                     GrouperSession"                                 + GrouperConfig.NL
@@ -560,6 +578,8 @@ public class XmlExporter {
             + "                     Stems"                                          + GrouperConfig.NL
             + "  -includeParent,    If id or name identifies a Stem export this"    + GrouperConfig.NL
             + "                     stem and child Stems or Groups"                 + GrouperConfig.NL
+            + "  -childrenOnly,     If id or name identifies a Stem export its "    + GrouperConfig.NL
+            + "                     child Stems and Groups, but not the stem itself"+ GrouperConfig.NL
             + "  filename,          The file where exported data will be written."  + GrouperConfig.NL
             + "                     Will overwrite existing files"                  + GrouperConfig.NL
             + "  properties,        The name of an optional Java properties file. " + GrouperConfig.NL
@@ -625,7 +645,7 @@ public class XmlExporter {
         );
       } 
       else {
-        exporter.export(writer, stem, Boolean.valueOf( rc.getProperty(XmlArgs.RC_RELATIVE) ).booleanValue() );
+        exporter.export(writer, stem, Boolean.valueOf( rc.getProperty(XmlArgs.RC_RELATIVE) ).booleanValue(),Boolean.valueOf( rc.getProperty(XmlArgs.RC_CHILDREN) ).booleanValue() );
       }
     }
   } // private static void _handleArgs(exporter, rc)
@@ -835,7 +855,7 @@ public class XmlExporter {
       stems = new Stack();
       if (o instanceof Group) {
         stems.push( (Group) o);
-        if (this.includeParent) {
+        if (!this.childrenOnly) {
           stems.push( ( (Group) o ).getParentStem());
         }
       } 
@@ -856,6 +876,11 @@ public class XmlExporter {
     return XmlUtils.internal_getBooleanOption(this.options, "export.data");
   } // private boolean _isDataExportEnabled()
 
+//@since   1.4.0
+  private boolean _isUuidAttrsExportEnabled() {
+    return XmlUtils.internal_getBooleanOption(this.options, "export.uuids");
+  } // private boolean _isUuidAttrsExportEnabled()
+  
   // @since   1.1.0
   private boolean _isGroupInternalAttrsExportEnabled() {
     return XmlUtils.internal_getBooleanOption(this.options, "export.group.internal-attributes");
@@ -992,9 +1017,12 @@ public class XmlExporter {
     }
     this.xml.internal_puts( s + o.getName() + "</node>" );
     this.xml.internal_puts("<relative>" + isRelative + "</relative>");
-    if (o instanceof Stem) {
+    if (o instanceof Group) {
       this.xml.internal_puts("<includeParent>" + includeParent + "</includeParent>");
     }
+    if (o instanceof Stem) {
+        this.xml.internal_puts("<childrenOnly>" + childrenOnly + "</childrenOnly>");
+      }
     this.xml.internal_undent();
     this.xml.internal_puts("</exportParams>");
     this.xml.internal_undent();
@@ -1078,7 +1106,9 @@ public class XmlExporter {
     this.xml.internal_puts("displayExtension=" + Quote.single( XML.escape( g.getDisplayExtension() ) )     );
     this.xml.internal_puts("name="             + Quote.single( XML.escape( g.getName() ) )                 );
     this.xml.internal_puts("displayName="      + Quote.single( XML.escape( g.getDisplayName() ) )          );
-    this.xml.internal_puts("id="               + Quote.single( XML.escape( g.getUuid() ) )                 );
+    if(_isUuidAttrsExportEnabled()){
+    	this.xml.internal_puts("id="               + Quote.single( XML.escape( g.getUuid() ) )                 );
+    }
     this.xml.internal_undent();
     this.xml.internal_puts(">");
     this.xml.internal_indent();
@@ -1561,7 +1591,9 @@ public class XmlExporter {
     this.xml.internal_puts("displayExtension=" + Quote.single( XML.escape( ns.getDisplayExtension() ) )    );
     this.xml.internal_puts("name="             + Quote.single( XML.escape( ns.getName()) )                 );
     this.xml.internal_puts("displayName="      + Quote.single( XML.escape( ns.getDisplayName() ) )         );
-    this.xml.internal_puts("id="               + Quote.single( XML.escape( ns.getUuid() ) )                );
+    if(_isUuidAttrsExportEnabled()){
+    	this.xml.internal_puts("id="           + Quote.single( XML.escape( ns.getUuid() ) )                );
+    }
     this.xml.internal_undent();
     this.xml.internal_puts(">");
     this.xml.internal_indent();
@@ -1598,8 +1630,8 @@ public class XmlExporter {
     }
     Stem ns = (Stem) obj;
     if (stack.isEmpty()) {
-      if (this.includeParent) {
-        // TODO 20070321 won't this cause the parent to be exported but no the target?
+      if (!this.childrenOnly) {
+        
         this._writeStem(ns);
       } 
       else {
