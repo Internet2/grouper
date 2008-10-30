@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderJob.java,v 1.3 2008-09-29 03:38:30 mchyzer Exp $
+ * $Id: GrouperLoaderJob.java,v 1.4 2008-10-30 20:57:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -8,11 +8,12 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.CronTrigger;
 import org.quartz.Job;
-import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.SimpleTrigger;
@@ -22,7 +23,6 @@ import org.quartz.Trigger;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -43,111 +43,225 @@ public class GrouperLoaderJob implements Job, StatefulJob {
    * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
    */
   public void execute(JobExecutionContext context) throws JobExecutionException {
-    String jobName = null;
-    Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-    JobExecutionException jobExecutionException = null;
     long startTime = System.currentTimeMillis();
+
+    Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
     
+    Group group = null;
+    GrouperSession grouperSession = null;
     try {
-      
-      jobName = context.getJobDetail().getName();
+      grouperSession = GrouperSession.startRootSession();
+      String jobName = context.getJobDetail().getName();
+  
       hib3GrouploaderLog.setJobName(jobName);
       
-      //get all the params that define the job
-      JobDataMap jobDataMap = context.getMergedJobDataMap();
+      String grouperLoaderGroupUuid = null;
+      String grouperLoaderQuartzCronFromGroup = null;
+      String grouperLoaderTypeFromGroup = null;
+      String grouperLoaderScheduleTypeFromGroup = null;
+      Integer grouperLoaderPriorityFromGroup = null;
+      Integer grouperLoaderIntervalSecondsFromGroup = null;
       
-      String grouperLoaderGroupName = jobDataMap.getString(GrouperLoader.GROUPER_LOADER_GROUP_NAME);
-      String grouperLoaderGroupUuid = jobDataMap.getString(GrouperLoader.GROUPER_LOADER_GROUP_UUID);
-      hib3GrouploaderLog.setGroupUuid(grouperLoaderGroupUuid);
-      String grouperLoaderType = jobDataMap.getString(GrouperLoader.GROUPER_LOADER_TYPE);
-      String grouperLoaderDbName = jobDataMap.getString(GrouperLoader.GROUPER_LOADER_DB_NAME);
-      String grouperLoaderQuery = jobDataMap.getString(GrouperLoader.GROUPER_LOADER_QUERY);
-      
-      GrouperLoaderType grouperLoaderTypeEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderType, true);
-      
-      String grouperLoaderScheduleType = jobDataMap.getString(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE);
-      String grouperLoaderAndGroupNames = jobDataMap.getString(GrouperLoader.GROUPER_LOADER_AND_GROUPS);
-      
-      List<Group> andGroups = new ArrayList<Group>();
-      GrouperSession grouperSession = null;
-      try {
+      //job name is GrouperLoaderType__groupname__uuid
+      GrouperLoaderType grouperLoaderType = GrouperLoaderType.typeForThisName(jobName);
+      if (grouperLoaderType.equals(GrouperLoaderType.SQL_GROUP_LIST) || 
+          grouperLoaderType.equals(GrouperLoaderType.SQL_SIMPLE)) {
         
-        grouperSession = GrouperSession.start(
-            SubjectFinder.findById("GrouperSystem")
-        );
-        //find the groups whose membership we "and" with the dynamic group
-        if (!StringUtils.isBlank(grouperLoaderAndGroupNames)) {
-          //there are groups to and with, get the list
-          String[] groupNames = GrouperUtil.splitTrim(grouperLoaderAndGroupNames, ",");
+        int uuidIndexStart = jobName.lastIndexOf("__");
+        
+        if (uuidIndexStart >= 0) {
+          grouperLoaderGroupUuid = jobName.substring(uuidIndexStart+2, jobName.length());
           
+          group = GroupFinder.findByUuid(grouperSession, grouperLoaderGroupUuid);
+          grouperLoaderQuartzCronFromGroup = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
+              GrouperLoader.GROUPER_LOADER_QUARTZ_CRON);
+          grouperLoaderScheduleTypeFromGroup = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
+              GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE);
+          grouperLoaderTypeFromGroup = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
+              GrouperLoader.GROUPER_LOADER_TYPE);
+          grouperLoaderIntervalSecondsFromGroup = GrouperUtil.intObjectValue(
+              GrouperLoaderType.attributeValueOrDefaultOrNull(group,
+              GrouperLoader.GROUPER_LOADER_INTERVAL_SECONDS), true);
+          grouperLoaderPriorityFromGroup = GrouperUtil.intObjectValue(
+              GrouperLoaderType.attributeValueOrDefaultOrNull(group,
+              GrouperLoader.GROUPER_LOADER_PRIORITY), true);
           
-          for (String groupName : groupNames) {
-            Group group = GroupFinder.findByName(grouperSession, groupName);
-            andGroups.add(group);
+          //lets reset the job name in case the name has changed
+          jobName = grouperLoaderTypeFromGroup + "__" + group.getName() + "__" + group.getUuid();
+          hib3GrouploaderLog.setJobName(jobName);
+          
+        }
+      }
+      
+      hib3GrouploaderLog.setGroupUuid(grouperLoaderGroupUuid);
+
+      Trigger trigger = context.getTrigger();
+      String grouperLoaderQuartzCron = null;
+      String grouperLoaderScheduleType = null;
+      if (trigger instanceof CronTrigger) {
+        grouperLoaderQuartzCron = ((CronTrigger)trigger).getCronExpression();
+        grouperLoaderScheduleType = GrouperLoaderScheduleType.CRON.name();
+      }
+      Integer grouperLoaderIntervalSeconds = null;
+      if (trigger instanceof SimpleTrigger) {
+        grouperLoaderIntervalSeconds = (int)(((SimpleTrigger)trigger).getRepeatInterval()/1000);
+        grouperLoaderScheduleType = GrouperLoaderScheduleType.START_TO_START_INTERVAL.name();
+      }
+      
+      boolean scheduleChange = false;
+      
+      if (!StringUtils.isBlank(grouperLoaderScheduleTypeFromGroup)
+          && !StringUtils.equals(grouperLoaderScheduleTypeFromGroup, grouperLoaderScheduleType)) {
+        scheduleChange = true;
+      }
+      if (!StringUtils.isBlank(grouperLoaderQuartzCronFromGroup)
+          && !StringUtils.equals(grouperLoaderQuartzCronFromGroup, grouperLoaderQuartzCron)) {
+        scheduleChange = true;
+      }
+      if (grouperLoaderIntervalSecondsFromGroup != null
+          && !ObjectUtils.equals(grouperLoaderIntervalSecondsFromGroup, grouperLoaderIntervalSeconds)) {
+        scheduleChange = true;
+      }
+      if (grouperLoaderPriorityFromGroup != null && 
+          !ObjectUtils.equals(grouperLoaderPriorityFromGroup, trigger.getPriority())) {
+        scheduleChange = true;
+      }
+      
+      //see if the runtime settings have changed
+      if (scheduleChange) {
+        
+        GrouperLoaderScheduleType grouperLoaderScheduleTypeEnumFromGroup = GrouperLoaderScheduleType
+          .valueOfIgnoreCase(grouperLoaderScheduleTypeFromGroup, true);
+        
+        if (grouperLoaderScheduleTypeEnumFromGroup.equals(GrouperLoaderScheduleType.START_TO_START_INTERVAL)) {
+          if (grouperLoaderIntervalSecondsFromGroup == null) {
+            grouperLoaderIntervalSecondsFromGroup = 60*60*24;
+          }
+        }
+        if (grouperLoaderScheduleTypeEnumFromGroup.equals(GrouperLoaderScheduleType.CRON)) {
+          if (StringUtils.isBlank(grouperLoaderQuartzCronFromGroup)) {
+            throw new RuntimeException("Cron cant be blank if cron schedule: " + jobName);
           }
         }
         
-        Trigger trigger = context.getTrigger();
+        LOG.warn("Detected a grouper loader schedule change in job: " + jobName + ", to: " 
+            + grouperLoaderScheduleTypeFromGroup + ", cron: " + grouperLoaderQuartzCronFromGroup
+            + ", interval: " + grouperLoaderIntervalSecondsFromGroup);
         
-        String grouperLoaderQuartzCron = null;
+        GrouperLoaderType.scheduleJob(jobName, true, grouperLoaderScheduleTypeFromGroup, grouperLoaderQuartzCronFromGroup,
+            grouperLoaderIntervalSecondsFromGroup, grouperLoaderPriorityFromGroup);
         
-        if (trigger instanceof CronTrigger) {
-          grouperLoaderQuartzCron = ((CronTrigger)trigger).getCronExpression();
-        }
-        
-        Integer grouperLoaderIntervalSeconds = null;
-        
-        if (trigger instanceof SimpleTrigger) {
-          grouperLoaderIntervalSeconds = (int)(((SimpleTrigger)trigger).getRepeatInterval()/1000);
-        }
-        
-        //log that we are starting a job
-        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-        hib3GrouploaderLog.setJobScheduleIntervalSeconds(grouperLoaderIntervalSeconds);
-        hib3GrouploaderLog.setJobSchedulePriority(trigger.getPriority());
-        hib3GrouploaderLog.setJobScheduleQuartzCron(grouperLoaderQuartzCron);
-        hib3GrouploaderLog.setJobScheduleType(grouperLoaderScheduleType);
-        hib3GrouploaderLog.setJobType(grouperLoaderType);
-        hib3GrouploaderLog.setStartedTime(new Timestamp(System.currentTimeMillis()));
-        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
-        
-        hib3GrouploaderLog.store();
-        
-        GrouperLoaderDb grouperLoaderDb = GrouperLoaderConfig.retrieveDbProfile(grouperLoaderDbName);
-        
-        //based on type, run query from the db and sync members
-        grouperLoaderTypeEnum.syncGroupMembership(grouperLoaderGroupName, grouperLoaderDb, 
-            grouperLoaderQuery, hib3GrouploaderLog, startTime, grouperSession, andGroups);
-      } finally {
-        GrouperSession.stopQuietly(grouperSession);
       }
       
-    } catch (Throwable t) {
+      runJob(hib3GrouploaderLog, group, grouperSession);
+    } catch (Exception e) {
+      LOG.error("Error running up job", e);
+      if (!(e instanceof JobExecutionException)) {
+        e = new JobExecutionException(e);
+      }
+      JobExecutionException jobExecutionException = (JobExecutionException)e;
+      storeLogInDb(hib3GrouploaderLog, false, startTime);
+      throw jobExecutionException;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+
+  /**
+   * run a job (either from quartz or outside)
+   * @param hib3GrouploaderLog will get information, most importantly the job name
+   * @param jobGroup if a group job, this is the group object
+   * @param grouperSession 
+   */
+  public static void runJob(Hib3GrouperLoaderLog hib3GrouploaderLog, Group jobGroup, GrouperSession grouperSession) {
+    long startTime = System.currentTimeMillis();
+    boolean throwExceptionsInFinally = true;
+    String jobName = null;
+    try {
+      
+      jobName = hib3GrouploaderLog.getJobName();
+      
+      GrouperLoaderType grouperLoaderTypeEnum = GrouperLoaderType.typeForThisName(jobName);
+      
+      List<Group> andGroups = new ArrayList<Group>();
+
+      //find the groups whose membership we "and" with the dynamic group
+      String grouperLoaderAndGroupNames = hib3GrouploaderLog.getAndGroupNames();
+      if (!StringUtils.isBlank(grouperLoaderAndGroupNames)) {
+        //there are groups to and with, get the list
+        String[] groupNames = GrouperUtil.splitTrim(grouperLoaderAndGroupNames, ",");
+        
+        
+        for (String groupName : groupNames) {
+          Group group = GroupFinder.findByName(grouperSession, groupName);
+          andGroups.add(group);
+        }
+      }
+      
+      //log that we are starting a job
+      hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+      hib3GrouploaderLog.setStartedTime(new Timestamp(System.currentTimeMillis()));
+      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+      
+      hib3GrouploaderLog.store();
+      
+      String grouperLoaderDbName = "grouper";
+      
+      String grouperLoaderQuery = null;
+      String groupName = null;
+      if (jobGroup != null) {
+        grouperLoaderDbName = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_DB_NAME);
+        grouperLoaderQuery = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_QUERY);
+        groupName = jobGroup.getName();
+      }
+      
+      GrouperLoaderDb grouperLoaderDb = GrouperLoaderConfig.retrieveDbProfile(grouperLoaderDbName);
+      
+      //based on type, run query from the db and sync members
+      grouperLoaderTypeEnum.syncGroupMembership(groupName, grouperLoaderDb, 
+          grouperLoaderQuery, hib3GrouploaderLog, startTime, grouperSession, andGroups);
+      
+    } catch (Exception t) {
       LOG.error("Error on job: " + jobName, t);
       
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
-        
-      jobExecutionException = new JobExecutionException(t);
-      
-      throw jobExecutionException;
+      hib3GrouploaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(t));
+      throwExceptionsInFinally = false;
+      if (t instanceof RuntimeException) {
+        throw (RuntimeException)t;
+      }
+      throw new RuntimeException(t.getMessage(), t);
     } finally {
       
-      //store this safely
-      try {
-        
-        long endTime = System.currentTimeMillis();
-        hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
-        hib3GrouploaderLog.setMillis((int)(endTime-startTime));
-        
-        hib3GrouploaderLog.store();
-        
-      } catch (Exception e) {
-        LOG.error("Problem storing", e);
-        //dont preempt an existing exception
-        if (jobExecutionException!= null) {
-          throw new JobExecutionException(e);
-        }
+      storeLogInDb(hib3GrouploaderLog, throwExceptionsInFinally, startTime);
+    }
+    
+  }
+
+  /**
+   * @param hib3GrouploaderLog
+   * @param throwException 
+   * @param startTime
+   */
+  private static void storeLogInDb(Hib3GrouperLoaderLog hib3GrouploaderLog,
+      boolean throwException, long startTime) {
+    //store this safely
+    try {
+      
+      long endTime = System.currentTimeMillis();
+      hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
+      hib3GrouploaderLog.setMillis((int)(endTime-startTime));
+      
+      hib3GrouploaderLog.store();
+      
+    } catch (RuntimeException e) {
+      LOG.error("Problem storing final log", e);
+      //dont preempt an existing exception
+      if (throwException) {
+        throw e;
       }
     }
   }
+  
 }

@@ -82,6 +82,52 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperUtil {
 
   /**
+   * 
+   */
+  public static final String LOG_ERROR = "Error trying to make parent dirs for logger or logging first statement, check to make " +
+            		"sure you have proper file permissions, and that your servlet container is giving " +
+            		"your app rights to access the log directory (e.g. for tomcat set TOMCAT5_SECURITY=no), g" +
+            		"oogle it for more info";
+
+  /**
+   * The number of bytes in a kilobyte.
+   */
+  public static final long ONE_KB = 1024;
+
+  /**
+   * The number of bytes in a megabyte.
+   */
+  public static final long ONE_MB = ONE_KB * ONE_KB;
+
+  /**
+   * The number of bytes in a gigabyte.
+   */
+  public static final long ONE_GB = ONE_KB * ONE_MB;
+
+  /**
+   * Returns a human-readable version of the file size (original is in
+   * bytes).
+   *
+   * @param size The number of bytes.
+   * @return     A human-readable display value (includes units).
+   * @todo need for I18N?
+   */
+  public static String byteCountToDisplaySize(long size) {
+    String displaySize;
+
+    if (size / ONE_GB > 0) {
+      displaySize = String.valueOf(size / ONE_GB) + " GB";
+    } else if (size / ONE_MB > 0) {
+      displaySize = String.valueOf(size / ONE_MB) + " MB";
+    } else if (size / ONE_KB > 0) {
+      displaySize = String.valueOf(size / ONE_KB) + " KB";
+    } else {
+      displaySize = String.valueOf(size) + " bytes";
+    }
+
+    return displaySize;
+  }
+  /**
    * get a logger, and auto-create log dirs if havent done yet
    * @param theClass
    * @return the logger
@@ -111,15 +157,25 @@ public class GrouperUtil {
     for (String key : keySet) {
       //if its a file property
       if (key.endsWith(".File")) {
-        String fileName = properties.getProperty(key);
-        File file = new File(fileName);
-        File parent = file.getParentFile();
-        if (parent != null && !parent.exists()) {
-          //dont have a logger yet, so just print to stdout
-          System.out.println("Grouper warning: parent dir of log file doesnt exist: " + fileCanonicalPath(parent));
-          //create the parent
-          mkdirs(parent);
-          System.out.println("Grouper note: auto-created parent dir of log file: " + fileCanonicalPath(parent));
+        try {
+          String fileName = properties.getProperty(key);
+          File file = new File(fileName);
+          File parent = file.getParentFile();
+
+          if (parent != null && !parent.exists()) {
+            //dont have a logger yet, so just print to stdout
+            System.out.println("Grouper warning: parent dir of log file doesnt exist: " + fileCanonicalPath(parent));
+            //create the parent
+            mkdirs(parent);
+            System.out.println("Grouper note: auto-created parent dir of log file: " + fileCanonicalPath(parent));
+            
+          }
+
+        } catch (RuntimeException re) {
+          //this is bad, print to stderr rightaway (though might dupe)
+          System.err.println(GrouperUtil.LOG_ERROR);
+          re.printStackTrace();
+          throw new RuntimeException(LOG_ERROR, re);
         }
       }
     }

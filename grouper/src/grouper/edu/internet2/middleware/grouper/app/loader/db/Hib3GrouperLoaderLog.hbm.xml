@@ -19,7 +19,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<!-- $Id: Hib3GrouperLoaderLog.hbm.xml,v 1.1 2008-07-21 18:05:44 mchyzer Exp $ -->
+<!-- $Id: Hib3GrouperLoaderLog.hbm.xml,v 1.2 2008-10-30 20:57:17 mchyzer Exp $ -->
 <hibernate-mapping package="edu.internet2.middleware.grouper.app.loader.db"
   default-lazy="false">
   <class name="Hib3GrouperLoaderLog" table="grouper_loader_log">
@@ -28,7 +28,7 @@
       <generator class="uuid.hex" />
     </id>
 
-    <timestamp name="lastUpdated" column="last_updated" />
+    <property name="lastUpdated" column="last_updated" />
 
     <property name="endedTime" type="timestamp">
       <column name="ended_time"/>

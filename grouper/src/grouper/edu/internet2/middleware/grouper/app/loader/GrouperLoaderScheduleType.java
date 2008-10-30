@@ -1,12 +1,13 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderScheduleType.java,v 1.1 2008-07-21 18:05:44 mchyzer Exp $
+ * $Id: GrouperLoaderScheduleType.java,v 1.2 2008-10-30 20:57:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
 import java.text.ParseException;
 import java.util.Date;
 
+import org.apache.commons.logging.Log;
 import org.quartz.CronTrigger;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
@@ -61,15 +62,26 @@ public enum GrouperLoaderScheduleType {
     public Trigger createTrigger(String quartzCronString, Integer intervalSeconds) {
       SimpleTrigger simpleTrigger = new SimpleTrigger();
       simpleTrigger.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
+
       //default to daily
       intervalSeconds = GrouperUtil.defaultIfNull(intervalSeconds, 60*60*24);
       simpleTrigger.setRepeatInterval(intervalSeconds * 1000);
-      //start now (TODO, make this more sophisicated)
-      simpleTrigger.setStartTime(new Date());
+      
+      //start time is the interval seconds / 5, rand
+      int startSeconds = (int)(Math.random() * intervalSeconds);
+      Date startTime = new Date(System.currentTimeMillis() + (startSeconds*1000));
+      
+      simpleTrigger.setStartTime(startTime);
       return simpleTrigger;
     }
   };
   
+  /**
+   * logger 
+   */
+  @SuppressWarnings("unused")
+  private static final Log LOG = GrouperUtil.getLog(GrouperLoaderScheduleType.class);
+
   /**
    * create a trigger based on the type (this), and the params (e.g. cron string, interval seconds, etc)
    * @param quartzCronString

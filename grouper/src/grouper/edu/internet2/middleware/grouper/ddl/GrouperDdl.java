@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.21 2008-09-30 05:29:25 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.22 2008-10-30 20:57:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1736,7 +1736,7 @@ public enum GrouperDdl implements DdlVersionable {
         "Could be group name (friendly) or just config name");
     
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "status", 
-        "STARTED, SUCCESS, ERROR, WARNING, CONFIG_ERROR");
+        "STARTED, RUNNING, SUCCESS, ERROR, WARNING, CONFIG_ERROR");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_loader_log",  "started_time", 
         "When the job was started");
