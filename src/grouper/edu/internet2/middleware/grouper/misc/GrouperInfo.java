@@ -32,7 +32,7 @@ import edu.internet2.middleware.subject.Source;
  * Report on system and configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperInfo.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: GrouperInfo.java,v 1.3 2008-10-30 20:57:17 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperInfo {
@@ -41,7 +41,13 @@ public class GrouperInfo {
   @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(GrouperInfo.class);
 
+  /**
+   * 
+   */
   private ApiConfig           api;
+  /**
+   * 
+   */
   private HibernateDaoConfig  hib;
 
 
@@ -64,6 +70,7 @@ public class GrouperInfo {
    * <pre class="eg">
    * % java edu.internet2.middleware.grouper.GrouperInfo
    * </pre>
+   * @param args 
    * @since   1.1.0
    */
   public static void main(String[] args) {
@@ -89,6 +96,8 @@ public class GrouperInfo {
   // PRIVATE INSTANCE METHODS //
 
   /**
+   * @param key 
+   * @param val 
    * @since   1.2.0
    */
   private void _print(String key, String val) {
@@ -122,7 +131,9 @@ public class GrouperInfo {
    * @since   1.2.0
    */
   private void _printHibernateInfo() {
-    String key = "hibernate.dialect";
+    String key = "hibernate.connection.username";
+    this._print( key, this.hib.getProperty(key) );
+    key = "hibernate.dialect";
     this._print( key, this.hib.getProperty(key) );
     key = "hibernate.dialect";
     this._print( key, this.hib.getProperty(key) );
@@ -141,14 +152,11 @@ public class GrouperInfo {
    */
   private void _printSubjectInfo() {
     Source    sa;
-    Iterator  it  = SubjectFinder.getSources().iterator();
+    Iterator<Source>  it  = SubjectFinder.getSources().iterator();
     while (it.hasNext()) {
-      sa = (Source) it.next();
+      sa = it.next();
       System.out.println(
-        "source:"
-        + " id="    + sa.getId()
-        + " name="  + sa.getName()
-        + " class=" + sa.getClass().getName()
+          sa.printConfig() + " name="  + sa.getName()
       );
     }
   } 
@@ -170,6 +178,15 @@ public class GrouperInfo {
     this._print( key, props.getProperty(key, GrouperConfig.EMPTY_STRING) );
     key = "java.class.path";
     this._print( key, props.getProperty(key, GrouperConfig.EMPTY_STRING) );
+    long heapSize = Runtime.getRuntime().totalMemory();
+    this._print("heapSize", GrouperUtil.byteCountToDisplaySize(heapSize));
+    
+    long heapMaxSize = Runtime.getRuntime().maxMemory();
+    this._print("heapMaxSize", GrouperUtil.byteCountToDisplaySize(heapMaxSize));
+
+    long heapFreeSize = Runtime.getRuntime().freeMemory();
+    this._print("heapSizeFree", GrouperUtil.byteCountToDisplaySize(heapFreeSize));
+    
   } 
 
 } 

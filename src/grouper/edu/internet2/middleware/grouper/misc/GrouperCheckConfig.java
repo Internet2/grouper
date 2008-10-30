@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.6 2008-10-29 05:32:20 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.7 2008-10-30 20:57:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.CompositeHooks;
 import edu.internet2.middleware.grouper.hooks.FieldHooks;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
@@ -386,6 +387,9 @@ public class GrouperCheckConfig {
       return;
     }
     
+    //first try to get in the GrouperConfig, just get a property to init stuff
+    GrouperConfig.getProperty("groups.wheel.group");
+    
     checkGrouperConfigs();
     
     checkGrouperJars();
@@ -441,7 +445,44 @@ public class GrouperCheckConfig {
     String dbPassword = GrouperUtil.propertiesValue(
         grouperHibernateProperties, "hibernate.connection.password");
     
-    checkDatabase(driverClassName, connectionUrl, dbUser, dbPassword, "grouper.hibernate.properties");
+    if (!checkDatabase(driverClassName, connectionUrl, dbUser, dbPassword, "grouper.hibernate.properties")) {
+      return;
+    }
+    
+    String realDriverClass = driverClassName;
+
+    String spySuffix = "";
+    
+    if (driverClassName.equals(P6SpyDriver.class.getName())) {
+      Properties spyProperties = GrouperUtil.propertiesFromResourceName("spy.properties");
+      realDriverClass = StringUtils.defaultString(GrouperUtil.propertiesValue(spyProperties, "realdriver"));
+      spySuffix = ", and spy.properties";
+    }
+    
+    //try to check the hibernate dialect
+    boolean isDriverOracle = realDriverClass.toLowerCase().contains("oracle");
+    boolean isDriverPostgres = realDriverClass.toLowerCase().contains("postgres");
+    boolean isDriverMysql = realDriverClass.toLowerCase().contains("mysql");
+    boolean isDriverHsql = realDriverClass.toLowerCase().contains("hsql");
+    
+    String dialect = StringUtils.defaultString(GrouperUtil.propertiesValue(grouperHibernateProperties,"hibernate.dialect"));
+    
+    boolean isDialectOracle = dialect.toLowerCase().contains("oracle");
+    boolean isDialectPostgres = dialect.toLowerCase().contains("postgres");
+    boolean isDialectMysql = dialect.toLowerCase().contains("mysql");
+    boolean isDialectHsql = dialect.toLowerCase().contains("hsql");
+    
+    if ((isDriverOracle && !isDialectOracle) || (isDriverPostgres && !isDialectPostgres) 
+        || (isDriverMysql && !isDialectMysql) || (isDriverHsql && !isDialectHsql)
+        || (!isDriverOracle && isDialectOracle) || (!isDriverPostgres && isDialectPostgres) 
+        || (!isDriverMysql && isDialectMysql) || (!isDriverHsql && isDialectHsql)) {
+      String error = "Grouper error: detected mismatch in hibernate.connection.driver_class ("
+              + realDriverClass + ") and hibernate.dialect (" + dialect 
+              + ") in grouper.hibernate.properties" + spySuffix;
+      System.err.println(error);
+      LOG.error(error);
+    }
+    
   }
 
   /**
@@ -477,7 +518,7 @@ public class GrouperCheckConfig {
         spyInsert = " and spy.properties, ";
         checkResource("spy.properties");
         Properties spyProperties = GrouperUtil.propertiesFromResourceName("spy.properties");
-        driverClassName = spyProperties.getProperty("realdriver");
+        driverClassName = StringUtils.defaultString(GrouperUtil.propertiesValue(spyProperties,"realdriver"));
         try {
           driverClass = GrouperUtil.forName(driverClassName);
         } catch (Exception e) {

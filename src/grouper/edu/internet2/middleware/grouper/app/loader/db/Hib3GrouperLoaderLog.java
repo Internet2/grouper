@@ -1,12 +1,16 @@
 /**
  * @author mchyzer
- * $Id: Hib3GrouperLoaderLog.java,v 1.2 2008-07-23 06:41:30 mchyzer Exp $
+ * $Id: Hib3GrouperLoaderLog.java,v 1.3 2008-10-30 20:57:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
 import java.sql.Timestamp;
 
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -14,7 +18,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * maps to the grouper ddl table
  */
-public class Hib3GrouperLoaderLog {
+public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
   
   /** uuid for the row so hib knows insert vs update */
   private String id;
@@ -657,8 +661,19 @@ public class Hib3GrouperLoaderLog {
    * truncate the fields if needed and store to db
    */
   public void store() {
+    
     this.truncate();
-    HibernateSession.byObjectStatic().saveOrUpdate(this);
+    
+    //do this in autonomous transaction
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, new HibernateHandler() {
+
+      public Object callback(HibernateSession hibernateSession)
+          throws GrouperDAOException {
+        hibernateSession.byObject().saveOrUpdate(Hib3GrouperLoaderLog.this);
+        return null;
+      }
+      
+    });
   }
 
   /**
@@ -675,5 +690,43 @@ public class Hib3GrouperLoaderLog {
    */
   public void setLastUpdated(Timestamp lastUpdated1) {
     this.lastUpdated = lastUpdated1;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPostDelete(HibernateSession hibernateSession) {
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPostSave(HibernateSession hibernateSession) {
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPostUpdate(HibernateSession hibernateSession) {
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPreDelete(HibernateSession hibernateSession) {
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPreSave(HibernateSession hibernateSession) {
+    this.lastUpdated = new Timestamp(System.currentTimeMillis());
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    this.lastUpdated = new Timestamp(System.currentTimeMillis());
   }
 }

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderStatus.java,v 1.1 2008-07-21 18:05:44 mchyzer Exp $
+ * $Id: GrouperLoaderStatus.java,v 1.2 2008-10-30 20:57:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -14,6 +14,9 @@ public enum GrouperLoaderStatus {
   
   /** job was started */
   STARTED,
+
+  /** job is running */
+  RUNNING,
 
   /** job cant even start */
   CONFIG_ERROR,

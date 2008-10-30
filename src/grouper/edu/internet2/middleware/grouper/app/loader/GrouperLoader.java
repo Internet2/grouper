@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoader.java,v 1.5 2008-10-15 03:57:06 mchyzer Exp $
+ * $Id: GrouperLoader.java,v 1.6 2008-10-30 20:57:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -67,16 +67,12 @@ public class GrouperLoader {
     }
   }
   
-  
   /**
-   * group attribute name of type of the loader, must match one of the enums in GrouperLoaderType
+   * group attribute name of type of the loader, must match one of the enums in GrouperLoaderType.
+   * If there is a query, and it has "group_name" before "from", then defaults to SQL_GROUP_LIST
+   * else defaults to SQL_SIMPLE
    */
   public static final String GROUPER_LOADER_TYPE = "grouperLoaderType";
-
-  /**
-   * job param of group name of the loader
-   */
-  public static final String GROUPER_LOADER_GROUP_NAME = "grouperLoaderGroupName";
 
   /**
    * groups to and with to restrict members (e.g. "and" with activeEmployees)
@@ -84,7 +80,9 @@ public class GrouperLoader {
   public static final String GROUPER_LOADER_AND_GROUPS = "grouperLoaderAndGroups";
 
   /**
-   * group attribute name of type of schedule, must match one of the enums in GrouperLoaderScheduleType
+   * group attribute name of type of schedule, must match one of the enums in GrouperLoaderScheduleType.
+   * defaults to START_TO_START_INTERVAL if grouperLoaderQuartzCron is blank, else defaults to
+   * CRON
    */
   public static final String GROUPER_LOADER_SCHEDULE_TYPE = "grouperLoaderScheduleType";
 
@@ -99,7 +97,8 @@ public class GrouperLoader {
   public static final String GROUPER_LOADER_QUARTZ_CRON = "grouperLoaderQuartzCron";
 
   /**
-   * group attribute name of the interval in seconds for a schedule type like START_TO_START_INTERVAL
+   * group attribute name of the interval in seconds for a schedule type like START_TO_START_INTERVAL.
+   * defaults to 86400 (1 day)
    */
   public static final String GROUPER_LOADER_INTERVAL_SECONDS = "grouperLoaderIntervalSeconds";
 
@@ -111,14 +110,10 @@ public class GrouperLoader {
 
   /**
    * group attribute name of the db connection where this query comes from.
-   * if the name is "grouper", then it will be the group db name
+   * if the name is "grouper", then it will be the group db name.  defaults to "grouper" for sql type
+   * loaders
    */
   public static final String GROUPER_LOADER_DB_NAME = "grouperLoaderDbName";
-  
-  /**
-   * group uuid in the job context attributes
-   */
-  public static final String GROUPER_LOADER_GROUP_UUID = "grouperLoaderGroupUuid";
   
   /**
    * scheduler factory singleton
@@ -163,15 +158,6 @@ public class GrouperLoader {
 
       //the name of the job must be unique, so use the group name since one job per group (at this point)
       JobDetail jobDetail = new JobDetail(GrouperLoaderType.MAINTENANCE_CLEAN_LOGS, null, GrouperLoaderJob.class);
-
-      //set data for the job to execute
-      jobDetail.getJobDataMap().put(GrouperLoader.GROUPER_LOADER_GROUP_NAME, null);
-      jobDetail.getJobDataMap().put(GrouperLoader.GROUPER_LOADER_GROUP_UUID, null);
-      jobDetail.getJobDataMap().put(GrouperLoader.GROUPER_LOADER_TYPE, GrouperLoaderType.MAINTENANCE.name());
-      jobDetail.getJobDataMap().put(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
-      jobDetail.getJobDataMap().put(GrouperLoader.GROUPER_LOADER_QUERY, null);
-      jobDetail.getJobDataMap().put(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, 
-          GrouperLoaderScheduleType.CRON.name());
       
       //schedule this job daily at 6am
       GrouperLoaderScheduleType grouperLoaderScheduleType = GrouperLoaderScheduleType.CRON;

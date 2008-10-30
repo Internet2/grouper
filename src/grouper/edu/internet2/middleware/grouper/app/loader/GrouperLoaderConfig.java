@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderConfig.java,v 1.5 2008-09-14 04:54:00 mchyzer Exp $
+ * $Id: GrouperLoaderConfig.java,v 1.6 2008-10-30 20:57:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -65,15 +65,9 @@ public class GrouperLoaderConfig {
     if (StringUtils.isEmpty(paramString)) {
       return defaultValue;
     }
-    // if there, convert to boolean
-    try {
-      // note, cant be blank at this point, so default value doesnt matter
-      boolean paramBoolean = GrouperUtil.booleanValue(property);
-      return paramBoolean;
-    } catch (NumberFormatException nfe) {
-      throw new NumberFormatException("Cannot convert the grouper.properties param: "
-          + property + " to an Integer.  Config value is '" + paramString + "' " + nfe);
-    }
+    // note, cant be blank at this point, so default value doesnt matter
+    boolean paramBoolean = GrouperUtil.booleanValue(paramString);
+    return paramBoolean;
   }
 
   /**

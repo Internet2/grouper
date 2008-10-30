@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * you should probably use GrouperConfig
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.16 2008-10-21 18:12:45 mchyzer Exp $
+ * @version $Id: ApiConfig.java,v 1.17 2008-10-30 20:57:17 mchyzer Exp $
  * @since   1.2.1
  */
 public class ApiConfig implements Configuration {
@@ -135,19 +135,30 @@ public class ApiConfig implements Configuration {
     
     String displayMessageString = GrouperUtil.propertiesValue(properties, "configuration.display.startup.message");
     
-    if (!GrouperUtil.booleanValue(displayMessageString, true)) {
-      return;
-    }
-
-    StringBuilder resultString = new StringBuilder();
     String buildTimestamp = null;
     try {
       buildTimestamp = GrouperCheckConfig.manifestProperty(ApiConfig.class, new String[]{"Build-Timestamp"});
     } catch (Exception e) {
       //its ok, might not be running in jar
     }
-    resultString.append("Grouper starting up: version: " + GrouperVersion.GROUPER_VERSION 
-        + " build date: " + buildTimestamp + "\n");
+    String grouperStartup = "Grouper starting up: version: " + GrouperVersion.GROUPER_VERSION 
+      + " build date: " + buildTimestamp;
+    if (!GrouperUtil.booleanValue(displayMessageString, true)) {
+      //just log this to make sure we can
+      try {
+        LOG.warn(grouperStartup);
+      } catch (RuntimeException re) {
+        //this is bad, print to stderr rightaway (though might dupe)
+        System.err.println(GrouperUtil.LOG_ERROR);
+        re.printStackTrace();
+        throw new RuntimeException(GrouperUtil.LOG_ERROR, re);
+      }
+      
+      return;
+    }
+
+    StringBuilder resultString = new StringBuilder();
+    resultString.append(grouperStartup + "\n");
     File grouperPropertiesFile = GrouperUtil.fileFromResourceName("grouper.properties");
     String propertiesFileLocation = grouperPropertiesFile == null ? "not found" 
         : GrouperUtil.fileCanonicalPath(grouperPropertiesFile); 
@@ -177,8 +188,18 @@ public class ApiConfig implements Configuration {
     }
     resultString.append(sourcesString);
     System.out.println(resultString);
-    if (!GrouperUtil.isPrintGrouperLogsToConsole()) {
-      LOG.warn(resultString);
+    try {
+      if (!GrouperUtil.isPrintGrouperLogsToConsole()) {
+        LOG.warn(resultString);
+      } else {
+        //print something to log to make sure we can
+        LOG.warn(grouperStartup);
+      }
+    } catch (RuntimeException re) {
+      //this is bad, print to stderr rightaway (though might dupe)
+      System.err.println(GrouperUtil.LOG_ERROR);
+      re.printStackTrace();
+      throw new RuntimeException(GrouperUtil.LOG_ERROR, re);
     }
   }
   
