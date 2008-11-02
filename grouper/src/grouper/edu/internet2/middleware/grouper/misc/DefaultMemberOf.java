@@ -58,7 +58,7 @@ import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.8 2008-10-27 10:03:36 mchyzer Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.9 2008-11-02 21:14:20 shilen Exp $
  * @since   1.2.0
  */
 @GrouperIgnoreDbVersion
@@ -686,9 +686,17 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     throws  IllegalStateException
   {
     Set memberUUIDs = new LinkedHashSet();
-    memberUUIDs.addAll( this._findMemberUUIDs( this.getComposite().getLeftFactorUuid() ) );
-    memberUUIDs.removeAll( this._findMemberUUIDs(this.getComposite() .getRightFactorUuid() ) );
-    memberUUIDs.remove(this.getGroup().toMember().getUuid());
+    String compositeGroupUuid = this.getGroup().toMember().getUuid();
+    Set<String> leftMembers = this._findMemberUUIDs(this.getComposite().getLeftFactorUuid());
+    Set<String> rightMembers = this._findMemberUUIDs(this.getComposite().getRightFactorUuid());
+
+    if (leftMembers.contains(compositeGroupUuid) || rightMembers.contains(compositeGroupUuid)) {
+      throw new IllegalStateException("Membership paths from a factor to the composite are not allowed.");
+    }
+
+    memberUUIDs.addAll(leftMembers);
+    memberUUIDs.removeAll(rightMembers);
+
     return this._createNewCompositeMembershipObjects(memberUUIDs);
   } 
   
@@ -697,9 +705,17 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     throws  IllegalStateException
   {
     Set memberUUIDs = new LinkedHashSet();
-    memberUUIDs.addAll( this._findMemberUUIDs( this.getComposite().getLeftFactorUuid() ) );
-    memberUUIDs.retainAll( this._findMemberUUIDs( this.getComposite().getRightFactorUuid() ) );
-    memberUUIDs.remove(this.getGroup().toMember().getUuid());
+    String compositeGroupUuid = this.getGroup().toMember().getUuid();
+    Set<String> leftMembers = this._findMemberUUIDs(this.getComposite().getLeftFactorUuid());
+    Set<String> rightMembers = this._findMemberUUIDs(this.getComposite().getRightFactorUuid());
+
+    if (leftMembers.contains(compositeGroupUuid) || rightMembers.contains(compositeGroupUuid)) {
+      throw new IllegalStateException("Membership paths from a factor to the composite are not allowed.");
+    }
+
+    memberUUIDs.addAll(leftMembers);
+    memberUUIDs.retainAll(rightMembers);
+
     return this._createNewCompositeMembershipObjects(memberUUIDs);
   } 
 
@@ -708,9 +724,17 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     throws  IllegalStateException
   {
     Set memberUUIDs = new LinkedHashSet();
-    memberUUIDs.addAll( this._findMemberUUIDs( this.getComposite().getLeftFactorUuid() ) );
-    memberUUIDs.addAll( this._findMemberUUIDs( this.getComposite().getRightFactorUuid() ) );
-    memberUUIDs.remove(this.getGroup().toMember().getUuid());
+    String compositeGroupUuid = this.getGroup().toMember().getUuid();
+    Set<String> leftMembers = this._findMemberUUIDs(this.getComposite().getLeftFactorUuid());
+    Set<String> rightMembers = this._findMemberUUIDs(this.getComposite().getRightFactorUuid());
+
+    if (leftMembers.contains(compositeGroupUuid) || rightMembers.contains(compositeGroupUuid)) {
+      throw new IllegalStateException("Membership paths from a factor to the composite are not allowed.");
+    }
+
+    memberUUIDs.addAll(leftMembers);
+    memberUUIDs.addAll(rightMembers);
+
     return this._createNewCompositeMembershipObjects(memberUUIDs);
   } 
 
@@ -868,6 +892,11 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
           Group left = GrouperDAOFactory.getFactory().getGroup().findByUuid(c.getLeftFactorUuid());
           Group right = GrouperDAOFactory.getFactory().getGroup().findByUuid(c.getRightFactorUuid());
           Group owner = GrouperDAOFactory.getFactory().getGroup().findByUuid(c.getFactorOwnerUuid());
+
+          // we're not allowing membership paths from a factor to the composite
+          if (checkEquality(memberUuid, owner.getUuid()) == true) {
+            throw new IllegalStateException("Membership paths from a factor to the composite are not allowed.");
+          }
 
           boolean rightHasMember = hasMember(right, memberUuid);
           boolean leftHasMember = hasMember(left, memberUuid);
