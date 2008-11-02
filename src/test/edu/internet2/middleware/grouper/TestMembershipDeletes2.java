@@ -107,7 +107,7 @@ public class TestMembershipDeletes2 extends TestCase {
       gH.grantPriv( gI.toSubject(), AccessPrivilege.UPDATE );
       gJ.grantPriv( gA.toSubject(), AccessPrivilege.UPDATE );
 
-      verifyMembershipAddAndDeleteMember(gB, gI.toSubject());
+      verifyMembershipAddAndDeleteMember(gB, gG.toSubject());
       verifyMembershipAddAndDeleteAccessPrivUpdate(gB, gI.toSubject());
       verifyMembershipAddAndDeleteAccessPrivUpdate(gB, gD.toSubject());
       verifyMembershipAddAndDeleteAccessPrivUpdate(gA, gA.toSubject());
