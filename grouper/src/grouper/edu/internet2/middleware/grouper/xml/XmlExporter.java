@@ -90,7 +90,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.6 2008-10-30 22:32:27 isgwb Exp $
+ * @version $Id: XmlExporter.java,v 1.7 2008-11-02 09:42:22 isgwb Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -346,7 +346,7 @@ public class XmlExporter {
     this.isRelative     = relative;
     this._export(g);
   } // public void export(writer, g, relative, includeParent)
-
+  
   /**
    * Export a single stem.
    * <p/>
@@ -355,6 +355,23 @@ public class XmlExporter {
    * @param   relative      If true export in a format suitable for relocating within the Groups Registry.
    * @throws  GrouperException
    * @since   1.1.0
+   */
+  public void export(Writer writer, Stem ns, boolean relative)
+    throws  GrouperException 
+  {
+    export(writer, ns,relative,false);
+  } // public void export(writer, ns, relative)
+
+
+  /**
+   * Export a single stem.
+   * <p/>
+   * @param   writer        Write XML here.
+   * @param   ns            Export this stem.
+   * @param   relative      If true export in a format suitable for relocating within the Groups Registry.
+   * @param   childrenOnly  If true omit the actual stem and only export child stems/groups
+   * @throws  GrouperException
+   * @since   1.4.0
    */
   public void export(Writer writer, Stem ns, boolean relative, boolean childrenOnly)
     throws  GrouperException 
@@ -367,7 +384,7 @@ public class XmlExporter {
       this.includeParent = false; // TODO 20070321 includeParent is still sort of magic to /me
     //}
     this._export(ns);
-  } // public void export(writer, ns, relative)
+  } // public void export(writer, ns, relative, childrenOnly)
 
   /**
    * Export a Collection of Stems, Groups, Members, Subjects or Memberships.
