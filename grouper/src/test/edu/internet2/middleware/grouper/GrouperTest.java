@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.util.Quote;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -42,7 +43,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.9 2008-10-16 05:45:47 mchyzer Exp $
+ * @version $Id: GrouperTest.java,v 1.10 2008-11-04 07:17:56 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -522,12 +523,12 @@ public class GrouperTest extends TestCase {
 
   // @since   1.2.0
   protected void setUp () {
-    //take a bit of time so that hsqldb can release the connection...
-    //GrouperUtil.sleep(100);
     LOG.debug("setUp");
-    RegistryReset.reset();
+    RegistryReset.internal_resetRegistryAndAddTestSubjects();
     //remove any settings in testconfig
     ApiConfig.testConfig.clear();
+    
+    GrouperCheckConfig.checkGroups();
   } 
 
   // @since   1.2.0

@@ -58,7 +58,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.69 2008-10-17 12:06:37 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.70 2008-11-04 07:17:55 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVersioned {
 
@@ -116,7 +116,6 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
   /** */
   public static final long serialVersionUID = 8214760621248803096L;
 
-
   /**
    * Create a new {@link GroupType}.  
    * <p/>
@@ -142,31 +141,80 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
    * @throws  SchemaException
    */
   public static GroupType createType(GrouperSession s, String name) 
-    throws  InsufficientPrivilegeException,
-            SchemaException
-  {
+    throws  InsufficientPrivilegeException, SchemaException  {
+    return createTypeHelper(s, name, true);
+  }
+
+  /**
+   * Create a new {@link GroupType}.  
+   * <p/>
+   * Create a new custom group type that can be assigned to existing or
+   * new groups.  If the type already exists, a {@link SchemaException}
+   * will be thrown.  If the subject is not root-like, an 
+   * {@link InsufficientPrivilegeException} will be thrown.
+   * <pre class="eg">
+   * try {
+   *   GroupType type = GroupType.createType(s, "my custom type");
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Subject not privileged to add group types.
+   * }
+   * catch (SchemaException eS) {
+   *   // Type not created
+   * }
+   * </pre>
+   * @param   s     Create type within this session context.
+   * @param   name  Create type with this name.
+   * @param exceptionIfExists 
+   * @return  New {@link GroupType}.
+   * @throws  InsufficientPrivilegeException
+   * @throws SchemaException 
+   */
+  public static GroupType createType(GrouperSession s, String name, boolean exceptionIfExists) 
+    throws  InsufficientPrivilegeException, SchemaException  {
+    return createTypeHelper(s, name, exceptionIfExists);
+  }
+
+  /**
+   * @param s
+   * @param name
+   * @param exceptionIfExists 
+   * @return the type
+   * @throws InsufficientPrivilegeException
+   * @throws SchemaException
+   */
+  private static GroupType createTypeHelper(GrouperSession s, String name, boolean exceptionIfExists)
+      throws InsufficientPrivilegeException, SchemaException {
     //note, no need for GrouperSession inverse of control
     StopWatch sw = new StopWatch();
     sw.start();
-    GroupType type = internal_createType(s, name, true, false, true);
+    boolean[] existedAlready = new boolean[1];
+    GroupType type = internal_createType(s, name, true, false, exceptionIfExists, existedAlready);
     sw.stop();
-    EventLog.info(s, M.GROUPTYPE_ADD + Quote.single( type.getName() ), sw);
+    if (!existedAlready[0]) {
+      EventLog.info(s, M.GROUPTYPE_ADD + Quote.single( type.getName() ), sw);
+    }
     return type;
   }
 
-
+  /** */
   private long    createTime;
-  // PRIVATE INSTANCE VARIABLES //
+  /** */
   private String  creatorUUID;
   
+  /** */
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private Set     fields;
   
+  /** */
   private boolean isAssignable  = true;
+  /** */
   private boolean isInternal    = false;
+  /** */
   private String  name;
+  /** */
   private String  uuid; 
 
 
@@ -191,6 +239,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
    * @param   read      {@link Privilege} required to write to this {@link Field}.
    * @param   write     {@link Privilege} required to write to this {@link Field}.
    * @param   required  Is this attribute required.
+   * @return  field
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
    */
@@ -198,8 +247,86 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
     GrouperSession s, String name, Privilege read, Privilege write, boolean required
   )
     throws  InsufficientPrivilegeException,
-            SchemaException
-  {
+            SchemaException {
+    return addAttribute(s, name, read, write, required, true);
+  } // public Field addAttribute(s, name, read, write, required)
+
+  /**
+   * Add a custom attribute {@link Field} to a custom {@link GroupType}.
+   * try {
+   *   Field myAttr = type.addAttribute(
+   *     "my attribute", AccessPrivilege.VIEW, AccessPrivilege.UPDATE, false
+   *   );
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add attribute
+   * }
+   * catch (SchemaException eS) {
+   *   // Invalid schema
+   * }
+   * </pre>
+   * @param   s         Add attribute within this session context.
+   * @param   name      Name of attribute.
+   * @param   read      {@link Privilege} required to write to this {@link Field}.
+   * @param   write     {@link Privilege} required to write to this {@link Field}.
+   * @param   required  Is this attribute required.
+   * @param exceptionIfExists 
+   * @return  field
+   * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
+   */
+  public Field addAttribute(
+    GrouperSession s, String name, Privilege read, Privilege write, boolean required, boolean exceptionIfExists
+  )
+    throws  InsufficientPrivilegeException,
+            SchemaException {
+    return addAttributeHelper(s, name, read, write, required, exceptionIfExists, false);
+  } // public Field addAttribute(s, name, read, write, required)
+
+  /**
+   * Add a custom attribute {@link Field} to a custom {@link GroupType}.
+   * try {
+   *   Field myAttr = type.addAttribute(
+   *     "my attribute", AccessPrivilege.VIEW, AccessPrivilege.UPDATE, false
+   *   );
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add attribute
+   * }
+   * catch (SchemaException eS) {
+   *   // Invalid schema
+   * }
+   * </pre>
+   * @param   s         Add attribute within this session context.
+   * @param   name      Name of attribute.
+   * @param   read      {@link Privilege} required to write to this {@link Field}.
+   * @param   write     {@link Privilege} required to write to this {@link Field}.
+   * @param   required  Is this attribute required.
+   * @return  field
+   * @throws  InsufficientPrivilegeException
+   * @throws  SchemaException
+   */
+  public Field addOrUpdateAttribute(
+    GrouperSession s, String name, Privilege read, Privilege write, boolean required
+  ) throws  InsufficientPrivilegeException, SchemaException {
+    return addAttributeHelper(s, name, read, write, required, false, true);
+  } // public Field addAttribute(s, name, read, write, required)
+
+  /**
+   * @param s
+   * @param name
+   * @param read
+   * @param write
+   * @param required
+   * @param exceptionIfExists 
+   * @param updateIfExists 
+   * @return the field
+   * @throws InsufficientPrivilegeException
+   * @throws SchemaException
+   */
+  private Field addAttributeHelper(GrouperSession s, String name, Privilege read,
+      Privilege write, boolean required, boolean exceptionIfExists, boolean updateIfExists) throws InsufficientPrivilegeException,
+      SchemaException {
     //note, no need for GrouperSession inverse of control
     ModifyGroupTypeValidator v = ModifyGroupTypeValidator.validate(s, this);
     if (v.isInvalid()) {
@@ -211,8 +338,8 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
     if (!Privilege.isAccess(write)) {
       throw new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write);
     }
-    return this.internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required, true);
-  } // public Field addAttribute(s, name, read, write, required)
+    return this.internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required, exceptionIfExists, updateIfExists);
+  }
 
   /**
    * Add a custom list {@link Field} to a custom {@link GroupType}.
@@ -232,6 +359,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
    * @param   name      Name of list.
    * @param   read      {@link Privilege} required to write to this {@link Field}.
    * @param   write     {@link Privilege} required to write to this {@link Field}.
+   * @return field
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
    */
@@ -252,10 +380,10 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
     if (!Privilege.isAccess(write)) {
       throw new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write);
     }
-    return this.internal_addField(s, name, FieldType.LIST, read, write, false, true);
+    return this.internal_addField(s, name, FieldType.LIST, read, write, false, true, false);
   } // public Field addList(s, name, read, write)
 
-  /*
+  /**
    * Delete a custom {@link GroupType} definition.
    * <p/>
    * <pre class="eg">
@@ -387,7 +515,10 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
     }
   } // public void deleteField(s, name)
 
-  // @since   1.2.0
+  /**
+   * 
+   * @return true if system type
+   */
   public boolean isSystemType() {
     if ( "base".equals( this.getName() ) || "naming".equals( this.getName() ) ) {
       return true;
@@ -403,12 +534,13 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
    * @param isAssignable
    * @param isInternal
    * @param exceptionIfExists
-   * @return
+   * @param existedAlready boolean array, the fisrt index will be in it existed already
+   * @return the type
    * @throws InsufficientPrivilegeException
    * @throws SchemaException
    */
   public static GroupType internal_createType(
-    GrouperSession s, String name, boolean isAssignable, boolean isInternal, boolean exceptionIfExists)
+    GrouperSession s, String name, boolean isAssignable, boolean isInternal, boolean exceptionIfExists, boolean[] existedAlready)
       throws  InsufficientPrivilegeException,
               SchemaException
   { 
@@ -419,12 +551,19 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
       throw new InsufficientPrivilegeException(msg);
     }
     GroupTypeDAO dao = GrouperDAOFactory.getFactory().getGroupType();
+    if (GrouperUtil.length(existedAlready) >= 1) {
+      existedAlready[0] = false;
+    }
     if ( dao.existsByName(name) ) {
+      if (GrouperUtil.length(existedAlready) >= 1) {
+        existedAlready[0] = true;
+      }
       if (exceptionIfExists) {
         String msg = E.GROUPTYPE_EXISTS + name;
         LOG.error( msg);
         throw new SchemaException(msg);
       }
+      
       return GroupTypeFinder.find(name);
     }
     GroupType _gt = new GroupType();
@@ -457,13 +596,14 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
    * @param write
    * @param required
    * @param exceptionIfExists
+   * @param updateIfExists 
    * @return the field
    * @throws InsufficientPrivilegeException
    * @throws SchemaException
    */
   public Field internal_addField(
     GrouperSession s, String name, FieldType type, Privilege read, 
-    Privilege write, boolean required, boolean exceptionIfExists
+    Privilege write, boolean required, boolean exceptionIfExists, boolean updateIfExists
   )
     throws  InsufficientPrivilegeException,
             SchemaException
@@ -482,20 +622,41 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
       //ignore, it probably doesnt exist
     }
     if (field != null) {
+      boolean changed = false;
       if (!type.equals(field.getType())) {
+        //dont want to change types, that could be bad!
         throw new SchemaException("field '" + name + "' does not have type: " + type + ", it has: " + field.getType());
       }
       if (field.getRequired() != required) {
-        throw new SchemaException("field '" + name + "' does not match required flag: " + required);
+        if (exceptionIfExists) {
+          throw new SchemaException("field '" + name + "' does not match required flag: " + required);
+        }
+        if (updateIfExists) {
+          field.setIsNullable(!required);
+        }
       }
       if (!read.equals(field.getReadPriv())) {
-        throw new SchemaException("field '" + name + "' does not have read privilege: " + read + ", it has: " + field.getReadPrivilege());
+        if (exceptionIfExists) {
+          throw new SchemaException("field '" + name + "' does not have read privilege: " + read + ", it has: " + field.getReadPrivilege());
+        }
+        if (updateIfExists) {
+          field.setReadPrivilege(read);
+        }
       }
       if (!write.equals(field.getWritePriv())) {
-        throw new SchemaException("field '" + name + "' does not have write privilege: " + write + ", it has: " + field.getWritePrivilege());
+        if (exceptionIfExists) {
+          throw new SchemaException("field '" + name + "' does not have write privilege: " + write + ", it has: " + field.getWritePrivilege());
+        }
+        if (updateIfExists) {
+          field.setWritePrivilege(write);
+        }
       }
       if (exceptionIfExists) {
         throw new SchemaException("field exists: '" + name + "'");
+      }
+      //store minor changes to db
+      if (changed && updateIfExists) {
+        GrouperDAOFactory.getFactory().getField().createOrUpdate(field);
       }
       return field;
     }
@@ -534,9 +695,10 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
     }
   } // protected Field internal_addField(s, name, type, read, write, required)
 
-  
+
   /**
-   * @since   1.2.0
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
    */
   public boolean equals(Object other) {
     if (this == other) {
@@ -549,10 +711,11 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
     return new EqualsBuilder()
       .append( this.name, that.name )
       .isEquals();
-  } // public boolean equals(other)
+  }
 
 
   /**
+   * @return create time
    * @since   1.2.0
    */ 
   public long getCreateTime() {
@@ -561,16 +724,15 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
 
   /**
+   * @return creator uuid
    * @since   1.2.0
    */ 
   public String getCreatorUuid() {
     return this.creatorUUID;
   }
 
-
-  // PROTECTED INSTANCE METHODS //
-  
   /**
+   * @return fields
    * @since   1.2.0
    */ 
   public Set<Field> getFields() {
@@ -582,6 +744,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
 
   /**
+   * @return if assignable
    * @since   1.2.0
    */ 
   public boolean getIsAssignable() {
@@ -590,6 +753,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
 
   /**
+   * @return if internal
    * @since   1.2.0
    */ 
   public boolean getIsInternal() {
@@ -598,6 +762,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
 
   /**
+   * @return name
    * @since   1.2.0
    */ 
   public String getName() {
@@ -606,6 +771,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
 
   /**
+   * @return uuid
    * @since   1.2.0
    */ 
   public String getUuid() {
@@ -614,6 +780,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
 
   /**
+   * @return hash code
    * @since   1.2.0
    */
   public int hashCode() {
@@ -624,6 +791,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
 
   /**
+   * @param createTime 
    * @since   1.2.0
    */ 
   public void setCreateTime(long createTime) {
@@ -633,6 +801,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
 
   /**
+   * @param creatorUUID 
    * @since   1.2.0
    */ 
   public void setCreatorUuid(String creatorUUID) {
@@ -642,6 +811,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
 
   /**
+   * @param fields 
    * @since   1.2.0
    */ 
   public void setFields(Set fields) {
@@ -651,6 +821,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
 
   /**
+   * @param isAssignable 
    * @since   1.2.0
    */ 
   public void setIsAssignable(boolean isAssignable) {
@@ -660,6 +831,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
 
   /**
+   * @param isInternal 
    * @since   1.2.0
    */ 
   public void setIsInternal(boolean isInternal) {
@@ -669,6 +841,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
 
   /**
+   * @param name 
    * @since   1.2.0
    */ 
   public void setName(String name) {
@@ -678,6 +851,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
 
   /**
+   * @param uuid 
    * @since   1.2.0
    */ 
   public void setUuid(String uuid) {
@@ -687,8 +861,10 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
 
 
   /**
+   * @return string
    * @since   1.2.0
    */
+  @Override
   public String toString() {
     return new ToStringBuilder(this)
       .append( "creatorUuid",  this.getCreatorUuid()  )
@@ -699,7 +875,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
       .append( "name",         this.getName()         )
       .append( "uuid",         this.getUuid()         )
       .toString();
-  } // public String toString() 
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)

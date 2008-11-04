@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -40,7 +41,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.17 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.18 2008-11-04 07:17:55 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -95,13 +96,13 @@ public class WheelAccessResolver extends AccessResolverDecorator {
           + "': " + e.getClass().getSimpleName() 
           + "\n" + ExceptionUtils.getFullStackTrace(e);
 
-        //only log this once as error
-        if (!loggedWheelGroupMissing) {
+        //only log this once as error, dont log if checking config
+        if (!loggedWheelGroupMissing && !GrouperCheckConfig.inCheckConfig) {
         	//OK, so wheel group does not exist. Not fatal...
           LOG.error(error);
           loggedWheelGroupMissing = true;
         } else {
-          LOG.info(error);
+          LOG.debug(error);
         }
         this.useWheel=false;
       }

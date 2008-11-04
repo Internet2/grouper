@@ -20,11 +20,15 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.Group;
+
 /** 
  * Composite Type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CompositeType.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $    
+ * @version $Id: CompositeType.java,v 1.3 2008-11-04 07:17:56 mchyzer Exp $    
  * @since   1.0
  */
 public class CompositeType implements Serializable {
@@ -53,6 +57,13 @@ public class CompositeType implements Serializable {
   // PRIVATE INSTANCE VARIABLES //
   private String type;
 
+  /**
+   * get name of composite type, e.g. complement, union, intersection
+   * @return name
+   */
+  public String getName() {
+    return this.type;
+  }
 
   // STATIC //
   static {
@@ -77,9 +88,34 @@ public class CompositeType implements Serializable {
   public static CompositeType getInstance(String type) {
     return (CompositeType) TYPES.get(type);
   } // public static CompositeType getInstance(type)
+  
+  /**
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof CompositeType)) {
+      return false;
+    }
+    return StringUtils.equals(this.type, ((CompositeType)other).type);
+  }
 
+  /**
+   * 
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    if (this.type == null) {
+      return 1;
+    }
+    return this.type.hashCode();
+  }
 
-  // PUBLIC INSTANCE METHODS //
 
   /**
    * @since 1.0

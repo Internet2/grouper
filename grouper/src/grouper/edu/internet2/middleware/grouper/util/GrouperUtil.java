@@ -5503,19 +5503,22 @@ public class GrouperUtil {
    * @return the properties
    */
   public synchronized static Properties propertiesFromResourceName(String resourceName) {
-    return propertiesFromResourceName(resourceName, true);
+    return propertiesFromResourceName(resourceName, true, true);
   }
 
   /**
    * read properties from a resource, dont modify the properties returned since they are cached
    * @param resourceName
    * @param useCache 
-   * @return the properties
+   * @param exceptionIfNotExist 
+   * @return the properties or null if not exist
    */
-  public synchronized static Properties propertiesFromResourceName(String resourceName, boolean useCache) {
+  public synchronized static Properties propertiesFromResourceName(String resourceName, boolean useCache, 
+      boolean exceptionIfNotExist) {
+
     Properties properties = resourcePropertiesCache.get(resourceName);
     
-    if (!useCache || properties == null) {
+    if (!useCache || !resourcePropertiesCache.containsKey(resourceName)) {
   
       properties = new Properties();
 
@@ -5525,7 +5528,10 @@ public class GrouperUtil {
         inputStream = url.openStream();
         properties.load(inputStream);
       } catch (Exception e) {
-        throw new RuntimeException("Problem with resource: '" + resourceName + "'", e);
+        if (exceptionIfNotExist) {
+          throw new RuntimeException("Problem with resource: '" + resourceName + "'", e);
+        }
+        properties = null;
       } finally {
         GrouperUtil.closeQuietly(inputStream);
       }
@@ -5602,6 +5608,36 @@ public class GrouperUtil {
   public static String propertiesValue(Properties properties, String key) {
     String value = properties.getProperty(key);
     return StringUtils.trim(value);
+  }
+  
+  /**
+   * get a boolean property, or the default if cant find
+   * @param properties
+   * @param propertyName
+   * @param defaultValue 
+   * @return the boolean
+   */
+  public static boolean propertiesValueBoolean(Properties properties, String propertyName, boolean defaultValue) {
+    
+    String value = propertiesValue(properties, propertyName);
+    if (StringUtils.isBlank(value)) {
+      return defaultValue;
+    }
+    
+    if ("true".equalsIgnoreCase(value)) {
+      return true;
+    }
+    if ("false".equalsIgnoreCase(value)) {
+      return false;
+    }
+    if ("t".equalsIgnoreCase(value)) {
+      return true;
+    }
+    if ("f".equalsIgnoreCase(value)) {
+      return false;
+    }
+    throw new RuntimeException("Invalid value: '" + value + "' for property: " + propertyName + " in grouper.properties");
+
   }
   
   /**

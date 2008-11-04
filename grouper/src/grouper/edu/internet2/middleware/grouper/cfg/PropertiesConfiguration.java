@@ -16,27 +16,26 @@
 */
 
 package edu.internet2.middleware.grouper.cfg;
-import edu.internet2.middleware.grouper.exception.GrouperException;
+import java.util.Properties;
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-
-import  java.io.IOException;
-import  java.io.InputStream;
-import  java.util.Properties;
-import java.util.Set;
 
 /** 
  * Access {@link Configuration} in a <i>Properties</i> file.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PropertiesConfiguration.java,v 1.9 2008-10-20 15:27:31 mchyzer Exp $
+ * @version $Id: PropertiesConfiguration.java,v 1.10 2008-11-04 07:17:55 mchyzer Exp $
  * @since   1.2.1
  */
 public class PropertiesConfiguration implements Configuration {
 
-
+  /** */
   private ConfigurationHelper helper    = new ConfigurationHelper();
+  /** */
   private Properties          cfg       = null;
+  /** */
   private String              resource  = null;
 
 
@@ -54,12 +53,13 @@ public class PropertiesConfiguration implements Configuration {
 
   /**
    * Retrieve a properties file, opening it if necessary.
+   * @return properties
    * @since   1.2.1
    */
   private Properties getProperties() {
     if ( this.cfg == null ) {
       try {
-        this.cfg = GrouperUtil.propertiesFromResourceName(this.resource, false);
+        this.cfg = GrouperUtil.propertiesFromResourceName(this.resource, false, true);
       }
       catch (Exception eInitializingError) {
         throw new GrouperRuntimeException( 

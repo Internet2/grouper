@@ -35,17 +35,45 @@ import  java.util.Set;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.40 2008-08-26 21:11:51 mchyzer Exp $
+ * @version $Id: SubjectFinder.java,v 1.41 2008-11-04 07:17:55 mchyzer Exp $
  */
 public class SubjectFinder {
 
-
+  /** */
   private static        Subject         all;
+  /** */
   private static        Subject         root;
+  /** */
   private static        SubjectResolver resolver;
+  /** */
   static                Source          gsa;
 
 
+  /**
+   * find by id or identifier
+   * @param idOrIdentifier
+   * @param exceptionIfNull if SubjectNotFoundException or null
+   * @return the subject
+   * @throws SubjectNotFoundException 
+   * @throws SubjectNotUniqueException 
+   */
+  public static Subject findByIdOrIdentifier(String idOrIdentifier, boolean exceptionIfNull) 
+      throws SubjectNotFoundException, SubjectNotUniqueException {
+    Subject subject = null;
+    try {
+      subject = SubjectFinder.findById(idOrIdentifier);
+    } catch (SubjectNotFoundException snfe) {
+      try {
+        subject = SubjectFinder.findByIdentifier(idOrIdentifier);
+      } catch (SubjectNotUniqueException snfe2) {
+        if (exceptionIfNull) {
+          throw snfe2;
+        }
+        return null;
+      }
+    }
+    return subject;
+  }
 
   /**
    * Search within all configured sources for subject with identified by <i>id</i>.
@@ -331,6 +359,7 @@ public class SubjectFinder {
    *   // unable to retrieve source
    * }
    * </pre>
+   * @param id 
    * @return  <i>Source</i> identified by <i>id</i>.
    * @throws  IllegalArgumentException if <i>id</i> is null.
    * @throws  SourceUnavailableException if unable to retrieve source.
@@ -356,6 +385,7 @@ public class SubjectFinder {
    * <pre class="eg">
    * Set personSources = SubjectFinder.getSources("person");
    * </pre>
+   * @param subjectType 
    * @return  Set of <i>Source</i> adapters providing <i>subjectType</i>.
    */
   public static Set<Source> getSources(String subjectType) {
@@ -364,6 +394,7 @@ public class SubjectFinder {
 
   /**
    * TODO 20070803 what is the point of this method?
+   * @return source
    * @since   1.2.0
    */
   public static Source internal_getGSA() {

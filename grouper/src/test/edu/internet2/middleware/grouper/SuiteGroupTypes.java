@@ -22,10 +22,14 @@ import junit.framework.TestSuite;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteGroupTypes.java,v 1.10 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: SuiteGroupTypes.java,v 1.11 2008-11-04 07:17:56 mchyzer Exp $
  */
 public class SuiteGroupTypes extends TestCase {
 
+  /**
+   * 
+   * @return the suite
+   */
   static public Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTestSuite( TestGroupType0.class  );  // GroupTypeFinder.findAll()
@@ -40,11 +44,11 @@ public class SuiteGroupTypes extends TestCase {
     suite.addTestSuite( TestGroupType9.class  );  // delete type
     suite.addTestSuite( TestGroupType10.class );  // delete type with fields
     suite.addTestSuite( TestGroupType11.class );  // use custom attribute as non-root
+    suite.addTestSuite( TestGroupTypeIncludeExclude.class );  // group type include / exclude
     //      And the damn ordering is important here as these tests leave junk behind.
     //      I need to fix that.
     suite.addTestSuite( TestGroupTypes.class  );  
     return suite;
-  } // static public Test suite()
-
+  }
 }
 

@@ -29,11 +29,12 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Attribute;
-import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -54,7 +55,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.19 2008-10-16 05:45:47 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.20 2008-11-04 07:17:56 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -75,7 +76,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   }
 
   /**
-   * @since   @HEAD@
+   * @param _g 
+   * @param _gt 
+   * @throws GrouperDAOException 
    */
   public void addType(final Group _g, final GroupType _gt) 
     throws  GrouperDAOException {
@@ -89,12 +92,21 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
                   .setGroupUuid( _g.getUuid() )
                   .setTypeUuid( _gt.getUuid() )
               );
+            
+            //get it again in case it was changed in the hook
+            Group g2 = null;
+            try {
+              g2 = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), _g.getUuid());
+            } catch (GroupNotFoundException gnfe) {
+              throw new RuntimeException("Weird problem getting group: " + _g.getName());
+            }
+
             //note this used to be saveOrUpdate
-            hibernateSession.byObject().update( _g ); // modified group
+            hibernateSession.byObject().update( g2 ); // modified group
+            
             //let HibernateSession commit or rollback depending on if problem or enclosing transaction
             return null;
           }
-      
     });
   } 
 
@@ -160,6 +172,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   } 
 
   /**
+   * @param uuid 
+   * @return if exists
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public boolean exists(String uuid)
@@ -184,7 +199,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
   /**
    * @param uuid 
-   * @return 
+   * @return map
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
@@ -205,7 +220,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
   /**
    * @param val 
-   * @return 
+   * @return  set
    * @throws GrouperDAOException 
    * @throws IllegalStateException 
    * @since   @HEAD@
@@ -310,6 +325,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   } 
 
   /**
+   * @param d 
+   * @return set
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Group> findAllByCreatedAfter(final Date d) 
@@ -334,7 +352,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
   /**
    * @param d 
-   * @return 
+   * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
@@ -359,6 +377,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   } 
 
   /**
+   * @param d 
+   * @return set
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Group> findAllByModifiedAfter(final Date d) 
@@ -383,6 +404,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   }
 
   /**
+   * @param d 
+   * @return set
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Group> findAllByModifiedBefore(final Date d) 
@@ -406,6 +430,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   } 
 
   /**
+   * @param _gt 
+   * @return set
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Group> findAllByType(final GroupType _gt) 
@@ -431,6 +458,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   } 
 
   /**
+   * @param attr 
+   * @param val 
+   * @return group
+   * @throws GrouperDAOException 
+   * @throws GroupNotFoundException 
    * @since   @HEAD@
    */
   public Group findByAttribute(String attr, String val) 
@@ -450,6 +482,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   } 
 
   /**
+   * @param name 
+   * @return group
+   * @throws GrouperDAOException 
+   * @throws GroupNotFoundException 
    * @since   @HEAD@
    */
   public Group findByName(final String name) 
@@ -494,6 +530,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
 
   /**
+   * @return set
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Group> getAllGroups()
@@ -514,6 +552,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   }
 
   /**
+   * @param _g 
+   * @param mof 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public void revokePriv(final Group _g, final DefaultMemberOf mof)
@@ -537,6 +578,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   } 
 
   /**
+   * @param _g 
+   * @param toDelete 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public void revokePriv(final Group _g, final Set toDelete)
@@ -554,6 +598,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   } 
 
   /**
+   * @param _g 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public void update(Group _g)
@@ -564,9 +610,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   } 
 
 
-  // PROTECTED CLASS METHODS //
-
-  // @since   @HEAD@
+  /**
+   * 
+   * @param hibernateSession
+   * @throws HibernateException
+   */
   protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
@@ -579,9 +627,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   } 
 
 
-  // PRIVATE CLASS METHODS //
-
-  // @since   @HEAD@
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#_findAllTypesByGroup(java.lang.String)
+   */
   public Set<GroupType> _findAllTypesByGroup(final String uuid)
     throws  GrouperDAOException {
     Set<GroupType> types = new LinkedHashSet<GroupType>();
@@ -602,13 +650,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   } // private static Set _findAllTypesByGroup(uuid)
 
 
-  // PRIVATE INSTANCE METHODS //
-
-  // @since   @HEAD@
   /**
    * update the attributes for a group
    * @param hibernateSession 
    * @param checkExisting true if an update, false if insert
+   * @param group 
    */
   public void _updateAttributes(HibernateSession hibernateSession, boolean checkExisting, Group group) {
     ByObject byObject = hibernateSession.byObject();
@@ -618,7 +664,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     byHql.setCacheable(false);
     byHql.setCacheRegion(KLASS + "._UpdateAttributes");
     byHql.setString("uuid", group.getUuid());
-    Attribute a;
     Map                   attrs = new HashMap(group.getAttributesDb());
     String                k;
     //TODO CH 20080217: replace with query.list() and see if p6spy generates fewer queries

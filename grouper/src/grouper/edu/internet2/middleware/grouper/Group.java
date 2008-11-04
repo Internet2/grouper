@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -68,6 +69,7 @@ import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipChangeBean;
+import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
@@ -111,10 +113,10 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.207 2008-10-27 19:26:15 shilen Exp $
+ * @version $Id: Group.java,v 1.208 2008-11-04 07:17:55 mchyzer Exp $
  */
 @SuppressWarnings("serial")
-public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
+public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
 
   /** name of the groups table in the db */
   public static final String TABLE_GROUPER_GROUPS = "grouper_groups";
@@ -135,6 +137,18 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    */
   public Composite getComposite() throws CompositeNotFoundException {
     return CompositeFinder.findAsOwner(this);
+  }
+  
+  /**
+   * if this is a composite group, get the composite object for this group
+   * @return the composite group or null if none
+   */
+  public Composite getCompositeOrNull() {
+    try {
+      return CompositeFinder.findAsOwner(this);
+    } catch (CompositeNotFoundException cnfe) {
+      return null;
+    }
   }
   
   /**
@@ -366,21 +380,28 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   @GrouperIgnoreClone
   private               HashMap<String, Subject>  subjectCache  = new HashMap<String, Subject>();
   // TODO 20070531 review lazy-loading to improve consistency + performance
-  
-  // PRIVATE INSTANCE VARIABLES //
+
+  /** */
   private Map<String, String>       attributes;
+  /** */
   private long      createTime      = 0; // default to the epoch
+  /** */
   private String    creatorUUID;
   
+  /** */
   private String    modifierUUID;
+  /** */
   private long      modifyTime      = 0; // default to the epoch
+  /** */
   private String    parentUUID;
 
+  /** */
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private Set<GroupType>       types;
   
+  /** */
   private String    uuid;
   /** constant for prefix of field diffs for attributes: attribute__ */
   public static final String ATTRIBUTE_PREFIX = "attribute__";
@@ -464,9 +485,60 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(Group.class);
 
-
-  // PUBLIC INSTANCE METHODS //
-
+  /**
+   * Add ore replace a composite membership to this group.
+   * <pre class="eg">
+   * try {
+   *   g.assignCompositeMember(CompositeType.UNION, leftGroup, rightGroup);
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add members 
+   * }
+   * catch (MemberAddException eMA) {
+   *   // Unable to add composite membership
+   * } 
+   * </pre>
+   * @param   type  Add membership of this {@link CompositeType}.
+   * @param   left  {@link Group} that is left factor of of composite membership.
+   * @param   right {@link Group} that is right factor of composite membership.
+   * @throws  InsufficientPrivilegeException
+   * @throws  MemberAddException
+   * @throws MemberDeleteException 
+   * @since   1.0
+   */
+  public void assignCompositeMember(CompositeType type, Group left, Group right)
+    throws  InsufficientPrivilegeException, MemberAddException, MemberDeleteException {
+    Composite composite = null;
+    try {
+      composite = this.getComposite();
+    } catch (CompositeNotFoundException cnfe) {
+      
+    }
+    if (composite != null) {
+      
+      //if not equal, replace, otherwise leave alone
+      if (!composite.getTypeDb().equals(type.getName())
+          || !composite.getLeftFactorUuid().equals(left.getUuid())
+          || !composite.getRightFactorUuid().equals(right.getUuid())) {
+        
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Deleting and adding composite member for group: " + this.getExtension() + ": " 
+              + type.getName() + ": " + left.getExtension() + " - " + right.getExtension());
+        }
+        this.deleteCompositeMember();
+        this.addCompositeMember(type, left, right);
+        
+      }
+    } else {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Adding composite member for group: " + this.getExtension() + ": " 
+            + type.getName() + ": " + left.getExtension() + " - " + right.getExtension());
+      }
+      this.addCompositeMember(type, left, right);
+    }
+    
+  }
+  
   /**
    * Add a composite membership to this group.
    * <pre class="eg">
@@ -489,8 +561,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    */
   public void addCompositeMember(CompositeType type, Group left, Group right)
     throws  InsufficientPrivilegeException,
-            MemberAddException
-  {
+            MemberAddException {
     try {
       StopWatch sw  = new StopWatch();
       sw.start();
@@ -1156,6 +1227,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    * </pre>
    * @param   member  Delete this {@link Member}.
    * @param   f     Delete subject from this {@link Field}.
+   * @param exceptionIfAlreadyDeleted 
    * @return false if it was already deleted, true if it wasnt already deleted
    * @throws  InsufficientPrivilegeException
    * @throws  MemberDeleteException
@@ -1260,6 +1332,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
    * }
    * </pre>
    * @param   subj  Delete this {@link Subject}
+   * @param exceptionIfAlreadyDeleted 
    * @return false if it was already deleted, true if it wasnt already deleted
    * @throws  InsufficientPrivilegeException
    * @throws  MemberDeleteException
@@ -3175,6 +3248,9 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
     }
   } // public Subject toSubject()
 
+  /**
+   * @see java.lang.Object#toString()
+   */
   public String toString() {
     // Bypass privilege checks.  If the group is loaded it is viewable.
     return new ToStringBuilder(this)
@@ -3372,8 +3448,9 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   }
 
   /**
-   * @since   1.2.0
-   */  
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
   public boolean equals(Object other) {
     if (this == other) {
       return true;
@@ -3388,6 +3465,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
   /**
    * This is a direct access to the attributes (going around security checking etc)
+   * @return attributes
    * @since   1.2.0
    */
   public Map<String, String> getAttributesDb() {
@@ -3398,6 +3476,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   }
 
   /**
+   * @return create time
    * @since   1.2.0
    */
   public long getCreateTimeLong() {
@@ -3405,6 +3484,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   }
 
   /**
+   * @return creator
    * @since   1.2.0
    */
   public String getCreatorUuid() {
@@ -3421,13 +3501,15 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   }
 
   /**
-   * @since   1.2.0
+   * 
+   * @return uuid
    */
   public String getModifierUuid() {
     return this.modifierUUID;
   }
 
   /**
+   * @return  modify time
    * @since   1.2.0
    */
   public long getModifyTimeLong() {
@@ -3435,6 +3517,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   }
 
   /**
+   * @return parent uuid
    * @since   1.2.0
    */
   public String getParentUuid() {
@@ -3442,6 +3525,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   }
 
   /**
+   * @return uuid
    * @since   1.2.0
    */
   public String getUuid() {
@@ -3449,6 +3533,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   }
 
   /**
+   * @return hashcode
    * @since   1.2.0
    */
   public int hashCode() {
@@ -3457,6 +3542,10 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
       .toHashCode();
   } // public int hashCode()
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onDelete(org.hibernate.Session)
+   */
   @Override
   public boolean onDelete(Session hs) 
     throws  CallbackException {
@@ -3551,6 +3640,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   }
 
   /**
+   * @param createTime 
    * @since   1.2.0
    */
   public void setCreateTimeLong(long createTime) {
@@ -3559,6 +3649,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   }
 
   /**
+   * @param creatorUUID 
    * @since   1.2.0
    */
   public void setCreatorUuid(String creatorUUID) {
@@ -3567,6 +3658,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   }
 
   /**
+   * @param modifierUUID 
    * @since   1.2.0
    */
   public void setModifierUuid(String modifierUUID) {
@@ -3575,6 +3667,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   }
 
   /**
+   * @param modifyTime 
    * @since   1.2.0
    */
   public void setModifyTimeLong(long modifyTime) {
@@ -3583,6 +3676,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   }
 
   /**
+   * @param parentUUID 
    * @since   1.2.0
    */
   public void setParentUuid(String parentUUID) {
@@ -3591,6 +3685,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   }
 
   /**
+   * @param types 
    * @since   1.2.0
    */
   public void setTypes(Set types) {
@@ -3599,6 +3694,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   }
 
   /**
+   * @param uuid 
    * @since   1.2.0
    */
   public void setUuid(String uuid) {
@@ -3607,6 +3703,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   }
 
   /**
+   * @return string
    * @since   1.2.0
    */
   public String toStringDb() {
@@ -3696,5 +3793,54 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned {
 
   }
 
-} // public class Group extends GrouperAPI implements Owner
+  /**
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(Object o) {
+    if (o==null || (!(o instanceof Group))) {
+      return 1;
+    }
+    String thisName = StringUtils.defaultString(this.getName());
+    Group that = (Group)o;
+    String thatName = StringUtils.defaultString(that.getName());
+    return thisName.compareTo(thatName);
+  }
+
+  /**
+   * add or correct the includes/excludes group math structure for this group (as overall or system
+   * or record if named correctly)
+   * @param grouperSession
+   * @param isIncludeExcludes 
+   */
+  public void manageIncludesExcludesRequiredGroups(GrouperSession grouperSession, boolean isIncludeExcludes) {
+    this.manageIncludesExcludesRequiredGroups(grouperSession, isIncludeExcludes, new LinkedHashSet<Group>());
+  }
+
+  /**
+   * add or correct the includes/excludes group math structure for this group (as overall or system
+   * or record if named correctly)
+   * @param grouperSession
+   * @param isIncludeExcludes 
+   * @param andGroup groups (like activeEmployee) which the user must also be in
+   */
+  public void manageIncludesExcludesRequiredGroups(GrouperSession grouperSession, boolean isIncludeExcludes, Group andGroup) {
+    
+    this.manageIncludesExcludesRequiredGroups(grouperSession, isIncludeExcludes, 
+        andGroup == null ? new HashSet<Group>() : GrouperUtil.toSet(andGroup));
+  }
+
+  /**
+   * add or correct the includes/excludes group math structure for this group (as overall or system
+   * or record if named correctly)
+   * @param grouperSession
+   * @param isIncludeExcludes 
+   * @param andGroups groups (like activeEmployee) which the user must also be in
+   */
+  public void manageIncludesExcludesRequiredGroups(GrouperSession grouperSession, boolean isIncludeExcludes, Set<Group> andGroups) {
+    
+    GroupTypeTupleIncludeExcludeHook.manageIncludesExcludesAndGroups(this, isIncludeExcludes, andGroups,
+        "from manageIncludesExclude() method in Group class: " + this.getExtension());
+  }
+
+} 
 

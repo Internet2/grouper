@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.7 2008-10-30 20:57:17 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.8 2008-11-04 07:17:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -37,6 +37,9 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberAddException;
+import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hooks.CompositeHooks;
 import edu.internet2.middleware.grouper.hooks.FieldHooks;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
@@ -51,7 +54,10 @@ import edu.internet2.middleware.grouper.privs.AccessAdapter;
 import edu.internet2.middleware.grouper.privs.NamingAdapter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.morphString.Morph;
+import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectCheckConfig;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 
 /**
@@ -69,30 +75,89 @@ public class GrouperCheckConfig {
    * logger 
    */
   private static final Log LOG = GrouperUtil.getLog(GrouperCheckConfig.class);
+  
+  /** result from check group */
+  public static enum CheckGroupResult{ 
+    /** group didnt exist, and was created */
+    DIDNT_CHECK, 
 
+    /** group didnt exist, and was created */
+    CREATED, 
+    
+    /** group doesnt exist */
+    DOESNT_EXIST, 
+    
+    /** group created */
+    ERROR_CREATING, 
+    
+    /** group exists */
+    EXISTS };
+  
   /**
    * verify that a group exists by name (dont throw exceptions)
+   * @param grouperSession (probably should be root session)
    * @param groupName
-   * @return true if group exists, and false if not
+   * @param logError 
+   * @param autoCreate if auto create, or null, for grouper.properties setting
+   * @param logAutocreate 
+   * @param displayExtension optional, dislpay extension if creating
+   * @param groupDescription group description if auto create
+   * @param propertyDescription for logging explaning to the user how to fix the problem
+   * @param groupResult put in an array of size one to get the group back
+   * @return if group exists or not or was created
    */
-  public static boolean checkGroup(String groupName) {
+  public static CheckGroupResult checkGroup(GrouperSession grouperSession, String groupName, 
+      boolean logError, Boolean autoCreate, 
+      boolean logAutocreate, String displayExtension, String groupDescription, String propertyDescription,
+      Group[] groupResult) {
 
     if (configCheckDisabled()) {
-      return true;
+      return CheckGroupResult.DIDNT_CHECK;
     }
-    GrouperSession grouperSession = null;
     try {
-      grouperSession = GrouperSession.start(SubjectFinder.findRootSubject());
       Group group = GroupFinder.findByName(grouperSession, groupName);
       if (group != null) {
-        return true;
+        if (GrouperUtil.length(groupResult) >= 1) {
+          groupResult[0] = group;
+        }
+        return CheckGroupResult.EXISTS;
       }
     } catch (Exception e) {
       
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
     }
-    return false;
+    
+    if (logError) {
+      String error = "cannot find group from config: " + propertyDescription + ": " + groupName;
+      System.err.println("Grouper warning: " + error);
+      LOG.warn(error);
+    }
+    
+    //get auto create from config
+    if (autoCreate == null) {
+      Properties properties = GrouperUtil.propertiesFromResourceName(GROUPER_PROPERTIES_NAME);
+      autoCreate = GrouperUtil.propertiesValueBoolean(properties, "configuration.autocreate.system.groups", false);
+    }
+    
+    if (autoCreate) {
+      try {
+        Group group = Group.saveGroup(grouperSession, null, null, groupName, displayExtension, groupDescription, null, true);
+        if (GrouperUtil.length(groupResult) >= 1) {
+          groupResult[0] = group;
+        }
+        if (logAutocreate) {
+          String error = "auto-created " + propertyDescription + ": " + groupName;
+          System.err.println("Grouper note: " + error);
+          LOG.warn(error);
+        }
+        return CheckGroupResult.CREATED;
+      } catch (Exception e) {
+        System.err.println("Grouper error: " + groupName + ", " + ExceptionUtils.getFullStackTrace(e));
+        LOG.error("Problem with group: " + groupName, e);
+        return CheckGroupResult.ERROR_CREATING;
+      }
+    }
+    
+    return CheckGroupResult.DOESNT_EXIST;
   }
   
   /**
@@ -284,6 +349,32 @@ public class GrouperCheckConfig {
     propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.disableComments", true);
     propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.disableViews", true);
     
+    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "grouperIncludeExclude.use", true);
+    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "grouperIncludeExclude.requireGroups.use", true);
+    
+    Properties properties = GrouperUtil.propertiesFromResourceName(GROUPER_PROPERTIES_NAME);
+    String value = GrouperUtil.propertiesValue(properties, "grouperIncludeExclude.requireGroups.extension.suffix");
+
+    if (value != null && !value.contains("${i}")) {
+      String error = "Property grouperIncludeExclude.requireGroups.extension.suffix in grouper.properties must contain ${i}";
+      System.err.println("Grouper error: " + error);
+      LOG.error(error);
+    }
+
+    int i=0;
+    while (true) {
+      String key = "grouperIncludeExclude.requireGroup.attributeOrType." + i;
+      String attributeOrType = GrouperUtil.propertiesValue(properties, key);
+      if (StringUtils.isBlank(attributeOrType)) {
+        break;
+      }
+      if (!StringUtils.equals(attributeOrType, "type") && !StringUtils.equals(attributeOrType, "attribute")) {
+        String error = "Property " + key + " in grouper.properties must be either 'type' or 'attribute'";
+        System.err.println("Grouper error: " + error);
+        LOG.error(error);
+      }
+      i++;
+    }
   }
 
   /**
@@ -378,51 +469,148 @@ public class GrouperCheckConfig {
     return false;
   }
   
+  /** if in check config */
+  public static boolean inCheckConfig = false;
+  
   /**
    * check the grouper config safely, log errors
    */
   public static void checkConfig() {
     
-    if (configCheckDisabled()) {
-      return;
+    inCheckConfig = true;
+
+    try {
+      if (configCheckDisabled()) {
+        return;
+      }
+      
+      //first try to get in the GrouperConfig, just get a property to init stuff
+      GrouperConfig.getProperty("groups.wheel.group");
+      
+      checkGrouperConfigs();
+      
+      checkGrouperJars();
+      
+      checkGrouperVersion();
+      
+      checkConfigProperties();
+      
+      checkGrouperDb();
+      
+      //might as well try to init data at this point...
+      GrouperStartup.initData(false);
+      
+      checkGroups();
+      
+      //delegate to subject API to check configs
+      SubjectCheckConfig.checkConfig();
+    } finally {
+      inCheckConfig = false;
     }
-    
-    //first try to get in the GrouperConfig, just get a property to init stuff
-    GrouperConfig.getProperty("groups.wheel.group");
-    
-    checkGrouperConfigs();
-    
-    checkGrouperJars();
-    
-    checkGrouperVersion();
-    
-    checkConfigProperties();
-    
-    checkGrouperDb();
-    
-    //might as well try to init data at this point...
-    GrouperStartup.initData(false);
-    
-    checkGroups();
-    
-    //delegate to subject API to check configs
-    SubjectCheckConfig.checkConfig();
   }
   
   /**
    * make sure configured groups are there 
    */
   public static void checkGroups() {
+    
+    boolean wasInCheckConfig = inCheckConfig;
+    if (!wasInCheckConfig) {
+      inCheckConfig = true;
+    }
+
     Properties properties = GrouperUtil.propertiesFromResourceName(GROUPER_PROPERTIES_NAME);
-    boolean useWheel = GrouperUtil.booleanValue(properties.getProperty("groups.wheel.use", "false"));
-    if (useWheel) {
-      String wheelName = GrouperUtil.propertiesValue(properties,"groups.wheel.group");
-      if (!StringUtils.isBlank(wheelName)) {
-        if (!checkGroup(wheelName)) {
-          String error = "cannot find wheel group configured in grouper.properties under groups.wheel.group: " + wheelName;
-          System.err.println("Grouper warning: " + error);
-          LOG.warn(error);
+
+    //groups auto-create
+    //#configuration.autocreate.group.name.0 = etc:uiUsers
+    //#configuration.autocreate.group.description.0 = users allowed to log in to the UI
+    //#configuration.autocreate.group.subjects.0 = johnsmith
+    int i=0;
+    
+    GrouperSession grouperSession = null;
+    try {
+      grouperSession = GrouperSession.startRootSession();
+    
+      while(true) {
+        String groupNameKey = "configuration.autocreate.group.name." + i;
+        String groupName = GrouperUtil.propertiesValue(properties,groupNameKey);
+        
+        if (StringUtils.isBlank(groupName)) {
+          break;
         }
+        
+        String groupDescription = GrouperUtil.propertiesValue(properties,"configuration.autocreate.group.description." + i);
+        String subjectsKey = "configuration.autocreate.group.subjects." + i;
+        String subjects = GrouperUtil.propertiesValue(properties,subjectsKey);
+  
+        Group[] theGroup = new Group[1];
+        //first the group
+        checkGroup(grouperSession, groupName, wasInCheckConfig, true, wasInCheckConfig, null, groupDescription, "grouper.properties key " + groupNameKey, theGroup);
+        //now the subjects
+        if (!StringUtils.isBlank(subjects)) {
+          String[] subjectArray = GrouperUtil.splitTrim(subjects, ",");
+          for (String subjectId : subjectArray) {
+            
+            try {
+              Subject subject = SubjectFinder.findByIdOrIdentifier(subjectId, false);
+              boolean added = theGroup[0].addMember(subject, false);
+              if (added && wasInCheckConfig) {
+                String error = "auto-added subject " + subjectId + " to group: " + theGroup[0].getName();
+                System.err.println("Grouper warning: " + error);
+                LOG.warn(error);
+              }
+            } catch (MemberAddException mae) {
+              throw new RuntimeException("this should never happen", mae);
+            } catch (InsufficientPrivilegeException snfe) {
+              throw new RuntimeException("this should never happen", snfe);
+            } catch (SubjectNotFoundException snfe) {
+              throw new RuntimeException("this should never happen", snfe);
+            } catch (SubjectNotUniqueException snue) {
+              String error = "subject not unique from grouper.properties key: " + subjectsKey + ", " + subjectId;
+              System.err.println("Grouper error: " + error);
+              LOG.error(error, snue);
+            }
+          }
+            
+        }
+        i++;
+      }
+      boolean useWheel = GrouperUtil.booleanValue(properties.getProperty("groups.wheel.use", "false"));
+      if (useWheel) {
+        String wheelName = GrouperUtil.propertiesValue(properties,"groups.wheel.group");
+        if (StringUtils.isBlank(wheelName) && wasInCheckConfig) {
+          String error = "grouper.properties property groups.wheel.group should not be blank if groups.wheel.use is true";
+          System.err.println("Grouper error: " + error);
+          LOG.warn(error);
+        } else {
+          checkGroup(grouperSession, wheelName, wasInCheckConfig, null, wasInCheckConfig, null, "system administrators with all privileges", 
+              "wheel group from grouper.properties key: groups.wheel.group", null);
+        }
+      }
+      
+      //groups in requireGroups
+      i=0;
+      while(true) {
+        String groupName = GrouperUtil.propertiesValue(properties,"grouperIncludeExclude.requireGroup.group." + i);
+        
+        if (StringUtils.isBlank(groupName)) {
+          break;
+        }
+        
+        String key = "grouperIncludeExclude.requireGroup.description." + i;
+        String description = GrouperUtil.propertiesValue(properties,key);
+        
+        checkGroup(grouperSession, groupName, wasInCheckConfig, null, wasInCheckConfig, null, description, 
+          "requireGroup from grouper.properties key: " + key, null);
+        
+        i++;
+      }
+    } catch (SessionException se) {
+      throw new RuntimeException(se);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+      if (!wasInCheckConfig) {
+        inCheckConfig = false;
       }
     }
     
@@ -568,6 +756,8 @@ public class GrouperCheckConfig {
     
     checkGrouperConfigDbChange();
     checkGrouperConfigGroupNameValidators();
+    checkGrouperConfigIncludeExcludeAndGroups();
+    checkGrouperConfigAutocreateGroups();
   }
 
   /**
@@ -658,6 +848,74 @@ public class GrouperCheckConfig {
 
       foundOne = assertAndRemove(GROUPER_PROPERTIES_NAME, validatorKeys, 
           new String[]{attributeNameKey, regexKey, vetoMessageKey});
+      if (!foundOne) {
+        break;
+      }
+      i++;
+    }
+    if (validatorKeys.size() > 0) {
+      String error = "in property file: grouper.properties, these properties " +
+          "are misspelled or non-sequential: " + GrouperUtil.setToString(validatorKeys);
+      System.err.println("Grouper error: " + error);
+      LOG.error(error);
+    }
+
+  }
+
+  /**
+   * check the grouper config group name validators
+   */
+  private static void checkGrouperConfigAutocreateGroups() {
+    //#configuration.autocreate.group.name.0 = etc:uiUsers
+    //#configuration.autocreate.group.description.0 = users allowed to log in to the UI
+    //#configuration.autocreate.group.subjects.0 = johnsmith
+    
+    //make sure sequences are ok
+    Set<String> validatorKeys = retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, includeExcludeAndGroupPattern);
+    int i=0;
+    while (true) {
+      boolean foundOne = false;
+      String nameKey = "configuration.autocreate.group.name." + i;
+      String descriptionKey = "configuration.autocreate.group.description." + i;
+      String subjectsKey = "configuration.autocreate.group.subjects." + i;
+
+      foundOne = assertAndRemove(GROUPER_PROPERTIES_NAME, validatorKeys, 
+          new String[]{nameKey, descriptionKey, subjectsKey});
+
+      if (!foundOne) {
+        break;
+      }
+      i++;
+    }
+    if (validatorKeys.size() > 0) {
+      String error = "in property file: grouper.properties, these properties " +
+          "are misspelled or non-sequential: " + GrouperUtil.setToString(validatorKeys);
+      System.err.println("Grouper error: " + error);
+      LOG.error(error);
+    }
+
+  }
+
+  /**
+   * check the grouper config group name validators
+   */
+  private static void checkGrouperConfigIncludeExcludeAndGroups() {
+    //#grouperIncludeExclude.requireGroup.name.0 = activeEmployee
+    //#grouperIncludeExclude.requireGroup.group.0 = school:community:activeEmployee
+    //#grouperIncludeExclude.requireGroup.description.0 = If value is true, members of the overall group must be an active employee.  Otherwise, leave this value not filled in.
+    
+    //make sure sequences are ok
+    Set<String> validatorKeys = retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, includeExcludeAndGroupPattern);
+    int i=0;
+    while (true) {
+      boolean foundOne = false;
+      String nameKey = "grouperIncludeExclude.requireGroup.name." + i;
+      String attributeOrTypeKey = "grouperIncludeExclude.requireGroup.attributeOrType." + i;
+      String regexKey = "grouperIncludeExclude.requireGroup.group." + i;
+      String vetoMessageKey = "grouperIncludeExclude.requireGroup.description." + i;
+
+      foundOne = assertAndRemove(GROUPER_PROPERTIES_NAME, validatorKeys, 
+          new String[]{nameKey, attributeOrTypeKey, regexKey, vetoMessageKey});
       if (!foundOne) {
         break;
       }
@@ -953,6 +1211,14 @@ public class GrouperCheckConfig {
   private static Pattern groupValidatorPattern = Pattern.compile(
       "^group\\.attribute\\.validator\\.(attributeName|regex|vetoMessage)\\.\\d+$");
   
+  /** match something like this: grouperIncludeExclude.requireGroup.name.0 */
+  private static Pattern includeExcludeAndGroupPattern = Pattern.compile(
+      "^grouperIncludeExclude\\.requireGroup\\.(name|attributeOrType|group|description)\\.\\d+$");
+  
+  /** match something like this: configuration.autocreate.group.name.0 */
+  private static Pattern autocreateGroupsPattern = Pattern.compile(
+      "^configuration\\.autoCreate\\.(name|description|subjects)\\.\\d+$");
+  
   /**
    * match something like this: db.warehouse.pass
    */
@@ -974,6 +1240,12 @@ public class GrouperCheckConfig {
         return true;
       }
       if (groupValidatorPattern.matcher(propertyName).matches()) {
+        return true;
+      }
+      if (includeExcludeAndGroupPattern.matcher(propertyName).matches()) {
+        return true;
+      }
+      if (autocreateGroupsPattern.matcher(propertyName).matches()) {
         return true;
       }
     }

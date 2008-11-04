@@ -22,11 +22,13 @@ import java.util.*;
 import javax.servlet.http.*;
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 
 import edu.internet2.middleware.grouper.*;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ui.util.*;
 
 /**
@@ -35,7 +37,7 @@ import edu.internet2.middleware.grouper.ui.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.15 2008-04-23 20:32:14 mchyzer Exp $
+ * @version $Id: SessionInitialiser.java,v 1.16 2008-11-04 07:17:59 mchyzer Exp $
  */
 
 public class SessionInitialiser {
@@ -134,11 +136,17 @@ public class SessionInitialiser {
 					"mediaResource");
 			chainedMediaBundle.addBundle(grouperMediaBundle);
 		}
+		
+		//add in properties from grouper.config
+    MapBundleWrapper navBundleWrapperNull = new MapBundleWrapper(chainedBundle, true);
+
+    addIncludeExcludeDefaults(chainedBundle, navBundleWrapperNull);
+    
 		session.setAttribute("nav",
 				new javax.servlet.jsp.jstl.fmt.LocalizationContext(
 						chainedBundle));
 		session.setAttribute("navMap", new MapBundleWrapper(chainedBundle, false));
-    session.setAttribute("navNullMap", new MapBundleWrapper(chainedBundle, true));
+    session.setAttribute("navNullMap", navBundleWrapperNull);
 
 		session.setAttribute("media",
 				new javax.servlet.jsp.jstl.fmt.LocalizationContext(
@@ -220,6 +228,59 @@ public class SessionInitialiser {
 		}
 		
 	}
+
+  /**
+   * add in exclude and include tooltips if not already in there (from grouper.properties)
+   * @param chainedBundle
+   * @param navBundleWrapperNull
+   */
+  private static void addIncludeExcludeDefaults(ChainedResourceBundle chainedBundle,
+      MapBundleWrapper navBundleWrapperNull) {
+    String typeName = "tooltipTargetted.groupTypes." + GrouperConfig.getProperty("grouperIncludeExclude.type.name");
+    if (navBundleWrapperNull.get(typeName) == null) {
+      chainedBundle.addToCache(typeName, GrouperConfig.getProperty("grouperIncludeExclude.tooltip"));
+    }
+    
+    typeName = "tooltipTargetted.groupTypes." + GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.type.name");
+    if (navBundleWrapperNull.get(typeName) == null) {
+      chainedBundle.addToCache(typeName, GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.tooltip"));
+    }
+    
+    //built in attribute
+    typeName = "tooltipTargetted.groupFields." + GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.attributeName");
+    if (navBundleWrapperNull.get(typeName) == null) {
+      chainedBundle.addToCache(typeName, GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.tooltip"));
+    }
+    
+    //loop through custom types and attributes
+    int i=0;
+    while(true) {
+      
+      //#grouperIncludeExclude.requireGroup.name.0 = requireActiveEmployee
+      //#grouperIncludeExclude.requireGroup.attributeOrType.0 = type
+      //#grouperIncludeExclude.requireGroup.description.0 = If value is true, members of the overall group must be an active employee (in the school:community:activeEmployee group).  Otherwise, leave this value not filled in.
+      String name = GrouperConfig.getProperty("grouperIncludeExclude.requireGroup.name." + i);
+      if (StringUtils.isBlank(name)) {
+        break;
+      }
+      String attributeOrTypeName = "grouperIncludeExclude.requireGroup.attributeOrType." + i;
+      String type = GrouperConfig.getProperty(attributeOrTypeName);
+      boolean isAttribute = false;
+      if (StringUtils.equalsIgnoreCase("attribute", type)) {
+        isAttribute = true;
+      } else if (!StringUtils.equalsIgnoreCase("type", type)) {
+        throw new RuntimeException("Invalid type: '" + type + "' for grouper.properties entry: " + attributeOrTypeName);
+      }
+      String description = "grouperIncludeExclude.requireGroup.description." + i;
+      
+      String key = "tooltipTargetted.group" + (isAttribute ? "Field" : "Type") + "s." + name;
+      if (navBundleWrapperNull.get(key) == null) {
+        chainedBundle.addToCache(key, description);
+      }
+      i++;
+    }
+    
+  }
 
 	/**
 	 * Proper way to get GrouperSession from HttpSession

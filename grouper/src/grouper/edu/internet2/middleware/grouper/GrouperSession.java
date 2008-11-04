@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.89 2008-10-15 03:57:06 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.90 2008-11-04 07:17:55 mchyzer Exp $
  */
 public class GrouperSession {
 
@@ -191,13 +191,32 @@ public class GrouperSession {
    * // Start a Grouper API session.
    * GrouperSession s = GrouperSession.start(subject);
    * </pre>
+   * @param addToThreadLocal true to add this to the grouper session
+   * threadlocal which replaces the current one
+   * @return  A Grouper API session.
+   * @throws  SessionException
+   */
+  public static GrouperSession startRootSession(boolean addToThreadLocal) throws SessionException {
+    
+    return start(SubjectFinder.findRootSubject(), addToThreadLocal);
+  }
+
+  /**
+   * Start a session for interacting with the Grouper API.
+   * This adds the session to the threadlocal.    This has 
+   * threadlocal implications, so start and stop these hierarchically,
+   * do not alternate.  If you need to, use the callback inverse of control.
+   * This uses 
+   * <pre class="eg">
+   * // Start a Grouper API session.
+   * GrouperSession s = GrouperSession.start(subject);
+   * </pre>
    * @return  A Grouper API session.
    * @throws  SessionException
    */
   public static GrouperSession startRootSession()
     throws SessionException {
-    
-    return start(SubjectFinder.findRootSubject());
+    return startRootSession(true);
   }
 
   /**

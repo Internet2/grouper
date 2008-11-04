@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.ui.UIThreadLocal;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ChainedResourceBundle.java,v 1.6 2008-04-04 13:53:13 isgwb Exp $
+ * @version $Id: ChainedResourceBundle.java,v 1.7 2008-11-04 07:17:59 mchyzer Exp $
  */
 
 public class ChainedResourceBundle extends ResourceBundle implements
@@ -42,6 +42,15 @@ public class ChainedResourceBundle extends ResourceBundle implements
 	
 	private HashMap cache = new HashMap();
 
+	/**
+	 * add to cache some extra params
+	 * @param key
+	 * @param value
+	 */
+	public void addToCache(String key, String value) {
+	  this.cache.put(key, value);
+	}
+	
 	/**
 	 * Constructor - ensures atleast one bundle!
 	 * 

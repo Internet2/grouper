@@ -16,22 +16,31 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.AttributeHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Basic Hibernate <code>Attribute</code> DTO interface.
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.21 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: Attribute.java,v 1.22 2008-11-04 07:17:55 mchyzer Exp $
  * @since   @HEAD@
  */
-@GrouperIgnoreDbVersion @GrouperIgnoreClone
+@SuppressWarnings("serial")
+@GrouperIgnoreDbVersion
 public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
@@ -51,6 +60,13 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
   /** constant for field name for: value */
   public static final String FIELD_VALUE = "value";
 
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_DB_VERSION, FIELD_FIELD_ID, FIELD_GROUP_UUID, FIELD_HIBERNATE_VERSION_NUMBER, 
+      FIELD_ID, FIELD_VALUE);
+
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
   // PRIVATE INSTANCE VARIABLES //
@@ -58,8 +74,11 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
   /** id of the field which is the attribute name */
   private String  fieldId;
 
+  /** */
   private String  groupUUID;
+  /** */
   private String  id;
+  /** */
   private String  value;
 
   /**
@@ -76,12 +95,9 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
   /** column old_field_name col in db */
   public static final String COLUMN_OLD_FIELD_NAME = "old_field_name";
 
-
-
-  // PUBLIC INSTANCE METHODS //
-
   /**
-   * @since   @HEAD@
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
    */
   public boolean equals(Object other) {
     if (this == other) {
@@ -96,10 +112,11 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
       .append( this.groupUUID, that.groupUUID )
       .append( this.value,     that.value     )
       .isEquals();
-  } // public boolean equals(other)
-  
+  }
+
   /**
-   * @since   @HEAD@
+   * 
+   * @see java.lang.Object#hashCode()
    */
   public int hashCode() {
     return new HashCodeBuilder()
@@ -107,10 +124,11 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
       .append( this.groupUUID )
       .append( this.value    )
       .toHashCode();
-  } // public int hashCode()
+  }
 
   /**
-   * @since   @HEAD@
+   * 
+   * @see java.lang.Object#toString()
    */
   public String toString() {
     return new ToStringBuilder(this)
@@ -119,12 +137,12 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
       .append( "id",        this.getId()        )
       .append( "value",     this.getValue()     )
       .toString();
-  } // public String toString()
+  }
 
-
-  // PROTECTED INSTANCE METHODS //
-
-  // @since   @HEAD@
+  /**
+   * 
+   * @return attr name
+   */
   public String getAttrName() {
     if (StringUtils.isBlank(this.fieldId)) {
       return null;
@@ -136,28 +154,51 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
     }
     return field.getName();
   }
-  // @since   @HEAD@
+  
+  /**
+   * 
+   * @return group uuid
+   */
   public String getGroupUuid() {
     return this.groupUUID;
   }
-  // @since   @HEAD@
+  
+  /**
+   * 
+   * @return id
+   */
   public String getId() {
     return this.id;
   }
-  // @since   @HEAD@
+
+  /**
+   * 
+   * @return value
+   */
   public String getValue() {
     return this.value;
   }
 
-  // @since   @HEAD@
+  /**
+   * 
+   * @param groupUUID
+   */
   public void setGroupUuid(String groupUUID) {
     this.groupUUID = groupUUID;
   }
-  // @since   @HEAD@
+  
+  /**
+   * 
+   * @param id
+   */
   public void setId(String id) {
     this.id = id;
   }
-  // @since   @HEAD@
+  
+  /**
+   * 
+   * @param value
+   */
   public void setValue(String value) {
     this.value = value;
   }
@@ -167,7 +208,7 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
    */
   @Override
   public Attribute clone() {
-    throw new RuntimeException("Clone not supported");
+    return GrouperUtil.clone(this, CLONE_FIELDS);
   }
 
   /**
@@ -184,6 +225,98 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public void setFieldId(String fieldId1) {
     this.fieldId = fieldId1;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
+  
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE, 
+        AttributeHooks.METHOD_ATTRIBUTE_POST_COMMIT_DELETE, HooksAttributeBean.class, 
+        this, Attribute.class);
+  
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE, 
+        AttributeHooks.METHOD_ATTRIBUTE_POST_DELETE, HooksAttributeBean.class, 
+        this, Attribute.class, VetoTypeGrouper.ATTRIBUTE_POST_DELETE, false, true);
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+
+    super.onPostSave(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE, 
+        AttributeHooks.METHOD_ATTRIBUTE_POST_COMMIT_INSERT, HooksAttributeBean.class, 
+        this, Attribute.class);
+  
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE, 
+        AttributeHooks.METHOD_ATTRIBUTE_POST_INSERT, HooksAttributeBean.class, 
+        this, Attribute.class, VetoTypeGrouper.ATTRIBUTE_POST_INSERT, true, false);
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(HibernateSession)
+   */
+  public void onPostUpdate(HibernateSession hibernateSession) {
+    
+    super.onPostUpdate(hibernateSession);
+    
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE, 
+        AttributeHooks.METHOD_ATTRIBUTE_POST_COMMIT_UPDATE, HooksAttributeBean.class, 
+        this, Attribute.class);
+  
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE, 
+        AttributeHooks.METHOD_ATTRIBUTE_POST_UPDATE, HooksAttributeBean.class, 
+        this, Attribute.class, VetoTypeGrouper.ATTRIBUTE_POST_UPDATE, true, false);
+  
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+  
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE, 
+        AttributeHooks.METHOD_ATTRIBUTE_PRE_DELETE, HooksAttributeBean.class, 
+        this, Attribute.class, VetoTypeGrouper.ATTRIBUTE_PRE_DELETE, false, false);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE, 
+        AttributeHooks.METHOD_ATTRIBUTE_PRE_INSERT, HooksAttributeBean.class, 
+        this, Attribute.class, VetoTypeGrouper.ATTRIBUTE_PRE_INSERT, false, false);
+    
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE, 
+        AttributeHooks.METHOD_ATTRIBUTE_PRE_UPDATE, HooksAttributeBean.class, 
+        this, Attribute.class, VetoTypeGrouper.ATTRIBUTE_PRE_UPDATE, false, false);
+  
   }
 
 } 
