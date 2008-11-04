@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.Member;
@@ -27,48 +26,72 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 /** 
  * Basic <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupTypeDAO.java,v 1.7 2008-10-16 05:45:47 mchyzer Exp $
+ * @version $Id: GroupTypeDAO.java,v 1.8 2008-11-04 07:17:56 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupTypeDAO extends GrouperDAO {
 
   /**
+   * 
+   * @param _gt
+   */
+  public void createOrUpdate(GroupType _gt);
+
+  /**
+   * @param _gt 
+   * @throws GrouperDAOException 
    * @since   1.2.0
    */
   void create(GroupType _gt)
     throws  GrouperDAOException;
 
   /**
+   * @param _f 
+   * @throws GrouperDAOException 
    * @since   1.2.0
    */
   void createField(Field _f)
     throws  GrouperDAOException;
 
   /**
+   * @param _gt 
+   * @param fields 
+   * @throws GrouperDAOException 
    * @since   1.2.0
    */
   void delete(GroupType _gt, Set fields)
     throws  GrouperDAOException;
 
   /**
+   * @param _f 
+   * @throws GrouperDAOException 
    * @since   1.2.0
    */
   void deleteField(Field _f) 
     throws  GrouperDAOException;
 
   /**
+   * @param name 
+   * @return boolean
+   * @throws GrouperDAOException 
    * @since   1.2.0
    */
   boolean existsByName(String name)
     throws  GrouperDAOException;
 
   /**
+   * @return set of types
+   * @throws GrouperDAOException 
    * @since   1.2.0
    */
   Set<GroupType> findAll() 
     throws  GrouperDAOException;
 
   /**
+   * @param uuid 
+   * @return uuid
+   * @throws GrouperDAOException 
+   * @throws SchemaException 
    * @since   1.2.0
    */
   GroupType findByUuid(String uuid)

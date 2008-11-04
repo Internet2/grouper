@@ -43,7 +43,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Reference to members list is: Group.getDefaultList()
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.36 2008-10-17 12:06:37 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.37 2008-11-04 07:17:55 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -103,24 +103,33 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
+  /** */
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private GroupType cachedGroupType   = null;
-  // PRIVATE INSTANCE VARIABLES //
+
+  /** */
   private String    groupTypeUUID;
+  /** */
   private boolean   isNullable;
+  /** */
   private String    name;
+  /** */
   private String    readPrivilege;
+  /** */
   private String    type;
+  /** */
   private String    uuid;
+  /** */
   private String    writePrivilege;
+  /** */
   public  static final  long      serialVersionUID  = 2072790175332537149L;
 
 
-  // PUBLIC INSTANCE METHODS //
-
   /**
+   * @return group type
+   * @throws IllegalStateException 
    */
   public GroupType getGroupType() 
     throws  IllegalStateException
@@ -139,30 +148,36 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   } 
 
   /**
+   * @return field type
    */
   public FieldType getType() {
     return FieldType.getInstance( this.getTypeString() );
   } // public FieldType getType()
 
   /**
+   * @return privilege
    */
   public Privilege getReadPriv() {
     return Privilege.getInstance( this.getReadPrivilege() ); 
   } // public Privilege getReadPriv()
 
   /**
+   * @return if required
    */
   public boolean getRequired() {
     return !this.getIsNullable();
   } // public boolean isRequired()
 
   /**
+   * @return privilege
    */
   public Privilege getWritePriv() {
     return Privilege.getInstance( this.getWritePrivilege() );
   } // public Privilege getWritePriv()
 
   /**
+   * @param other 
+   * @return if equals
    * @since   1.2.0
    */
   public boolean equals(Object other) {
@@ -181,6 +196,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   } // public boolean equals(other)
 
   /**
+   * @return string
    * @since   1.2.0
    */
   public String getGroupTypeUuid() {
@@ -188,6 +204,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @return if nullable
    * @since   1.2.0
    */
   public boolean getIsNullable() {
@@ -195,6 +212,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @return name
    * @since   1.2.0
    */
   public String getName() {
@@ -202,6 +220,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @return read privilege
    * @since   1.2.0
    */
   public String getReadPrivilege() {
@@ -209,6 +228,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @return type string
    * @since   1.2.0
    */
   public String getTypeString() {
@@ -216,6 +236,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @return uuid
    * @since   1.2.0
    */
   public String getUuid() {
@@ -223,6 +244,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @return write privilege
    * @since   1.2.0
    */
   public String getWritePrivilege() {
@@ -243,6 +265,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   } // public int hashCode()
 
   /**
+   * @param groupTypeUUID 
    * @since   1.2.0
    */
   public void setGroupTypeUuid(String groupTypeUUID) {
@@ -250,6 +273,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param isNullable 
    * @since   1.2.0
    */
   public void setIsNullable(boolean isNullable) {
@@ -257,6 +281,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param name 
    * @since   1.2.0
    */
   public void setName(String name) {
@@ -265,6 +290,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param readPrivilege 
    * @since   1.2.0
    */
   public void setReadPrivilege(Privilege readPrivilege) {
@@ -273,6 +299,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param readPrivilege 
    * @since   1.2.0
    */
   public void setReadPrivilege(String readPrivilege) {
@@ -281,6 +308,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param type 
    * @since   1.2.0
    */
   public void setType(FieldType type) {
@@ -289,6 +317,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param type 
    * @since   1.2.0
    */
   public void setTypeString(String type) {
@@ -305,6 +334,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param uuid 
    * @since   1.2.0
    */
   public void setUuid(String uuid) {
@@ -313,6 +343,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param writePrivilege 
    * @since   1.2.0
    */
   public void setWritePrivilege(Privilege writePrivilege) {
@@ -321,6 +352,7 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param writePrivilege 
    * @since   1.2.0
    */
   public void setWritePrivilege(String writePrivilege) {
@@ -329,8 +361,10 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @return string
    * @since   1.2.0
    */
+  @Override
   public String toString() {
     return new ToStringBuilder(this)
       .append( "groupTypeUuid",  this.getGroupTypeUuid()  )

@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.32 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.33 2008-11-04 07:17:55 mchyzer Exp $
  */
 public class GroupTypeFinder {
   
@@ -46,26 +46,40 @@ public class GroupTypeFinder {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GroupTypeFinder.class);
 
-
-// 20080727: should do this in static block, too early, things arent initted yet...
-//  // STATIC //
-//  static {
-//    LOG.info("finding group types");
-//    
-//    // We need to initialize the known types at this point to try and
-//    // avoid running into Hibernate exceptions later on when attempting
-//    // to save objects.
-//    GroupType t;
-//    Iterator  iter  = _findAll().iterator();
-//    while (iter.hasNext()) {
-//      t = (GroupType) iter.next();
-//      types.put(t.getName(), t);
-//      LOG.info("found group type: " + t);
-//    }
-//  } // static
-//
-
-  // PUBLIC CLASS METHODS //
+  /** 
+   * Find a {@link GroupType}.
+   * <p/>
+   * A {@link SchemaException} will be thrown if the type is not found.
+   * <pre class="eg">
+   * try {
+   *   GroupType type = GroupTypeFinder.find(name);
+   * }
+   * catch (SchemaException eS) {
+   *   // type does not exist
+   * }
+   * </pre>
+   * @param   name  Find {@link GroupType} with this name.
+   * @param exceptionIfNotFound 
+   * @return  {@link GroupType}
+   * @throws  SchemaException
+   */
+  public static GroupType find(String name, boolean exceptionIfNotFound) 
+    throws  SchemaException {
+    // First check to see if type is cached.
+    if (types.containsKey(name)) {
+      return (GroupType) types.get(name);
+    }
+    // If not, refresh known types as it may be new and try again. 
+    internal_updateKnownTypes();
+    if (types.containsKey(name)) {
+      return (GroupType) types.get(name);
+    }
+    if (exceptionIfNotFound) {
+      String msg = E.INVALID_GROUP_TYPE + name;
+      throw new SchemaException(msg);
+    }
+    return null;
+  }
 
   /** 
    * Find a {@link GroupType}.
@@ -83,22 +97,9 @@ public class GroupTypeFinder {
    * @return  {@link GroupType}
    * @throws  SchemaException
    */
-  public static GroupType find(String name) 
-    throws  SchemaException
-  {
-    // First check to see if type is cached.
-    if (types.containsKey(name)) {
-      return (GroupType) types.get(name);
-    }
-    // If not, refresh known types as it may be new and try again. 
-    internal_updateKnownTypes();
-    if (types.containsKey(name)) {
-      return (GroupType) types.get(name);
-    }
-    String msg = E.INVALID_GROUP_TYPE + name;
-    LOG.error(msg);
-    throw new SchemaException(msg);
-  } // public static GroupType find(name)
+  public static GroupType find(String name) throws  SchemaException {
+    return find(name, true);
+  }
 
   /**
    * Find all public group types.
@@ -142,9 +143,9 @@ public class GroupTypeFinder {
   } // public static Set findAllAssignable()
 
 
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
+  /**
+   * 
+   */
   public static void internal_updateKnownTypes() {
     // This method irks me still even if it is now more functionally correct
     Set typesInRegistry = _findAll();
@@ -175,16 +176,17 @@ public class GroupTypeFinder {
     }
   } // protected static void internal_updateKnownTypes()
 
-
-  // PRIVATE CLASS METHODS //
-  private static Set _findAll() 
-    throws  GrouperRuntimeException
-  {
+  /**
+   * 
+   * @return set
+   * @throws GrouperRuntimeException
+   */
+  private static Set<GroupType> _findAll() throws  GrouperRuntimeException {
     try {
-      Set       types = new LinkedHashSet();
-      Iterator  it    = GrouperDAOFactory.getFactory().getGroupType().findAll().iterator();
+      Set<GroupType>       types = new LinkedHashSet<GroupType>();
+      Iterator<GroupType>  it    = GrouperDAOFactory.getFactory().getGroupType().findAll().iterator();
       while (it.hasNext()) {
-        GroupType type = (GroupType)it.next() ;
+        GroupType type = it.next() ;
         types.add(type);
       }
       LOG.info("found group types: " + types.size() );

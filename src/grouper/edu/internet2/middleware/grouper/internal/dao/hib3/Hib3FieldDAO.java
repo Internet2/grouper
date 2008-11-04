@@ -33,19 +33,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Field</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3FieldDAO.java,v 1.10 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: Hib3FieldDAO.java,v 1.11 2008-11-04 07:17:56 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
 
-  // PRIVATE CLASS CONSTANTS //
+  /** */
   private static final String KLASS = Hib3FieldDAO.class.getName();
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(Hib3FieldDAO.class);
 
-
   /**
+   * @param name 
+   * @return if exists
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public boolean existsByName(String name) 
@@ -73,6 +75,8 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   } // public boolean existsByName(name)
   
   /**
+   * @return set of fields
+   * @throws GrouperRuntimeException 
    * @since   @HEAD@
    */
   public Set<Field> findAll() 
@@ -85,6 +89,9 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   } // public Set findAll()
 
   /** 
+   * @param uuid 
+   * @return set of fields
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Field> findAllFieldsByGroupType(String uuid)
@@ -98,6 +105,9 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   } 
 
   /**
+   * @param type 
+   * @return set of fields
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Field> findAllByType(FieldType type) 
@@ -111,6 +121,10 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   } // public Set fieldAllByType(type)
 
   /**
+   * @param f 
+   * @return if in use
+   * @throws GrouperDAOException 
+   * @throws SchemaException 
    * @since   @HEAD@
    */
   public boolean isInUse(Field f) 
@@ -133,6 +147,13 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
     }
     return false;
   } // public boolean isInUse(f)
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.FieldDAO#createOrUpdate(edu.internet2.middleware.grouper.Field)
+   */
+  public void createOrUpdate(Field field) {
+    HibernateSession.byObjectStatic().saveOrUpdate(field);    
+  }
 
 } 
 

@@ -28,26 +28,43 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupType1.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroupType1.java,v 1.7 2008-11-04 07:17:56 mchyzer Exp $
  */
 public class TestGroupType1 extends TestCase {
 
-  // Private Static Class Constants
+  /**
+   * 
+   */
   private static final Log LOG = GrouperUtil.getLog(TestGroupType1.class);
 
+  /**
+   * 
+   * @param name
+   */
   public TestGroupType1(String name) {
     super(name);
   }
 
+  /**
+   * 
+   * @see junit.framework.TestCase#setUp()
+   */
   protected void setUp () {
     LOG.debug("setUp");
     RegistryReset.reset();
   }
 
+  /**
+   * 
+   * @see junit.framework.TestCase#tearDown()
+   */
   protected void tearDown () {
     LOG.debug("tearDown");
   }
 
+  /**
+   * 
+   */
   public void testFindAllTypesAfterAddition() {
     LOG.info("testFindAllTypesAfterAddition");
     Set types = GroupTypeFinder.findAll();    
@@ -67,7 +84,7 @@ public class TestGroupType1 extends TestCase {
     finally {
       SessionHelper.stop(s);
     }
-  } // public void testFindAllTypesAfterAddition()
-
+  }
+  
 }
 

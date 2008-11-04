@@ -26,36 +26,56 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 /** 
  * Basic <code>Field</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: FieldDAO.java,v 1.6 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: FieldDAO.java,v 1.7 2008-11-04 07:17:56 mchyzer Exp $
  * @since   1.2.0
  */
 public interface FieldDAO extends GrouperDAO {
 
   /**
+   * @param field
+   */
+  public void createOrUpdate(Field field);
+
+  /**
+   * @param name 
+   * @return if exists
+   * @throws GrouperDAOException 
    * @since   1.2.0
    */
   boolean existsByName(String name) 
     throws  GrouperDAOException;
 
   /**
+   * @return all fields
+   * @throws GrouperRuntimeException 
    * @since   1.2.0
    */
   Set<Field> findAll() 
     throws  GrouperRuntimeException;
 
   /**
+   * @param uuid 
+   * @return set of fields
+   * @throws GrouperDAOException 
    * @since   1.2.0
    */
   Set<Field> findAllFieldsByGroupType(String uuid)
     throws  GrouperDAOException;
 
   /**
+   * @param type 
+   * @return set of fields
+   * @throws GrouperDAOException 
    * @since   1.2.0
    */
   Set<Field> findAllByType(FieldType type) 
     throws  GrouperDAOException;
 
   /**
+   * @param f 
+   * @return if in use
+   * @throws GrouperDAOException 
+   * @throws SchemaException 
    * @since   1.2.0
    */
   boolean isInUse(Field f) 

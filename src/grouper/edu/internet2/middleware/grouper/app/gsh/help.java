@@ -15,7 +15,7 @@ import bsh.Interpreter;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.11 2008-10-29 05:32:20 mchyzer Exp $
+ * @version $Id: help.java,v 1.12 2008-11-04 07:17:56 mchyzer Exp $
  * @since   0.0.1
  */
 public class help {
@@ -213,6 +213,9 @@ public class help {
     i.println("* getSources()"                                        );
     i.println("* getStemAttr(stem, attr)"                             );
     i.println("* getStems(name)"                                      );
+    i.println("* group.manageIncludesExcludes(grouperSession)");
+    i.println("* group.manageIncludesExcludes(grouperSession, groupThatMembersMustAlsoBeIn)");
+    i.println("* group.manageIncludesExcludes(grouperSession, setOfGroupsThatMembersMustAlsoBeIn)");
     i.println("* stem = StemFinder.findByName(grouperSession, name)");
     i.println("* stem = StemFinder.findByUuid(grouperSession, uuid)");
     i.println("* grantPriv(name, subject id, Privilege)"              );

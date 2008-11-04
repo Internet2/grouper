@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -37,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelNamingResolver.java,v 1.11 2008-10-23 04:48:57 mchyzer Exp $
+ * @version $Id: WheelNamingResolver.java,v 1.12 2008-11-04 07:17:55 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelNamingResolver extends NamingResolverDecorator {
@@ -79,12 +80,21 @@ public class WheelNamingResolver extends NamingResolverDecorator {
         
     	  //OK, so wheel group does not exist. Not fatal...
       	String error = "Cant find wheel group '" + wheelGroupName + "': " + e.getClass().getSimpleName();
-    	  LOG.error(error, e);
+    	  
+      	if (!loggedWheelNotThere && !GrouperCheckConfig.inCheckConfig) {   
+      	  LOG.error(error);
+      	  loggedWheelNotThere = true;
+      	}
+    	  //exception stack is not that interesting
+    	  LOG.info(error, e);
         this.useWheel=false;  
       }
     }
   }
 
+  /** */
+  private static boolean loggedWheelNotThere = false;
+  
   /**
    * @see     NamingResolver#getConfig(String)
    * @throws  IllegalStateException if any parameter is null.

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHookType.java,v 1.7 2008-07-21 04:43:58 mchyzer Exp $
+ * $Id: GrouperHookType.java,v 1.8 2008-11-04 07:17:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -15,6 +15,7 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.hooks.AttributeHooks;
 import edu.internet2.middleware.grouper.hooks.CompositeHooks;
 import edu.internet2.middleware.grouper.hooks.FieldHooks;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
@@ -38,6 +39,11 @@ public enum GrouperHookType implements GrouperHookTypeInterface {
    * group hooks
    */
   GROUP("hooks.group.class", GroupHooks.class),
+  
+  /**
+   * attribute hooks
+   */
+  ATTRIBUTE("hooks.attribute.class", AttributeHooks.class),
   
   /**
    * group hooks

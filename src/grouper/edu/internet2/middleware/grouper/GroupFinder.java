@@ -23,6 +23,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundRuntimeException;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -34,7 +35,7 @@ import edu.internet2.middleware.grouper.validator.NotNullValidator;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.55 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: GroupFinder.java,v 1.56 2008-11-04 07:17:55 mchyzer Exp $
  */
 public class GroupFinder {
 
@@ -146,23 +147,59 @@ public class GroupFinder {
    * @throws  GroupNotFoundException
    */
   public static Group findByName(GrouperSession s, String name) 
-    throws GroupNotFoundException
-  {
+      throws GroupNotFoundException {
+    try {
+      return findByName(s, name, true);
+    } catch (GroupNotFoundRuntimeException gnfre) {
+      throw new GroupNotFoundException(gnfre.getMessage(), gnfre);
+    }
+  } 
+
+  /**
+   * Find a group within the registry by name.
+   * <pre class="eg">
+   * try {
+   *   Group g = GroupFinder.findByName(name);
+   * }
+   * catch (GroupNotFoundException e) {
+   *   // Group not found
+   * }
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   name  Name of group to find.
+   * @param exceptionIfNotFound 
+   * @return  A {@link Group}
+   * @throws  GroupNotFoundRuntimeException
+   */
+  public static Group findByName(GrouperSession s, String name, boolean exceptionIfNotFound) 
+    throws GroupNotFoundRuntimeException {
+    
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Group g = GrouperDAOFactory.getFactory().getGroup().findByName(name) ;
+    Group g = null;
+    try {
+      g = GrouperDAOFactory.getFactory().getGroup().findByName(name) ;
+    } catch (GroupNotFoundException gnfe) {
+      if (!exceptionIfNotFound) {
+        return null;
+      }
+      throw new GroupNotFoundRuntimeException(gnfe.getMessage(), gnfe);
+    }
     //2007-10-16: Gary Brown
     //https://bugs.internet2.edu/jira/browse/GRP-36
     //Ugly... and probably breaks the abstraction but quick and easy to 
     //remove when a more elegant solution found.
     if(s.getSubject().equals(SubjectFinder.findRootSubject()))
-    	return g;
+      return g;
     
     if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
       return g;
     }
     LOG.error(E.GF_FBNAME + E.CANNOT_VIEW);
-    throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by name: " + name);
+    if (!exceptionIfNotFound) {
+      return null;
+    }
+    throw new GroupNotFoundRuntimeException(E.GROUP_NOTFOUND + " by name: " + name);
   } 
 
   /** logger */
@@ -248,8 +285,8 @@ public class GroupFinder {
    * @throws  GroupNotFoundException
    */
   public static Group findByUuid(GrouperSession s, String uuid) 
-    throws GroupNotFoundException
-  {
+    throws GroupNotFoundException {
+
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid);

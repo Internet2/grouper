@@ -24,7 +24,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 
-import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.Member;
@@ -39,14 +38,24 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeDAO.java,v 1.9 2008-10-16 05:45:47 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeDAO.java,v 1.10 2008-11-04 07:17:56 mchyzer Exp $
  */
 public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
 
-  // PRIVATE CLASS CONSTANTS //
+  /** */
   private static final String KLASS = Hib3GroupTypeDAO.class.getName();
 
   /**
+   * insert or update
+   * @param _gt
+   */
+  public void createOrUpdate(GroupType _gt) {
+    HibernateSession.byObjectStatic().saveOrUpdate(_gt);    
+  }
+  
+  /**
+   * @param _gt 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public void create(GroupType _gt)
@@ -55,6 +64,8 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
   } 
 
   /**
+   * @param _f 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public void createField(Field _f)
@@ -63,6 +74,9 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
   } 
 
   /**
+   * @param _gt 
+   * @param fields 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public void delete(GroupType _gt, Set fields)
@@ -76,6 +90,8 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
   } 
 
   /**
+   * @param _f 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public void deleteField(Field _f) throws  GrouperDAOException {
@@ -83,6 +99,9 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
   } 
 
   /**
+   * @param name 
+   * @return boolean
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public boolean existsByName(String name)
@@ -99,6 +118,8 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
   } 
   
   /**
+   * @return set of types
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<GroupType> findAll() 
@@ -112,6 +133,10 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
   } 
 
   /**
+   * @param uuid 
+   * @return type
+   * @throws GrouperDAOException 
+   * @throws SchemaException 
    * @since   @HEAD@
    */
   public GroupType findByUuid(String uuid)
@@ -130,7 +155,11 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
     return groupType;
   } 
 
-  // @since   @HEAD@
+  /**
+   * 
+   * @param hibernateSession
+   * @throws HibernateException
+   */
   protected static void reset(HibernateSession hibernateSession) 
     throws  HibernateException
   {
