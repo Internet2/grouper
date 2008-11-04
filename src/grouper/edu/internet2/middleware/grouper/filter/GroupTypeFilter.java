@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  * Query by {@link GroupType}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFilter.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: GroupTypeFilter.java,v 1.2 2008-11-04 15:19:56 shilen Exp $
  * @since   1.2.0
  */
 public class GroupTypeFilter extends BaseQueryFilter {
@@ -65,12 +65,19 @@ public class GroupTypeFilter extends BaseQueryFilter {
     GrouperSession.validate(s);
     Set       groups  = new LinkedHashSet();
     Group     g;  
-    Iterator  it      = GrouperDAOFactory.getFactory().getGroup().findAllByType( this.type ).iterator();
+    Iterator  it;
+
+    if (ns.isRootStem()) {
+      it = GrouperDAOFactory.getFactory().getGroup().findAllByType(this.type).iterator();
+    } else {
+      it = GrouperDAOFactory.getFactory().getGroup().findAllByType(this.type, getStringForScope(ns)).iterator();
+    }
+
     while (it.hasNext()) {
       g = (Group) it.next();
       groups.add(g);
     }
-    return this.filterByScope(this.ns, groups);
+    return groups;
   } 
 
 }

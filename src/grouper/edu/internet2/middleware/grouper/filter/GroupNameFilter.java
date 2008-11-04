@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
  * Query by group name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupNameFilter.java,v 1.2 2008-07-21 05:32:20 mchyzer Exp $
+ * @version $Id: GroupNameFilter.java,v 1.3 2008-11-04 15:19:56 shilen Exp $
  */
 public class GroupNameFilter extends BaseQueryFilter {
 
@@ -65,10 +65,15 @@ public class GroupNameFilter extends BaseQueryFilter {
   {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Set candidates  = PrivilegeHelper.canViewGroups(
-      s, GrouperDAOFactory.getFactory().getGroup().findAllByApproximateName(this.name)
-    );
-    Set results     = this.filterByScope(this.ns, candidates);
+    Set results;  
+  
+    if (ns.isRootStem()) {
+      results = PrivilegeHelper.canViewGroups(
+        s, GrouperDAOFactory.getFactory().getGroup().findAllByApproximateName(this.name));
+    } else {
+      results = PrivilegeHelper.canViewGroups(
+        s, GrouperDAOFactory.getFactory().getGroup().findAllByApproximateName(this.name, getStringForScope(ns)));
+    }
     return results;
   } // public Set getResults(s)
 
