@@ -22,7 +22,7 @@ import junit.framework.TestSuite;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteGrouperQuery.java,v 1.4 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: SuiteGrouperQuery.java,v 1.5 2008-11-04 18:50:52 shilen Exp $
  * @since   1.2.0
  */
 public class SuiteGrouperQuery extends TestCase {
@@ -62,6 +62,7 @@ public class SuiteGrouperQuery extends TestCase {
     suite.addTestSuite( TestGQStemCreatedBefore.class   );
     suite.addTestSuite( TestGQStemName.class            );
     suite.addTestSuite( TestGQUnionFilter.class         );
+    suite.addTestSuite( TestGQGroupAttributeExact.class );
     return suite;
   } // static public Test suite()
 
