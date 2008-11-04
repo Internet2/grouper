@@ -98,7 +98,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.5 2008-10-30 22:32:27 isgwb Exp $
+ * @version $Id: XmlImporter.java,v 1.6 2008-11-04 15:16:17 isgwb Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1106,7 +1106,7 @@ public class XmlImporter {
     Stem  parent  = StemFinder.findByName(this.s, stem);
     String id=null;
     if(!_isIgnoreInternalAttributes()) {
-    	e.getAttribute("id");
+    	id=e.getAttribute("id");
     }
     Group child   = parent.internal_addChildGroup(
       e.getAttribute(GrouperConfig.ATTR_EXTENSION),
