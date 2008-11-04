@@ -32,7 +32,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml9.java,v 1.8 2008-11-04 07:17:56 mchyzer Exp $
+ * @version $Id: TestXml9.java,v 1.9 2008-11-04 07:20:36 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestXml9 extends GrouperTest {
@@ -76,7 +76,7 @@ public class TestXml9 extends GrouperTest {
       GrouperSession  s         = GrouperSession.start( SubjectFinder.findRootSubject() );
       Writer          w         = new StringWriter();
       XmlExporter     exporter  = new XmlExporter(s, new Properties());
-      //TODO exporter.export(w, StemFinder.findRootStem(s), false);
+      exporter.export(w, StemFinder.findRootStem(s), false);
       String          xml       = w.toString();
       s.stop();
 
