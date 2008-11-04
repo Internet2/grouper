@@ -139,7 +139,7 @@ public class TestMembership5 extends TestCase {
         //good
       }
 
-      gB.revokePriv( gC.toSubject(), AccessPrivilege.UPDATE );
+//      gB.revokePriv( gC.toSubject(), AccessPrivilege.UPDATE );
       //shouldnt throw an exception
       
       gD.deleteMember( subjD );
