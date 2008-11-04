@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.xml.XmlImporter;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlImport1.java,v 1.9 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestXmlImport1.java,v 1.10 2008-11-04 15:16:52 isgwb Exp $
  * @since   1.0
  */
 public class TestXmlImport1 extends TestCase {
@@ -62,7 +62,7 @@ public class TestXmlImport1 extends TestCase {
       Assert.assertTrue("xml instanceof XmlImporter", xml instanceof XmlImporter);
       Properties options = xml.internal_getOptions();
       Assert.assertNotNull("options !null", options);
-      T.amount("set options", 7, options.size());
+      T.amount("set options", 8, options.size());
       String k = "import.metadata.group-types";
       String v = "false";
       T.string(k, v, options.getProperty(k));

@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.xml.XmlExporter;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXmlExport0.java,v 1.11 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestXmlExport0.java,v 1.12 2008-11-04 15:16:52 isgwb Exp $
  * @since   1.0
  */
 public class TestXmlExport0 extends TestCase {
@@ -60,7 +60,7 @@ public class TestXmlExport0 extends TestCase {
       Assert.assertTrue("xml instanceof XmlExporter", xml instanceof XmlExporter);
       Properties options = xml.internal_getOptions();
       Assert.assertNotNull("options !null", options);
-      Assert.assertTrue("14 set options", options.size() == 14);
+      Assert.assertTrue("15 set options", options.size() == 15);
       String k = "export.metadata";
       String v = "true";
       T.string(k, v, options.getProperty(k));
