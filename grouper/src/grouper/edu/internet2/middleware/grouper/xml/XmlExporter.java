@@ -90,7 +90,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.7 2008-11-02 09:42:22 isgwb Exp $
+ * @version $Id: XmlExporter.java,v 1.8 2008-11-04 15:15:09 isgwb Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -866,18 +866,24 @@ public class XmlExporter {
     // export ALL children of that parent in that case.  Alas.
     Stack stems = null;
     if (!this.isRelative) {
-      stems = this._getParentStems(o);
+      if(o instanceof Stem && ((Stem)o).isRootStem()) {
+    	//Root stem doesn't have parent stems - perhaps method should return empty Stack? 
+    	  stems = new Stack();
+    	  stems.add(o);
+      }else{
+    	  stems = this._getParentStems(o);
+      }
     } 
     else {
       stems = new Stack();
       if (o instanceof Group) {
         stems.push( (Group) o);
-        if (!this.childrenOnly) {
+        if (this.includeParent) {
           stems.push( ( (Group) o ).getParentStem());
         }
       } 
       else {
-        stems.push( (Stem) o);
+    		stems.push( (Stem) o);
       }
     }
     return stems;
@@ -1372,8 +1378,10 @@ public class XmlExporter {
       this._writeInternalAttribute( "parentStem",     this._getParentStemName(g)   );
       this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, g.getCreatorUuid() ) );
       this._writeInternalAttribute( "createTime",     g.getCreateTimeLong() );
-      this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, g.getModifierUuid() ) );
-      this._writeInternalAttribute( "modifyTime",     g.getModifyTimeLong() );
+      if(g.getModifierUuid()!=null) {
+    	  this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, g.getModifierUuid() ) );
+    	  this._writeInternalAttribute( "modifyTime",     g.getModifyTimeLong() );
+      }
       this.xml.internal_puts("</internalAttributes>");
       this.xml.internal_undent();
       this.xml.internal_puts();
@@ -1390,11 +1398,15 @@ public class XmlExporter {
     if ( this._isStemInternalAttrsExportEnabled() ) {
       this.xml.internal_indent();
       this.xml.internal_puts("<internalAttributes>");
-      this._writeInternalAttribute( "parentStem",     this._getParentStemName(ns)   );
+      if(!ns.isRootStem()) {
+    	  this._writeInternalAttribute( "parentStem",     this._getParentStemName(ns)   );
+      }
       this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, ns.getCreatorUuid() ) );
       this._writeInternalAttribute( "createTime",     ns.getCreateTimeLong() );
-      this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, ns.getModifierUuid() ) );
-      this._writeInternalAttribute( "modifyTime",     ns.getModifyTimeLong() );
+      if(ns.getModifierUuid()!=null) {
+    	  this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, ns.getModifierUuid() ) );
+    	  this._writeInternalAttribute( "modifyTime",     ns.getModifyTimeLong() );
+      }
       this.xml.internal_puts("</internalAttributes>");
       this.xml.internal_undent();
       this.xml.internal_puts();
