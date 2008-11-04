@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.13 2008-10-16 05:45:47 mchyzer Exp $
+ * @version $Id: GroupDAO.java,v 1.14 2008-11-04 15:19:56 shilen Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -95,9 +95,26 @@ public interface GroupDAO extends GrouperDAO {
             ;
 
   /**
+   * @since   1.4.0
+   */
+  Set<Group> findAllByAnyApproximateAttr(String val, String scope) 
+    throws  GrouperDAOException,
+            IllegalStateException
+            ;
+
+
+  /**
    * @since   1.2.0
    */
   Set<Group> findAllByApproximateAttr(String attr, String val) 
+    throws  GrouperDAOException,
+            IllegalStateException
+            ;
+
+  /**
+   * @since   1.4.0
+   */
+  Set<Group> findAllByApproximateAttr(String attr, String val, String scope) 
     throws  GrouperDAOException,
             IllegalStateException
             ;
@@ -111,6 +128,15 @@ public interface GroupDAO extends GrouperDAO {
             ;
 
   /**
+   * @since   1.4.0
+   */
+  Set<Group> findAllByAttr(String attr, String val, String scope) 
+    throws  GrouperDAOException,
+            IllegalStateException
+            ;
+
+
+  /**
    * @since   1.2.0
    */
   Set<Group> findAllByApproximateName(String name) 
@@ -119,9 +145,24 @@ public interface GroupDAO extends GrouperDAO {
             ;
 
   /**
+   * @since   1.4.0
+   */
+  Set<Group> findAllByApproximateName(String name, String scope) 
+    throws  GrouperDAOException,
+            IllegalStateException
+            ;
+
+
+  /**
    * @since   1.2.0
    */
   Set<Group> findAllByCreatedAfter(Date d) 
+    throws  GrouperDAOException;
+
+  /**
+   * @since   1.4.0
+   */
+  Set<Group> findAllByCreatedAfter(Date d, String scope) 
     throws  GrouperDAOException;
 
   /**
@@ -131,9 +172,21 @@ public interface GroupDAO extends GrouperDAO {
     throws  GrouperDAOException;
 
   /**
+   * @since   1.4.0
+   */
+  Set<Group> findAllByCreatedBefore(Date d, String scope) 
+    throws  GrouperDAOException;
+
+  /**
    * @since   1.2.0
    */
   Set<Group> findAllByModifiedAfter(Date d) 
+    throws  GrouperDAOException;
+
+  /**
+   * @since   1.4.0
+   */
+  Set<Group> findAllByModifiedAfter(Date d, String scope) 
     throws  GrouperDAOException;
 
   /**
@@ -143,9 +196,21 @@ public interface GroupDAO extends GrouperDAO {
     throws  GrouperDAOException;
 
   /**
+   * @since   1.4.0
+   */
+  Set<Group> findAllByModifiedBefore(Date d, String scope) 
+    throws  GrouperDAOException;
+
+  /**
    * @since   1.2.0
    */
   Set<Group> findAllByType(GroupType _gt)
+    throws  GrouperDAOException;
+
+  /**
+   * @since   1.4.0
+   */
+  Set<Group> findAllByType(GroupType _gt, String scope)
     throws  GrouperDAOException;
 
   /**

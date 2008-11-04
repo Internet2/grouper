@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
  * Query by groups modified after the specified date.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupModifiedAfterFilter.java,v 1.2 2008-07-21 05:32:20 mchyzer Exp $
+ * @version $Id: GroupModifiedAfterFilter.java,v 1.3 2008-11-04 15:19:56 shilen Exp $
  * @since   1.1.0
  */
 public class GroupModifiedAfterFilter extends BaseQueryFilter {
@@ -62,10 +62,15 @@ public class GroupModifiedAfterFilter extends BaseQueryFilter {
   {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Set candidates  = PrivilegeHelper.canViewGroups(
-      s, GrouperDAOFactory.getFactory().getGroup().findAllByModifiedAfter(this.d)
-    );
-    Set results     = this.filterByScope(this.ns, candidates);
+    Set results;
+
+    if (ns.isRootStem()) {
+      results = PrivilegeHelper.canViewGroups(
+        s, GrouperDAOFactory.getFactory().getGroup().findAllByModifiedAfter(this.d));
+    } else {
+      results = PrivilegeHelper.canViewGroups(
+        s, GrouperDAOFactory.getFactory().getGroup().findAllByModifiedAfter(this.d, getStringForScope(ns)));
+    }
     return results;
   } // public Set getResults(s)
 

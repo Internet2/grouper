@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Base {@link QueryFilter} that all other query filters should extend.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseQueryFilter.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: BaseQueryFilter.java,v 1.3 2008-11-04 15:19:56 shilen Exp $
  */
 public class BaseQueryFilter implements QueryFilter {
 
@@ -101,6 +101,16 @@ public class BaseQueryFilter implements QueryFilter {
     GrouperSession.validate(s);
     return RESULTS;
   } // public Set getResults(s)
+
+  /**
+   * Get the scope as a string.
+   *
+   * @param ns
+   * @return the scope
+   */
+  protected String getStringForScope(Stem ns) {
+    return ns.getName() + Stem.DELIM;
+  }
 
 }
 
