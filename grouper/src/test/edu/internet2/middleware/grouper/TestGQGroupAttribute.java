@@ -21,13 +21,14 @@ import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.filter.GroupAttributeFilter;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 
 /**
  * Test {@link GroupAttributeFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQGroupAttribute.java,v 1.10 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGQGroupAttribute.java,v 1.11 2008-11-04 18:50:52 shilen Exp $
  */
 public class TestGQGroupAttribute extends TestCase {
 
@@ -91,15 +92,19 @@ public class TestGQGroupAttribute extends TestCase {
     }
   } // public void testGroupAttributeFilterSomething()
 
-  public void testGroupAttributeFilterSomethingScoped() {
+  public void testGroupAttributeFilterSomethingScoped() throws Exception {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    StemHelper.addChildGroup(com, "devclue", "devclue");
+    Group           devclue = StemHelper.addChildGroup(com, "devclue", "devclue");
     GroupHelper.addMember(i2, uofc);
+
+    GroupType custom = GroupType.createType(s, "customType");
+    custom.addAttribute(s, "customAttribute", AccessPrivilege.VIEW, AccessPrivilege.UPDATE, false);
+
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
         s, new GroupAttributeFilter("extension", "uofc", com)
@@ -107,6 +112,52 @@ public class TestGQGroupAttribute extends TestCase {
       Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
       Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+
+    devclue.addType(custom);
+    uofc.addType(custom);
+    devclue.setAttribute("customAttribute", "String with i2 within");
+    uofc.setAttribute("customAttribute", "String with i2 within");
+    devclue.store();
+    uofc.store();
+
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new GroupAttributeFilter("customAttribute", "i2", com)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new GroupAttributeFilter("customAttribute", "i2", edu)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new GroupAttributeFilter("extension", "i2", edu)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
+      Assert.assertTrue("members", gq.getMembers().size()     == 1);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 1);
       Assert.assertTrue("stems",   gq.getStems().size()       == 0);
     }
     catch (QueryException eQ) {

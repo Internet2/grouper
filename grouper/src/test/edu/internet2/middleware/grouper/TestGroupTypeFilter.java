@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupTypeFilter.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroupTypeFilter.java,v 1.7 2008-11-04 18:50:52 shilen Exp $
  * @since   1.2.0
  */
 public class TestGroupTypeFilter extends GrouperTest {
@@ -124,6 +124,16 @@ public class TestGroupTypeFilter extends GrouperTest {
       T.amount( "members"     , 0, gq.getMembers().size()     );
       T.amount( "memberships" , 0, gq.getMemberships().size() );
       T.amount( "stems"       , 0, gq.getStems().size()       );
+
+      GroupType     type  = GroupType.createType(r.rs, "custom type");
+      gq  = GrouperQuery.createQuery(
+        r.rs, new GroupTypeFilter(type, r.getStem("a"))
+      );            
+      T.amount( "groups"      , 0, gq.getGroups().size()      );
+      T.amount( "members"     , 0, gq.getMembers().size()     ); 
+      T.amount( "memberships" , 0, gq.getMemberships().size() );
+      T.amount( "stems"       , 0, gq.getStems().size()       );
+
       r.rs.stop();
     }
     catch (Exception e) {

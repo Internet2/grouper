@@ -19,21 +19,15 @@ package edu.internet2.middleware.grouper;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import edu.internet2.middleware.grouper.exception.QueryException;
-import edu.internet2.middleware.grouper.filter.GroupAnyAttributeFilter;
+import edu.internet2.middleware.grouper.filter.GroupAttributeExactFilter;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 
 
-/**
- * Test {@link GroupAnyAttributeFilter}.
- * <p />
- * @author  blair christensen.
- * @version $Id: TestGQGroupAnyAttribute.java,v 1.9 2008-11-04 18:50:52 shilen Exp $
- */
-public class TestGQGroupAnyAttribute extends TestCase {
+public class TestGQGroupAttributeExact extends TestCase {
 
-  public TestGQGroupAnyAttribute(String name) {
+  public TestGQGroupAttributeExact(String name) {
     super(name);
   }
 
@@ -47,7 +41,7 @@ public class TestGQGroupAnyAttribute extends TestCase {
 
   // Tests
 
-  public void testGroupAnyAttributeFilterNothing() {
+  public void testGroupAttributeExactFilterNothing() {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -58,7 +52,7 @@ public class TestGQGroupAnyAttribute extends TestCase {
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupAnyAttributeFilter("nothing", root)
+        s, new GroupAttributeExactFilter("name", "nothing", root)
       );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
@@ -68,9 +62,9 @@ public class TestGQGroupAnyAttribute extends TestCase {
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
-  } // public void testGroupAnyAttributeFilterNothing()
+  }
 
-  public void testGroupAnyAttributeFilterSomething() {
+  public void testGroupAttributeExactFilterSomething() {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -81,7 +75,7 @@ public class TestGQGroupAnyAttribute extends TestCase {
     GroupHelper.addMember(i2, uofc);
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupAnyAttributeFilter("uofc", root)
+        s, new GroupAttributeExactFilter("extension", "uofc", root)
       );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
@@ -91,9 +85,9 @@ public class TestGQGroupAnyAttribute extends TestCase {
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
-  } // public void testGroupAnyAttributeFilterSomething()
+  }
 
-  public void testGroupAnyAttributeFilterSomethingScoped() throws Exception {
+  public void testGroupAttributeExactFilterSomethingScoped() throws Exception {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -109,7 +103,7 @@ public class TestGQGroupAnyAttribute extends TestCase {
 
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupAnyAttributeFilter("uofc", com)
+        s, new GroupAttributeExactFilter("extension", "uofc", com)
       );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
@@ -129,9 +123,9 @@ public class TestGQGroupAnyAttribute extends TestCase {
 
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupAnyAttributeFilter("i2", com)
+        s, new GroupAttributeExactFilter("customAttribute", "i2", com)
       );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
       Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
       Assert.assertTrue("stems",   gq.getStems().size()       == 0);
@@ -142,19 +136,18 @@ public class TestGQGroupAnyAttribute extends TestCase {
 
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupAnyAttributeFilter("i2", edu)
+        s, new GroupAttributeExactFilter("customAttribute", "String with i2 within", com)
       );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 2);
-      Assert.assertTrue("members", gq.getMembers().size()     == 1);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 1);
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
       Assert.assertTrue("stems",   gq.getStems().size()       == 0);
     }
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
 
-
-  } // public void testGroupAnyAttributeFilterSomethingDisplayExtensionScoped()
+  }
 
 }
 
