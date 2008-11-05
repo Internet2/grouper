@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeTupleIncludeExcludeHook.java,v 1.1 2008-11-04 07:17:56 mchyzer Exp $
+ * $Id: GroupTypeTupleIncludeExcludeHook.java,v 1.2 2008-11-05 05:10:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -39,6 +39,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * you can auto create groups to facilitate include and exclude lists
  * 
+ * to debug this add these two entries to log4j.properties
+ * 
+ * log4j.logger.edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook = DEBUG
+ * log4j.logger.edu.internet2.middleware.grouper.Group = DEBUG
  * </pre>
  */
 public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
@@ -161,13 +165,15 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
 
     try {
       
-      GroupType includeExcludeType = useGrouperIncludeExclude ? GroupTypeFinder.find(includeExcludeTypeName) : null;
+      GroupType includeExcludeType = useGrouperIncludeExclude ? GroupTypeFinder.find(includeExcludeTypeName, false) : null;
       boolean fireHook = useGrouperIncludeExclude 
-        ? StringUtils.equals(groupTypeTuple.getTypeUuid(), includeExcludeType.getUuid()) : false;
+        ? StringUtils.equals(groupTypeTuple.getTypeUuid(), 
+            includeExcludeType == null ? null : includeExcludeType.getUuid()) : false;
 
-      GroupType requireGroupsType = useRequireGroups ? GroupTypeFinder.find(requireGroupsTypeName) : null;
+      GroupType requireGroupsType = useRequireGroups ? GroupTypeFinder.find(requireGroupsTypeName, false) : null;
       fireHook = fireHook || (useRequireGroups 
-        ? StringUtils.equals(groupTypeTuple.getTypeUuid(), requireGroupsType.getUuid()) : false);
+        ? StringUtils.equals(groupTypeTuple.getTypeUuid(), 
+            requireGroupsType == null ? null : requireGroupsType.getUuid()) : false);
         
       //see if a custom group type
       if (!fireHook) {
@@ -222,19 +228,40 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
     Set<Group> andGroups = new TreeSet<Group>();
     
     boolean includeExclude = false;
-    
+    GroupType includesExcludesType = null;
+    GroupType requireGroupsType = null;
     try {
       
-      GroupType includesExcludesType = GroupTypeFinder.find(includeExcludeName);
+      includesExcludesType = GroupTypeFinder.find(includeExcludeName);
       
       includeExclude = typedGroup.hasType(includesExcludesType);
       
-      GroupType requireGroupsType = GroupTypeFinder.find(groupTypeName);
+      //if other groups are there, then this is include/exclude.  we dont remove when the checkbox is
+      //unchecked
+      String overallExtension = typedGroup.getExtension();
+      
+      //strip system of record suffix (i.e. we are putting the type on the system of record group)
+      if (overallExtension.endsWith(systemOfRecordExtensionSuffix())) {
+        overallExtension = overallExtension.substring(0, 
+            overallExtension.length() - systemOfRecordExtensionSuffix().length());
+      }
+
+      String stemName = GrouperUtil.parentStemNameFromName(typedGroup.getName());
+      String overallName = stemName + ":" + overallExtension;
+
+      includeExclude = includeExclude || GroupFinder.findByName(grouperSession, 
+          overallName + includeExtensionSuffix(), false) != null;
+      includeExclude = includeExclude || GroupFinder.findByName(grouperSession, 
+          overallName + excludeExtensionSuffix(), false) != null;
+      
+      requireGroupsType = GroupTypeFinder.find(groupTypeName);
   
+      boolean hasRequireGroupsType = typedGroup.hasType(requireGroupsType);
+      
       String andGroupsAttributeName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.attributeName");
       boolean hasAndGroupsAttributeName = StringUtils.isNotBlank(andGroupsAttributeName);
       
-      if (hasAndGroupsAttributeName) {
+      if (hasRequireGroupsType && hasAndGroupsAttributeName) {
         String groupNames = typedGroup.getAttributeOrNull(andGroupsAttributeName);
         if (!StringUtils.isBlank(groupNames)) {
           String[] andGroupNames = GrouperUtil.splitTrim(groupNames, ",");
@@ -244,24 +271,26 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
         }
       }
       
-      Set<Field> fields = requireGroupsType.getFields();
-      
-      for (Field field : GrouperUtil.nonNull(fields)) {
+      if (hasRequireGroupsType) {
+        Set<Field> fields = requireGroupsType.getFields();
         
-        //see if this is not a custom require group
-        if (hasAndGroupsAttributeName && StringUtils.equals(andGroupsAttributeName, field.getName())) {
-          continue;
+        for (Field field : GrouperUtil.nonNull(fields)) {
+          
+          //see if this is not a custom require group
+          if (hasAndGroupsAttributeName && StringUtils.equals(andGroupsAttributeName, field.getName())) {
+            continue;
+          }
+          
+          String valueString = typedGroup.getAttributeOrNull(field.getName());
+    
+          boolean valueBoolean = GrouperUtil.booleanValue(valueString, false);
+          
+          if (valueBoolean) {
+            String groupName = groupNameFromAndGroupAttributeName(field.getName());
+            andGroups.add(GroupFinder.findByName(grouperSession, groupName));
+          }
+          
         }
-        
-        String valueString = typedGroup.getAttributeOrNull(field.getName());
-  
-        boolean valueBoolean = GrouperUtil.booleanValue(valueString, false);
-        
-        if (valueBoolean) {
-          String groupName = groupNameFromAndGroupAttributeName(field.getName());
-          andGroups.add(GroupFinder.findByName(grouperSession, groupName));
-        }
-        
       }
       
       //now try custom types
@@ -482,7 +511,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
             LOG.debug("Removing member from overall, and adding to system of record: " 
                 + member.getSubjectSourceIdDb() + " - " + member.getSubjectIdDb());
             //dont add system of record to itself
-            if (!StringUtils.equals(member.getSubjectIdDb(), overallGroup.getUuid())) {
+            if (!StringUtils.equals(member.getSubjectIdDb(), systemOfRecordGroup.getUuid())) {
               systemOfRecordGroup.addMember(member.getSubject(), false);
             }
             overallGroup.deleteMember(member, false);
@@ -521,6 +550,10 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
           //now the overall group needs to be a composite complement
           overallGroup.assignCompositeMember(CompositeType.COMPLEMENT, systemOfRecordAndIncludesGroup, excludesGroup);
         } else {
+          //make sure not a composite group from before
+          if (overallGroup.hasComposite()) {
+            overallGroup.deleteCompositeMember();
+          }
           overallGroup.addMember(SubjectFinder.findById(systemOfRecordGroup.getUuid()), false);
           LOG.debug("Adding system of record group (" + systemOfRecordName + ") to the overall group: "  
               + overallGroup.getName());
@@ -570,14 +603,10 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
             //if no groups we dont need this one
             if (requireGroup == null ) {
   
-              if (isIncludeExclude) {
-                String requireGroupsDescription = systemOfRecordAndIncludesDescription(overallExtension, overallDisplayExtension);
-                String requireGroupsDisplayExtension = overallDisplayExtension + includesMinusExcludesDisplayExtensionSuffix();
-                requireGroup = Group.saveGroup(grouperSession, null, null, requireGroupsName, requireGroupsDisplayExtension, 
-                    requireGroupsDescription, null, true);
-              } else {
-                
-              }
+              String requireGroupsDescription = requireGroupsDescription(i, overallExtension, overallDisplayExtension);
+              String requireGroupsDisplayExtension = overallDisplayExtension + requireGroupsDisplayExtensionSuffix(i);
+              requireGroup = Group.saveGroup(grouperSession, null, null, requireGroupsName, requireGroupsDisplayExtension, 
+                  requireGroupsDescription, null, true);
               LOG.debug("Adding requireGroups group: " + requireGroup.getExtension());
             }
             Group leftGroup = i == andGroupsLength-1 
@@ -594,9 +623,9 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       }
       
       for (i=andGroupsLength;i<=highestIndexToDelete;i++) {
-        String includeExcludeMinusAndSuffixExtension = requireGroupsExtensionSuffix(i);
-        String includeExcludeMinusAndName = overallName + includeExcludeMinusAndSuffixExtension;
-        Group includeExcludeMinusAndGroup = GroupFinder.findByName(grouperSession, includeExcludeMinusAndName, false);
+        String requireGroupsSuffixExtension = requireGroupsExtensionSuffix(i);
+        String requireGroupsName = overallName + requireGroupsSuffixExtension;
+        Group includeExcludeMinusAndGroup = GroupFinder.findByName(grouperSession, requireGroupsName, false);
         if (includeExcludeMinusAndGroup != null) {
           LOG.debug("Deleting unneeded group: " + includeExcludeMinusAndGroup.getName());
           includeExcludeMinusAndGroup.delete();
@@ -604,11 +633,15 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       }
 
       //if no groups we dont need this one
-      if (andGroupsLength == 0) {
+      if (andGroupsLength == 0 || !isIncludeExclude) {
         if (includesMinusExcludesGroup != null ) {
           LOG.debug("Deleting unneeded group: " + includesMinusExcludesGroup.getName());
           includesMinusExcludesGroup.delete();
         }
+      }
+      if (!isIncludeExclude && systemOfRecordAndIncludesGroup != null ) {
+          LOG.debug("Deleting unneeded group: " + systemOfRecordAndIncludesGroup.getName());
+          systemOfRecordAndIncludesGroup.delete();
       }
 
     } catch (Exception e) {

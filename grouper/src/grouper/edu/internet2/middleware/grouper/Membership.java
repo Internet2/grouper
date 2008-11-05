@@ -78,7 +78,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.109 2008-10-27 19:26:15 shilen Exp $
+ * @version $Id: Membership.java,v 1.110 2008-11-05 05:10:37 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -540,13 +540,21 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 
 
   }
-  
-  // @since   1.2.0
+
+  /**
+   * 
+   * @param s
+   * @param g
+   * @param subj
+   * @param f
+   * @throws MemberAddException
+   */
   public static void internal_addImmediateMembership(
-    GrouperSession s, Group g, Subject subj, Field f
-  )
-    throws  MemberAddException
-  {
+    GrouperSession s, Group g, Subject subj, Field f) throws  MemberAddException {
+    
+    String errorString = "membership: group: " + (g == null ? null : g.getName())
+      + ", subject: " + (subj  == null ? null : subj.getId())
+      + ", field: " + (f == null ? null : f.getName());
     try {
       GrouperSession.validate(s);
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
@@ -560,15 +568,15 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
       throw hookVeto;
     } catch (IllegalStateException eIS) {
       if (eIS instanceof MembershipAlreadyExistsException) {
-        throw new MemberAddAlreadyExistsException(eIS.getMessage(), eIS);
+        throw new MemberAddAlreadyExistsException(eIS.getMessage() + ", " + errorString, eIS);
       }
-      throw new MemberAddException( eIS.getMessage(), eIS );
+      throw new MemberAddException( eIS.getMessage() + ", " + errorString, eIS );
     }    
     catch (InsufficientPrivilegeException eIP)  {
-      throw new MemberAddException(eIP.getMessage(), eIP);
+      throw new MemberAddException(eIP.getMessage() + ", " + errorString, eIP);
     }
     catch (MemberNotFoundException eMNF)        {
-      throw new MemberAddException( eMNF.getMessage(), eMNF );
+      throw new MemberAddException( eMNF.getMessage() + ", " + errorString, eMNF );
     }
   } // public static void internal_addImmediateMembership(s, g, subj, f)
 

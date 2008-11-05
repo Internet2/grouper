@@ -30,6 +30,7 @@ import org.w3c.dom.Document;
 import edu.internet2.middleware.grouper.*;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ui.util.*;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Initialises HttpSession after login. <p/>Should probably make an interface
@@ -37,7 +38,7 @@ import edu.internet2.middleware.grouper.ui.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.16 2008-11-04 07:17:59 mchyzer Exp $
+ * @version $Id: SessionInitialiser.java,v 1.17 2008-11-05 05:10:40 mchyzer Exp $
  */
 
 public class SessionInitialiser {
@@ -236,20 +237,35 @@ public class SessionInitialiser {
    */
   private static void addIncludeExcludeDefaults(ChainedResourceBundle chainedBundle,
       MapBundleWrapper navBundleWrapperNull) {
-    String typeName = "tooltipTargetted.groupTypes." + GrouperConfig.getProperty("grouperIncludeExclude.type.name");
-    if (navBundleWrapperNull.get(typeName) == null) {
-      chainedBundle.addToCache(typeName, GrouperConfig.getProperty("grouperIncludeExclude.tooltip"));
+    
+    boolean useIncludeExclude = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.use", false);
+    boolean useRequireGroups = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.requireGroups.use", false);
+
+    String navPropertiesKey = null;
+    if (useIncludeExclude) {
+      navPropertiesKey = "tooltipTargetted.groupTypes." + GrouperConfig.getProperty("grouperIncludeExclude.type.name");
+      if (navBundleWrapperNull.get(navPropertiesKey) == null) {
+        chainedBundle.addToCache(navPropertiesKey, GrouperConfig.getProperty("grouperIncludeExclude.tooltip"));
+      }
     }
     
-    typeName = "tooltipTargetted.groupTypes." + GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.type.name");
-    if (navBundleWrapperNull.get(typeName) == null) {
-      chainedBundle.addToCache(typeName, GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.tooltip"));
+    String requireGroupsTypeName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.type.name");
+    String tooltip = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.tooltip");
+    if (useRequireGroups && !StringUtils.isBlank(requireGroupsTypeName) && !StringUtils.isBlank(tooltip)) {
+      navPropertiesKey = "tooltipTargetted.groupTypes." + requireGroupsTypeName;
+      if (navBundleWrapperNull.get(navPropertiesKey) == null) {
+        chainedBundle.addToCache(navPropertiesKey, tooltip);
+      }
     }
     
     //built in attribute
-    typeName = "tooltipTargetted.groupFields." + GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.attributeName");
-    if (navBundleWrapperNull.get(typeName) == null) {
-      chainedBundle.addToCache(typeName, GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.tooltip"));
+    String attributeName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.attributeName");
+    tooltip = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.attribute.tooltip");
+    if (useRequireGroups && !StringUtils.isBlank(attributeName) && !StringUtils.isBlank(tooltip)) {
+      navPropertiesKey = "tooltipTargetted.groupFields." + attributeName;
+      if (navBundleWrapperNull.get(navPropertiesKey) == null) {
+        chainedBundle.addToCache(navPropertiesKey, tooltip);
+      }
     }
     
     //loop through custom types and attributes
@@ -271,7 +287,7 @@ public class SessionInitialiser {
       } else if (!StringUtils.equalsIgnoreCase("type", type)) {
         throw new RuntimeException("Invalid type: '" + type + "' for grouper.properties entry: " + attributeOrTypeName);
       }
-      String description = "grouperIncludeExclude.requireGroup.description." + i;
+      String description = GrouperConfig.getProperty("grouperIncludeExclude.requireGroup.description." + i);
       
       String key = "tooltipTargetted.group" + (isAttribute ? "Field" : "Type") + "s." + name;
       if (navBundleWrapperNull.get(key) == null) {

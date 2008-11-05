@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AttributeIncludeExcludeHook.java,v 1.1 2008-11-04 07:17:56 mchyzer Exp $
+ * $Id: AttributeIncludeExcludeHook.java,v 1.2 2008-11-05 05:10:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -65,19 +65,18 @@ public class AttributeIncludeExcludeHook extends AttributeHooks {
    * @param summaryForLog summary for log message
    */
   public static void manageIncludesExcludesAndGroups(HooksAttributeBean postInsertBean, String summaryForLog) {
-    boolean useGrouperIncludeExclude = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.requireGroups.use", false);
+    boolean useGrouperRequireGroups = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.requireGroups.use", false);
     
-    //dont do anything if not using this type
-    if (!useGrouperIncludeExclude) {
+    if (!useGrouperRequireGroups) {
       return;
     }
-
+    
     Attribute attribute = postInsertBean.getAttribute();
 
     Field attributeField = FieldFinder.findById(attribute.getFieldId());
     
     //make sure this is the right type
-    String groupTypeName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.type.name");
+    String requireGroupsTypeName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.type.name");
 
     String groupUuid = attribute.getGroupUuid();
 
@@ -85,7 +84,7 @@ public class AttributeIncludeExcludeHook extends AttributeHooks {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
 
     try {
-      GroupType requireGroupsType = GroupTypeFinder.find(groupTypeName);
+      GroupType requireGroupsType = GroupTypeFinder.find(requireGroupsTypeName, false);
       
       GroupType attributeGroupType = null;
       
