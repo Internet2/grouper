@@ -22,15 +22,15 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.QueryException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 
 /** 
  * Query by stems created after the specified date.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemCreatedBeforeFilter.java,v 1.2 2008-07-21 05:32:20 mchyzer Exp $
+ * @version $Id: StemCreatedBeforeFilter.java,v 1.3 2008-11-05 16:18:46 shilen Exp $
  */
 public class StemCreatedBeforeFilter extends BaseQueryFilter {
 
@@ -61,8 +61,12 @@ public class StemCreatedBeforeFilter extends BaseQueryFilter {
   {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Set candidates  = StemFinder.internal_findAllByCreatedBefore(s, this.d);
-    Set results     = this.filterByScope(this.ns, candidates);
+    Set results;
+    if (ns.isRootStem()) {
+      results = removeRootStem(GrouperDAOFactory.getFactory().getStem().findAllByCreatedBefore(StemCreatedBeforeFilter.this.d));
+    } else {
+      results = GrouperDAOFactory.getFactory().getStem().findAllByCreatedBefore(StemCreatedBeforeFilter.this.d, getStringForScope(ns));
+    }
     return results;
   } // public Set getResults(s)
 

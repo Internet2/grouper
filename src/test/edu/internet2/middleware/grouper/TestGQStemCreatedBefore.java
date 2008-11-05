@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * Test {@link StemCreatedBeforeFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQStemCreatedBefore.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGQStemCreatedBefore.java,v 1.9 2008-11-05 16:18:47 shilen Exp $
  */
 public class TestGQStemCreatedBefore extends TestCase {
 
@@ -113,6 +113,22 @@ public class TestGQStemCreatedBefore extends TestCase {
       Assert.assertTrue("members",  gq.getMembers().size()      == 0);
       Assert.assertTrue("mships",   gq.getMemberships().size()  == 0);
       Assert.assertTrue("stems",    gq.getStems().size()        == 0);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+
+    try {
+      Stem test = StemHelper.addChildStem(edu, "test", "test");
+      Stem test2 = StemHelper.addChildStem(test, "test2", "test2");
+
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new StemCreatedBeforeFilter(when, edu)
+      );
+      Assert.assertTrue("groups",   gq.getGroups().size()       == 0);
+      Assert.assertTrue("members",  gq.getMembers().size()      == 0);
+      Assert.assertTrue("mships",   gq.getMemberships().size()  == 0);
+      Assert.assertTrue("stems",    gq.getStems().size()        == 2);
     }
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());

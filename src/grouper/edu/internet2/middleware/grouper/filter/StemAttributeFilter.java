@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
  * but the 4 name columns).
  * <p/>
  * @author mchyzer
- * @version $Id: StemAttributeFilter.java,v 1.1 2008-07-21 05:15:59 mchyzer Exp $
+ * @version $Id: StemAttributeFilter.java,v 1.2 2008-11-05 16:18:46 shilen Exp $
  */
 public class StemAttributeFilter extends BaseQueryFilter {
   
@@ -76,24 +76,40 @@ public class StemAttributeFilter extends BaseQueryFilter {
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
           GrouperSession.validate(grouperSession);
-          Set candidates = null;
+          Set results;
   
-          //manually find the attribute and filter
-          if (StringUtils.equals(attr, GrouperConfig.ATTR_DISPLAY_EXTENSION)) {
-            candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayExtension(StemAttributeFilter.this.val); 
-          } else if (StringUtils.equals(attr, GrouperConfig.ATTR_DISPLAY_NAME)) {
-            candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayName(StemAttributeFilter.this.val); 
-          } else if (StringUtils.equals(attr, GrouperConfig.ATTR_EXTENSION)) {
-            candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateExtension(StemAttributeFilter.this.val); 
-          } else if (StringUtils.equals(attr, GrouperConfig.ATTR_NAME)) {
-            candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateName(StemAttributeFilter.this.val); 
+          if (ns.isRootStem()) {
+            //manually find the attribute and filter
+            if (StringUtils.equals(attr, GrouperConfig.ATTR_DISPLAY_EXTENSION)) {
+              results = removeRootStem(GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayExtension(StemAttributeFilter.this.val)); 
+            } else if (StringUtils.equals(attr, GrouperConfig.ATTR_DISPLAY_NAME)) {
+              results = removeRootStem(GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayName(StemAttributeFilter.this.val)); 
+            } else if (StringUtils.equals(attr, GrouperConfig.ATTR_EXTENSION)) {
+              results = removeRootStem(GrouperDAOFactory.getFactory().getStem().findAllByApproximateExtension(StemAttributeFilter.this.val)); 
+            } else if (StringUtils.equals(attr, GrouperConfig.ATTR_NAME)) {
+              results = removeRootStem(GrouperDAOFactory.getFactory().getStem().findAllByApproximateName(StemAttributeFilter.this.val)); 
+            } else {
+              throw new GrouperSessionException(new QueryException("Illegal attribute to query stems: '" + attr + "', must be in (" + 
+                  GrouperConfig.ATTR_DISPLAY_EXTENSION + ", " + GrouperConfig.ATTR_DISPLAY_NAME + ", " + GrouperConfig.ATTR_EXTENSION
+                  + ", " + GrouperConfig.ATTR_NAME + ")"));
+            }
           } else {
-            throw new GrouperSessionException(new QueryException("Illegal attribute to query stems: '" + attr + "', must be in (" + 
-                GrouperConfig.ATTR_DISPLAY_EXTENSION + ", " + GrouperConfig.ATTR_DISPLAY_NAME + ", " + GrouperConfig.ATTR_EXTENSION
-                + ", " + GrouperConfig.ATTR_NAME + ")"));
+            //manually find the attribute and filter
+            if (StringUtils.equals(attr, GrouperConfig.ATTR_DISPLAY_EXTENSION)) {
+              results = GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayExtension(StemAttributeFilter.this.val, getStringForScope(ns)); 
+            } else if (StringUtils.equals(attr, GrouperConfig.ATTR_DISPLAY_NAME)) {
+              results = GrouperDAOFactory.getFactory().getStem().findAllByApproximateDisplayName(StemAttributeFilter.this.val, getStringForScope(ns)); 
+            } else if (StringUtils.equals(attr, GrouperConfig.ATTR_EXTENSION)) {
+              results = GrouperDAOFactory.getFactory().getStem().findAllByApproximateExtension(StemAttributeFilter.this.val, getStringForScope(ns)); 
+            } else if (StringUtils.equals(attr, GrouperConfig.ATTR_NAME)) {
+              results = GrouperDAOFactory.getFactory().getStem().findAllByApproximateName(StemAttributeFilter.this.val, getStringForScope(ns)); 
+            } else {
+              throw new GrouperSessionException(new QueryException("Illegal attribute to query stems: '" + attr + "', must be in (" + 
+                  GrouperConfig.ATTR_DISPLAY_EXTENSION + ", " + GrouperConfig.ATTR_DISPLAY_NAME + ", " + GrouperConfig.ATTR_EXTENSION
+                  + ", " + GrouperConfig.ATTR_NAME + ")"));
+            }
           }
   
-          Set results     = StemAttributeFilter.this.filterByScope(StemAttributeFilter.this.ns, candidates);
           return results;
         }
         
