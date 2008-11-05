@@ -21,15 +21,15 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.QueryException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 
 /** 
  * Query by stem name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemNameAnyFilter.java,v 1.2 2008-07-21 05:32:20 mchyzer Exp $
+ * @version $Id: StemNameAnyFilter.java,v 1.3 2008-11-05 16:18:46 shilen Exp $
  */
 public class StemNameAnyFilter extends BaseQueryFilter {
 
@@ -63,8 +63,12 @@ public class StemNameAnyFilter extends BaseQueryFilter {
   {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Set candidates  = StemFinder.internal_findAllByApproximateNameAny(s, this.name);
-    Set results     = this.filterByScope(this.ns, candidates);
+    Set results;
+    if (ns.isRootStem()) {
+      results = removeRootStem(GrouperDAOFactory.getFactory().getStem().findAllByApproximateNameAny(this.name));
+    } else {
+      results = GrouperDAOFactory.getFactory().getStem().findAllByApproximateNameAny(this.name, getStringForScope(ns));
+    }
     return results;
   } // public Set getResults(s)
 

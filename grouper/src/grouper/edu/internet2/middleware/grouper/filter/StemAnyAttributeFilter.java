@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
  * Query by all stem attributes.
  * <p/>
  * @author  mchyzer
- * @version $Id: StemAnyAttributeFilter.java,v 1.1 2008-07-21 05:15:59 mchyzer Exp $
+ * @version $Id: StemAnyAttributeFilter.java,v 1.2 2008-11-05 16:18:46 shilen Exp $
  */
 public class StemAnyAttributeFilter extends BaseQueryFilter {
   
@@ -67,8 +67,12 @@ public class StemAnyAttributeFilter extends BaseQueryFilter {
 
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
-        Set candidates = GrouperDAOFactory.getFactory().getStem().findAllByApproximateNameAny(StemAnyAttributeFilter.this.val);
-        Set results     = StemAnyAttributeFilter.this.filterByScope(StemAnyAttributeFilter.this.ns, candidates);
+        Set results;
+        if (ns.isRootStem()) {
+          results = removeRootStem(GrouperDAOFactory.getFactory().getStem().findAllByApproximateNameAny(StemAnyAttributeFilter.this.val));
+        } else {
+          results = GrouperDAOFactory.getFactory().getStem().findAllByApproximateNameAny(StemAnyAttributeFilter.this.val, getStringForScope(ns));
+        }
         return results;
       }
       

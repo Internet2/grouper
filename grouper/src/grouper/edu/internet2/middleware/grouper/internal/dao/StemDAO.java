@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: StemDAO.java,v 1.13 2008-10-16 05:45:47 mchyzer Exp $
+ * @version $Id: StemDAO.java,v 1.14 2008-11-05 16:18:47 shilen Exp $
  * @since   1.2.0
  */
 public interface StemDAO extends GrouperDAO {
@@ -70,9 +70,21 @@ public interface StemDAO extends GrouperDAO {
     throws  GrouperDAOException;
 
   /**
+   * @since   1.4.0
+   */
+  Set<Stem> findAllByApproximateDisplayExtension(String val, String scope) 
+    throws  GrouperDAOException;
+
+  /**
    * @since   1.2.0
    */
   Set<Stem> findAllByApproximateDisplayName(String val) 
+    throws  GrouperDAOException;
+
+  /**
+   * @since   1.4.0
+   */
+  Set<Stem> findAllByApproximateDisplayName(String val, String scope) 
     throws  GrouperDAOException;
 
   /**
@@ -82,9 +94,21 @@ public interface StemDAO extends GrouperDAO {
     throws  GrouperDAOException;
 
   /**
+   * @since   1.4.0
+   */
+  Set<Stem> findAllByApproximateExtension(String val, String scope) 
+    throws  GrouperDAOException;
+
+  /**
    * @since   1.2.0
    */
   Set<Stem> findAllByApproximateName(String val) 
+    throws  GrouperDAOException;
+
+  /**
+   * @since   1.4.0
+   */
+  Set<Stem> findAllByApproximateName(String val, String scope) 
     throws  GrouperDAOException;
 
   /**
@@ -94,15 +118,33 @@ public interface StemDAO extends GrouperDAO {
     throws  GrouperDAOException;
 
   /**
+   * @since   1.4.0
+   */
+  Set<Stem> findAllByApproximateNameAny(String name, String scope) 
+    throws  GrouperDAOException;
+
+  /**
    * @since   1.2.0
    */
   Set<Stem> findAllByCreatedAfter(Date d) 
     throws  GrouperDAOException;
 
   /**
+   * @since   1.4.0
+   */
+  Set<Stem> findAllByCreatedAfter(Date d, String scope) 
+    throws  GrouperDAOException;
+
+  /**
    * @since   1.2.0
    */
   Set<Stem> findAllByCreatedBefore(Date d) 
+    throws  GrouperDAOException;
+
+  /**
+   * @since   1.4.0
+   */
+  Set<Stem> findAllByCreatedBefore(Date d, String scope) 
     throws  GrouperDAOException;
 
   /**

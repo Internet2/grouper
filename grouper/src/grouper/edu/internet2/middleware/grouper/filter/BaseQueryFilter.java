@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.filter;
 
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -35,7 +36,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Base {@link QueryFilter} that all other query filters should extend.
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseQueryFilter.java,v 1.3 2008-11-04 15:19:56 shilen Exp $
+ * @version $Id: BaseQueryFilter.java,v 1.4 2008-11-05 16:18:46 shilen Exp $
  */
 public class BaseQueryFilter implements QueryFilter {
 
@@ -110,6 +111,19 @@ public class BaseQueryFilter implements QueryFilter {
    */
   protected String getStringForScope(Stem ns) {
     return ns.getName() + Stem.DELIM;
+  }
+
+  protected Set<Stem> removeRootStem(Set<Stem> candidates) {
+    Set<Stem> results = new LinkedHashSet<Stem>();
+    Iterator<Stem> it = candidates.iterator();
+    while (it.hasNext()) {
+      Stem next = it.next();
+      if (!next.isRootStem()) {
+        results.add(next);
+      }
+    }
+
+    return results;
   }
 
 }

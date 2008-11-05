@@ -45,7 +45,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.14 2008-10-16 05:45:47 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.15 2008-11-05 16:18:47 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -197,6 +197,26 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @since   @HEAD@
    */
+  public Set<Stem> findAllByApproximateDisplayExtension(String val, String scope)
+    throws  GrouperDAOException {
+    try {
+      return HibernateSession.byHqlStatic()
+        .createQuery("from Stem as ns where lower(ns.displayExtensionDb) like lower(:value) and ns.nameDb like :scope")
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindByApproximateDisplayExtension")
+        .setString(  "value" , "%" + val.toLowerCase() + "%" )
+        .setString("scope", scope + "%")
+        .listSet(Stem.class);
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find all stem by approximate display extension: '" + val + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  } 
+
+  /**
+   * @since   @HEAD@
+   */
   public Set<Stem> findAllByApproximateDisplayName(String val) 
     throws  GrouperDAOException
   {
@@ -212,6 +232,27 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       throw new GrouperDAOException( error, e );
     }
   } 
+
+  /**
+   * @since   @HEAD@
+   */
+  public Set<Stem> findAllByApproximateDisplayName(String val, String scope)
+    throws  GrouperDAOException
+  {
+    try {
+      return HibernateSession.byHqlStatic()
+        .createQuery("from Stem as ns where lower(ns.displayNameDb) like lower(:value) and ns.nameDb like :scope")
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindByApproximateDisplayName")
+        .setString(  "value" , "%" + val.toLowerCase() + "%" )
+        .setString("scope", scope + "%")
+        .listSet(Stem.class);
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find all stem by approximate display name: '" + val + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
 
   /**
    * @since   @HEAD@
@@ -235,6 +276,26 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @since   @HEAD@
    */
+  public Set<Stem> findAllByApproximateExtension(String val, String scope)
+    throws  GrouperDAOException {
+    try {
+      return HibernateSession.byHqlStatic()
+        .createQuery("from Stem as ns where lower(ns.extensionDb) like lower(:value) and ns.nameDb like :scope")
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindByApproximateExtension")
+        .setString(  "value" , "%" + val.toLowerCase() + "%" )
+        .setString("scope", scope + "%")
+        .listSet(Stem.class);
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find all stem by approximate extension: '" + val + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+
+  /**
+   * @since   @HEAD@
+   */
   public Set<Stem> findAllByApproximateName(String val) 
     throws  GrouperDAOException {
     try {
@@ -254,6 +315,26 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @since   @HEAD@
    */
+  public Set<Stem> findAllByApproximateName(String val, String scope)
+    throws  GrouperDAOException {
+    try {
+      return HibernateSession.byHqlStatic()
+        .createQuery("from Stem as ns where lower(ns.nameDb) like lower(:value) and ns.nameDb like :scope")
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindByApproximateName")
+        .setString(  "value" , "%" + val.toLowerCase() + "%" )
+        .setString("scope", scope + "%")
+        .listSet(Stem.class);
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find all stem by approximate name: '" + val + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+
+  /**
+   * @since   @HEAD@
+   */
   public Set<Stem> findAllByApproximateNameAny(String name) 
     throws  GrouperDAOException {
     try {
@@ -267,6 +348,32 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindAllByApproximateNameAny")
         .setString("name", "%" + name.toLowerCase() + "%")
+        .listSet(Stem.class);
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find all stem by approximate any: '" + name + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  } 
+
+  /**
+   * @since   @HEAD@
+   */
+  public Set<Stem> findAllByApproximateNameAny(String name, String scope)
+    throws  GrouperDAOException {
+    try {
+      return HibernateSession.byHqlStatic()
+        .createQuery(
+        "from Stem as ns where "
+        + "(   lower(ns.nameDb)            like :name "
+        + " or lower(ns.displayNameDb)       like :name "
+        + " or lower(ns.extensionDb)         like :name "
+        + " or lower(ns.displayExtensionDb)  like :name ) "
+        + "and ns.nameDb like :scope ")
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindAllByApproximateNameAny")
+        .setString("name", "%" + name.toLowerCase() + "%")
+        .setString("scope", scope + "%")
         .listSet(Stem.class);
     }
     catch (GrouperDAOException e) {
@@ -297,6 +404,26 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @since   @HEAD@
    */
+  public Set<Stem> findAllByCreatedAfter(Date d, String scope)
+    throws  GrouperDAOException {
+    try {
+     return HibernateSession.byHqlStatic()
+        .createQuery("from Stem as ns where ns.createTimeLong > :time and ns.nameDb like :scope")
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindAllByCreatedAfter")
+        .setLong( "time", d.getTime() )
+        .setString("scope", scope + "%")
+        .listSet(Stem.class);
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find all stem by created after: '" + d + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+
+  /**
+   * @since   @HEAD@
+   */
   public Set<Stem> findAllByCreatedBefore(Date d) 
     throws  GrouperDAOException {
     try {
@@ -305,6 +432,26 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindAllByCreatedBefore")
         .setLong( "time", d.getTime() )
+        .listSet(Stem.class);
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find all stem by created before: '" + d + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  } 
+
+  /**
+   * @since   @HEAD@
+   */
+  public Set<Stem> findAllByCreatedBefore(Date d, String scope)
+    throws  GrouperDAOException {
+    try {
+      return HibernateSession.byHqlStatic()
+        .createQuery("from Stem as ns where ns.createTimeLong < :time and ns.nameDb like :scope")
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindAllByCreatedBefore")
+        .setLong( "time", d.getTime() )
+        .setString("scope", scope + "%")
         .listSet(Stem.class);
     }
     catch (GrouperDAOException e) {
