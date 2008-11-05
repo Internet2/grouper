@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.8 2008-11-04 07:17:56 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.9 2008-11-05 05:10:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -871,7 +871,7 @@ public class GrouperCheckConfig {
     //#configuration.autocreate.group.subjects.0 = johnsmith
     
     //make sure sequences are ok
-    Set<String> validatorKeys = retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, includeExcludeAndGroupPattern);
+    Set<String> validatorKeys = retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, autocreateGroupsPattern);
     int i=0;
     while (true) {
       boolean foundOne = false;
