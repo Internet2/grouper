@@ -43,6 +43,7 @@ import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectType;
 
 /**
@@ -510,10 +511,16 @@ public class USDU {
     }
 
     try {
-      member.getSubject();
+      // Changed because member.getSubject now always returns a LazySubject
+      //member.getSubject();
+      SubjectFinder.findById(member.getSubjectId(),member.getSubjectTypeId(),member.getSubjectSourceId());
       return true;
     } catch (SubjectNotFoundException e) {
       return false;
+    } catch (SubjectNotUniqueException e) {
+    	return false;
+    }catch (SourceUnavailableException e) {
+    	return false;
     }
   }
 
