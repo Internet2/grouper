@@ -16,10 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper.registry;
+import java.util.HashSet;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.ddl.DdlVersionable;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -28,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInitializeSchema.java,v 1.7 2008-10-24 05:51:47 mchyzer Exp $    
+ * @version $Id: RegistryInitializeSchema.java,v 1.8 2008-11-06 17:08:23 isgwb Exp $    
  * @since   1.2.0
  */
 public class RegistryInitializeSchema {
@@ -44,9 +49,107 @@ public class RegistryInitializeSchema {
    * @param args
    */
   public static void main(String[] args) {
-    initializeSchema(true);
+	  if(args==null || args.length==0 || args[0].equals("-h")) {
+		  System.out.println(_getUsage());
+		  return;
+	  }
+	  GrouperStartup.ignoreCheckConfig = true;
+	  boolean callFromCommandLine=true;
+	  boolean fromUnitTest = false;
+      boolean theCompareFromDbVersion=true;
+      boolean theDropBeforeCreate=false; 
+      boolean theWriteAndRunScript=true;
+      boolean dropOnly = false; 
+      boolean installDefaultGrouperData=true;
+      Map<String, DdlVersionable> maxVersions = null;
+	  boolean promptUser=true;
+      HashSet<String> argsSet = new HashSet<String>();
+      for (int i=0;i<args.length;i++) {
+    	  argsSet.add(args[i].toLowerCase());
+      }
+      if(argsSet.contains("-drop")) {
+    	  theDropBeforeCreate=true;
+      }
+      if(!argsSet.contains("-install") && theDropBeforeCreate) {
+    	  dropOnly=true;
+    	  installDefaultGrouperData=false;
+      }
+      if(argsSet.contains("-noprompt")) {
+    	  promptUser=false;
+      }
+      if(argsSet.contains("-ddlonly")) {
+    	  theWriteAndRunScript=false;
+      }
+      if(argsSet.contains("-check")) {	  
+    	  GrouperCheckConfig.checkConfig();
+      }
+      if(argsSet.contains("-reset")) {
+		  RegistryReset.reset(promptUser);
+		  return;
+	  }
+      if(argsSet.contains("-fortests")) {
+		  initializeSchemaForTests();
+		  return;
+	  }
+	 
+      
+    initialize(callFromCommandLine, fromUnitTest, theCompareFromDbVersion, theDropBeforeCreate, theWriteAndRunScript, dropOnly, installDefaultGrouperData, maxVersions, promptUser);
   }
 
+  public static void initialize(boolean callFromCommandLine, boolean fromUnitTest,
+	      boolean theCompareFromDbVersion, boolean theDropBeforeCreate, boolean theWriteAndRunScript,
+	      boolean dropOnly, boolean installDefaultGrouperData, Map<String, DdlVersionable> maxVersions,
+	      boolean promptUser) {
+	    inInitSchema = true;
+	    try {
+	      //dont run from startup, run from here
+	      GrouperStartup.runDdlBootstrap = false;
+	      
+	      //NOTE, dont make any calls other than outside of grouper until we call startup...
+	      System.err.println("Based on grouper.properties: " + "ddlutils.schemaexport.installGrouperData" + "=" + isInstallGrouperData());
+	      
+	      //set vars so nothing else happens...
+	      GrouperDdlUtils.compareFromDbDllVersion = false;
+	      
+	      GrouperStartup.ignoreCheckConfig = true;
+	      
+	      //GrouperStartup.startup();
+	      
+	      //run the bootstrap
+	      GrouperDdlUtils.bootstrapHelper(callFromCommandLine, 
+	    		                          fromUnitTest, 
+	    		                          theCompareFromDbVersion, 
+	    		                          theDropBeforeCreate, 
+	    		                          theWriteAndRunScript, 
+	    		                          dropOnly, 
+	    		                          installDefaultGrouperData, 
+	    		                          maxVersions, 
+	    		                          promptUser);
+	      
+	      /*
+	       Trying to work around NoClassDefFoundError - without success 
+	       if(installDefaultGrouperData && !dropOnly && theWriteAndRunScript) {
+	    	  //register hib objects
+	          	Hib3DAO.initHibernateIfNotInitted();
+		    	//run the bootstrap
+		          //GrouperDdlUtils.bootstrap(false, false, false);
+		          RegistryInstall.install();
+		  }*/
+	      
+	      if(!dropOnly && theWriteAndRunScript) {
+	      //now check config - assuming we are not just dropping or we have used -ddlonly
+	    	  GrouperCheckConfig.checkConfig();
+	      }
+	      
+	      
+	    } catch (Throwable t) {
+	      t.printStackTrace();
+	      throw new RuntimeException(t);
+	    } finally {
+	      inInitSchema = false;
+	    }
+	  }
+  
 
   /**
    * @param fromCommandLine if called from command line
@@ -115,6 +218,28 @@ public class RegistryInitializeSchema {
   public static boolean isInstallGrouperData() {
     return GrouperConfig.getPropertyBoolean("ddlutils.schemaexport.installGrouperData", true);
   }
+  
+  private static String _getUsage() {
+	    return  "Usage:"                                                                + GrouperConfig.NL
+	            + "args: -h,            Prints this message"                            + GrouperConfig.NL
+	            + "args: [(-reset | -install [-drop])] [-drop] [-check] "               + GrouperConfig.NL
+	            + "      [-ddlonly] [-noprompt]"                                        + GrouperConfig.NL
+	            
+	            + "  -check,            Verifies status of the registry"                + GrouperConfig.NL
+	            + "  -reset,            Drops all data and re-inserts essential"        + GrouperConfig.NL
+	            + "                     Grouper data e.g. root stem and fields"         + GrouperConfig.NL
+	            + "  -install,          If required, installs the schema. By itself"    + GrouperConfig.NL
+	            + "                     this option does not 'drop' an existing "       + GrouperConfig.NL
+	            + "                     registry"                                       + GrouperConfig.NL
+	            + "  -drop,             Drops all Grouper schema elements"              + GrouperConfig.NL
+	             
+	            + "  -ddlonly,          Writes to a file the DDL required to install"   + GrouperConfig.NL
+	            + "                     or drop the Grouper schema, but does not run it"+ GrouperConfig.NL
+	           
+	            + "  -noprompt,         Do not ask user to confirm dstructive actions"  + GrouperConfig.NL
+	            ;
+	  } // private static String _getUsage()
+
   
 }
 

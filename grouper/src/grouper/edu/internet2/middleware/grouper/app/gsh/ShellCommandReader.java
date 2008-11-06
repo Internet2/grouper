@@ -41,6 +41,8 @@ class ShellCommandReader implements CommandReader {
   protected ShellCommandReader(String[] args, InputStream inputStreamParam) 
     throws  GrouperShellException
   {
+	StringBuffer preEval=null;
+
     if (args != null && args.length > 0 && StringUtils.equals(args[0], "-runarg")) {
       if (args.length != 2) {
         throw new RuntimeException("When passing -runarg, pass one other argument, the gsh command to run");
@@ -51,10 +53,23 @@ class ShellCommandReader implements CommandReader {
       this.in = new BufferedReader(new StringReader(commands));
       System.out.println("Running command(s):\n\n" + commands + "\n\n");
       
-    } else if (args != null && args.length > 0) {
+    } else if (args != null && args.length > 0 && !args[0].equalsIgnoreCase("-check")) {
       String file = args[0];
       if ("-".equals( file )) {
         this.in = new BufferedReader( new InputStreamReader(System.in) );
+      }
+      else if("-main".equals(file)){
+    	  String cName = args[1];
+    	  preEval=new StringBuffer();
+    	  preEval.append("p(\"#Making command line args available\")\n");
+    	  preEval.append("args=new String[" + (args.length-2)+ "]\n");
+    	  for(int i=2;i<args.length;i++) {
+    		  preEval.append("args["+(i-2)+"]=\""+args[i]+"\"\n");
+    	  }
+    	  preEval.append("p(\"#Starting "+ cName+"...\")\n");
+    	  preEval.append(cName + ".main(args)\n");
+    	  preEval.append("p(\"#Finished!\")\n");
+    	  this.in = new BufferedReader(new StringReader(preEval.toString()));
       }
       else {
         try {
@@ -73,6 +88,7 @@ class ShellCommandReader implements CommandReader {
       }
     }
     this.i = new Interpreter(this.in, System.out, System.err, false);
+    
   } // protected ShellCommandReader(args)
 
 

@@ -7,8 +7,11 @@
 
 package edu.internet2.middleware.grouper.app.gsh;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,6 +19,7 @@ import org.apache.commons.logging.LogFactory;
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -25,7 +29,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.7 2008-10-24 05:51:47 mchyzer Exp $
+ * @version $Id: GrouperShell.java,v 1.8 2008-11-06 17:08:22 isgwb Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -33,6 +37,32 @@ public class GrouperShell {
   
   /** if we should exist on failure */ 
   static boolean exitOnFailure = false;
+  
+  private static Map<String, String> mainLookups = new HashMap<String, String>();
+  //TODO config file?
+  static {
+	  mainLookups.put("-xmlimport", 
+			  "edu.internet2.middleware.grouper.xml.XmlImporter");
+	  
+	  mainLookups.put("-xmlexport", 
+			  "edu.internet2.middleware.grouper.xml.XmlExporter");
+	  
+	  mainLookups.put("-test",      
+			  "edu.internet2.middleware.grouper.SuiteDefault");
+	  
+	  mainLookups.put("-load",    
+			  "edu.internet2.middleware.grouper.app.loader.GrouperLoader");
+	  
+	  mainLookups.put("-usdu",      
+			  "edu.internet2.middleware.grouper.app.usdu.USDU");
+	  
+	  mainLookups.put("-registry",  
+			  "edu.internet2.middleware.grouper.registry.RegistryInitializeSchema");
+	  
+	  mainLookups.put("-findbadmemberships",  
+			  "edu.internet2.middleware.grouper.misc.FindBadMemberships");
+
+  }
   
   // PROTECTED CLASS CONSTANTS //
   protected static final String NAME    = "gsh";
@@ -45,7 +75,7 @@ public class GrouperShell {
   private static final String GSH_OURS    = "_GSH_OURS";
   private static final String GSH_SESSION = "_GSH_GROUPER_SESSION";
   private static final String GSH_TIMER   = "GSH_TIMER";
-
+  
 
   // PRIVATE INSTANCE VARIABLES //
   private Interpreter   interpreter = null;
@@ -72,7 +102,13 @@ public class GrouperShell {
    * @since 0.0.1
    */
   public static void main(String args[]) {
-    runFromGsh = true;
+	GrouperStartup.ignoreCheckConfig = true;
+    boolean wasSpecialCase = handleSpecialCase(args);
+    if(wasSpecialCase) {
+    	return;
+    }
+	runFromGsh = true;
+	
     GrouperStartup.runFromMain = true;
     GrouperStartup.startup();
     //turn on logging
@@ -93,7 +129,51 @@ public class GrouperShell {
     }
     System.exit(0);
   } // public static void main(args)
-
+  
+  
+ /**
+ * Avoid GSH initialisation for special cases 
+ * @param args - command line arguments
+ * @return whether this was handled as a special case
+ */
+private static boolean handleSpecialCase(String[] args) {
+	  if(args == null || args.length==0) {
+		  return false;
+	  }
+	  if("-h".equalsIgnoreCase(args[0])||"-help".equalsIgnoreCase(args[0])) {
+		  System.out.println(_getUsage());
+		  return true;
+	  }
+	  
+	  if("-check".equalsIgnoreCase(args[0])) {
+		  GrouperStartup.ignoreCheckConfig = false;
+		  return false;
+	  }
+	  String mainClass = mainLookups.get(args[0].toLowerCase());
+	  if(mainClass==null) {
+		  return false;
+	  }
+	  String[] mainArgs = new String[args.length -1];
+	  for(int i=1;i<args.length;i++) {
+		  mainArgs[i-1] = args[i];
+	  }
+	  
+	  try {
+		  Class claz = Class.forName(mainClass);
+		  
+		  Method method = claz.getMethod("main", String[].class);
+		  method.invoke(null, (Object)mainArgs);
+	  }catch(Exception e) {
+		  if(e instanceof RuntimeException) {
+			  throw (RuntimeException)e;
+		  }else{
+			  throw new RuntimeException(e);
+		  }
+	  }
+	  
+	  return true;
+  } //private static boolean handleSpecialCase(args)
+ 
   /**
    * helper method to kick off GSH without exiting
    * @param args
@@ -248,6 +328,9 @@ public class GrouperShell {
       this.interpreter.eval(  "importCommands(\"edu.internet2.middleware.subject\")");
       this.interpreter.eval(  "importCommands(\"edu.internet2.middleware.subject.provider\")");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.xml.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.registry.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.usdu.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.gsh.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.app.misc.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.privs.*;");
@@ -353,6 +436,41 @@ public class GrouperShell {
       throw new GrouperShellException(e);
     }
   } // private void _stopSession()
+  
+  private static String _getUsage() {
+	    return  "Usage:"                                                                   + GrouperConfig.NL
+	            + "args: -h,               Prints this message"                            + GrouperConfig.NL
+	            + "args: <filename>,       Execute commands in specified file"             + GrouperConfig.NL
+	            + "no args:                Enters an interactive shell"                    + GrouperConfig.NL
+	            + "args: -check,          Performs startup check and enters an "          + GrouperConfig.NL
+	            + "                        interactive shell"                              + GrouperConfig.NL
+	            + "args: -runarg <command> Run command (use \\\\n to separate commands)"   + GrouperConfig.NL
+	            + "args: -main <class> [args...]                                    "      + GrouperConfig.NL
+	            + "   class,               Full class name (must have main method)"        + GrouperConfig.NL
+	            + "   args,                args as required by main method of class"       + GrouperConfig.NL
+	            + "args: -initEnv [<configDir>]"                                           + GrouperConfig.NL
+	            + "       On Windows sets GROUPER_HOME and adds GROUPER_HOME/bin to path"  + GrouperConfig.NL
+	            + "       For *nix 'source gsh.sh' for the same result"                    + GrouperConfig.NL
+	            + "       configDir optionally adds an alternative conf directory than"    + GrouperConfig.NL 
+	            + "       GROUPER_HOME/conf to the classpath"                              + GrouperConfig.NL
+	            + "args: (-xmlimport | -xmlexport | -load | -test | -registry | -usdu |"   + GrouperConfig.NL
+	            + "       findbadmemberships) "                                            + GrouperConfig.NL
+	            + "                        Enter option to get additional usage for that " + GrouperConfig.NL
+	            + "                        option "                                        + GrouperConfig.NL
+	            
+	            + "  -xmlimport,           Invokes XmlExporter"                            + GrouperConfig.NL
+	            + "  -xmlexport,           Invokes XmlImporter"                            + GrouperConfig.NL
+	            + "  -load,                Invokes GrouperLoader"                          + GrouperConfig.NL
+	            + "  -registry,            Manipulate the Grouper schema and install"      + GrouperConfig.NL
+	            + "                        bootstrap data"                                 + GrouperConfig.NL
+	            + "  -test,                Run JUnit tests"                                + GrouperConfig.NL
+	             
+	            + "  -usdu,                Invoke USDU - Unresolvable Subject Deletion "   + GrouperConfig.NL
+	            + "                        Utility"                                        + GrouperConfig.NL
+	           
+	            + "  -findbadmemberships,  Check for membership data inconsistencies    "  + GrouperConfig.NL
+	            ;
+	  } // private static String _getUsage()
 
 } // public class GrouperShell
 
