@@ -98,7 +98,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.6 2008-11-04 15:16:17 isgwb Exp $
+ * @version $Id: XmlImporter.java,v 1.7 2008-11-06 17:04:01 isgwb Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -217,8 +217,7 @@ public class XmlImporter {
    * @since   1.1.0
    */
   public static void main(String[] args) {
-    //make sure right db
-    GrouperUtil.promptUserAboutDbChanges("import data from xml", true);
+    
     if (XmlArgs.internal_wantsHelp(args)) {
       System.out.println( _getUsage() );
       //System.exit(0);
@@ -234,6 +233,11 @@ public class XmlImporter {
       System.err.println( _getUsage() );
       //System.exit(1);
       return;
+    }
+    
+  //make sure right db
+    if(!"true".equals(rc.getProperty(XmlArgs.RC_NOPROMPT))) {
+    GrouperUtil.promptUserAboutDbChanges("import data from xml", true);
     }
     XmlImporter importer = null;
     try {
@@ -411,7 +415,7 @@ public class XmlImporter {
     return  "Usage:"                                                                + GrouperConfig.NL
             + "args: -h,            Prints this message"                            + GrouperConfig.NL
             + "args: subjectIdentifier [(-id <id> | -name <name> | -list)]"         + GrouperConfig.NL
-            + "      [-ignoreInternal] filename [properties]"                       + GrouperConfig.NL
+            + "      [-ignoreInternal] [-noprompt] filename [properties]"                       + GrouperConfig.NL
             +                                                                         GrouperConfig.NL
             + "  subjectIdentifier, Identifies a Subject 'who' will create a"       + GrouperConfig.NL
             + "                     GrouperSession"                                 + GrouperConfig.NL
@@ -427,6 +431,9 @@ public class XmlImporter {
             + "  -ignoreInternal,   Do not attempt to import internal attributes"   + GrouperConfig.NL
             + "                     including Group/Stem uuids. Overrides property:"+ GrouperConfig.NL
             + "                     import.data.ignore-internal-attributes-and-uuids"+GrouperConfig.NL
+            
+            + "  -noprompt,         Do not prompt user to cinfirm import"           + GrouperConfig.NL
+            + "                     imported"                                       + GrouperConfig.NL
             
             + "  filename,          The file to import"                             + GrouperConfig.NL
             + "  properties,        The name of an optional Java properties file. " + GrouperConfig.NL

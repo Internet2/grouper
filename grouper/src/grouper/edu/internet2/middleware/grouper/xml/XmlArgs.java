@@ -23,7 +23,7 @@ import  java.util.Properties;
  * XML Command Line Argument Processing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlArgs.java,v 1.2 2008-10-30 22:32:27 isgwb Exp $
+ * @version $Id: XmlArgs.java,v 1.3 2008-11-06 17:04:01 isgwb Exp $
  * @since   1.1.0
  */
 public class XmlArgs {
@@ -38,6 +38,7 @@ public class XmlArgs {
   public static final String RC_RELATIVE   = "mystery.relative";
   public static final String RC_CHILDREN   = "mystery.children";
   public static final String RC_IGNORE     = "mystery.ignore";
+  public static final String RC_NOPROMPT   = "mystery.noprompt";
   public static final String RC_SUBJ       = "subject.identifier";
   public static final String RC_UPROPS     = "properties.user";
   public static final String RC_UPDATELIST = "update.list";
@@ -80,7 +81,7 @@ public class XmlArgs {
           rc.setProperty(RC_RELATIVE, "true");
           pos++;
           continue;
-        } 
+        }  
         else if (arg.equalsIgnoreCase("-includeparent")) {
           rc.setProperty(RC_PARENT, "true");
           pos++;
@@ -129,6 +130,11 @@ public class XmlArgs {
           pos++;
           continue;
         }
+        else if (arg.equalsIgnoreCase("-noprompt"))       {
+            rc.setProperty(RC_NOPROMPT, "true");
+            pos++;
+            continue;
+          }
         else if (arg.equalsIgnoreCase("-ignoreInternal"))           {
             rc.setProperty(RC_IGNORE, "true");
             pos++;
