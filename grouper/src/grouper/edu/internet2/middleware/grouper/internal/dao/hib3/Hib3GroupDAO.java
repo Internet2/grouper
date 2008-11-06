@@ -50,12 +50,13 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.Stem;
 
 
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.21 2008-11-04 15:19:56 shilen Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.22 2008-11-06 19:34:28 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -793,19 +794,81 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Set<Group> getAllGroups()
     throws  GrouperDAOException {
-    
-    try {
-      Set<Group> groups = HibernateSession.byHqlStatic()
-        .createQuery("from Group as g")
-        .setCacheable(false)
-        .setCacheRegion(KLASS + ".GetAllGroups")
-        .listSet(Group.class);
-      return groups;
-    }
-    catch (GrouperDAOException e) {
-      String error = "Problem getting all groups: " + e.getMessage();
-      throw new GrouperDAOException(error, e);
-    }
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+        new HibernateHandler() {
+
+          public Object callback(HibernateSession hibernateSession) {
+
+            List<Object[]> groupAttributes = hibernateSession.byHql().createQuery(
+                "select g, a from Group as g, Attribute as a where a.groupUuid = g.uuid")
+              .setCacheable(false)
+              .setCacheRegion(KLASS + ".GetAllGroups")
+              .list(Object[].class);
+
+            Set groups = _getGroupsFromGroupsAndAttributesQuery(hibernateSession, groupAttributes);
+            return groups;
+          }
+    });
+
+    return resultGroups;
+  }
+
+  /**
+   * @param scope
+   * @return set
+   * @throws GrouperDAOException
+   * @since   @HEAD@
+   */
+  public Set<Group> getAllGroups(final String scope)
+    throws  GrouperDAOException {
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+        new HibernateHandler() {
+
+          public Object callback(HibernateSession hibernateSession) {
+
+            List<Object[]> groupAttributes = hibernateSession.byHql().createQuery(
+                "select g, a from Group as g, Attribute as a, Attribute as a2, Field field where a.groupUuid = g.uuid " +
+                "and a.groupUuid = a2.groupUuid and field.uuid = a2.fieldId and field.name='name' " +
+                "and field.typeString='attribute' and a2.value like :scope")
+              .setCacheable(false)
+              .setCacheRegion(KLASS + ".GetAllGroups")
+              .setString("scope", scope + "%")
+              .list(Object[].class);
+
+            Set groups = _getGroupsFromGroupsAndAttributesQuery(hibernateSession, groupAttributes);
+            return groups;
+          }
+    });
+
+    return resultGroups;
+  }
+
+  /**
+   * @param stem
+   * @return set
+   * @throws GrouperDAOException
+   * @since   @HEAD@
+   */
+  public Set<Group> getImmediateChildren(final Stem stem)
+    throws  GrouperDAOException {
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+        new HibernateHandler() {
+
+          public Object callback(HibernateSession hibernateSession) {
+
+            List<Object[]> groupAttributes = hibernateSession.byHql().createQuery(
+                "select g, a from Group as g, Attribute as a where a.groupUuid = g.uuid and g.parentUuid = :parent")
+              .setCacheable(false)
+              .setCacheRegion(KLASS + ".GetImmediateChildren")
+              .setString("parent", stem.getUuid())
+              .list(Object[].class);
+
+            Set groups = _getGroupsFromGroupsAndAttributesQuery(hibernateSession, groupAttributes);
+            return groups;
+          }
+    });
+
+    return resultGroups;
   }
 
   /**
