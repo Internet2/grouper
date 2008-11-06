@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.203 2008-10-24 06:00:04 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.204 2008-11-06 17:07:34 isgwb Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -189,7 +189,7 @@
   <!-- target: db.reset -->
 
   <!--  -->
-  <target name="distBinary" depends="clean, init.conf, test.compile, javadoc, dist" description="make a binary distribution">
+  <target name="distBinary" depends="clean, init.conf, javadoc, dist" description="make a binary distribution">
     
     <property name="dist.binary.zip" value="${dist.binary}/grouper.binary.${version}" />
     
@@ -213,10 +213,17 @@
       <fileset dir="${lib.dir}/grouper">
         <include name="*.jar"/>
       </fileset>
+    </copy>
+    
+    <mkdir dir="${dist.binary.zip}/dist"/>
+    <mkdir dir="${dist.binary.zip}/dist/lib"/>
+     <copy todir="${dist.binary.zip}/dist/lib">
       <fileset dir="${dist.dir}/lib">
         <include name="grouper.jar"/>
+        <include name="test/grouper-test.jar"/>
       </fileset>
     </copy>
+    <copy todir="${dist.binary.zip}/dist/lib/test" file="${lib.dir}/test/junit.jar"/>
 
     <mkdir dir="${dist.binary.zip}/lib/jdbcSamples"/>
     <copy todir="${dist.binary.zip}/lib/jdbcSamples">
@@ -225,15 +232,15 @@
       </fileset>
     </copy>
   
-    <mkdir dir="${dist.binary.zip}/lib/test"/>
+   <!--<mkdir dir="${dist.binary.zip}/lib/test"/>
     <copy todir="${dist.binary.zip}/lib/test">
       <fileset dir="${lib.dir}/test">
         <include name="*.jar"/>
       </fileset>
-    </copy>
+    </copy>-->
     
     <!-- we need a jar for test code -->
-    <jar destfile="${dist.binary.zip}/lib/test/grouper-test.jar">
+   <!-- <jar destfile="${dist.binary.zip}/lib/test/grouper-test.jar">
       <manifest>
         <attribute name="Built-By"                value="${user.name}"/>
         <attribute name="Implementation-Vendor"   value="${impl.vendor}"/>
@@ -248,28 +255,37 @@
         <include name="**/*"/>
         <exclude name="conf/**"/>
       </fileset>
-    </jar>
+    </jar>-->
 
     <mkdir dir="${dist.binary.zip}/bin"/>
-    <copy todir="${dist.binary.zip}/bin">
+    <!--<copy todir="${dist.binary.zip}/bin">
       <fileset dir="bin">
         <include name="*.example.*"/>
       </fileset>
-    </copy>
+    </copy>-->
+    <copy todir="${dist.binary.zip}/bin">
+      <fileset dir="bin">
+        <include name="gsh.bat"/>
+        <include name="gsh.sh"/>
+        <include name="setenv.example.bat"/>
+        <include name="setenv.example.sh"/>
+      </fileset>
+     </copy>
 
-    <!-- copy each to the new name -->
+    <!-- copy each to the new name 
     <copy file="${dist.binary.zip}/bin/grouperloader.example.bat" tofile="${dist.binary.zip}/bin/grouperloader.bat" />
     <copy file="${dist.binary.zip}/bin/grouperloader.example.sh" tofile="${dist.binary.zip}/bin/grouperloader.sh" />
     <copy file="${dist.binary.zip}/bin/gsh.example.bat" tofile="${dist.binary.zip}/bin/gsh.bat" />
     <copy file="${dist.binary.zip}/bin/gsh.example.sh" tofile="${dist.binary.zip}/bin/gsh.sh" />
     <copy file="${dist.binary.zip}/bin/groupertest.example.bat" tofile="${dist.binary.zip}/bin/groupertest.bat" />
     <copy file="${dist.binary.zip}/bin/groupertest.example.sh" tofile="${dist.binary.zip}/bin/groupertest.sh" />
+    -->
 
     <!-- take out dist lib from bat file -->
-    <replace dir="${dist.binary.zip}/bin" value=" ">
+    <!--<replace dir="${dist.binary.zip}/bin" value=" ">
       <include name="*" />
       <replacetoken><![CDATA[-cpjar %GROUPER_HOME%/dist/lib/grouper.jar]]></replacetoken>
-    </replace>
+    </replace>-->
     <!-- take out dist lib from bat file -->
     <replace dir="${dist.binary.zip}/bin" value=" " summary="true" >
       <include name="*" />
@@ -316,7 +332,7 @@
       </fileset>
     </copy>
 
-    <tar basedir="${dist.binary}" compression="gzip"
+   <tar basedir="${dist.binary}" compression="gzip"
       destfile="${dist.binary}/grouper.binary.${version}.tar.gz">
       <include name="grouper.binary.${version}/**" />
     </tar>
@@ -329,7 +345,7 @@
   
   <!-- target: dist -->
   <target name="dist" 
-          depends="compile" 
+          depends="compile,test.compile" 
           description="Create Grouper API jar"
   >
     <mkdir dir="${dist.dir}/lib"/>
@@ -358,6 +374,27 @@
     <copy file="${dist.dir}/lib/${app.name}-${DSTAMP}.jar"   
           tofile="${dist.dir}/lib/${app.name}.jar" 
     />
+    
+    
+    <mkdir dir="${dist.dir}/lib/test"/>
+        
+    <!-- we need a jar for test code -->
+    <jar destfile="${dist.dir}/lib/test/grouper-test.jar">
+      <manifest>
+        <attribute name="Built-By"                value="${user.name}"/>
+        <attribute name="Implementation-Vendor"   value="${impl.vendor}"/>
+        <attribute name="Implementation-Title"    value="${app.name}"/>
+        <attribute name="Implementation-Version"  value="${version}"/>
+        <attribute name="Implementation-URL"      value="${impl.url}"/>
+      </manifest>
+      <fileset dir="${build.dir.test}">
+        <include name="**/*.class"/>
+      </fileset>
+      <fileset dir="${src.dir.test}">
+        <include name="**/*"/>
+        <exclude name="conf/**"/>
+      </fileset>
+    </jar>
   </target>
   <!-- target: dist -->
 
@@ -468,6 +505,9 @@
       <fileset dir="${lib.dir}">
         <include name="**/*.jar"/>
       </fileset>
+      <!--<fileset dir="dist/lib">
+        <include name="**/*.jar"/>
+      </fileset>-->
       <fileset dir="${ext.dir.lib}">
         <include name="**/*.jar"/>
       </fileset>
@@ -762,6 +802,76 @@
     <record name="${test.log}" action="stop"/>
   </target>
   <!-- target: test.run -->
+  
+    <!-- target: xml.import -->    
+  <target name="xml.import"
+          depends="ensure.cmd,init"        
+          description='Perform XML import of Groups Registry [Pass -Dcmd="command line arguments"]'
+  >
+    <java fork="false"
+               maxmemory="${memory.max}"
+               classpathref="test.classpath"
+               classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
+               failonerror="true"
+         />
+     
+     <input validargs="y,n"
+         addproperty="do.delete.import"
+       />
+       <condition property="do.abort.import">
+         <equals arg1="n" arg2="${do.delete.import}"/>
+       </condition>
+       <fail if="do.abort.import">Build aborted by user.</fail>
+     <property name="cp" refid="project.classpath"/>
+     <echo message="${cp}"/>
+      <java fork="true"
+          maxmemory="${memory.max}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.xml.XmlImporter"
+          failonerror="true"
+    >
+        <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
+        <jvmarg line="-agentlib:yjpagent -Xrunjdwp:transport=dt_socket,server=y,address=4001,suspend=n"/>
+        <arg line="${cmd}"/>
+    </java>
+  </target>
+  <!-- target: xml.import -->
+    <!-- target: xml.export -->    
+  <target name="xml.export"
+          depends="ensure.cmd"        
+          description='Perform XML export of Groups Registry [Pass -Dcmd="command line arguments"]'
+  >
+    <java fork="false"
+               maxmemory="${memory.max}"
+               classpathref="test.classpath"
+               classname="edu.internet2.middleware.grouper.util.ConfirmDbChangePromptOnly"
+               failonerror="true"
+         />
+     
+     <input validargs="y,n"
+         addproperty="do.delete.xmlexport"
+       />
+       <condition property="do.abort.xmlexport">
+         <equals arg1="n" arg2="${do.delete.xmlexport}"/>
+       </condition>
+       <fail if="do.abort.xmlexport">Build aborted by user.</fail>
+     
+      <java fork="true"
+          maxmemory="${memory.max}"
+          classpathref="project.classpath"
+          classname="edu.internet2.middleware.grouper.xml.XmlExporter"
+          failonerror="true"
+    >
+        <jvmarg value="-Dgrouper.allow.db.changes=true"/> 
+        <jvmarg line="-agentlib:yjpagent -Xrunjdwp:transport=dt_socket,server=y,address=4001,suspend=n"/>
+           <arg line="${cmd}"/>
+    </java>
+  </target>
+  <!-- target: xml.export -->
+  
+  <target name="enc">
+  	<echo message="file.encoding=${file.encoding}"/>
+  </target>
 
 </project>
 
