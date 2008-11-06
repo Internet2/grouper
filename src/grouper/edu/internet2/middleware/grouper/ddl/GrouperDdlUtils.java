@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.20 2008-10-24 05:51:47 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.21 2008-11-06 17:08:22 isgwb Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -63,6 +63,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**

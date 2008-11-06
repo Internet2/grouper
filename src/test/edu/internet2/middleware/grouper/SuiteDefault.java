@@ -16,6 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -26,6 +29,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.app.gsh.AllGshTests;
 import edu.internet2.middleware.grouper.app.loader.db.AllLoaderDbTests;
 import edu.internet2.middleware.grouper.app.usdu.AllUsduTests;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.AllDdlTests;
 import edu.internet2.middleware.grouper.hooks.AllHooksTests;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
@@ -36,7 +40,7 @@ import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.49 2008-10-20 17:51:23 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.50 2008-11-06 17:08:23 isgwb Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -50,8 +54,65 @@ public class SuiteDefault extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
+	Test test = null;
+	boolean noPrompt=false;
+	
+	if(args==null || args.length==0 || args[0].equalsIgnoreCase("-h")) {
+		System.out.println(_getUsage());
+		return;
+	}
+	if(args.length==2 && args[1].equalsIgnoreCase("-noprompt")) {
+		noPrompt=true;
+	}else if((args.length==2 && !args[1].equalsIgnoreCase("-noprompt")) || args.length>2 ) {
+		System.out.println("Invalid argumants. Please check usage:");
+		System.out.println(_getUsage());
+		return;
+	}
+		
+	if(!args[0].equalsIgnoreCase("-all")) {
+		String testName = "edu.internet2.middleware.grouper." + args[0];
+		Class claz = null;
+		Exception ex = null;
+		
+		try {
+			claz=Class.forName(testName);
+			Method method = null;
+			try {
+				method = claz.getMethod("suite");
+				test = (Test)method.invoke(null);
+			}catch(NoSuchMethodException e) {
+				TestSuite testSuite=new TestSuite();
+				testSuite.addTestSuite(claz);
+				test=testSuite;
+			}
+			
+		}catch(ClassNotFoundException e) {
+			LOG.error("Error finding test class: " + testName, e);
+			ex=e;
+		}catch(ClassCastException e) {
+			LOG.error("Test class is not of type Test: " + testName, e);
+			ex=e;
+		}catch(InvocationTargetException e) {
+			LOG.error("Error invoking suite(): " + testName, e);
+			ex=e;
+		}catch(IllegalAccessException e) {
+			LOG.error("Error invoking suite(): " + testName, e);
+			ex=e;
+		}
+		if(ex!=null) {
+			throw new RuntimeException(ex);
+		}
+	}
+	
+	
+	if(test==null) {
+		test=SuiteDefault.suite();
+	}
+	if(noPrompt) {
+		System.setProperty("grouper.allow.db.changes", "true");
+	}
     try {
-      TestRunner.run(SuiteDefault.suite());
+      TestRunner.run(test);
     } catch (RuntimeException re) {
       LOG.error("Error in testing", re);
       throw re;
@@ -132,6 +193,20 @@ public class SuiteDefault extends TestCase {
 
     return suite;
   }
+  
+  private static String _getUsage() {
+	    return  "Usage:"                                                                + GrouperConfig.NL
+	            + "args: -h,            Prints this message"                            + GrouperConfig.NL
+	            + "args: (-all | testName [-noprompt]"                                  + GrouperConfig.NL
+	            
+	            + "  -all,              Run all JUnit tests"                            + GrouperConfig.NL
+	            + "  testName,          Run specific test - omit package name"          + GrouperConfig.NL
+	            + "                     Grouper data e.g. root stem and fields"         + GrouperConfig.NL
+	            + "  -noprompt,         Do not prompt user about data loss"             + GrouperConfig.NL
+	          
+	            ;
+	  } // private static String _getUsage()
+
 
 } 
 
