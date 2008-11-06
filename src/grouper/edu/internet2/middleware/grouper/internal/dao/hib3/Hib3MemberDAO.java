@@ -38,23 +38,23 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.11 2008-10-20 14:41:20 mchyzer Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.12 2008-11-06 12:19:06 isgwb Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
 
-  private static        GrouperCache<String, Boolean>    existsCache     =  
-    new GrouperCache<String, Boolean>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.exists",
-          1000, false, 30, 120, false); 
+  private static        GrouperCache<String, Boolean>    existsCache     =  null;
+  
+  
     
 
   
   
   private static final  String                      KLASS           = Hib3MemberDAO.class.getName();
   //TODO, move this to ehcache?
-  private static        GrouperCache<String, Member>  uuid2dtoCache   = 
-    new GrouperCache<String, Member>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.find",
-            1000, false, 30, 120, false);
+  private static        GrouperCache<String, Member>  uuid2dtoCache   = null;
+  
+
   /**
    * @since   @HEAD@
    */
@@ -70,8 +70,8 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   public boolean exists(String uuid) 
     throws  GrouperDAOException
   {
-    if ( existsCache.containsKey(uuid) ) {
-      return existsCache.get(uuid).booleanValue();
+    if ( getExistsCache().containsKey(uuid) ) {
+      return getExistsCache().get(uuid).booleanValue();
     }
     Object id = null;
     try {
@@ -92,7 +92,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     if ( id != null ) {
       rv = true; 
     }
-    existsCache.put(uuid, rv);
+    getExistsCache().put(uuid, rv);
     return rv;
   } 
   
@@ -151,7 +151,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     if (member == null) {
       throw new MemberNotFoundException();
     }
-    uuid2dtoCache.put( member.getUuid(), member );
+    getUuid2dtoCache().put( member.getUuid(), member );
     return member;
   } 
 
@@ -162,8 +162,8 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     throws  GrouperDAOException,
             MemberNotFoundException
   {
-    if ( uuid2dtoCache.containsKey(uuid) ) {
-      return uuid2dtoCache.get(uuid);
+    if ( getUuid2dtoCache().containsKey(uuid) ) {
+      return getUuid2dtoCache().get(uuid);
     }
     Member memberDto = null;
     
@@ -184,7 +184,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     if (memberDto == null) {
       throw new MemberNotFoundException();
     }
-    uuid2dtoCache.put(uuid, memberDto);
+    getUuid2dtoCache().put(uuid, memberDto);
     return memberDto;
   } 
 
@@ -197,7 +197,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
    * @param exists
    */
   public void existsCachePut(String uuid, boolean exists) {
-    existsCache.put( uuid, exists );
+	  getExistsCache().put( uuid, exists );
   }
   
   /**
@@ -205,7 +205,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
    * @param uuid
    */
   public void uuid2dtoCacheRemove(String uuid) {
-    uuid2dtoCache.remove(uuid);
+	  getUuid2dtoCache().remove(uuid);
   }
   
   /**
@@ -229,7 +229,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
       .setString( "subject", "GrouperSystem" )
       .executeUpdate()
       ;
-    existsCache.clear();
+    getExistsCache().clear();
   }
 
   /**
@@ -249,7 +249,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
       throw new MemberNotUniqueException("Subject id '" + subjectId + "' is not unique in the members table");
     }
     Member member = members.get(0);
-    uuid2dtoCache.put(member.getUuid(), member);
+    getUuid2dtoCache().put(member.getUuid(), member);
     return member;
   }
 
@@ -266,9 +266,25 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     if (member == null) {
       throw new MemberNotFoundException();
     }
-    uuid2dtoCache.put(member.getUuid(), member);
+    getUuid2dtoCache().put(member.getUuid(), member);
     return member;
   } 
+  
+  private static GrouperCache<String, Boolean> getExistsCache() {
+	  if(existsCache==null) {
+		  existsCache=new GrouperCache<String, Boolean>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.exists",
+	          1000, false, 30, 120, false); 
+	  }
+	  return existsCache;
+  }
+  
+  private static GrouperCache<String, Member> getUuid2dtoCache() {
+	  if(uuid2dtoCache==null) {
+		  uuid2dtoCache=new GrouperCache<String, Member>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO.uuid2dtoCache",
+	          1000, false, 30, 120, false); 
+	  }
+	  return uuid2dtoCache;
+  }
 
 } 
 
