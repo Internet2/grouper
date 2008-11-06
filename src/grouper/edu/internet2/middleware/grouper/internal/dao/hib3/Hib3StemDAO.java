@@ -45,7 +45,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.15 2008-11-05 16:18:47 shilen Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.16 2008-11-06 19:34:28 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -461,42 +461,23 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   } 
   
   /**
-   * <p><b>Implementation Notes</b></p>
-   * <p> This method should perform better with flatter registry structures as a deep search 
-   * scope can result in a large number of SQL queries.  An initial query is done to find 
-   * groups that are immediate children of <i>ns</i>.  After that, if <i>scope</i> is 
-   * <code>SUB</code> additional queries will be generated to find all child stems within scope 
-   * and then all child groups within those child stems.  As an optimization, if <i>ns</i> is 
-   * the root stem of the registry and a <code>SUB</code> search scope is being used none of 
-   * those queries will be performed.  
-   * {@link Hib3GroupDAO#findAllByApproximateAttr(String, String)} will be called
-   * instead.  While that will trigger a full table scan of the Gruop attributes table it
-   * will still probably be faster than recursing through the registry.</p>
    * @see     StemDAO#findAllChildGroups(Stem, Stem.Scope)
    * @since   @HEAD@
    */
   public Set<Group> findAllChildGroups(Stem ns, Stem.Scope scope)
     throws  GrouperDAOException {
-    // Optimization hack.  See "Implementation Notes" above for more details.
-    if ( (Stem.Scope.SUB == scope) && ns.isRootStem() ) {
-      return GrouperDAOFactory.getFactory().getGroup().findAllByApproximateAttr("name", "%");
-    }
 
-    Set<Group> groupsSet = new LinkedHashSet();
+    Set<Group> groupsSet;
     try {
-      List<Group> groups = HibernateSession.byHqlStatic()
-        .createQuery("from Group as g where g.parentUuid = :parent")
-        .setCacheable(false)
-        .setCacheRegion(KLASS + ".FindChildGroups")
-        .setString( "parent", ns.getUuid() )
-        .list(Group.class);
-      groupsSet.addAll(groups);
-      if (Stem.Scope.SUB == scope) { // recurse through child stems looking for child groups
-        for ( Stem childStem : this.findAllChildStems(ns, Stem.Scope.SUB) ) {
-          groupsSet.addAll( this.findAllChildGroups(childStem, scope) ); 
-        }
+      if (Stem.Scope.ONE == scope) {
+        groupsSet = GrouperDAOFactory.getFactory().getGroup().getImmediateChildren(ns);
+      } else if (Stem.Scope.SUB == scope && ns.isRootStem()) {
+        groupsSet = GrouperDAOFactory.getFactory().getGroup().getAllGroups();
+      } else if (Stem.Scope.SUB == scope) {
+        groupsSet = GrouperDAOFactory.getFactory().getGroup().getAllGroups(ns.getNameDb() + Stem.DELIM);
+      } else {
+        throw new IllegalStateException("unknown search scope: " + scope);
       }
-
     }
     catch (GrouperDAOException e) {
       String error = "Problem find all child groups, stem name: '" 
@@ -514,28 +495,32 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope)
     throws  GrouperDAOException,
             IllegalStateException {
-    Set<Stem> stemsSet = new LinkedHashSet();
+    Set<Stem> stemsSet;
     try {
-      List<Stem> stems = HibernateSession.byHqlStatic()
-        .createQuery("from Stem as ns where ns.parentUuid = :parent")
-        .setCacheable(false)
-        .setCacheRegion(KLASS + ".FindChildStems")
-        .setString( "parent", ns.getUuid() )
-        .list(Stem.class);
-
-      for (Stem stem : stems) {
-        stemsSet.add(stem);
-        if      (Stem.Scope.ONE == scope) {
-          continue;
-        }
-        else if (Stem.Scope.SUB == scope) {
-          stemsSet.addAll( this.findAllChildStems(stem, scope) ); // recurse and find children-of-child
-        }
-        else {
-          throw new IllegalStateException("unknown search scope: " + scope);
-        }
+      if (Stem.Scope.ONE == scope) {
+        stemsSet = HibernateSession.byHqlStatic()
+          .createQuery("from Stem as ns where ns.parentUuid = :parent")
+          .setCacheable(false)
+          .setCacheRegion(KLASS + ".FindChildStems")
+          .setString("parent", ns.getUuid())
+          .listSet(Stem.class);
+      } else if (Stem.Scope.SUB == scope && ns.isRootStem()) {
+        stemsSet = HibernateSession.byHqlStatic()
+          .createQuery("from Stem as ns where ns.nameDb not like :stem")
+          .setCacheable(false)
+          .setCacheRegion(KLASS + ".FindChildStems")
+          .setString("stem", Stem.DELIM)
+          .listSet(Stem.class);
+      } else if (Stem.Scope.SUB == scope) {
+        stemsSet = HibernateSession.byHqlStatic()
+          .createQuery("from Stem as ns where ns.nameDb like :scope")
+          .setCacheable(false)
+          .setCacheRegion(KLASS + ".FindChildStems")
+          .setString("scope", ns.getNameDb() + Stem.DELIM + "%")
+          .listSet(Stem.class);
+      } else {
+        throw new IllegalStateException("unknown search scope: " + scope);
       }
-
     }
     catch (GrouperDAOException e) {
       String error = "Problem find all child stems, stem name: '" 

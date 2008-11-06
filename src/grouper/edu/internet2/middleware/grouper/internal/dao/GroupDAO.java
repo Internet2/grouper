@@ -26,11 +26,12 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
+import edu.internet2.middleware.grouper.Stem;
 
 /** 
  * Basic <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.14 2008-11-04 15:19:56 shilen Exp $
+ * @version $Id: GroupDAO.java,v 1.15 2008-11-06 19:34:28 shilen Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -241,6 +242,18 @@ public interface GroupDAO extends GrouperDAO {
    * @since   1.3.1
    */
   Set<Group> getAllGroups()
+    throws  GrouperDAOException;
+
+  /**
+   * @since   1.4.0
+   */
+  Set<Group> getAllGroups(String scope)
+    throws  GrouperDAOException;
+
+  /**
+   * @since   1.4.0
+   */
+  Set<Group> getImmediateChildren(Stem stem)
     throws  GrouperDAOException;
 
   /**
