@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -58,9 +59,9 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.70 2008-11-04 07:17:55 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.71 2008-11-06 21:51:22 mchyzer Exp $
  */
-public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVersioned {
+public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVersioned, Comparable {
 
   /** name of table for grouper_types */
   public static final String TABLE_GROUPER_TYPES = "grouper_types";
@@ -869,7 +870,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
     return new ToStringBuilder(this)
       .append( "creatorUuid",  this.getCreatorUuid()  )
       .append( "createTime",   this.getCreateTime()   )
-      .append( "fields",       this.getFields()       )
+      .append( "fields",       GrouperUtil.length(this.getFields()))
       .append( "isAssignable", this.getIsAssignable() )
       .append( "isInternal",   this.getIsInternal()   )
       .append( "name",         this.getName()         )
@@ -1009,6 +1010,18 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
   @Override
   public GroupType clone() {
     return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
+
+  /**
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(Object o) {
+    if (!(o instanceof GroupType)) {
+      return -1;
+    }
+    String thisName = StringUtils.defaultString(this.name);
+    String otherName = StringUtils.defaultString(((GroupType)o).name);
+    return thisName.compareTo(otherName);
   }
 
 
