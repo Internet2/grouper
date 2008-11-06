@@ -638,12 +638,18 @@ public final class GrouperServiceUtils {
     }
   }
 
+  /** test session so we can run tests not in a container */
+  public static GrouperSession testSession = null;
+  
   /**
    * convert the actAsSubjectLookup (and the currently logged in user) to a grouper session
    * @param actAsSubjectLookup
    * @return the session
    */
   public static GrouperSession retrieveGrouperSession(WsSubjectLookup actAsSubjectLookup) {
+    if (testSession != null) {
+      return testSession;
+    }
     Subject actAsSubject = null;
     actAsSubject = GrouperServiceJ2ee.retrieveSubjectActAs(actAsSubjectLookup);
 

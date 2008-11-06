@@ -11,13 +11,13 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.MemberChangeSubject;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsMemberChangeSubject;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsMemberChangeSubjectResults;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+import edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsMemberChangeSubject;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsMemberChangeSubjectResults;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsSubjectLookup;
 
 
 /**

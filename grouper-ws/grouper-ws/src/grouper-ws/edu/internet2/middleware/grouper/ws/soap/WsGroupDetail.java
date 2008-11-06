@@ -5,15 +5,19 @@ package edu.internet2.middleware.grouper.ws.soap;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.subject.Subject;
@@ -52,6 +56,42 @@ public class WsGroupDetail {
 
   /** attribute values, not including ones listed in the group result or detail */
   private String[] attributeValues;
+
+  /** should be UNION, COMPLEMENT, INTERSECTION */
+  private String compositeType;
+  
+  /** params */
+  private WsParam[] params;
+
+  /**
+   * @return the params
+   */
+  public WsParam[] getParams() {
+    return this.params;
+  }
+  
+  /**
+   * @param params1 the params to set
+   */
+  public void setParams(WsParam[] params1) {
+    this.params = params1;
+  }
+  
+  /**
+   * should be UNION, COMPLEMENT, INTERSECTION
+   * @return type
+   */
+  public String getCompositeType() {
+    return this.compositeType;
+  }
+
+  /**
+   * should be UNION, COMPLEMENT, INTERSECTION
+   * @param compositeType1
+   */
+  public void setCompositeType(String compositeType1) {
+    this.compositeType = compositeType1;
+  }
 
   /**
    * types of this gruop
@@ -144,6 +184,8 @@ public class WsGroupDetail {
           throw new RuntimeException(cnfe);
         }
 
+        this.setCompositeType(composite.getType().getName());
+        
         try {
           this.setLeftGroup(new WsGroup(composite.getLeftGroup(), null, false));
           this.setRightGroup(new WsGroup(composite.getRightGroup(), null, false));
@@ -168,7 +210,15 @@ public class WsGroupDetail {
       this.setModifyTime(GrouperServiceUtils.dateToString(group.getModifyTime()));
 
       //set the types
-      Set<GroupType> groupTypes = group.getTypes();
+      Set<GroupType> groupTypes = new TreeSet<GroupType>(group.getTypes());
+      
+      try {
+        GroupType baseType = GroupTypeFinder.find("base");
+        groupTypes.remove(baseType);
+      } catch (SchemaException se) {
+        throw new RuntimeException(se);
+      }
+
       this.typeNames = new String[GrouperUtil.length(groupTypes)];
       int i = 0;
       for (GroupType groupType : GrouperUtil.nonNull(groupTypes)) {
@@ -176,13 +226,14 @@ public class WsGroupDetail {
       }
 
       //set the attributes
-      Map<String, String> attributeMap = group.getAttributes();
+      Map<String, String> attributeMap = new TreeMap<String, String>(group.getAttributes());
 
       //remove common attributes to not take redundant space in response
       attributeMap.remove(GrouperConfig.ATTR_NAME);
       attributeMap.remove(GrouperConfig.ATTR_EXTENSION);
       attributeMap.remove(GrouperConfig.ATTR_DISPLAY_EXTENSION);
       attributeMap.remove(GrouperConfig.ATTR_DISPLAY_NAME);
+      attributeMap.remove(GrouperConfig.ATTR_DESCRIPTION);
 
       //find attributes, set in arrays in order
       if (attributeMap.size() > 0) {

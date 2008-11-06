@@ -1,26 +1,22 @@
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetGroupsLite;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetGroupsLiteResult;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroup;
-import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
-import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
-import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-
 import org.apache.axiom.om.impl.builder.StAXOMBuilder;
-
 import org.apache.axis2.client.Options;
 import org.apache.axis2.context.ConfigurationContext;
 import org.apache.axis2.context.ConfigurationContextFactory;
 import org.apache.axis2.transport.http.HTTPConstants;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
-
 import org.apache.neethi.Policy;
 import org.apache.neethi.PolicyEngine;
-
 import org.apache.rampart.RampartMessageData;
+
+import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+import edu.internet2.middleware.grouper.ws.soap.xsd.GetGroupsLite;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsGetGroupsLiteResult;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup;
 
 
 /**

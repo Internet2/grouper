@@ -11,7 +11,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, man
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroupToSave HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic sdfasdfsadfsdfjsldkfjlkasdf==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 826
@@ -25,22 +25,22 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGroupSaveLiteRequest">
-      <p class="description">desc1</p>
       <p class="displayExtension">disp1</p>
       <p class="groupUuid" />
       <p class="groupName">aStem:aGroupToSave</p>
       <p class="clientVersion" />
+      <p class="includeGroupDetail" />
       <p class="saveMode" />
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
-      <p class="includeGroupDetail" />
       <p class="paramName0" />
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
       <p class="groupLookupUuid" />
       <p class="groupLookupName" />
+      <p class="description">desc1</p>
     </div>
   </body>
 </html>
@@ -56,12 +56,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=4176BE45CBD4067F2C06DFB6F7CAC0A0; Path=/grouperWs
+Set-Cookie: JSESSIONID=1ED55A79D270618F3D5E7CE30875906C; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:16:28 GMT
+Date: Thu, 06 Nov 2008 21:30:18 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -84,7 +84,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">2297</p>
+        <p class="millis">4344</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -94,7 +94,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave
         <p class="description">desc1</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroupToSave</p>
-        <p class="uuid">fdab3d9e-8f3c-4396-a262-b1036f136703</p>
+        <p class="uuid">d09c9804-432e-45fc-bf57-351ed54b907c</p>
         <p class="displayExtension">disp1</p>
       </div>
     </div>

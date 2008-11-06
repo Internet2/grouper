@@ -159,7 +159,7 @@ public class WsGroupSaveResults implements WsResponseBean {
       if (failures > 0) {
         this.getResultMetadata().appendResultMessage(
             "There were " + successes + " successes and " + failures
-                + " failures of users added to the group.   ");
+                + " failures of saving groups.   ");
         this.assignResultCode(WsGroupSaveResultsCode.PROBLEM_SAVING_GROUPS);
         //this might not be a problem
         LOG.warn(this.getResultMetadata().getResultMessage());

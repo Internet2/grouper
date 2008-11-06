@@ -11,7 +11,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, man
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroupToSave HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic sdfasdfsadfsdfjsldkfjlkasdf==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 147
@@ -37,12 +37,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=6EEB10CF71370893E1A70DF35939E10A; Path=/grouperWs
+Set-Cookie: JSESSIONID=D243E46DC26E128933D658B2EE0DD9F6; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 27 Oct 2008 21:16:20 GMT
+Date: Thu, 06 Nov 2008 21:29:49 GMT
 Connection: close
 
 {
@@ -56,7 +56,7 @@ Connection: close
     "responseMetadata":{
       "resultWarnings":"",
       "millis":"-1",
-      "millisStart":"1225142180429",
+      "millisStart":"1226006989007",
       "serverVersion":"v1_4_000"
     },
     "wsGroup":{
@@ -65,7 +65,7 @@ Connection: close
       "description":"desc1",
       "displayName":"a stem:disp1",
       "name":"aStem:aGroupToSave",
-      "uuid":"fdab3d9e-8f3c-4396-a262-b1036f136703"
+      "uuid":"1ba10ed8-da14-46e2-9c53-2a19fd7c9465"
     }
   }
 }

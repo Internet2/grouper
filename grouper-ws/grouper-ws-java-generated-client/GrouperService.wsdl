@@ -78,6 +78,7 @@
                 <xs:sequence>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeNames" nillable="true" type="xs:string"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeValues" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="compositeType" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="createSubjectId" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="createTime" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="hasComposite" nillable="true" type="xs:string"/>
@@ -86,6 +87,7 @@
                     <xs:element minOccurs="0" name="modifySource" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="modifySubjectId" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="modifyTime" nillable="true" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
                     <xs:element minOccurs="0" name="rightGroup" nillable="true" type="ns:WsGroup"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="typeNames" nillable="true" type="xs:string"/>
                 </xs:sequence>

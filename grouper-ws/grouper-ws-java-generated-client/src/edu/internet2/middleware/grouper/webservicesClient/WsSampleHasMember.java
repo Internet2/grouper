@@ -3,23 +3,22 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.HasMember;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsHasMemberResult;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsHasMemberResults;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
-import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
-import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
-import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+import java.lang.reflect.Array;
 
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import java.lang.reflect.Array;
+import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+import edu.internet2.middleware.grouper.ws.soap.xsd.HasMember;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsHasMemberResult;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsHasMemberResults;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsSubjectLookup;
 
 
 /**

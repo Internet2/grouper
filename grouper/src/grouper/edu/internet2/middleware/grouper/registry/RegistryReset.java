@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.6 2008-11-06 12:20:30 isgwb Exp $
+ * @version $Id: RegistryReset.java,v 1.7 2008-11-06 21:51:22 mchyzer Exp $
  */
 public class RegistryReset {
 
@@ -82,17 +82,17 @@ public class RegistryReset {
    * Attempt to reset the Groups Registry to a pristine state.
    */
   public static void reset() {
-	  reset(true);
+    reset(true, true);
   }
-  
   /**
    * Attempt to reset the Groups Registry to a pristine state.
+   * @param includeTypesAndFields
    */
-  public static void reset(boolean promptUser) {
+  public static void reset(boolean promptUser, boolean includeTypesAndFields) {
     
     //make sure it is ok to change db
     if(promptUser) {
-    	GrouperUtil.promptUserAboutDbChanges(GrouperUtil.PROMPT_KEY_RESET_DATA, true);
+      GrouperUtil.promptUserAboutDbChanges(GrouperUtil.PROMPT_KEY_RESET_DATA, true);
     }
     
     GrouperStartup.startup();
@@ -101,7 +101,7 @@ public class RegistryReset {
     try {
       MemberFinder.clearInternalMembers();
       GrouperDAOFactory.internal_resetFactory();  // as it is static and cached
-      rr._emptyTables();
+      rr._emptyTables(includeTypesAndFields);
     }
     catch (Exception e) {
       e.printStackTrace();
@@ -124,12 +124,22 @@ public class RegistryReset {
     }
   }
 
-  // @since   1.2.0
+  /**
+   * 
+   */
   public static void internal_resetRegistryAndAddTestSubjects() { 
+    internal_resetRegistryAndAddTestSubjects(true);
+  }
+  
+  /**
+   * 
+   * @param includeTypesAndFields
+   */
+  public static void internal_resetRegistryAndAddTestSubjects(boolean includeTypesAndFields) { 
     RegistryReset rr = new RegistryReset();
     try {
       MemberFinder.clearInternalMembers();
-      rr._emptyTables();
+      rr._emptyTables(includeTypesAndFields);
       rr._addSubjects();
     }
     catch (Exception e) {
@@ -168,10 +178,15 @@ public class RegistryReset {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(RegistryReset.class);
 
-  private void _emptyTables() 
+  /**
+   * 
+   * @param includeTypesAndFields
+   * @throws GrouperException
+   */
+  private void _emptyTables(boolean includeTypesAndFields) 
     throws  GrouperException
   {
-    GrouperDAOFactory.getFactory().getRegistry().reset();
+    GrouperDAOFactory.getFactory().getRegistry().reset(includeTypesAndFields);
     // Now update the cached types + fields
     GroupTypeFinder.internal_updateKnownTypes();
     FieldFinder.internal_updateKnownFields();

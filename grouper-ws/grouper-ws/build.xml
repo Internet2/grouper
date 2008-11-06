@@ -140,6 +140,7 @@
 			<arg value="-uri" />
 			<arg file="${generated.client.project.dir}/GrouperService.wsdl" />
 			<arg value="-t" />
+      <arg value="-u" />
 			<arg value="-p" />
 			<arg value="edu.internet2.middleware.grouper.webservicesClient" />
 			<arg value="-o" />

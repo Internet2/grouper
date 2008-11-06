@@ -3,21 +3,20 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupDelete;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupDeleteResult;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupDeleteResults;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
-import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
-import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
-import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+import edu.internet2.middleware.grouper.ws.soap.xsd.GroupDelete;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupDeleteResult;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupDeleteResults;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsSubjectLookup;
 
 
 /**

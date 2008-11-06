@@ -27,6 +27,15 @@ import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteResult.WsGroupDelet
 public class WsGroupLookup {
 
   /**
+   * 
+   * @param wsGroup
+   */
+  public WsGroupLookup(WsGroup wsGroup) {
+    this.groupName = wsGroup.getName();
+    this.uuid = wsGroup.getUuid();
+  }
+  
+  /**
    * see if this group lookup has data
    * @return true if it has data
    */

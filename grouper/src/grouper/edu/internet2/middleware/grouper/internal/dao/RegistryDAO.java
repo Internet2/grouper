@@ -22,24 +22,30 @@ import  java.io.Writer;
 /** 
  * Basic <code>Registry</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: RegistryDAO.java,v 1.7 2008-07-27 07:37:25 mchyzer Exp $
+ * @version $Id: RegistryDAO.java,v 1.8 2008-11-06 21:51:22 mchyzer Exp $
  * @since   1.2.0
  */
 public interface RegistryDAO extends GrouperDAO {
 
   /**
+   * @param includeTypesincludeTypesAndFields 
+   * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  public void reset()
+  public void reset(boolean includeTypesincludeTypesAndFields)
     throws  GrouperDAOException;
 
   /**
+   * @param writer 
+   * @throws GrouperDAOException 
    * @since   1.3.0
    */
   public void addForeignKeys(Writer writer)
     throws  GrouperDAOException;
 
   /**
+   * @param writer 
+   * @throws GrouperDAOException 
    * @since   1.3.0
    */
   public void dropForeignKeys(Writer writer)

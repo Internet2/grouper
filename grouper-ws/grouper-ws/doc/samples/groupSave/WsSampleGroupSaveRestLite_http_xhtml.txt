@@ -11,12 +11,12 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, man
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroupToSave HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic sdfasdfsadfsdfjsldkfjlkasdf==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 144
 
-wsLiteObjectType=WsRestGroupSaveLiteRequest&description=desc1&displayExtension=disp1&groupName=aStem%3AaGroupToSave&actAsSubjectId=GrouperSystem
+wsLiteObjectType=WsRestGroupSaveLiteRequest&displayExtension=disp1&groupName=aStem%3AaGroupToSave&actAsSubjectId=GrouperSystem&description=desc1
 
 
 #########################################
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestGroupSaveLiteRequest&description=desc1&displayExtension=d
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=AA50B671BE1F0069E5E0D8EE26DB4415; Path=/grouperWs
+Set-Cookie: JSESSIONID=EE461D5CF49FEE6BBCD4010B2DE3C478; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:16:22 GMT
+Date: Thu, 06 Nov 2008 21:29:57 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -57,7 +57,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">391</p>
+        <p class="millis">781</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -67,7 +67,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave
         <p class="description">desc1</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroupToSave</p>
-        <p class="uuid">fdab3d9e-8f3c-4396-a262-b1036f136703</p>
+        <p class="uuid">9a747f7c-8c65-49c6-b028-b2fc032fdd69</p>
         <p class="displayExtension">disp1</p>
       </div>
     </div>

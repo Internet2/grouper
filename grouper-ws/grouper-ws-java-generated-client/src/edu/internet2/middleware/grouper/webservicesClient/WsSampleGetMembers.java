@@ -3,23 +3,22 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetMembers;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetMembersResult;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGetMembersResults;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubject;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
+import org.apache.axis2.client.Options;
+import org.apache.axis2.transport.http.HTTPConstants;
+import org.apache.axis2.transport.http.HttpTransportProperties;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedUtils;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-
-import org.apache.axis2.client.Options;
-import org.apache.axis2.transport.http.HTTPConstants;
-import org.apache.axis2.transport.http.HttpTransportProperties;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
+import edu.internet2.middleware.grouper.ws.soap.xsd.GetMembers;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsGetMembersResult;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsGetMembersResults;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsSubjectLookup;
 
 
 /**

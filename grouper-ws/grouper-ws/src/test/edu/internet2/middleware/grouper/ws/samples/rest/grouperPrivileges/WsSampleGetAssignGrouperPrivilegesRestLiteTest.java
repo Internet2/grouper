@@ -37,11 +37,6 @@ public class WsSampleGetAssignGrouperPrivilegesRestLiteTest extends TestCase imp
 
   }
   
-  @Override
-  protected void tearDown() throws Exception {
-    super.tearDown();
-  }
-
   /**
    * 
    * @param wsSampleRestType

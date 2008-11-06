@@ -11,11 +11,11 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AssignGrouperPrivilegesLite;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+import edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesLite;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesLiteResult;
 
 
 /**

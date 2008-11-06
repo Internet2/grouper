@@ -3,20 +3,35 @@
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.Composite;
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberDeleteException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
 /**
@@ -39,7 +54,7 @@ public class WsGroupToSave {
    * logger
    */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsSubjectLookup.class);
+  private static final Log LOG = LogFactory.getLog(WsGroupToSave.class);
 
   /** if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default) */
   private String saveMode;
@@ -88,23 +103,232 @@ public class WsGroupToSave {
    * @throws InsufficientPrivilegeException
    * @throws GroupModifyException
    * @throws GroupAddException
+   * @throws AttributeNotFoundException 
+   * @throws MemberDeleteException 
    */
-  public Group save(GrouperSession grouperSession) throws StemNotFoundException,
-      GroupNotFoundException, StemAddException, InsufficientPrivilegeException,
-      GroupModifyException, GroupAddException {
+  public Group save(GrouperSession grouperSession) {
 
-    SaveMode theSaveMode = SaveMode.valueOfIgnoreCase(this.saveMode);
+    Group group = null;
+      
+    try {
+      SaveMode theSaveMode = SaveMode.valueOfIgnoreCase(this.saveMode);
+  
+      this.getWsGroupLookup().retrieveGroupIfNeeded(grouperSession);
+  
+      Group groupLookedup = this.getWsGroupLookup().retrieveGroup();
+  
+      String groupNameLookup = groupLookedup == null ? null : groupLookedup.getName();
+  
+      group = Group.saveGroup(grouperSession, groupNameLookup, 
+          this.getWsGroup().getUuid(), 
+          this.getWsGroup().getName(), this.getWsGroup().getDisplayExtension(), 
+          this.getWsGroup().getDescription(), theSaveMode, false);
+      
+      //lets do attributes and types
+      WsGroupDetail wsGroupDetail = this.getWsGroup().getDetail();
+      
+      //see if detail exists
+      if (wsGroupDetail != null) {
+        
+        //first, types
+        String[] typeNames = wsGroupDetail.getTypeNames();
+        int typeNamesLength = GrouperUtil.length(typeNames);
+        Set<GroupType> typesPassedIn = new TreeSet<GroupType>(); 
+        Set<GroupType> typesAlreadyInGroup = new TreeSet<GroupType>(group.getTypes());
+        StringBuilder typesPassedInBuilder = new StringBuilder();
+        for (int i=0;i<typeNamesLength;i++) {
+          GroupType groupType = GroupTypeFinder.find(typeNames[i]);
+          typesPassedIn.add(groupType);
+          if (i != 0) {
+            typesPassedInBuilder.append(", ");
+          }
+          typesPassedInBuilder.append(groupType.getName());
+          if (!group.hasType(groupType)) {
+            LOG.debug("Group:" + group.getName() + ": adding type: " + groupType);
+            group.addType(groupType);
+          }
+        }
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Group:" + group.getName() + ": passed in with types: " + typesPassedInBuilder);
+        }
 
-    this.getWsGroupLookup().retrieveGroupIfNeeded(grouperSession);
+        typesPassedInBuilder = new StringBuilder();
+        int i=0;
+        for (GroupType groupType : typesAlreadyInGroup) {
+          if (i != 0) {
+            typesPassedInBuilder.append(", ");
+          }
+          typesPassedInBuilder.append(groupType.getName());
+          i++;
+        }
 
-    Group groupLookedup = this.getWsGroupLookup().retrieveGroup();
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Group:" + group.getName() + ": already had types: " + typesPassedInBuilder);
+        }
+        
+        //then, attributes add
+        String[] attributeNames = wsGroupDetail.getAttributeNames();
+        String[] attributeValues = wsGroupDetail.getAttributeValues();
+        
+        int attributeNamesLength = GrouperUtil.length(attributeNames);
+        int attributeValuesLength = GrouperUtil.length(attributeValues);
+        
+        if (attributeNamesLength != attributeValuesLength) {
+          throw new WsInvalidQueryException("Attribute name length " + attributeNamesLength 
+              + " is not equal to attribute value length " + attributeValuesLength);
+        }
+        
+        boolean groupDirty = false;
+        Set<String> attributeNamesPassedIn = new HashSet<String>();
+        
+        //find attributes to add to the group
+        for (i=0;i<attributeNamesLength;i++) {
+          
+          String attributeName = attributeNames[i];
+          String attributeValue = attributeValues[i];
+          
+          if (!StringUtils.equals(group.getAttributeOrNull(attributeName), attributeValue)) {
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("Group: " + group.getName() + ": updating attribute: " 
+                + attributeName + ": " + attributeValue);
+            }
+            group.setAttribute(attributeName, attributeValue);
+            groupDirty = true;
+          }
+          
+          attributeNamesPassedIn.add(attributeName);
+        }
+        //find attributes to remove
+        Map<String, String> attributes = group.getAttributes();
+        for (String key : new HashSet<String>(attributes.keySet())) {
+          
+          //these are built in attributes, dont touch
+          if (StringUtils.equals(GrouperConfig.ATTR_NAME, key)
+            || StringUtils.equals(GrouperConfig.ATTR_EXTENSION, key)
+            || StringUtils.equals(GrouperConfig.ATTR_DISPLAY_EXTENSION, key)
+            || StringUtils.equals(GrouperConfig.ATTR_DESCRIPTION, key)
+            || StringUtils.equals(GrouperConfig.ATTR_DISPLAY_NAME, key)) {
+            continue;
+          }
+          
+          //see if in the passed in set
+          if (!attributeNamesPassedIn.contains(key)) {
+            groupDirty = true;
+            Field field = FieldFinder.find(key);
+            GroupType groupType = field.getGroupType();
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("Group: " + group.getName() + ": delete attribute: " + key 
+                + ", groupType: " + groupType + ", groupHasType? " + group.hasType(groupType));
+            }
+            group.deleteAttribute(key);
+          }
+          
+          
+        }
+        
+        if (groupDirty) {
+          group.store();
+        }
 
-    String groupNameLookup = groupLookedup == null ? null : groupLookedup.getName();
+        //now delete types
+        typesAlreadyInGroup = GrouperUtil.nonNull(typesAlreadyInGroup);
+        LOG.debug("Group:" + group.getName() + ": already had types: " + GrouperUtil.length(typesAlreadyInGroup));
+        int index = 0;
+        for (GroupType groupType : typesAlreadyInGroup) {
+          
+          if (!typesPassedIn.contains(groupType)) {
+            if (!groupType.isSystemType()) {
+              if (group.hasType(groupType)) {
+                if (LOG.isDebugEnabled()) {
+                  LOG.debug("Group:" + group.getName() + ": deleting type: " + groupType + " index: " + index);
+                }
+                group.deleteType(groupType);
+              }
+            }
+          }
+          index++;
+        }
 
-    Group group = Group.saveGroup(grouperSession, groupNameLookup, 
-        this.getWsGroup().getUuid(), 
-        this.getWsGroup().getName(), this.getWsGroup().getDisplayExtension(), 
-        this.getWsGroup().getDescription(), theSaveMode, false);
+
+        //######################
+        //Composites
+        String compositeType = wsGroupDetail.getCompositeType();
+        if (StringUtils.equals("T", wsGroupDetail.getHasComposite())) {
+          
+          if (StringUtils.isBlank(compositeType)) {
+            throw new WsInvalidQueryException("compositeType cannot be blank if hasComposite is T");
+          }
+          CompositeType theCompositeType = null;
+          
+          if (StringUtils.equalsIgnoreCase("COMPLEMENT", compositeType)) {
+            theCompositeType = CompositeType.COMPLEMENT;
+          } else if (StringUtils.equalsIgnoreCase("UNION", compositeType)) {
+            theCompositeType = CompositeType.UNION;
+          } else if (StringUtils.equalsIgnoreCase("INTERSECTION", compositeType)) {
+            theCompositeType = CompositeType.INTERSECTION;
+          } else {
+            throw new WsInvalidQueryException("compositeType must be COMPLEMENT, UNION, or INTERSECTION, not '" 
+                + compositeType + "'");
+          }
+          
+          //get left and right
+          if (wsGroupDetail.getLeftGroup() == null) {
+            throw new WsInvalidQueryException("if has composite, left group cannot be null");
+          }
+          if (wsGroupDetail.getRightGroup() == null) {
+            throw new WsInvalidQueryException("if has composite, right group cannot be null");
+          }
+          WsGroupLookup leftGroupLookup = new WsGroupLookup(wsGroupDetail.getLeftGroup());
+          WsGroupLookup rightGroupLookup = new WsGroupLookup(wsGroupDetail.getRightGroup());
+          
+          Group leftGroup = leftGroupLookup.retrieveGroupIfNeeded(grouperSession, "left group");
+          Group rightGroup = rightGroupLookup.retrieveGroupIfNeeded(grouperSession, "right group");
+          
+  
+          Composite composite = group.getCompositeOrNull();
+          boolean needsChange = composite == null;
+          if (composite != null) {
+            if (!theCompositeType.equals(composite.getType())) {
+              needsChange = true;
+            }
+            if (!StringUtils.equals(composite.getLeftFactorUuid(), leftGroup.getUuid())) {
+              needsChange = true;
+            }
+            if (!StringUtils.equals(composite.getRightFactorUuid(), rightGroup.getUuid())) {
+              needsChange = true;
+            }
+          }
+          if (needsChange) {
+            String prefix = composite != null ? "Changing" : "Adding";
+            if (LOG.isDebugEnabled()) {
+              LOG.debug(prefix + " composite group for group: " + group.getName() + 
+                ": " + compositeType + ", " + leftGroup.getName() + ", " + rightGroup.getName());
+            }
+            if (composite != null) {
+              group.deleteCompositeMember();
+            }
+            group.addCompositeMember(theCompositeType, leftGroup, rightGroup);
+          }
+          
+        } else if (StringUtils.equals("F", wsGroupDetail.getHasComposite())) {
+          
+          if (!StringUtils.isBlank(compositeType)) {
+            throw new WsInvalidQueryException("compositeType must be blank if hasComposite is F");
+          }
+          if (group.hasComposite()) {
+            group.deleteCompositeMember();
+          }
+          
+        } else {
+          throw new WsInvalidQueryException("compositeType must be blank if hasComposite is blank");
+        }
+          
+        
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    
     return group;
   }
 

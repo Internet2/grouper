@@ -3,23 +3,24 @@
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupSave;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroup;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupLookup;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupSaveResult;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupSaveResults;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroupToSave;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsSubjectLookup;
-import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
-import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
-import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
-
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+import edu.internet2.middleware.grouper.ws.soap.xsd.GroupSave;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupLookup;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupSaveResult;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupSaveResults;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupToSave;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsSubjectLookup;
 
 
 /**
@@ -55,6 +56,9 @@ public class WsSampleGroupSave implements WsSampleGenerated {
             auth.setPassword(GeneratedClientSettings.PASS);
             auth.setPreemptiveAuthentication(true);
 
+            HttpClientParams.getDefaultParams().setParameter(
+                HttpClientParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+            
             options.setProperty(HTTPConstants.AUTHENTICATE, auth);
             options.setProperty(HTTPConstants.SO_TIMEOUT, new Integer(3600000));
             options.setProperty(HTTPConstants.CONNECTION_TIMEOUT,

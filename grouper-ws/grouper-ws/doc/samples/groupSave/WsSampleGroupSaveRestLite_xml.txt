@@ -11,7 +11,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, man
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroupToSave HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic sdfasdfsadfsdfjsldkfjlkasdf==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 218
@@ -35,12 +35,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=EB82EE6309282A1566D70822BD5F0AE5; Path=/grouperWs
+Set-Cookie: JSESSIONID=B6B3E4AA8EDE8118EC3763C72191B171; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 21:16:24 GMT
+Date: Thu, 06 Nov 2008 21:30:08 GMT
 Connection: close
 
 <WsGroupSaveLiteResult>
@@ -58,7 +58,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>-1</millis>
-    <millisStart>1225142184414</millisStart>
+    <millisStart>1226007007398</millisStart>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
   <wsGroup>
@@ -67,7 +67,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave
     <description>desc1</description>
     <displayName>a stem:disp1</displayName>
     <name>aStem:aGroupToSave</name>
-    <uuid>fdab3d9e-8f3c-4396-a262-b1036f136703</uuid>
+    <uuid>98ef055b-025e-468e-8023-e824e0ec20a1</uuid>
   </wsGroup>
 </WsGroupSaveLiteResult>
 

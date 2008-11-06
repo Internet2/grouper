@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SampleCapture.java,v 1.5 2008-10-27 21:27:43 mchyzer Exp $
+ * $Id: SampleCapture.java,v 1.6 2008-11-06 21:51:53 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples;
 
@@ -14,13 +14,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.webservicesClient.RampartSampleGetGroupsLite;
@@ -40,6 +43,7 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembers;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembersLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDelete;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDeleteLite;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDetailSave;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupSave;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupSaveLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleHasMember;
@@ -60,6 +64,7 @@ import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGetGroupsR
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupDeleteRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupDeleteRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupDeleteRestLite2;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupDetailSaveRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupSaveRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGroupSaveRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.grouperPrivileges.WsSampleAssignGrouperPrivilegesRestLite;
@@ -132,15 +137,12 @@ public class SampleCapture {
     captureStemSave();
     captureGroupDelete();
     captureGroupSave();
+    captureMemberChangeSubject();
 
     */
     
+    captureGroupSave();
 
-    captureMemberChangeSubject();
-    /*
-
-
-    */
   }
 
   /** certain data has to exist for samples to run */
@@ -148,8 +150,10 @@ public class SampleCapture {
     GrouperSession grouperSession = null;
     try {
       
-      RegistryReset.internal_resetRegistryAndAddTestSubjects();
+      RegistryReset.internal_resetRegistryAndAddTestSubjects(false);
       
+      GrouperCheckConfig.checkGroups();
+
       Subject grouperSystemSubject = SubjectFinder.findById("GrouperSystem");
       
       try {
@@ -208,17 +212,17 @@ public class SampleCapture {
       aGroup2.addMember(subject2, false);
        
       String userGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
-      Group wsUserGroup = Group.saveGroup(grouperSession, null, null, userGroupName, null, null, null, true);
+      Group wsUserGroup = Group.saveGroup(grouperSession, userGroupName, null, userGroupName, null, null, null, true);
       Subject userSubject = SubjectFinder.findByIdentifier(RestClientSettings.USER);
-      wsUserGroup.addMember(userSubject);
+      wsUserGroup.addMember(userSubject, false);
 
       String actAsGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_ACT_AS_GROUP);
-      Group actAsGroup = Group.saveGroup(grouperSession, null, null, actAsGroupName, null, null, null, true);
+      Group actAsGroup = Group.saveGroup(grouperSession, actAsGroupName, null, actAsGroupName, null, null, null, true);
       actAsGroup.addMember(userSubject, false);
       actAsGroup.addMember(subject2, false);
       
       String wheelGroupName = GrouperConfig.getProperty(GrouperConfig.PROP_WHEEL_GROUP);
-      Group wheelGroup = Group.saveGroup(grouperSession, null, null, wheelGroupName, null, null, null, true);
+      Group wheelGroup = Group.saveGroup(grouperSession, wheelGroupName, null, wheelGroupName, null, null, null, true);
       wheelGroup.addMember(userSubject, false);
       wheelGroup.addMember(subject2, false);
       
@@ -227,8 +231,19 @@ public class SampleCapture {
       MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.2"));
       MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.3"));
       
-      //anything else?
+      //add some types and attributes
+      GroupType groupType = GroupType.createType(grouperSession, "aType", false);
+      GroupType groupType2 = GroupType.createType(grouperSession, "aType2", false);
+      GroupType groupType3 = GroupType.createType(grouperSession, "aType3", false);
+      groupType.addAttribute(grouperSession, "attr_1", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      groupType.addAttribute(grouperSession, "attr_2", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      groupType2.addAttribute(grouperSession, "attr2_1", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      groupType2.addAttribute(grouperSession, "attr2_2", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      groupType3.addAttribute(grouperSession, "attr3_1", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      groupType3.addAttribute(grouperSession, "attr3_2", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
       
+      //anything else?
+
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
@@ -258,14 +273,14 @@ public class SampleCapture {
    * all member change subject captures
    */
   public static void captureMemberChangeSubject() {
-    captureSampleHelper(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleMemberChangeSubject.class, "memberChangeSubject", (String)null, RESET_DATA_BEFORE_LOAD);
-    captureSampleHelper(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleMemberChangeSubjectLite.class, "memberChangeSubject", null, RESET_DATA_BEFORE_LOAD);
-    captureSampleHelper(WsSampleClientType.REST_BEANS,  
-        WsSampleMemberChangeSubjectRest.class, "memberChangeSubject", null, RESET_DATA_BEFORE_LOAD);
-    captureSampleHelper(WsSampleClientType.REST_BEANS,  
-        WsSampleMemberChangeSubjectRestLite.class, "memberChangeSubject", null, RESET_DATA_BEFORE_LOAD);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleMemberChangeSubject.class, "memberChangeSubject", (String)null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleMemberChangeSubjectLite.class, "memberChangeSubject", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleMemberChangeSubjectRest.class, "memberChangeSubject", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleMemberChangeSubjectRestLite.class, "memberChangeSubject", null);
     
   }
 
@@ -273,12 +288,12 @@ public class SampleCapture {
    * all member change subject captures
    */
   public static void captureGetGrouperPrivileges() {
-    captureSampleHelper(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetGrouperPrivilegesLite.class, "getGrouperPrivileges", (String)null, RESET_DATA_BEFORE_LOAD);
-    captureSampleHelper(WsSampleClientType.REST_BEANS,  
-        WsSampleGetGrouperPrivilegesRestLite.class, "getGrouperPrivileges", null, RESET_DATA_BEFORE_LOAD);
-    captureSampleHelper(WsSampleClientType.REST_BEANS,  
-        WsSampleGetGrouperPrivilegesListRestLite.class, "getGrouperPrivileges", "_list", RESET_DATA_BEFORE_LOAD);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGetGrouperPrivilegesLite.class, "getGrouperPrivileges", (String)null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetGrouperPrivilegesRestLite.class, "getGrouperPrivileges", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetGrouperPrivilegesListRestLite.class, "getGrouperPrivileges", "_list");
     
   }
 
@@ -286,16 +301,13 @@ public class SampleCapture {
    * all member change subject captures
    */
   public static void captureAssignGrouperPrivileges() {
-    captureSampleHelper(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAssignGrouperPrivilegesLite.class, "assignGrouperPrivileges", (String)null, RESET_DATA_BEFORE_LOAD);
-    captureSampleHelper(WsSampleClientType.REST_BEANS,  
-        WsSampleAssignGrouperPrivilegesRestLite.class, "assignGrouperPrivileges", null, RESET_DATA_BEFORE_LOAD);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleAssignGrouperPrivilegesLite.class, "assignGrouperPrivileges", (String)null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleAssignGrouperPrivilegesRestLite.class, "assignGrouperPrivileges", null);
     
   }
 
-  /** constant for readability in method */
-  private static final Boolean RESET_DATA_BEFORE_LOAD = true;
-  
   /**
    * all delete member captures
    */
@@ -398,9 +410,13 @@ public class SampleCapture {
     captureSample(WsSampleClientType.GENERATED_SOAP,  
         WsSampleGroupSave.class, "groupSave", (String)null);
     captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGroupDetailSave.class, "groupSave", "_withDetail");
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
         WsSampleGroupSaveLite.class, "groupSave", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGroupSaveRest.class, "groupSave", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGroupDetailSaveRest.class, "groupSave", "_withDetail");
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGroupSaveRestLite.class, "groupSave", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -482,21 +498,6 @@ public class SampleCapture {
   public static void captureSample(WsSampleClientType clientType,
         Class<? extends WsSample> clientClass, 
         String samplesFolderName, String fileNameInfo) {
-    captureSampleHelper(clientType, clientClass, samplesFolderName, fileNameInfo, false);
-  }
-
-  /**
-   * run a sample and capture the output, and put it in the 
-   * @param clientType
-   * @param clientClass
-   * @param samplesFolderName is the for
-   * @param fileNameInfo to specify description of example, or none
-   * @param resetDataBeforeLoad if the DB needs to be reset before load
-   */
-  public static void captureSampleHelper(WsSampleClientType clientType,
-        Class<? extends WsSample> clientClass, 
-        String samplesFolderName, String fileNameInfo, boolean resetDataBeforeLoad) {
-    
     Object[] formats = clientType.formats();
     //just pass null if none
     formats = GrouperUtil.defaultIfNull(formats, new Object[]{null});
@@ -504,13 +505,10 @@ public class SampleCapture {
     for (Object format : formats) {
       //make sure example supports the type
       if (clientType.validFormat(clientClass, format)) {
-        if (resetDataBeforeLoad) {
-          setupData();
-        }
+        setupData();
         captureSample(clientType, clientClass, samplesFolderName, fileNameInfo, format);
       }
     }
-    
   }
 
   /**

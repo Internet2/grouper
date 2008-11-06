@@ -49,7 +49,7 @@
             * override this method for handling normal response from groupDeleteLite operation
             */
            public void receiveResultgroupDeleteLite(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupDeleteLiteResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GroupDeleteLiteResponse result
                         ) {
            }
 
@@ -65,7 +65,7 @@
             * override this method for handling normal response from groupSave operation
             */
            public void receiveResultgroupSave(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupSaveResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GroupSaveResponse result
                         ) {
            }
 
@@ -81,7 +81,7 @@
             * override this method for handling normal response from addMemberLite operation
             */
            public void receiveResultaddMemberLite(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberLiteResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.AddMemberLiteResponse result
                         ) {
            }
 
@@ -97,7 +97,7 @@
             * override this method for handling normal response from hasMember operation
             */
            public void receiveResulthasMember(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.HasMemberResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.HasMemberResponse result
                         ) {
            }
 
@@ -113,7 +113,7 @@
             * override this method for handling normal response from stemDelete operation
             */
            public void receiveResultstemDelete(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemDeleteResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.StemDeleteResponse result
                         ) {
            }
 
@@ -129,7 +129,7 @@
             * override this method for handling normal response from stemSaveLite operation
             */
            public void receiveResultstemSaveLite(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemSaveLiteResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.StemSaveLiteResponse result
                         ) {
            }
 
@@ -145,7 +145,7 @@
             * override this method for handling normal response from groupSaveLite operation
             */
            public void receiveResultgroupSaveLite(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupSaveLiteResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GroupSaveLiteResponse result
                         ) {
            }
 
@@ -161,7 +161,7 @@
             * override this method for handling normal response from addMember operation
             */
            public void receiveResultaddMember(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AddMemberResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.AddMemberResponse result
                         ) {
            }
 
@@ -177,7 +177,7 @@
             * override this method for handling normal response from findGroups operation
             */
            public void receiveResultfindGroups(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroupsResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.FindGroupsResponse result
                         ) {
            }
 
@@ -193,7 +193,7 @@
             * override this method for handling normal response from deleteMember operation
             */
            public void receiveResultdeleteMember(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.DeleteMemberResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMemberResponse result
                         ) {
            }
 
@@ -209,7 +209,7 @@
             * override this method for handling normal response from hasMemberLite operation
             */
            public void receiveResulthasMemberLite(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.HasMemberLiteResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.HasMemberLiteResponse result
                         ) {
            }
 
@@ -225,7 +225,7 @@
             * override this method for handling normal response from stemDeleteLite operation
             */
            public void receiveResultstemDeleteLite(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemDeleteLiteResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.StemDeleteLiteResponse result
                         ) {
            }
 
@@ -241,7 +241,7 @@
             * override this method for handling normal response from getGrouperPrivilegesLite operation
             */
            public void receiveResultgetGrouperPrivilegesLite(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetGrouperPrivilegesLiteResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GetGrouperPrivilegesLiteResponse result
                         ) {
            }
 
@@ -257,7 +257,7 @@
             * override this method for handling normal response from getMembersLite operation
             */
            public void receiveResultgetMembersLite(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetMembersLiteResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GetMembersLiteResponse result
                         ) {
            }
 
@@ -273,7 +273,7 @@
             * override this method for handling normal response from getGroupsLite operation
             */
            public void receiveResultgetGroupsLite(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetGroupsLiteResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GetGroupsLiteResponse result
                         ) {
            }
 
@@ -289,7 +289,7 @@
             * override this method for handling normal response from assignGrouperPrivilegesLite operation
             */
            public void receiveResultassignGrouperPrivilegesLite(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AssignGrouperPrivilegesLiteResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesLiteResponse result
                         ) {
            }
 
@@ -305,7 +305,7 @@
             * override this method for handling normal response from findGroupsLite operation
             */
            public void receiveResultfindGroupsLite(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroupsLiteResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.FindGroupsLiteResponse result
                         ) {
            }
 
@@ -321,7 +321,7 @@
             * override this method for handling normal response from groupDelete operation
             */
            public void receiveResultgroupDelete(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GroupDeleteResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GroupDeleteResponse result
                         ) {
            }
 
@@ -337,7 +337,7 @@
             * override this method for handling normal response from getGroups operation
             */
            public void receiveResultgetGroups(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetGroupsResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GetGroupsResponse result
                         ) {
            }
 
@@ -353,7 +353,7 @@
             * override this method for handling normal response from findStems operation
             */
            public void receiveResultfindStems(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindStemsResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.FindStemsResponse result
                         ) {
            }
 
@@ -369,7 +369,7 @@
             * override this method for handling normal response from memberChangeSubjectLite operation
             */
            public void receiveResultmemberChangeSubjectLite(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.MemberChangeSubjectLiteResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubjectLiteResponse result
                         ) {
            }
 
@@ -385,7 +385,7 @@
             * override this method for handling normal response from getMembers operation
             */
            public void receiveResultgetMembers(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.GetMembersResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.GetMembersResponse result
                         ) {
            }
 
@@ -401,7 +401,7 @@
             * override this method for handling normal response from deleteMemberLite operation
             */
            public void receiveResultdeleteMemberLite(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.DeleteMemberLiteResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.DeleteMemberLiteResponse result
                         ) {
            }
 
@@ -417,7 +417,7 @@
             * override this method for handling normal response from stemSave operation
             */
            public void receiveResultstemSave(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.StemSaveResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.StemSaveResponse result
                         ) {
            }
 
@@ -433,7 +433,7 @@
             * override this method for handling normal response from findStemsLite operation
             */
            public void receiveResultfindStemsLite(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindStemsLiteResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.FindStemsLiteResponse result
                         ) {
            }
 
@@ -449,7 +449,7 @@
             * override this method for handling normal response from memberChangeSubject operation
             */
            public void receiveResultmemberChangeSubject(
-                    edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.MemberChangeSubjectResponse result
+                    edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubjectResponse result
                         ) {
            }
 

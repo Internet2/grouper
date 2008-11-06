@@ -113,7 +113,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.208 2008-11-04 07:17:55 mchyzer Exp $
+ * @version $Id: Group.java,v 1.209 2008-11-06 21:51:22 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -1509,17 +1509,17 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   public void deleteType(GroupType type) 
     throws  GroupModifyException,
             InsufficientPrivilegeException,
-            SchemaException
-  {
+            SchemaException {
+    String typeString = type == null ? null : type.getName();
     StopWatch sw = new StopWatch();
     sw.start();
     String msg = E.GROUP_TYPEDEL + type + ": "; 
     try {
       if ( !this.hasType(type) ) {
-        throw new GroupModifyException("does not have type");
+        throw new GroupModifyException("does not have type: " + typeString);
       }
       if ( type.isSystemType() ) {
-        throw new SchemaException("cannot edit system group types");
+        throw new SchemaException("cannot edit system group types: " + typeString);
       }
       if ( !PrivilegeHelper.canAdmin( GrouperSession.staticGrouperSession(), this, GrouperSession.staticGrouperSession().getSubject() ) ) {
         throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
@@ -2333,9 +2333,9 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * </pre>
    * @return  Set of group types.
    */
-  public Set getTypes() {
+  public Set<GroupType> getTypes() {
 
-    Set       newTypes = new LinkedHashSet();
+    Set<GroupType>       newTypes = new LinkedHashSet<GroupType>();
     Iterator  it    = this.getTypesDb().iterator();
     while (it.hasNext()) {
       GroupType groupType = (GroupType) it.next();
@@ -3286,7 +3286,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
       throw new SchemaException( v.getErrorMessage() );
     }
     if ( !this.hasType( f.getGroupType() ) ) {
-      throw new SchemaException( E.INVALID_GROUP_TYPE + f.getGroupType().toString() );
+      throw new SchemaException( E.INVALID_GROUP_TYPE + " for group name: " + this.getName() + ", " + f.getGroupType().toString() + ":" + f.getName() );
     }
     try {
       PrivilegeHelper.dispatch( GrouperSession.staticGrouperSession(), this, subj, f.getWritePriv() );

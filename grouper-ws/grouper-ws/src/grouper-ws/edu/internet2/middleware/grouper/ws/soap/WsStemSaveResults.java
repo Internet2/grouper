@@ -174,7 +174,7 @@ public class WsStemSaveResults implements WsResponseBean {
       if (failures > 0) {
         this.getResultMetadata().appendResultMessage(
             "There were " + successes + " successes and " + failures
-                + " failures of users added to the group.   ");
+                + " failures of saving stems.   ");
         this.assignResultCode(WsStemSaveResultsCode.PROBLEM_SAVING_STEMS);
         //this might not be a problem
         LOG.warn(this.getResultMetadata().getResultMessage());

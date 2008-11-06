@@ -11,7 +11,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manuall
 
 POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic sdfasdfsadfsdfjsldkfjlkasdf==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 615
@@ -55,12 +55,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=0439483666325524C39296C4EF917436; Path=/grouperWs
+Set-Cookie: JSESSIONID=EEB5C53ED8B748DFD91DABF2B9A38A45; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 21:16:13 GMT
+Date: Thu, 06 Nov 2008 21:28:50 GMT
 Connection: close
 
 <WsGroupSaveResults>
@@ -72,7 +72,7 @@ Connection: close
         <description>desc1</description>
         <displayName>a stem:disp1</displayName>
         <name>aStem:whateverGroup</name>
-        <uuid>deddf9c9-49ff-4d0f-ac7a-dce1c57beeaa</uuid>
+        <uuid>ad3fff07-b7e1-4815-8fd1-4ff62be30f54</uuid>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS</resultCode>
@@ -88,7 +88,7 @@ Connection: close
         <description>descs</description>
         <displayName>a stem:disp2</displayName>
         <name>aStem:whateverGroup2</name>
-        <uuid>60f2a275-cabb-4ce5-bca6-a841c15397b4</uuid>
+        <uuid>e72ac86d-dbc1-4614-8bc6-8e69b4ee82a7</uuid>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS</resultCode>
@@ -111,7 +111,7 @@ wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1
   <responseMetadata>
     <resultWarnings></resultWarnings>
     <millis>-1</millis>
-    <millisStart>1225142172726</millisStart>
+    <millisStart>1226006929569</millisStart>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
 </WsGroupSaveResults>

@@ -11,7 +11,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manuall
 
 POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic sdfasdfsadfsdfjsldkfjlkasdf==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 1397
@@ -26,43 +26,43 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestGroupSaveRequest">
       <p class="clientVersion" />
-      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
-      <p class="txType" />
-      <p class="includeGroupDetail" />
       <ul class="wsGroupToSaves">
         <li title="WsGroupToSave">
           <p class="saveMode" />
+          <div class="wsGroup" title="WsGroup">
+            <p class="uuid" />
+            <p class="displayExtension">disp1</p>
+            <div class="detail" title="WsGroupDetail" />
+            <p class="name">aStem:whateverGroup</p>
+            <p class="displayName" />
+            <p class="description">desc1</p>
+            <p class="extension">whateverGroup</p>
+          </div>
           <div class="wsGroupLookup" title="WsGroupLookup">
             <p class="uuid" />
             <p class="groupName">aStem:whateverGroup</p>
           </div>
-          <div class="wsGroup" title="WsGroup">
-            <p class="name">aStem:whateverGroup</p>
-            <p class="displayName" />
-            <p class="uuid" />
-            <p class="description">desc1</p>
-            <p class="displayExtension">disp1</p>
-            <p class="extension">whateverGroup</p>
-            <div class="detail" title="WsGroupDetail" />
-          </div>
         </li>
         <li title="WsGroupToSave">
           <p class="saveMode" />
+          <div class="wsGroup" title="WsGroup">
+            <p class="uuid" />
+            <p class="displayExtension">disp2</p>
+            <div class="detail" title="WsGroupDetail" />
+            <p class="name">aStem:whateverGroup2</p>
+            <p class="displayName" />
+            <p class="description">descs</p>
+            <p class="extension">whateverGroup2</p>
+          </div>
           <div class="wsGroupLookup" title="WsGroupLookup">
             <p class="uuid" />
             <p class="groupName">aStem:whateverGroup2</p>
           </div>
-          <div class="wsGroup" title="WsGroup">
-            <p class="name">aStem:whateverGroup2</p>
-            <p class="displayName" />
-            <p class="uuid" />
-            <p class="description">descs</p>
-            <p class="displayExtension">disp2</p>
-            <p class="extension">whateverGroup2</p>
-            <div class="detail" title="WsGroupDetail" />
-          </div>
         </li>
       </ul>
+      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
+      <p class="txType" />
+      <p class="includeGroupDetail" />
     </div>
   </body>
 </html>
@@ -78,12 +78,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=A8B64BAE3CD838FFA33153DB349DA83C; Path=/grouperWs
+Set-Cookie: JSESSIONID=8FAFC8A2F347B95A23260E9452A7F9C7; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:16:08 GMT
+Date: Thu, 06 Nov 2008 21:28:29 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -108,7 +108,7 @@ Connection: close
             <p class="description">desc1</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whateverGroup</p>
-            <p class="uuid">deddf9c9-49ff-4d0f-ac7a-dce1c57beeaa</p>
+            <p class="uuid">832db135-b51e-4be0-97cb-94743e722765</p>
             <p class="displayExtension">disp1</p>
           </div>
         </li>
@@ -125,7 +125,7 @@ Connection: close
             <p class="description">descs</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whateverGroup2</p>
-            <p class="uuid">60f2a275-cabb-4ce5-bca6-a841c15397b4</p>
+            <p class="uuid">5b2d111d-9c7a-42ff-ba1e-53c3b051329c</p>
             <p class="displayExtension">disp2</p>
           </div>
         </li>
@@ -141,7 +141,7 @@ wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">1188</p>
+        <p class="millis">4485</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>

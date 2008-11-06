@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.14 2008-10-27 21:28:15 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.15 2008-11-06 21:51:49 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -29,6 +29,8 @@ import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -1570,16 +1572,25 @@ public class GrouperServiceLogic {
   
               //loop through all stems and do the save
               for (WsGroupToSave wsGroupToSave : wsGroupToSaves) {
-                WsGroupSaveResult wsGroupSaveResult = new WsGroupSaveResult(wsGroupToSave.getWsGroupLookup());
+                final WsGroupSaveResult wsGroupSaveResult = new WsGroupSaveResult(wsGroupToSave.getWsGroupLookup());
                 wsGroupSaveResults.getResults()[resultIndex++] = wsGroupSaveResult;
-  
+                final WsGroupToSave WS_GROUP_TO_SAVE = wsGroupToSave;
                 try {
-                  //make sure everything is in order
-                  wsGroupToSave.validate();
-                  Group group = wsGroupToSave.save(SESSION);
-  
-                  wsGroupSaveResult.setWsGroup(new WsGroup(group, wsGroupToSave.getWsGroupLookup(), includeGroupDetail));
-                  wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.SUCCESS);
+                  //this should be autonomous, so that within one group, it is transactional
+                  HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
+
+                    public Object callback(HibernateSession hibernateSession)
+                        throws GrouperDAOException {
+                      //make sure everything is in order
+                      WS_GROUP_TO_SAVE.validate();
+                      Group group = WS_GROUP_TO_SAVE.save(SESSION);
+      
+                      wsGroupSaveResult.setWsGroup(new WsGroup(group, WS_GROUP_TO_SAVE.getWsGroupLookup(), includeGroupDetail));
+                      wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.SUCCESS);
+                      return null;
+                    }
+                    
+                  });
   
                 } catch (Exception e) {
                   wsGroupSaveResult.assignResultCodeException(e, wsGroupToSave);
