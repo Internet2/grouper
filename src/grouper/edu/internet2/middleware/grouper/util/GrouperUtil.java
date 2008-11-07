@@ -63,10 +63,12 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Category;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
+import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
@@ -103,6 +105,12 @@ public class GrouperUtil {
    * The number of bytes in a gigabyte.
    */
   public static final long ONE_GB = ONE_KB * ONE_MB;
+  
+  /**
+   * The number of bytes in a gigabyte.
+   */
+  public static final String grouperHome = System.getProperty("grouper.home");
+  
 
   /**
    * Returns a human-readable version of the file size (original is in
@@ -142,6 +150,7 @@ public class GrouperUtil {
    */
   private static boolean logDirsCreated = false;
   
+   
   /**
    * auto-create log dirs if not done yet
    */
@@ -159,6 +168,13 @@ public class GrouperUtil {
       if (key.endsWith(".File")) {
         try {
           String fileName = properties.getProperty(key);
+          if(fileName.startsWith("${grouper.home}")) {
+        	  if(grouperHome==null) {
+        		throw new IllegalStateException("The System property grouper.home is referenced in log4j configuration " +
+        				"however, it is not set.");  
+        	  }
+        	  fileName=grouperHome+fileName.substring(15);
+          }
           File file = new File(fileName);
           File parent = file.getParentFile();
 
@@ -4195,6 +4211,7 @@ public class GrouperUtil {
   public static File newFileUniqueName(String parentDirName, String namePrefix, String nameSuffix, boolean createFile) {
     DateFormat fileNameFormat = new SimpleDateFormat("yyyyMMdd_HH_mm_ss_SSS");
     if (!StringUtils.isBlank(parentDirName)) {
+    	parentDirName=fixRelativePath(parentDirName);
       if (!parentDirName.endsWith("/") && !parentDirName.endsWith("\\")) {
         parentDirName += File.separator;
       }
@@ -5539,6 +5556,9 @@ public class GrouperUtil {
         resourcePropertiesCache.put(resourceName, properties);
       }
     }
+    //Hack; Gary 7th Nov 2008
+    fixHibernateConnectionUrl(properties);
+    
     return properties;
   }
 
@@ -5875,4 +5895,38 @@ public class GrouperUtil {
       throw new RuntimeException("Should be a directory but is not: " + dir);
     }
   }
+  
+  public static String fixRelativePath(String inPath) {
+	  if(grouperHome==null || inPath.matches("^(/|\\\\|\\w:).*")) {
+		  return inPath;
+	  }
+	  String sep = "";
+	  if(!grouperHome.matches(".*?(\\\\|/)$")) {
+		  sep = File.separator;
+	  }
+	  
+	  String outPath=grouperHome + sep + inPath;
+	  
+	  return outPath;
+  }
+  
+  private static void fixHibernateConnectionUrl(Properties props) {
+	  String url = props.getProperty("hibernate.connection.url");
+	  if(StringUtils.isBlank(url)) {
+		  return;
+	  }
+	  if(url.matches("^jdbc:hsqldb:(mem|hsql):.*")) {
+		  return;
+	  }
+	  int spliceAt=12;
+	  if(url.startsWith("jdbc:hsqldb:file:")) {
+		  spliceAt=17;
+	  }
+	  String file = url.substring(spliceAt);
+	  String newUrl = url.substring(0,spliceAt) + fixRelativePath(file);
+	  props.setProperty("hibernate.connection.url", newUrl);
+  }
+
+  
+
 }
