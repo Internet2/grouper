@@ -15,7 +15,7 @@ import bsh.Interpreter;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.13 2008-11-05 05:10:37 mchyzer Exp $
+ * @version $Id: help.java,v 1.14 2008-11-08 03:42:33 mchyzer Exp $
  * @since   0.0.1
  */
 public class help {
@@ -259,6 +259,7 @@ public class help {
     i.println("* XmlExport: type  help(\"XmlExport\")  for more info on xml export");
     i.println("* XmlImport: type  help(\"XmlImport\")  for more info on xml import");
     i.println("* version()"                                           );
+    i.println("* GrouperReport.report(isRunUnresolvableSubjectReport, isRunBadMembershipFinder);");
     i.println(""                                                      );
     i.println("# VARIABLES");
     i.println("* GSH_DEBUG=true");

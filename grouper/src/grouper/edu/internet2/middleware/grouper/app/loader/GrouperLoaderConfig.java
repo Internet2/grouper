@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderConfig.java,v 1.6 2008-10-30 20:57:17 mchyzer Exp $
+ * $Id: GrouperLoaderConfig.java,v 1.7 2008-11-08 03:42:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -9,6 +9,7 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.PropertiesConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.morphString.Morph;
@@ -42,11 +43,6 @@ public class GrouperLoaderConfig {
    */
   public static final String DEFAULT_SUBJECT_SOURCE_ID = "default.subject.source.id";
   
-  /**
-   * cache the properties configuration
-   */
-  private static PropertiesConfiguration propertiesConfiguration = null;
-
   /**
    * Get a Grouper configuration parameter as boolean (must be true|t|false|f
    * case-insensitive)
@@ -131,13 +127,21 @@ public class GrouperLoaderConfig {
   }
 
   /**
+   * config cache
+   */
+  private static GrouperCache<String, PropertiesConfiguration> configCache = 
+    new GrouperCache<String, PropertiesConfiguration>("grouperLoaderConfigCache", 100, false, 60, 60, false);
+  
+  /**
    * lazy load and cache the properties configuration
    * 
    * @return the properties configuration
    */
-  private static PropertiesConfiguration retrievePropertiesConfiguration() {
+  private synchronized static PropertiesConfiguration retrievePropertiesConfiguration() {
+    PropertiesConfiguration propertiesConfiguration = configCache.get("config");
     if (propertiesConfiguration == null) {
       propertiesConfiguration = new PropertiesConfiguration("/grouper-loader.properties");
+      configCache.put("config", propertiesConfiguration);
     }
     return propertiesConfiguration;
   

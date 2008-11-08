@@ -3,7 +3,9 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -144,6 +146,17 @@ public class ByHqlStatic {
    */
   public ByHqlStatic setString(String bindVarName, String value) {
     this.bindVarNameParams().add(new HibernateParam(bindVarName, value, String.class));
+    return this;
+  }
+  
+  /**
+   * assign data to the bind var
+   * @param bindVarName
+   * @param value
+   * @return this object for chaining
+   */
+  public ByHqlStatic setTimestamp(String bindVarName, Date value) {
+    this.bindVarNameParams().add(new HibernateParam(bindVarName, value, Timestamp.class));
     return this;
   }
   

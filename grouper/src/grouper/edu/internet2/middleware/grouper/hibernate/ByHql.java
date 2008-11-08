@@ -3,7 +3,9 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +31,18 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class ByHql extends HibernateDelegate {
   
+  /**
+   * assign data to the bind var
+   * @param bindVarName
+   * @param value
+   * @return this object for chaining
+   */
+  public ByHql setTimestamp(String bindVarName, Date value) {
+    this.bindVarNameParams().add(new HibernateParam(bindVarName, value, Timestamp.class));
+    return this;
+  }
+  
+
   /** logger */
   @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(ByHql.class);
@@ -292,6 +306,8 @@ public class ByHql extends HibernateDelegate {
         
         if (String.class.equals(hibernateParam.getType())) {
           query.setString(hibernateParam.getName(), (String)hibernateParam.getValue());
+        } else if (Timestamp.class.equals(hibernateParam.getType())) {
+          query.setTimestamp(hibernateParam.getName(), (Date)hibernateParam.getValue());
         } else if (Long.class.equals(hibernateParam.getType())) {
           query.setLong(hibernateParam.getName(), (Long)hibernateParam.getValue());
         } else if (Integer.class.equals(hibernateParam.getType())) {

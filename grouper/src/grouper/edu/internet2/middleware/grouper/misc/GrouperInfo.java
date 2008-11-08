@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.misc;
+import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.Properties;
 
@@ -32,7 +33,7 @@ import edu.internet2.middleware.subject.Source;
  * Report on system and configuration information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperInfo.java,v 1.3 2008-10-30 20:57:17 mchyzer Exp $
+ * @version $Id: GrouperInfo.java,v 1.4 2008-11-08 03:42:33 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperInfo {
@@ -54,16 +55,23 @@ public class GrouperInfo {
   // CONSTRUCTORS //
 
   /**
+   * @param thePrintStream 
+   * @param thePrintDbInfo 
    * @since     1.1.0
    */
-  private GrouperInfo() {
+  private GrouperInfo(PrintStream thePrintStream, boolean thePrintDbInfo) {
     this.api  = new ApiConfig();
     this.hib  = new HibernateDaoConfig();
+    this.out = thePrintStream;
+    this.printSensitiveInfo = thePrintDbInfo;
   } 
 
-
-  // PUBLIC CLASS METHODS //
+  /** where to print info */
+  private PrintStream out;
  
+  /** if connect info should be printed */
+  private boolean printSensitiveInfo;
+  
   /**
    * Print system and configuration information to STDOUT.
    * <p/>
@@ -74,21 +82,23 @@ public class GrouperInfo {
    * @since   1.1.0
    */
   public static void main(String[] args) {
-    grouperInfo();
+    grouperInfo(System.out, true);
   } // public static void main(args)
 
 
   /**
+   * @param thePrintStream 
+   * @param printSensitiveInfo 
    * 
    */
-  public static void grouperInfo() {
-    GrouperInfo info = new GrouperInfo();
+  public static void grouperInfo(PrintStream thePrintStream, boolean printSensitiveInfo) {
+    GrouperInfo info = new GrouperInfo(thePrintStream, printSensitiveInfo);
     info._printSystemInfo();
-    System.out.println();
+    thePrintStream.println();
     info._printGrouperInfo();
-    System.out.println();
+    thePrintStream.println();
     info._printSubjectInfo();
-    System.out.println();
+    thePrintStream.println();
     info._printHibernateInfo();
   }
 
@@ -104,7 +114,7 @@ public class GrouperInfo {
     if (val == null) {
       val = GrouperConfig.EMPTY_STRING;
     }
-    System.out.println(key + ": " + val);
+    this.out.println(key + ": " + val);
   }
 
   /**
@@ -112,8 +122,6 @@ public class GrouperInfo {
    */
   private void _printGrouperInfo() {
     String key = "privileges.access.interface";
-    this._print( key, this.api.getProperty(key) );
-    key = "privileges.access.interface";
     this._print( key, this.api.getProperty(key) );
     key = "privileges.naming.interface";
     this._print( key, this.api.getProperty(key) );
@@ -131,18 +139,19 @@ public class GrouperInfo {
    * @since   1.2.0
    */
   private void _printHibernateInfo() {
-    String key = "hibernate.connection.username";
-    this._print( key, this.hib.getProperty(key) );
-    key = "hibernate.dialect";
-    this._print( key, this.hib.getProperty(key) );
+    String key = null;
+    if (this.printSensitiveInfo) {
+      key = "hibernate.connection.username";
+      this._print( key, this.hib.getProperty(key) );
+    }
     key = "hibernate.dialect";
     this._print( key, this.hib.getProperty(key) );
     key = "hibernate.connection.driver_class";
     this._print( key, this.hib.getProperty(key) );
-    key = "hibernate.connection.url";
-    this._print( key, this.hib.getProperty(key) );
-    key = "hibernate.dbcp.ps.maxIdle";
-    this._print( key, this.hib.getProperty(key) );
+    if (this.printSensitiveInfo) {
+      key = "hibernate.connection.url";
+      this._print( key, this.hib.getProperty(key) );
+    }
     key = "hibernate.cache.provider_class";
     this._print( key, this.hib.getProperty(key) );
   } 
@@ -155,9 +164,18 @@ public class GrouperInfo {
     Iterator<Source>  it  = SubjectFinder.getSources().iterator();
     while (it.hasNext()) {
       sa = it.next();
-      System.out.println(
-          sa.printConfig() + " name="  + sa.getName()
-      );
+      if (this.printSensitiveInfo) {
+        this.out.println(
+            sa.printConfig() + " name="  + sa.getName()
+        );
+      } else {
+        this.out.println(
+            "source:"
+            + " id="    + sa.getId()
+            + " name="  + sa.getName()
+            + " class=" + sa.getClass().getSimpleName()
+          );
+      }
     }
   } 
 
@@ -166,6 +184,7 @@ public class GrouperInfo {
    */
   private void _printSystemInfo() {
     Properties  props = System.getProperties();  
+    this.out.println(ApiConfig.versionTimestamp());
     String      key   = "os.name";
     this._print( key, props.getProperty(key, GrouperConfig.EMPTY_STRING) );
     key = "os.arch";
