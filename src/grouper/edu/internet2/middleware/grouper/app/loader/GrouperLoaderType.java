@@ -1,11 +1,13 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.6 2008-10-30 20:57:17 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.7 2008-11-08 03:42:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,6 +25,7 @@ import org.quartz.Trigger;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -37,6 +40,8 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.misc.GrouperReport;
+import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -152,6 +157,34 @@ public enum GrouperLoaderType {
           } else {
             hib3GrouploaderLog.setJobMessage("Configured to not delete records from grouper_loader_log table");
           }
+          
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+        }
+        
+        if (StringUtils.equals(GROUPER_REPORT, hib3GrouploaderLog.getJobName())) {
+
+
+          //how often to run usdu
+          String usduSchedule = StringUtils.defaultString(GrouperLoaderConfig.getPropertyString(
+              "daily.report.usdu.daysToRun")).toLowerCase();
+          String badMemberSchedule = StringUtils.defaultString(GrouperLoaderConfig.getPropertyString(
+              "daily.report.badMembership.daysToRun")).toLowerCase();
+          
+          boolean isRunUsdu = dayListContainsToday(usduSchedule);
+          boolean isRunBadMember = dayListContainsToday(badMemberSchedule);
+          
+          String emailTo = GrouperLoaderConfig.getPropertyString("daily.report.emailTo");
+          if (StringUtils.isBlank(emailTo)) {
+            throw new RuntimeException("grouper-loader.properties property daily.report.emailTo needs to be filled in");
+          }
+          
+          String report = GrouperReport.report(isRunUsdu, isRunBadMember);
+          
+          new GrouperEmail().setBody(report).setSubject("Grouper report").setTo(emailTo).send();
+          
+          
+          hib3GrouploaderLog.setJobMessage("Ran the grouper report, isRunUnresolvable: " 
+              + isRunUsdu + ", isRunBadMembershipFinder: " + isRunBadMember + ", sent to: " + emailTo);
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
         }
@@ -331,6 +364,11 @@ public enum GrouperLoaderType {
   public static final String MAINTENANCE_CLEAN_LOGS = GrouperLoaderType.MAINTENANCE.name() + "_cleanLogs";
 
   /**
+   * maintenance clean logs name
+   */
+  public static final String GROUPER_REPORT = GrouperLoaderType.MAINTENANCE.name() + "_grouperReport";
+
+  /**
    * see if an attribute if required or not
    * @param attributeName
    * @return true if required, false if not
@@ -464,6 +502,28 @@ public enum GrouperLoaderType {
           + this.name() + ", groupName: " + group.getName());
     }
     return attributeValue;
+  }
+  
+  /**
+   * 
+   * @param dayList
+   * @return true if today is in day list, false if not
+   */
+  public boolean dayListContainsToday(String dayList) {
+    if (StringUtils.isBlank(dayList)) {
+      return false;
+    }
+    String weekday = new SimpleDateFormat("EEEE").format(new Date()).toLowerCase();
+
+    dayList = dayList.toLowerCase();
+    String[] days = GrouperUtil.splitTrim(dayList, ",");
+    for (String day : days) {
+      if (StringUtils.equals(weekday, day) || weekday.startsWith(day)) {
+        return true;
+      }
+    }
+    LOG.debug("Day: " + weekday + " is not in daylist: " + dayList);
+    return false;
   }
   
   /**
@@ -894,7 +954,12 @@ public enum GrouperLoaderType {
 //      Set<Group> groupSet = new GroupAttributeExactFilter(GrouperLoader.GROUPER_LOADER_TYPE, this.name(), 
 //          StemFinder.findRootStem(grouperSession)).getResults(grouperSession);
 //      return GrouperUtil.nonNull(groupSet);
-      Set<Group> groupSet = GroupFinder.findAllByType(grouperSession, GroupTypeFinder.find("grouperLoader"));
+      GroupType groupType = GroupTypeFinder.find("grouperLoader", false);
+      if (groupType == null) {
+        LOG.warn("Group type grouperLoader does not exist, so no loader jobs about groups will be scheduled");
+        return new HashSet<Group>();
+      }
+      Set<Group> groupSet = GroupFinder.findAllByType(grouperSession, groupType);
       return groupSet;
     } catch (Exception e) {
       throw new RuntimeException("Problem with finding loader groups", e);

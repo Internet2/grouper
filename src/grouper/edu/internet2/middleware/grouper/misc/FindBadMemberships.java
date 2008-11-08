@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.misc;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -74,15 +75,20 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class FindBadMemberships {
 
+  /**
+   * 
+   */
+  public static PrintStream out = System.out;
+  
   /** logger */
   @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(FindBadMemberships.class);
 
   // GSH script to fix membership data
-  private static StringWriter gshScript = null;
+  public static StringWriter gshScript = null;
 
   // SQL script to fix membership data
-  private static StringWriter sqlScript = null;
+  public static StringWriter sqlScript = null;
 
   // File name for SQL script
   private static final String sqlScriptFilename = "findbadmemberships.sql";
@@ -148,7 +154,7 @@ public class FindBadMemberships {
     
     try {
       if (line.hasOption("all")) {
-        checkAll();
+        checkAll(out);
       } else if (line.hasOption("group")) {
         checkGroup(line.getOptionValue("group"));
       } else if (line.hasOption("stem")) {
@@ -163,27 +169,27 @@ public class FindBadMemberships {
       System.exit(1);
     }
 
-    System.out.println();
-    System.out.println();
+    out.println();
+    out.println();
     if (gshScript == null && sqlScript == null) {
-      System.out.println("No membership errors found.");
+      out.println("No membership errors found.");
     } else {
       /*
-      System.out.println("Membership errors have been found.  Do the following to resolve the errors:");
+      out.println("Membership errors have been found.  Do the following to resolve the errors:");
 
       if (sqlScript != null) {
         writeFile(sqlScript, sqlScriptFilename);
-        System.out.println(" - Execute the SQL Script " + sqlScriptFilename + " and commit the changes to your database.");
+        out.println(" - Execute the SQL Script " + sqlScriptFilename + " and commit the changes to your database.");
       }
 
       if (gshScript != null) {
         writeFile(gshScript, gshScriptFilename);
-        System.out.println(" - Execute the GSH Script " + gshScriptFilename);
+        out.println(" - Execute the GSH Script " + gshScriptFilename);
       }
 
       if (sqlScript != null && gshScript != null) {
-        System.out.println();
-        System.out.println("Be sure to execute the SQL script before the GSH script.");
+        out.println();
+        out.println("Be sure to execute the SQL script before the GSH script.");
       }
       */
     }
@@ -191,20 +197,27 @@ public class FindBadMemberships {
   }
 
   /**
+   * @param printStream 
    * @throws SessionException
    */
-  public static void checkAll() throws SessionException {
-    System.out.println();
-    System.out.println("PHASE 1: Find memberships with invalid owners.");
-    checkMembershipsWithInvalidOwners();
-
-    System.out.println();
-    System.out.println("PHASE 2: Check list and access memberships for groups.");
-    checkGroups();
-
-    System.out.println();
-    System.out.println("PHASE 3: Check naming memberships for stems.");
-    checkStems();
+  public static void checkAll(PrintStream printStream) throws SessionException {
+    PrintStream oldPrintStream = out;
+    out = printStream;
+    try {
+      out.println();
+      out.println("PHASE 1: Find memberships with invalid owners.");
+      checkMembershipsWithInvalidOwners();
+  
+      out.println();
+      out.println("PHASE 2: Check list and access memberships for groups.");
+      checkGroups();
+  
+      out.println();
+      out.println("PHASE 3: Check naming memberships for stems.");
+      checkStems();
+    } finally {
+      out = oldPrintStream;
+    }
   }
 
   /**
@@ -220,7 +233,7 @@ public class FindBadMemberships {
    * @return number of errors found
    */
   public static int checkMembershipsWithInvalidOwners() {
-    //System.out.println("Querying all memberships with invalid owners");
+    //out.println("Querying all memberships with invalid owners");
     List<Membership> invalid = GrouperDAOFactory.getFactory().getMembership().findAllMembershipsWithInvalidOwners();
     Iterator<Membership> invalidIterator = invalid.iterator();
     while (invalidIterator.hasNext()) {
@@ -238,10 +251,10 @@ public class FindBadMemberships {
    * @throws SessionException
    */
   private static int checkStems() throws SessionException {
-    System.out.println("Querying all stems");
+    out.println("Querying all stems");
     GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
     Set<Stem> allStems = GrouperDAOFactory.getFactory().getStem().getAllStems();
-    System.out.println("Found " + allStems.size() + " stems.  Verifying stems now....");
+    out.println("Found " + allStems.size() + " stems.  Verifying stems now....");
     Iterator<Stem> stemIterator = allStems.iterator();
 
     int badCount = 0;
@@ -254,13 +267,13 @@ public class FindBadMemberships {
           badCount++;
         }
       } catch (MemberNotFoundException e) {
-        System.out.println("Error checking stem " + stem.getName() + ": " + e.getMessage());
+        out.println("Error checking stem " + stem.getName() + ": " + e.getMessage());
       } catch (SchemaException e) {
-        System.out.println("Error checking stem " + stem.getName() + ": " + e.getMessage());
+        out.println("Error checking stem " + stem.getName() + ": " + e.getMessage());
       } catch (GrouperRuntimeException e) {
-        System.out.println("Error checking stem " + stem.getName() + ": " + e.getMessage());
+        out.println("Error checking stem " + stem.getName() + ": " + e.getMessage());
       } catch (IllegalStateException e) {
-        System.out.println("Error checking stem " + stem.getName() + ": " + e.getMessage());
+        out.println("Error checking stem " + stem.getName() + ": " + e.getMessage());
       }
     }
 
@@ -282,7 +295,7 @@ public class FindBadMemberships {
     GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
     Stem stem = GrouperDAOFactory.getFactory().getStem().findByName(stemName);
 
-    System.out.println("Checking stem: " + stem.getName());
+    out.println("Checking stem: " + stem.getName());
     return checkStem(stem);
   } 
 
@@ -295,7 +308,7 @@ public class FindBadMemberships {
    * @throws SchemaException
    */
   public static boolean checkStem(Stem stem) throws MemberNotFoundException, SchemaException {
-    //System.out.println("Checking stem: " + stem.getName() + " - " + stem.getUuid());
+    //out.println("Checking stem: " + stem.getName() + " - " + stem.getUuid());
     String ownerUUID = stem.getUuid();
 
     // get all memberships for this stem.
@@ -382,10 +395,10 @@ public class FindBadMemberships {
    * @throws SessionException
    */
   private static int checkGroups() throws SessionException {
-    System.out.println("Querying all groups");
+    out.println("Querying all groups");
     GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
     Set<Group> allGroups = GrouperDAOFactory.getFactory().getGroup().getAllGroups();
-    System.out.println("Found " + allGroups.size() + " groups.  Verifying groups now....");
+    out.println("Found " + allGroups.size() + " groups.  Verifying groups now....");
     Iterator<Group> groupIterator = allGroups.iterator();
 
     int badCount = 0;
@@ -398,15 +411,15 @@ public class FindBadMemberships {
           badCount++;
         }
       } catch (MemberNotFoundException e) {
-        System.out.println("Error checking group " + group.getName() + ": " + e.getMessage());
+        out.println("Error checking group " + group.getName() + ": " + e.getMessage());
       } catch (GroupNotFoundException e) {
-        System.out.println("Error checking group " + group.getName() + ": " + e.getMessage());
+        out.println("Error checking group " + group.getName() + ": " + e.getMessage());
       } catch (SchemaException e) {
-        System.out.println("Error checking group " + group.getName() + ": " + e.getMessage());
+        out.println("Error checking group " + group.getName() + ": " + e.getMessage());
       } catch (GrouperRuntimeException e) {
-        System.out.println("Error checking group " + group.getName() + ": " + e.getMessage());
+        out.println("Error checking group " + group.getName() + ": " + e.getMessage());
       } catch (IllegalStateException e) {
-        System.out.println("Error checking group " + group.getName() + ": " + e.getMessage());
+        out.println("Error checking group " + group.getName() + ": " + e.getMessage());
       }
     }
 
@@ -472,7 +485,7 @@ public class FindBadMemberships {
     GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
     Group group = GrouperDAOFactory.getFactory().getGroup().findByName(groupName);
 
-    System.out.println("Checking group: " + group.getName());
+    out.println("Checking group: " + group.getName());
     return checkGroup(group);
   }
 
@@ -486,7 +499,7 @@ public class FindBadMemberships {
    * @throws SchemaException
    */
   public static boolean checkGroup(Group group) throws MemberNotFoundException, GroupNotFoundException, SchemaException {
-    //System.out.println("Checking group: " + group.getName() + " - " + group.getUuid());
+    //out.println("Checking group: " + group.getName() + " - " + group.getUuid());
     String ownerUUID = group.getUuid();
 
     // get all memberships for this group.
@@ -700,28 +713,28 @@ public class FindBadMemberships {
    */
   private static void printUsage(Options options) {
 
-    System.out.println();
+    out.println();
  
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp(FindBadMemberships.class.getSimpleName(), options, true);
  
-    System.out.println();
-    System.out.print("This script will find bad effective and composite memberships in your Grouper database.  ");
-    System.out.print("It will not make any modifications to the Grouper database.  ");
+    out.println();
+    out.print("This script will find bad effective and composite memberships in your Grouper database.  ");
+    out.print("It will not make any modifications to the Grouper database.  ");
     /*
-    System.out.println("If bad memberships are found, this script will create two files.");
-    System.out.println();
-    System.out.println("1.  " + sqlScriptFilename + " - An SQL script that removes bad memberships.");
-    System.out.println("2.  " + gshScriptFilename + " - A GSH script that will re-add the correct effective and composite memberships.");
-    System.out.println();
-    System.out.println("To fix your memberships, complete these steps in the order listed:");
-    System.out.println();
-    System.out.println("1.  Review both output files before applying any changes to your database.");
-    System.out.println("2.  Apply the SQL script to your database.");
-    System.out.println("3.  Run the GSH script AFTER you have applied the SQL script.");
-    System.out.println("4.  You may then re-run this script to verify that your memberships are correct.");
+    out.println("If bad memberships are found, this script will create two files.");
+    out.println();
+    out.println("1.  " + sqlScriptFilename + " - An SQL script that removes bad memberships.");
+    out.println("2.  " + gshScriptFilename + " - A GSH script that will re-add the correct effective and composite memberships.");
+    out.println();
+    out.println("To fix your memberships, complete these steps in the order listed:");
+    out.println();
+    out.println("1.  Review both output files before applying any changes to your database.");
+    out.println("2.  Apply the SQL script to your database.");
+    out.println("3.  Run the GSH script AFTER you have applied the SQL script.");
+    out.println("4.  You may then re-run this script to verify that your memberships are correct.");
     */
-    System.out.println();
+    out.println();
   }
 
   /**
@@ -745,7 +758,7 @@ public class FindBadMemberships {
    */
   private static void foundError(Group group, Composite c, List<Membership> current) throws GroupNotFoundException {
     if (printErrorsToSTOUT) {
-      System.out.println("FOUND BAD MEMBERSHIP: Bad membership in group with uuid=" + group.getUuid() + " and name=" + group.getName() + ".");
+      out.println("FOUND BAD MEMBERSHIP: Bad membership in group with uuid=" + group.getUuid() + " and name=" + group.getName() + ".");
     }
 
     Iterator<Membership> currentIterator = current.iterator();
@@ -806,7 +819,7 @@ public class FindBadMemberships {
    */
   private static void foundError(Stem stem, List<Membership> current) {
     if (printErrorsToSTOUT) {
-      System.out.println("FOUND BAD MEMBERSHIP: Bad membership in stem with uuid=" + stem.getUuid() + " and name=" + stem.getName() + ".");
+      out.println("FOUND BAD MEMBERSHIP: Bad membership in stem with uuid=" + stem.getUuid() + " and name=" + stem.getName() + ".");
     }
 
     Iterator<Membership> currentIterator = current.iterator();
@@ -840,7 +853,7 @@ public class FindBadMemberships {
    */
   private static void foundError(Membership ms) {
     if (printErrorsToSTOUT) {
-      System.out.println("FOUND BAD MEMBERSHIP: Membership with uuid=" + ms.getUuid() + " has invalid owner with uuid=" + ms.getOwnerUuid() + ".");
+      out.println("FOUND BAD MEMBERSHIP: Membership with uuid=" + ms.getUuid() + " has invalid owner with uuid=" + ms.getOwnerUuid() + ".");
     }
     logSqlScript("delete from grouper_memberships where membership_uuid='" + ms.getUuid() + "';");
   }
@@ -883,9 +896,9 @@ public class FindBadMemberships {
       fw = new FileWriter("../" + filename, false);
       fw.write(data.toString());
     } catch (IOException e) {
-      System.out.println("Exception while writing out to file " + filename + ": " + e.toString());
-      System.out.println("Writing data out here instead: ");
-      System.out.println(data.toString());
+      out.println("Exception while writing out to file " + filename + ": " + e.toString());
+      out.println("Writing data out here instead: ");
+      out.println(data.toString());
     } finally {
       try {
         if (fw != null) {

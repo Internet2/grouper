@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * you should probably use GrouperConfig
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.17 2008-10-30 20:57:17 mchyzer Exp $
+ * @version $Id: ApiConfig.java,v 1.18 2008-11-08 03:42:33 mchyzer Exp $
  * @since   1.2.1
  */
 public class ApiConfig implements Configuration {
@@ -135,14 +135,7 @@ public class ApiConfig implements Configuration {
     
     String displayMessageString = GrouperUtil.propertiesValue(properties, "configuration.display.startup.message");
     
-    String buildTimestamp = null;
-    try {
-      buildTimestamp = GrouperCheckConfig.manifestProperty(ApiConfig.class, new String[]{"Build-Timestamp"});
-    } catch (Exception e) {
-      //its ok, might not be running in jar
-    }
-    String grouperStartup = "Grouper starting up: version: " + GrouperVersion.GROUPER_VERSION 
-      + " build date: " + buildTimestamp;
+    String grouperStartup = "Grouper starting up: " + versionTimestamp();
     if (!GrouperUtil.booleanValue(displayMessageString, true)) {
       //just log this to make sure we can
       try {
@@ -201,6 +194,22 @@ public class ApiConfig implements Configuration {
       re.printStackTrace();
       throw new RuntimeException(GrouperUtil.LOG_ERROR, re);
     }
+  }
+
+
+  /**
+   * @return version timestamp
+   */
+  public static String versionTimestamp() {
+    String buildTimestamp = null;
+    try {
+      buildTimestamp = GrouperCheckConfig.manifestProperty(ApiConfig.class, new String[]{"Build-Timestamp"});
+    } catch (Exception e) {
+      //its ok, might not be running in jar
+    }
+    String grouperStartup = "version: " + GrouperVersion.GROUPER_VERSION 
+      + " build date: " + buildTimestamp;
+    return grouperStartup;
   }
   
   /**

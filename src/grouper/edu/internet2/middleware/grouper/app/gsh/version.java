@@ -14,7 +14,7 @@ import bsh.Interpreter;
  * Get version information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: version.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: version.java,v 1.3 2008-11-08 03:42:33 mchyzer Exp $
  * @since   0.0.1
  */
 public class version {
@@ -31,7 +31,7 @@ public class version {
    */
   public static String invoke(Interpreter i, CallStack stack) {
     GrouperShell.setOurCommand(i, true);
-    GrouperInfo.grouperInfo();
+    GrouperInfo.grouperInfo(System.out, true);
     return "";
   } // public static String invoke(i, stack)
 
