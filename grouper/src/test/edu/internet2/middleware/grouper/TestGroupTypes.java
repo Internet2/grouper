@@ -21,6 +21,7 @@ import java.util.Set;
 import junit.framework.Assert;
 import junit.textui.TestRunner;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
@@ -37,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.13 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroupTypes.java,v 1.14 2008-11-08 04:33:47 mchyzer Exp $
  */
 public class TestGroupTypes extends GrouperTest {
 
@@ -49,7 +50,7 @@ public class TestGroupTypes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroupTypes("testDeleteUnusedCustomList"));
+    TestRunner.run(new TestGroupTypes("testAddRemoveType"));
   }
 
   public TestGroupTypes(String name) {
@@ -58,7 +59,7 @@ public class TestGroupTypes extends GrouperTest {
 
   protected void setUp () {
     LOG.debug("setUp");
-    RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    super.setUp();
   }
 
   protected void tearDown () {
@@ -344,7 +345,35 @@ public class TestGroupTypes extends GrouperTest {
       SessionHelper.stop(s);
     }
   } // public void testAddFieldList()
+  
+  /**
+   * 
+   */
+  public void testAddRemoveType() {
+    GrouperSession  s     = null;
+    String          type  = "customType.1a";
+    String          name  = "customField1a";
+    Privilege       read  = AccessPrivilege.VIEW;
+    Privilege       write = AccessPrivilege.UPDATE;
+    try {
+      s = SessionHelper.getRootSession();
+      GroupType custom = GroupType.createType(s, type);
+      custom.addAttribute(s, name, read, write, false);
+      Group group = Group.saveGroup(s, null, null, "test:test1", "test1", "test1", null, true);
+      group.addType(custom);
+      group.setAttribute(name, "theTest");
+      group.deleteType(custom);
+      group.addType(custom);
+      String value = group.getAttributeOrNull(name);
+      assertTrue(value, StringUtils.isBlank(value));
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      SessionHelper.stop(s);
+    }
 
+  }
+  
   public void testAddFieldDuplicateName() {
     GrouperSession  s     = null;
     String          type  = "customType.2";

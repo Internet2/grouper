@@ -113,7 +113,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.209 2008-11-06 21:51:22 mchyzer Exp $
+ * @version $Id: Group.java,v 1.210 2008-11-08 04:33:47 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -1524,11 +1524,6 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
       if ( !PrivilegeHelper.canAdmin( GrouperSession.staticGrouperSession(), this, GrouperSession.staticGrouperSession().getSubject() ) ) {
         throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
       }
-
-      Set types = this.getTypesDb();
-      types.remove( type );
-
-      this.internal_setModified();
 
       GrouperDAOFactory.getFactory().getGroup().deleteType( this, type );
       sw.stop();
