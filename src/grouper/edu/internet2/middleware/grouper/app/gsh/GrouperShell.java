@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.8 2008-11-06 17:08:22 isgwb Exp $
+ * @version $Id: GrouperShell.java,v 1.9 2008-11-08 08:17:24 mchyzer Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -50,7 +50,7 @@ public class GrouperShell {
 	  mainLookups.put("-test",      
 			  "edu.internet2.middleware.grouper.SuiteDefault");
 	  
-	  mainLookups.put("-load",    
+	  mainLookups.put("-loader",    
 			  "edu.internet2.middleware.grouper.app.loader.GrouperLoader");
 	  
 	  mainLookups.put("-usdu",      
@@ -453,14 +453,14 @@ private static boolean handleSpecialCase(String[] args) {
 	            + "       For *nix 'source gsh.sh' for the same result"                    + GrouperConfig.NL
 	            + "       configDir optionally adds an alternative conf directory than"    + GrouperConfig.NL 
 	            + "       GROUPER_HOME/conf to the classpath"                              + GrouperConfig.NL
-	            + "args: (-xmlimport | -xmlexport | -load | -test | -registry | -usdu |"   + GrouperConfig.NL
+	            + "args: (-xmlimport | -xmlexport | -loader | -test | -registry | -usdu |"   + GrouperConfig.NL
 	            + "       findbadmemberships) "                                            + GrouperConfig.NL
 	            + "                        Enter option to get additional usage for that " + GrouperConfig.NL
 	            + "                        option "                                        + GrouperConfig.NL
 	            
 	            + "  -xmlimport,           Invokes XmlExporter"                            + GrouperConfig.NL
 	            + "  -xmlexport,           Invokes XmlImporter"                            + GrouperConfig.NL
-	            + "  -load,                Invokes GrouperLoader"                          + GrouperConfig.NL
+	            + "  -loader,                Invokes GrouperLoader"                          + GrouperConfig.NL
 	            + "  -registry,            Manipulate the Grouper schema and install"      + GrouperConfig.NL
 	            + "                        bootstrap data"                                 + GrouperConfig.NL
 	            + "  -test,                Run JUnit tests"                                + GrouperConfig.NL
