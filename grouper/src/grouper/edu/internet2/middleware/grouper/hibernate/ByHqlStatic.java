@@ -296,7 +296,7 @@ public class ByHqlStatic {
 
   /**
    * <pre>
-   * call hql executeUpdate
+   * call hql executeUpdate, e.g. delete or update statement
    * 
    * </pre>
    * @throws GrouperDAOException
@@ -305,7 +305,7 @@ public class ByHqlStatic {
     try {
       GrouperTransactionType grouperTransactionTypeToUse = 
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
-            GrouperTransactionType.READONLY_OR_USE_EXISTING);
+            GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
       HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
           new HibernateHandler() {

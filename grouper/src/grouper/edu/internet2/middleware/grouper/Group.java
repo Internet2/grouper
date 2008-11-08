@@ -113,7 +113,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.210 2008-11-08 04:33:47 mchyzer Exp $
+ * @version $Id: Group.java,v 1.211 2008-11-08 08:15:33 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -803,12 +803,45 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   public void addType(GroupType type) 
     throws  GroupModifyException,
             InsufficientPrivilegeException,
-            SchemaException
-  {
+            SchemaException {
+    addType(type, true);
+  }
+  
+  /**
+   * Add an additional group type.
+   * <pre class="eg">
+   * try {
+   *   GroupType custom = GroupTypeFinder.find("custom type");
+   *   g.addType(custom);
+   * }
+   * catch (GroupModifyException eGM) {
+   *   // Unable to add type 
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to add type
+   * }
+   * catch (SchemaException eS) {
+   *   // Cannot add system-maintained types
+   * }
+   * </pre>
+   * @param   type  The {@link GroupType} to add.
+   * @param exceptionIfAlreadyHasType 
+   * @throws  GroupModifyException if unable to add type.
+   * @throws  InsufficientPrivilegeException if subject not root-like.
+   * @throws  SchemaException if attempting to add a system group type.
+   * @return if it was added or not
+   */
+  public boolean addType(GroupType type, boolean exceptionIfAlreadyHasType) 
+    throws  GroupModifyException,
+            InsufficientPrivilegeException,
+            SchemaException {
     StopWatch sw = new StopWatch();
     sw.start();
     if ( this.hasType(type ) ) {
-      throw new GroupModifyException(E.GROUP_HAS_TYPE);
+      if (exceptionIfAlreadyHasType) {
+        throw new GroupModifyException(E.GROUP_HAS_TYPE);
+      }
+      return false;
     }
     if ( type.isSystemType() ) {
       throw new SchemaException("cannot edit system group types");
@@ -836,6 +869,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
       LOG.error(msg);
       throw new GroupModifyException(msg, eDAO); 
     }
+    return true;
   } 
 
   /**

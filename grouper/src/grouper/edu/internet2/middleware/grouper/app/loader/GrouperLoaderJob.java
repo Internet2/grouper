@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderJob.java,v 1.4 2008-10-30 20:57:17 mchyzer Exp $
+ * $Id: GrouperLoaderJob.java,v 1.5 2008-11-08 08:15:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -22,6 +22,8 @@ import org.quartz.Trigger;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -210,17 +212,33 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       
       String grouperLoaderQuery = null;
       String groupName = null;
+      
+      String groupTypesString = null;
+      String groupLikeString = null;
+      
       if (jobGroup != null) {
         grouperLoaderDbName = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_DB_NAME);
         grouperLoaderQuery = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_QUERY);
+        groupTypesString = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_GROUP_TYPES);
+        groupLikeString = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_GROUPS_LIKE);
         groupName = jobGroup.getName();
       }
       
       GrouperLoaderDb grouperLoaderDb = GrouperLoaderConfig.retrieveDbProfile(grouperLoaderDbName);
       
+      List<GroupType> groupTypes = null;
+      if (!StringUtils.isBlank(groupTypesString)) {
+        String[] groupTypeArray = GrouperUtil.splitTrim(groupTypesString, ",");
+        groupTypes = new ArrayList<GroupType>();
+        for (String groupType : groupTypeArray) {
+          //this better find the type!
+          groupTypes.add(GroupTypeFinder.find(groupType));
+        }
+      }
+      
       //based on type, run query from the db and sync members
       grouperLoaderTypeEnum.syncGroupMembership(groupName, grouperLoaderDb, 
-          grouperLoaderQuery, hib3GrouploaderLog, startTime, grouperSession, andGroups);
+          grouperLoaderQuery, hib3GrouploaderLog, startTime, grouperSession, andGroups, groupTypes, groupLikeString);
       
     } catch (Exception t) {
       LOG.error("Error on job: " + jobName, t);

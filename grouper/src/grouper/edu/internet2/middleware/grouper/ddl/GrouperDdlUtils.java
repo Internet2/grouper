@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.21 2008-11-06 17:08:22 isgwb Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.22 2008-11-08 08:15:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -63,7 +63,6 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -653,6 +652,12 @@ public class GrouperDdlUtils {
   /**
    * run some sql
    * @param scriptFile
+   * @param driver 
+   * @param url 
+   * @param user 
+   * @param pass 
+   * @param fromUnitTest 
+   * @param printErrorToStdOut 
    * @return the output
    */
   public static String sqlRun(File scriptFile, String driver, String url, String user, String pass, boolean fromUnitTest, boolean printErrorToStdOut) {

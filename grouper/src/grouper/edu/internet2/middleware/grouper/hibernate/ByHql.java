@@ -216,15 +216,7 @@ public class ByHql extends HibernateDelegate {
   
   /**
    * <pre>
-   * call hql executeUpdate
-   * 
-   * e.g.
-   * 
-   * Hib3GroupDAO hib3GroupDAO = HibernateSession.byHqlStatic()
-   * .createQuery("from Hib3GroupDAO as g where g.uuid = :uuid")
-   *  .setCacheable(false)
-   *  .setCacheRegion(KLASS + ".Exists")
-   *  .setString("uuid", uuid).uniqueResult(Hib3GroupDAO.class);
+   * call hql executeUpdate, e.g. delete or update statement
    * 
    * </pre>
    * @throws GrouperDAOException 

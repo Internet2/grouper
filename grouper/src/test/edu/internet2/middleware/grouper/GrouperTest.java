@@ -24,6 +24,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
@@ -43,7 +45,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.10 2008-11-04 07:17:56 mchyzer Exp $
+ * @version $Id: GrouperTest.java,v 1.11 2008-11-08 08:15:33 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -527,7 +529,8 @@ public class GrouperTest extends TestCase {
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     //remove any settings in testconfig
     ApiConfig.testConfig.clear();
-    
+    GrouperLoaderConfig.testConfig.clear();
+    GrouperLoaderConfig.testConfig.put("default.subject.source.id", null);
     GrouperCheckConfig.checkGroups();
   } 
 
@@ -586,6 +589,57 @@ public class GrouperTest extends TestCase {
   private void _fail(String type, String who, String what, String exp, String got) {
     fail(type + "=(" + who + "): testing=(" + what + ") expected=(" + exp + ") got=(" + got + ")");
   } // private void _fail(type, who, what, exp, got)
+
+  /**
+   * 
+   */
+  public void setupTestConfigForIncludeExclude() {
+    ApiConfig.testConfig.put("grouperIncludeExclude.use", "true");
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.use", "true");
+  
+    ApiConfig.testConfig.put("grouperIncludeExclude.type.name", "addIncludeExclude");
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.type.name", "requireInGroups");
+  
+    ApiConfig.testConfig.put("grouperIncludeExclude.tooltip", "Select this type to auto-create other groups which facilitate having include and exclude list, and setting up group math so that other groups can be required (e.g. activeEmployee)");
+  
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.attributeName", "requireAlsoInGroups");
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.tooltip", "Enter in comma separated group path(s).  An entity must be in these groups for it to be in the overall group.  e.g. stem1:stem2:group1, stem1:stem3:group2");
+  
+    ApiConfig.testConfig.put("grouperIncludeExclude.systemOfRecord.extension.suffix", "_systemOfRecord");
+    ApiConfig.testConfig.put("grouperIncludeExclude.include.extension.suffix", "_includes");
+    ApiConfig.testConfig.put("grouperIncludeExclude.exclude.extension.suffix", "_excludes");
+    ApiConfig.testConfig.put("grouperIncludeExclude.systemOfRecordAndIncludes.extension.suffix", "_systemOfRecordAndIncludes");
+    ApiConfig.testConfig.put("grouperIncludeExclude.includesMinusExcludes.extension.suffix", "_includesMinusExcludes");
+  
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.extension.suffix", "_requireGroups${i}");
+  
+    ApiConfig.testConfig.put("grouperIncludeExclude.systemOfRecord.displayExtension.suffix", "${space}system of record");
+    ApiConfig.testConfig.put("grouperIncludeExclude.include.displayExtension.suffix", "${space}includes");
+    ApiConfig.testConfig.put("grouperIncludeExclude.exclude.displayExtension.suffix", "${space}excludes");
+    ApiConfig.testConfig.put("grouperIncludeExclude.systemOfRecordAndIncludes.displayExtension.suffix", "${space}system of record and includes");
+    ApiConfig.testConfig.put("grouperIncludeExclude.includesMinusExcludes.displayExtension.suffix", "${space}includes minus excludes");
+  
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.displayExtension.suffix", "${space}includes minus exludes minus andGroup${i}");
+  
+    ApiConfig.testConfig.put("grouperIncludeExclude.overall.description", "Group containing list of ${displayExtension} after adding the includes and subtracting the excludes");
+    ApiConfig.testConfig.put("grouperIncludeExclude.systemOfRecord.description", "Group containing list of ${displayExtension} (generally straight from the system of record) without yet considering manual include or exclude lists");
+    ApiConfig.testConfig.put("grouperIncludeExclude.include.description", "Group containing manual list of includes for group ${displayExtension} which will be added to the system of record list (unless the subject is also in the excludes group)");
+    ApiConfig.testConfig.put("grouperIncludeExclude.exclude.description", "Group containing manual list of excludes for group ${displayExtension} which will not be in the overall group");
+    ApiConfig.testConfig.put("grouperIncludeExclude.systemOfRecordAndIncludes.description", "Internal utility group for group ${displayExtension} which facilitates the group math for the include and exclude lists");
+    ApiConfig.testConfig.put("grouperIncludeExclude.includesMinusExclude.description", "Internal utility group for group ${displayExtension} which facilitates includes, excludes, and required groups (e.g. activeEmployee)");
+  
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.description", "Internal utility group for group ${displayExtension} which facilitates includes, excludes, and required groups (e.g. activeEmployee)");
+  
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.name.0", "requireActiveEmployee");
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.attributeOrType.0", "attribute");
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.group.0", "aStem:activeEmployee");
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.description.0", "If value is true, members of the overall group must be an active employee (in the aStem:activeEmployee group).  Otherwise, leave this value not filled in.");
+  
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.name.1", "requireActiveStudent");
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.attributeOrType.1", "type");
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.group.1", "aStem:activeStudent");
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.description.1", "If value is true, members of the overall group must be an active student (in the aStem:activeStudent group).  Otherwise, leave this value not filled in.");
+  }
 
   /**
    * concat to stem name full

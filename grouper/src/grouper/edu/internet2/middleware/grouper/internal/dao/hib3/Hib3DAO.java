@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import java.io.InputStream;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -40,7 +39,7 @@ import edu.internet2.middleware.morphString.Morph;
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.19 2008-10-15 03:57:06 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.20 2008-11-08 08:15:34 mchyzer Exp $
  * @since   @HEAD@
  */
 public abstract class Hib3DAO {
@@ -113,6 +112,15 @@ public abstract class Hib3DAO {
         .addResource(resourceNameFromClassName(Hib3GrouperDdl.class))
         .addResource(resourceNameFromClassName(Hib3GrouperLoaderLog.class))
             .setInterceptor(new Hib3SessionInterceptor());
+      
+      //if we are testing, map this class to the table (which may or may not exist)
+      Class<?> testgrouperLoaderClass = null;
+      try {
+        testgrouperLoaderClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperLoader");
+        CFG.addResource(resourceNameFromClassName(testgrouperLoaderClass));
+      } catch (ClassNotFoundException cnfe) {
+        //this is ok
+      }
       
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
           LifecycleHooks.METHOD_HIBERNATE_INIT, HooksLifecycleHibInitBean.class, 
