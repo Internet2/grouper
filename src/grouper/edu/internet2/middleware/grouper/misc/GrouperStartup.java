@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.12 2008-11-04 07:17:56 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.13 2008-11-08 08:15:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -14,6 +14,8 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -89,6 +91,9 @@ public class GrouperStartup {
       //init include exclude type
       initIncludeExcludeType();
       
+      //init loader types and attributes if configured
+      initLoaderType();
+      
       return true;
     } catch (RuntimeException re) {
       //NOTE, the caller might not handle this exception, so print now. 
@@ -99,6 +104,79 @@ public class GrouperStartup {
       LOG.error(error, re);
       throw re;
     }
+  }
+  
+  /**
+   * init the loader types and attributes if configured to
+   */
+  public static void initLoaderType() {
+    String autoadd = ApiConfig.testConfig.get("loader.autoadd.typesAttributes");
+    if (StringUtils.isBlank(autoadd)) {
+      try {
+        autoadd = GrouperLoaderConfig.getPropertyString("loader.autoadd.typesAttributes");
+      } catch (Exception e) {
+        //dont worry if cant get this property
+      }
+    }
+    boolean autoaddBoolean = GrouperUtil.booleanValue(autoadd, false);
+    if (!autoaddBoolean) {
+      return;
+    }
+
+    GrouperSession grouperSession = null;
+
+    try {
+
+      grouperSession = GrouperSession.startRootSession(false);
+
+      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          try {
+            
+            GroupType loaderType = GroupType.createType(grouperSession, "grouperLoader", false);
+
+            loaderType.addAttribute(grouperSession,"grouperLoaderType", 
+                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            
+            loaderType.addAttribute(grouperSession,"grouperLoaderDbName", 
+                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderScheduleType", 
+                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderQuery", 
+                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderQuartzCron", 
+                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderIntervalSeconds", 
+                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderPriority", 
+                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderAndGroups", 
+                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderGroupTypes", 
+                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderGroupsLike", 
+                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+
+            
+          } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+          } finally {
+            GrouperSession.stopQuietly(grouperSession);
+          }
+          return null;
+        }
+        
+      });
+      
+      //register the hook if not already
+      GroupTypeTupleIncludeExcludeHook.registerHookIfNecessary(true);
+      
+    } catch (Exception e) {
+      throw new RuntimeException("Problem adding loader type/attributes", e);
+    }
+
   }
   
   /**

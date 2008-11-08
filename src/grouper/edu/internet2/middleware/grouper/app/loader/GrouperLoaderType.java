@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.7 2008-11-08 03:42:33 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.8 2008-11-08 08:15:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -87,18 +87,20 @@ public enum GrouperLoaderType {
      * @param query
      * @param hib3GrouploaderLog
      * @param startTime
+     * @param groupTypes comma separated group types
+     * @param groupLikeString locates groups being managed so we can delete if necessary
      */
     @SuppressWarnings("unchecked")
     @Override
     public void syncGroupMembership(String groupName, GrouperLoaderDb grouperLoaderDb, String query, 
         Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
-        List<Group> andGroups) {
+        List<Group> andGroups, List<GroupType> groupTypes, String groupLikeString) {
       
       //get a resultset from the db
       final GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(grouperLoaderDb, query);
       
       syncOneGroupMembership(groupName, hib3GrouploaderLog, startTime,
-          grouperLoaderResultset, false, grouperSession, andGroups);
+          grouperLoaderResultset, false, grouperSession, andGroups, groupTypes);
       
       
     }
@@ -136,12 +138,15 @@ public enum GrouperLoaderType {
        * @param startTime
        * @param grouperSession
        * @param andGroups
+       * @param groupTypes comma separated group types
+       * @param groupLikeString locates groups being managed so we can delete if necessary
        * 
        */
       @SuppressWarnings("unchecked")
       @Override
       public void syncGroupMembership(String groupName, GrouperLoaderDb grouperLoaderDb, String query, 
-          Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, List<Group> andGroups) {
+          Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, List<Group> andGroups,
+          List<GroupType> groupTypes, String groupLikeString) {
         
         if (StringUtils.equals(MAINTENANCE_CLEAN_LOGS, hib3GrouploaderLog.getJobName())) {
           int daysToKeepLogs = GrouperLoaderConfig.getPropertyInt(GrouperLoaderConfig.LOADER_RETAIN_DB_LOGS_DAYS, 7);
@@ -234,12 +239,14 @@ public enum GrouperLoaderType {
        * @param startTime
        * @param grouperSession
        * @param andGroups
+       * @param groupTypes group types to add to loader managed group
+       * @param groupLikeString locates groups being managed so we can delete if necessary
        */
       @SuppressWarnings("unchecked")
       @Override
       public void syncGroupMembership(String groupNameOverall, GrouperLoaderDb grouperLoaderDb, String query, 
           Hib3GrouperLoaderLog hib3GrouploaderLogOverall, long startTime, GrouperSession grouperSession, 
-          List<Group> andGroups) {
+          List<Group> andGroups, List<GroupType> groupTypes, String groupLikeString) {
         
         if (LOG.isDebugEnabled()) {
           LOG.debug(groupNameOverall + ": start syncing membership");
@@ -293,7 +300,7 @@ public enum GrouperLoaderType {
               
               //based on type, run query from the db and sync members
               syncOneGroupMembership(groupName, hib3GrouploaderLog, groupStartedMillis,
-                  grouperLoaderResultset, true, grouperSession, andGroups);
+                  grouperLoaderResultset, true, grouperSession, andGroups, groupTypes);
               
               long endTime = groupStartedMillis;
               hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
@@ -384,9 +391,12 @@ public enum GrouperLoaderType {
    * @param startTime 
    * @param grouperSession grouper session
    * @param andGroups groups whose memberships should be anded with the group in question
+   * @param groupTypes group types to add to loader managed groups
+   * @param groupLikeString locates groups being managed so we can delete if necessary
    */
   public abstract void syncGroupMembership(String groupName, GrouperLoaderDb grouperLoaderDb, String query, 
-      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, List<Group> andGroups);
+      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, List<Group> andGroups,
+      List<GroupType> groupTypes, String groupLikeString);
   
   /**
    * see if an attribute if optional or not (if not, then it is either required or forbidden)
@@ -534,12 +544,13 @@ public enum GrouperLoaderType {
    * @param groupList if this is a list of groups, then do something else with group name and the resultset
    * @param grouperSession 
    * @param andGroups 
+   * @param groupTypes comma separated group types
    */
   @SuppressWarnings("unchecked")
   protected static void syncOneGroupMembership(final String groupName,
       Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime,
       final GrouperLoaderResultset grouperLoaderResultset, boolean groupList,
-      final GrouperSession grouperSession, List<Group> andGroups) {
+      final GrouperSession grouperSession, List<Group> andGroups, List<GroupType> groupTypes) {
     
     //keep this separate so we can prepend stuff inside...
     final StringBuilder jobMessage = new StringBuilder(StringUtils.defaultString(hib3GrouploaderLog.getJobMessage()));
@@ -575,6 +586,16 @@ public enum GrouperLoaderType {
           Group.saveGroup(grouperSession, groupName, null, groupName, groupExtension, 
               groupExtension + " auto-created by grouperLoader", null, true)
           : GroupFinder.findByName(grouperSession, groupName)};
+      
+      //see if we are adding types
+      if (GrouperUtil.length(groupTypes) > 0) {
+        for (GroupType groupType : groupTypes) {
+          boolean added = group[0].addType(groupType, false);
+          if (added) {
+            LOG.debug("Added type: " + groupType.getName() + " to group: " + group[0].getName());
+          }
+        }
+      }
       
       hib3GrouploaderLog.setGroupUuid(group[0].getUuid());
 

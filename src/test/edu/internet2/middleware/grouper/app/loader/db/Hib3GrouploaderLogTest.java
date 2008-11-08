@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: Hib3GrouploaderLogTest.java,v 1.4 2008-09-29 03:38:31 mchyzer Exp $
+ * $Id: Hib3GrouploaderLogTest.java,v 1.5 2008-11-08 08:15:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
@@ -59,7 +59,6 @@ public class Hib3GrouploaderLogTest extends TestCase {
     
     //the value should have truncated
     assertEquals(4000, hib3GrouploaderLog.getJobMessage().length());
-    
     
     //try an update
     hib3GrouploaderLog.setJobDescription("hey");

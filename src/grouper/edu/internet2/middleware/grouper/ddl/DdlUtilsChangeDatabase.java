@@ -9,6 +9,7 @@ public interface DdlUtilsChangeDatabase {
   
   /**
    * callback to change the database
+   * @param ddlVersionBean 
    */
   public void changeDatabase(DdlVersionBean ddlVersionBean);
   

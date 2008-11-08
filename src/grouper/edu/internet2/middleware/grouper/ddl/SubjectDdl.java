@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SubjectDdl.java,v 1.9 2008-09-30 05:29:25 mchyzer Exp $
+ * $Id: SubjectDdl.java,v 1.10 2008-11-08 08:15:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -20,7 +20,7 @@ public enum SubjectDdl implements DdlVersionable {
   /** first version of grouper, make sure the ddl table is there */
   V1 {
     /**
-     * add the table grouper_loader_log for logging and detect and add columns
+     * add the subject table
      * @see SubjectDdl#updateVersionFromPrevious(org.apache.ddlutils.model.Database, 
       DdlVersionBean)
      */

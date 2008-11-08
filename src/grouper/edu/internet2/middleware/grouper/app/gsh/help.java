@@ -15,7 +15,7 @@ import bsh.Interpreter;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.14 2008-11-08 03:42:33 mchyzer Exp $
+ * @version $Id: help.java,v 1.15 2008-11-08 08:15:33 mchyzer Exp $
  * @since   0.0.1
  */
 public class help {
@@ -226,6 +226,8 @@ public class help {
     i.println("* history(n)"                                          );
     i.println("* last()"                                              );
     i.println("* last(n)"                                             );
+    i.println("* loaderRunOneJob(loaderGroup);");
+    i.println("* loaderRunOneJob(\"MAINTENANCE_cleanLogs\");");
     i.println("");
     i.println("* grouperSession = GrouperSession.startRootSession();");
     i.println("* oldSubject = findSubject(\"10021368\");");

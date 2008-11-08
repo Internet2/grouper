@@ -27,6 +27,7 @@ import junit.textui.TestRunner;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.gsh.AllGshTests;
+import edu.internet2.middleware.grouper.app.loader.AllLoaderTests;
 import edu.internet2.middleware.grouper.app.loader.db.AllLoaderDbTests;
 import edu.internet2.middleware.grouper.app.usdu.AllUsduTests;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -41,7 +42,7 @@ import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.51 2008-11-08 03:42:33 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.52 2008-11-08 08:15:33 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -191,12 +192,16 @@ public class SuiteDefault extends TestCase {
     suite.addTest(AllHooksTests.suite());
     suite.addTest(AllUtilTests.suite());
     suite.addTest(AllRijndaelTests.suite());
-
     suite.addTest(AllMiscTests.suite());
+    suite.addTest(AllLoaderTests.suite());
 
     return suite;
   }
   
+  /**
+   * 
+   * @return the string
+   */
   private static String _getUsage() {
 	    return  "Usage:"                                                                + GrouperConfig.NL
 	            + "args: -h,            Prints this message"                            + GrouperConfig.NL

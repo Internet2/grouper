@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoader.java,v 1.7 2008-11-08 03:42:33 mchyzer Exp $
+ * $Id: GrouperLoader.java,v 1.8 2008-11-08 08:15:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -17,6 +17,10 @@ import org.quartz.SchedulerFactory;
 import org.quartz.Trigger;
 import org.quartz.impl.StdSchedulerFactory;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -79,6 +83,17 @@ public class GrouperLoader {
    * groups to and with to restrict members (e.g. "and" with activeEmployees)
    */
   public static final String GROUPER_LOADER_AND_GROUPS = "grouperLoaderAndGroups";
+
+  /**
+   * If you want the group (if not used from anywhere) or members deleted when 
+   * no longer in loader sql results, list the sql like name, e.g. stem1:stem2:%:%org
+   */
+  public static final String GROUPER_LOADER_GROUPS_LIKE = "grouperLoaderGroupsLike";
+
+  /**
+   * types to add to loaded groups
+   */
+  public static final String GROUPER_LOADER_GROUP_TYPES = "grouperLoaderGroupTypes";
 
   /**
    * group attribute name of type of schedule, must match one of the enums in GrouperLoaderScheduleType.
@@ -268,6 +283,66 @@ public class GrouperLoader {
       }
     }
 
+  }
+
+  /**
+   * @param group
+   * @param grouperSession
+   * @return status
+   */
+  public static String runJobOnceForGroup(GrouperSession grouperSession, Group group) {
+    try {
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+      hib3GrouperLoaderLog.setJobScheduleType("MANUAL_FROM_GSH");
+      
+      String grouperLoaderTypeString = GrouperLoaderType.attributeValueOrDefaultOrNull(group, GROUPER_LOADER_TYPE);
+  
+      if (!group.hasType(GroupTypeFinder.find("grouperLoader")) 
+          || StringUtils.isBlank(grouperLoaderTypeString)) {
+        throw new RuntimeException("Cant find grouper loader type of group: " + group.getName());
+      }
+      
+      GrouperLoaderType grouperLoaderType = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderTypeString, true);
+      
+      hib3GrouperLoaderLog.setJobName(grouperLoaderType.name() + "__" + group.getName() + "__" + group.getUuid());
+  
+  
+      GrouperLoaderJob.runJob(hib3GrouperLoaderLog, group, grouperSession);
+      
+      return "loader ran successfully, inserted " + hib3GrouperLoaderLog.getInsertCount()
+        + " memberships, deleted " + hib3GrouperLoaderLog.getDeleteCount() + " memberships, total membership count: "
+        + hib3GrouperLoaderLog.getTotalCount();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * @param grouperSession
+   * @param jobName
+   * @return status
+   */
+  public static String runOnceByJobName(GrouperSession grouperSession, String jobName) {
+    try {
+  
+      GrouperLoaderType grouperLoaderType = GrouperLoaderType.typeForThisName(jobName);
+      if (grouperLoaderType.equals(GrouperLoaderType.SQL_SIMPLE) || grouperLoaderType.equals(GrouperLoaderType.SQL_GROUP_LIST)) {
+        
+        int uuidIndexStart = jobName.lastIndexOf("__");
+      
+        String grouperLoaderGroupUuid = jobName.substring(uuidIndexStart+2, jobName.length());
+        Group group = GroupFinder.findByUuid(grouperSession, grouperLoaderGroupUuid);
+        return runJobOnceForGroup(grouperSession, group);
+      }
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+      hib3GrouperLoaderLog.setJobScheduleType("MANUAL_FROM_GSH");
+      hib3GrouperLoaderLog.setJobName(jobName);
+      GrouperLoaderJob.runJob(hib3GrouperLoaderLog, null, grouperSession);
+      
+      return "loader ran successfully: " + hib3GrouperLoaderLog.getJobMessage();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
   
 }

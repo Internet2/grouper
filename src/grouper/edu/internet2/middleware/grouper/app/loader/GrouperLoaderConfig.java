@@ -1,9 +1,11 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderConfig.java,v 1.7 2008-11-08 03:42:33 mchyzer Exp $
+ * $Id: GrouperLoaderConfig.java,v 1.8 2008-11-08 08:15:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
@@ -106,7 +108,7 @@ public class GrouperLoaderConfig {
    * @since 1.1.0
    */
   public static String getPropertyString(String property) {
-    return retrievePropertiesConfiguration().getProperty(property);
+    return getPropertyString(property, "");
   }
 
   /**
@@ -122,16 +124,24 @@ public class GrouperLoaderConfig {
    * @since 1.1.0
    */
   public static String getPropertyString(String property, String defaultValue) {
-    String value = retrievePropertiesConfiguration().getProperty(property);
+    String value = null;
+    if (testConfig.containsKey(property)) {
+      value = testConfig.get(property);
+    } else { 
+      value = retrievePropertiesConfiguration().getProperty(property);
+    }
     return StringUtils.defaultIfEmpty(StringUtils.trimToEmpty(value), defaultValue);
   }
 
   /**
-   * config cache
+   * config cache.  TODO do this smarter... see if the file has changed before reading again
    */
   private static GrouperCache<String, PropertiesConfiguration> configCache = 
-    new GrouperCache<String, PropertiesConfiguration>("grouperLoaderConfigCache", 100, false, 60, 60, false);
+    new GrouperCache<String, PropertiesConfiguration>("grouperLoaderConfigCache", 100, false, 120, 120, false);
   
+  /** set some test config overrides */
+  public static final Map<String, String> testConfig = new HashMap<String, String>(); 
+
   /**
    * lazy load and cache the properties configuration
    * 
