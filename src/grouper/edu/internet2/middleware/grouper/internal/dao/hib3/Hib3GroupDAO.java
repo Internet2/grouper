@@ -26,9 +26,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Attribute;
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -36,6 +38,7 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.ByHql;
@@ -50,13 +53,12 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.Stem;
 
 
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.22 2008-11-06 19:34:28 shilen Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.23 2008-11-08 04:33:47 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -149,23 +151,51 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   } 
 
   /**
-   * @param _g 
-   * @param _gt 
+   * logger
+   */
+  private static final Log LOG = GrouperUtil.getLog(Hib3GroupDAO.class);
+
+  /**
+   * @param group 
+   * @param groupType 
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public void deleteType(final Group _g, final GroupType _gt) 
-    throws  GrouperDAOException
-  {
+  public void deleteType(final Group group, final GroupType groupType) 
+    throws  GrouperDAOException {
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
         new HibernateHandler() {
 
           public Object callback(HibernateSession hibernateSession) {
             
-            hibernateSession.byObject().delete( Hib3GroupTypeTupleDAO.findByGroupAndType(_g, _gt) );
+            hibernateSession.byObject().delete( Hib3GroupTypeTupleDAO.findByGroupAndType(group, groupType) );
             
+            //delete all attributes used by the group of this type
+            Set<Field> fields = GrouperUtil.nonNull(groupType.getFields());
+            
+            Map<String, String> attributes = group.getAttributesDb();
+
+            for (Field field : fields) {
+              
+              if (attributes.containsKey(field.getName())) {
+                LOG.debug("deleting attribute: " + field.getName() + " from group: " + group.getName()
+                     + " since the type was removed");
+                try {
+                  group.deleteAttribute(field.getName());
+                } catch (Exception e) {
+                  throw new RuntimeException("Exception removing field: " + field.getName() 
+                      + ", from group: " + group.getName(),e);
+                }
+              }
+            }
+            Set types = group.getTypesDb();
+            types.remove( groupType );
+
+            group.internal_setModified();
+
+            //no need to call group.store, since the below will take care of attribute changes
             //NOTE: used to be saveOrUpdate
-            hibernateSession.byObject().update( _g ); 
+            hibernateSession.byObject().update( group ); 
             
             return null;
           }
