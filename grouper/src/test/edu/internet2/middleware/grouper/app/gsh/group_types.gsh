@@ -1,6 +1,6 @@
 #
 # GrouperShell Group Type Tests
-# $Id: group_types.gsh,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+# $Id: group_types.gsh,v 1.2 2008-11-09 22:13:58 shilen Exp $
 #
 
 #
@@ -37,6 +37,19 @@ assertTrue( "added type to group", groupAddType(g.getName(), name) )
 types   = groupGetTypes(g.getName())
 assertTrue( "group now has 2 types", types.size() == 2 )
 assertTrue( "group has custom type", groupHasType(g.getName(), name) )
+
+# test adding and removing memberships using the custom list
+subjA     = addSubject("subj.A", "person", "subject a")
+assertTrue("subjA is not a member of the custom list of the group", hasMember(g.getName(), "subj.A", list) == false)
+assertTrue("subjA is not a member of the default list of the group", hasMember(g.getName(), "subj.A") == false)
+assertTrue("Add subjA to the custom list of the group", addMember(g.getName(), "subj.A", list) == true)
+assertTrue("subjA is a member of the custom list of the group", hasMember(g.getName(), "subj.A", list) == true)
+assertTrue("subjA is not a member of the default list of the group", hasMember(g.getName(), "subj.A") == false)
+assertTrue("Delete subjA from the custom list of the group", delMember(g.getName(), "subj.A", list) == true)
+assertTrue("subjA is not a member of the custom list of the group", hasMember(g.getName(), "subj.A", list) == false)
+assertTrue("subjA is not a member of the default list of the group", hasMember(g.getName(), "subj.A") == false)
+
+# remove the custom type from the list
 assertTrue( "deleted type from group", groupDelType(g.getName(), name) )
 
 # and then remove it
