@@ -15,7 +15,7 @@ import bsh.Interpreter;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.15 2008-11-08 08:15:33 mchyzer Exp $
+ * @version $Id: help.java,v 1.16 2008-11-09 22:13:58 shilen Exp $
  * @since   0.0.1
  */
 public class help {
@@ -193,12 +193,14 @@ public class help {
     i.println("* addComposite(group, type, left group, right group)"  );
     i.println("* addGroup(parent, extension, displayExtension)"       );
     i.println("* addMember(group, subject id)"                        );
+    i.println("* addMember(group, subject id, Field)"                 );
     i.println("* addRootStem(extension, displayExtension)"            );
     i.println("* addStem(parent, extension, displayExtension)"        );
     i.println("* addSubject(id, type, name)"                          );
     i.println("* delComposite(group)"                                 );
     i.println("* delGroup(name)"                                      );
     i.println("* delMember(group, subject id)"                        );
+    i.println("* delMember(group, subject id, Field)"                 );
     i.println("* delStem(name)"                                       );
     i.println("* exit"                                                );
     i.println("* findBadMemberships: type   help(\"findBadMemberships\")   for info on finding bad memberships");
@@ -220,6 +222,7 @@ public class help {
     i.println("* stem = StemFinder.findByUuid(grouperSession, uuid)");
     i.println("* grantPriv(name, subject id, Privilege)"              );
     i.println("* hasMember(group, subject id)"                        );
+    i.println("* hasMember(group, subject id, Field)"                 );
     i.println("* hasPriv(name, subject id, Privilege)"                );
     i.println("* help()"                                              );
     i.println("* history()"                                           );
@@ -249,6 +252,7 @@ public class help {
     i.println("* setGroupAttr(stem, attr, value)"                     );
     i.println("* setStemAttr(stem, attr, value)"                      );
     i.println("* sqlRun(new File(\"C:\\\\temp\\\\grouperDdl_20081024_01_46_46_296.sql\"));");
+    i.println("* sqlRun(string)"                                      );
     i.println("* transaction: type  help(\"transaction\")  for more info");
     i.println("* typeAdd(name)"                                       );
     i.println("* typeAddAttr(type, name, read, write, req)"           );

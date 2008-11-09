@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.Properties;
 
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.morphString.Morph;
 
@@ -20,7 +21,7 @@ import bsh.Interpreter;
  * Run a sql script against DB (like ant does it)
  * <p/>
  * @author  Chris Hyzer
- * @version $Id: sqlRun.java,v 1.1 2008-10-24 05:51:47 mchyzer Exp $
+ * @version $Id: sqlRun.java,v 1.2 2008-11-09 22:13:58 shilen Exp $
  * @since   0.0.1
  */
 public class sqlRun {
@@ -48,6 +49,21 @@ public class sqlRun {
     GrouperDdlUtils.sqlRun(scriptFile, driver, url, user, pass, false, true);
     
   }
+
+  /**
+   * Executes an SQL statement.
+   * <p/>
+   * @param   interpreter     BeanShell interpreter.
+   * @param   stack BeanShell call stack.
+   * @param   sql
+   * @return  int The number of updates made.
+   * @since   0.0.1
+   */
+  public static int invoke(Interpreter interpreter, CallStack stack, String sql) throws GrouperShellException {
+    GrouperShell.setOurCommand(interpreter, true);
+    return HibernateSession.bySqlStatic().executeSql(sql);
+  }
+
 
 }
 
