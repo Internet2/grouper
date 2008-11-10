@@ -15,7 +15,7 @@ import edu.internet2.middleware.grouper.misc.FindBadMemberships;
  * find all bad memberships by group
  * <p/>
  * @author  Chris Hyzer
- * @version $Id: findBadMembershipsByGroup.java,v 1.2 2008-10-28 14:43:52 shilen Exp $
+ * @version $Id: findBadMembershipsByGroup.java,v 1.3 2008-11-10 15:14:30 shilen Exp $
  * @since   0.0.1
  */
 public class findBadMembershipsByGroup {
@@ -35,6 +35,7 @@ public class findBadMembershipsByGroup {
       FindBadMemberships.clearResults();
       FindBadMemberships.printErrorsToSTOUT(true);
       FindBadMemberships.checkGroup(group);
+      FindBadMemberships.writeGshScriptToFile();
       return "findBadMembershipsByGroup completed successfully";
     } catch (Exception e) {
       throw new RuntimeException(e);

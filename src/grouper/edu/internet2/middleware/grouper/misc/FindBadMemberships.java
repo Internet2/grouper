@@ -67,9 +67,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  * This script is used to find bad memberships in Grouper.  It will go through all types of 
  * memberships including composites, access privileges and naming privileges.  If a bad
- * membership is found for a group or stem, an SQL script will be created to remove all
- * effective and composite memberships from that group or stem.  And a GSH script will be
- * created to delete the immediate membership and recreate the membership.
+ * membership is found for a group or stem, a GSH script will be created to delete the immediate 
+ * membership and recreate the membership.
  *
  * @since   1.3.1
  */
@@ -86,12 +85,6 @@ public class FindBadMemberships {
 
   // GSH script to fix membership data
   public static StringWriter gshScript = null;
-
-  // SQL script to fix membership data
-  public static StringWriter sqlScript = null;
-
-  // File name for SQL script
-  private static final String sqlScriptFilename = "findbadmemberships.sql";
 
   // File name for GSH script
   private static final String gshScriptFilename = "findbadmemberships.gsh";
@@ -117,7 +110,6 @@ public class FindBadMemberships {
    */
   public static void clearResults() {
     gshScript = null;
-    sqlScript = null;
   }
   
   /**
@@ -171,27 +163,12 @@ public class FindBadMemberships {
 
     out.println();
     out.println();
-    if (gshScript == null && sqlScript == null) {
+    if (gshScript == null) {
       out.println("No membership errors found.");
     } else {
-      /*
       out.println("Membership errors have been found.  Do the following to resolve the errors:");
-
-      if (sqlScript != null) {
-        writeFile(sqlScript, sqlScriptFilename);
-        out.println(" - Execute the SQL Script " + sqlScriptFilename + " and commit the changes to your database.");
-      }
-
-      if (gshScript != null) {
-        writeFile(gshScript, gshScriptFilename);
-        out.println(" - Execute the GSH Script " + gshScriptFilename);
-      }
-
-      if (sqlScript != null && gshScript != null) {
-        out.println();
-        out.println("Be sure to execute the SQL script before the GSH script.");
-      }
-      */
+      writeFile(gshScript, gshScriptFilename);
+      out.println(" - Execute the GSH Script " + gshScriptFilename);
     }
     System.exit(0);
   }
@@ -721,19 +698,13 @@ public class FindBadMemberships {
     out.println();
     out.print("This script will find bad effective and composite memberships in your Grouper database.  ");
     out.print("It will not make any modifications to the Grouper database.  ");
-    /*
-    out.println("If bad memberships are found, this script will create two files.");
-    out.println();
-    out.println("1.  " + sqlScriptFilename + " - An SQL script that removes bad memberships.");
-    out.println("2.  " + gshScriptFilename + " - A GSH script that will re-add the correct effective and composite memberships.");
+    out.println("If bad memberships are found, this script will create a GSH script that will delete and re-add memberships.");
     out.println();
     out.println("To fix your memberships, complete these steps in the order listed:");
     out.println();
-    out.println("1.  Review both output files before applying any changes to your database.");
-    out.println("2.  Apply the SQL script to your database.");
-    out.println("3.  Run the GSH script AFTER you have applied the SQL script.");
-    out.println("4.  You may then re-run this script to verify that your memberships are correct.");
-    */
+    out.println("1.  Review the GSH script before applying any changes to your database.");
+    out.println("2.  Run the GSH script.");
+    out.println("3.  Re-run the bad membership finder utility for all groups and stems since additional membership errors for other groups and stems may be revealed after the current groups and stems are fixed.");
     out.println();
   }
 
@@ -748,8 +719,7 @@ public class FindBadMemberships {
   }
 
   /**
-   * We have found an error with a group membership.  Write an SQL script to delete all effective
-   * and composite memberships and write a GSH script to delete and re-add the immediate memberships.
+   * We have found an error with a group membership.  Write a GSH script to delete and re-add the immediate memberships.
    *
    * @param group where an error was found
    * @param composite if this is a composite group, otherwise null.
@@ -806,13 +776,12 @@ public class FindBadMemberships {
       logGshScript("addComposite(\"" + group.getName() + "\", " + compositeType + ", \"" + leftGroupName + "\", \"" + rightGroupName + "\")");
     }
 
-    logSqlScript("delete from grouper_memberships where owner_id='" + group.getUuid() + "' and mship_type='effective';");
-    logSqlScript("delete from grouper_memberships where owner_id='" + group.getUuid() + "' and mship_type='composite';");
+    //logGshScript("sqlRun(\"delete from grouper_memberships where owner_id='" + group.getUuid() + "' and mship_type='effective'\")");
+    //logGshScript("sqlRun(\"delete from grouper_memberships where owner_id='" + group.getUuid() + "' and mship_type='composite'\")");
   }
 
   /**
-   * We have found an error with a stem membership.  Write an SQL script to delete all effective
-   * memberships and write a GSH script to delete and re-add the immediate memberships.
+   * We have found an error with a stem membership.  Write a GSH script to delete and re-add the immediate memberships.
    *
    * @param stem where an error was found
    * @param current memberships for the stem
@@ -842,12 +811,12 @@ public class FindBadMemberships {
       }
     }
 
-    logSqlScript("delete from grouper_memberships where owner_id='" + stem.getUuid() + "' and mship_type='effective';");
-    logSqlScript("delete from grouper_memberships where owner_id='" + stem.getUuid() + "' and mship_type='composite';");
+    //logGshScript("sqlRun(\"delete from grouper_memberships where owner_id='" + stem.getUuid() + "' and mship_type='effective'\")");
+    //logGshScript("sqlRun(\"delete from grouper_memberships where owner_id='" + stem.getUuid() + "' and mship_type='composite'\")");
   }
 
   /**
-   * We have found an error with a membership that does not have an owner.  Write an SQL script to delete the membership.
+   * We have found an error with a membership that does not have an owner.  Write a GSH script to delete the membership.
    *
    * @param ms is the bad membership
    */
@@ -855,20 +824,7 @@ public class FindBadMemberships {
     if (printErrorsToSTOUT) {
       out.println("FOUND BAD MEMBERSHIP: Membership with uuid=" + ms.getUuid() + " has invalid owner with uuid=" + ms.getOwnerUuid() + ".");
     }
-    logSqlScript("delete from grouper_memberships where membership_uuid='" + ms.getUuid() + "';");
-  }
-
-  /**
-   * Keep the SQL script in memory until we're done with this utility.
-   * 
-   * @param script to log
-   */
-  private static void logSqlScript(String script) {
-    if (sqlScript == null) {
-      sqlScript = new StringWriter();
-    }
-
-    sqlScript.write(script + "\n");
+    logGshScript("sqlRun(\"delete from grouper_memberships where id='" + ms.getUuid() + "'\")");
   }
 
   /**
@@ -882,6 +838,15 @@ public class FindBadMemberships {
     }
 
     gshScript.write(script + "\n");
+  }
+
+  /**
+   * Write GSH script to file.
+   */
+  public static void writeGshScriptToFile() {
+    if (gshScript != null) {
+      writeFile(gshScript, gshScriptFilename);
+    }
   }
 
   /**
