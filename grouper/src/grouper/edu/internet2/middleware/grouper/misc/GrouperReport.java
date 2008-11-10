@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperReport.java,v 1.1 2008-11-08 03:42:33 mchyzer Exp $
+ * $Id: GrouperReport.java,v 1.2 2008-11-10 15:14:30 shilen Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -103,7 +103,6 @@ public class GrouperReport {
       
       String badMembershipResults = "Not configures to computer this today";
       String badMembershipGshScript = null;
-      String badMembershipSqlScript = null;
       String badMembershipOutput = null;
       int badMembershipCount = 0;
       if (findBadMemberships) {
@@ -112,12 +111,6 @@ public class GrouperReport {
         FindBadMemberships.clearResults();
         FindBadMemberships.checkAll(printStream);
         badMembershipOutput = printStream.toString();
-        badMembershipSqlScript = FindBadMemberships.sqlScript == null ? "" : FindBadMemberships.sqlScript.toString();
-        if (!StringUtils.isBlank(badMembershipSqlScript)) {
-          int theCount = StringUtils.countMatches(badMembershipSqlScript, "\n");
-          theCount = theCount == 0 ? 1 : theCount;
-          badMembershipCount += theCount;
-        }
         badMembershipGshScript = FindBadMemberships.gshScript == null ? "" : FindBadMemberships.gshScript.toString();
         if (!StringUtils.isBlank(badMembershipGshScript)) {
           int theCount = StringUtils.countMatches(badMembershipGshScript, "\n");
@@ -259,11 +252,6 @@ public class GrouperReport {
         result.append("----------------\n");
         result.append(badMembershipOutput);
 
-        result.append("\n----------------\n");
-        result.append("BAD MEMBERSHIPS SQL\n");
-        result.append("----------------\n");
-        result.append(badMembershipSqlScript);
-        
         result.append("\n----------------\n");
         result.append("BAD MEMBERSHIPS GSH\n");
         result.append("----------------\n");

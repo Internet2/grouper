@@ -15,7 +15,7 @@ import bsh.Interpreter;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.16 2008-11-09 22:13:58 shilen Exp $
+ * @version $Id: help.java,v 1.17 2008-11-10 15:14:30 shilen Exp $
  * @since   0.0.1
  */
 public class help {
@@ -157,6 +157,11 @@ public class help {
       interpreter.println("findBadMemberships help: \n"
           + "- this command will find membership records in the database which are invalid \n"
           +   "and print them on the screen.\n"
+          + "- if bad memberships are found, a GSH script called findbadmemberships.gsh will be created.\n"
+          + "- to fix your bad membership, do the following:\n"
+          + "  1.  Review the GSH script before applying any changes to your database.\n"
+          + "  2.  Run the GSH script.\n"
+          + "  3.  Re-run the bad membership finder utility for all groups and stems since additional membership errors for other groups and stems may be revealed after the current groups and stems are fixed.\n"
           + "- here is an example is a complete findBadMemberships run:\n\n"
           + "findBadMemberships()\n\n"
           + "- find bad naming privileges for a specific stem (couple of commands):\n\n"
