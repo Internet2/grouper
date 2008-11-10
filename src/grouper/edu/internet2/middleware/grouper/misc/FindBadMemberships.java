@@ -731,6 +731,9 @@ public class FindBadMemberships {
       out.println("FOUND BAD MEMBERSHIP: Bad membership in group with uuid=" + group.getUuid() + " and name=" + group.getName() + ".");
     }
 
+    StringWriter deletes = new StringWriter();
+    StringWriter adds = new StringWriter();
+
     Iterator<Membership> currentIterator = current.iterator();
     while (currentIterator.hasNext()) {
       Membership ms = currentIterator.next();
@@ -740,16 +743,16 @@ public class FindBadMemberships {
           Member m = GrouperDAOFactory.getFactory().getMember().findByUuid(ms.getMemberUuid());
           String subjectId = m.getSubjectId();
           if (f.equals(Group.getDefaultList())) {
-            logGshScript("delMember(\"" + group.getName() + "\", \"" + subjectId + "\")");
-            logGshScript("addMember(\"" + group.getName() + "\", \"" + subjectId + "\")");
+            deletes.write("delMember(\"" + group.getName() + "\", \"" + subjectId + "\")\n");
+            adds.write("addMember(\"" + group.getName() + "\", \"" + subjectId + "\")\n");
           } else if (FieldType.LIST.equals(f.getType())) {
             String fieldString = "FieldFinder.find(\"" + ms.getListName() + "\")";
-            logGshScript("delMember(\"" + group.getName() + "\", \"" + subjectId + "\", " + fieldString + ")");
-            logGshScript("addMember(\"" + group.getName() + "\", \"" + subjectId + "\", " + fieldString + ")");
+            deletes.write("delMember(\"" + group.getName() + "\", \"" + subjectId + "\", " + fieldString + ")\n");
+            adds.write("addMember(\"" + group.getName() + "\", \"" + subjectId + "\", " + fieldString + ")\n");
           } else {
             String privilegeString = getPrivilegeString(f);
-            logGshScript("revokePriv(\"" + group.getName() + "\", \"" + subjectId + "\", " + privilegeString + ")");
-            logGshScript("grantPriv(\"" + group.getName() + "\", \"" + subjectId + "\", " + privilegeString + ")");
+            deletes.write("revokePriv(\"" + group.getName() + "\", \"" + subjectId + "\", " + privilegeString + ")\n");
+            adds.write("grantPriv(\"" + group.getName() + "\", \"" + subjectId + "\", " + privilegeString + ")\n");
           }
         } catch (SchemaException e) {
           // this shouldn't happen...
@@ -772,12 +775,14 @@ public class FindBadMemberships {
         compositeType = "CompositeType.INTERSECTION";
       }
 
-      logGshScript("delComposite(\"" + group.getName() + "\")");
-      logGshScript("addComposite(\"" + group.getName() + "\", " + compositeType + ", \"" + leftGroupName + "\", \"" + rightGroupName + "\")");
+      deletes.write("delComposite(\"" + group.getName() + "\")\n");
+      adds.write("addComposite(\"" + group.getName() + "\", " + compositeType + ", \"" + leftGroupName + "\", \"" + rightGroupName + "\")\n");
     }
 
-    //logGshScript("sqlRun(\"delete from grouper_memberships where owner_id='" + group.getUuid() + "' and mship_type='effective'\")");
-    //logGshScript("sqlRun(\"delete from grouper_memberships where owner_id='" + group.getUuid() + "' and mship_type='composite'\")");
+    logGshScript(deletes.toString());
+    logGshScript("sqlRun(\"delete from grouper_memberships where owner_id='" + group.getUuid() + "' and mship_type='effective'\")\n");
+    logGshScript("sqlRun(\"delete from grouper_memberships where owner_id='" + group.getUuid() + "' and mship_type='composite'\")\n");
+    logGshScript(adds.toString());
   }
 
   /**
@@ -791,6 +796,9 @@ public class FindBadMemberships {
       out.println("FOUND BAD MEMBERSHIP: Bad membership in stem with uuid=" + stem.getUuid() + " and name=" + stem.getName() + ".");
     }
 
+    StringWriter deletes = new StringWriter();
+    StringWriter adds = new StringWriter();
+
     Iterator<Membership> currentIterator = current.iterator();
     while (currentIterator.hasNext()) {
       Membership ms = currentIterator.next();
@@ -800,8 +808,8 @@ public class FindBadMemberships {
           Member m = GrouperDAOFactory.getFactory().getMember().findByUuid(ms.getMemberUuid());
           String subjectId = m.getSubjectId();
           String privilegeString = getPrivilegeString(f);
-          logGshScript("revokePriv(\"" + stem.getName() + "\", \"" + subjectId + "\", " + privilegeString + ")");    
-          logGshScript("grantPriv(\"" + stem.getName() + "\", \"" + subjectId + "\", " + privilegeString + ")");
+          deletes.write("revokePriv(\"" + stem.getName() + "\", \"" + subjectId + "\", " + privilegeString + ")\n");
+          adds.write("grantPriv(\"" + stem.getName() + "\", \"" + subjectId + "\", " + privilegeString + ")\n");
         } catch (SchemaException e) {
           // this shouldn't happen...
           throw new IllegalStateException(e.getMessage(), e);
@@ -811,8 +819,10 @@ public class FindBadMemberships {
       }
     }
 
-    //logGshScript("sqlRun(\"delete from grouper_memberships where owner_id='" + stem.getUuid() + "' and mship_type='effective'\")");
-    //logGshScript("sqlRun(\"delete from grouper_memberships where owner_id='" + stem.getUuid() + "' and mship_type='composite'\")");
+    logGshScript(deletes.toString());
+    logGshScript("sqlRun(\"delete from grouper_memberships where owner_id='" + stem.getUuid() + "' and mship_type='effective'\")\n");
+    logGshScript("sqlRun(\"delete from grouper_memberships where owner_id='" + stem.getUuid() + "' and mship_type='composite'\")\n");
+    logGshScript(adds.toString());
   }
 
   /**
@@ -824,7 +834,7 @@ public class FindBadMemberships {
     if (printErrorsToSTOUT) {
       out.println("FOUND BAD MEMBERSHIP: Membership with uuid=" + ms.getUuid() + " has invalid owner with uuid=" + ms.getOwnerUuid() + ".");
     }
-    logGshScript("sqlRun(\"delete from grouper_memberships where id='" + ms.getUuid() + "'\")");
+    logGshScript("sqlRun(\"delete from grouper_memberships where id='" + ms.getUuid() + "'\")\n");
   }
 
   /**
@@ -837,7 +847,7 @@ public class FindBadMemberships {
       gshScript = new StringWriter();
     }
 
-    gshScript.write(script + "\n");
+    gshScript.write(script);
   }
 
   /**
