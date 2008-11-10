@@ -92,7 +92,7 @@ fi
 
 JAVA=java
 
-if [ "$JAVA_HOME" = "" ]; then
+if [ -n "$JAVA_HOME" ]; then
  JAVA="$JAVA_HOME/bin/java"
 fi
 
