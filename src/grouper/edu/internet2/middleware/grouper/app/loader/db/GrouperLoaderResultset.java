@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderResultset.java,v 1.3 2008-09-29 03:38:31 mchyzer Exp $
+ * $Id: GrouperLoaderResultset.java,v 1.4 2008-11-11 22:08:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
@@ -105,7 +105,7 @@ public class GrouperLoaderResultset {
         
         int columnCount = resultSetMetaData.getColumnCount();
         for (int i=0;i<columnCount;i++) {
-          this.columnNames.add(resultSetMetaData.getColumnName(i+1));
+          this.columnNames.add(resultSetMetaData.getColumnLabel(i+1));
           this.columnTypes.add(resultSetMetaData.getColumnType(i+1));
         }
         

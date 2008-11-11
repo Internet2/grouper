@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeTupleIncludeExcludeHook.java,v 1.2 2008-11-05 05:10:37 mchyzer Exp $
+ * $Id: GroupTypeTupleIncludeExcludeHook.java,v 1.3 2008-11-11 22:08:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -12,6 +12,8 @@ import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Composite;
+import edu.internet2.middleware.grouper.CompositeFinder;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -20,6 +22,8 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -31,6 +35,7 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeTupleBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -214,6 +219,21 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
   }
 
   /**
+   * convert a system of record extension to an overall extension
+   * @param extension is overall extension or system of record extension
+   * @return the overall extension
+   */
+  public static String convertToOverall(String extension) {
+    //strip system of record suffix (i.e. we are putting the type on the system of record group)
+    if (extension.endsWith(systemOfRecordExtensionSuffix())) {
+      extension = extension.substring(0, 
+          extension.length() - systemOfRecordExtensionSuffix().length());
+    }
+    return extension;
+    
+  }
+  
+  /**
    * @param grouperSession
    * @param typedGroup
    * @param summaryForLog some string that will be logged to debug...
@@ -240,11 +260,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       //unchecked
       String overallExtension = typedGroup.getExtension();
       
-      //strip system of record suffix (i.e. we are putting the type on the system of record group)
-      if (overallExtension.endsWith(systemOfRecordExtensionSuffix())) {
-        overallExtension = overallExtension.substring(0, 
-            overallExtension.length() - systemOfRecordExtensionSuffix().length());
-      }
+      overallExtension = convertToOverall(overallExtension);
 
       String stemName = GrouperUtil.parentStemNameFromName(typedGroup.getName());
       String overallName = stemName + ":" + overallExtension;
@@ -659,6 +675,39 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
   }
 
   /**
+   * see if a group name has an include/exclude or requireGroup suffix
+   * @param groupName
+   * @return true if include/exclude
+   */
+  public static boolean nameIsIncludeExcludeRequireGroup(String groupName) {
+    boolean useGrouperIncludeExclude = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.use", false);
+
+    //check include exclude
+    if (useGrouperIncludeExclude) {
+      
+      if (groupName.endsWith(excludeExtensionSuffix())
+          || groupName.endsWith(includeExtensionSuffix())
+          || groupName.endsWith(includesMinusExcludesExtensionSuffix())
+          || groupName.endsWith(systemOfRecordAndIncludesExtensionSuffix())
+          || groupName.endsWith(systemOfRecordExtensionSuffix())) {
+        return true;
+      }
+      
+    }
+    //check 10 require groups
+    boolean useRequireGroups = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.requireGroups.use", false);
+    
+    if (useRequireGroups) {
+      for (int i=1;i<=10;i++) {
+        if (groupName.endsWith(requireGroupsExtensionSuffix(i))) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
+  /**
    * substitute and return include id suffix
    * @return suffix
    */
@@ -725,6 +774,165 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
     nameSuffix = nameSuffix.replace("${i}", Integer.toString(index));
     nameSuffix = StringUtils.replace(nameSuffix, "${space}", " ");
     return nameSuffix;
+  }
+  
+  /**
+   * 
+   * @param grouperSession 
+   * @param groupName if the overall or system of record group
+   * @param reason if you want a reason passed back
+   * @param saveIncludesExcludesIfMembers true if not delete only the includes group and excludes group
+   * if they have members.  false, delete anyway
+   * @return the number of groups removed
+   */
+  public static int deleteGroupsIfNotUsed(GrouperSession grouperSession, 
+      String groupName, StringBuilder reason, boolean saveIncludesExcludesIfMembers) {
+    if (reason == null) {
+      reason = new StringBuilder();
+    }
+    int count = 0;
+    try {
+      String overallName = convertToOverall(groupName);
+      Group group = GroupFinder.findByName(grouperSession, overallName, false);
+      if (group != null) {
+        
+        Member member = MemberFinder.internal_findBySubject(SubjectFinder.findById(group.getUuid()), false);
+        
+        if (member != null) {
+          //get any membership
+          Set<Membership> memberships = GrouperDAOFactory.getFactory()
+            .getMembership().findAllImmediateByMember(member.getUuid());
+          if (memberships.size() > 0) {
+            String message = "Not deleting group: " + overallName + " since used in " 
+              + memberships.size() + " immediate memberships";
+            LOG.debug(message);
+            reason.append(message);
+            return 0;
+          }
+          Set<Composite> composites = CompositeFinder.findAsFactor(group);
+          if (composites.size() > 0) {
+            String message = "Not deleting group: " + overallName + " since used in " 
+              + composites.size() + " composites";
+            LOG.debug(message);
+            reason.append(message);
+            return 0;
+          }
+        } 
+        
+      }
+      
+      //we can delete the overall group
+      group.delete();
+      count++;
+      
+      //now lets pick apart the composites and such
+      for (int i=1;i<10;i++) {
+        String requireGroupsName = overallName + requireGroupsExtensionSuffix(i);
+        group = GroupFinder.findByName(grouperSession, requireGroupsName, false);
+        if (group != null) {
+          String logString = "deleting group: " + requireGroupsName;
+          GrouperUtil.append(reason, ", ", logString);
+          LOG.debug(logString);
+          group.delete();
+          count++;
+        }
+      }
+      
+      {
+        //now if the includesMinusExcludes
+        String includesMinuxExcludesName = overallName + includesMinusExcludesExtensionSuffix();
+        group = GroupFinder.findByName(grouperSession, 
+            includesMinuxExcludesName, false);
+  
+        if (group != null) {
+          String logString = "deleting group: " + includesMinuxExcludesName;
+          GrouperUtil.append(reason, ", ", logString);
+          LOG.debug(logString);
+          group.delete();
+          count++;
+        }
+      }
+      
+      {
+        //now if the includesMinusExcludes
+        String sorAndIncludesName = overallName + systemOfRecordAndIncludesExtensionSuffix();
+        group = GroupFinder.findByName(grouperSession, 
+            sorAndIncludesName, false);
+  
+        if (group != null) {
+          String logString = "deleting group: " + sorAndIncludesName;
+          GrouperUtil.append(reason, ", ", logString);
+          LOG.debug(logString);
+          group.delete();
+          count++;
+        }
+      }
+      
+      {
+        //now excludes if no members
+        String excludesName = overallName + excludeExtensionSuffix();
+        group = GroupFinder.findByName(grouperSession, 
+            excludesName, false);
+  
+        if (group != null) {
+          Set<Member> members = group.getMembers();
+          if (members.size() > 0 && saveIncludesExcludesIfMembers) {
+            String logString = "not deleting group: " + excludesName + " since has " + members.size() + " members";
+            GrouperUtil.append(reason, ", ", logString);
+            LOG.debug(logString);
+          } else {
+            String logString = "deleting group: " + excludesName;
+            GrouperUtil.append(reason, ", ", logString);
+            LOG.debug(logString);
+            group.delete();
+            count++;
+          }
+        }
+      }
+      
+      {
+        //now includes if no members
+        String includesName = overallName + includeExtensionSuffix();
+        group = GroupFinder.findByName(grouperSession, 
+            includesName, false);
+  
+        if (group != null) {
+          Set<Member> members = group.getMembers();
+          if (members.size() > 0 && saveIncludesExcludesIfMembers) {
+            String logString = "not deleting group: " + includesName + " since has " + members.size() + " members";
+            GrouperUtil.append(reason, ", ", logString);
+            LOG.debug(logString);
+          } else {
+            String logString = "deleting group: " + includesName;
+            GrouperUtil.append(reason, ", ", logString);
+            LOG.debug(logString);
+            group.delete();
+            count++;
+          }
+        }
+      }
+      
+      {
+        //finally system of record
+        String systemOfRecordName = overallName + systemOfRecordExtensionSuffix();
+        group = GroupFinder.findByName(grouperSession, 
+            systemOfRecordName, false);
+  
+        if (group != null) {
+          String logString = "deleting group: " + systemOfRecordName;
+          GrouperUtil.append(reason, ", ", logString);
+          LOG.debug(logString);
+          group.delete();
+          count++;
+        }
+      }      
+      GrouperUtil.append(reason, ", ", "deleted " + count + " groups");
+      
+      return count;
+    } catch (Exception e) {
+      throw new RuntimeException("Problem deleting groups for name: " + groupName 
+          + ", though did delete " + count + " groups", e);
+    }
   }
   
   /**

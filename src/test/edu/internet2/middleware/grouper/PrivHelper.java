@@ -42,7 +42,7 @@ import edu.internet2.middleware.subject.Subject;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.14 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: PrivHelper.java,v 1.15 2008-11-11 22:08:33 mchyzer Exp $
  */
 public class PrivHelper {
 
@@ -118,35 +118,29 @@ public class PrivHelper {
 
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
+        LOG.debug("grantPrivFail.0 " + priv.getName());
+        MemberFinder.findBySubject(grouperSession, subj);
+        LOG.debug("grantPrivFail.1 " + priv.getName());
         try {
-          LOG.debug("grantPrivFail.0 " + priv.getName());
-          MemberFinder.findBySubject(grouperSession, subj);
-          LOG.debug("grantPrivFail.1 " + priv.getName());
-          try {
-            g.grantPriv(subj, priv);  
-            LOG.debug("grantPrivFail.2 " + priv.getName());
-            Assert.fail("granted " + priv);
-            LOG.debug("grantPrivFail.3 " + priv.getName());
-          }
-          catch (GrantPrivilegeException eGP) {
-            LOG.debug("grantPrivFail.4 " + priv.getName());
-            Assert.assertTrue("failed to grant " + priv + " (exists)", true);
-            LOG.debug("grantPrivFail.5 " + priv.getName());
-          }
-          catch (InsufficientPrivilegeException eIP) {
-            LOG.debug("grantPrivFail.7 " + priv.getName());
-            Assert.assertTrue("failed to grant " + priv + " (privs)", true);
-            LOG.debug("grantPrivFail.8 " + priv.getName());
-          }
-          catch (SchemaException eS) {
-            LOG.debug("grantPrivFail.10 " + priv.getName());
-            Assert.assertTrue("failed to grant " + priv + " (privs)", true);
-            LOG.debug("grantPrivFail.11 " + priv.getName());
-          }
+          g.grantPriv(subj, priv);  
+          LOG.debug("grantPrivFail.2 " + priv.getName());
+          Assert.fail("granted " + priv);
+          LOG.debug("grantPrivFail.3 " + priv.getName());
         }
-        catch (MemberNotFoundException eMNF) {
-          LOG.debug("grantPrivFail.13 " + priv.getName());
-          Assert.fail(eMNF.getMessage());
+        catch (GrantPrivilegeException eGP) {
+          LOG.debug("grantPrivFail.4 " + priv.getName());
+          Assert.assertTrue("failed to grant " + priv + " (exists)", true);
+          LOG.debug("grantPrivFail.5 " + priv.getName());
+        }
+        catch (InsufficientPrivilegeException eIP) {
+          LOG.debug("grantPrivFail.7 " + priv.getName());
+          Assert.assertTrue("failed to grant " + priv + " (privs)", true);
+          LOG.debug("grantPrivFail.8 " + priv.getName());
+        }
+        catch (SchemaException eS) {
+          LOG.debug("grantPrivFail.10 " + priv.getName());
+          Assert.assertTrue("failed to grant " + priv + " (privs)", true);
+          LOG.debug("grantPrivFail.11 " + priv.getName());
         }
         return null;
       }
@@ -171,9 +165,6 @@ public class PrivHelper {
         catch (InsufficientPrivilegeException eIP) {
           Assert.fail(eIP.getMessage());
         }
-        catch (MemberNotFoundException eMNF) {
-          Assert.fail(eMNF.getMessage());
-        }
         catch (SchemaException eS) {
           Assert.fail(eS.getMessage());
         }
@@ -189,27 +180,22 @@ public class PrivHelper {
 
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
+        Member m = MemberFinder.findBySubject(grouperSession, subj);
         try {
-          Member m = MemberFinder.findBySubject(grouperSession, subj);
-          try {
-            ns.grantPriv(subj, priv);  
-            Assert.fail("granted " + priv);
-          }
-          catch (GrantPrivilegeException eGP) {
-            Assert.assertTrue("failed to grant " + priv + " (exists)", true);
-            hasPriv(ns, subj, m, priv, true);
-          }
-          catch (InsufficientPrivilegeException eIP) {
-            Assert.assertTrue("failed to grant " + priv + " (privs)", true);
-            hasPriv(ns, subj, m, priv, false);
-          }
-          catch (SchemaException eS) {
-            Assert.assertTrue("failed to grant " + priv + " (privs)", true);
-            hasPriv(ns, subj, m, priv, false);
-          }
+          ns.grantPriv(subj, priv);  
+          Assert.fail("granted " + priv);
         }
-        catch (MemberNotFoundException eMNF) {
-          Assert.fail(eMNF.getMessage());
+        catch (GrantPrivilegeException eGP) {
+          Assert.assertTrue("failed to grant " + priv + " (exists)", true);
+          hasPriv(ns, subj, m, priv, true);
+        }
+        catch (InsufficientPrivilegeException eIP) {
+          Assert.assertTrue("failed to grant " + priv + " (privs)", true);
+          hasPriv(ns, subj, m, priv, false);
+        }
+        catch (SchemaException eS) {
+          Assert.assertTrue("failed to grant " + priv + " (privs)", true);
+          hasPriv(ns, subj, m, priv, false);
         }
         return null;
       }
@@ -221,12 +207,7 @@ public class PrivHelper {
     GrouperSession s, Group g, Subject subj, Privilege priv, boolean has
   )
   {
-    try {
-      hasPriv(g, subj, MemberFinder.findBySubject(s, subj), priv, has);  
-    }
-    catch (MemberNotFoundException eMNF) {
-      Assert.fail(eMNF.getMessage());
-    }
+    hasPriv(g, subj, MemberFinder.findBySubject(s, subj), priv, has);  
   } // protected static void hasPriv(s, g, subj, priv, has)
 
   protected static void hasPriv(
@@ -276,12 +257,7 @@ public class PrivHelper {
     GrouperSession s, Stem ns, Subject subj, Privilege priv, boolean has
   )
   {
-    try {
-      hasPriv(ns, subj, MemberFinder.findBySubject(s, subj), priv, has);  
-    }
-    catch (MemberNotFoundException eMNF) {
-      Assert.fail(eMNF.getMessage());
-    }
+    hasPriv(ns, subj, MemberFinder.findBySubject(s, subj), priv, has);  
   } // protected static void hasPriv(s, ns, subj, priv, has)
 
   protected static void hasPriv(

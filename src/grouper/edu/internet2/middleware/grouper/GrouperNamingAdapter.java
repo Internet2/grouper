@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.71 2008-10-27 10:03:36 mchyzer Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.72 2008-11-11 22:08:33 mchyzer Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -140,10 +140,6 @@ public class GrouperNamingAdapter implements NamingAdapter {
         );
       }
     }
-    catch (MemberNotFoundException eMNF) {
-      String msg = E.GPA_MNF + eMNF.getMessage();
-      LOG.error(msg);
-    }
     catch (StemNotFoundException eSNF) {
       String msg = E.GNA_SNF + eSNF.getMessage();
       LOG.error( msg);
@@ -187,10 +183,6 @@ public class GrouperNamingAdapter implements NamingAdapter {
           privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, ns,subj, all, p, it) );
         }
       }
-    }
-    catch (MemberNotFoundException eMNF) {
-      String msg = E.GPA_MNF + eMNF.getMessage();
-      LOG.error( msg);
     }
     catch (SchemaException eS) {
       LOG.error( eS.getMessage());
@@ -289,14 +281,8 @@ public class GrouperNamingAdapter implements NamingAdapter {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     boolean rv = false;
-    try {
-      Member m = MemberFinder.findBySubject(s, subj);
-      rv = m.isMember( ns.getUuid(), GrouperPrivilegeAdapter.internal_getField(priv2list, priv) );
-    }
-    catch (MemberNotFoundException eMNF) {
-      String msg = E.GPA_MNF + eMNF.getMessage();
-      LOG.error( msg);
-    }
+    Member m = MemberFinder.findBySubject(s, subj);
+    rv = m.isMember( ns.getUuid(), GrouperPrivilegeAdapter.internal_getField(priv2list, priv) );
     return rv;
   } // public boolean hasPriv(s, ns, subj, priv) 
 

@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.56 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: MemberFinder.java,v 1.57 2008-11-11 22:08:33 mchyzer Exp $
  */
 public class MemberFinder {
 	
@@ -92,25 +92,17 @@ public class MemberFinder {
   /**
    * Convert a {@link Subject} to a {@link Member}.
    * <pre class="eg">
-   * // Convert a subject to a Member object
-   * try {
+   * // Convert a subject to a Member object, create if not exist
    *   Member m = MemberFinder.findBySubject(s, subj);
-   * }
-   * catch (MemberNotFoundException e) {
-   *   // Member not found
-   * }
    * </pre>
    * @param   s   Find {@link Member} within this session context.
    * @param   subj  {@link Subject} to convert.
    * @return  A {@link Member} object.
-   * @throws  MemberNotFoundException
    */
-  public static Member findBySubject(GrouperSession s, Subject subj)
-    throws  MemberNotFoundException
-  {
+  public static Member findBySubject(GrouperSession s, Subject subj) {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Member m = internal_findBySubject(subj);
+    Member m = internal_findBySubject(subj, true);
     return m;
   } // public static Member findBySubject(s, subj)
 
@@ -147,15 +139,8 @@ public class MemberFinder {
     throws  GrouperRuntimeException
   {
 	  if(all !=null) return all;
-    try {
-      all= MemberFinder.internal_findBySubject( SubjectFinder.findAllSubject() ); 
-      return all;
-    }
-    catch (MemberNotFoundException eMNF) {
-      String msg = E.MEMBERF_FINDALLMEMBER + eMNF.getMessage();
-      LOG.fatal(msg);
-      throw new GrouperRuntimeException(msg, eMNF);
-    }
+    all= MemberFinder.internal_findBySubject( SubjectFinder.findAllSubject(), true); 
+    return all;
   } // public static Member internal_findAllMember()
 
   /** logger */
@@ -166,23 +151,19 @@ public class MemberFinder {
     throws  GrouperRuntimeException
   {
 	if(root != null) return root;
-    try {
-      root= MemberFinder.internal_findBySubject( SubjectFinder.findRootSubject() ); 
-      return root;
-    }
-    catch (MemberNotFoundException eShouldNeverHappen) {
-      String msg = "unable to fetch GrouperSystem as member: " + eShouldNeverHappen.getMessage();
-      LOG.fatal(msg);
-      throw new GrouperRuntimeException(msg, eShouldNeverHappen);
-    }
-  } 
-
-  // @since   1.2.0
-  public static Member internal_findBySubject(Subject subj) 
-    throws  MemberNotFoundException
-  {
+    root= MemberFinder.internal_findBySubject( SubjectFinder.findRootSubject(), true ); 
+    return root;
+  }
+  
+  /**
+   * find a member, perhaps create a new one if not there
+   * @param subj
+   * @param createIfNotExist 
+   * @return the member
+   */
+  public static Member internal_findBySubject(Subject subj, boolean createIfNotExist) {
     if (subj == null) {
-      throw new MemberNotFoundException();
+      throw new NullPointerException("Subject is null");
     }
     
     String sourceId = null;
@@ -191,26 +172,47 @@ public class MemberFinder {
     } else {
       sourceId = subj.getSource().getId();
     }
-    Member m = internal_findOrCreateBySubject( subj.getId(), sourceId, subj.getType().getName() ) ;
+    Member m = internal_findOrCreateBySubject( subj.getId(), sourceId, subj.getType().getName(), createIfNotExist ) ;
     
     //Member m = internal_findOrCreateBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() ) ;
     return m;
   } // public static Member internal_findBySubject(subj)
 
-  // @since   1.2.0
+  /**
+   * find a member 
+   * @param id
+   * @param src
+   * @param type
+   * @return the member 
+   */
   public static Member internal_findOrCreateBySubject(String id, String src, String type) {
+    return internal_findOrCreateBySubject(id, src, type, true);
+  }
+  
+  /**
+   * find a member 
+   * @param id
+   * @param src
+   * @param type
+   * @param createIfNotExist 
+   * @return the member or null
+   */
+  private static Member internal_findOrCreateBySubject(String id, String src, String type, boolean createIfNotExist) {
     try {
       return GrouperDAOFactory.getFactory().getMember().findBySubject(id, src, type);
     }
     catch (MemberNotFoundException eMNF) {
-      Member _m = new Member();
-      _m.setSubjectIdDb(id);
-      _m.setSubjectSourceIdDb(src);
-      _m.setSubjectTypeId(type);
-      _m.setUuid( GrouperUuid.getUuid() );
-      
-      GrouperDAOFactory.getFactory().getMember().create(_m);
-      return _m;
+      if (createIfNotExist) {
+        Member _m = new Member();
+        _m.setSubjectIdDb(id);
+        _m.setSubjectSourceIdDb(src);
+        _m.setSubjectTypeId(type);
+        _m.setUuid( GrouperUuid.getUuid() );
+        
+        GrouperDAOFactory.getFactory().getMember().create(_m);
+        return _m;
+      }
+      return null;
     }
   } // public static Member internal_findOrCreateBySubject(id, src, type)
 

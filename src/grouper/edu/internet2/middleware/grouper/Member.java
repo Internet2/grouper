@@ -81,7 +81,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.115 2008-10-20 14:41:20 mchyzer Exp $
+ * @version $Id: Member.java,v 1.116 2008-11-11 22:08:33 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -747,7 +747,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * </pre>
    * @return  Set of {@link Group} objects.
    */
-  public Set getEffectiveGroups() {
+  public Set<Group> getEffectiveGroups() {
     return this._getGroups( this.getEffectiveMemberships().iterator() );
   } // public Set getEffectiveGroups()
 
@@ -774,7 +774,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Membership} objects.
    * @throws  GrouperRuntimeException
    */
-  public Set getEffectiveMemberships() 
+  public Set<Membership> getEffectiveMemberships() 
     throws  GrouperRuntimeException
   {
     try {
@@ -815,7 +815,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Membership} objects.
    * @throws  SchemaException
    */
-  public Set getEffectiveMemberships(Field f) 
+  public Set<Membership> getEffectiveMemberships(Field f) 
     throws  SchemaException
   {
     return MembershipFinder.internal_findAllEffectiveByMemberAndField(
@@ -831,7 +831,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * </pre>
    * @return  Set of {@link Group} objects.
    */
-  public Set getGroups() {
+  public Set<Group> getGroups() {
     return this._getGroups( this.getMemberships().iterator() );
   } // public Set getGroups()
 
@@ -851,7 +851,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * </pre>
    * @return  Set of {@link Group} objects.
    */
-  public Set getImmediateGroups() {
+  public Set<Group> getImmediateGroups() {
     return this._getGroups( this.getImmediateMemberships().iterator() );
   } // public Set getImmediateGroups()
 
@@ -875,7 +875,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Membership} objects.
    * @throws  GrouperRuntimeException
    */
-  public Set getImmediateMemberships() 
+  public Set<Membership> getImmediateMemberships() 
     throws  GrouperRuntimeException
   {
     try {
@@ -910,7 +910,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Membership} objects.
    * @throws  SchemaException
    */
-  public Set getImmediateMemberships(Field f) 
+  public Set<Membership> getImmediateMemberships(Field f) 
     throws  SchemaException
   {
     return MembershipFinder.internal_findAllImmediateByMemberAndField( GrouperSession.staticGrouperSession(), this, f );
@@ -930,7 +930,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Membership} objects.
    * @throws  GrouperRuntimeException
    */
-  public Set getMemberships() 
+  public Set<Membership> getMemberships() 
     throws  GrouperRuntimeException
   {
     try {
@@ -959,7 +959,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Membership} objects.
    * @throws  SchemaException
    */
-  public Set getMemberships(Field f) 
+  public Set<Membership> getMemberships(Field f) 
     throws  SchemaException
   {
     if (!f.getType().equals(FieldType.LIST)) {
@@ -976,7 +976,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @param   g   Find Access Privileges on this {@link Group}
    * @return  A set of {@link AccessPrivilege} objects.
    */
-  public Set getPrivs(Group g) {
+  public Set<AccessPrivilege> getPrivs(Group g) {
     Set privs = new LinkedHashSet();
     try {
       privs = GrouperSession.staticGrouperSession().getAccessResolver().getPrivileges( g, this.getSubject() );
@@ -995,7 +995,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @param   ns  Find Naming Privileges on this {@link Stem}
    * @return  A set of {@link NamingPrivilege} objects.
    */
-  public Set getPrivs(Stem ns) {
+  public Set<NamingPrivilege> getPrivs(Stem ns) {
     Set privs = new LinkedHashSet();
     try {
       privs = GrouperSession.staticGrouperSession().getNamingResolver().getPrivileges( ns, this.getSubject() );
@@ -1113,7 +1113,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Group} objects.
    * @throws  GrouperRuntimeException
    */
-  public Set hasAdmin() 
+  public Set<Group> hasAdmin() 
     throws  GrouperRuntimeException
 {
     Set privs = new LinkedHashSet();
@@ -1151,7 +1151,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Stem} objects.
    * @throws  GrouperRuntimeException
    */
-  public Set hasCreate() 
+  public Set<Group> hasCreate() 
     throws  GrouperRuntimeException
   {
     Set privs = new LinkedHashSet();
@@ -1187,7 +1187,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Group} objects.
    * @throws  GrouperRuntimeException
    */
-  public Set hasOptin() 
+  public Set<Group> hasOptin() 
     throws  GrouperRuntimeException
   {
     Set privs = new LinkedHashSet();
@@ -1225,7 +1225,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Group} objects.
    * @throws  GrouperRuntimeException
    */
-  public Set hasOptout() 
+  public Set<Group> hasOptout() 
     throws  GrouperRuntimeException
   {
     Set privs = new LinkedHashSet();
@@ -1275,7 +1275,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Group} objects.
    * @throws  GrouperRuntimeException
    */
-  public Set hasRead() 
+  public Set<Group> hasRead() 
     throws  GrouperRuntimeException
   {
     Set privs = new LinkedHashSet();
@@ -1313,7 +1313,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Stem} objects.
    * @throws  GrouperRuntimeException
    */
-  public Set hasStem()
+  public Set<Stem> hasStem()
     throws  GrouperRuntimeException
   {
     Set privs = new LinkedHashSet();
@@ -1386,7 +1386,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Group} objects.
    * @throws  GrouperRuntimeException
    */
-  public Set hasView() 
+  public Set<Group> hasView() 
     throws  GrouperRuntimeException
   {
     Set privs = new LinkedHashSet();

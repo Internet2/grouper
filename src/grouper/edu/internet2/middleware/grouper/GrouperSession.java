@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.91 2008-11-11 07:27:32 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.92 2008-11-11 22:08:33 mchyzer Exp $
  */
 public class GrouperSession {
 
@@ -236,42 +236,32 @@ public class GrouperSession {
   public static GrouperSession start(Subject subject, boolean addToThreadLocal) 
     throws SessionException
   {
-    Member            m = null;
-    try {
-      StopWatch sw = new StopWatch();
-      sw.start();
-
-      //  this will create the member if it doesn't already exist
-      m   = MemberFinder.internal_findBySubject(subject); 
-      GrouperSession    s   =  new GrouperSession();
-        s.setMemberUuid( m.getUuid() );
-        s.setStartTimeLong( new Date().getTime() );
-        s.setSubject(subject);
-        s.setUuid( GrouperUuid.getUuid() );
-
-      sw.stop();
-      EventLog.info( s.toString(), M.S_START, sw );
-      if (addToThreadLocal) {
-        //add to threadlocal
-        staticGrouperSession.set(s);
-      }
-      
-      return s;
-    }
-    catch (MemberNotFoundException eMNF)  {
-      String idLog = subject == null ? " (subject is null) " : null;
-      if (StringUtils.isBlank(idLog)) {
-        //put the id in the error message if possible
-        String id = m != null ? m.getSubjectId() : null;
-        if (StringUtils.isBlank(id) && subject !=null) {
-          id = subject.getId();
-        }
-        idLog = " (for subject id: " + id + ") ";
-      }
-      String msg = E.S_START + idLog + eMNF.getMessage();
+    if (subject == null) {
+      String idLog = "(subject is null)";
+      String msg = E.S_START + idLog;
       LOG.fatal(msg);
-      throw new SessionException(msg, eMNF);
+      throw new SessionException(msg);
     }
+    Member            m = null;
+    StopWatch sw = new StopWatch();
+    sw.start();
+
+    //  this will create the member if it doesn't already exist
+    m   = MemberFinder.internal_findBySubject(subject, true); 
+    GrouperSession    s   =  new GrouperSession();
+      s.setMemberUuid( m.getUuid() );
+      s.setStartTimeLong( new Date().getTime() );
+      s.setSubject(subject);
+      s.setUuid( GrouperUuid.getUuid() );
+
+    sw.stop();
+    EventLog.info( s.toString(), M.S_START, sw );
+    if (addToThreadLocal) {
+      //add to threadlocal
+      staticGrouperSession.set(s);
+    }
+    
+    return s;
   } 
 
   /**

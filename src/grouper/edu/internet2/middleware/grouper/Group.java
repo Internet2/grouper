@@ -113,7 +113,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.211 2008-11-08 08:15:33 mchyzer Exp $
+ * @version $Id: Group.java,v 1.212 2008-11-11 22:08:33 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -2595,13 +2595,8 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
     throws  SchemaException
   {
     boolean rv = false;
-    try {
-      Member m = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj);
-      rv = m.isEffectiveMember(this, f);
-    }
-    catch (MemberNotFoundException eMNF) {
-      LOG.error( E.GROUP_HEM + eMNF.getMessage());
-    }
+    Member m = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj);
+    rv = m.isEffectiveMember(this, f);
     return rv;
   } // public boolean hasEffectiveMember(subj, f)
 
@@ -2668,13 +2663,8 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
     throws  SchemaException
   {
     boolean rv = false;
-    try {
-      Member m = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj);
-      rv = m.isImmediateMember(this, f);
-    }
-    catch (MemberNotFoundException eMNF) {
-      LOG.error( E.GROUP_HIM + eMNF.getMessage());
-    }
+    Member m = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj);
+    rv = m.isImmediateMember(this, f);
     return rv;
   } // public boolean hasImmediateMember(subj, f)
 
@@ -2733,13 +2723,8 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
     throws  SchemaException
   {
     boolean rv = false;
-    try {
-      Member m = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj);
-      rv = m.isMember(this, f);
-    }
-    catch (MemberNotFoundException eMNF) {
-      LOG.error( E.GROUP_HM + eMNF.getMessage());
-    }
+    Member m = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj);
+    rv = m.isMember(this, f);
     return rv;
   } // public boolean hasMember(subj, f)
 
