@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.9 2008-11-05 05:10:37 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.10 2008-11-11 07:27:32 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -14,7 +14,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
@@ -135,7 +136,8 @@ public class GrouperCheckConfig {
     //get auto create from config
     if (autoCreate == null) {
       Properties properties = GrouperUtil.propertiesFromResourceName(GROUPER_PROPERTIES_NAME);
-      autoCreate = GrouperUtil.propertiesValueBoolean(properties, "configuration.autocreate.system.groups", false);
+      autoCreate = GrouperUtil.propertiesValueBoolean(properties, ApiConfig.testConfig, 
+          "configuration.autocreate.system.groups", false);
     }
     
     if (autoCreate) {
@@ -605,6 +607,27 @@ public class GrouperCheckConfig {
         
         i++;
       }
+      
+      //groups that manage types
+      Map<String, String> typePatterns = typeSecuritySettings();
+      for (String key: typePatterns.keySet()) {
+        
+        Matcher matcher = typeSecurityPattern.matcher(key);
+        
+        matcher.matches();
+        String typeName = matcher.group(1);
+        String settingType = matcher.group(2);
+        if (!StringUtils.equalsIgnoreCase("allowOnlyGroup", settingType)) {
+          continue;
+        }
+        //this is a group
+        String groupName = typePatterns.get(key);
+        String description = "Group whose members are allowed to edit type (and related attributes): " + typeName;
+        checkGroup(grouperSession, groupName, wasInCheckConfig, null, wasInCheckConfig, null, description, 
+            "type security from grouper.properties key: " + key, null);
+        
+      }
+      
     } catch (SessionException se) {
       throw new RuntimeException(se);
     } finally {
@@ -614,6 +637,13 @@ public class GrouperCheckConfig {
       }
     }
     
+  }
+
+  /**
+   * @return the map of settings from grouper.properties
+   */
+  public static Map<String, String> typeSecuritySettings() {
+    return retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, typeSecurityPattern);
   }
   
   /**
@@ -765,18 +795,16 @@ public class GrouperCheckConfig {
    */
   public static void checkGrouperLoaderConfigDbs() {
 
-    Properties properties = GrouperUtil.propertiesFromResourceName("grouper-loader.properties");
-    
     //db.warehouse.user = mylogin
     //db.warehouse.pass = secret
     //db.warehouse.url = jdbc:mysql://localhost:3306/grouper
     //db.warehouse.driver = com.mysql.jdbc.Driver
     //make sure sequences are ok
-    Set<String> dbKeys = retrievePropertiesKeys("grouper-loader.properties", 
+    Map<String, String> dbMap = retrievePropertiesKeys("grouper-loader.properties", 
         grouperLoaderDbPattern);
-    while (dbKeys.size() > 0) {
+    while (dbMap.size() > 0) {
       //get one
-      String dbKey = dbKeys.iterator().next();
+      String dbKey = dbMap.keySet().iterator().next();
       //get the database name
       Matcher matcher = grouperLoaderDbPattern.matcher(dbKey);
       matcher.matches();
@@ -784,44 +812,44 @@ public class GrouperCheckConfig {
       boolean missingOne = false;
       //now find all 4 required keys
       String userKey = "db." + dbName + ".user";
-      if (!dbKeys.contains(userKey)) {
+      if (!dbMap.containsKey(userKey)) {
         String error = "cannot find grouper-loader.properties key: " + userKey; 
         System.out.println("Grouper error: " + error);
         LOG.error(error);
         missingOne = true;
       }
-      dbKeys.remove(userKey);
+      dbMap.remove(userKey);
       String passKey = "db." + dbName + ".pass";
-      if (!dbKeys.contains(passKey)) {
+      if (!dbMap.containsKey(passKey)) {
         String error = "cannot find grouper-loader.properties key: " + passKey; 
         System.out.println("Grouper error: " + error);
         LOG.error(error);
         missingOne = true;
       }
-      dbKeys.remove(passKey);
+      dbMap.remove(passKey);
       String urlKey = "db." + dbName + ".url";
-      if (!dbKeys.contains(urlKey)) {
+      if (!dbMap.containsKey(urlKey)) {
         String error = "cannot find grouper-loader.properties key: " + urlKey; 
         System.out.println("Grouper error: " + error);
         LOG.error(error);
         missingOne = true;
       }
-      dbKeys.remove(urlKey);
+      dbMap.remove(urlKey);
       String driverKey = "db." + dbName + ".driver";
-      if (!dbKeys.contains(driverKey)) {
+      if (!dbMap.containsKey(driverKey)) {
         String error = "cannot find grouper-loader.properties key: " + driverKey; 
         System.out.println("Grouper error: " + error);
         LOG.error(error);
         missingOne = true;
       }
-      dbKeys.remove(driverKey);
+      dbMap.remove(driverKey);
       if (missingOne) {
         return;
       }
-      String user = GrouperUtil.propertiesValue(properties, userKey);
-      String password = GrouperUtil.propertiesValue(properties, passKey);
-      String url = GrouperUtil.propertiesValue(properties, urlKey);
-      String driver = GrouperUtil.propertiesValue(properties, driverKey);
+      String user = dbMap.get(userKey);
+      String password = dbMap.get(passKey);
+      String url = dbMap.get(urlKey);
+      String driver = dbMap.get(driverKey);
 
       //try to connect to database
       checkDatabase(driver, url, user, password, "grouper-loader.properties database name '" + dbName + "'");
@@ -838,7 +866,7 @@ public class GrouperCheckConfig {
     //#group.attribute.validator.vetoMessage.0=Group ID '$attributeValue$' is invalid since it must contain only alpha-numerics
     
     //make sure sequences are ok
-    Set<String> validatorKeys = retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, groupValidatorPattern);
+    Map<String, String> validatorKeys = retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, groupValidatorPattern);
     int i=0;
     while (true) {
       boolean foundOne = false;
@@ -855,7 +883,7 @@ public class GrouperCheckConfig {
     }
     if (validatorKeys.size() > 0) {
       String error = "in property file: grouper.properties, these properties " +
-          "are misspelled or non-sequential: " + GrouperUtil.setToString(validatorKeys);
+          "are misspelled or non-sequential: " + GrouperUtil.setToString(validatorKeys.keySet());
       System.err.println("Grouper error: " + error);
       LOG.error(error);
     }
@@ -871,7 +899,7 @@ public class GrouperCheckConfig {
     //#configuration.autocreate.group.subjects.0 = johnsmith
     
     //make sure sequences are ok
-    Set<String> validatorKeys = retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, autocreateGroupsPattern);
+    Map<String, String> validatorKeys = retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, autocreateGroupsPattern);
     int i=0;
     while (true) {
       boolean foundOne = false;
@@ -889,7 +917,7 @@ public class GrouperCheckConfig {
     }
     if (validatorKeys.size() > 0) {
       String error = "in property file: grouper.properties, these properties " +
-          "are misspelled or non-sequential: " + GrouperUtil.setToString(validatorKeys);
+          "are misspelled or non-sequential: " + GrouperUtil.setToString(validatorKeys.keySet());
       System.err.println("Grouper error: " + error);
       LOG.error(error);
     }
@@ -905,7 +933,7 @@ public class GrouperCheckConfig {
     //#grouperIncludeExclude.requireGroup.description.0 = If value is true, members of the overall group must be an active employee.  Otherwise, leave this value not filled in.
     
     //make sure sequences are ok
-    Set<String> validatorKeys = retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, includeExcludeAndGroupPattern);
+    Map<String, String> validatorKeys = retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, includeExcludeAndGroupPattern);
     int i=0;
     while (true) {
       boolean foundOne = false;
@@ -923,7 +951,7 @@ public class GrouperCheckConfig {
     }
     if (validatorKeys.size() > 0) {
       String error = "in property file: grouper.properties, these properties " +
-          "are misspelled or non-sequential: " + GrouperUtil.setToString(validatorKeys);
+          "are misspelled or non-sequential: " + GrouperUtil.setToString(validatorKeys.keySet());
       System.err.println("Grouper error: " + error);
       LOG.error(error);
     }
@@ -935,7 +963,7 @@ public class GrouperCheckConfig {
    */
   private static void checkGrouperConfigDbChange() {
     //make sure sequences are ok
-    Set<String> dbChangeKeys = retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, dbChangePattern);
+    Map<String, String> dbChangeKeys = retrievePropertiesKeys(GROUPER_PROPERTIES_NAME, dbChangePattern);
     int i=0;
     //db.change.allow.user.0=grouper3
     //db.change.allow.url.0=jdbc:mysql://localhost:3306/grouper3
@@ -955,7 +983,7 @@ public class GrouperCheckConfig {
     }
     if (dbChangeKeys.size() > 0) {
       String error = "in property file: grouper.properties, these properties " +
-          "are misspelled or non-sequential: " + GrouperUtil.setToString(dbChangeKeys);
+          "are misspelled or non-sequential: " + GrouperUtil.setToString(dbChangeKeys.keySet());
       System.err.println("Grouper error: " + error);
       LOG.error(error);
     }
@@ -969,17 +997,17 @@ public class GrouperCheckConfig {
    * @return true if found one
    */
   public static boolean assertAndRemove(String resourceName, 
-      Set<String> set, String[] propertiesNames) {
+      Map<String, String> set, String[] propertiesNames) {
     boolean foundOne = false;
     for (String propertyName : propertiesNames) {
-      if (set.contains(propertyName)) {
+      if (set.containsKey(propertyName)) {
         foundOne = true;
         break;
       }
     }
     if (foundOne) {
       for (String propertyName : propertiesNames) {
-        if (set.contains(propertyName)) {
+        if (set.containsKey(propertyName)) {
           set.remove(propertyName);
         } else {
           String error = "expecting property " + propertyName 
@@ -999,14 +1027,22 @@ public class GrouperCheckConfig {
    * @param pattern
    * @return the keys.  if none, will return the empty set, not null set
    */
-  public static Set<String> retrievePropertiesKeys(String resourceName, Pattern pattern) {
+  public static Map<String, String> retrievePropertiesKeys(String resourceName, Pattern pattern) {
     Properties properties = GrouperUtil.propertiesFromResourceName(resourceName);
-    Set<String> result = new LinkedHashSet<String>();
+    Map<String, String> result = new LinkedHashMap<String, String>();
     for (String key: (Set<String>)(Object)properties.keySet()) {
       if (pattern.matcher(key).matches()) {
-        result.add(key);
+        result.put(key, (String)properties.get(key));
       }
     }
+    
+    //add in api config overrides for testing
+    for (String key: ApiConfig.testConfig.keySet()) {
+      if (pattern.matcher(key).matches()) {
+        result.put(key, ApiConfig.testConfig.get(key));
+      }
+    }
+    
     return result;
   }
   
@@ -1226,6 +1262,16 @@ public class GrouperCheckConfig {
       "^db\\.(\\w+)\\.(pass|url|driver|user)$");
   
   /**
+   * <pre>
+   * match type security
+   * match: security.typeName.wheelOnly
+   * match: security.typeName.allowOnlyGroup
+   * </pre>
+   */
+  public static final Pattern typeSecurityPattern = Pattern.compile(
+      "^security\\.types\\.(.*)\\.(wheelOnly|allowOnlyGroup)$");
+  
+  /**
    * return true if this is an exception case, dont worry about it
    * @param resourceName
    * @param propertyName
@@ -1246,6 +1292,9 @@ public class GrouperCheckConfig {
         return true;
       }
       if (autocreateGroupsPattern.matcher(propertyName).matches()) {
+        return true;
+      }
+      if (typeSecurityPattern.matcher(propertyName).matches()) {
         return true;
       }
     }

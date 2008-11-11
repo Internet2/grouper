@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper.misc;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: E.java,v 1.2 2008-11-11 07:27:32 mchyzer Exp $
  * @since   1.0
  */
 public class E {
@@ -43,6 +43,7 @@ public class E {
   public static final String INVALID_ATTR_VALUE        = "invalid attribute value: ";
   public static final String INVALID_DOC               = "null document";
   public static final String INVALID_GROUP_TYPE        = "invalid group type: ";
+  public static final String INVALID_GROUP_UUID        = "invalid group uuid: ";
   public static final String MEMBER_NEITHER_FOUND_NOR_CREATED  = "member neither found nor created: ";
   public static final String NO_STEM                   = "could not find stem";
   public static final String NO_STEM_NAME              = "could not find stem by name: ";

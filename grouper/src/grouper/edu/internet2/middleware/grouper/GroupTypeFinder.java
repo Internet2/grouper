@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cache.GrouperCache;
@@ -33,7 +34,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.33 2008-11-04 07:17:55 mchyzer Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.34 2008-11-11 07:27:32 mchyzer Exp $
  */
 public class GroupTypeFinder {
   
@@ -76,6 +77,45 @@ public class GroupTypeFinder {
     }
     if (exceptionIfNotFound) {
       String msg = E.INVALID_GROUP_TYPE + name;
+      throw new SchemaException(msg);
+    }
+    return null;
+  }
+
+  /** 
+   * Find a {@link GroupType}.
+   * <p/>
+   * A {@link SchemaException} will be thrown if the type is not found.
+   * <pre class="eg">
+   * try {
+   *   GroupType type = GroupTypeFinder.find(name);
+   * }
+   * catch (SchemaException eS) {
+   *   // type does not exist
+   * }
+   * </pre>
+   * @param   typeUuid  Find {@link GroupType} with this uuid.
+   * @param exceptionIfNotFound 
+   * @return  {@link GroupType}
+   * @throws  SchemaException
+   */
+  public static GroupType findByUuid(String typeUuid, boolean exceptionIfNotFound) 
+    throws  SchemaException {
+    // First check to see if type is cached.
+    for (GroupType groupType : types.values()) {
+      if (StringUtils.equals(typeUuid, groupType.getUuid())) {
+        return groupType;
+      }
+    }
+    // If not, refresh known types as it may be new and try again. 
+    internal_updateKnownTypes();
+    for (GroupType groupType : types.values()) {
+      if (StringUtils.equals(typeUuid, groupType.getUuid())) {
+        return groupType;
+      }
+    }
+    if (exceptionIfNotFound) {
+      String msg = E.INVALID_GROUP_UUID + typeUuid;
       throw new SchemaException(msg);
     }
     return null;
