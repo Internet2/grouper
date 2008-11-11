@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHooksUtils.java,v 1.16 2008-11-04 07:17:56 mchyzer Exp $
+ * $Id: GrouperHooksUtils.java,v 1.17 2008-11-11 07:27:32 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleGrouperStartupBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHooksInitBean;
 import edu.internet2.middleware.grouper.hooks.examples.GroupAttributeNameValidationHook;
+import edu.internet2.middleware.grouper.hooks.examples.GroupTypeSecurityHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -85,6 +86,8 @@ public class GrouperHooksUtils {
       
       GroupTypeTupleIncludeExcludeHook.registerHookIfNecessary(false);
 
+      GroupTypeSecurityHook.registerHookIfNecessary(false);
+      
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
           LifecycleHooks.METHOD_HOOKS_INIT, HooksLifecycleHooksInitBean.class, 
           (Object)null, null, null);

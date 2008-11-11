@@ -43,7 +43,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Reference to members list is: Group.getDefaultList()
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.37 2008-11-04 07:17:55 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.38 2008-11-11 07:27:32 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -136,7 +136,8 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   {
     if ( this.cachedGroupType == null ) {
       try {
-        GroupType type = GrouperDAOFactory.getFactory().getGroupType().findByUuid( this.getGroupTypeUuid() ) ;
+//        GroupType type = GrouperDAOFactory.getFactory().getGroupType().findByUuid( this.getGroupTypeUuid() ) ;
+        GroupType type = GroupTypeFinder.findByUuid(this.getGroupTypeUuid(), true);
         this.cachedGroupType = type;
       }
       catch (SchemaException eS) {

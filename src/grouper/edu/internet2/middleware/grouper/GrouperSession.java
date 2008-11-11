@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.90 2008-11-04 07:17:55 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.91 2008-11-11 07:27:32 mchyzer Exp $
  */
 public class GrouperSession {
 
@@ -478,9 +478,9 @@ public class GrouperSession {
    * <pre class="eg">
    * s.stop();
    * </pre>
+   * @throws SessionException 
    */
-  public void stop() 
-    throws  SessionException
+  public void stop()  throws  SessionException
   {
     //remove from threadlocal if this is the one on threadlocal (might not be due
     //to nesting)

@@ -63,12 +63,10 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Category;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
-import org.apache.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
@@ -1065,6 +1063,30 @@ public class GrouperUtil {
     return result.toString();
   }
   
+  /**
+   * convert a set to a string (comma separate)
+   * @param map
+   * @return the String
+   */
+  public static String MapToString(Map map) {
+    if (map == null) {
+      return "null";
+    }
+    if (map.size() == 0) {
+      return "empty";
+    }
+    StringBuilder result = new StringBuilder();
+    boolean first = true;
+    for (Object object : map.keySet()) {
+      if (!first) {
+        result.append(", ");
+      }
+      first = false;
+      result.append(object).append(": ").append(map.get(object));
+    }
+    return result.toString();
+  }
+
   /**
    * print out various types of objects
    * 
@@ -5626,7 +5648,21 @@ public class GrouperUtil {
    * @return the property value
    */
   public static String propertiesValue(Properties properties, String key) {
-    String value = properties.getProperty(key);
+    return propertiesValue(properties, null, key);
+  }
+  
+  /**
+   * get a value (trimmed to e) from a property file
+   * @param properties
+   * @param overrideMap for testing, to override some properties values
+   * @param key
+   * @return the property value
+   */
+  public static String propertiesValue(Properties properties, Map<String, String> overrideMap, String key) {
+    String value = overrideMap == null ? null : overrideMap.get(key);
+    if (StringUtils.isBlank(value)) {
+      value = properties.getProperty(key);
+    }
     return StringUtils.trim(value);
   }
   
@@ -5637,9 +5673,24 @@ public class GrouperUtil {
    * @param defaultValue 
    * @return the boolean
    */
-  public static boolean propertiesValueBoolean(Properties properties, String propertyName, boolean defaultValue) {
+  public static boolean propertiesValueBoolean(Properties properties,
+      String propertyName, boolean defaultValue) {
+    return propertiesValueBoolean(properties, null, propertyName, defaultValue);
+  }
+  
+  /**
+   * get a boolean property, or the default if cant find
+   * @param properties
+   * @param overrideMap for testing to override properties
+   * @param propertyName
+   * @param defaultValue 
+   * @return the boolean
+   */
+  public static boolean propertiesValueBoolean(Properties properties, 
+      Map<String, String> overrideMap, String propertyName, boolean defaultValue) {
     
-    String value = propertiesValue(properties, propertyName);
+      
+    String value = propertiesValue(properties, overrideMap, propertyName);
     if (StringUtils.isBlank(value)) {
       return defaultValue;
     }
@@ -5896,6 +5947,11 @@ public class GrouperUtil {
     }
   }
   
+  /**
+   * 
+   * @param inPath
+   * @return string
+   */
   public static String fixRelativePath(String inPath) {
 	  if(grouperHome==null || inPath.matches("^(/|\\\\|\\w:).*")) {
 		  return inPath;
@@ -5910,6 +5966,10 @@ public class GrouperUtil {
 	  return outPath;
   }
   
+  /**
+   * 
+   * @param props
+   */
   private static void fixHibernateConnectionUrl(Properties props) {
 	  String url = props.getProperty("hibernate.connection.url");
 	  if(StringUtils.isBlank(url)) {
