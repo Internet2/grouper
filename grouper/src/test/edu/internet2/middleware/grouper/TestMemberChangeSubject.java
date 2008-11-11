@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: TestMemberChangeSubject.java,v 1.3 2008-10-18 07:14:39 mchyzer Exp $
+ * $Id: TestMemberChangeSubject.java,v 1.4 2008-11-11 22:08:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -215,11 +215,9 @@ public class TestMemberChangeSubject extends GrouperTest {
     String eduStemCreateUuid = this.edu.getCreatorUuid();
     Member member2 = null;
     //lets delete this member
-    try {
-      member2 = MemberFinder.findBySubject(this.rootGrouperSession, SubjectTestHelper.SUBJ2);
+    member2 = MemberFinder.internal_findBySubject(SubjectTestHelper.SUBJ2, false);
+    if (member2 != null) {
       HibernateSession.byObjectStatic().delete(member2);
-    }catch (MemberNotFoundException mnfe) {
-      //good
     }
 
     //make sure member doesnt exist

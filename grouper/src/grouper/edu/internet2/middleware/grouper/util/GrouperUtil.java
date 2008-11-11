@@ -82,6 +82,20 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperUtil {
 
   /**
+   * append and maybe put a separator in there
+   * @param result
+   * @param separatorIfResultNotEmpty
+   * @param stringToAppend
+   */
+  public static void append(StringBuilder result, 
+      String separatorIfResultNotEmpty, String stringToAppend) {
+    if (result.length() != 0) {
+      result.append(separatorIfResultNotEmpty);
+    }
+    result.append(stringToAppend);
+  }
+  
+  /**
    * 
    */
   public static final String LOG_ERROR = "Error trying to make parent dirs for logger or logging first statement, check to make " +

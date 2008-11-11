@@ -24,7 +24,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMemberFinder_FindBySubject.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestMemberFinder_FindBySubject.java,v 1.7 2008-11-11 22:08:33 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestMemberFinder_FindBySubject extends GrouperTest {
@@ -51,9 +51,6 @@ public class TestMemberFinder_FindBySubject extends GrouperTest {
         null
       );
       fail("found member by null subject");
-    }
-    catch (MemberNotFoundException eMNF) {
-      assertTrue("OK: did not find member by null subject", true);
     }
     catch (Exception e) {
       T.e(e);

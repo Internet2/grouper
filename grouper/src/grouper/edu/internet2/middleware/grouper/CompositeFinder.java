@@ -30,19 +30,17 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.24 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: CompositeFinder.java,v 1.25 2008-11-11 22:08:33 mchyzer Exp $
  * @since   1.0
  */
 public class CompositeFinder {
-    
-  // CONSTRUCTORS //
-  // @since   1.0
+
+  /**
+   * 
+   */
   private CompositeFinder() {
     super();
-  } // private CompositeFinder()
-
-
-  // PUBLIC CLASS METHODS //
+  } 
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(CompositeFinder.class);
@@ -57,8 +55,8 @@ public class CompositeFinder {
    * @return  A set of {@link Composite} objects.
    * @since   1.0
    */
-  public static Set findAsFactor(Group g) {
-    Set             where = new LinkedHashSet();
+  public static Set<Composite> findAsFactor(Group g) {
+    Set<Composite>            where = new LinkedHashSet<Composite>();
     GrouperSession  s     = GrouperSession.staticGrouperSession();
     Member          m     = s.getMember();
     Composite       c;
@@ -75,7 +73,7 @@ public class CompositeFinder {
       }
     } 
     return where;
-  } // public static Set findAsFactor(g)
+  }
 
   /**
    * Find {@link Composite} owned by this {@link Group}.

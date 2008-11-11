@@ -64,12 +64,7 @@ public class GroupMemberFilter extends BaseQueryFilter {
     GrouperSession.validate(s);
 
     Member member = null;
-    try {
-      member = MemberFinder.findBySubject(s, subj);
-    }
-    catch (MemberNotFoundException e) {
-      return new LinkedHashSet();
-    }
+    member = MemberFinder.findBySubject(s, subj);
 
     Set candidates  = PrivilegeHelper.canViewGroups(
       s, member.getGroups()

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.8 2008-11-08 08:15:34 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.9 2008-11-11 22:08:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperReport;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
@@ -273,6 +274,120 @@ public enum GrouperLoaderType {
           if (LOG.isDebugEnabled()) {
             LOG.debug(groupNameOverall + ": syncing membership for " + groupNames.size() + " groups");
           }
+          
+          //#######################################
+          //Delete records in groups not there anymore.  maybe delete group too
+          if (!StringUtils.isBlank(groupLikeString)) {
+            
+            //lets see which names are not in that list
+            Set<String> groupNamesManaged = HibernateSession.byHqlStatic()
+              .createQuery("select distinct a.value from Attribute a where a.value like :thePattern")
+              .setString("thePattern", groupLikeString).listSet(String.class);
+          
+            //take out the ones which exist
+            groupNamesManaged.removeAll(groupNames);
+            
+            Boolean isIncludeExclude = null;
+            
+            for (String groupNameEmpty : groupNamesManaged) {
+              
+              //if we need to figure this out
+              if (isIncludeExclude == null) {
+                isIncludeExclude = false;
+                //if it ends in a suffix
+                if (GroupTypeTupleIncludeExcludeHook.nameIsIncludeExcludeRequireGroup(groupNameEmpty)) {
+                  isIncludeExclude = true;
+                } else {
+                  //else if there is a system of record for it
+                  if (GroupFinder.findByName(grouperSession, groupNameEmpty 
+                      + GroupTypeTupleIncludeExcludeHook.systemOfRecordExtensionSuffix(), false) != null) {
+                    isIncludeExclude = true;
+                  }
+                }
+              }
+
+              //now... if it is includeExclude
+              if (isIncludeExclude) {
+                //make sure this is the system of record group
+                if (!groupNameEmpty.endsWith(GroupTypeTupleIncludeExcludeHook.systemOfRecordExtensionSuffix())) {
+                  continue;
+                }
+              }
+              
+              long groupStartedMillis = System.currentTimeMillis();
+              int memberCount = 0;
+              GrouperLoaderStatus status = GrouperLoaderStatus.SUCCESS;
+              StringBuilder jobDescription = new StringBuilder();
+              boolean didSomething = false;
+              long millisGetData = 0;
+              long millisSetData = 0;
+              try {
+                
+                //first of all remove members
+                Group groupEmpty = GroupFinder.findByName(grouperSession, groupNameEmpty, false);
+  
+                //not sure why it would be null
+                if (groupEmpty == null) {
+                  continue;
+                }
+                millisGetData = System.currentTimeMillis();
+                Set<Member> members = GrouperUtil.nonNull(groupEmpty.getImmediateMembers());
+                millisGetData = System.currentTimeMillis() - millisGetData;
+                
+                millisSetData = System.currentTimeMillis();
+                memberCount = members.size();
+                for (Member member : members) {
+                  didSomething = true;
+                  groupEmpty.deleteMember(member);
+                }
+  
+                //see if we are deleting group
+                if (GrouperLoaderConfig.getPropertyBoolean(
+                    "loader.sqlTable.likeString.removeGroupIfNotUsed", true)) {
+
+                  //see if we need to log
+                  didSomething = true;
+                  StringBuilder theLog = new StringBuilder();
+                  int groupsDeleted = GroupTypeTupleIncludeExcludeHook.deleteGroupsIfNotUsed(grouperSession, 
+                      groupNameEmpty, theLog, true);
+                  GrouperUtil.append(jobDescription, "\n", theLog.toString());
+                  if (groupsDeleted == 0) {
+                    //this is a problem, something is being used...  warning
+                    status = GrouperLoaderStatus.WARNING;
+                  }
+                }
+                millisSetData = System.currentTimeMillis() - millisSetData;
+              } catch (Exception e) {
+                didSomething = true;
+                status = GrouperLoaderStatus.ERROR;
+                LOG.error("Error on group: " + groupNameEmpty, e);
+                GrouperUtil.append(jobDescription, "\n", "Error: " + ExceptionUtils.getFullStackTrace(e));
+              }
+              
+              //if we did something, log it
+              if (didSomething) {
+                Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+                //make a new log object for this one subgroup
+                hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+                hib3GrouploaderLog.setJobName("subjobFor_" + groupNameEmpty);
+                hib3GrouploaderLog.setStartedTime(new Timestamp(groupStartedMillis));
+                hib3GrouploaderLog.setStatus(status.name());
+                hib3GrouploaderLog.setParentJobId(hib3GrouploaderLogOverall.getId());
+                hib3GrouploaderLog.setParentJobName(hib3GrouploaderLogOverall.getJobName());
+                hib3GrouploaderLog.setJobDescription(jobDescription.toString());
+                hib3GrouploaderLog.setDeleteCount(memberCount);
+                long endTime = System.currentTimeMillis();
+                hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
+                hib3GrouploaderLog.setMillis((int)(endTime-groupStartedMillis));
+                hib3GrouploaderLog.setMillisGetData(new Integer((int)millisGetData));
+                hib3GrouploaderLog.setMillisLoadData(new Integer((int)millisSetData));
+                hib3GrouploaderLog.store();
+              }
+            }
+            
+          }
+          //End delete records in groups not there anymore.  maybe delete group too
+          //#######################################
           
           int count=1;
           
