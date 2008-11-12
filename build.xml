@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.205 2008-11-07 16:29:53 isgwb Exp $ -->
+<!-- $Id: build.xml,v 1.206 2008-11-12 11:59:01 isgwb Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -335,8 +335,13 @@
         <include name="**"/>
       </fileset>
     </copy>
-
-   <tar basedir="${dist.binary}" compression="gzip"
+    
+     <if>
+      <not>
+        <equals arg1="${nozip}" arg2="true" casesensitive="true" trim="true"/>
+      </not>
+      <then>
+       <tar basedir="${dist.binary}" compression="gzip"
       destfile="${dist.binary}/grouper.binary.${version}.tar.gz">
       <include name="grouper.binary.${version}/**" />
     </tar>
@@ -345,6 +350,9 @@
           destfile="${dist.binary}/grouper.binary.${version}.zip">
           <include name="grouper.binary.${version}/**" />
      </zip>
+      </then>
+    </if>
+
   </target>
   
   <!-- target: dist -->
@@ -541,60 +549,6 @@
     <fixcrlf srcdir="bin" eol="unix" includes="*.sh" />
     <fixcrlf srcdir="bin" eol="dos" includes="*.bat" />
     <chmod dir="bin" includes="*.sh,*.bat" perm="ugo+rx"/>
-
-    <!-- if there is no loader bat/sh, copy from example -->
-    <if>
-      <not>
-        <available file="bin/grouperloader.bat" />
-      </not>
-      <then>
-        <copy file="bin/grouperloader.example.bat" tofile="bin/grouperloader.bat" />
-      </then>
-    </if>
-    <if>
-      <not>
-        <available file="bin/grouperloader.sh" />
-      </not>
-      <then>
-        <copy file="bin/grouperloader.example.sh" tofile="bin/grouperloader.sh" />
-      </then>
-    </if>
-    
-    <!-- if there is no gsh bat/sh, copy from example -->
-    <if>
-      <not>
-        <available file="bin/gsh.bat" />
-      </not>
-      <then>
-        <copy file="bin/gsh.example.bat" tofile="bin/gsh.bat" />
-      </then>
-    </if>
-    <if>
-      <not>
-        <available file="bin/gsh.sh" />
-      </not>
-      <then>
-        <copy file="bin/gsh.example.sh" tofile="bin/gsh.sh" />
-      </then>
-    </if>
-
-    <!-- if there is no groupertest bat/sh, copy from example -->
-    <if>
-      <not>
-        <available file="bin/groupertest.bat" />
-      </not>
-      <then>
-        <copy file="bin/groupertest.example.bat" tofile="bin/groupertest.bat" />
-      </then>
-    </if>
-    <if>
-      <not>
-        <available file="bin/groupertest.sh" />
-      </not>
-      <then>
-        <copy file="bin/groupertest.example.sh" tofile="bin/groupertest.sh" />
-      </then>
-    </if>
 
     <!-- fix line endings and permissions of scripts -->
     <fixcrlf srcdir="bin" eol="unix" includes="*.sh" />
