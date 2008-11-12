@@ -273,7 +273,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.22 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.23 2008-11-12 11:05:38 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 	
@@ -401,7 +401,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		Member member = null;
 		try {
 			member=MemberFinder.findBySubject(grouperSession,subject);
-		}catch(MemberNotFoundException e) {
+		}catch(Exception e) {
 			LOG.error(e);
 			if(doRedirectToCaller(subjectForm)) {
 				session.setAttribute("sessionMessage",new Message("error.subject-summary.member.exception",true));
