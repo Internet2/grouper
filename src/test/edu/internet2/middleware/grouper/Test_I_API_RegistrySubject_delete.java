@@ -26,7 +26,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Test <code>Group.delete()</code>.
  * @author  blair christensen.
- * @version $Id: Test_I_API_RegistrySubject_delete.java,v 1.5 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: Test_I_API_RegistrySubject_delete.java,v 1.6 2008-11-12 21:19:53 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_RegistrySubject_delete extends GrouperTest {
@@ -51,7 +51,7 @@ public class Test_I_API_RegistrySubject_delete extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new Test_I_API_RegistrySubject_delete("test_delete_failToDeleteNoLongerExistingRegistrySubject"));
+    TestRunner.run(new Test_I_API_RegistrySubject_delete("test_delete_failOnNullSession"));
     //TestRunner.run(Test_I_API_RegistrySubject_delete.class);
   }
 
@@ -137,24 +137,6 @@ public class Test_I_API_RegistrySubject_delete extends GrouperTest {
     
     rSubjX.delete(s);
     assertTrue("deleted registry subject", true);
-  }
-
-  /**
-   * Throw <i>GrouperException</i> when attempting to delete a non-existing <i>RegistrySubject</i>.
-   * @since   1.2.0
-   */
-  public void test_delete_failToDeleteNoLongerExistingRegistrySubject() 
-    throws  GrouperException,
-            InsufficientPrivilegeException
-  {
-    rSubjX.delete(s);
-    try {
-      rSubjX.delete(s);
-      fail("did not throw expected GrouperException");
-    }
-    catch (GrouperException expected) {
-      assertTrue("threw expected GrouperException", true);
-    }
   }
 
 } 
