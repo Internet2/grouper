@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.206 2008-11-12 11:59:01 isgwb Exp $ -->
+<!-- $Id: build.xml,v 1.207 2008-11-12 14:33:35 isgwb Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -209,6 +209,13 @@
     <copy todir="${dist.binary.zip}/lib/custom">
       <fileset dir="${lib.dir}/custom">
         <include name="README.txt"/>
+      </fileset>
+    </copy>
+    
+    <mkdir dir="${dist.binary.zip}/lib/ant"/>
+    <copy todir="${dist.binary.zip}/lib/ant">
+      <fileset dir="${lib.dir}/ant">
+        <include name="*.jar"/>
       </fileset>
     </copy>
     
