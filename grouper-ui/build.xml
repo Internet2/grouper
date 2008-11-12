@@ -226,18 +226,15 @@
 	<!-- 
 		Builds the entire webapp 
 	-->
-	<target name="-webapp" unless="no.webapp" depends="-ensure-grouper-libs">
+	<target name="-webapp" unless="no.webapp" >
 	
 		<delete dir="${temp.dir}"/>
 		<mkdir dir="${temp.dir}"/>
 		<mkdir dir="${dist.home}"/>
 		<path id="ui.class.path">
 				<!-- Make available jar files that Grouper needs -->
-			<fileset dir="${grouper.folder}/dist/lib">
+			<fileset dir="${grouper.folder}/lib">
 				<include name="**/*.jar"/>
-				<exclude name="grouper-lib-*.jar"/>
-				<exclude name="grouper.jar"/>
-				<exclude name="grouper-2*.jar"/>
 			</fileset>
 				
 			<!-- Make available jar files the UI needs -->
@@ -273,9 +270,14 @@
 		<!-- Make all necessary jar files available to the webapp itself -->
 		<copy todir="${webapp.folder}/WEB-INF/lib" overwrite="${overwiteLib}">
 			<fileset dir="${grouper.folder}/dist/lib">
-				<include name="**/*.jar"/>
-				<exclude name="grouper-lib-*.jar"/>
+				<include name="*.jar"/>
 				<exclude name="grouper-2*.jar"/>
+			</fileset>
+			<fileset dir="${grouper.folder}/lib/grouper">
+				<include name="**/*.jar"/>
+			</fileset>
+			<fileset dir="${grouper.folder}/lib/custom">
+				<include name="**/*.jar"/>
 			</fileset>
 			<fileset dir="${ui.folder}/java/lib">
 				<include name="**/*.jar"/>
@@ -642,16 +644,13 @@
 
   </target>
   	
-	<target name="-html" if="make.javadoc" description="generate public api docs"  depends="-ensure-grouper-libs">    
+	<target name="-html" if="make.javadoc" description="generate public api docs" >    
 	<!-- Let's be sure we clear out old cruft first... -->    
 	<delete dir="doc/api" /> 
 	<path id="ui.class.path">
 				<!-- Make available jar files that Grouper needs -->
-			<fileset dir="${grouper.folder}/dist/lib">
+			<fileset dir="${grouper.folder}/lib">
 				<include name="**/*.jar"/>
-				<exclude name="grouper-lib-*.jar"/>
-				<exclude name="grouper.jar"/>
-				<exclude name="grouper-2*.jar"/>
 			</fileset>
 			<!-- Make available jar files the UI needs -->
 			<fileset dir="${ui.folder}/java/lib">
@@ -726,62 +725,6 @@
     <link href="http://java.sun.com/j2se/1.4.2/docs/api"/>
 
 		  </javadoc> 
-	  </target>
-	  
-	  <target name="-ensure-grouper-libs">
-		  <available property="grouper-lib.dist.available" file="${grouper.folder}/dist/lib/grouper-lib.jar"/>
-		  <available property="grouper-libs.dist.available" file="${grouper.folder}/dist/lib/junit.jar"/>
-		  <available property="grouper-libs.available" file="${grouper.folder}/lib"/>
-		  <condition property="no.grouper-libs.available">
-			  <and>
-				  <not><isset property="grouper-lib.dist.available"/></not>
-				  <not><isset property="grouper-libs.dist.available"/></not>
-				  <not><isset property="grouper-libs.available"/></not>
-			  </and>
-		  </condition>
-		  
-		  <condition property="only.grouper-libs.available">
-			  <and>
-				  <not><isset property="grouper-lib.dist.available"/></not>
-				  
-				  <isset property="grouper-libs.available"/>
-			  </and>
-		  </condition>
-		  
-		<condition property="only.grouper-libs.dist.available">
-			  <and>
-				  <not><isset property="grouper-lib.dist.available"/></not>
-				  <not><isset property="grouper-libs.available"/></not>
-				  <isset property="grouper-libs.dist.available"/>
-			  </and>
-		  </condition>
-		  
-		  <antcall target="-grouper-lib-available"/>
-		  <antcall target="-only-grouper-libs-available"/>
-		  <antcall target="-only-grouper-libs-dist-available"/>
-		   <antcall target="-no-grouper-libs-available"/>
-	  </target>
-	  
-	  <target name="-grouper-lib-available" if="grouper-lib.dist.available">
-		 <echo>grouper-lib.jar available</echo> 
-	  </target>
-	  <target name="-only-grouper-libs-available" if="only.grouper-libs.available">
-		<echo>Copy jar files from lib</echo>
-		<copy todir="${grouper.folder}/dist/lib" overwrite="${overwiteLib}">
-			<fileset dir="${grouper.folder}/lib/grouper">
-				<include name="*.jar"/>
-			</fileset>
-      <fileset dir="${grouper.folder}/lib/custom">
-        <include name="*.jar"/>
-      </fileset>
-		</copy>   
-	  </target>
-	  
-	  <target name="-only-grouper-libs-dist-available" if="only.grouper-libs.dist.available">
-		<echo>JAR files already available</echo>
-	  </target>
-	  <target name="-no-grouper-libs-available" if="no.grouper-libs.available">
-			 <fail message="Unable to find ${grouper.folder}/dist/lib/grouper-lib.jar or ${grouper.folder}/lib or individual jar files in ${grouper.folder}/dist/lib"/>
 	  </target>
 	  
 	  <!-- Make life easy for user-->
