@@ -32,7 +32,7 @@ import junit.textui.TestRunner;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.11 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_api_Stem.java,v 1.12 2008-11-12 09:05:53 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_Stem extends GrouperTest {
@@ -61,9 +61,40 @@ public class Test_api_Stem extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_api_Stem("test_isChildGroup_rootAsPotentialParent"));
+    //TestRunner.run(new Test_api_Stem("test_isChildGroup_rootAsPotentialParent"));
+    TestRunner.run(Test_api_Stem.class);
   }
 
+  /** size before getting started */
+  private int originalRootGroupSubSize = -1;
+  
+  /** original chld stem size */
+  private int originalRootChildStemSize = -1;
+  
+  /** original */
+  private int originalRootChildStemOneSize = -1;
+  
+  /** original */
+  private int originalRootChildStemSubSize = -1;
+  
+  /** original */
+  private int originalRootCreateOne = -1;
+  
+  /** original */
+  private int originalRootCreateSub = -1;
+  
+  /** original */
+  private int originalRootViewOne = -1;
+  
+  /** original */
+  private int originalRootViewSub = -1;
+  
+  /** original */
+  private int originalRootCreateAndViewOne = -1;
+  
+  /** original */
+  private int originalRootCreateAndViewSub = -1;
+  
   /**
    * 
    * @see edu.internet2.middleware.grouper.GrouperTest#setUp()
@@ -73,6 +104,25 @@ public class Test_api_Stem extends GrouperTest {
     try {
       this.s            = GrouperSession.start( SubjectFinder.findRootSubject() );
       this.root         = StemFinder.findRootStem(this.s);
+      
+      this.originalRootGroupSubSize = this.root.getChildGroups(Stem.Scope.SUB).size();
+      this.originalRootChildStemSize = this.root.getChildStems().size();
+      this.originalRootChildStemOneSize = this.root.getChildStems(Stem.Scope.ONE).size();
+      this.originalRootChildStemSubSize = this.root.getChildStems(Stem.Scope.SUB).size();
+      
+      this.originalRootCreateOne =  this.root.getChildStems( 
+          new Privilege[]{NamingPrivilege.CREATE}, Stem.Scope.ONE ).size();
+      this.originalRootCreateSub =  this.root.getChildStems( 
+          new Privilege[]{NamingPrivilege.CREATE}, Stem.Scope.SUB ).size();
+      this.originalRootViewOne =  this.root.getChildStems( 
+          new Privilege[]{AccessPrivilege.VIEW}, Stem.Scope.ONE ).size();
+      this.originalRootViewSub =  this.root.getChildStems( 
+          new Privilege[]{AccessPrivilege.VIEW}, Stem.Scope.SUB ).size();
+      this.originalRootCreateAndViewOne =  this.root.getChildStems( 
+          new Privilege[]{NamingPrivilege.CREATE, AccessPrivilege.VIEW}, Stem.Scope.ONE ).size();
+      this.originalRootCreateAndViewSub =  this.root.getChildStems( 
+          new Privilege[]{NamingPrivilege.CREATE, AccessPrivilege.VIEW}, Stem.Scope.SUB ).size();
+      
       this.top          = this.root.addChildStem("top", "top");
       this.top_group    = this.top.addChildGroup("top group", "top group");
       this.child        = this.top.addChildStem("child", "child");
@@ -170,7 +220,7 @@ public class Test_api_Stem extends GrouperTest {
   }
 
   public void test_getChildGroups_Scope_fromRootScopeSUB() {
-    assertEquals( 2, this.root.getChildGroups(Stem.Scope.SUB).size() );
+    assertEquals( this.originalRootGroupSubSize + 2, this.root.getChildGroups(Stem.Scope.SUB).size() );
   }
 
   public void test_getChildGroups_Scope_fromTopScopeONE() {
@@ -192,7 +242,7 @@ public class Test_api_Stem extends GrouperTest {
 
 
   public void test_getChildStems_fromRoot() {
-    assertEquals( 1, this.root.getChildStems().size() );
+    assertEquals( this.originalRootChildStemSize + 1, this.root.getChildStems().size() );
   }
 
   public void test_getChildStems_fromTop() {
@@ -216,11 +266,11 @@ public class Test_api_Stem extends GrouperTest {
   }
 
   public void test_getChildStems_Scope_fromRootScopeONE() {
-    assertEquals( 1, this.root.getChildStems(Stem.Scope.ONE).size() );
+    assertEquals( this.originalRootChildStemOneSize + 1, this.root.getChildStems(Stem.Scope.ONE).size() );
   }
 
   public void test_getChildStems_Scope_fromRootScopeSUB() {
-    assertEquals( 2, this.root.getChildStems(Stem.Scope.SUB).size() );
+    assertEquals( this.originalRootChildStemSubSize + 2, this.root.getChildStems(Stem.Scope.SUB).size() );
   }
 
   public void test_getChildStems_Scope_fromTopScopeONE() {
@@ -264,27 +314,27 @@ public class Test_api_Stem extends GrouperTest {
   }
   public void test_getChildStems_PrivilegeArrayAndScope_createPrivAndOneScope() {
     Privilege[] privs = { NamingPrivilege.CREATE };
-    assertEquals( 1, this.root.getChildStems( privs, Stem.Scope.ONE ).size() );
+    assertEquals( this.originalRootCreateOne + 1, this.root.getChildStems( privs, Stem.Scope.ONE ).size() );
   }
   public void test_getChildStems_PrivilegeArrayAndScope_createPrivAndSubScope() {
     Privilege[] privs = { NamingPrivilege.CREATE };
-    assertEquals( 2, this.root.getChildStems( privs, Stem.Scope.SUB ).size() );
+    assertEquals( this.originalRootCreateSub + 2, this.root.getChildStems( privs, Stem.Scope.SUB ).size() );
   }
   public void test_getChildStems_PrivilegeArrayAndScope_viewPrivAndOneScope() {
     Privilege[] privs = { AccessPrivilege.VIEW };
-    assertEquals( 1, this.root.getChildStems( privs, Stem.Scope.ONE ).size() );
+    assertEquals( this.originalRootViewOne + 1, this.root.getChildStems( privs, Stem.Scope.ONE ).size() );
   }
   public void test_getChildStems_PrivilegeArrayAndScope_viewPrivAndSubScope() {
     Privilege[] privs = { AccessPrivilege.VIEW };
-    assertEquals( 2, this.root.getChildStems( privs, Stem.Scope.SUB ).size() );
+    assertEquals( this.originalRootViewSub + 2, this.root.getChildStems( privs, Stem.Scope.SUB ).size() );
   }
   public void test_getChildStems_PrivilegeArrayAndScope_createAndViewPrivsAndOneScope() {
     Privilege[] privs = { NamingPrivilege.CREATE, AccessPrivilege.VIEW };
-    assertEquals( 1, this.root.getChildStems( privs, Stem.Scope.ONE ).size() );
+    assertEquals( this.originalRootCreateAndViewOne + 1, this.root.getChildStems( privs, Stem.Scope.ONE ).size() );
   }
   public void test_getChildStems_PrivilegeArrayAndScope_createAndViewPrivsAndSubScope() {
     Privilege[] privs = { NamingPrivilege.CREATE, AccessPrivilege.VIEW };
-    assertEquals( 2, this.root.getChildStems( privs, Stem.Scope.SUB ).size() );
+    assertEquals( this.originalRootCreateAndViewSub + 2, this.root.getChildStems( privs, Stem.Scope.SUB ).size() );
   }
   /**
    * @since   1.2.1

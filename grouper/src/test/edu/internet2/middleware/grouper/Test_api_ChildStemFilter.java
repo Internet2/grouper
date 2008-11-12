@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.filter.ChildStemFilter;
@@ -26,21 +27,47 @@ import edu.internet2.middleware.grouper.filter.ChildStemFilter;
  * Test {@link ChildStemFilter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_ChildStemFilter.java,v 1.3 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_api_ChildStemFilter.java,v 1.4 2008-11-12 09:05:53 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_ChildStemFilter extends GrouperTest {
 
+  /**
+   * 
+   */
+  public Test_api_ChildStemFilter() {
+    super();
+  }
+
+  /**
+   * @param name
+   */
+  public Test_api_ChildStemFilter(String name) {
+    super(name);
+  }
+
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new Test_api_ChildStemFilter("test_getResults_fromRoot"));
+  }
 
   private GrouperSession  s;
   private Stem            child, root, top;
 
-
+  /** keep track before getting started */
+  private int originalRootSize = -1;
+  
   public void setUp() {
     super.setUp();
     try {
       this.s      = GrouperSession.start( SubjectFinder.findRootSubject() );
       this.root   = StemFinder.findRootStem(this.s);
+      
+      this.originalRootSize = new ChildStemFilter(this.root).getResults(this.s).size();
+      
       this.top    = this.root.addChildStem("top", "top");
       this.child  = this.top.addChildStem("child", "child");
     }
@@ -80,7 +107,7 @@ public class Test_api_ChildStemFilter extends GrouperTest {
   public void test_getResults_fromRoot() 
     throws  QueryException
   {
-    assertEquals( 2, new ChildStemFilter(this.root).getResults(this.s).size() );
+    assertEquals( this.originalRootSize + 2, new ChildStemFilter(this.root).getResults(this.s).size() );
   }
 
   public void test_getResults_fromTop() 

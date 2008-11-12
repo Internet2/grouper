@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  mchyzer
- * @version $Id: TestGroupTypeIncludeExclude.java,v 1.3 2008-11-08 08:15:33 mchyzer Exp $
+ * @version $Id: TestGroupTypeIncludeExclude.java,v 1.4 2008-11-12 09:05:53 mchyzer Exp $
  */
 public class TestGroupTypeIncludeExclude extends GrouperTest {
 
@@ -44,7 +44,8 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroupTypeIncludeExclude("testRequireGroup2"));
+    //TestRunner.run(new TestGroupTypeIncludeExclude("testRequireGroup2"));
+    TestRunner.run(TestGroupTypeIncludeExclude.class);
   }
   
   /**
@@ -348,13 +349,13 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
   
     Group aGroup = Group.saveGroup(this.grouperSession, null, null, overallName, null, null, null, true);
   
-    Group activeStudentGroup = Group.saveGroup(this.grouperSession, null, null, "aStem:activeStudent", null, null, null, true);
+    Group activeStudentGroup = Group.saveGroup(this.grouperSession, "aStem:activeStudent", null, "aStem:activeStudent", null, null, null, true);
   
-    Group activeEmployeeGroup = Group.saveGroup(this.grouperSession, null, null, "aStem:activeEmployee", null, null, null, true);
+    Group activeEmployeeGroup = Group.saveGroup(this.grouperSession, "aStem:activeEmployee", null, "aStem:activeEmployee", null, null, null, true);
   
-    Group anotherGroup = Group.saveGroup(this.grouperSession, null, null, "aStem:anotherGroup", null, null, null, true);
+    Group anotherGroup = Group.saveGroup(this.grouperSession, "aStem:anotherGroup", null, "aStem:anotherGroup", null, null, null, true);
   
-    Group yetAnotherGroup = Group.saveGroup(this.grouperSession, null, null, "aStem:yetAnotherGroup", null, null, null, true);
+    Group yetAnotherGroup = Group.saveGroup(this.grouperSession, "aStem:yetAnotherGroup", null, "aStem:yetAnotherGroup", null, null, null, true);
   
     //lets start by adding first five to the main group
     aGroup.addMember(SubjectTestHelper.SUBJ0);
@@ -1173,11 +1174,11 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
 
     Group aGroup = Group.saveGroup(this.grouperSession, null, null, overallName, null, null, null, true);
 
-    Group activeEmployeeGroup = Group.saveGroup(this.grouperSession, null, null, "aStem:activeEmployee", null, null, null, true);
+    Group activeEmployeeGroup = Group.saveGroup(this.grouperSession, "aStem:activeEmployee", null, "aStem:activeEmployee", null, null, null, true);
 
-    Group anotherGroup = Group.saveGroup(this.grouperSession, null, null, "aStem:anotherGroup", null, null, null, true);
+    Group anotherGroup = Group.saveGroup(this.grouperSession, "aStem:anotherGroup", null, "aStem:anotherGroup", null, null, null, true);
 
-    Group yetAnotherGroup = Group.saveGroup(this.grouperSession, null, null, "aStem:yetAnotherGroup", null, null, null, true);
+    Group yetAnotherGroup = Group.saveGroup(this.grouperSession, "aStem:yetAnotherGroup", null, "aStem:yetAnotherGroup", null, null, null, true);
 
     //lets start by adding first five to the main group
     aGroup.addMember(SubjectTestHelper.SUBJ0);

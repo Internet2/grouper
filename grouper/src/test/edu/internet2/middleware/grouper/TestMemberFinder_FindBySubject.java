@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.textui.TestRunner;
+
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
@@ -24,7 +26,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMemberFinder_FindBySubject.java,v 1.7 2008-11-11 22:08:33 mchyzer Exp $
+ * @version $Id: TestMemberFinder_FindBySubject.java,v 1.8 2008-11-12 09:05:53 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestMemberFinder_FindBySubject extends GrouperTest {
@@ -40,6 +42,13 @@ public class TestMemberFinder_FindBySubject extends GrouperTest {
     LOG.debug("tearDown");
   }
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(TestMemberFinder_FindBySubject.class);
+  }
 
   // TESTS //
 
@@ -51,8 +60,9 @@ public class TestMemberFinder_FindBySubject extends GrouperTest {
         null
       );
       fail("found member by null subject");
-    }
-    catch (Exception e) {
+    } catch (NullPointerException npe) {
+      //ok
+    } catch (Exception e) {
       T.e(e);
     }
   } // public void testFailToFindByNullSubject()
