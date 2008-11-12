@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.207 2008-11-12 14:33:35 isgwb Exp $ -->
+<!-- $Id: build.xml,v 1.208 2008-11-12 15:10:46 isgwb Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -219,6 +219,13 @@
       </fileset>
     </copy>
     
+    <mkdir dir="${dist.binary.zip}/lib/test"/>
+    <copy todir="${dist.binary.zip}/lib/test">
+      <fileset dir="${lib.dir}/test">
+        <include name="*.jar"/>
+      </fileset>
+    </copy>
+    
     <mkdir dir="${dist.binary.zip}/lib/grouper"/>
     <copy todir="${dist.binary.zip}/lib/grouper">
       <fileset dir="${lib.dir}/grouper">
@@ -234,7 +241,7 @@
         <include name="test/grouper-test.jar"/>
       </fileset>
     </copy>
-    <copy todir="${dist.binary.zip}/dist/lib/test" file="${lib.dir}/test/junit.jar"/>
+    
 
     <mkdir dir="${dist.binary.zip}/lib/jdbcSamples"/>
     <copy todir="${dist.binary.zip}/lib/jdbcSamples">
