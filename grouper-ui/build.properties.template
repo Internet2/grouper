@@ -2,10 +2,11 @@
 #grouper.home. Before building / deploying the UI you should ensure that your
 #application server e.g. Tomcat has a System property called grouper.home set*
 #or you should replace ${grouper.home} with a valid path. The property below
-#will strip ${grouper.home} from log4j.properties, however, Grouper will then
-#attempt to create log files relative to where your application server was started
+#will cause ${grouper.home} in log4j.properties to be replaced with the grouper folder
+#defined below. This is OK when building and deploying on the same system, however, 
+#if you are making a WAR file to deploy else where you should not rely on this mechanism. 
 #* Start your application server with a -Dgrouper.home=<grouper dir>
-remove.grouper.home.from.log4j=true
+replace.grouper.home=true
 
 
 #You can override the default browse stem, however, you must ensure that the stem

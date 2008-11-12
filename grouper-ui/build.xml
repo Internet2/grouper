@@ -5,6 +5,12 @@
 	<property name="contrib.dir" value="${basedir}/contrib"/>
 	<property name="temp.dir" value="${basedir}/temp"/>
 	<property name="overwriteLib" value="false"/>
+	<!-- ant contrib allows conditionals in ant scripts -->
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+    <classpath>
+      <pathelement location="${grouper.folder}/lib/ant/ant-contrib.jar" />
+    </classpath>
+  </taskdef>
 
 	<filter filtersfile="build.properties"/>
 	<property file=".lastbuild.properties"/>
@@ -197,11 +203,26 @@
 		<!-- If available do further configuration -->
 		<antcall target="-optional-conf"/>
 	</target>
-	<target name="-fix-grouper-home" if="remove.grouper.home.from.log4j">
-			<replace file="${webapp.class.folder}/log4j.properties" >
-				<replacetoken><![CDATA[${grouper.home}]]></replacetoken>
-  				<replacevalue></replacevalue>
-			</replace>
+	<target name="-fix-grouper-home" if="replace.grouper.home">
+			<if>
+				<matches string="${grouper.folder}" pattern="^(\w:|/).*"/>
+				<then>
+					<echo>Attempting to replace grouper.home with ${grouper.folder}/</echo>
+						<replace file="${webapp.class.folder}/log4j.properties" value="${grouper.folder}/">
+						<replacetoken><![CDATA[${grouper.home}]]></replacetoken>
+					</replace>
+				</then>
+				<else>
+					<path id="temp.path">
+	      				<pathelement location="${basedir}"/>
+	      			</path>
+				    <pathconvert targetos="unix" property="base.dir" refid="temp.path"/>
+				    <echo>Attempting to replace grouper.home with ${base.dir}/${grouper.folder}/</echo>
+					<replace file="${webapp.class.folder}/log4j.properties" value="${base.dir}/${grouper.folder}/">
+						<replacetoken><![CDATA[${grouper.home}]]></replacetoken>
+					</replace>
+				</else>
+			</if>
 	</target>
 	<!-- Copy local log4j.properties -->
 	<target name="-local-log4j" if="local.log4j">
@@ -756,4 +777,4 @@
 		  <echo/>
 		  <fail>Please run ant again so it can find catalina-ant.jar</fail>
 	  </target>
-</project>                  	  							   		    		                  	  							   		    		
+</project>                  	  							   		    		                  	  							   		    		                  	  							   		    		                  	  								   		    	  
