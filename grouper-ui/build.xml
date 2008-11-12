@@ -174,14 +174,16 @@
 		<mkdir dir="${webapp.folder}/WEB-INF/lib"/>
 		<echo message="Copying Grouper configuration files to ${webapp.class.folder}"/>
 		<copy todir="${webapp.class.folder}" overwrite="true">
-			<fileset dir="${grouper.folder}/conf"/>
+			<fileset dir="${grouper.folder}/conf">
+				<exclude name="*.example.*"/>
+			</fileset>
 		</copy>
 		<!-- Allow local log4j.properties -->
 		<condition property="local.log4j">
 			<equals trim="true" arg2="true" arg1="${use.local.log4j}"/>
 		</condition>
 		<antcall target="-local-log4j"/>
-		
+		<antcall target="-fix-grouper-home" />
 		<echo message="Copying ui resources to ${webapp.class.folder}/resources"/>
 		<mkdir dir="${webapp.class.folder}/resources"/>
 		<copy todir="${webapp.class.folder}/resources" overwrite="true" filtering="on">
@@ -195,7 +197,12 @@
 		<!-- If available do further configuration -->
 		<antcall target="-optional-conf"/>
 	</target>
-	
+	<target name="-fix-grouper-home" if="remove.grouper.home.from.log4j">
+			<replace file="${webapp.class.folder}/log4j.properties" >
+				<replacetoken><![CDATA[${grouper.home}]]></replacetoken>
+  				<replacevalue></replacevalue>
+			</replace>
+	</target>
 	<!-- Copy local log4j.properties -->
 	<target name="-local-log4j" if="local.log4j">
 		<copy filtering="true" file="${basedir}/log4j.properties" todir="${webapp.class.folder}" overwrite="true"/>
@@ -749,4 +756,4 @@
 		  <echo/>
 		  <fail>Please run ant again so it can find catalina-ant.jar</fail>
 	  </target>
-</project>                  	  							   		    		
+</project>                  	  							   		    		                  	  							   		    		
