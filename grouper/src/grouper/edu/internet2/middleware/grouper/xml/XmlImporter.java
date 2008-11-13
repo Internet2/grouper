@@ -98,7 +98,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.7 2008-11-06 17:04:01 isgwb Exp $
+ * @version $Id: XmlImporter.java,v 1.8 2008-11-13 09:33:52 isgwb Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -432,8 +432,8 @@ public class XmlImporter {
             + "                     including Group/Stem uuids. Overrides property:"+ GrouperConfig.NL
             + "                     import.data.ignore-internal-attributes-and-uuids"+GrouperConfig.NL
             
-            + "  -noprompt,         Do not prompt user to cinfirm import"           + GrouperConfig.NL
-            + "                     imported"                                       + GrouperConfig.NL
+            + "  -noprompt,         Do not prompt user to confirm the database that"+ GrouperConfig.NL
+            + "                     will be updated"                                + GrouperConfig.NL
             
             + "  filename,          The file to import"                             + GrouperConfig.NL
             + "  properties,        The name of an optional Java properties file. " + GrouperConfig.NL
