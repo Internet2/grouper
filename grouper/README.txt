@@ -108,8 +108,8 @@ written.
 
     % ant dist
 
-This will compile the Grouper API source and generate several configuration
-files.
+This will compile the Grouper API source, generate several configuration
+files, and create "GROUPER_HOME/dist/lib/grouper.jar"
 
 
 ## 4. Initializing The Database
@@ -137,17 +137,7 @@ A "JDBCSourceAdapter" (id=jdbc) for subjects must be configured in
 "GROUPER_HOME/conf/sources.xml" for the test suite to complete successfully.
 
 
-## 6. Installing Grouper (not necessary if using the binary release)
-
-These are optional tasks that may make runtime invocation easier.
-
-  % ant dist 
-
-Builds "GROUPER_HOME/dist/lib/grouper.jar" from the compiled Grouper source.
-
-
-
-## 7. Using Grouper
+## 6. Using Grouper
 
 Review configuration files first.
 
@@ -172,16 +162,14 @@ otherwise you need to have the following items in your CLASSPATH to use Grouper:
 * The "GROUPER_HOME/conf" directory.
 
 
-
-
-## 8. Building API Documentation (not necessary if using the binary release)
+## 7. Building API Documentation (not necessary if using the binary release)
 
   % ant javadoc
 
 This will build the javadoc(1) document.
 
 
-## 9. Getting Grouper
+## 8. Getting Grouper
 
 Grouper releases are available from Grouper's Internet2 Wiki:
   <https://wiki.internet2.edu/confluence/display/GrouperWG/Software+Download>
