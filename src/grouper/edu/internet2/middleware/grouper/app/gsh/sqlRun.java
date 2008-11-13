@@ -21,7 +21,7 @@ import bsh.Interpreter;
  * Run a sql script against DB (like ant does it)
  * <p/>
  * @author  Chris Hyzer
- * @version $Id: sqlRun.java,v 1.2 2008-11-09 22:13:58 shilen Exp $
+ * @version $Id: sqlRun.java,v 1.3 2008-11-13 20:26:10 mchyzer Exp $
  * @since   0.0.1
  */
 public class sqlRun {
@@ -31,22 +31,13 @@ public class sqlRun {
    * <p/>
    * @param   interpreter     BeanShell interpreter.
    * @param   stack BeanShell call stack.
-   * @return  a string
+   * @param scriptFile 
    * @since   0.0.1
    */
   public static void invoke(Interpreter interpreter, CallStack stack, File scriptFile) {
     GrouperShell.setOurCommand(interpreter, true);
     
-    Properties properties = GrouperUtil.propertiesFromResourceName(
-        "grouper.hibernate.properties");
-      
-    String user = properties.getProperty("hibernate.connection.username");
-    String pass = properties.getProperty("hibernate.connection.password");
-    String url = properties.getProperty("hibernate.connection.url");
-    String driver = properties.getProperty("hibernate.connection.driver_class");
-    pass = Morph.decryptIfFile(pass);
-
-    GrouperDdlUtils.sqlRun(scriptFile, driver, url, user, pass, false, true);
+    GrouperDdlUtils.sqlRun(scriptFile, false, true);
     
   }
 
@@ -57,6 +48,7 @@ public class sqlRun {
    * @param   stack BeanShell call stack.
    * @param   sql
    * @return  int The number of updates made.
+   * @throws GrouperShellException 
    * @since   0.0.1
    */
   public static int invoke(Interpreter interpreter, CallStack stack, String sql) throws GrouperShellException {

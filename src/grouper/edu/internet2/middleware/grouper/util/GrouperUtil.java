@@ -82,6 +82,33 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperUtil {
 
   /**
+   * return the arg after the argBefore, or null if not there, or exception
+   * if argBefore is not found
+   * @param args
+   * @param argBefore
+   * @return the arg
+   */
+  public static String argAfter(String[] args, String argBefore) {
+    if (GrouperUtil.length(args) <= 1) {
+      return null;
+    }
+    int argBeforeIndex = -1;
+    for (int i=0;i<args.length;i++) {
+      if (StringUtils.equals(args[i], argBefore)) {
+        argBeforeIndex = i;
+        break;
+      }
+    }
+    if (argBeforeIndex == -1) {
+      throw new RuntimeException("Cant find arg before");
+    }
+    if (argBeforeIndex < args.length - 1) {
+      return args[argBeforeIndex + 1];
+    }
+    return null;
+  }
+  
+  /**
    * append and maybe put a separator in there
    * @param result
    * @param separatorIfResultNotEmpty

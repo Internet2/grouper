@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperUtilTest.java,v 1.8 2008-07-21 04:43:59 mchyzer Exp $
+ * $Id: GrouperUtilTest.java,v 1.9 2008-11-13 20:26:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -29,9 +29,24 @@ public class GrouperUtilTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testCopyObjectFields"));
+    TestRunner.run(new GrouperUtilTest("testArgAfter"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
+  }
+  
+  /**
+   * test utility method
+   */
+  public void testArgAfter() {
+    assertEquals("arg1", GrouperUtil.argAfter(new String[]{"a", "arg0", "arg1"}, "arg0"));
+    assertEquals("arg1", GrouperUtil.argAfter(new String[]{"a", "arg0", "arg1", "b"}, "arg0"));
+    assertNull(GrouperUtil.argAfter(new String[]{"a", "arg0", "arg1"}, "arg1"));
+    try {
+      GrouperUtil.argAfter(new String[]{"a", "arg0", "arg1"}, "arg2");
+      fail("Should throw exception");
+    } catch (Exception e) {
+      //good
+    }
   }
   
   /**

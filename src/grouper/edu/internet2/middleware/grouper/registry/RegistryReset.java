@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.7 2008-11-06 21:51:22 mchyzer Exp $
+ * @version $Id: RegistryReset.java,v 1.8 2008-11-13 20:26:10 mchyzer Exp $
  */
 public class RegistryReset {
 
@@ -86,6 +86,7 @@ public class RegistryReset {
   }
   /**
    * Attempt to reset the Groups Registry to a pristine state.
+   * @param promptUser 
    * @param includeTypesAndFields
    */
   public static void reset(boolean promptUser, boolean includeTypesAndFields) {

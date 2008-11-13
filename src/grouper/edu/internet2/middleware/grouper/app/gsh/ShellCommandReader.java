@@ -18,6 +18,8 @@ import  java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /**
  * {@link GrouperShell} Shell Command Reader.
  * <p/>
@@ -45,6 +47,9 @@ class ShellCommandReader implements CommandReader {
 
     if (args != null && args.length > 0 && StringUtils.equals(args[0], "-runarg")) {
       if (args.length != 2) {
+        for (int i=0;i<GrouperUtil.length(args);i++) {
+          System.out.println("args[" + i + "] is: '" + args[i] + "'");
+        }
         throw new RuntimeException("When passing -runarg, pass one other argument, the gsh command to run");
       }
       String commands = args[1];

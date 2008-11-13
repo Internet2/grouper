@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.15 2008-11-13 07:12:37 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.16 2008-11-13 20:26:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -45,11 +45,13 @@ public class GrouperStartup {
   /**
    * keep track if started or not
    */
-  private static boolean started = false;
+  public static boolean started = false;
   
   /** if we should ignore checkconfig */
   public static boolean ignoreCheckConfig = false;
   
+  /** if errors should be logged (perhaps in all cases except registry init) */
+  public static boolean logErrorStatic = true;
   /**
    * call this when grouper starts up
    * @return false if already started, true if this started it
@@ -90,12 +92,14 @@ public class GrouperStartup {
       
       return true;
     } catch (RuntimeException re) {
-      //NOTE, the caller might not handle this exception, so print now. 
-      //ALSO, the logger might not work, so print to stderr first
-      String error = "Couldnt startup grouper: " + re.getMessage();
-      System.err.println(error);
-      re.printStackTrace();
-      LOG.error(error, re);
+      if (logErrorStatic) {
+        //NOTE, the caller might not handle this exception, so print now. 
+        //ALSO, the logger might not work, so print to stderr first
+        String error = "Couldnt startup grouper: " + re.getMessage();
+        System.err.println(error);
+        re.printStackTrace();
+        LOG.error(error, re);
+      }
       throw re;
     }
   }
@@ -272,7 +276,9 @@ public class GrouperStartup {
         needsInit = needsInit || FieldFinder.find("name") == null ;
         needsInit = needsInit || GroupTypeFinder.find("base") == null ;
       } catch (Exception e) {
-        LOG.error("Error initializing data, might just need to auto-create some data to fix...", e);
+        if (logError && logErrorStatic) {
+          LOG.error("Error initializing data, might just need to auto-create some data to fix...", e);
+        }
         needsInit = true;
       }
       if (needsInit) {
@@ -282,19 +288,24 @@ public class GrouperStartup {
             RegistryInstall.install();
             
           } catch (Exception e) {
-            if (logError) {
+            if (logError && logErrorStatic) {
               String error = "Couldnt auto-create data: " + e.getMessage();
               LOG.fatal(error, e);
             }
           }
         } else {
-          LOG.fatal("grouper.properties registry.autoinit is false, so not auto initting.  " +
+          
+          if (logError && logErrorStatic) {
+            LOG.fatal("grouper.properties registry.autoinit is false, so not auto initting.  " +
               "But the registry needs to be auto-initted.  Please init the registry with GSH: registryInstall()  " +
               "Initting means adding some default data like the root stem, built in fields, etc.");
+          }
         }
       }
     } catch (Exception e) {
-      LOG.error("Error initting data", e);
+      if (logError && logErrorStatic) {
+        LOG.error("Error initting data", e);
+      }
     }
   }
   

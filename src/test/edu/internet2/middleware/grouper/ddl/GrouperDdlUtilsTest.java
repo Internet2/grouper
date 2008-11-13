@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdlUtilsTest.java,v 1.10 2008-11-13 05:04:04 mchyzer Exp $
+ * $Id: GrouperDdlUtilsTest.java,v 1.11 2008-11-13 20:26:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -124,8 +124,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public void testIdUpgrade() throws Exception {
     
     //lets get the first version
-    @SuppressWarnings("unused")
-    String script = GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
+    GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
         GrouperDdlUtils.maxVersionMap(GrouperDdl.V1), false);
   
     GrouperDdlUtils.justTesting = true;
@@ -241,8 +240,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public void testFieldIdUpgrade() throws Exception {
     
     //lets get the first version
-    @SuppressWarnings("unused")
-    String script = GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
+    GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
         GrouperDdlUtils.maxVersionMap(GrouperDdl.V1), false);
 
     GrouperDdlUtils.justTesting = true;
@@ -448,8 +446,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public void testGrouperSessionDrop() throws Exception {
     
     //lets get the first version
-    @SuppressWarnings("unused")
-    String script = GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
+    GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
         GrouperDdlUtils.maxVersionMap(GrouperDdl.V1), false);
   
     GrouperDdlUtils.justTesting = true;
