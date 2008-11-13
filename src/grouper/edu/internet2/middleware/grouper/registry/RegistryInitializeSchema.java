@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInitializeSchema.java,v 1.10 2008-11-13 05:04:04 mchyzer Exp $    
+ * @version $Id: RegistryInitializeSchema.java,v 1.11 2008-11-13 07:12:37 mchyzer Exp $    
  * @since   1.2.0
  */
 public class RegistryInitializeSchema {
@@ -49,53 +49,77 @@ public class RegistryInitializeSchema {
    * @param args
    */
   public static void main(String[] args) {
-	  if(args==null || args.length==0 || args[0].equals("-h")) {
-		  System.out.println(_getUsage());
-		  return;
-	  }
-	  GrouperStartup.ignoreCheckConfig = true;
-	  boolean callFromCommandLine=true;
-	  boolean fromUnitTest = false;
-      boolean theCompareFromDbVersion=true;
-      boolean theDropBeforeCreate=false; 
-      boolean theWriteAndRunScript=true;
-      boolean dropOnly = false; 
-      boolean installDefaultGrouperData=true;
-      Map<String, DdlVersionable> maxVersions = null;
-	  boolean promptUser=true;
-      HashSet<String> argsSet = new HashSet<String>();
-      for (int i=0;i<args.length;i++) {
-    	  argsSet.add(args[i].toLowerCase());
-      }
-      if(argsSet.contains("-drop")) {
-    	  theDropBeforeCreate=true;
-      }
-      if(!argsSet.contains("-install") && theDropBeforeCreate) {
-    	  dropOnly=true;
-    	  installDefaultGrouperData=false;
-      }
-      if(argsSet.contains("-noprompt")) {
-    	  promptUser=false;
-      }
-      if(argsSet.contains("-ddlonly")) {
-    	  theWriteAndRunScript=false;
-      }
-      if(argsSet.contains("-check")) {	  
-    	  GrouperCheckConfig.checkConfig();
-      }
-      if(argsSet.contains("-reset")) {
-		  RegistryReset.reset(promptUser, true);
-		  return;
-	  }
-      if(argsSet.contains("-fortests")) {
-		  initializeSchemaForTests();
-		  return;
-	  }
-	 
-      
-    initialize(callFromCommandLine, fromUnitTest, theCompareFromDbVersion, theDropBeforeCreate, theWriteAndRunScript, dropOnly, installDefaultGrouperData, maxVersions, promptUser);
+    try {
+  	  if(args==null || args.length==0 || args[0].equals("-h")) {
+  		  System.out.println(_getUsage());
+  		  return;
+  	  }
+  	  GrouperStartup.ignoreCheckConfig = true;
+  	  boolean callFromCommandLine=true;
+  	  boolean fromUnitTest = false;
+        boolean theCompareFromDbVersion=true;
+        boolean theDropBeforeCreate=false; 
+        boolean theWriteAndRunScript=false;
+        boolean dropOnly = false; 
+        boolean installDefaultGrouperData=true;
+        Map<String, DdlVersionable> maxVersions = null;
+  	  boolean promptUser=true;
+        HashSet<String> argsSet = new HashSet<String>();
+        for (int i=0;i<args.length;i++) {
+      	  argsSet.add(args[i].toLowerCase());
+        }
+        if(argsSet.contains("-drop")) {
+      	  theDropBeforeCreate=true;
+        }
+        if(argsSet.contains("-deep")) {
+          GrouperDdlUtils.deepCheck = true;
+        }
+        if(argsSet.contains("-dontinstall")) {
+      	  installDefaultGrouperData=false;
+        }
+        if (argsSet.contains("-droponly")) {
+          dropOnly=true;
+        }
+        if(argsSet.contains("-noprompt")) {
+      	  promptUser=false;
+        }
+        if(argsSet.contains("-runscript")) {
+      	  theWriteAndRunScript=true;
+        }
+        if(argsSet.contains("-check")) {	
+          GrouperCheckConfig.checkConfig();
+        }
+        if(argsSet.contains("-reset")) {
+  		  RegistryReset.reset(promptUser, true);
+  		  return;
+  	  }
+        if(argsSet.contains("-fortests")) {
+  		  initializeSchemaForTests();
+  		  return;
+  	  }
+  	 
+      LOG.debug("theDropBeforeCreate? " + theDropBeforeCreate + ", theWriteAndRunScript? " + theWriteAndRunScript
+          + ", dropOnly? " + dropOnly + ", installDefaultGrouperData? " + installDefaultGrouperData
+          + ", promptUser? " + promptUser);
+      initialize(callFromCommandLine, fromUnitTest, theCompareFromDbVersion, theDropBeforeCreate, 
+          theWriteAndRunScript, dropOnly, installDefaultGrouperData, maxVersions, promptUser);
+    } finally {
+      GrouperDdlUtils.deepCheck = false;
+    }
   }
 
+  /**
+   * 
+   * @param callFromCommandLine
+   * @param fromUnitTest
+   * @param theCompareFromDbVersion
+   * @param theDropBeforeCreate
+   * @param theWriteAndRunScript
+   * @param dropOnly
+   * @param installDefaultGrouperData
+   * @param maxVersions
+   * @param promptUser
+   */
   public static void initialize(boolean callFromCommandLine, boolean fromUnitTest,
 	      boolean theCompareFromDbVersion, boolean theDropBeforeCreate, boolean theWriteAndRunScript,
 	      boolean dropOnly, boolean installDefaultGrouperData, Map<String, DdlVersionable> maxVersions,
@@ -226,21 +250,20 @@ public class RegistryInitializeSchema {
   private static String _getUsage() {
 	    return  "Usage:"                                                                + GrouperConfig.NL
 	            + "args: -h,            Prints this message"                            + GrouperConfig.NL
-	            + "args: [(-reset | -install [-drop])] [-drop] [-check] "               + GrouperConfig.NL
+	            + "args: [-reset] [-dontinstall] [-drop] [-droponly] [-check] "               + GrouperConfig.NL
 	            + "      [-ddlonly] [-noprompt]"                                        + GrouperConfig.NL
 	            
-	            + "  -check,            Verifies status of the registry"                + GrouperConfig.NL
+	            + "  -check,            Verifies status of the registry based on DDL version number" + GrouperConfig.NL
+              + "  -deep,             Verifies status of the registry based on database objects"                + GrouperConfig.NL
+              + "                     Note, this will alway generate a script, but might not do much"         + GrouperConfig.NL
 	            + "  -reset,            Drops all data and re-inserts essential"        + GrouperConfig.NL
 	            + "                     Grouper data e.g. root stem and fields"         + GrouperConfig.NL
-	            + "  -install,          If required, installs the schema. By itself"    + GrouperConfig.NL
-	            + "                     this option does not 'drop' an existing "       + GrouperConfig.NL
-	            + "                     registry"                                       + GrouperConfig.NL
-	            + "  -drop,             Drops all Grouper schema elements"              + GrouperConfig.NL
-	             
-	            + "  -ddlonly,          Writes to a file the DDL required to install"   + GrouperConfig.NL
-	            + "                     or drop the Grouper schema, but does not run it"+ GrouperConfig.NL
-	           
-	            + "  -noprompt,         Do not ask user to confirm dstructive actions"  + GrouperConfig.NL
+	            + "  -dontinstall,      Will not make sure all default data is"         + GrouperConfig.NL
+              + "                     in registry (e.g. root stem)"                   + GrouperConfig.NL
+	            + "  -drop,             Drops all Grouper schema elements before recreating"              + GrouperConfig.NL
+              + "  -droponly,         Drops all Grouper elements, does not recreate"   + GrouperConfig.NL
+	            + "  -runscript,        Will run the generated DDL script after writing to a file"   + GrouperConfig.NL
+	            + "  -noprompt,         Do not ask user to confirm approve which database is affected"  + GrouperConfig.NL
 	            ;
 	  } // private static String _getUsage()
 
