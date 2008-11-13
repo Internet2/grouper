@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -45,7 +46,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.11 2008-11-08 08:15:33 mchyzer Exp $
+ * @version $Id: GrouperTest.java,v 1.12 2008-11-13 05:04:04 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -639,6 +640,15 @@ public class GrouperTest extends TestCase {
     ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.attributeOrType.1", "type");
     ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.group.1", "aStem:activeStudent");
     ApiConfig.testConfig.put("grouperIncludeExclude.requireGroup.description.1", "If value is true, members of the overall group must be an active student (in the aStem:activeStudent group).  Otherwise, leave this value not filled in.");
+  }
+
+  /**
+   * 
+   */
+  public static void setupTests() {
+    //dont keep prompting user about DB
+    GrouperUtil.stopPromptingUser = true;
+    RegistryInitializeSchema.initializeSchemaForTests();
   }
 
   /**

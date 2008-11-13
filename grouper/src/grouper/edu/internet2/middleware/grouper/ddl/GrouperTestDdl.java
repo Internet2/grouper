@@ -1,13 +1,10 @@
 /*
  * @author mchyzer
- * $Id: GrouperTestDdl.java,v 1.1 2008-11-08 08:15:33 mchyzer Exp $
+ * $Id: GrouperTestDdl.java,v 1.2 2008-11-13 05:04:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
-import java.sql.Types;
-
 import org.apache.ddlutils.model.Database;
-import org.apache.ddlutils.model.Table;
 
 
 
@@ -86,6 +83,14 @@ public enum GrouperTestDdl implements DdlVersionable {
    * @param ddlVersionBean 
    */
   public void addAllForeignKeysViewsEtc(DdlVersionBean ddlVersionBean) {
+
+  }
+  
+  /**
+   * drop all views
+   * @param ddlVersionBean 
+   */
+  public void dropAllViews(DdlVersionBean ddlVersionBean) {
 
   }
   

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.13 2008-11-08 08:15:34 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.14 2008-11-13 05:04:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -264,35 +264,39 @@ public class GrouperStartup {
    * @param logError
    */
   public static void initData(boolean logError) {
-    //lets see if we need to
-    boolean needsInit;
-    GrouperSession grouperSession = null;
     try {
-      grouperSession = GrouperSession.start(SubjectFinder.findRootSubject());
-    } catch (SessionException se) {
-      throw new RuntimeException(se);
-    }
-    try {
-      needsInit = StemFinder.findRootStem(grouperSession) == null;
-      needsInit = needsInit || FieldFinder.find("name") == null ;
-      needsInit = needsInit || GroupTypeFinder.find("base") == null ;
-    } catch (Exception e) {
-      LOG.error("Error initializing data, might just need to auto-create some data to fix...", e);
-      needsInit = true;
-    }
-    if (needsInit) {
-      if (GrouperConfig.getPropertyBoolean("registry.autoinit", true)) {
-        try {
-          
-          RegistryInstall.install();
-          
-        } catch (Exception e) {
-          if (logError) {
-            String error = "Couldnt auto-create data: " + e.getMessage();
-            LOG.fatal(error, e);
+      //lets see if we need to
+      boolean needsInit;
+      GrouperSession grouperSession = null;
+      try {
+        grouperSession = GrouperSession.start(SubjectFinder.findRootSubject());
+      } catch (SessionException se) {
+        throw new RuntimeException(se);
+      }
+      try {
+        needsInit = StemFinder.findRootStem(grouperSession) == null;
+        needsInit = needsInit || FieldFinder.find("name") == null ;
+        needsInit = needsInit || GroupTypeFinder.find("base") == null ;
+      } catch (Exception e) {
+        LOG.error("Error initializing data, might just need to auto-create some data to fix...", e);
+        needsInit = true;
+      }
+      if (needsInit) {
+        if (GrouperConfig.getPropertyBoolean("registry.autoinit", true)) {
+          try {
+            
+            RegistryInstall.install();
+            
+          } catch (Exception e) {
+            if (logError) {
+              String error = "Couldnt auto-create data: " + e.getMessage();
+              LOG.fatal(error, e);
+            }
           }
         }
       }
+    } catch (Exception e) {
+      LOG.error("Error initting data", e);
     }
   }
   
