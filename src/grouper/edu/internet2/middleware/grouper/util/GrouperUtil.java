@@ -119,9 +119,19 @@ public class GrouperUtil {
   public static final long ONE_GB = ONE_KB * ONE_MB;
   
   /**
-   * The number of bytes in a gigabyte.
+   * Grouper home dir
    */
-  public static final String grouperHome = System.getProperty("grouper.home");
+  public static final String grouperHome;
+  
+  static {
+    
+    String theGrouperHome = System.getProperty("grouper.home");
+    if (StringUtils.isBlank(theGrouperHome)) {
+      grouperHome = new File("").getAbsolutePath();
+    } else {
+      grouperHome = theGrouperHome;
+    }
+  }
   
 
   /**
