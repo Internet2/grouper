@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.23 2008-11-13 05:04:03 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.24 2008-11-13 07:12:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1362,6 +1362,9 @@ public class GrouperDdlUtils {
     return objectNames;
   }
   
+  /** if check from scratch */
+  public static boolean deepCheck = false;
+  
   /**
    * get the version of a ddl object in the DB
    * @param objectName
@@ -1369,6 +1372,10 @@ public class GrouperDdlUtils {
    */
   public static int retrieveDdlDbVersion(String objectName) {
 
+    if (deepCheck) {
+      return 0;
+    }
+    
     //init stuff
     retrieveDdlsFromCache();
     

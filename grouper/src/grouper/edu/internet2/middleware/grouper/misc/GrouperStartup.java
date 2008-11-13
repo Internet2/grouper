@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.14 2008-11-13 05:04:04 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.15 2008-11-13 07:12:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -80,13 +80,7 @@ public class GrouperStartup {
         GrouperDdlUtils.bootstrap(false, false, false);
       }
       
-      if (!GrouperConfig.getPropertyBoolean("registry.autoinit", true)) {
-        LOG.fatal("grouper.properties registry.autoinit is false, so not auto initting.  " +
-            "But the registry needs to be auto-initted.  Please init the registry with GSH: registryInstall()  " +
-            "Initting means adding some default data like the root stem, built in fields, etc.");
-      } else {
-        initData(true);
-      }
+      initData(true);
       
       //init include exclude type
       initIncludeExcludeType();
@@ -293,6 +287,10 @@ public class GrouperStartup {
               LOG.fatal(error, e);
             }
           }
+        } else {
+          LOG.fatal("grouper.properties registry.autoinit is false, so not auto initting.  " +
+              "But the registry needs to be auto-initted.  Please init the registry with GSH: registryInstall()  " +
+              "Initting means adding some default data like the root stem, built in fields, etc.");
         }
       }
     } catch (Exception e) {
