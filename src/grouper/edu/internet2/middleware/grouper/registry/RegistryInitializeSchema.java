@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInitializeSchema.java,v 1.11 2008-11-13 07:12:37 mchyzer Exp $    
+ * @version $Id: RegistryInitializeSchema.java,v 1.12 2008-11-13 10:38:57 isgwb Exp $    
  * @since   1.2.0
  */
 public class RegistryInitializeSchema {
@@ -250,20 +250,24 @@ public class RegistryInitializeSchema {
   private static String _getUsage() {
 	    return  "Usage:"                                                                + GrouperConfig.NL
 	            + "args: -h,            Prints this message"                            + GrouperConfig.NL
-	            + "args: [-reset] [-dontinstall] [-drop] [-droponly] [-check] "               + GrouperConfig.NL
-	            + "      [-ddlonly] [-noprompt]"                                        + GrouperConfig.NL
+	            + "args: [-reset] [-dontinstall] [-drop] [-droponly] [-check] [-deep] "               + GrouperConfig.NL
+	            + "      [-runscript] [-noprompt]"                                        + GrouperConfig.NL
 	            
 	            + "  -check,            Verifies status of the registry based on DDL version number" + GrouperConfig.NL
-              + "  -deep,             Verifies status of the registry based on database objects"                + GrouperConfig.NL
-              + "                     Note, this will alway generate a script, but might not do much"         + GrouperConfig.NL
+                + "  -deep,             Verifies status of the registry based on database objects"                + GrouperConfig.NL
+                + "                     Note, this will alway generate a script, but might not do" + GrouperConfig.NL
+                + "                     much"                                           + GrouperConfig.NL
 	            + "  -reset,            Drops all data and re-inserts essential"        + GrouperConfig.NL
 	            + "                     Grouper data e.g. root stem and fields"         + GrouperConfig.NL
 	            + "  -dontinstall,      Will not make sure all default data is"         + GrouperConfig.NL
-              + "                     in registry (e.g. root stem)"                   + GrouperConfig.NL
+                + "                     in registry (e.g. root stem)"                   + GrouperConfig.NL
 	            + "  -drop,             Drops all Grouper schema elements before recreating"              + GrouperConfig.NL
-              + "  -droponly,         Drops all Grouper elements, does not recreate"   + GrouperConfig.NL
+                + "  -droponly,         Drops all Grouper elements, does not recreate"   + GrouperConfig.NL
 	            + "  -runscript,        Will run the generated DDL script after writing to a file"   + GrouperConfig.NL
-	            + "  -noprompt,         Do not ask user to confirm approve which database is affected"  + GrouperConfig.NL
+	            + "  -noprompt,         Do not ask user to confirm/approve which database is " + GrouperConfig.NL
+	            + "                     affected"  + GrouperConfig.NL + GrouperConfig.NL
+	            + "NOTE WELL: no registry changes will be effected unless the -runscript option" + GrouperConfig.NL
+	            + "is selected" + GrouperConfig.NL 
 	            ;
 	  } // private static String _getUsage()
 
