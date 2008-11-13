@@ -90,7 +90,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.8 2008-11-04 15:15:09 isgwb Exp $
+ * @version $Id: XmlExporter.java,v 1.9 2008-11-13 09:33:52 isgwb Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -593,10 +593,12 @@ public class XmlExporter {
             + "  -name,             The name of a Group or Stem to export"          + GrouperConfig.NL
             + "  -relative,         If id or name specified do not export parent"   + GrouperConfig.NL
             + "                     Stems"                                          + GrouperConfig.NL
-            + "  -includeParent,    If id or name identifies a Stem export this"    + GrouperConfig.NL
-            + "                     stem and child Stems or Groups"                 + GrouperConfig.NL
-            + "  -childrenOnly,     If id or name identifies a Stem export its "    + GrouperConfig.NL
-            + "                     child Stems and Groups, but not the stem itself"+ GrouperConfig.NL
+            + "  -includeParent,    If id or name identifies a Group and -relative "+ GrouperConfig.NL
+            + "                     is selected, export the Group and its "         + GrouperConfig.NL
+            + "                     parent Stem"                                    + GrouperConfig.NL
+            + "  -childrenOnly,     If id or name identifies a Stem and -relative " + GrouperConfig.NL
+            + "                     is selected, export child Stems and Groups,   " + GrouperConfig.NL
+            + "                     but not the stem itself                       " + GrouperConfig.NL
             + "  filename,          The file where exported data will be written."  + GrouperConfig.NL
             + "                     Will overwrite existing files"                  + GrouperConfig.NL
             + "  properties,        The name of an optional Java properties file. " + GrouperConfig.NL
