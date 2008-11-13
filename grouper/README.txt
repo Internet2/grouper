@@ -106,7 +106,7 @@ written.
 
 ## 3. Building Grouper (not necessary if using the binary release)
 
-    % ant build
+    % ant dist
 
 This will compile the Grouper API source and generate several configuration
 files.
