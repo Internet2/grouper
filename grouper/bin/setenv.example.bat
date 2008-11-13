@@ -3,7 +3,7 @@ set GSH_JVMARGS=
 
 rem Uncomment and change values to override default memory settings
 rem set MEM_START=64m
-rem set MEM_MAX=256m
+rem set MEM_MAX=512m
 
 rem Uncomment line below to load YourKit profiler agent
 rem set GSH_JVMARGS=-agentlib:yjpagent %GSH_JVMARGS%
