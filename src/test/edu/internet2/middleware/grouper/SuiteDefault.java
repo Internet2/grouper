@@ -34,7 +34,6 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.AllDdlTests;
 import edu.internet2.middleware.grouper.hooks.AllHooksTests;
 import edu.internet2.middleware.grouper.misc.AllMiscTests;
-import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
@@ -42,7 +41,7 @@ import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.52 2008-11-08 08:15:33 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.53 2008-11-13 05:04:04 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -123,19 +122,10 @@ public class SuiteDefault extends TestCase {
 
   /**
    * 
-   */
-  public static void setupTests() {
-    //dont keep prompting user about DB
-    GrouperUtil.stopPromptingUser = true;
-    RegistryInitializeSchema.initializeSchemaForTests();
-  }
-
-  /**
-   * 
    * @return the suite
    */
   static public Test suite() {
-    setupTests();
+    GrouperTest.setupTests();
 
     TestSuite suite = new TestSuite();
     

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.22 2008-11-08 08:15:33 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.23 2008-11-13 05:04:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -401,8 +401,14 @@ public class GrouperDdlUtils {
             
           SqlBuilder sqlBuilder = platform.getSqlBuilder();
   
-          //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
-          dropAllForeignKeysScript(new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, null, null, null, false, -1, result));
+          {
+            //drop all views since postgres will drop view cascade (and we dont know about it), and cant create or replace with changes
+            DdlVersionBean tempDdlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, null, null, null, false, -1, result);
+            ddlVersionable.dropAllViews(tempDdlVersionBean);
+  
+            //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
+            dropAllForeignKeysScript(tempDdlVersionBean);
+          }
           
           // if deleting all, lets delete all:
           if (theDropBeforeCreate) {
@@ -806,9 +812,15 @@ public class GrouperDdlUtils {
         platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
         
         SqlBuilder sqlBuilder = platform.getSqlBuilder();
-
-        //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
-        dropAllForeignKeysScript(new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder, null, null, null, false, -1, result));
+        
+        {
+          DdlVersionBean tempDdlVersionBean = new DdlVersionBean(objectName, platform, connection, schema, sqlBuilder,
+              null, null, null, false, -1, result);
+          ddlVersionable.dropAllViews(tempDdlVersionBean);
+  
+          //drop all foreign keys since ddlutils likes to do this anyways, lets do it before the script starts
+          dropAllForeignKeysScript(tempDdlVersionBean);
+        }
         
         //it needs a name, just use "grouper"
         Database oldDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
@@ -993,6 +1005,7 @@ public class GrouperDdlUtils {
         //result.append("\n-- end drop all foreign keys\n\n");
       }
     }  
+    
   }
   
   /**
@@ -1154,6 +1167,19 @@ public class GrouperDdlUtils {
   }
   
   /**
+   * drop a view if it is detected as existing
+   * @param ddlVersionBean
+   * @param viewName
+   */
+  public static void ddlutilsDropViewIfExists(DdlVersionBean ddlVersionBean, String viewName) {
+    boolean exists = assertTablesThere(false, false, viewName);
+    if (exists) {
+      ddlVersionBean.getFullScript().append("\nDROP VIEW " + viewName + ";\n");
+    }
+    LOG.debug("View " + viewName + " exists? " + exists + ", will " + (exists ? "" : "not ") + "be dropped");
+  }
+  
+  /**
    * add a view if the DB supports it
    * @param ddlVersionBean
    * @param viewName
@@ -1179,12 +1205,13 @@ public class GrouperDdlUtils {
     if (ddlVersionBean.isPostgres() || ddlVersionBean.isOracle() || ddlVersionBean.isMysql()) {
       
       //if this is postgres, we need to drop first because if the number of columns change, it bombs
-      if (ddlVersionBean.isPostgres()) {
-        boolean exists = assertTablesThere(false, false, viewName);
-        if (exists) {
-          ddlVersionBean.appendAdditionalScriptUnique("\nDROP VIEW " + viewName + ";\n");
-        }
-      }
+      //if (ddlVersionBean.isPostgres()) {
+      //  boolean exists = assertTablesThere(false, false, viewName);
+      //  if (exists) {
+      //    ddlVersionBean.appendAdditionalScriptUnique("\nDROP VIEW " + viewName + ";\n");
+      //  }
+      //  LOG.debug("Postgres, and view " + viewName + " exists? " + exists);
+      //}
       String aliasesString = StringUtils.join(aliases.iterator(), ", ");
       String fullSql = "\nCREATE OR REPLACE VIEW " + viewName + " (" + aliasesString
         + ") AS " + sql + ";\n";

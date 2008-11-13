@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInitializeSchema.java,v 1.9 2008-11-06 21:51:22 mchyzer Exp $    
+ * @version $Id: RegistryInitializeSchema.java,v 1.10 2008-11-13 05:04:04 mchyzer Exp $    
  * @since   1.2.0
  */
 public class RegistryInitializeSchema {
@@ -194,8 +194,12 @@ public class RegistryInitializeSchema {
       GrouperStartup.runDdlBootstrap = false;
 
       GrouperStartup.ignoreCheckConfig = true;
-
-      GrouperStartup.startup();
+      
+      try {
+        GrouperStartup.startup();
+      } catch (Exception e) {
+        LOG.error(e);
+      }
 
       GrouperDdlUtils.bootstrapHelper(true, false, true, true, true, false, true, null, true);
 

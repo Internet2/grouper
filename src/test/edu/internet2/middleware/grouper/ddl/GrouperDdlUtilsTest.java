@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdlUtilsTest.java,v 1.9 2008-10-03 15:00:00 mchyzer Exp $
+ * $Id: GrouperDdlUtilsTest.java,v 1.10 2008-11-13 05:04:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -29,6 +29,8 @@ import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -51,8 +53,9 @@ public class GrouperDdlUtilsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
+    GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testGrouperSessionDrop"));
+    TestRunner.run(new GrouperDdlUtilsTest("testIdUpgrade"));
   }
 
   /**
@@ -135,7 +138,9 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //get up to v4...  note if cols are added, they should be added pre-v4 also...
     GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, true, 
         GrouperDdlUtils.maxVersionMap(GrouperDdl.V4), false);
-    
+    //auto-init wheel group
+    GrouperCheckConfig.checkGroups();
+
     //make sure uuid is there...
     HibernateSession.bySqlStatic().select(int.class, 
       "select count(*) from grouper_groups where uuid is not null");

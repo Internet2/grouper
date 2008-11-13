@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: DdlVersionable.java,v 1.7 2008-09-29 03:38:26 mchyzer Exp $
+ * $Id: DdlVersionable.java,v 1.8 2008-11-13 05:04:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
  
@@ -17,6 +17,12 @@ public interface DdlVersionable {
    * @param ddlVersionBean
    */
   public void addAllForeignKeysViewsEtc(DdlVersionBean ddlVersionBean);
+
+  /**
+   * drop all views at the beginning of the script...
+   * @param ddlVersionBean
+   */
+  public void dropAllViews(DdlVersionBean ddlVersionBean);
 
   /**
    * get the version of this enum

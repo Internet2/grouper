@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.22 2008-10-30 20:57:17 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.23 2008-11-13 05:04:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1452,6 +1452,26 @@ public enum GrouperDdl implements DdlVersionable {
       && GrouperDdlUtils.ddlutilsFindColumn(database, Stem.TABLE_GROUPER_STEMS, Stem.COLUMN_OLD_ID, false) == null;
   }
   
+  /**
+   * drop all views
+   * @param ddlVersionBean 
+   */
+  public void dropAllViews(DdlVersionBean ddlVersionBean) {
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_ATTRIBUTES_V");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_COMPOSITES_V");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_GROUPS_TYPES_V");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_GROUPS_V");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_MEMBERSHIPS_V");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_RPT_ATTRIBUTES_V");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_RPT_COMPOSITES_V");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_RPT_GROUP_FIELD_V");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_RPT_GROUPS_V");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_RPT_MEMBERS_V");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_RPT_STEMS_V");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_RPT_TYPES_V");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_STEMS_V");
+    
+  }
   
   /**
    * add all foreign keys

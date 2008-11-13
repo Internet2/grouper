@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SubjectDdl.java,v 1.10 2008-11-08 08:15:33 mchyzer Exp $
+ * $Id: SubjectDdl.java,v 1.11 2008-11-13 05:04:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -119,6 +119,14 @@ public enum SubjectDdl implements DdlVersionable {
    */
   public abstract void updateVersionFromPrevious(Database database, 
       DdlVersionBean ddlVersionBean);  
+  
+  /**
+   * drop all views
+   * @param ddlVersionBean 
+   */
+  public void dropAllViews(DdlVersionBean ddlVersionBean) {
+    
+  }
   
   /**
    * add all foreign keys
