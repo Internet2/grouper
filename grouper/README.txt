@@ -1,51 +1,64 @@
-
-THIS IS CURRENTLY OUTDATED
-
 # Grouper README
 
 This file is intended to give you a brief overview of how this directory tree
 is structured so that you may get started with compiling, testing and using
-Grouper.  Please see the [Grouper Wiki][0] for more detailed documentation.
+Grouper. Please see the [Grouper Wiki][0] for more detailed documentation.
 
 ## Contents
 
 1.  Reporting Problems
 2.  Project Layout
-3.  Building Grouper
+3.  Building Grouper*
 4.  Initializing The Database
 5.  Testing Grouper
-6.  Installing Grouper
+6.  Installing Grouper*
 7.  Using Grouper
-8.  Building API Documentation
+8.  Building API Documentation*
 9.  Getting Grouper
 
+*From v1.4.0 Grouper also has a pre-built binary release. If you are working with 
+the binary release the sections above marked * are redundant.
 
-## Reporting Problems
+
+## 1. Reporting Problems
 
 Please send email to the [grouper-dev][1] list or report them in the [issue tracker][2].
 
 
-## Project Layout
+## 2. Project Layout
 
 * "GROUPER_HOME"
   Top-level of this Grouper directory tree.
+  * "api"
+     Contains Grouper Javadoc (binary distribution only)
+  * "bin"
+    * "gsh.bat / gsh.sh"
+	   Command line and interactive shell interface to Grouper. Run with -h
+	   option for help and see Wiki[0] for detailed information
+    * "setenv.example.bat / setenv.example.sh"
+	   Copy and remove '.example' from file name and uncomment and modify
+	   environment variables to control how Java is invoked
   * "build"
-    Destination for all compiled Java classes and generated DDL.
+    Destination for all compiled Java classes
     * "conf"
-      Grouper configuration files.
+      Grouper configuration files. These are provided as example files
+	  and are copied to the file names below by the build process.
       * "ehcache.xml"
+        Hibernate ehcache configuration.
+	  * "grouper.ehcache.xml"
         Hibernate ehcache configuration.
       * "grouper.hibernate.properties"
         Grouper's Hibernate configuration file.  
-        NOTE: This file is generated during the build process.
       * "grouper.properties"
         Grouper configuration.
-      * "log4j.properties"
+      * "grouper-loader.properties.properties"
+        Loader configuration.  
+     * "log4j.properties"
         Logging configuration.  
-        NOTE: This file is generated during the build process.
+	  * "morphString.properties"
+	     Controls encryption of passwords in config files
       * "sources.xml"
         Subject API resolver configuration.
-        NOTE: This file is generated during the build process.
   * "dist"
     * "api"
       Destination for generated JavaDoc.
@@ -55,21 +68,43 @@ Please send email to the [grouper-dev][1] list or report them in the [issue trac
       HSQLDB data directory.
   * "ext"
     Top-level directory for Grouper API extensions.
+	Currently no extensions are provided. Earlier extensions, such as gsh,
+	are no provided as a core part of theGrouper API
   * "lib"
-    Third-party jar files included with Grouper.
+    Third-party jar files included with Grouper are partitioned as described
+	below.
     * "README.txt"
-      Information on all of the jar files in the "GROUPER_HOME/lib" directory.    
-  * "src"
-    * "conf"
-      Contains configuration files that are to be filtered by Ant during the
-      build process.
+      Information on all of the jar files in the "GROUPER_HOME/lib" directory.
+    * "ant"
+       * "ant-contrib.jar"
+          Used by the Grouper Ant build script (build.xml)
+    * "custom"
+       Place jar files for your JDBC driver, custom Source adapters etc here
+	   to make them available to Grouper
+    * "grouper"
+       Third-party jar files included with Grouper and required at run time
+   * "jdbcSamples"
+       Third-party JDBC drivers for databases known to work with Grouper.
+	   Copy the appropriate jar file for your database to the "custom" 
+	   directory
+    * "test"
+       * "junit.jar"
+	      Required to run the Grouper unit tests
+  * "src" (not provided with the binary release)
     * "grouper"
       Grouper API source.
     * "test"
       Grouper API test source.
+	  
+When you use Grouper it will create a "ddlScripts" directory, where any 
+schema and data SQL manipulation scripts are generated.
+
+By default Grouper will also create a "logs" directory, however, you can
+configure, by editing log4j.properties, where you want log files to be
+written.
 
 
-## Building Grouper
+## 3. Building Grouper (not necessary if using the binary release)
 
     % ant build
 
@@ -77,33 +112,32 @@ This will compile the Grouper API source and generate several configuration
 files.
 
 
-## Initializing The Database
+## 4. Initializing The Database
 
-    % ant schemaexport
+    % bin/gsh.sh -registry -runscript
 
 This generates a DDL appropriate for the database configured in
 "GROUPER_HOME/conf/grouper.hibernate.properties" and applies it to the
 database.
 
-    % ant db.init
+    % bin/gsh.sh -registry -reset -runscript
 
-This initializes the Groups Registry with Grouper's default schema and
-installs the root stem
+This initializes the Groups Registry with Grouper's default data e.g. the root stem
 
 
-## Testing Grouper
+## 5. Testing Grouper
 
-    % ant test
+    % bin/gsh.sh -test -all
 
 This adds some test subjects to the Groups Registry and then runs the
 Grouper test suite.  This is a *destructive* action and will destroy
 any data within the configured database.
 
-A "JDBCSourceAdapter" for subjects must be configured in
+A "JDBCSourceAdapter" (id=jdbc) for subjects must be configured in
 "GROUPER_HOME/conf/sources.xml" for the test suite to complete successfully.
 
 
-## Installing Grouper
+## 6. Installing Grouper (not necessary if using the binary release)
 
 These are optional tasks that may make runtime invocation easier.
 
@@ -111,33 +145,46 @@ These are optional tasks that may make runtime invocation easier.
 
 Builds "GROUPER_HOME/dist/lib/grouper.jar" from the compiled Grouper source.
 
-  % ant dist.lib
-
-Builds "GROUPER_HOME/dist/lib/grouper-lib.jar".  This jar will contain all of
-the files included within the jar files in the "GROUPER_HOME/lib" directory.
 
 
-## Using Grouper
+## 7. Using Grouper
 
-You need to have the following items in your CLASSPATH to use Grouper:
+Review configuration files first.
+
+Starting with v1.4.0 a number of Grouper utilities/extensions are now invoked
+using bin/gsh.sh (or bin\gsh.bat) rather than Ant. Type:
+  bin/gsh.sh -h
+for more information, including how to add "gsh" to your path.
+
+You can bootstrap arbitrary code which uses the Grouper API
+by placing your code in a jar file (along with any other jar files 
+not provided with Grouper)  in the "GROUPER_HOME/lib/custom" 
+directory and invoking gsh i.e
+  bin/gsh.sh -main <full class name> [args...]
+
+otherwise you need to have the following items in your CLASSPATH to use Grouper:
 * "GROUPER_HOME/dist/lib/grouper.jar" or the "GROUPER_HOME/build/grouper"
   directory.
-* "GROUPER_HOME/dist/lib/grouper-lib.jar" or all of the jar files in the
-  "GROUPER_HOME/lib" directory.
+* all of the jar files in the
+  "GROUPER_HOME/lib/grouper" directory.
+* any jar files (including your JDBC database driver) in the
+  "GROUPER_HOME/lib/custom" directory.
 * The "GROUPER_HOME/conf" directory.
 
 
-## Building API Documentation
+
+
+## 8. Building API Documentation (not necessary if using the binary release)
 
   % ant javadoc
 
 This will build the javadoc(1) document.
 
 
-## Getting Grouper
+## 9. Getting Grouper
 
-Grouper releases are available from Grouper's Internet2 Middleware page:
-  <http://middleware.internet2.edu/dir/groups/grouper/#software>
+Grouper releases are available from Grouper's Internet2 Wiki:
+  <https://wiki.internet2.edu/confluence/display/GrouperWG/Software+Download>
 
 Read-only anonymous access to the Grouper CVS repository is now
 available.  To perform a CVS checkout, run the following commands.
