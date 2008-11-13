@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderTest.java,v 1.2 2008-11-11 22:08:33 mchyzer Exp $
+ * $Id: GrouperLoaderTest.java,v 1.3 2008-11-13 05:46:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -156,7 +156,7 @@ public class GrouperLoaderTest extends GrouperTest {
     
     // now lets use a group in another group
     Group anotherGroup = Group.saveGroup(this.grouperSession, "aStem:anotherGroup", null, 
-        "aStem:anotherGroup", null, null, null, false);
+        "aStem:anotherGroup", null, null, null, true);
     anotherGroup.addMember(SubjectFinder.findById(overallGroup1.getUuid()));
     
     //now lets change around the memberships...
