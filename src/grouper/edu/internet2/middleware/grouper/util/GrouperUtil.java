@@ -6026,6 +6026,9 @@ public class GrouperUtil {
 	  if(StringUtils.isBlank(url)) {
 		  return;
 	  }
+	  if (!url.startsWith("jdbc:hsqldb:")) {
+      return;
+    }
 	  if(url.matches("^jdbc:hsqldb:(mem|hsql):.*")) {
 		  return;
 	  }
