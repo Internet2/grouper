@@ -91,7 +91,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.169 2008-10-27 10:03:36 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.170 2008-11-13 20:26:10 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
@@ -1205,11 +1205,12 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
   /**
    * add root stem
    * @param s session
+   * @param changed if you want to know if it was added, pass in array of size one, else null
    * @since   1.2.0
    * @return stem
    * @throws GrouperRuntimeException is problem
    */
-  public static Stem internal_addRootStem(GrouperSession s) 
+  public static Stem internal_addRootStem(GrouperSession s, boolean[] changed) 
     throws  GrouperRuntimeException {
     Stem root = null;
     try {
@@ -1237,8 +1238,13 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
         throw new RuntimeException("Root name should be '" 
             + ROOT_INT + "' but is: '" + root.getNameDb() + "'" );
       }
-      
+      if (GrouperUtil.length(changed) > 0) {
+        changed[0] = false;
+      }
       return root;
+    }
+    if (GrouperUtil.length(changed) > 0) {
+      changed[0] = false;
     }
     
     //note, no need for GrouperSession inverse of control

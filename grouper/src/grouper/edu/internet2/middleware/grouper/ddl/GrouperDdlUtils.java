@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.24 2008-11-13 07:12:37 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.25 2008-11-13 20:26:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -64,6 +65,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.morphString.Morph;
 
 /**
  *
@@ -246,10 +248,10 @@ public class GrouperDdlUtils {
    * @param maxVersions if unit testing, and not going to max, then associate object name
    * with max version
    * @param promptUser promptUser to see if they want to do this...
-   * @return the script or null if none (for unit testing, this will also be written to file and logged etc)
+   * @return true if up to date, false if needs to run a script
    */
   @SuppressWarnings("unchecked")
-  public static String bootstrapHelper(boolean callFromCommandLine, boolean fromUnitTest,
+  public static boolean bootstrapHelper(boolean callFromCommandLine, boolean fromUnitTest,
       boolean theCompareFromDbVersion, boolean theDropBeforeCreate, boolean theWriteAndRunScript,
       boolean dropOnly, boolean installDefaultGrouperData, Map<String, DdlVersionable> maxVersions,
       boolean promptUser) {
@@ -265,7 +267,7 @@ public class GrouperDdlUtils {
      GrouperUtil.promptUserAboutDbChanges(prompt, true);
  
     }
-    
+    boolean upToDate = false;
     String resultString = null;
     
     try {
@@ -373,12 +375,12 @@ public class GrouperDdlUtils {
           versionMismatch = javaVersion != dbVersion;
           
           //see if same version, just continue, all good
-          if (!versionMismatch) {
+          if (!versionMismatch && !dropOnly) {
             continue;
           }
           
           //if the java is less than db, then grouper was rolled back... that might not be good
-          if (javaVersion < dbVersion) {
+          if (javaVersion < dbVersion && !dropOnly) {
             LOG.error("Java version of db object name: " + objectName + " is " 
                 + javaVersion + " which is less than the dbVersion " + dbVersion
                 + ".  This means grouper was upgraded and rolled back?  Check in the enum "
@@ -411,7 +413,7 @@ public class GrouperDdlUtils {
           }
           
           // if deleting all, lets delete all:
-          if (theDropBeforeCreate) {
+          if (theDropBeforeCreate || dropOnly) {
             //it needs a name, just use "grouper"
             Database oldDatabase = platform.readModelFromDatabase(connection, PLATFORM_NAME, null,
                 null, null);
@@ -610,8 +612,8 @@ public class GrouperDdlUtils {
         } else {
           if (callFromCommandLine || GrouperShell.runFromGsh) {
             System.err.println("Note: this script was not executed per the grouper.properties: ddlutils.schemaexport.writeAndRunScript");
-            System.err.println("To run script via gsh, carefully review it, then run this in gsh:\nsqlRun(new File(\"" 
-                + scriptFile.getAbsolutePath().replace("\\", "\\\\") + "\"));");
+            System.err.println("To run script via gsh, carefully review it, then run this:\ngsh -registry -runsqlfile " 
+                + GrouperUtil.fileCanonicalPath(scriptFile).replace("\\", "\\\\"));
           }
         }
       } else {
@@ -629,8 +631,9 @@ public class GrouperDdlUtils {
         if (!printed && callFromCommandLine) {
           System.err.println(note);
         }
+        upToDate = true;
       }
-      if (installDefaultGrouperData) {
+      if (installDefaultGrouperData && !dropOnly && (upToDate || theWriteAndRunScript)) {
         try {
           RegistryInstall.install();
         } catch (RuntimeException e) {
@@ -651,10 +654,31 @@ public class GrouperDdlUtils {
     } finally {
       insideBootstrap = false;
     }
-    return resultString;
+    return false;
   }
   
 
+  /** run a script file against the default database
+   * 
+   * @param scriptFile
+   * @param fromUnitTest 
+   * @param printErrorToStdOut 
+   * @return the output
+   */
+  public static String sqlRun(File scriptFile, boolean fromUnitTest, boolean printErrorToStdOut) {
+   Properties properties = GrouperUtil.propertiesFromResourceName(
+       "grouper.hibernate.properties");
+     
+   String user = properties.getProperty("hibernate.connection.username");
+   String pass = properties.getProperty("hibernate.connection.password");
+   String url = properties.getProperty("hibernate.connection.url");
+   String driver = properties.getProperty("hibernate.connection.driver_class");
+   pass = Morph.decryptIfFile(pass);
+
+   return GrouperDdlUtils.sqlRun(scriptFile, driver, url, user, pass, fromUnitTest, printErrorToStdOut);
+
+  }
+  
   /**
    * run some sql
    * @param scriptFile

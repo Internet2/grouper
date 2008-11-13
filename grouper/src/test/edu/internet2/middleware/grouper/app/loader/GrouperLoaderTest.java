@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderTest.java,v 1.3 2008-11-13 05:46:23 mchyzer Exp $
+ * $Id: GrouperLoaderTest.java,v 1.4 2008-11-13 20:26:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -323,11 +323,35 @@ public class GrouperLoaderTest extends GrouperTest {
 
   /**
    * 
+   */
+  public void dropTestgrouperLoaderTable() {
+    //we need to delete the test table if it is there, and create a new one
+    //drop field id col, first drop foreign keys
+    GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+
+      public void changeDatabase(DdlVersionBean ddlVersionBean) {
+        
+        Database database = ddlVersionBean.getDatabase();
+
+        Table loaderTable = database.findTable("testgrouper_loader");
+        
+        if (loaderTable != null) {
+          database.removeTable(loaderTable);
+        }
+        
+      }
+      
+    });
+  }
+
+  /**
+   * 
    * @see edu.internet2.middleware.grouper.GrouperTest#tearDown()
    */
   @Override
   protected void tearDown() {
     super.tearDown();
+    dropTestgrouperLoaderTable();
     GrouperSession.stopQuietly(this.grouperSession);
   }
   

@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * this will put the base records that grouper needs to operate (e.g. root stem)
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.7 2008-11-04 07:17:56 mchyzer Exp $    
+ * @version $Id: RegistryInstall.java,v 1.8 2008-11-13 20:26:10 mchyzer Exp $    
  */
 public class RegistryInstall {
 
@@ -62,10 +62,11 @@ public class RegistryInstall {
 
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
+          boolean changed = false;
           try {
-            _installFieldsAndTypes(grouperSession);
-            _installGroupsAndStems(grouperSession);
-            if (LOG.isWarnEnabled()) {
+            changed = changed | _installFieldsAndTypes(grouperSession);
+            changed = changed | _installGroupsAndStems(grouperSession);
+            if (changed && LOG.isWarnEnabled()) {
               LOG.warn("Registry was initted (default fields, types, stem, etc inserted)");
             }
           } catch (Exception e) {
@@ -97,47 +98,83 @@ public class RegistryInstall {
   /**
    * 
    * @param s
+   * @return true if any changes were made
    * @throws InsufficientPrivilegeException
    * @throws SchemaException
    */
-  private static void _installFieldsAndTypes(GrouperSession s) 
+  private static boolean _installFieldsAndTypes(GrouperSession s) 
     throws  InsufficientPrivilegeException,
             SchemaException {
     //note, no need for GrouperSession inverse of control
-    GroupType base    = GroupType.internal_createType(s, "base", false, false, false, null);
+    boolean changed = false;
+    boolean[] changedArray = {false};
+    GroupType base    = GroupType.internal_createType(s, "base", false, false, false, changedArray);
+    changed = changed || changedArray[0];
     // base attributes
-    base.internal_addField( s, "description",      FieldType.ATTRIBUTE, AccessPrivilege.READ, AccessPrivilege.ADMIN,  false, false, false );
-    base.internal_addField( s, "displayExtension", FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.ADMIN,  true, false, false  );
-    base.internal_addField( s, "displayName",      FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.SYSTEM, true, false, false  );
-    base.internal_addField( s, "extension",        FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.ADMIN,  true, false, false  );
-    base.internal_addField( s, "name",             FieldType.ATTRIBUTE, AccessPrivilege.VIEW, AccessPrivilege.SYSTEM, true, false, false  );
+    base.internal_addField( s, "description",      FieldType.ATTRIBUTE, 
+        AccessPrivilege.READ, AccessPrivilege.ADMIN,  false, false, false, changedArray );
+    changed = changed || changedArray[0];
+    base.internal_addField( s, "displayExtension", FieldType.ATTRIBUTE, 
+        AccessPrivilege.VIEW, AccessPrivilege.ADMIN,  true, false, false, changedArray  );
+    changed = changed || changedArray[0];
+    base.internal_addField( s, "displayName",      FieldType.ATTRIBUTE, 
+        AccessPrivilege.VIEW, AccessPrivilege.SYSTEM, true, false, false, changedArray  );
+    changed = changed || changedArray[0];
+    base.internal_addField( s, "extension",        FieldType.ATTRIBUTE, 
+        AccessPrivilege.VIEW, AccessPrivilege.ADMIN,  true, false, false, changedArray  );
+    changed = changed || changedArray[0];
+    base.internal_addField( s, "name",             FieldType.ATTRIBUTE, 
+        AccessPrivilege.VIEW, AccessPrivilege.SYSTEM, true, false, false  , changedArray);
+    changed = changed || changedArray[0];
     // base lists
-    base.internal_addField( s, "members", FieldType.LIST, AccessPrivilege.READ, AccessPrivilege.UPDATE, false, false, false );
+    base.internal_addField( s, "members", FieldType.LIST, AccessPrivilege.READ, 
+        AccessPrivilege.UPDATE, false, false, false , changedArray);
+    changed = changed || changedArray[0];
     // reserve access privs
-    base.internal_addField( s, "admins",   FieldType.ACCESS, AccessPrivilege.ADMIN,  AccessPrivilege.ADMIN,  false, false, false );
-    base.internal_addField( s, "optouts",  FieldType.ACCESS, AccessPrivilege.UPDATE, AccessPrivilege.UPDATE, false, false, false );
-    base.internal_addField( s, "optins",   FieldType.ACCESS, AccessPrivilege.UPDATE, AccessPrivilege.UPDATE, false, false, false );
-    base.internal_addField( s, "readers",  FieldType.ACCESS, AccessPrivilege.ADMIN,  AccessPrivilege.ADMIN,  false, false, false );
-    base.internal_addField( s, "updaters", FieldType.ACCESS, AccessPrivilege.ADMIN,  AccessPrivilege.ADMIN,  false, false, false );
-    base.internal_addField( s, "viewers",  FieldType.ACCESS, AccessPrivilege.ADMIN,  AccessPrivilege.ADMIN,  false, false, false );
+    base.internal_addField( s, "admins",   FieldType.ACCESS, AccessPrivilege.ADMIN,  
+        AccessPrivilege.ADMIN,  false, false, false , changedArray);
+    changed = changed || changedArray[0];
+    base.internal_addField( s, "optouts",  FieldType.ACCESS, AccessPrivilege.UPDATE,
+        AccessPrivilege.UPDATE, false, false, false , changedArray);
+    changed = changed || changedArray[0];
+    base.internal_addField( s, "optins",   FieldType.ACCESS, AccessPrivilege.UPDATE, 
+        AccessPrivilege.UPDATE, false, false, false , changedArray);
+    changed = changed || changedArray[0];
+    base.internal_addField( s, "readers",  FieldType.ACCESS, AccessPrivilege.ADMIN,  
+        AccessPrivilege.ADMIN,  false, false, false , changedArray);
+    changed = changed || changedArray[0];
+    base.internal_addField( s, "updaters", FieldType.ACCESS, AccessPrivilege.ADMIN,  
+        AccessPrivilege.ADMIN,  false, false, false, changedArray );
+    changed = changed || changedArray[0];
+    base.internal_addField( s, "viewers",  FieldType.ACCESS, AccessPrivilege.ADMIN,  
+        AccessPrivilege.ADMIN,  false, false, false, changedArray );
+    changed = changed || changedArray[0];
 
-    GroupType naming  = GroupType.internal_createType(s, "naming", false, true, false, null);
+    GroupType naming  = GroupType.internal_createType(s, "naming", false, true, false, changedArray);
+    changed = changed || changedArray[0];
     // reserve naming privs
-    naming.internal_addField( s, "creators", FieldType.NAMING, NamingPrivilege.STEM, NamingPrivilege.STEM, false, false, false);
-    naming.internal_addField( s, "stemmers", FieldType.NAMING, NamingPrivilege.STEM, NamingPrivilege.STEM, false, false, false);
-
+    naming.internal_addField( s, "creators", FieldType.NAMING, NamingPrivilege.STEM, 
+        NamingPrivilege.STEM, false, false, false, changedArray);
+    changed = changed || changedArray[0];
+    naming.internal_addField( s, "stemmers", FieldType.NAMING, 
+        NamingPrivilege.STEM, NamingPrivilege.STEM, false, false, false, changedArray);
+    changed = changed || changedArray[0];
+    return changed;
   } // private static void _installFieldsAndTypes(s)
 
   /**
    * 
    * @param s
+   * @return true if there were changes, false if not
    * @throws GrouperRuntimeException
    */
-  private static void _installGroupsAndStems(GrouperSession s) 
+  private static boolean _installGroupsAndStems(GrouperSession s) 
     throws  GrouperRuntimeException
   {
     //note, no need for GrouperSession inverse of control
-    Stem.internal_addRootStem(s);
+    boolean[] changed = {false};
+    Stem.internal_addRootStem(s, changed);
+    return changed[0];
   } // private static void _installGroupsAndStems(s)
 
 }
