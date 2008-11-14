@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.208 2008-11-12 15:10:46 isgwb Exp $ -->
+<!-- $Id: build.xml,v 1.209 2008-11-14 07:38:03 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -198,6 +198,11 @@
     <property name="dist.binary.zip" value="${dist.binary}/grouper.binary.${version}" />
     
     <mkdir dir="${dist.binary.zip}"/>
+    <copy tofile="${dist.binary.zip}/README.txt" file="${basedir}/misc/BINARY-README.txt" />
+    <copy todir="${dist.binary.zip}" file="${basedir}/API.txt" />
+    <copy todir="${dist.binary.zip}" file="${basedir}/LICENSE.txt" />
+    <copy tofile="${dist.binary.zip}/SOURCE_README.txt" file="${basedir}/README.txt" />
+      
     <mkdir dir="${dist.binary.zip}/lib"/>
     <copy todir="${dist.binary.zip}/lib">
       <fileset dir="${lib.dir}">

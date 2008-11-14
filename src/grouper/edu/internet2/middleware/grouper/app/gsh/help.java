@@ -15,7 +15,7 @@ import bsh.Interpreter;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.17 2008-11-10 15:14:30 shilen Exp $
+ * @version $Id: help.java,v 1.18 2008-11-14 07:38:03 mchyzer Exp $
  * @since   0.0.1
  */
 public class help {
@@ -249,10 +249,10 @@ public class help {
     i.println("* quit"                                                );
     i.println("* resetRegistry()"                                     );
     i.println("* registryInstall()     will insert default Grouper data if not there, e.g. root stem");
-    i.println("* registryInitializeSchema()     will generate schema DDL for the DB, and wont drop before creating, will not run script");
-    i.println("* registryInitializeSchema(registryInitializeSchema.DROP_THEN_CREATE)  generate DDL for the DB, dropping existing tables, will not run script");
-    i.println("* registryInitializeSchema(registryInitializeSchema.WRITE_AND_RUN_SCRIPT)  generate DDL for the DB, not dropping, but will run the script after writing it to file");
-    i.println("* registryInitializeSchema(registryInitializeSchema.DROP_THEN_CREATE | registryInitializeSchema.WRITE_AND_RUN_SCRIPT)  generate DDL for the DB, drop existing grouper tables, and run the script after writing it to file");
+    i.println("* registryInitializeSchema()     will generate schema DDL for the DB, and wont drop before creating, will not run script.  Note: gsh -registry is probably better");
+    i.println("* registryInitializeSchema(registryInitializeSchema.DROP_THEN_CREATE)  generate DDL for the DB, dropping existing tables, will not run script.  Note: gsh -registry is probably better");
+    i.println("* registryInitializeSchema(registryInitializeSchema.WRITE_AND_RUN_SCRIPT)  generate DDL for the DB, not dropping, but will run the script after writing it to file.  Note: gsh -registry is probably better");
+    i.println("* registryInitializeSchema(registryInitializeSchema.DROP_THEN_CREATE | registryInitializeSchema.WRITE_AND_RUN_SCRIPT)  generate DDL for the DB, drop existing grouper tables, and run the script after writing it to file.  Note: gsh -registry is probably better");
     i.println("* revokePriv(name, subject id, Privilege)"             );
     i.println("* setGroupAttr(stem, attr, value)"                     );
     i.println("* setStemAttr(stem, attr, value)"                      );

@@ -64,7 +64,7 @@ public class HibernateSession {
 
     if (!GrouperDdlUtils.okToUseHibernate()) {
       if (GrouperConfig.getPropertyBoolean("ddlutils.failIfNotRightVersion", true)) {
-        throw new RuntimeException("Database schema ddl is not up to date, or has issues, check logs and config ddl in grouper.properties and run: registryInitializeSchema() from GSH");
+        throw new RuntimeException("Database schema ddl is not up to date, or has issues, check logs and config ddl in grouper.properties and run: gsh -registry -check");
       }
     }
     

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.25 2008-11-13 20:26:10 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.26 2008-11-14 07:38:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -611,7 +611,7 @@ public class GrouperDdlUtils {
           
         } else {
           if (callFromCommandLine || GrouperShell.runFromGsh) {
-            System.err.println("Note: this script was not executed per the grouper.properties: ddlutils.schemaexport.writeAndRunScript");
+            System.err.println("Note: this script was not executed due to option passed in");
             System.err.println("To run script via gsh, carefully review it, then run this:\ngsh -registry -runsqlfile " 
                 + GrouperUtil.fileCanonicalPath(scriptFile).replace("\\", "\\\\"));
           }
