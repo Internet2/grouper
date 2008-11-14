@@ -168,7 +168,9 @@ public class FindBadMemberships {
     } else {
       out.println("Membership errors have been found.  Do the following to resolve the errors:");
       writeFile(gshScript, gshScriptFilename);
+      out.println(" - Review the GSH script before applying any changes to your database.");
       out.println(" - Execute the GSH Script " + gshScriptFilename);
+      out.println(" - Re-run the bad membership finder utility for all groups and stems since additional membership errors for other groups and stems may be revealed after the current groups and stems are fixed.");
     }
     System.exit(0);
   }
@@ -868,7 +870,7 @@ public class FindBadMemberships {
   private static void writeFile(StringWriter data, String filename) {
     FileWriter fw = null;
     try {
-      fw = new FileWriter("../" + filename, false);
+      fw = new FileWriter(filename, false);
       fw.write(data.toString());
     } catch (IOException e) {
       out.println("Exception while writing out to file " + filename + ": " + e.toString());
