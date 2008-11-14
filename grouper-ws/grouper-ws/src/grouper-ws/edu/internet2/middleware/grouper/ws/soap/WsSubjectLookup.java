@@ -23,7 +23,11 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * <pre>
- * template to lookup a subject
+ * template to lookup a subject.
+ * 
+ * to lookup a group as a subject, use the group uuid (e.g. fa2dd790-d3f9-4cf4-ac41-bb82e63bff66) in the 
+ * subject id of the subject lookup.  Optionally you can use g:gsa as
+ * the source id.
  * 
  * developers make sure each setter calls this.clearSubject();
  * 

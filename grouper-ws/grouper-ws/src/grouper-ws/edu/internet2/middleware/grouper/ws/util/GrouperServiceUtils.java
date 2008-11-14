@@ -551,14 +551,9 @@ public final class GrouperServiceUtils {
 
     Member member = null;
 
-    try {
-      member = MemberFinder.findBySubject(session, subject);
-      if (member == null) {
-        throw new WsInvalidQueryException("Member is null after findBySubject");
-      }
-    } catch (MemberNotFoundException mvfe) {
-      String error = "Subject: " + subject + " had problems";
-      throw new WsInvalidQueryException(error, mvfe);
+    member = MemberFinder.findBySubject(session, subject);
+    if (member == null) {
+      throw new WsInvalidQueryException("Member is null after findBySubject");
     }
     return member;
   }

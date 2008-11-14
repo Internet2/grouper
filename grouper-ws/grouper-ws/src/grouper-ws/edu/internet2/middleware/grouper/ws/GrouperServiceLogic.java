@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.15 2008-11-06 21:51:49 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.16 2008-11-14 21:07:25 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeRuntimeException;
@@ -926,9 +927,8 @@ public class GrouperServiceLogic {
           wsGetGroupsResult.setWsSubject(new WsSubject(wsSubjectLookup));
           Subject subject = wsSubjectLookup.retrieveSubject("subjectLookup");
           wsGetGroupsResult.setWsSubject(new WsSubject(subject, subjectAttributeNames));
-          Member member = GrouperServiceUtils.convertSubjectToMember(session, subject);
-      
-          Set<Group> groups = memberFilter.getGroups(member);
+          Member member = MemberFinder.internal_findBySubject(subject, false);
+          Set<Group> groups = member == null ? new HashSet<Group>() : memberFilter.getGroups(member);
           wsGetGroupsResult.assignGroupResult(groups, includeGroupDetail);
         } catch (Exception e) {
           wsGetGroupsResult.assignResultCodeException(null, null,wsSubjectLookup,  e);

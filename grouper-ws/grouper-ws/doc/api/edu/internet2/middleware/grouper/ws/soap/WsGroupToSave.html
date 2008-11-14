@@ -279,13 +279,7 @@ public void <B>validate</B>()</PRE>
 <A NAME="save(edu.internet2.middleware.grouper.GrouperSession)"><!-- --></A><H3>
 save</H3>
 <PRE>
-public edu.internet2.middleware.grouper.Group <B>save</B>(edu.internet2.middleware.grouper.GrouperSession&nbsp;grouperSession)
-                                            throws edu.internet2.middleware.grouper.exception.StemNotFoundException,
-                                                   edu.internet2.middleware.grouper.exception.GroupNotFoundException,
-                                                   edu.internet2.middleware.grouper.exception.StemAddException,
-                                                   edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException,
-                                                   edu.internet2.middleware.grouper.exception.GroupModifyException,
-                                                   edu.internet2.middleware.grouper.exception.GroupAddException</PRE>
+public edu.internet2.middleware.grouper.Group <B>save</B>(edu.internet2.middleware.grouper.GrouperSession&nbsp;grouperSession)</PRE>
 <DL>
 <DD>save this group
 <P>
@@ -300,7 +294,9 @@ public edu.internet2.middleware.grouper.Group <B>save</B>(edu.internet2.middlewa
 <DD><CODE>edu.internet2.middleware.grouper.exception.GroupAddException</CODE>
 <DD><CODE>edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException</CODE>
 <DD><CODE>edu.internet2.middleware.grouper.exception.GroupModifyException</CODE>
-<DD><CODE>edu.internet2.middleware.grouper.exception.GroupAddException</CODE></DL>
+<DD><CODE>edu.internet2.middleware.grouper.exception.GroupAddException</CODE>
+<DD><CODE>edu.internet2.middleware.grouper.exception.AttributeNotFoundException</CODE>
+<DD><CODE>edu.internet2.middleware.grouper.exception.MemberDeleteException</CODE></DL>
 </DD>
 </DL>
 <HR>
