@@ -148,7 +148,7 @@ public class GrouperUtil {
   /**
    * Grouper home dir
    */
-  public static final String grouperHome;
+  static String grouperHome;
   
   static {
     
@@ -6021,7 +6021,7 @@ public class GrouperUtil {
    * 
    * @param props
    */
-  private static void fixHibernateConnectionUrl(Properties props) {
+  static void fixHibernateConnectionUrl(Properties props) {
 	  String url = props.getProperty("hibernate.connection.url");
 	  if(StringUtils.isBlank(url)) {
 		  return;
@@ -6029,7 +6029,7 @@ public class GrouperUtil {
 	  if (!url.startsWith("jdbc:hsqldb:")) {
       return;
     }
-	  if(url.matches("^jdbc:hsqldb:(mem|hsql):.*")) {
+	  if(url.matches("^jdbc:hsqldb:(mem|hsql|res|hsql|hsqls|http|https):.*")) {
 		  return;
 	  }
 	  int spliceAt=12;

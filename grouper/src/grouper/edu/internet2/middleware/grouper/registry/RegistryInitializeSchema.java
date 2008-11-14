@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInitializeSchema.java,v 1.13 2008-11-13 20:26:10 mchyzer Exp $    
+ * @version $Id: RegistryInitializeSchema.java,v 1.14 2008-11-14 07:38:02 mchyzer Exp $    
  * @since   1.2.0
  */
 public class RegistryInitializeSchema {
@@ -134,9 +134,6 @@ public class RegistryInitializeSchema {
       try {
         //dont run from startup, run from here
         GrouperStartup.runDdlBootstrap = false;
-        
-        //NOTE, dont make any calls other than outside of grouper until we call startup...
-        System.err.println("Based on grouper.properties: " + "ddlutils.schemaexport.installGrouperData" + "=" + isInstallGrouperData());
         
         //set vars so nothing else happens...
         GrouperDdlUtils.compareFromDbDllVersion = false;
