@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.15 2008-10-13 09:10:28 mchyzer Exp $
-$Date: 2008-10-13 09:10:28 $
+$Id: JDBCSourceAdapter.java,v 1.16 2008-11-18 08:00:27 mchyzer Exp $
+$Date: 2008-11-18 08:00:27 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -23,8 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.p6spy.engine.spy.P6SpyDriver;
 
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.InvalidQueryRuntimeException;
@@ -571,7 +569,8 @@ public class JDBCSourceAdapter
         
         //check out P6Spy
         String spyInsert = "";
-        if (driverClass.equals(P6SpyDriver.class)) {
+        //dont load class here
+        if (driverClass.getName().equals("com.p6spy.engine.spy.P6SpyDriver")) {
           spyInsert = " and spy.properties";
           if (!SubjectCheckConfig.checkConfig("spy.properties")) {
             return;
