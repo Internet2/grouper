@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.9 2008-11-08 08:17:24 mchyzer Exp $
+ * @version $Id: GrouperShell.java,v 1.10 2008-11-18 10:05:41 mchyzer Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -102,12 +102,11 @@ public class GrouperShell {
    * @since 0.0.1
    */
   public static void main(String args[]) {
-	GrouperStartup.ignoreCheckConfig = true;
     boolean wasSpecialCase = handleSpecialCase(args);
     if(wasSpecialCase) {
     	return;
     }
-	runFromGsh = true;
+	  runFromGsh = true;
 	
     GrouperStartup.runFromMain = true;
     GrouperStartup.startup();
@@ -145,8 +144,8 @@ private static boolean handleSpecialCase(String[] args) {
 		  return true;
 	  }
 	  
-	  if("-check".equalsIgnoreCase(args[0])) {
-		  GrouperStartup.ignoreCheckConfig = false;
+	  if("-nocheck".equalsIgnoreCase(args[0])) {
+		  GrouperStartup.ignoreCheckConfig = true;
 		  return false;
 	  }
 	  String mainClass = mainLookups.get(args[0].toLowerCase());
@@ -442,7 +441,7 @@ private static boolean handleSpecialCase(String[] args) {
 	            + "args: -h,               Prints this message"                            + GrouperConfig.NL
 	            + "args: <filename>,       Execute commands in specified file"             + GrouperConfig.NL
 	            + "no args:                Enters an interactive shell"                    + GrouperConfig.NL
-	            + "args: -check,          Performs startup check and enters an "          + GrouperConfig.NL
+	            + "args: -nocheck,         Skips startup check and enters an "          + GrouperConfig.NL
 	            + "                        interactive shell"                              + GrouperConfig.NL
 	            + "args: -runarg <command> Run command (use \\\\n to separate commands)"   + GrouperConfig.NL
 	            + "args: -main <class> [args...]                                    "      + GrouperConfig.NL

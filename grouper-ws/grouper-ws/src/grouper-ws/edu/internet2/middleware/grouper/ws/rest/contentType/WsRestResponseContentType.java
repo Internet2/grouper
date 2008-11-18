@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsRestResponseContentType.java,v 1.4 2008-03-29 10:50:45 mchyzer Exp $
+ * @author mchyzer $Id: WsRestResponseContentType.java,v 1.5 2008-11-18 10:05:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
@@ -157,6 +157,7 @@ public enum WsRestResponseContentType {
     XStream xstream = isJson ? new XStream(new JettisonMappedXmlDriver()) : new XStream();
     //dont try to get fancy
     xstream.setMode(XStream.NO_REFERENCES);
+    xstream.autodetectAnnotations(true);
     Map<String, Class<?>> aliasClassMap = WsRestClassLookup.getAliasClassMap();
     for (String key : aliasClassMap.keySet()) {
       xstream.alias(key, aliasClassMap.get(key));

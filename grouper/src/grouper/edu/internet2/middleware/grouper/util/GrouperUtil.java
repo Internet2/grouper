@@ -7381,4 +7381,26 @@ public class GrouperUtil {
    * An empty immutable <code>Object</code> array.
    */
   public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
+  
+  /**
+   * Copy bytes from an <code>InputStream</code> to chars on a
+   * <code>Writer</code> using the default character encoding of the platform.
+   * <p>
+   * This method buffers the input internally, so there is no need to use a
+   * <code>BufferedInputStream</code>.
+   * <p>
+   * This method uses {@link InputStreamReader}.
+   *
+   * @param input  the <code>InputStream</code> to read from
+   * @param output  the <code>Writer</code> to write to
+   * @throws NullPointerException if the input or output is null
+   * @throws IOException if an I/O error occurs
+   * @since Commons IO 1.1
+   */
+  public static void copy(InputStream input, Writer output)
+          throws IOException {
+      InputStreamReader in = new InputStreamReader(input);
+      copy(in, output);
+  }
+
 }

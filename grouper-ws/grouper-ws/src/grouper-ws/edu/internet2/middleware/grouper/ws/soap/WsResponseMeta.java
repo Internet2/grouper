@@ -1,10 +1,12 @@
 /*
- * @author mchyzer $Id: WsResponseMeta.java,v 1.3 2008-10-27 21:28:14 mchyzer Exp $
+ * @author mchyzer $Id: WsResponseMeta.java,v 1.4 2008-11-18 10:05:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
@@ -53,6 +55,7 @@ public class WsResponseMeta {
   /**
    * start of request
    */
+  @XStreamOmitField
   private long millisStart = GrouperServiceJ2ee.retrieveRequestStartMillis();
   
   /**

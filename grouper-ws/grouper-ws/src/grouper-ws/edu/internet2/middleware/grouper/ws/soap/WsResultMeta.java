@@ -1,10 +1,12 @@
 /*
- * @author mchyzer $Id: WsResultMeta.java,v 1.5 2008-10-27 21:28:14 mchyzer Exp $
+ * @author mchyzer $Id: WsResultMeta.java,v 1.6 2008-11-18 10:05:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -68,6 +70,7 @@ public class WsResultMeta {
   private String success;
 
   /** status code, if 500, then not set */
+  @XStreamOmitField
   private int httpStatusCode = 500;
 
   /**

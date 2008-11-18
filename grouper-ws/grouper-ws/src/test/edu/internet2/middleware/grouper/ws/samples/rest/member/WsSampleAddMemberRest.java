@@ -38,6 +38,11 @@ public class WsSampleAddMemberRest implements WsSampleRest {
       DefaultHttpParams.getDefaultParams().setParameter(
           HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
 
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.SO_TIMEOUT, new Integer(30000));
+
+      //httpClient.getParams().setParameter("http.socket.timeout", new Integer(30000));
+
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PutMethod method = new PutMethod(
@@ -127,7 +132,8 @@ public class WsSampleAddMemberRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    addMemberLite(WsSampleRestType.xhtml);
+    RestClientSettings.resetData();
+    addMemberLite(WsSampleRestType.xml);
   }
 
   /**

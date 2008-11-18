@@ -8,6 +8,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
+
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
@@ -37,15 +39,19 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 public class WsSubjectLookup {
 
   /** find the subject */
+  @XStreamOmitField
   private Subject subject = null;
 
   /** find the member */
+  @XStreamOmitField
   private Member member = null;
 
   /** if there is an exception in find, list it here */
+  @XStreamOmitField
   private Exception cause = null;
 
   /** if there is an exception in find member, list it here */
+  @XStreamOmitField
   private Exception causeMember = null;
 
   /**
@@ -157,9 +163,11 @@ public class WsSubjectLookup {
   }
 
   /** result of subject find */
+  @XStreamOmitField
   private SubjectFindResult subjectFindResult = null;
 
   /** result of subject find */
+  @XStreamOmitField
   private MemberFindResult memberFindResult = null;
 
   /** logger */

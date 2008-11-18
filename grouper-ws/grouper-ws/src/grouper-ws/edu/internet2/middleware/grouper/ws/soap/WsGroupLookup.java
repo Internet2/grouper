@@ -8,6 +8,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -49,6 +51,7 @@ public class WsGroupLookup {
   private static final Log LOG = LogFactory.getLog(WsGroupLookup.class);
 
   /** find the group */
+  @XStreamOmitField
   private Group group = null;
 
   /** result of group find */
@@ -305,6 +308,7 @@ public class WsGroupLookup {
   private String groupName;
 
   /** result of group find */
+  @XStreamOmitField
   private GroupFindResult groupFindResult = null;
 
   /**
