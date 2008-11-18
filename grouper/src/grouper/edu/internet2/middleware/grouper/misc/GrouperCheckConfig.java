@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.10 2008-11-11 07:27:32 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.11 2008-11-18 08:04:53 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -29,8 +29,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-
-import com.p6spy.engine.spy.P6SpyDriver;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -670,8 +668,9 @@ public class GrouperCheckConfig {
     String realDriverClass = driverClassName;
 
     String spySuffix = "";
-    
-    if (driverClassName.equals(P6SpyDriver.class.getName())) {
+
+    //dont load class here
+    if (driverClassName.equals("com.p6spy.engine.spy.P6SpyDriver")) {
       Properties spyProperties = GrouperUtil.propertiesFromResourceName("spy.properties");
       realDriverClass = StringUtils.defaultString(GrouperUtil.propertiesValue(spyProperties, "realdriver"));
       spySuffix = ", and spy.properties";
@@ -732,7 +731,8 @@ public class GrouperCheckConfig {
       
       //check out P6Spy
       String spyInsert = "";
-      if (driverClass.equals(P6SpyDriver.class)) {
+      //dont load class here
+      if (driverClass.getName().equals("com.p6spy.engine.spy.P6SpyDriver")) {
         spyInsert = " and spy.properties, ";
         checkResource("spy.properties");
         Properties spyProperties = GrouperUtil.propertiesFromResourceName("spy.properties");
