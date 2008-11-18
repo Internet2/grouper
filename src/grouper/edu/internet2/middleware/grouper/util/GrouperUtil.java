@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -28,6 +29,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -53,9 +55,7 @@ import net.sf.cglib.proxy.Enhancer;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.keyvalue.MultiKey;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang.exception.Nestable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.Log4JLogger;
@@ -89,12 +89,12 @@ public class GrouperUtil {
    * @return the arg
    */
   public static String argAfter(String[] args, String argBefore) {
-    if (GrouperUtil.length(args) <= 1) {
+    if (length(args) <= 1) {
       return null;
     }
     int argBeforeIndex = -1;
     for (int i=0;i<args.length;i++) {
-      if (StringUtils.equals(args[i], argBefore)) {
+      if (equals(args[i], argBefore)) {
         argBeforeIndex = i;
         break;
       }
@@ -153,7 +153,7 @@ public class GrouperUtil {
   static {
     
     String theGrouperHome = System.getProperty("grouper.home");
-    if (StringUtils.isBlank(theGrouperHome)) {
+    if (isBlank(theGrouperHome)) {
       grouperHome = new File("").getAbsolutePath();
     } else {
       grouperHome = theGrouperHome;
@@ -210,7 +210,7 @@ public class GrouperUtil {
     logDirsCreated = true;
     
     String location = "log4j.properties";
-    Properties properties = GrouperUtil.propertiesFromResourceName(location);
+    Properties properties = propertiesFromResourceName(location);
     Set<String> keySet = (Set<String>)(Object)properties.keySet();
     for (String key : keySet) {
       //if its a file property
@@ -238,7 +238,7 @@ public class GrouperUtil {
 
         } catch (RuntimeException re) {
           //this is bad, print to stderr rightaway (though might dupe)
-          System.err.println(GrouperUtil.LOG_ERROR);
+          System.err.println(LOG_ERROR);
           re.printStackTrace();
           throw new RuntimeException(LOG_ERROR, re);
         }
@@ -343,7 +343,7 @@ public class GrouperUtil {
           rootLoggerAppender.append("console, ");
         } else if (appender instanceof FileAppender) {
           String path = ((FileAppender)appender).getFile();
-          if (StringUtils.isBlank(path)) {
+          if (isBlank(path)) {
             resultMessage.append("Grouper error, file appender path is empty, maybe dir doesnt exist\n");
           } else {
             File logFile = new File(path);
@@ -518,15 +518,15 @@ public class GrouperUtil {
         V secondValue = second.get(key);
         //keep track by removing from second
         second.remove(key);
-        if (ObjectUtils.equals(firstValue, secondValue)) {
+        if (equals(firstValue, secondValue)) {
           continue;
         }
       }
-      differences.add(StringUtils.isNotBlank(prefix) ? (K)(prefix + key) : key);
+      differences.add(isNotBlank(prefix) ? (K)(prefix + key) : key);
     }
     //add the ones left over in the second map which are not in the first map
     for (K key : second.keySet()) {
-      differences.add(StringUtils.isNotBlank(prefix) ? (K)(prefix + key) : key);
+      differences.add(isNotBlank(prefix) ? (K)(prefix + key) : key);
     }
   }
   
@@ -552,13 +552,13 @@ public class GrouperUtil {
     
     String throwableFieldName = GrouperConfig.getProperty("throwable.data.field.name");
     
-    if (StringUtils.isBlank(throwableFieldName)) {
+    if (isBlank(throwableFieldName)) {
       //this is the field for sun java 1.5
       throwableFieldName = "detailMessage";
     }
     try {
       String currentValue = t.getMessage();
-      if (!StringUtils.isBlank(currentValue)) {
+      if (!isBlank(currentValue)) {
         currentValue += ",\n" + message;
       } else {
         currentValue = message;
@@ -582,7 +582,7 @@ public class GrouperUtil {
   public static boolean findGrouperPropertiesDbMatch(boolean whitelist, String user, String url) {
 
     //lets check the whitelist and blacklist first
-    Properties grouperProperties = GrouperUtil.propertiesFromResourceName("grouper.properties");
+    Properties grouperProperties = propertiesFromResourceName("grouper.properties");
 
     //check blacklist
     //db.change.deny.user.0=
@@ -593,16 +593,16 @@ public class GrouperUtil {
     int index = 0;
     String typeString = whitelist ? "allow" : "deny";
     while (true) {
-      String currentUser = StringUtils.trim(grouperProperties.getProperty(
+      String currentUser = trim(grouperProperties.getProperty(
           "db.change." + typeString + ".user." + index));
-      String currentUrl = StringUtils.trim(grouperProperties.getProperty(
+      String currentUrl = trim(grouperProperties.getProperty(
           "db.change." + typeString + ".url." + index));
       
       //if we are done checking
-      if (StringUtils.isBlank(currentUser) || StringUtils.isBlank(currentUrl)) {
+      if (isBlank(currentUser) || isBlank(currentUrl)) {
         break;
       }
-      if (StringUtils.equals(currentUser, user) && StringUtils.equals(currentUrl, url)) {
+      if (equals(currentUser, user) && equals(currentUrl, url)) {
         return true;
       }
       index++;
@@ -629,10 +629,10 @@ public class GrouperUtil {
    */
   public static void promptUserAboutDbChanges(String reason, boolean checkResponse) {
     
-    Properties grouperHibernateProperties = GrouperUtil.propertiesFromResourceName("grouper.hibernate.properties");
+    Properties grouperHibernateProperties = propertiesFromResourceName("grouper.hibernate.properties");
     
-    String url = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.url"));
-    String user = StringUtils.trim(grouperHibernateProperties.getProperty("hibernate.connection.username"));
+    String url = trim(grouperHibernateProperties.getProperty("hibernate.connection.url"));
+    String user = trim(grouperHibernateProperties.getProperty("hibernate.connection.username"));
 
     MultiKey cacheKey = new MultiKey(reason, url, user);
     
@@ -654,7 +654,7 @@ public class GrouperUtil {
     
     //this might be set from junit ant task
     String allow = System.getProperty("grouper.allow.db.changes");
-    if (StringUtils.equals("true", allow)) {
+    if (equals("true", allow)) {
       System.out.println("System property grouper.allow.db.changes is true which allows db changes to user '" 
           + user + "' and url '" + url + "'");
       //all good, add to cache so we dont have to repeatedly tell user
@@ -708,9 +708,9 @@ public class GrouperUtil {
         //we want to read until we dont get empty, and until we get a y or an n
         for (int i=0;i<10;i++) {
           message = stdin.readLine();
-          message = StringUtils.trimToEmpty(message);
-          if (!StringUtils.isEmpty(message)) {
-            if (StringUtils.equalsIgnoreCase(message, "y") || StringUtils.equalsIgnoreCase(message, "n")) {
+          message = trimToEmpty(message);
+          if (!isEmpty(message)) {
+            if (equalsIgnoreCase(message, "y") || equalsIgnoreCase(message, "n")) {
               break;
             }
             System.out.println("Didn't receive 'y' or 'n', received '" + message + "'...");       
@@ -718,7 +718,7 @@ public class GrouperUtil {
             System.out.flush(); // empties buffer, before you input text
           }
         }
-        if (!StringUtils.equalsIgnoreCase(message, "y") && !StringUtils.equalsIgnoreCase(message, "n")) {
+        if (!equalsIgnoreCase(message, "y") && !equalsIgnoreCase(message, "n")) {
           System.out.println("Sorry you are having trouble, try the whitelist in grouper.properties");
           System.exit(1);
         }
@@ -726,9 +726,9 @@ public class GrouperUtil {
         throw new RuntimeException(e);
       //CH: 20080506: Maybe we shouldnt close stdin... wont be able to use again?
       //} finally {
-      //  GrouperUtil.closeQuietly(stdin);
+      //  closeQuietly(stdin);
       }
-      if (!StringUtils.equalsIgnoreCase(message, "y")) {
+      if (!equalsIgnoreCase(message, "y")) {
         System.out.println("Didn't receive 'y', received '" + message + "', OK, exiting");
         System.exit(1);
       }
@@ -913,7 +913,7 @@ public class GrouperUtil {
     if (string == null) {
       return null;
     }
-    string = StringUtils.trim(string);
+    string = trim(string);
     if (string.startsWith("<")) {
       //this is xml
       return new XmlIndenter(string).result();
@@ -936,7 +936,7 @@ public class GrouperUtil {
    * @return the name
    */
   public static String extensionFromName(String name) {
-    if (StringUtils.isBlank(name)) {
+    if (isBlank(name)) {
       return name;
     }
     int lastColonIndex = name.lastIndexOf(':');
@@ -1003,7 +1003,7 @@ public class GrouperUtil {
    * @return the string or the default one
    */
   public static String defaultIfBlank(String string, String defaultStringIfBlank) {
-    return StringUtils.isBlank(string) ? defaultStringIfBlank : string;
+    return isBlank(string) ? defaultStringIfBlank : string;
   }
   
   /**
@@ -1086,7 +1086,7 @@ public class GrouperUtil {
       }
     } catch (Exception e) {
       result.append("<<exception>> ").append(object.getClass()).append(":\n")
-        .append(ExceptionUtils.getFullStackTrace(e)).append("\n");
+        .append(getFullStackTrace(e)).append("\n");
     }
   }
 
@@ -1162,7 +1162,7 @@ public class GrouperUtil {
     toStringForLogHelper(object, -1, result);
     String resultString = result.toString();
     if (maxChars != -1) {
-      return StringUtils.abbreviate(resultString, maxChars);
+      return abbreviate(resultString, maxChars);
     }
     return resultString;
   }
@@ -1261,7 +1261,7 @@ public class GrouperUtil {
   }
   /**
    * split a string based on a separator into an array, and trim each entry (see
-   * the Commons Util StringUtils.trim() for more details)
+   * the Commons Util trim() for more details)
    * 
    * @param input
    *          is the delimited input to split and trim
@@ -1276,7 +1276,7 @@ public class GrouperUtil {
 
   /**
    * split a string based on a separator into an array, and trim each entry (see
-   * the Commons Util StringUtils.trim() for more details)
+   * the Commons Util trim() for more details)
    * 
    * @param input
    *          is the delimited input to split and trim
@@ -1286,17 +1286,17 @@ public class GrouperUtil {
    * @return the array of items after split and trimmed, or null if input is null.  will be trimmed to empty
    */
   public static String[] splitTrim(String input, String separator, boolean treatAdjacentSeparatorsAsOne) {
-    if (StringUtils.isBlank(input)) {
+    if (isBlank(input)) {
       return null;
     }
 
     //first split
-    String[] items = treatAdjacentSeparatorsAsOne ? StringUtils.split(input, separator) : 
-      StringUtils.splitPreserveAllTokens(input, separator);
+    String[] items = treatAdjacentSeparatorsAsOne ? split(input, separator) : 
+      splitPreserveAllTokens(input, separator);
 
     //then trim
     for (int i = 0; (items != null) && (i < items.length); i++) {
-      items[i] = StringUtils.trim(items[i]);
+      items[i] = trim(items[i]);
     }
 
     //return the array
@@ -1498,7 +1498,7 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Set<Field>> fieldSetCache() {
     if (fieldSetCache == null) {
-      fieldSetCache = new GrouperCache<String, Set<Field>>("edu.internet2.middleware.grouper.util.GrouperUtil.fieldSetCache",
+      fieldSetCache = new GrouperCache<String, Set<Field>>("edu.internet2.middleware.grouper.util.fieldSetCache",
           2000, false, 0, 60*60*24, false);
     }
     return fieldSetCache;
@@ -1516,7 +1516,7 @@ public class GrouperUtil {
    */
   private static GrouperCache<Class, Method[]> declaredMethodsCache() {
     if (declaredMethodsCache == null) {
-      declaredMethodsCache = new GrouperCache<Class, Method[]>("edu.internet2.middleware.grouper.util.GrouperUtil.declaredMethodsCache",
+      declaredMethodsCache = new GrouperCache<Class, Method[]>("edu.internet2.middleware.grouper.util.declaredMethodsCache",
           2000, false, 0, 60*60*24, false);
     }
     return declaredMethodsCache;
@@ -1536,7 +1536,7 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Set<Method>> getterSetCache() {
     if (getterSetCache == null) {
-      getterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.GrouperUtil.getterSetCache",
+      getterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.getterSetCache",
           2000, false, 0, 60*60*24, false);
     }
     return getterSetCache;
@@ -1556,7 +1556,7 @@ public class GrouperUtil {
    */
   private static GrouperCache<String, Set<Method>> setterSetCache() {
     if (setterSetCache == null) {
-      setterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.GrouperUtil.setterSetCache",
+      setterSetCache = new GrouperCache<String, Set<Method>>("edu.internet2.middleware.grouper.util.setterSetCache",
           2000, false, 0, 60*60*24, false);
     }
     return setterSetCache;
@@ -2243,8 +2243,8 @@ public class GrouperUtil {
         //compare things...
         //for strings, null is equal to empty
         if (firstValue instanceof String || secondValue instanceof String) {
-          if (!StringUtils.equals(StringUtils.defaultString((String)firstValue),
-              StringUtils.defaultString((String)secondValue))) {
+          if (!equals(defaultString((String)firstValue),
+              defaultString((String)secondValue))) {
             differentFields.add(fieldName);
           }
           continue;
@@ -2280,7 +2280,7 @@ public class GrouperUtil {
   public static <T> T clone(T object, Set<String> fieldsToClone) {
     
     //make a return object
-    T result = (T)GrouperUtil.newInstance(object.getClass());
+    T result = (T)newInstance(object.getClass());
     
     cloneFields(object, result, fieldsToClone);
     
@@ -2308,7 +2308,7 @@ public class GrouperUtil {
     
     Class<?> fieldValueClass = null;
     
-    for (String fieldName : GrouperUtil.nonNull(fieldsToClone)) {
+    for (String fieldName : nonNull(fieldsToClone)) {
       try {
         
         Object fieldValue = fieldValue(object, fieldName);
@@ -2317,7 +2317,7 @@ public class GrouperUtil {
         Object fieldValueToAssign = cloneValue(fieldValue);
         
         //assign the field to the clone
-        GrouperUtil.assignField(result, fieldName, fieldValueToAssign);
+        assignField(result, fieldName, fieldValueToAssign);
         
       } catch (RuntimeException re) {
         throw new RuntimeException("Problem cloning field: " + object.getClass() 
@@ -2841,7 +2841,7 @@ public class GrouperUtil {
    * @param method
    *            to invoke
    * @param invokeOn
-   * if GrouperUtil.NO_PARAMS then will not pass in params.
+   * if NO_PARAMS then will not pass in params.
    * @return the result
    */
   public static Object invokeMethod(Method method, Object invokeOn) {
@@ -2855,7 +2855,7 @@ public class GrouperUtil {
    *            to invoke
    * @param invokeOn
    * @param paramsOrListOrArray must be an arg.  If null, will pass null.
-   * if GrouperUtil.NO_PARAMS then will not pass in params.
+   * if NO_PARAMS then will not pass in params.
    * @return the result
    */
   public static Object invokeMethod(Method method, Object invokeOn,
@@ -3079,14 +3079,14 @@ public class GrouperUtil {
    * </p>
    * 
    * <pre>
-   * StringUtils.replace(null, *, *)        = null
-   * StringUtils.replace(&quot;&quot;, *, *)          = &quot;&quot;
-   * StringUtils.replace(&quot;any&quot;, null, *)    = &quot;any&quot;
-   * StringUtils.replace(&quot;any&quot;, *, null)    = &quot;any&quot;
-   * StringUtils.replace(&quot;any&quot;, &quot;&quot;, *)      = &quot;any&quot;
-   * StringUtils.replace(&quot;aba&quot;, &quot;a&quot;, null)  = &quot;aba&quot;
-   * StringUtils.replace(&quot;aba&quot;, &quot;a&quot;, &quot;&quot;)    = &quot;b&quot;
-   * StringUtils.replace(&quot;aba&quot;, &quot;a&quot;, &quot;z&quot;)   = &quot;zbz&quot;
+   * replace(null, *, *)        = null
+   * replace(&quot;&quot;, *, *)          = &quot;&quot;
+   * replace(&quot;any&quot;, null, *)    = &quot;any&quot;
+   * replace(&quot;any&quot;, *, null)    = &quot;any&quot;
+   * replace(&quot;any&quot;, &quot;&quot;, *)      = &quot;any&quot;
+   * replace(&quot;aba&quot;, &quot;a&quot;, null)  = &quot;aba&quot;
+   * replace(&quot;aba&quot;, &quot;a&quot;, &quot;&quot;)    = &quot;b&quot;
+   * replace(&quot;aba&quot;, &quot;a&quot;, &quot;z&quot;)   = &quot;zbz&quot;
    * </pre>
    * 
    * @see #replace(String text, String repl, String with, int max)
@@ -3114,18 +3114,18 @@ public class GrouperUtil {
    * </p>
    * 
    * <pre>
-   * StringUtils.replace(null, *, *, *)         = null
-   * StringUtils.replace(&quot;&quot;, *, *, *)           = &quot;&quot;
-   * StringUtils.replace(&quot;any&quot;, null, *, *)     = &quot;any&quot;
-   * StringUtils.replace(&quot;any&quot;, *, null, *)     = &quot;any&quot;
-   * StringUtils.replace(&quot;any&quot;, &quot;&quot;, *, *)       = &quot;any&quot;
-   * StringUtils.replace(&quot;any&quot;, *, *, 0)        = &quot;any&quot;
-   * StringUtils.replace(&quot;abaa&quot;, &quot;a&quot;, null, -1) = &quot;abaa&quot;
-   * StringUtils.replace(&quot;abaa&quot;, &quot;a&quot;, &quot;&quot;, -1)   = &quot;b&quot;
-   * StringUtils.replace(&quot;abaa&quot;, &quot;a&quot;, &quot;z&quot;, 0)   = &quot;abaa&quot;
-   * StringUtils.replace(&quot;abaa&quot;, &quot;a&quot;, &quot;z&quot;, 1)   = &quot;zbaa&quot;
-   * StringUtils.replace(&quot;abaa&quot;, &quot;a&quot;, &quot;z&quot;, 2)   = &quot;zbza&quot;
-   * StringUtils.replace(&quot;abaa&quot;, &quot;a&quot;, &quot;z&quot;, -1)  = &quot;zbzz&quot;
+   * replace(null, *, *, *)         = null
+   * replace(&quot;&quot;, *, *, *)           = &quot;&quot;
+   * replace(&quot;any&quot;, null, *, *)     = &quot;any&quot;
+   * replace(&quot;any&quot;, *, null, *)     = &quot;any&quot;
+   * replace(&quot;any&quot;, &quot;&quot;, *, *)       = &quot;any&quot;
+   * replace(&quot;any&quot;, *, *, 0)        = &quot;any&quot;
+   * replace(&quot;abaa&quot;, &quot;a&quot;, null, -1) = &quot;abaa&quot;
+   * replace(&quot;abaa&quot;, &quot;a&quot;, &quot;&quot;, -1)   = &quot;b&quot;
+   * replace(&quot;abaa&quot;, &quot;a&quot;, &quot;z&quot;, 0)   = &quot;abaa&quot;
+   * replace(&quot;abaa&quot;, &quot;a&quot;, &quot;z&quot;, 1)   = &quot;zbaa&quot;
+   * replace(&quot;abaa&quot;, &quot;a&quot;, &quot;z&quot;, 2)   = &quot;zbza&quot;
+   * replace(&quot;abaa&quot;, &quot;a&quot;, &quot;z&quot;, -1)  = &quot;zbzz&quot;
    * </pre>
    * 
    * @param text
@@ -3165,11 +3165,11 @@ public class GrouperUtil {
    * </p>
    * 
    * <pre>
-   * StringUtils.isEmpty(null)      = true
-   * StringUtils.isEmpty(&quot;&quot;)        = true
-   * StringUtils.isEmpty(&quot; &quot;)       = false
-   * StringUtils.isEmpty(&quot;bob&quot;)     = false
-   * StringUtils.isEmpty(&quot;  bob  &quot;) = false
+   * isEmpty(null)      = true
+   * isEmpty(&quot;&quot;)        = true
+   * isEmpty(&quot; &quot;)       = false
+   * isEmpty(&quot;bob&quot;)     = false
+   * isEmpty(&quot;  bob  &quot;) = false
    * </pre>
    * 
    * <p>
@@ -3702,7 +3702,7 @@ public class GrouperUtil {
     
       return object.toString();
     } catch (Exception e) {
-      return "<<exception>> " + object.getClass() + ":\n" + ExceptionUtils.getFullStackTrace(e) + "\n";
+      return "<<exception>> " + object.getClass() + ":\n" + getFullStackTrace(e) + "\n";
     }
   }
 
@@ -3725,16 +3725,16 @@ public class GrouperUtil {
   	}
   	if (object instanceof String) {
   		String string = (String) object;
-  		if (StringUtils.equalsIgnoreCase(string, "true")
-  				|| StringUtils.equalsIgnoreCase(string, "t")
-  				|| StringUtils.equalsIgnoreCase(string, "yes")
-  				|| StringUtils.equalsIgnoreCase(string, "y")) {
+  		if (equalsIgnoreCase(string, "true")
+  				|| equalsIgnoreCase(string, "t")
+  				|| equalsIgnoreCase(string, "yes")
+  				|| equalsIgnoreCase(string, "y")) {
   			return true;
   		}
-  		if (StringUtils.equalsIgnoreCase(string, "false")
-  				|| StringUtils.equalsIgnoreCase(string, "f")
-  				|| StringUtils.equalsIgnoreCase(string, "no")
-  				|| StringUtils.equalsIgnoreCase(string, "n")) {
+  		if (equalsIgnoreCase(string, "false")
+  				|| equalsIgnoreCase(string, "f")
+  				|| equalsIgnoreCase(string, "no")
+  				|| equalsIgnoreCase(string, "n")) {
   			return false;
   		}
   		throw new RuntimeException(
@@ -3769,10 +3769,10 @@ public class GrouperUtil {
    * @return the Boolean or null if null or empty
    */
   public static Boolean booleanObjectValue(Object object) {
-    if (GrouperUtil.nullOrBlank(object)) {
+    if (nullOrBlank(object)) {
       return null;
     }
-    return GrouperUtil.booleanValue(object);
+    return booleanValue(object);
   }
 
   /**
@@ -3786,7 +3786,7 @@ public class GrouperUtil {
   	if (object == null) {
   		return true;
   	}
-  	if (object instanceof String && StringUtils.isBlank(((String) object))) {
+  	if (object instanceof String && isBlank(((String) object))) {
   		return true;
   	}
   	return false;
@@ -3821,7 +3821,7 @@ public class GrouperUtil {
     Method[] methods = retrieveDeclaredMethods(theClass);
     if (methods != null) {
       for (Method method : methods) {
-        if (StringUtils.equals(getterName, method.getName()) && isGetter(method)) {
+        if (equals(getterName, method.getName()) && isGetter(method)) {
           return method;
         }
       }
@@ -3847,7 +3847,7 @@ public class GrouperUtil {
    * @return the getter 
    */
   public static String getterNameFromPropertyName(String propertyName) {
-    return "get" + StringUtils.capitalize(propertyName);
+    return "get" + capitalize(propertyName);
   }
 
   /**
@@ -4008,7 +4008,7 @@ public class GrouperUtil {
       setter.invoke(invokeOn, new Object[]{dataToAssign});
     } catch (Exception e) {
       throw new RuntimeException("Problem assigning setter: " + fieldName
-          + " on class: " + invokeOnClass + ", type of data is: " + GrouperUtil.className(dataToAssign), e);
+          + " on class: " + invokeOnClass + ", type of data is: " + className(dataToAssign), e);
     }
   }
 
@@ -4071,7 +4071,7 @@ public class GrouperUtil {
     Method[] methods = retrieveDeclaredMethods(theClass);
     if (methods != null) {
       for (Method method : methods) {
-        if (StringUtils.equals(setterName, method.getName()) && isSetter(method)) {
+        if (equals(setterName, method.getName()) && isSetter(method)) {
           return method;
         }
       }
@@ -4097,7 +4097,7 @@ public class GrouperUtil {
    * @return the setter 
    */
   public static String setterNameFromPropertyName(String propertyName) {
-    return "set" + StringUtils.capitalize(propertyName);
+    return "set" + capitalize(propertyName);
   }
 
   /**
@@ -4283,7 +4283,7 @@ public class GrouperUtil {
    */
   public static File newFileUniqueName(String parentDirName, String namePrefix, String nameSuffix, boolean createFile) {
     DateFormat fileNameFormat = new SimpleDateFormat("yyyyMMdd_HH_mm_ss_SSS");
-    if (!StringUtils.isBlank(parentDirName)) {
+    if (!isBlank(parentDirName)) {
     	parentDirName=fixRelativePath(parentDirName);
       if (!parentDirName.endsWith("/") && !parentDirName.endsWith("\\")) {
         parentDirName += File.separator;
@@ -4369,7 +4369,7 @@ public class GrouperUtil {
     if (inputObject instanceof String) {
       String input = (String)inputObject;
       //trim and handle null and empty
-      if (StringUtils.isBlank(input)) {
+      if (isBlank(input)) {
         return null;
       }
 
@@ -4378,14 +4378,14 @@ public class GrouperUtil {
           
           return dateFormat().parse(input);
         }
-        if (!StringUtils.contains(input, '.')) {
-          if (StringUtils.contains(input, '/')) {
+        if (!contains(input, '.')) {
+          if (contains(input, '/')) {
             return dateMinutesSecondsFormat.parse(input);
           }
           //else no slash
           return dateMinutesSecondsNoSlashFormat.parse(input);
         }
-        if (StringUtils.contains(input, '/')) {
+        if (contains(input, '/')) {
           //see if the period is 6 back
           int lastDotIndex = input.lastIndexOf('.');
           if (lastDotIndex == input.length() - 7) {
@@ -4419,7 +4419,7 @@ public class GrouperUtil {
     if (null == input) {
       return true;
     }
-    return (input instanceof String && StringUtils.isBlank((String)input));
+    return (input instanceof String && isBlank((String)input));
   }
 
   /**
@@ -4493,9 +4493,9 @@ public class GrouperUtil {
       resultValue = forName((String)value);
     } else if (useNewInstanceHooks && value instanceof String) {
       String stringValue = (String)value;
-      if ( StringUtils.equals("null", stringValue)) {
+      if ( equals("null", stringValue)) {
         resultValue = null;
-      } else if (StringUtils.equals("newInstance", stringValue)) {
+      } else if (equals("newInstance", stringValue)) {
         resultValue = newInstance(theClass);
       } else { // instantiate using string
         //note, we could typecast this to fit whatever is there... right now this is used for annotation
@@ -4693,28 +4693,28 @@ public class GrouperUtil {
    */
   synchronized static Date stringToTimestampHelper(String input) {
     //trim and handle null and empty
-    if (StringUtils.isBlank(input)) {
+    if (isBlank(input)) {
       return null;
     }
   
     try {
       //convert mainframe
-      if (StringUtils.equals("99999999", input)
-          || StringUtils.equals("999999", input)) {
+      if (equals("99999999", input)
+          || equals("999999", input)) {
         input = "20991231";
       }
       if (input.length() == 8) {
         
         return dateFormat().parse(input);
       }
-      if (!StringUtils.contains(input, '.')) {
-        if (StringUtils.contains(input, '/')) {
+      if (!contains(input, '.')) {
+        if (contains(input, '/')) {
           return dateMinutesSecondsFormat.parse(input);
         }
         //else no slash
         return dateMinutesSecondsNoSlashFormat.parse(input);
       }
-      if (StringUtils.contains(input, '/')) {
+      if (contains(input, '/')) {
         //see if the period is 6 back
         int lastDotIndex = input.lastIndexOf('.');
         if (lastDotIndex == input.length() - 7) {
@@ -4842,7 +4842,7 @@ public class GrouperUtil {
    */
   public static double doubleValueNoError(Object input) {
     if (input == null || (input instanceof String 
-        && StringUtils.isBlank((String)input))) {
+        && isBlank((String)input))) {
       return NOT_FOUND;
     }
   
@@ -4906,7 +4906,7 @@ public class GrouperUtil {
    */
   public static float floatValueNoError(Object input) {
     if (input == null || (input instanceof String 
-        && StringUtils.isBlank((String)input))) {
+        && isBlank((String)input))) {
       return NOT_FOUND;
     }
     try {
@@ -4957,7 +4957,7 @@ public class GrouperUtil {
       if (input == null) {
         return 0;
       }
-      if (input instanceof String || StringUtils.isBlank((String)input)) {
+      if (input instanceof String || isBlank((String)input)) {
         return 0;
       }
     }
@@ -4989,7 +4989,7 @@ public class GrouperUtil {
    */
   public static int intValueNoError(Object input) {
     if (input == null || (input instanceof String 
-        && StringUtils.isBlank((String)input))) {
+        && isBlank((String)input))) {
       return NOT_FOUND;
     }
     try {
@@ -5076,7 +5076,7 @@ public class GrouperUtil {
    */
   public static long longValueNoError(Object input) {
     if (input == null || (input instanceof String 
-        && StringUtils.isBlank((String)input))) {
+        && isBlank((String)input))) {
       return NOT_FOUND;
     }
     try {
@@ -5210,12 +5210,12 @@ public class GrouperUtil {
       }
       
       //they are the same, dont worry about it
-      if (StringUtils.equals(fileContents, compressedContents)) {
+      if (equals(fileContents, compressedContents)) {
         return false;
       }
   
     }
-    GrouperUtil.saveStringIntoFile(file, contents);
+    saveStringIntoFile(file, contents);
     return true;
   }
 
@@ -5271,7 +5271,7 @@ public class GrouperUtil {
    * @return String or null if allowed or RuntimeException if not allowed
    */
   public static String readResourceIntoString(String resourceName, boolean allowNull) {
-    if (StringUtils.isBlank(resourceName)) {
+    if (isBlank(resourceName)) {
       if (allowNull) {
         return null;
       }
@@ -5457,7 +5457,7 @@ public class GrouperUtil {
    */
   public static String convertLongToChar(long theLong) {
     if ((theLong < 0) || (theLong >= 62)) {
-      throw new RuntimeException("StringUtils.convertLongToChar() "
+      throw new RuntimeException("convertLongToChar() "
           + " invalid input (not >=0 && <62: " + theLong);
     } else if (theLong < 26) {
       return "" + (char) ('a' + theLong);
@@ -5479,7 +5479,7 @@ public class GrouperUtil {
    */
   public static String convertLongToCharSmall(long theLong) {
     if ((theLong < 0) || (theLong >= 36)) {
-      throw new RuntimeException("StringUtils.convertLongToCharSmall() "
+      throw new RuntimeException("convertLongToCharSmall() "
           + " invalid input (not >=0 && <36: " + theLong);
     } else if (theLong < 26) {
       return "" + (char) ('A' + theLong);
@@ -5623,7 +5623,7 @@ public class GrouperUtil {
         }
         properties = null;
       } finally {
-        GrouperUtil.closeQuietly(inputStream);
+        closeQuietly(inputStream);
       }
       if (useCache) {
         resourcePropertiesCache.put(resourceName, properties);
@@ -5648,11 +5648,11 @@ public class GrouperUtil {
   public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string, 
       boolean exceptionOnNotFound) throws RuntimeException {
     
-    if (!exceptionOnNotFound && StringUtils.isBlank(string)) {
+    if (!exceptionOnNotFound && isBlank(string)) {
       return null;
     }
     for (E e : theEnumClass.getEnumConstants()) {
-      if (StringUtils.equalsIgnoreCase(string, e.name())) {
+      if (equalsIgnoreCase(string, e.name())) {
         return e;
       }
     }
@@ -5711,10 +5711,10 @@ public class GrouperUtil {
    */
   public static String propertiesValue(Properties properties, Map<String, String> overrideMap, String key) {
     String value = overrideMap == null ? null : overrideMap.get(key);
-    if (StringUtils.isBlank(value)) {
+    if (isBlank(value)) {
       value = properties.getProperty(key);
     }
-    return StringUtils.trim(value);
+    return trim(value);
   }
   
   /**
@@ -5742,7 +5742,7 @@ public class GrouperUtil {
     
       
     String value = propertiesValue(properties, overrideMap, propertyName);
-    if (StringUtils.isBlank(value)) {
+    if (isBlank(value)) {
       return defaultValue;
     }
     
@@ -5827,7 +5827,7 @@ public class GrouperUtil {
    */
   public static String hostname() {
   
-    if (StringUtils.isBlank(hostname)) {
+    if (isBlank(hostname)) {
   
       //get the hostname
       hostname = "unknown";
@@ -5967,9 +5967,9 @@ public class GrouperUtil {
   public static String readFromFileIfFile(String in) {
     //convert both slashes to file slashes
     if (File.separatorChar == '/') {
-      in = StringUtils.replace(in, "\\", "/");
+      in = replace(in, "\\", "/");
     } else {
-      in = StringUtils.replace(in, "/", "\\");
+      in = replace(in, "/", "\\");
     }
     
     //see if it is a file reference
@@ -6022,25 +6022,1363 @@ public class GrouperUtil {
    * @param props
    */
   static void fixHibernateConnectionUrl(Properties props) {
-	  String url = props.getProperty("hibernate.connection.url");
-	  if(StringUtils.isBlank(url)) {
-		  return;
-	  }
-	  if (!url.startsWith("jdbc:hsqldb:")) {
+    String url = props.getProperty("hibernate.connection.url");
+    if (isBlank(url)) {
       return;
     }
-	  if(url.matches("^jdbc:hsqldb:(mem|hsql|res|hsql|hsqls|http|https):.*")) {
-		  return;
-	  }
-	  int spliceAt=12;
-	  if(url.startsWith("jdbc:hsqldb:file:")) {
-		  spliceAt=17;
-	  }
-	  String file = url.substring(spliceAt);
-	  String newUrl = url.substring(0,spliceAt) + fixRelativePath(file);
-	  props.setProperty("hibernate.connection.url", newUrl);
+    if (!url.startsWith("jdbc:hsqldb:")) {
+      return;
+    }
+    if (url.matches("^jdbc:hsqldb:(mem|hsql|res|hsql|hsqls|http|https):.*")) {
+      return;
+    }
+    int spliceAt = 12;
+    if (url.startsWith("jdbc:hsqldb:file:")) {
+      spliceAt = 17;
+    }
+    String file = url.substring(spliceAt);
+    String newUrl = url.substring(0, spliceAt) + fixRelativePath(file);
+    props.setProperty("hibernate.connection.url", newUrl);
   }
 
-  
+  /**
+   * null safe string compare
+   * @param first
+   * @param second
+   * @return true if equal
+   */
+  public static boolean equals(String first, String second) {
+    if (first == second) {
+      return true;
+    }
+    if (first == null || second == null) {
+      return false;
+    }
+    return first.equals(second);
+  }
 
+  /**
+   * <p>Checks if a String is whitespace, empty ("") or null.</p>
+   *
+   * <pre>
+   * isBlank(null)      = true
+   * isBlank("")        = true
+   * isBlank(" ")       = true
+   * isBlank("bob")     = false
+   * isBlank("  bob  ") = false
+   * </pre>
+   *
+   * @param str  the String to check, may be null
+   * @return <code>true</code> if the String is null, empty or whitespace
+   * @since 2.0
+   */
+  public static boolean isBlank(String str) {
+    int strLen;
+    if (str == null || (strLen = str.length()) == 0) {
+      return true;
+    }
+    for (int i = 0; i < strLen; i++) {
+      if ((Character.isWhitespace(str.charAt(i)) == false)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * 
+   * @param str
+   * @return true if not blank
+   */
+  public static boolean isNotBlank(String str) {
+    return !isBlank(str);
+  }
+
+  /**
+   * trim whitespace from string
+   * @param str
+   * @return trimmed string
+   */
+  public static String trim(String str) {
+    return str == null ? null : str.trim();
+  }
+
+  /**
+   * equalsignorecase
+   * @param str1
+   * @param str2
+   * @return true if the strings are equal ignore case
+   */
+  public static boolean equalsIgnoreCase(String str1, String str2) {
+    return str1 == null ? str2 == null : str1.equalsIgnoreCase(str2);
+  }
+
+  /**
+   * trim to empty, convert null to empty
+   * @param str
+   * @return trimmed
+   */
+  public static String trimToEmpty(String str) {
+    return str == null ? "" : str.trim();
+  }
+
+  /**
+   * <p>Abbreviates a String using ellipses. This will turn
+   * "Now is the time for all good men" into "Now is the time for..."</p>
+   *
+   * <p>Specifically:
+   * <ul>
+   *   <li>If <code>str</code> is less than <code>maxWidth</code> characters
+   *       long, return it.</li>
+   *   <li>Else abbreviate it to <code>(substring(str, 0, max-3) + "...")</code>.</li>
+   *   <li>If <code>maxWidth</code> is less than <code>4</code>, throw an
+   *       <code>IllegalArgumentException</code>.</li>
+   *   <li>In no case will it return a String of length greater than
+   *       <code>maxWidth</code>.</li>
+   * </ul>
+   * </p>
+   *
+   * <pre>
+   * StringUtils.abbreviate(null, *)      = null
+   * StringUtils.abbreviate("", 4)        = ""
+   * StringUtils.abbreviate("abcdefg", 6) = "abc..."
+   * StringUtils.abbreviate("abcdefg", 7) = "abcdefg"
+   * StringUtils.abbreviate("abcdefg", 8) = "abcdefg"
+   * StringUtils.abbreviate("abcdefg", 4) = "a..."
+   * StringUtils.abbreviate("abcdefg", 3) = IllegalArgumentException
+   * </pre>
+   *
+   * @param str  the String to check, may be null
+   * @param maxWidth  maximum length of result String, must be at least 4
+   * @return abbreviated String, <code>null</code> if null String input
+   * @throws IllegalArgumentException if the width is too small
+   * @since 2.0
+   */
+  public static String abbreviate(String str, int maxWidth) {
+    return abbreviate(str, 0, maxWidth);
+  }
+
+  /**
+   * <p>Abbreviates a String using ellipses. This will turn
+   * "Now is the time for all good men" into "...is the time for..."</p>
+   *
+   * <p>Works like <code>abbreviate(String, int)</code>, but allows you to specify
+   * a "left edge" offset.  Note that this left edge is not necessarily going to
+   * be the leftmost character in the result, or the first character following the
+   * ellipses, but it will appear somewhere in the result.
+   *
+   * <p>In no case will it return a String of length greater than
+   * <code>maxWidth</code>.</p>
+   *
+   * <pre>
+   * StringUtils.abbreviate(null, *, *)                = null
+   * StringUtils.abbreviate("", 0, 4)                  = ""
+   * StringUtils.abbreviate("abcdefghijklmno", -1, 10) = "abcdefg..."
+   * StringUtils.abbreviate("abcdefghijklmno", 0, 10)  = "abcdefg..."
+   * StringUtils.abbreviate("abcdefghijklmno", 1, 10)  = "abcdefg..."
+   * StringUtils.abbreviate("abcdefghijklmno", 4, 10)  = "abcdefg..."
+   * StringUtils.abbreviate("abcdefghijklmno", 5, 10)  = "...fghi..."
+   * StringUtils.abbreviate("abcdefghijklmno", 6, 10)  = "...ghij..."
+   * StringUtils.abbreviate("abcdefghijklmno", 8, 10)  = "...ijklmno"
+   * StringUtils.abbreviate("abcdefghijklmno", 10, 10) = "...ijklmno"
+   * StringUtils.abbreviate("abcdefghijklmno", 12, 10) = "...ijklmno"
+   * StringUtils.abbreviate("abcdefghij", 0, 3)        = IllegalArgumentException
+   * StringUtils.abbreviate("abcdefghij", 5, 6)        = IllegalArgumentException
+   * </pre>
+   *
+   * @param str  the String to check, may be null
+   * @param offset  left edge of source String
+   * @param maxWidth  maximum length of result String, must be at least 4
+   * @return abbreviated String, <code>null</code> if null String input
+   * @throws IllegalArgumentException if the width is too small
+   * @since 2.0
+   */
+  public static String abbreviate(String str, int offset, int maxWidth) {
+    if (str == null) {
+      return null;
+    }
+    if (maxWidth < 4) {
+      throw new IllegalArgumentException("Minimum abbreviation width is 4");
+    }
+    if (str.length() <= maxWidth) {
+      return str;
+    }
+    if (offset > str.length()) {
+      offset = str.length();
+    }
+    if ((str.length() - offset) < (maxWidth - 3)) {
+      offset = str.length() - (maxWidth - 3);
+    }
+    if (offset <= 4) {
+      return str.substring(0, maxWidth - 3) + "...";
+    }
+    if (maxWidth < 7) {
+      throw new IllegalArgumentException("Minimum abbreviation width with offset is 7");
+    }
+    if ((offset + (maxWidth - 3)) < str.length()) {
+      return "..." + abbreviate(str.substring(offset), maxWidth - 3);
+    }
+    return "..." + str.substring(str.length() - (maxWidth - 3));
+  }
+
+  // Splitting
+  //-----------------------------------------------------------------------
+  /**
+   * <p>Splits the provided text into an array, using whitespace as the
+   * separator.
+   * Whitespace is defined by {@link Character#isWhitespace(char)}.</p>
+   *
+   * <p>The separator is not included in the returned String array.
+   * Adjacent separators are treated as one separator.
+   * For more control over the split use the StrTokenizer class.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.</p>
+   *
+   * <pre>
+   * StringUtils.split(null)       = null
+   * StringUtils.split("")         = []
+   * StringUtils.split("abc def")  = ["abc", "def"]
+   * StringUtils.split("abc  def") = ["abc", "def"]
+   * StringUtils.split(" abc ")    = ["abc"]
+   * </pre>
+   *
+   * @param str  the String to parse, may be null
+   * @return an array of parsed Strings, <code>null</code> if null String input
+   */
+  public static String[] split(String str) {
+    return split(str, null, -1);
+  }
+
+  /**
+   * <p>Splits the provided text into an array, separator specified.
+   * This is an alternative to using StringTokenizer.</p>
+   *
+   * <p>The separator is not included in the returned String array.
+   * Adjacent separators are treated as one separator.
+   * For more control over the split use the StrTokenizer class.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.</p>
+   *
+   * <pre>
+   * StringUtils.split(null, *)         = null
+   * StringUtils.split("", *)           = []
+   * StringUtils.split("a.b.c", '.')    = ["a", "b", "c"]
+   * StringUtils.split("a..b.c", '.')   = ["a", "b", "c"]
+   * StringUtils.split("a:b:c", '.')    = ["a:b:c"]
+   * StringUtils.split("a\tb\nc", null) = ["a", "b", "c"]
+   * StringUtils.split("a b c", ' ')    = ["a", "b", "c"]
+   * </pre>
+   *
+   * @param str  the String to parse, may be null
+   * @param separatorChar  the character used as the delimiter,
+   *  <code>null</code> splits on whitespace
+   * @return an array of parsed Strings, <code>null</code> if null String input
+   * @since 2.0
+   */
+  public static String[] split(String str, char separatorChar) {
+    return splitWorker(str, separatorChar, false);
+  }
+
+  /**
+   * <p>Splits the provided text into an array, separators specified.
+   * This is an alternative to using StringTokenizer.</p>
+   *
+   * <p>The separator is not included in the returned String array.
+   * Adjacent separators are treated as one separator.
+   * For more control over the split use the StrTokenizer class.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.
+   * A <code>null</code> separatorChars splits on whitespace.</p>
+   *
+   * <pre>
+   * StringUtils.split(null, *)         = null
+   * StringUtils.split("", *)           = []
+   * StringUtils.split("abc def", null) = ["abc", "def"]
+   * StringUtils.split("abc def", " ")  = ["abc", "def"]
+   * StringUtils.split("abc  def", " ") = ["abc", "def"]
+   * StringUtils.split("ab:cd:ef", ":") = ["ab", "cd", "ef"]
+   * </pre>
+   *
+   * @param str  the String to parse, may be null
+   * @param separatorChars  the characters used as the delimiters,
+   *  <code>null</code> splits on whitespace
+   * @return an array of parsed Strings, <code>null</code> if null String input
+   */
+  public static String[] split(String str, String separatorChars) {
+    return splitWorker(str, separatorChars, -1, false);
+  }
+
+  /**
+   * <p>Splits the provided text into an array with a maximum length,
+   * separators specified.</p>
+   *
+   * <p>The separator is not included in the returned String array.
+   * Adjacent separators are treated as one separator.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.
+   * A <code>null</code> separatorChars splits on whitespace.</p>
+   *
+   * <p>If more than <code>max</code> delimited substrings are found, the last
+   * returned string includes all characters after the first <code>max - 1</code>
+   * returned strings (including separator characters).</p>
+   *
+   * <pre>
+   * StringUtils.split(null, *, *)            = null
+   * StringUtils.split("", *, *)              = []
+   * StringUtils.split("ab de fg", null, 0)   = ["ab", "cd", "ef"]
+   * StringUtils.split("ab   de fg", null, 0) = ["ab", "cd", "ef"]
+   * StringUtils.split("ab:cd:ef", ":", 0)    = ["ab", "cd", "ef"]
+   * StringUtils.split("ab:cd:ef", ":", 2)    = ["ab", "cd:ef"]
+   * </pre>
+   *
+   * @param str  the String to parse, may be null
+   * @param separatorChars  the characters used as the delimiters,
+   *  <code>null</code> splits on whitespace
+   * @param max  the maximum number of elements to include in the
+   *  array. A zero or negative value implies no limit
+   * @return an array of parsed Strings, <code>null</code> if null String input
+   */
+  public static String[] split(String str, String separatorChars, int max) {
+    return splitWorker(str, separatorChars, max, false);
+  }
+
+  /**
+   * <p>Splits the provided text into an array, separator string specified.</p>
+   *
+   * <p>The separator(s) will not be included in the returned String array.
+   * Adjacent separators are treated as one separator.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.
+   * A <code>null</code> separator splits on whitespace.</p>
+   *
+   * <pre>
+   * StringUtils.split(null, *)            = null
+   * StringUtils.split("", *)              = []
+   * StringUtils.split("ab de fg", null)   = ["ab", "de", "fg"]
+   * StringUtils.split("ab   de fg", null) = ["ab", "de", "fg"]
+   * StringUtils.split("ab:cd:ef", ":")    = ["ab", "cd", "ef"]
+   * StringUtils.split("abstemiouslyaeiouyabstemiously", "aeiouy")  = ["bst", "m", "sl", "bst", "m", "sl"]
+   * StringUtils.split("abstemiouslyaeiouyabstemiously", "aeiouy")  = ["abstemiously", "abstemiously"]
+   * </pre>
+   *
+   * @param str  the String to parse, may be null
+   * @param separator  String containing the String to be used as a delimiter,
+   *  <code>null</code> splits on whitespace
+   * @return an array of parsed Strings, <code>null</code> if null String was input
+   */
+  public static String[] splitByWholeSeparator(String str, String separator) {
+    return splitByWholeSeparator(str, separator, -1);
+  }
+
+  /**
+   * <p>Splits the provided text into an array, separator string specified.
+   * Returns a maximum of <code>max</code> substrings.</p>
+   *
+   * <p>The separator(s) will not be included in the returned String array.
+   * Adjacent separators are treated as one separator.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.
+   * A <code>null</code> separator splits on whitespace.</p>
+   *
+   * <pre>
+   * StringUtils.splitByWholeSeparator(null, *, *)               = null
+   * StringUtils.splitByWholeSeparator("", *, *)                 = []
+   * StringUtils.splitByWholeSeparator("ab de fg", null, 0)      = ["ab", "de", "fg"]
+   * StringUtils.splitByWholeSeparator("ab   de fg", null, 0)    = ["ab", "de", "fg"]
+   * StringUtils.splitByWholeSeparator("ab:cd:ef", ":", 2)       = ["ab", "cd"]
+   * StringUtils.splitByWholeSeparator("abstemiouslyaeiouyabstemiously", "aeiouy", 2) = ["bst", "m"]
+   * StringUtils.splitByWholeSeparator("abstemiouslyaeiouyabstemiously", "aeiouy", 2)  = ["abstemiously", "abstemiously"]
+   * </pre>
+   *
+   * @param str  the String to parse, may be null
+   * @param separator  String containing the String to be used as a delimiter,
+   *  <code>null</code> splits on whitespace
+   * @param max  the maximum number of elements to include in the returned
+   *  array. A zero or negative value implies no limit.
+   * @return an array of parsed Strings, <code>null</code> if null String was input
+   */
+  public static String[] splitByWholeSeparator(String str, String separator, int max) {
+    if (str == null) {
+      return null;
+    }
+
+    int len = str.length();
+
+    if (len == 0) {
+      return EMPTY_STRING_ARRAY;
+    }
+
+    if ((separator == null) || ("".equals(separator))) {
+      // Split on whitespace.
+      return split(str, null, max);
+    }
+
+    int separatorLength = separator.length();
+
+    ArrayList substrings = new ArrayList();
+    int numberOfSubstrings = 0;
+    int beg = 0;
+    int end = 0;
+    while (end < len) {
+      end = str.indexOf(separator, beg);
+
+      if (end > -1) {
+        if (end > beg) {
+          numberOfSubstrings += 1;
+
+          if (numberOfSubstrings == max) {
+            end = len;
+            substrings.add(str.substring(beg));
+          } else {
+            // The following is OK, because String.substring( beg, end ) excludes
+            // the character at the position 'end'.
+            substrings.add(str.substring(beg, end));
+
+            // Set the starting point for the next search.
+            // The following is equivalent to beg = end + (separatorLength - 1) + 1,
+            // which is the right calculation:
+            beg = end + separatorLength;
+          }
+        } else {
+          // We found a consecutive occurrence of the separator, so skip it.
+          beg = end + separatorLength;
+        }
+      } else {
+        // String.substring( beg ) goes from 'beg' to the end of the String.
+        substrings.add(str.substring(beg));
+        end = len;
+      }
+    }
+
+    return (String[]) substrings.toArray(new String[substrings.size()]);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * <p>Splits the provided text into an array, using whitespace as the
+   * separator, preserving all tokens, including empty tokens created by 
+   * adjacent separators. This is an alternative to using StringTokenizer.
+   * Whitespace is defined by {@link Character#isWhitespace(char)}.</p>
+   *
+   * <p>The separator is not included in the returned String array.
+   * Adjacent separators are treated as separators for empty tokens.
+   * For more control over the split use the StrTokenizer class.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.</p>
+   *
+   * <pre>
+   * StringUtils.splitPreserveAllTokens(null)       = null
+   * StringUtils.splitPreserveAllTokens("")         = []
+   * StringUtils.splitPreserveAllTokens("abc def")  = ["abc", "def"]
+   * StringUtils.splitPreserveAllTokens("abc  def") = ["abc", "", "def"]
+   * StringUtils.splitPreserveAllTokens(" abc ")    = ["", "abc", ""]
+   * </pre>
+   *
+   * @param str  the String to parse, may be <code>null</code>
+   * @return an array of parsed Strings, <code>null</code> if null String input
+   * @since 2.1
+   */
+  public static String[] splitPreserveAllTokens(String str) {
+    return splitWorker(str, null, -1, true);
+  }
+
+  /**
+   * <p>Splits the provided text into an array, separator specified,
+   * preserving all tokens, including empty tokens created by adjacent
+   * separators. This is an alternative to using StringTokenizer.</p>
+   *
+   * <p>The separator is not included in the returned String array.
+   * Adjacent separators are treated as separators for empty tokens.
+   * For more control over the split use the StrTokenizer class.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.</p>
+   *
+   * <pre>
+   * StringUtils.splitPreserveAllTokens(null, *)         = null
+   * StringUtils.splitPreserveAllTokens("", *)           = []
+   * StringUtils.splitPreserveAllTokens("a.b.c", '.')    = ["a", "b", "c"]
+   * StringUtils.splitPreserveAllTokens("a..b.c", '.')   = ["a", "b", "c"]
+   * StringUtils.splitPreserveAllTokens("a:b:c", '.')    = ["a:b:c"]
+   * StringUtils.splitPreserveAllTokens("a\tb\nc", null) = ["a", "b", "c"]
+   * StringUtils.splitPreserveAllTokens("a b c", ' ')    = ["a", "b", "c"]
+   * StringUtils.splitPreserveAllTokens("a b c ", ' ')   = ["a", "b", "c", ""]
+   * StringUtils.splitPreserveAllTokens("a b c ", ' ')   = ["a", "b", "c", "", ""]
+   * StringUtils.splitPreserveAllTokens(" a b c", ' ')   = ["", a", "b", "c"]
+   * StringUtils.splitPreserveAllTokens("  a b c", ' ')  = ["", "", a", "b", "c"]
+   * StringUtils.splitPreserveAllTokens(" a b c ", ' ')  = ["", a", "b", "c", ""]
+   * </pre>
+   *
+   * @param str  the String to parse, may be <code>null</code>
+   * @param separatorChar  the character used as the delimiter,
+   *  <code>null</code> splits on whitespace
+   * @return an array of parsed Strings, <code>null</code> if null String input
+   * @since 2.1
+   */
+  public static String[] splitPreserveAllTokens(String str, char separatorChar) {
+    return splitWorker(str, separatorChar, true);
+  }
+
+  /**
+   * Performs the logic for the <code>split</code> and 
+   * <code>splitPreserveAllTokens</code> methods that do not return a
+   * maximum array length.
+   *
+   * @param str  the String to parse, may be <code>null</code>
+   * @param separatorChar the separate character
+   * @param preserveAllTokens if <code>true</code>, adjacent separators are
+   * treated as empty token separators; if <code>false</code>, adjacent
+   * separators are treated as one separator.
+   * @return an array of parsed Strings, <code>null</code> if null String input
+   */
+  private static String[] splitWorker(String str, char separatorChar,
+      boolean preserveAllTokens) {
+    // Performance tuned for 2.0 (JDK1.4)
+
+    if (str == null) {
+      return null;
+    }
+    int len = str.length();
+    if (len == 0) {
+      return EMPTY_STRING_ARRAY;
+    }
+    List list = new ArrayList();
+    int i = 0, start = 0;
+    boolean match = false;
+    boolean lastMatch = false;
+    while (i < len) {
+      if (str.charAt(i) == separatorChar) {
+        if (match || preserveAllTokens) {
+          list.add(str.substring(start, i));
+          match = false;
+          lastMatch = true;
+        }
+        start = ++i;
+        continue;
+      }
+      lastMatch = false;
+      match = true;
+      i++;
+    }
+    if (match || (preserveAllTokens && lastMatch)) {
+      list.add(str.substring(start, i));
+    }
+    return (String[]) list.toArray(new String[list.size()]);
+  }
+
+  /**
+   * <p>Splits the provided text into an array, separators specified, 
+   * preserving all tokens, including empty tokens created by adjacent
+   * separators. This is an alternative to using StringTokenizer.</p>
+   *
+   * <p>The separator is not included in the returned String array.
+   * Adjacent separators are treated as separators for empty tokens.
+   * For more control over the split use the StrTokenizer class.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.
+   * A <code>null</code> separatorChars splits on whitespace.</p>
+   *
+   * <pre>
+   * StringUtils.splitPreserveAllTokens(null, *)           = null
+   * StringUtils.splitPreserveAllTokens("", *)             = []
+   * StringUtils.splitPreserveAllTokens("abc def", null)   = ["abc", "def"]
+   * StringUtils.splitPreserveAllTokens("abc def", " ")    = ["abc", "def"]
+   * StringUtils.splitPreserveAllTokens("abc  def", " ")   = ["abc", "", def"]
+   * StringUtils.splitPreserveAllTokens("ab:cd:ef", ":")   = ["ab", "cd", "ef"]
+   * StringUtils.splitPreserveAllTokens("ab:cd:ef:", ":")  = ["ab", "cd", "ef", ""]
+   * StringUtils.splitPreserveAllTokens("ab:cd:ef::", ":") = ["ab", "cd", "ef", "", ""]
+   * StringUtils.splitPreserveAllTokens("ab::cd:ef", ":")  = ["ab", "", cd", "ef"]
+   * StringUtils.splitPreserveAllTokens(":cd:ef", ":")     = ["", cd", "ef"]
+   * StringUtils.splitPreserveAllTokens("::cd:ef", ":")    = ["", "", cd", "ef"]
+   * StringUtils.splitPreserveAllTokens(":cd:ef:", ":")    = ["", cd", "ef", ""]
+   * </pre>
+   *
+   * @param str  the String to parse, may be <code>null</code>
+   * @param separatorChars  the characters used as the delimiters,
+   *  <code>null</code> splits on whitespace
+   * @return an array of parsed Strings, <code>null</code> if null String input
+   * @since 2.1
+   */
+  public static String[] splitPreserveAllTokens(String str, String separatorChars) {
+    return splitWorker(str, separatorChars, -1, true);
+  }
+
+  /**
+   * <p>Splits the provided text into an array with a maximum length,
+   * separators specified, preserving all tokens, including empty tokens 
+   * created by adjacent separators.</p>
+   *
+   * <p>The separator is not included in the returned String array.
+   * Adjacent separators are treated as separators for empty tokens.
+   * Adjacent separators are treated as one separator.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.
+   * A <code>null</code> separatorChars splits on whitespace.</p>
+   *
+   * <p>If more than <code>max</code> delimited substrings are found, the last
+   * returned string includes all characters after the first <code>max - 1</code>
+   * returned strings (including separator characters).</p>
+   *
+   * <pre>
+   * StringUtils.splitPreserveAllTokens(null, *, *)            = null
+   * StringUtils.splitPreserveAllTokens("", *, *)              = []
+   * StringUtils.splitPreserveAllTokens("ab de fg", null, 0)   = ["ab", "cd", "ef"]
+   * StringUtils.splitPreserveAllTokens("ab   de fg", null, 0) = ["ab", "cd", "ef"]
+   * StringUtils.splitPreserveAllTokens("ab:cd:ef", ":", 0)    = ["ab", "cd", "ef"]
+   * StringUtils.splitPreserveAllTokens("ab:cd:ef", ":", 2)    = ["ab", "cd:ef"]
+   * StringUtils.splitPreserveAllTokens("ab   de fg", null, 2) = ["ab", "  de fg"]
+   * StringUtils.splitPreserveAllTokens("ab   de fg", null, 3) = ["ab", "", " de fg"]
+   * StringUtils.splitPreserveAllTokens("ab   de fg", null, 4) = ["ab", "", "", "de fg"]
+   * </pre>
+   *
+   * @param str  the String to parse, may be <code>null</code>
+   * @param separatorChars  the characters used as the delimiters,
+   *  <code>null</code> splits on whitespace
+   * @param max  the maximum number of elements to include in the
+   *  array. A zero or negative value implies no limit
+   * @return an array of parsed Strings, <code>null</code> if null String input
+   * @since 2.1
+   */
+  public static String[] splitPreserveAllTokens(String str, String separatorChars, int max) {
+    return splitWorker(str, separatorChars, max, true);
+  }
+
+  /**
+   * Performs the logic for the <code>split</code> and 
+   * <code>splitPreserveAllTokens</code> methods that return a maximum array 
+   * length.
+   *
+   * @param str  the String to parse, may be <code>null</code>
+   * @param separatorChars the separate character
+   * @param max  the maximum number of elements to include in the
+   *  array. A zero or negative value implies no limit.
+   * @param preserveAllTokens if <code>true</code>, adjacent separators are
+   * treated as empty token separators; if <code>false</code>, adjacent
+   * separators are treated as one separator.
+   * @return an array of parsed Strings, <code>null</code> if null String input
+   */
+  private static String[] splitWorker(String str, String separatorChars, int max,
+      boolean preserveAllTokens) {
+    // Performance tuned for 2.0 (JDK1.4)
+    // Direct code is quicker than StringTokenizer.
+    // Also, StringTokenizer uses isSpace() not isWhitespace()
+
+    if (str == null) {
+      return null;
+    }
+    int len = str.length();
+    if (len == 0) {
+      return EMPTY_STRING_ARRAY;
+    }
+    List list = new ArrayList();
+    int sizePlus1 = 1;
+    int i = 0, start = 0;
+    boolean match = false;
+    boolean lastMatch = false;
+    if (separatorChars == null) {
+      // Null separator means use whitespace
+      while (i < len) {
+        if (Character.isWhitespace(str.charAt(i))) {
+          if (match || preserveAllTokens) {
+            lastMatch = true;
+            if (sizePlus1++ == max) {
+              i = len;
+              lastMatch = false;
+            }
+            list.add(str.substring(start, i));
+            match = false;
+          }
+          start = ++i;
+          continue;
+        }
+        lastMatch = false;
+        match = true;
+        i++;
+      }
+    } else if (separatorChars.length() == 1) {
+      // Optimise 1 character case
+      char sep = separatorChars.charAt(0);
+      while (i < len) {
+        if (str.charAt(i) == sep) {
+          if (match || preserveAllTokens) {
+            lastMatch = true;
+            if (sizePlus1++ == max) {
+              i = len;
+              lastMatch = false;
+            }
+            list.add(str.substring(start, i));
+            match = false;
+          }
+          start = ++i;
+          continue;
+        }
+        lastMatch = false;
+        match = true;
+        i++;
+      }
+    } else {
+      // standard case
+      while (i < len) {
+        if (separatorChars.indexOf(str.charAt(i)) >= 0) {
+          if (match || preserveAllTokens) {
+            lastMatch = true;
+            if (sizePlus1++ == max) {
+              i = len;
+              lastMatch = false;
+            }
+            list.add(str.substring(start, i));
+            match = false;
+          }
+          start = ++i;
+          continue;
+        }
+        lastMatch = false;
+        match = true;
+        i++;
+      }
+    }
+    if (match || (preserveAllTokens && lastMatch)) {
+      list.add(str.substring(start, i));
+    }
+    return (String[]) list.toArray(new String[list.size()]);
+  }
+
+  /**
+   * <p>Joins the elements of the provided array into a single String
+   * containing the provided list of elements.</p>
+   *
+   * <p>No separator is added to the joined String.
+   * Null objects or empty strings within the array are represented by
+   * empty strings.</p>
+   *
+   * <pre>
+   * StringUtils.join(null)            = null
+   * StringUtils.join([])              = ""
+   * StringUtils.join([null])          = ""
+   * StringUtils.join(["a", "b", "c"]) = "abc"
+   * StringUtils.join([null, "", "a"]) = "a"
+   * </pre>
+   *
+   * @param array  the array of values to join together, may be null
+   * @return the joined String, <code>null</code> if null array input
+   * @since 2.0
+   */
+  public static String join(Object[] array) {
+    return join(array, null);
+  }
+
+  /**
+   * <p>Joins the elements of the provided array into a single String
+   * containing the provided list of elements.</p>
+   *
+   * <p>No delimiter is added before or after the list.
+   * Null objects or empty strings within the array are represented by
+   * empty strings.</p>
+   *
+   * <pre>
+   * StringUtils.join(null, *)               = null
+   * StringUtils.join([], *)                 = ""
+   * StringUtils.join([null], *)             = ""
+   * StringUtils.join(["a", "b", "c"], ';')  = "a;b;c"
+   * StringUtils.join(["a", "b", "c"], null) = "abc"
+   * StringUtils.join([null, "", "a"], ';')  = ";;a"
+   * </pre>
+   *
+   * @param array  the array of values to join together, may be null
+   * @param separator  the separator character to use
+   * @return the joined String, <code>null</code> if null array input
+   * @since 2.0
+   */
+  public static String join(Object[] array, char separator) {
+    if (array == null) {
+      return null;
+    }
+    int arraySize = array.length;
+    int bufSize = (arraySize == 0 ? 0 : ((array[0] == null ? 16 : array[0].toString()
+        .length()) + 1)
+        * arraySize);
+    StringBuffer buf = new StringBuffer(bufSize);
+
+    for (int i = 0; i < arraySize; i++) {
+      if (i > 0) {
+        buf.append(separator);
+      }
+      if (array[i] != null) {
+        buf.append(array[i]);
+      }
+    }
+    return buf.toString();
+  }
+
+  /**
+   * <p>Joins the elements of the provided array into a single String
+   * containing the provided list of elements.</p>
+   *
+   * <p>No delimiter is added before or after the list.
+   * A <code>null</code> separator is the same as an empty String ("").
+   * Null objects or empty strings within the array are represented by
+   * empty strings.</p>
+   *
+   * <pre>
+   * StringUtils.join(null, *)                = null
+   * StringUtils.join([], *)                  = ""
+   * StringUtils.join([null], *)              = ""
+   * StringUtils.join(["a", "b", "c"], "--")  = "a--b--c"
+   * StringUtils.join(["a", "b", "c"], null)  = "abc"
+   * StringUtils.join(["a", "b", "c"], "")    = "abc"
+   * StringUtils.join([null, "", "a"], ',')   = ",,a"
+   * </pre>
+   *
+   * @param array  the array of values to join together, may be null
+   * @param separator  the separator character to use, null treated as ""
+   * @return the joined String, <code>null</code> if null array input
+   */
+  public static String join(Object[] array, String separator) {
+    if (array == null) {
+      return null;
+    }
+    if (separator == null) {
+      separator = "";
+    }
+    int arraySize = array.length;
+
+    // ArraySize ==  0: Len = 0
+    // ArraySize > 0:   Len = NofStrings *(len(firstString) + len(separator))
+    //           (Assuming that all Strings are roughly equally long)
+    int bufSize = ((arraySize == 0) ? 0 : arraySize
+        * ((array[0] == null ? 16 : array[0].toString().length()) + separator.length()));
+
+    StringBuffer buf = new StringBuffer(bufSize);
+
+    for (int i = 0; i < arraySize; i++) {
+      if (i > 0) {
+        buf.append(separator);
+      }
+      if (array[i] != null) {
+        buf.append(array[i]);
+      }
+    }
+    return buf.toString();
+  }
+
+  /**
+   * <p>Joins the elements of the provided <code>Iterator</code> into
+   * a single String containing the provided elements.</p>
+   *
+   * <p>No delimiter is added before or after the list. Null objects or empty
+   * strings within the iteration are represented by empty strings.</p>
+   *
+   * <p>See the examples here: {@link #join(Object[],char)}. </p>
+   *
+   * @param iterator  the <code>Iterator</code> of values to join together, may be null
+   * @param separator  the separator character to use
+   * @return the joined String, <code>null</code> if null iterator input
+   * @since 2.0
+   */
+  public static String join(Iterator iterator, char separator) {
+    if (iterator == null) {
+      return null;
+    }
+    StringBuffer buf = new StringBuffer(256); // Java default is 16, probably too small
+    while (iterator.hasNext()) {
+      Object obj = iterator.next();
+      if (obj != null) {
+        buf.append(obj);
+      }
+      if (iterator.hasNext()) {
+        buf.append(separator);
+      }
+    }
+    return buf.toString();
+  }
+
+  /**
+   * <p>Joins the elements of the provided <code>Iterator</code> into
+   * a single String containing the provided elements.</p>
+   *
+   * <p>No delimiter is added before or after the list.
+   * A <code>null</code> separator is the same as an empty String ("").</p>
+   *
+   * <p>See the examples here: {@link #join(Object[],String)}. </p>
+   *
+   * @param iterator  the <code>Iterator</code> of values to join together, may be null
+   * @param separator  the separator character to use, null treated as ""
+   * @return the joined String, <code>null</code> if null iterator input
+   */
+  public static String join(Iterator iterator, String separator) {
+    if (iterator == null) {
+      return null;
+    }
+    StringBuffer buf = new StringBuffer(256); // Java default is 16, probably too small
+    while (iterator.hasNext()) {
+      Object obj = iterator.next();
+      if (obj != null) {
+        buf.append(obj);
+      }
+      if ((separator != null) && iterator.hasNext()) {
+        buf.append(separator);
+      }
+    }
+    return buf.toString();
+  }
+
+  /**
+   * <p>Returns either the passed in String,
+   * or if the String is <code>null</code>, an empty String ("").</p>
+   *
+   * <pre>
+   * StringUtils.defaultString(null)  = ""
+   * StringUtils.defaultString("")    = ""
+   * StringUtils.defaultString("bat") = "bat"
+   * </pre>
+   *
+   * @see String#valueOf(Object)
+   * @param str  the String to check, may be null
+   * @return the passed in String, or the empty String if it
+   *  was <code>null</code>
+   */
+  public static String defaultString(String str) {
+    return str == null ? "" : str;
+  }
+
+  /**
+   * <p>Returns either the passed in String, or if the String is
+   * <code>null</code>, the value of <code>defaultStr</code>.</p>
+   *
+   * <pre>
+   * StringUtils.defaultString(null, "NULL")  = "NULL"
+   * StringUtils.defaultString("", "NULL")    = ""
+   * StringUtils.defaultString("bat", "NULL") = "bat"
+   * </pre>
+   *
+   * @see String#valueOf(Object)
+   * @param str  the String to check, may be null
+   * @param defaultStr  the default String to return
+   *  if the input is <code>null</code>, may be null
+   * @return the passed in String, or the default if it was <code>null</code>
+   */
+  public static String defaultString(String str, String defaultStr) {
+    return str == null ? defaultStr : str;
+  }
+
+  /**
+   * <p>Returns either the passed in String, or if the String is
+   * empty or <code>null</code>, the value of <code>defaultStr</code>.</p>
+   *
+   * <pre>
+   * StringUtils.defaultIfEmpty(null, "NULL")  = "NULL"
+   * StringUtils.defaultIfEmpty("", "NULL")    = "NULL"
+   * StringUtils.defaultIfEmpty("bat", "NULL") = "bat"
+   * </pre>
+   *
+   * @param str  the String to check, may be null
+   * @param defaultStr  the default String to return
+   *  if the input is empty ("") or <code>null</code>, may be null
+   * @return the passed in String, or the default
+   */
+  public static String defaultIfEmpty(String str, String defaultStr) {
+    return isEmpty(str) ? defaultStr : str;
+  }
+
+  /**
+   * <p>Capitalizes a String changing the first letter to title case as
+   * per {@link Character#toTitleCase(char)}. No other letters are changed.</p>
+   *
+   * A <code>null</code> input String returns <code>null</code>.</p>
+   *
+   * <pre>
+   * StringUtils.capitalize(null)  = null
+   * StringUtils.capitalize("")    = ""
+   * StringUtils.capitalize("cat") = "Cat"
+   * StringUtils.capitalize("cAt") = "CAt"
+   * </pre>
+   *
+   * @param str  the String to capitalize, may be null
+   * @return the capitalized String, <code>null</code> if null String input
+   * @since 2.0
+   */
+  public static String capitalize(String str) {
+    int strLen;
+    if (str == null || (strLen = str.length()) == 0) {
+      return str;
+    }
+    return new StringBuffer(strLen).append(Character.toTitleCase(str.charAt(0))).append(
+        str.substring(1)).toString();
+  }
+
+  /**
+   * <p>Checks if String contains a search character, handling <code>null</code>.
+   * This method uses {@link String#indexOf(int)}.</p>
+   *
+   * <p>A <code>null</code> or empty ("") String will return <code>false</code>.</p>
+   *
+   * <pre>
+   * StringUtils.contains(null, *)    = false
+   * StringUtils.contains("", *)      = false
+   * StringUtils.contains("abc", 'a') = true
+   * StringUtils.contains("abc", 'z') = false
+   * </pre>
+   *
+   * @param str  the String to check, may be null
+   * @param searchChar  the character to find
+   * @return true if the String contains the search character,
+   *  false if not or <code>null</code> string input
+   * @since 2.0
+   */
+  public static boolean contains(String str, char searchChar) {
+    if (isEmpty(str)) {
+      return false;
+    }
+    return str.indexOf(searchChar) >= 0;
+  }
+
+  /**
+   * <p>Checks if String contains a search String, handling <code>null</code>.
+   * This method uses {@link String#indexOf(int)}.</p>
+   *
+   * <p>A <code>null</code> String will return <code>false</code>.</p>
+   *
+   * <pre>
+   * StringUtils.contains(null, *)     = false
+   * StringUtils.contains(*, null)     = false
+   * StringUtils.contains("", "")      = true
+   * StringUtils.contains("abc", "")   = true
+   * StringUtils.contains("abc", "a")  = true
+   * StringUtils.contains("abc", "z")  = false
+   * </pre>
+   *
+   * @param str  the String to check, may be null
+   * @param searchStr  the String to find, may be null
+   * @return true if the String contains the search String,
+   *  false if not or <code>null</code> string input
+   * @since 2.0
+   */
+  public static boolean contains(String str, String searchStr) {
+    if (str == null || searchStr == null) {
+      return false;
+    }
+    return str.indexOf(searchStr) >= 0;
+  }
+  
+  /**
+   * An empty immutable <code>String</code> array.
+   */
+  public static final String[] EMPTY_STRING_ARRAY = new String[0];
+
+  /**
+   * <p>Compares two objects for equality, where either one or both
+   * objects may be <code>null</code>.</p>
+   *
+   * <pre>
+   * ObjectUtils.equals(null, null)                  = true
+   * ObjectUtils.equals(null, "")                    = false
+   * ObjectUtils.equals("", null)                    = false
+   * ObjectUtils.equals("", "")                      = true
+   * ObjectUtils.equals(Boolean.TRUE, null)          = false
+   * ObjectUtils.equals(Boolean.TRUE, "true")        = false
+   * ObjectUtils.equals(Boolean.TRUE, Boolean.TRUE)  = true
+   * ObjectUtils.equals(Boolean.TRUE, Boolean.FALSE) = false
+   * </pre>
+   *
+   * @param object1  the first object, may be <code>null</code>
+   * @param object2  the second object, may be <code>null</code>
+   * @return <code>true</code> if the values of both objects are the same
+   */
+  public static boolean equals(Object object1, Object object2) {
+      if (object1 == object2) {
+          return true;
+      }
+      if ((object1 == null) || (object2 == null)) {
+          return false;
+      }
+      return object1.equals(object2);
+  }
+
+  /**
+   * <p>A way to get the entire nested stack-trace of an throwable.</p>
+   *
+   * @param throwable  the <code>Throwable</code> to be examined
+   * @return the nested stack trace, with the root cause first
+   * @since 2.0
+   */
+  public static String getFullStackTrace(Throwable throwable) {
+      StringWriter sw = new StringWriter();
+      PrintWriter pw = new PrintWriter(sw, true);
+      Throwable[] ts = getThrowables(throwable);
+      for (int i = 0; i < ts.length; i++) {
+          ts[i].printStackTrace(pw);
+          if (isNestedThrowable(ts[i])) {
+              break;
+          }
+      }
+      return sw.getBuffer().toString();
+  }
+  /**
+   * <p>Returns the list of <code>Throwable</code> objects in the
+   * exception chain.</p>
+   * 
+   * <p>A throwable without cause will return an array containing
+   * one element - the input throwable.
+   * A throwable with one cause will return an array containing
+   * two elements. - the input throwable and the cause throwable.
+   * A <code>null</code> throwable will return an array size zero.</p>
+   *
+   * @param throwable  the throwable to inspect, may be null
+   * @return the array of throwables, never null
+   */
+  public static Throwable[] getThrowables(Throwable throwable) {
+      List list = new ArrayList();
+      while (throwable != null) {
+          list.add(throwable);
+          throwable = getCause(throwable);
+      }
+      return (Throwable[]) list.toArray(new Throwable[list.size()]);
+  }
+  
+  /**
+   * <p>The names of methods commonly used to access a wrapped exception.</p>
+   */
+  private static String[] CAUSE_METHOD_NAMES = {
+      "getCause",
+      "getNextException",
+      "getTargetException",
+      "getException",
+      "getSourceException",
+      "getRootCause",
+      "getCausedByException",
+      "getNested",
+      "getLinkedException",
+      "getNestedException",
+      "getLinkedCause",
+      "getThrowable",
+  };
+
+  /**
+   * <p>Checks whether this <code>Throwable</code> class can store a cause.</p>
+   * 
+   * <p>This method does <b>not</b> check whether it actually does store a cause.<p>
+   *
+   * @param throwable  the <code>Throwable</code> to examine, may be null
+   * @return boolean <code>true</code> if nested otherwise <code>false</code>
+   * @since 2.0
+   */
+  public static boolean isNestedThrowable(Throwable throwable) {
+      if (throwable == null) {
+          return false;
+      }
+
+      if (throwable instanceof Nestable) {
+          return true;
+      } else if (throwable instanceof SQLException) {
+          return true;
+      } else if (throwable instanceof InvocationTargetException) {
+          return true;
+      } else if (isThrowableNested()) {
+          return true;
+      }
+
+      Class cls = throwable.getClass();
+      for (int i = 0, isize = CAUSE_METHOD_NAMES.length; i < isize; i++) {
+          try {
+              Method method = cls.getMethod(CAUSE_METHOD_NAMES[i], (Class[])null);
+              if (method != null && Throwable.class.isAssignableFrom(method.getReturnType())) {
+                  return true;
+              }
+          } catch (NoSuchMethodException ignored) {
+          } catch (SecurityException ignored) {
+          }
+      }
+
+      try {
+          Field field = cls.getField("detail");
+          if (field != null) {
+              return true;
+          }
+      } catch (NoSuchFieldException ignored) {
+      } catch (SecurityException ignored) {
+      }
+
+      return false;
+  }
+
+  /**
+   * <p>The Method object for JDK1.4 getCause.</p>
+   */
+  private static final Method THROWABLE_CAUSE_METHOD;
+  static {
+      Method getCauseMethod;
+      try {
+          getCauseMethod = Throwable.class.getMethod("getCause", (Class[])null);
+      } catch (Exception e) {
+          getCauseMethod = null;
+      }
+      THROWABLE_CAUSE_METHOD = getCauseMethod;
+  }
+  
+  /**
+   * <p>Checks if the Throwable class has a <code>getCause</code> method.</p>
+   * 
+   * <p>This is true for JDK 1.4 and above.</p>
+   * 
+   * @return true if Throwable is nestable
+   * @since 2.0
+   */
+  public static boolean isThrowableNested() {
+      return THROWABLE_CAUSE_METHOD != null;
+  }
+
+  /**
+   * <p>Introspects the <code>Throwable</code> to obtain the cause.</p>
+   * 
+   * <p>The method searches for methods with specific names that return a 
+   * <code>Throwable</code> object. This will pick up most wrapping exceptions,
+   * including those from JDK 1.4, and
+   * {@link org.apache.commons.lang.exception.NestableException NestableException}.</p>
+   *
+   * <p>The default list searched for are:</p>
+   * <ul>
+   *  <li><code>getCause()</code></li>
+   *  <li><code>getNextException()</code></li>
+   *  <li><code>getTargetException()</code></li>
+   *  <li><code>getException()</code></li>
+   *  <li><code>getSourceException()</code></li>
+   *  <li><code>getRootCause()</code></li>
+   *  <li><code>getCausedByException()</code></li>
+   *  <li><code>getNested()</code></li>
+   * </ul>
+   * 
+   * <p>In the absence of any such method, the object is inspected for a
+   * <code>detail</code> field assignable to a <code>Throwable</code>.</p>
+   * 
+   * <p>If none of the above is found, returns <code>null</code>.</p>
+   *
+   * @param throwable  the throwable to introspect for a cause, may be null
+   * @return the cause of the <code>Throwable</code>,
+   *  <code>null</code> if none found or null throwable input
+   * @since 1.0
+   */
+  public static Throwable getCause(Throwable throwable) {
+      return getCause(throwable, CAUSE_METHOD_NAMES);
+  }
+
+  /**
+   * <p>Introspects the <code>Throwable</code> to obtain the cause.</p>
+   * 
+   * <ol>
+   * <li>Try known exception types.</li>
+   * <li>Try the supplied array of method names.</li>
+   * <li>Try the field 'detail'.</li>
+   * </ol>
+   * 
+   * <p>A <code>null</code> set of method names means use the default set.
+   * A <code>null</code> in the set of method names will be ignored.</p>
+   *
+   * @param throwable  the throwable to introspect for a cause, may be null
+   * @param methodNames  the method names, null treated as default set
+   * @return the cause of the <code>Throwable</code>,
+   *  <code>null</code> if none found or null throwable input
+   * @since 1.0
+   */
+  public static Throwable getCause(Throwable throwable, String[] methodNames) {
+      if (throwable == null) {
+          return null;
+      }
+      Throwable cause = getCauseUsingWellKnownTypes(throwable);
+      if (cause == null) {
+          if (methodNames == null) {
+              methodNames = CAUSE_METHOD_NAMES;
+          }
+          for (int i = 0; i < methodNames.length; i++) {
+              String methodName = methodNames[i];
+              if (methodName != null) {
+                  cause = getCauseUsingMethodName(throwable, methodName);
+                  if (cause != null) {
+                      break;
+                  }
+              }
+          }
+
+          if (cause == null) {
+              cause = getCauseUsingFieldName(throwable, "detail");
+          }
+      }
+      return cause;
+  }
+
+  /**
+   * <p>Finds a <code>Throwable</code> by method name.</p>
+   * 
+   * @param throwable  the exception to examine
+   * @param methodName  the name of the method to find and invoke
+   * @return the wrapped exception, or <code>null</code> if not found
+   */
+  private static Throwable getCauseUsingMethodName(Throwable throwable, String methodName) {
+      Method method = null;
+      try {
+          method = throwable.getClass().getMethod(methodName, (Class[])null);
+      } catch (NoSuchMethodException ignored) {
+      } catch (SecurityException ignored) {
+      }
+
+      if (method != null && Throwable.class.isAssignableFrom(method.getReturnType())) {
+          try {
+              return (Throwable) method.invoke(throwable, EMPTY_OBJECT_ARRAY);
+          } catch (IllegalAccessException ignored) {
+          } catch (IllegalArgumentException ignored) {
+          } catch (InvocationTargetException ignored) {
+          }
+      }
+      return null;
+  }
+
+  /**
+   * <p>Finds a <code>Throwable</code> by field name.</p>
+   * 
+   * @param throwable  the exception to examine
+   * @param fieldName  the name of the attribute to examine
+   * @return the wrapped exception, or <code>null</code> if not found
+   */
+  private static Throwable getCauseUsingFieldName(Throwable throwable, String fieldName) {
+      Field field = null;
+      try {
+          field = throwable.getClass().getField(fieldName);
+      } catch (NoSuchFieldException ignored) {
+      } catch (SecurityException ignored) {
+      }
+
+      if (field != null && Throwable.class.isAssignableFrom(field.getType())) {
+          try {
+              return (Throwable) field.get(throwable);
+          } catch (IllegalAccessException ignored) {
+          } catch (IllegalArgumentException ignored) {
+          }
+      }
+      return null;
+  }
+
+  /**
+   * <p>Finds a <code>Throwable</code> for known types.</p>
+   * 
+   * <p>Uses <code>instanceof</code> checks to examine the exception,
+   * looking for well known types which could contain chained or
+   * wrapped exceptions.</p>
+   *
+   * @param throwable  the exception to examine
+   * @return the wrapped exception, or <code>null</code> if not found
+   */
+  private static Throwable getCauseUsingWellKnownTypes(Throwable throwable) {
+      if (throwable instanceof Nestable) {
+          return ((Nestable) throwable).getCause();
+      } else if (throwable instanceof SQLException) {
+          return ((SQLException) throwable).getNextException();
+      } else if (throwable instanceof InvocationTargetException) {
+          return ((InvocationTargetException) throwable).getTargetException();
+      } else {
+          return null;
+      }
+  }
+
+  /**
+   * An empty immutable <code>Object</code> array.
+   */
+  public static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 }

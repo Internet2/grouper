@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.ByHql;
@@ -58,13 +59,26 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.23 2008-11-08 04:33:47 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.24 2008-11-18 08:04:53 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
   /** */
-  private static HashMap<String, Boolean> existsCache = new HashMap<String, Boolean>();
+  private static GrouperCache<String, Boolean> existsCache = null;
+  
+  /**
+   * lazy load
+   * @return cache
+   */
+  private static GrouperCache<String, Boolean> getExistsCache() {
+    if(existsCache==null) {
+      existsCache=new GrouperCache<String, Boolean>("edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO.exists",
+            1000, false, 30, 120, false); 
+    }
+    return existsCache;
+  }
+
 
   /** */
   private static final String KLASS = Hib3GroupDAO.class.getName();
@@ -75,7 +89,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @param exists
    */
   public void putInExistsCache(String uuid, boolean exists) {
-    existsCache.put(uuid, exists);
+    getExistsCache().put(uuid, exists);
   }
 
   /**
@@ -210,8 +224,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public boolean exists(String uuid)
     throws  GrouperDAOException {
-    if ( existsCache.containsKey(uuid) ) {
-      return existsCache.get(uuid).booleanValue();
+    if ( getExistsCache().containsKey(uuid) ) {
+      return getExistsCache().get(uuid).booleanValue();
     }
     
     Object id = HibernateSession.byHqlStatic()
@@ -224,7 +238,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     if ( id != null ) {
       rv = true;
     }
-    existsCache.put(uuid, rv);
+    getExistsCache().put(uuid, rv);
     return rv;
   } 
 
@@ -973,7 +987,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     hibernateSession.byHql().createQuery("delete from GroupTypeTuple").executeUpdate();
     hibernateSession.byHql().createQuery("delete from Attribute").executeUpdate(); 
     hibernateSession.byHql().createQuery("delete from Group").executeUpdate();
-    existsCache = new HashMap<String, Boolean>();
+    getExistsCache().clear();
   } 
 
 
