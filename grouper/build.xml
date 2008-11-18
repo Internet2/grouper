@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.211 2008-11-18 06:21:45 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.212 2008-11-18 06:35:43 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -380,7 +380,7 @@
            <!-- exec command="/bin/bash -c &quot;cd /tmp/grouper/build_mchyzer/grouper/dist/binary; /usr/bin/zip -r grouper.binary.1.4.\
 0.zip grouper.binary.1.4.0&quot;"  / -->
              
-           <exec executable="/bin/bash -c &quot;cd ${dist.binary}; /usr/bin/zip -r grouper.binary.${version}.zip grouper.binary.${version}&quot;"/>
+           <exec command="/bin/bash -c &quot;cd ${dist.binary}; /usr/bin/zip -r grouper.binary.${version}.zip grouper.binary.${version}&quot;"/>
          </then>
          <else>
     <zip basedir="${dist.binary}" 
