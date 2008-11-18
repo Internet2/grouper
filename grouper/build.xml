@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.209 2008-11-14 07:38:03 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.210 2008-11-18 06:03:24 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -360,15 +360,32 @@
         <equals arg1="${nozip}" arg2="true" casesensitive="true" trim="true"/>
       </not>
       <then>
+        <if>
+          <available file="/bin/tar" />
+          <then>
+            <!-- exec command="/bin/tar -czC /tmp/grouper/build_mchyzer/grouper/dist/binary/ -f /tmp/grouper/build_mchyzer/grouper/dist/binary/grouper.binary.1.4.0.tar.gz grouper.binary.1.4.0 "  -->
+            <exec command="/bin/tar -czC ${dist.binary} -f ${dist.binary}/grouper.binary.${version}.tar.gz grouper.binary.${version}" />
+          </then>
+          <else>
        <tar basedir="${dist.binary}" compression="gzip"
       destfile="${dist.binary}/grouper.binary.${version}.tar.gz">
       <include name="grouper.binary.${version}/**" />
     </tar>
-    
+          </else>
+        </if>
+        <if>
+          <available file="/usr/bin/zip" />
+         <then>
+           <!-- exec command="/usr/bin/zip -r grouper.binary.1.4.0.zip grouper.binary.1.4.0" dir="/tmp/grouper/build_mchyzer/grouper/dist/binary"  / -->
+             <exec executable="/usr/bin/zip -r grouper.binary.${version}.zip grouper.binary.${version}" dir="${dist.binary}" />
+         </then>
+         <else>
     <zip basedir="${dist.binary}" 
           destfile="${dist.binary}/grouper.binary.${version}.zip">
           <include name="grouper.binary.${version}/**" />
      </zip>
+         </else>
+        </if>
       </then>
     </if>
 
