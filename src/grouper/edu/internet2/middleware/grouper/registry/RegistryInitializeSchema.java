@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInitializeSchema.java,v 1.14 2008-11-14 07:38:02 mchyzer Exp $    
+ * @version $Id: RegistryInitializeSchema.java,v 1.15 2008-11-22 08:28:14 mchyzer Exp $    
  * @since   1.2.0
  */
 public class RegistryInitializeSchema {
@@ -298,7 +298,7 @@ public class RegistryInitializeSchema {
         + "                     affected"
         + GrouperConfig.NL
         + GrouperConfig.NL
-        + "NOTE WELL: no registry changes will be effected unless the -runscript option"
+        + "NOTE WELL: no registry changes will be effected unless the -runscript or -runsqlfile option"
         + GrouperConfig.NL + "is selected" + GrouperConfig.NL;
   } // private static String _getUsage()
 
