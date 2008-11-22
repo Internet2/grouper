@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.27 2008-11-22 08:28:14 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.28 2008-11-22 21:39:14 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -981,32 +981,68 @@ public class GrouperDdlUtils {
 
     if (platform.getName().toLowerCase().contains("oracle")) {
       
-      //for oracle, get the foreign keys from user_constraints, and drop check constraints while we are at it
-      String sql = "select TABLE_NAME, CONSTRAINT_NAME from user_constraints where table_name like ? " +
-      		"and constraint_type in ('R','U') order by table_name, constraint_name"; 
-      PreparedStatement statement = null;
-      ResultSet resultSet = null;
-      try {
-        statement = connection.prepareStatement(sql);
-        statement.setString(1, platform.getModelReader().getDefaultTablePattern());
-        resultSet = statement.executeQuery();
+      for (String type : new String[]{"R", "U"}) {
         
-        while (resultSet.next()) {
-          //ALTER TABLE grouper_composites DROP constraint fk_composites_right_factor;
-          String tableName = resultSet.getString("TABLE_NAME");
-          String constraintName = resultSet.getString("CONSTRAINT_NAME");
-          String dropStatement = "ALTER TABLE " + tableName 
-            + " DROP constraint " + constraintName + ";\n";
-          fullScript.append(dropStatement);
+        //for oracle, get the foreign keys from user_constraints, and drop check constraints while we are at it
+        String sql = "select TABLE_NAME, CONSTRAINT_NAME from user_constraints where table_name like ? " +
+            "and constraint_type = '" + type + "' order by table_name, constraint_name"; 
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try {
+          statement = connection.prepareStatement(sql);
+          statement.setString(1, platform.getModelReader().getDefaultTablePattern());
+          resultSet = statement.executeQuery();
+          
+          while (resultSet.next()) {
+            //ALTER TABLE grouper_composites DROP constraint fk_composites_right_factor;
+            String tableName = resultSet.getString("TABLE_NAME");
+            String constraintName = resultSet.getString("CONSTRAINT_NAME");
+            String dropStatement = "ALTER TABLE " + tableName 
+              + " DROP constraint " + constraintName + ";\n";
+            fullScript.append(dropStatement);
+          }
+          
+        } catch (SQLException sqle) {
+          throw new RuntimeException(sqle);
+        } finally {
+          GrouperUtil.closeQuietly(resultSet);
+          GrouperUtil.closeQuietly(statement);
         }
-        
-      } catch (SQLException sqle) {
-        throw new RuntimeException(sqle);
-      } finally {
-        GrouperUtil.closeQuietly(resultSet);
-        GrouperUtil.closeQuietly(statement);
       }
+    } else if (platform.getName().toLowerCase().contains("postgres")) {
       
+      for (String type : new String[]{"FOREIGN KEY", "UNIQUE"}) {
+        
+        //for postgres, get the foreign keys from information_schema, and drop check constraints while we are at it
+        String sql = "SELECT * FROM information_schema.table_constraints where constraint_type = '" + type 
+          + "' and lower(table_name) like ? and lower(table_schema) like ? and lower(table_catalog) like ?";
+          
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        try {
+          statement = connection.prepareStatement(sql);
+          statement.setString(1, StringUtils.lowerCase(platform.getModelReader().getDefaultTablePattern()));
+          statement.setString(2, StringUtils.lowerCase(platform.getModelReader().getDefaultSchemaPattern()));
+          statement.setString(3, StringUtils.lowerCase(platform.getModelReader().getDefaultTablePattern()));
+          resultSet = statement.executeQuery();
+          
+          while (resultSet.next()) {
+            //ALTER TABLE grouper_composites DROP constraint fk_composites_right_factor;
+            String tableName = resultSet.getString("TABLE_NAME");
+            String constraintName = resultSet.getString("CONSTRAINT_NAME");
+            String dropStatement = "ALTER TABLE " + tableName 
+              + " DROP constraint " + constraintName + ";\n";
+            fullScript.append(dropStatement);
+          }
+          
+        } catch (SQLException sqle) {
+          throw new RuntimeException(sqle);
+        } finally {
+          GrouperUtil.closeQuietly(resultSet);
+          GrouperUtil.closeQuietly(statement);
+        }
+      }
+
     } else {
       //just get from jdbc metadata
       SqlBuilder sqlBuilder = ddlVersionBean.getSqlBuilder();
