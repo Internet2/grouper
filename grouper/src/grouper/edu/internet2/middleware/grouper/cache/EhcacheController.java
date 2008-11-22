@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Base class for common cache operations.
  * @author  blair christensen.
- * @version $Id: EhcacheController.java,v 1.11 2008-10-12 17:15:08 mchyzer Exp $
+ * @version $Id: EhcacheController.java,v 1.12 2008-11-22 08:28:14 mchyzer Exp $
  * @since   1.2.1
  */
 public class EhcacheController implements CacheController {
@@ -170,6 +170,7 @@ public class EhcacheController implements CacheController {
       		+ defaultTimeToLiveSeconds + ", overFlowToDisk: " + defaultOverflowToDisk);
       Cache cache = new Cache(name, defaultMaxElementsInMemory, defaultOverflowToDisk, 
           defaultEternal, defaultTimeToLiveSeconds, defaultTimeToIdleSeconds);
+      //TODO CH 20081118, see if cache by name there already...
       this.mgr.addCache(cache);
       return cache;
     }

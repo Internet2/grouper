@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.26 2008-11-14 07:38:03 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.27 2008-11-22 08:28:14 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1605,8 +1605,8 @@ public class GrouperDdlUtils {
         
         //if we made it this far, it is the same index!
         
-        //if exactly the same, leave it be
-        if (unique == existingIndex.isUnique() && StringUtils.equalsIgnoreCase(indexName, existingIndex.getName())) {
+        //if exactly the same, leave it be (dont rename if already there)
+        if (unique == existingIndex.isUnique()) {
           return existingIndex;
         }
         
