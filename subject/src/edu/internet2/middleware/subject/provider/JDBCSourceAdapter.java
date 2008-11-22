@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.16 2008-11-18 08:00:27 mchyzer Exp $
-$Date: 2008-11-18 08:00:27 $
+$Id: JDBCSourceAdapter.java,v 1.17 2008-11-22 07:07:37 mchyzer Exp $
+$Date: 2008-11-22 07:07:37 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -544,12 +544,12 @@ public class JDBCSourceAdapter
         log.error(error + ", dbUser param is required");
         return;
       }
-      String dbPwd = props.getProperty("dbPwd");
-      if (StringUtils.isBlank(dbPwd)) {
-        System.err.println("Subject API error: " + error + ", dbPwd param is required");
-        log.error(error + ", dbPwd param is required");
-        return;
-      }
+      String dbPwd = StringUtils.defaultString(props.getProperty("dbPwd"));
+//      if (StringUtils.isBlank(dbPwd)) {
+//        System.err.println("Subject API error: " + error + ", dbPwd param is required");
+//        log.error(error + ", dbPwd param is required");
+//        return;
+//      }
       dbPwd = Morph.decryptIfFile(dbPwd);
       
       try {
