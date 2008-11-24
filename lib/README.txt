@@ -146,7 +146,7 @@ logging services for purposes of application debugging and auditing."
 
 "The I2MI Subject Interface."
 
-* Version:  0.4.2
+* Version:  0.4.4
 * Source:   <http://anoncvs.internet2.edu/cgi-bin/viewcvs.cgi/subject/?cvsroot=I2MI>
 * License:  Apache License, Version 2.0 (?)
 * Updated:  20070315
@@ -242,5 +242,5 @@ db pooling
 * Updated 2008/02/17
 
 ---
-$Id: README.txt,v 1.20 2008-11-24 16:58:45 mchyzer Exp $
+$Id: README.txt,v 1.21 2008-11-24 18:39:44 mchyzer Exp $
 
