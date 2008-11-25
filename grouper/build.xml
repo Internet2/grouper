@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.212 2008-11-18 06:35:43 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.213 2008-11-25 15:37:04 tzeller Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -367,10 +367,20 @@
             <exec command="/bin/tar -czC ${dist.binary} -f ${dist.binary}/grouper.binary.${version}.tar.gz grouper.binary.${version}" />
           </then>
           <else>
-       <tar basedir="${dist.binary}" compression="gzip"
-      destfile="${dist.binary}/grouper.binary.${version}.tar.gz">
-      <include name="grouper.binary.${version}/**" />
-    </tar>
+          	<!--
+          	<tar basedir="${dist.binary}" compression="gzip" destfile="${dist.binary}/grouper.binary.${version}.tar.gz">
+          		<include name="grouper.binary.${version}/**" />
+          	</tar>
+          	-->          	
+          	<tar destfile="${dist.binary}/grouper.binary.${version}.tar.gz" compression="gzip">
+          		<tarfileset dir="${dist.binary}" mode="755" >
+          			<include name="grouper.binary.${version}/bin/**" />
+          		</tarfileset>
+          		<tarfileset dir="${dist.binary}" >
+          			<exclude name="grouper.binary.${version}/bin/**"/>
+          			<include name="grouper.binary.${version}/**"/>
+          		</tarfileset>
+          	</tar>          	
           </else>
         </if>
         <if>
