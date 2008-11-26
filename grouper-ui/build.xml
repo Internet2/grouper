@@ -1,7 +1,27 @@
 <project name="local" default="auto" basedir=".">
 	<!--<import file="tomcat-tasks.xml"/>-->
 	<property environment="env"/>
-	<property file="build.properties"/>
+
+  <property file="${basedir}/misc/version.properties"/>
+
+  <target name="distPackage" description="build tar gz on internet2 box">
+  
+    <copy todir="${basedir}/../grouper-ui-${version}">
+      <fileset dir="${basedir}/../grouper-ui" />
+    </copy>
+    
+    <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
+    <tar destfile="${basedir}/../grouper-ui-${version}.tar.gz" compression="gzip">
+      <tarfileset dir="${basedir}/.." >
+        <include name="grouper-ui-${version}/**"/>
+      </tarfileset>
+    </tar>            
+    
+  </target>
+   
+
+  
+  <property file="build.properties"/>
 	<property name="contrib.dir" value="${basedir}/contrib"/>
 	<property name="temp.dir" value="${basedir}/temp"/>
 	<property name="overwriteLib" value="false"/>
@@ -30,21 +50,6 @@
 		   value is chosen.
 -->
 	
-  <target name="distPackage" description="build tar gz on internet2 box">
-  
-    <copy todir="${basedir}/../grouper-ui-${version}">
-      <fileset dir="${basedir}/../grouper-ui" />
-    </copy>
-    
-    <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
-    <tar destfile="${basedir}/../grouper-ui-${version}.tar.gz" compression="gzip">
-      <tarfileset dir="${basedir}/.." >
-        <include name="grouper-ui-${version}/**"/>
-      </tarfileset>
-    </tar>            
-    
-  </target>
-   
    <!-- Decide what to do based on previous choices-->	
     <target name="auto">
 		<property file=".auto.properties"/>
