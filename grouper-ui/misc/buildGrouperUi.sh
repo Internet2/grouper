@@ -34,9 +34,9 @@ export CVSROOT=/home/cvs/i2mi
 
 /usr/bin/cvs export -r $1 grouper-ui
 
-cd $buildDir/grouper-ui
+cd $buildDir/grouper-ui/misc
 
-/home/mchyzer/ant/bin/ant distPackage
+/home/mchyzer/ant/bin/ant -f buildPackage.xml distPackage
 
 echo
 echo "result is in $buildDir/" 
