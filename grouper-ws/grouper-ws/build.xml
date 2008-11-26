@@ -21,6 +21,8 @@
 
 	<fail message="Couldnt detect build.properties file, copy the build.example.properties to build.properties in the project base dir, and customize" unless="build.properties.exists" />
 	<property file="build.properties" />
+  <property file="${basedir}/misc/version.properties"/>
+
 
 	<!-- validate the build.properties -->
 	<fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): webapp.folder" unless="webapp.folder" />
@@ -241,6 +243,21 @@
 		<property name="skipWsdl" value="false" />
 		<antcall target="distHelper" />
 	</target>
+
+  <target name="distPackage" description="build tar gz on internet2 box">
+  
+    <antcall target="javadoc" />
+    
+    <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
+    <tar destfile="${basedir}/../grouper-ws-${version}.tar.gz" compression="gzip">
+      <tarfileset dir="${basedir}/.." >
+        <include name="**"/>
+      </tarfileset>
+    </tar>            
+
+    
+  </target>
+  
 	<!-- 
     Builds the entire webapp 
   -->
