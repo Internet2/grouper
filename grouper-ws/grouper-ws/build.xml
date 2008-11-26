@@ -248,7 +248,9 @@
   
     <antcall target="javadoc" />
     
-    <copy todir="${basedir}/../../grouper-ws-${version}" dir="grouper-ws" />
+    <copy todir="${basedir}/../../grouper-ws-${version}">
+      <fileset dir="${basedir}/../../grouper-ws" />
+    </copy>
     
     <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
     <tar destfile="${basedir}/../../grouper-ws-${version}.tar.gz" compression="gzip">
