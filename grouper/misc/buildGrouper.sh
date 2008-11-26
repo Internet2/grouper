@@ -36,10 +36,16 @@ export CVSROOT=/home/cvs/i2mi
 
 cd $buildDir/grouper
 
+/home/mchyzer/ant/bin/ant distPackage
+
 /home/mchyzer/ant/bin/ant distBinary
 
+mv $buildDir/grouper/dist/binary/*.tar.gz $buildDir/
+mv $buildDir/grouper/dist/binary/*.zip $buildDir/
+
 echo
-echo "result is in $buildDir/grouper/dist/binary/" 
+echo "regular result is in $buildDir/" 
+echo "binary result is in $buildDir/" 
 echo
 
 #allow someone from group to delete later on

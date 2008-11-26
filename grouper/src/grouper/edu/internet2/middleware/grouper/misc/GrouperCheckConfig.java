@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.13 2008-11-22 08:28:14 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.14 2008-11-26 19:10:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.net.URL;
-import java.security.CodeSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -188,7 +187,7 @@ public class GrouperCheckConfig {
     long jarFileSize = -1;
     try {
       
-      File jarFile = jarFile(sampleClass);
+      File jarFile = GrouperUtil.jarFile(sampleClass);
       jarFileFullName = jarFile.getCanonicalPath();
       jarFileName = jarFile.getName();
       jarFileSize = jarFile.length();
@@ -297,60 +296,60 @@ public class GrouperCheckConfig {
       return;
     }
 
-    propertyValueClass(GROUPER_PROPERTIES_NAME, "privileges.access.interface", 
+    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "privileges.access.interface", 
         AccessAdapter.class, true);
     
-    propertyValueClass(GROUPER_PROPERTIES_NAME, "privileges.naming.interface", 
+    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "privileges.naming.interface", 
         NamingAdapter.class, true);
     
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.admin", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.optin", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.optout", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.read", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.update", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.view", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.admin", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.optin", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.optout", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.read", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.update", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.create.grant.all.view", true);
 
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "stems.create.grant.all.create", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "stems.create.grant.all.stem", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "stems.create.grant.all.create", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "stems.create.grant.all.stem", true);
 
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "memberships.log.group.effective.add", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "memberships.log.group.effective.del", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "memberships.log.group.effective.add", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "memberships.log.group.effective.del", true);
 
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "memberships.log.stem.effective.add", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "memberships.log.stem.effective.del", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "memberships.log.stem.effective.add", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "memberships.log.stem.effective.del", true);
 
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.wheel.use", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.wheel.use", true);
 
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "registry.autoinit", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "configuration.detect.errors", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "configuration.display.startup.message", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "registry.autoinit", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "configuration.detect.errors", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "configuration.display.startup.message", true);
 
-    propertyValueClass(GROUPER_PROPERTIES_NAME, "dao.factory", 
+    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "dao.factory", 
         GrouperDAOFactory.class, true);
 
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "grouper.setters.dont.cause.queries", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "grouper.setters.dont.cause.queries", true);
 
-    propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.group.class", GroupHooks.class, false);
-    propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.lifecycle.class", LifecycleHooks.class, false);
-    propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.membership.class", MembershipHooks.class, false);
-    propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.member.class", MemberHooks.class, false);
-    propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.stem.class", StemHooks.class, false);
-    propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.composite.class", CompositeHooks.class, false);
-    propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.field.class", FieldHooks.class, false);
-    propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.grouperSession.class", GrouperSessionHooks.class, false);
-    propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.groupType.class", GroupTypeHooks.class, false);
-    propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.groupTypeTuple.class", GroupTypeTupleHooks.class, false);
+    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.group.class", GroupHooks.class, false);
+    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.lifecycle.class", LifecycleHooks.class, false);
+    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.membership.class", MembershipHooks.class, false);
+    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.member.class", MemberHooks.class, false);
+    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.stem.class", StemHooks.class, false);
+    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.composite.class", CompositeHooks.class, false);
+    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.field.class", FieldHooks.class, false);
+    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.grouperSession.class", GrouperSessionHooks.class, false);
+    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.groupType.class", GroupTypeHooks.class, false);
+    GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.groupTypeTuple.class", GroupTypeTupleHooks.class, false);
 
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.exclude.subject.tables", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.schemaexport.installGrouperData", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.failIfNotRightVersion", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.dropBackupUuidCols", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.dropBackupFieldNameTypeCols", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.disableComments", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.disableViews", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.exclude.subject.tables", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.schemaexport.installGrouperData", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.failIfNotRightVersion", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.dropBackupUuidCols", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.dropBackupFieldNameTypeCols", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.disableComments", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.disableViews", true);
     
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "grouperIncludeExclude.use", true);
-    propertyValueBoolean(GROUPER_PROPERTIES_NAME, "grouperIncludeExclude.requireGroups.use", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "grouperIncludeExclude.use", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "grouperIncludeExclude.requireGroups.use", true);
     
     Properties properties = GrouperUtil.propertiesFromResourceName(GROUPER_PROPERTIES_NAME);
     String value = GrouperUtil.propertiesValue(properties, "grouperIncludeExclude.requireGroups.extension.suffix");
@@ -377,98 +376,6 @@ public class GrouperCheckConfig {
     }
   }
 
-  /**
-   * make sure a value exists in properties
-   * @param resourceName
-   * @param key
-   * @return true if ok, false if not
-   */
-  public static boolean propertyValueRequired(String resourceName, String key) {
-    Properties properties = GrouperUtil.propertiesFromResourceName(resourceName);
-    String value = GrouperUtil.propertiesValue(properties, key);
-    if (!StringUtils.isBlank(value)) {
-      return true;
-    }
-    String error = "Cant find property " + key + " in resource: " + resourceName + ", it is required";
-    System.err.println("Grouper error: " + error);
-    LOG.error(error);
-    return false;
-  }
-  
-  /**
-   * make sure a value is boolean in properties
-   * @param resourceName
-   * @param key
-   * @param required
-   * @return true if ok, false if not
-   */
-  public static boolean propertyValueBoolean(String resourceName, String key, boolean required) {
-    
-    if (required && !propertyValueRequired(resourceName, key)) {
-      return false;
-    }
-
-    Properties properties = GrouperUtil.propertiesFromResourceName(resourceName);
-    String value = GrouperUtil.propertiesValue(properties, key);
-    //maybe ok not there
-    if (!required && StringUtils.isBlank(value)) {
-      return true;
-    }
-    try {
-      GrouperUtil.booleanValue(value);
-      return true;
-    } catch (Exception e) {
-      
-    }
-    String error = "Expecting true or false property " + key + " in resource: " + resourceName + ", but is '" + value + "'";
-    System.err.println("Grouper error: " + error);
-    LOG.error(error);
-    return false;
-  }
-  
-  /**
-   * make sure a property is a class of a certain type
-   * @param resourceName
-   * @param key
-   * @param classType
-   * @param required 
-   * @return true if ok
-   */
-  public static boolean propertyValueClass(String resourceName, 
-      String key, Class<?> classType, boolean required) {
-
-    if (required && !propertyValueRequired(resourceName, key)) {
-      return false;
-    }
-    Properties properties = GrouperUtil.propertiesFromResourceName(resourceName);
-    String value = GrouperUtil.propertiesValue(properties, key);
-
-    //maybe ok not there
-    if (!required && StringUtils.isBlank(value)) {
-      return true;
-    }
-    
-    String extraError = "";
-    try {
-      
-      
-      Class<?> theClass = GrouperUtil.forName(value);
-      if (classType.isAssignableFrom(theClass)) {
-        return true;
-      }
-      extraError = " does not derive from class: " + classType.getSimpleName();
-      
-    } catch (Exception e) {
-      extraError = ", " + ExceptionUtils.getFullStackTrace(e);
-    }
-    String error = "Cant process property " + key + " in resource: " + resourceName + ", the current" +
-    		" value is '" + value + "', which should be of type: " 
-    		+ classType.getName() + extraError;
-    System.err.println("Grouper error: " + error);
-    LOG.error(error);
-    return false;
-  }
-  
   /** if in check config */
   public static boolean inCheckConfig = false;
   
@@ -1066,7 +973,7 @@ public class GrouperCheckConfig {
     if (!StringUtils.equals(grouperVersionFromClass, grouperVersionFromProperties)
         || !StringUtils.equals(grouperVersionFromClass, grouperManifestVersion)) {
       if (grouperVersionFromProperties == null || grouperManifestVersion == null) {
-        File jarFile = jarFile(GrouperCheckConfig.class);
+        File jarFile = GrouperUtil.jarFile(GrouperCheckConfig.class);
         if (jarFile == null || !jarFile.exists() || jarFile.isDirectory()) {
           return;
         }
@@ -1202,7 +1109,7 @@ public class GrouperCheckConfig {
    * @throws Exception
    */
   public static String manifestProperty(Class sampleClass, String[] propertyNames) throws Exception {
-    File jarFile = jarFile(sampleClass);
+    File jarFile = GrouperUtil.jarFile(sampleClass);
     URL manifestUrl = new URL("jar:file:" + jarFile.getCanonicalPath() + "!/META-INF/MANIFEST.MF");
     Manifest manifest = new Manifest(manifestUrl.openStream());
     Map<String, Attributes> attributeMap = manifest.getEntries();
@@ -1357,41 +1264,6 @@ public class GrouperCheckConfig {
       System.err.println("Grouper warning: " + error);
       LOG.warn(error);
     }
-  }
-  
-  /**
-   * get a jar file from a sample class
-   * @param sampleClass
-   * @return the jar file
-   */
-  public static File jarFile(Class sampleClass) {
-    try {
-      CodeSource codeSource = sampleClass.getProtectionDomain().getCodeSource();
-      if (codeSource != null && codeSource.getLocation() != null) {
-        return new File(codeSource.getLocation().getFile());
-      }
-      String resourcePath = sampleClass.getName();
-      resourcePath = resourcePath.replace('.', '/') + ".class";
-      URL url = GrouperUtil.computeUrl(resourcePath, true);
-      String urlPath = url.toString();
-      
-      if (urlPath.startsWith("jar:")) {
-        urlPath = urlPath.substring(4);
-      }
-      if (urlPath.startsWith("file:")) {
-        urlPath = urlPath.substring(5);
-      }
-      urlPath = GrouperUtil.prefixOrSuffix(urlPath, "!", true); 
-
-      File file = new File(urlPath);
-      if (urlPath.endsWith(".jar") && file.exists() && file.isFile()) {
-        return file;
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-      LOG.debug("Cant find jar for class: " + sampleClass + ", " + e.getMessage());
-    }
-    return null;
   }
   
 }
