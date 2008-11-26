@@ -16,7 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.io.File;
 import java.util.Properties;
+
+import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -39,7 +42,7 @@ import edu.internet2.middleware.morphString.Morph;
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.20 2008-11-08 08:15:34 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.21 2008-11-26 19:10:11 mchyzer Exp $
  * @since   @HEAD@
  */
 public abstract class Hib3DAO {
@@ -127,7 +130,24 @@ public abstract class Hib3DAO {
           CFG, Configuration.class, null);
       
       // And finally create our session factory
-      FACTORY = CFG.buildSessionFactory();
+      //trying to avoid warning of using the same dir
+      String tempDirKey = "java.io.tmpdir";
+      String tmpdir = System.getProperty(tempDirKey);
+      try {
+        String newTmpdir = StringUtils.trimToEmpty(tmpdir);
+        if (!newTmpdir.endsWith("\\") && !newTmpdir.endsWith("/")) {
+          newTmpdir += File.separator;
+        }
+        newTmpdir += "grouper_ehcache_auto_" + GrouperUtil.uniqueId();
+        System.setProperty(tempDirKey, newTmpdir);
+        
+        //now it should be using a unique directory
+        FACTORY = CFG.buildSessionFactory();
+      } finally {
+        //put tmpdir back
+        System.setProperty(tempDirKey, tmpdir);
+      }
+
     } catch (Throwable t) {
       String msg = "unable to initialize hibernate: " + t.getMessage();
       LOG.fatal(msg, t);

@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * you should probably use GrouperConfig
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.18 2008-11-08 03:42:33 mchyzer Exp $
+ * @version $Id: ApiConfig.java,v 1.19 2008-11-26 19:10:11 mchyzer Exp $
  * @since   1.2.1
  */
 public class ApiConfig implements Configuration {
@@ -207,8 +207,13 @@ public class ApiConfig implements Configuration {
     } catch (Exception e) {
       //its ok, might not be running in jar
     }
+    Properties properties = GrouperUtil.propertiesFromResourceName("grouper.properties");
+    
+    String env = GrouperUtil.propertiesValue(properties, "grouper.env.name");
+    env = StringUtils.defaultIfEmpty(env, "<no label configured>");
     String grouperStartup = "version: " + GrouperVersion.GROUPER_VERSION 
-      + " build date: " + buildTimestamp;
+      + " build date: " + buildTimestamp + ", env: " + env;
+    
     return grouperStartup;
   }
   

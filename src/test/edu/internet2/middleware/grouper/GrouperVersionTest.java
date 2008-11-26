@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperVersionTest.java,v 1.3 2008-10-15 03:57:06 mchyzer Exp $
+ * $Id: GrouperVersionTest.java,v 1.4 2008-11-26 19:10:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -56,6 +56,17 @@ public class GrouperVersionTest extends TestCase {
     assertTrue(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.0.2rc2", "3.0.2rc1" ));
     assertTrue(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.0.2rc1", "3.0.2rc1" ));
 
+    assertFalse(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.0.2-rc1", "3.1.0"));
+    assertFalse(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.0.2-rc1", "4.0.2-rc1"));
+    assertFalse(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.0.0-rc1", "3.0.2-rc1"));
+    assertFalse(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.0.2-rc1", "3.0.2"));
+    assertFalse(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.0.2-rc1", "3.0.2-rc2"));
+    assertTrue(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.1.0", "3.0.2-rc1" ));
+    assertTrue(GrouperVersion._grouperVersionGreaterOrEqualHelper("4.0.2-rc1", "3.0.2-rc1" ));
+    assertTrue(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.0.2-rc1", "3.0.0-rc1" ));
+    assertTrue(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.0.2", "3.0.2-rc1" ));
+    assertTrue(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.0.2-rc2", "3.0.2-rc1" ));
+    assertTrue(GrouperVersion._grouperVersionGreaterOrEqualHelper("3.0.2-rc1", "3.0.2-rc1" ));
   }
   
 }

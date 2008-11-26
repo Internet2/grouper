@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.PushbackInputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -27,6 +28,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.security.CodeSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -37,6 +39,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -55,6 +58,8 @@ import net.sf.cglib.proxy.Enhancer;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.exception.Nestable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -5624,9 +5629,10 @@ public class GrouperUtil {
         properties = null;
       } finally {
         closeQuietly(inputStream);
-      }
-      if (useCache) {
-        resourcePropertiesCache.put(resourceName, properties);
+
+        if (useCache) {
+          resourcePropertiesCache.put(resourceName, properties);
+        }
       }
     }
     //Hack; Gary 7th Nov 2008
@@ -5962,20 +5968,23 @@ public class GrouperUtil {
   /**
    * if the input is a file, read string from file.  if not, or if disabled from grouper.properties, return the input
    * @param in
+   * @param disableExternalFileLookup 
    * @return the result
    */
-  public static String readFromFileIfFile(String in) {
+  public static String readFromFileIfFile(String in, boolean disableExternalFileLookup) {
+    String theIn = in;
     //convert both slashes to file slashes
     if (File.separatorChar == '/') {
-      in = replace(in, "\\", "/");
+      theIn = replace(theIn, "\\", "/");
     } else {
-      in = replace(in, "/", "\\");
+      theIn = replace(theIn, "/", "\\");
     }
     
     //see if it is a file reference
-    if (in.indexOf(File.separatorChar) != -1 && !GrouperConfig.getPropertyBoolean("grouper.encrypt.disableExternalFileLookup", false)) {
+    if (theIn.indexOf(File.separatorChar) != -1 && disableExternalFileLookup) {
       //read the contents of the file into a string
-      in = readFileIntoString(new File(in));
+      theIn = readFileIntoString(new File(theIn));
+      return theIn;
     }
     return in;
   
@@ -7403,4 +7412,301 @@ public class GrouperUtil {
       copy(in, output);
   }
 
+  /**
+   * get a jar file from a sample class
+   * @param sampleClass
+   * @return the jar file
+   */
+  public static File jarFile(Class sampleClass) {
+    try {
+      CodeSource codeSource = sampleClass.getProtectionDomain().getCodeSource();
+      if (codeSource != null && codeSource.getLocation() != null) {
+        return new File(codeSource.getLocation().getFile());
+      }
+      String resourcePath = sampleClass.getName();
+      resourcePath = resourcePath.replace('.', '/') + ".class";
+      URL url = computeUrl(resourcePath, true);
+      String urlPath = url.toString();
+      
+      if (urlPath.startsWith("jar:")) {
+        urlPath = urlPath.substring(4);
+      }
+      if (urlPath.startsWith("file:")) {
+        urlPath = urlPath.substring(5);
+      }
+      urlPath = prefixOrSuffix(urlPath, "!", true); 
+  
+      File file = new File(urlPath);
+      if (urlPath.endsWith(".jar") && file.exists() && file.isFile()) {
+        return file;
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.err.println("Cant find jar for class: " + sampleClass + ", " + e.getMessage());
+    }
+    return null;
+  }
+
+  /**
+   * strip the last slash (/ or \) from a string if it exists
+   * 
+   * @param input
+   * 
+   * @return input - the last / or \
+   */
+  public static String stripLastSlashIfExists(String input) {
+    if ((input == null) || (input.length() == 0)) {
+      return null;
+    }
+
+    char lastChar = input.charAt(input.length() - 1);
+
+    if ((lastChar == '\\') || (lastChar == '/')) {
+      return input.substring(0, input.length() - 1);
+    }
+
+    return input;
+  }
+
+  /**
+   * retrieve a password from stdin
+   * @param dontMask
+   * @param prompt to print to user
+   * @return the password
+   */
+  public static String retrievePasswordFromStdin(boolean dontMask, String prompt) {
+    String passwordString = null;
+
+    if (dontMask) {
+
+      System.out.print(prompt);
+      //  open up standard input 
+      BufferedReader br = new BufferedReader(new InputStreamReader(System.in)); 
+
+      //  read the username from the command-line; need to use try/catch with the 
+      //  readLine() method 
+      try { 
+         passwordString = br.readLine(); 
+      } catch (IOException ioe) { 
+         System.out.println("IO error! " + getFullStackTrace(ioe));
+         System.exit(1); 
+      } 
+
+    } else {
+      char password[] = null;
+      try {
+        password = retrievePasswordFromStdin(System.in, prompt);
+      } catch (IOException ioe) {
+        ioe.printStackTrace();
+      }
+      passwordString = String.valueOf(password);
+    } 
+    return passwordString;
+    
+  }
+
+  /**
+   * @param in stream to be used (e.g. System.in)
+   * @param prompt The prompt to display to the user.
+   * @return The password as entered by the user.
+   * @throws IOException 
+   */
+  public static final char[] retrievePasswordFromStdin(InputStream in, String prompt) throws IOException {
+    MaskingThread maskingthread = new MaskingThread(prompt);
+
+    Thread thread = new Thread(maskingthread);
+    thread.start();
+
+    char[] lineBuffer;
+    char[] buf;
+
+    buf = lineBuffer = new char[128];
+
+    int room = buf.length;
+    int offset = 0;
+    int c;
+
+    loop: while (true) {
+      switch (c = in.read()) {
+        case -1:
+        case '\n':
+          break loop;
+
+        case '\r':
+          int c2 = in.read();
+          if ((c2 != '\n') && (c2 != -1)) {
+            if (!(in instanceof PushbackInputStream)) {
+              in = new PushbackInputStream(in);
+            }
+            ((PushbackInputStream) in).unread(c2);
+          } else {
+            break loop;
+          }
+
+        default:
+          if (--room < 0) {
+            buf = new char[offset + 128];
+            room = buf.length - offset - 1;
+            System.arraycopy(lineBuffer, 0, buf, 0, offset);
+            Arrays.fill(lineBuffer, ' ');
+            lineBuffer = buf;
+          }
+          buf[offset++] = (char) c;
+          break;
+      }
+    }
+    maskingthread.stopMasking();
+    if (offset == 0) {
+      return null;
+    }
+    char[] ret = new char[offset];
+    System.arraycopy(buf, 0, ret, 0, offset);
+    Arrays.fill(buf, ' ');
+    return ret;
+  }
+
+  /**
+   * thread to mask input
+   */
+  static class MaskingThread extends Thread {
+
+    /** stop */
+    private volatile boolean stop;
+
+    /** echo char, this doesnt work correctly, so make a space so people dont notice...  
+     * prints out too many */
+    private char echochar = ' ';
+
+    /**
+     *@param prompt The prompt displayed to the user
+     */
+    public MaskingThread(String prompt) {
+      System.out.print(prompt);
+    }
+
+    /**
+     * Begin masking until asked to stop.
+     */
+    @Override
+    public void run() {
+
+      int priority = Thread.currentThread().getPriority();
+      Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+
+      try {
+        this.stop = true;
+        while (this.stop) {
+          System.out.print("\010" + this.echochar);
+          try {
+            // attempt masking at this rate
+            Thread.sleep(1);
+          } catch (InterruptedException iex) {
+            Thread.currentThread().interrupt();
+            return;
+          }
+        }
+      } finally { // restore the original priority
+        Thread.currentThread().setPriority(priority);
+      }
+    }
+
+    /**
+     * Instruct the thread to stop masking.
+     */
+    public void stopMasking() {
+      this.stop = false;
+    }
+  }
+
+  /**
+   * make sure a value exists in properties
+   * @param resourceName
+   * @param key
+   * @return true if ok, false if not
+   */
+  public static boolean propertyValueRequired(String resourceName, String key) {
+    Properties properties = propertiesFromResourceName(resourceName);
+    String value = propertiesValue(properties, key);
+    if (!StringUtils.isBlank(value)) {
+      return true;
+    }
+    String error = "Cant find property " + key + " in resource: " + resourceName + ", it is required";
+    System.err.println("Grouper error: " + error);
+    LOG.error(error);
+    return false;
+  }
+
+  /**
+   * make sure a value is boolean in properties
+   * @param resourceName
+   * @param key
+   * @param required
+   * @return true if ok, false if not
+   */
+  public static boolean propertyValueBoolean(String resourceName, String key, boolean required) {
+    
+    if (required && !propertyValueRequired(resourceName, key)) {
+      return false;
+    }
+  
+    Properties properties = propertiesFromResourceName(resourceName);
+    String value = propertiesValue(properties, key);
+    //maybe ok not there
+    if (!required && StringUtils.isBlank(value)) {
+      return true;
+    }
+    try {
+      booleanValue(value);
+      return true;
+    } catch (Exception e) {
+      
+    }
+    String error = "Expecting true or false property " + key + " in resource: " + resourceName + ", but is '" + value + "'";
+    System.err.println("Grouper error: " + error);
+    LOG.error(error);
+    return false;
+  }
+
+  /**
+   * make sure a property is a class of a certain type
+   * @param resourceName
+   * @param key
+   * @param classType
+   * @param required 
+   * @return true if ok
+   */
+  public static boolean propertyValueClass(String resourceName, 
+      String key, Class<?> classType, boolean required) {
+  
+    if (required && !propertyValueRequired(resourceName, key)) {
+      return false;
+    }
+    Properties properties = propertiesFromResourceName(resourceName);
+    String value = propertiesValue(properties, key);
+  
+    //maybe ok not there
+    if (!required && StringUtils.isBlank(value)) {
+      return true;
+    }
+    
+    String extraError = "";
+    try {
+      
+      
+      Class<?> theClass = forName(value);
+      if (classType.isAssignableFrom(theClass)) {
+        return true;
+      }
+      extraError = " does not derive from class: " + classType.getSimpleName();
+      
+    } catch (Exception e) {
+      extraError = ", " + ExceptionUtils.getFullStackTrace(e);
+    }
+    String error = "Cant process property " + key + " in resource: " + resourceName + ", the current" +
+    		" value is '" + value + "', which should be of type: " 
+    		+ classType.getName() + extraError;
+    System.err.println("Grouper error: " + error);
+    LOG.error(error);
+    return false;
+  }
 }
