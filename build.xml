@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.214 2008-11-25 22:00:59 tzeller Exp $ -->
+<!-- $Id: build.xml,v 1.215 2008-11-26 15:59:59 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -191,6 +191,21 @@
       </java>
     </target>
   <!-- target: db.reset -->
+  
+  <target name="distPackage" description="build tar gz on internet2 box">
+  
+    <copy todir="${basedir}/../grouper-${version}">
+      <fileset dir="${basedir}/../grouper" />
+    </copy>
+    
+    <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
+    <tar destfile="${basedir}/../../grouper-${version}.tar.gz" compression="gzip">
+      <tarfileset dir="${basedir}/../.." >
+        <include name="grouper-${version}/**"/>
+      </tarfileset>
+    </tar>            
+    
+  </target>
 
   <!--  -->
   <target name="distBinary" depends="clean, init.conf, javadoc, dist" description="make a binary distribution">
