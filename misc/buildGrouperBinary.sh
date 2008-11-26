@@ -11,14 +11,14 @@ then
 fi  
 
 cd /tmp
-if [ ! -d /tmp/grouper ]; then
-  /bin/mkdir /tmp/grouper
-  /bin/chmod g+w /tmp/grouper
+if [ ! -d /home/mchyzer/tmp/grouper ]; then
+  /bin/mkdir /home/mchyzer/tmp/grouper
+  /bin/chmod g+w /home/mchyzer/tmp/grouper
 fi
 
-cd /tmp/grouper
+cd /home/mchyzer/tmp/grouper
 
-export buildDir=/tmp/grouper/build_$USER
+export buildDir=/home/mchyzer/tmp/grouper/build_$USER
 
 if [ -d $buildDir ]; then
   /bin/rm -rf $buildDir
@@ -41,3 +41,6 @@ cd $buildDir/grouper
 echo
 echo "result is in $buildDir/grouper/dist/binary/" 
 echo
+
+#allow someone from group to delete later on
+/bin/chmod -R g+w $buildDir
