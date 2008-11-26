@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.217 2008-11-26 19:10:11 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.218 2008-11-26 19:31:57 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -596,7 +596,7 @@
                   refid="project.classpath"
     />
    <path id="test.classpath">
-	<pathelement location="${build.dir.test}/conf"/>
+	<pathelement location="confForTest"/>
 	<path refid="project.classpath"/>
    </path>
    <pathconvert  targetos="unix"
@@ -780,11 +780,6 @@
         <include name="**/*.gsh"/>      <!-- source -->
       </fileset>
    </copy>
-	<!--copy over test specific conf-->
-	<mkdir dir="${build.dir.test}/conf"/>
-	<copy todir="${build.dir.test}/conf">
-		<fileset dir="${src.dir.test}/conf"/>
-	</copy>
     <record name="${test.log}" action="stop"/>
   </target>
   <!-- target: test.compile -->
