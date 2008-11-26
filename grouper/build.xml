@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.215 2008-11-26 15:59:59 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.216 2008-11-26 16:57:16 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -199,8 +199,8 @@
     </copy>
     
     <!-- this assumes that everything was checked out to the right place, and no other dirs exist -->
-    <tar destfile="${basedir}/../../grouper-${version}.tar.gz" compression="gzip">
-      <tarfileset dir="${basedir}/../.." >
+    <tar destfile="${basedir}/../grouper-${version}.tar.gz" compression="gzip">
+      <tarfileset dir="${basedir}/.." >
         <include name="grouper-${version}/**"/>
       </tarfileset>
     </tar>            
