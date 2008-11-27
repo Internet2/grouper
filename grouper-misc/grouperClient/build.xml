@@ -1,0 +1,84 @@
+
+<project name="morphString" default="build" basedir=".">
+
+
+  <target name="build" description="full build" depends="init,clean,compile,jar">
+  </target>
+
+  <target name="init">
+    <tstamp />
+
+    <property name="main.sourceDir" value="src/java" />
+    <property name="main.sourceExtDir" value="src/ext" />
+
+    <property name="main.confDir" value="conf" />
+
+    <property name="main.lib" value="lib" />
+
+    <property name="main.binDir" value="dist/bin" />
+
+    <property name="main.resourcesDir" value="conf" />
+
+    <property name="main.outputDir" value="dist" />
+
+    <mkdir dir="${main.binDir}" />
+
+    <mkdir dir="${main.outputDir}" />
+
+    <property name="main.appName" value="grouperClient" />
+    <property name="main.jarFile" value="${main.outputDir}/${main.appName}.jar" />
+
+    <path id="main.extClasspath">
+      <fileset dir="${main.lib}">
+        <include name="**/*.jar" />
+      </fileset>
+    </path>
+
+    <condition property="main.os" value="windows">
+      <os family="windows" />
+    </condition>
+    <condition property="main.os" value="unix">
+      <os family="unix" />
+    </condition>
+
+    <pathconvert targetos="${main.os}" property="main.theExtClasspath" refid="main.extClasspath" />
+  </target>
+
+  <target name="clean">
+    <mkdir dir="${main.binDir}" />
+    <delete dir="${main.binDir}" />
+    <mkdir dir="${main.binDir}" />
+
+  </target> 
+  
+  <target name="compile">
+    <javac  
+      srcdir="${main.sourceExtDir}" destdir="${main.binDir}" debug="true" classpath="${main.theExtClasspath}" />
+    <javac  
+      srcdir="${main.sourceDir}" destdir="${main.binDir}" debug="true" />
+  </target>
+
+  <target name="jar">
+    <copy todir="${main.binDir}">
+      <fileset dir="${main.sourceDir}">
+        <include name="**/*.java"/>      <!-- source -->
+        <include name="**/*.txt"/>      <!-- txt -->
+        <include name="**/*.html"/>      <!-- html -->
+      </fileset>
+      <fileset dir="${main.sourceExtDir}">
+        <include name="**/*.java"/>      <!-- source -->
+      </fileset>
+      <fileset dir="${main.confDir}">
+        <include name="*.example.properties"/>      <!-- sample config -->
+        <include name="grouper.client.usage*.txt"/>      <!-- sample config -->
+      </fileset>
+      <fileset dir="${basedir}">
+        <include name="README.txt"/>      <!-- sample config -->
+      </fileset>
+    </copy>
+    <jar jarfile="${main.jarFile}" duplicate="fail" manifest="misc/MANIFEST.MF">
+      <fileset dir="${main.binDir}" />
+    </jar>
+  </target>
+
+</project>

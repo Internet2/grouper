@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+Main-Class: edu.internet2.middleware.grouperClient.GrouperClient
+Implementation-Title: grouperClient
+Implementation-Version: 0.9.0
+
