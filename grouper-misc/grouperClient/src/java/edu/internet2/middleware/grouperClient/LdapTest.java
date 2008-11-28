@@ -1,17 +1,15 @@
 /*
  * @author mchyzer
- * $Id: LdapTest.java,v 1.1 2008-11-27 14:25:48 mchyzer Exp $
+ * $Id: LdapTest.java,v 1.2 2008-11-28 23:45:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.naming.Context;
-import javax.naming.NameClassPair;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -21,8 +19,8 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchControls;
-import javax.naming.directory.SearchResult;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientLdapUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
@@ -85,26 +83,8 @@ public class LdapTest {
     Map<String, String> argMap = GrouperClientUtils.argMap(args);
     
     //testLdap();
+    DirContext context = GrouperClientLdapUtils.retrieveContext();
     
-    // Set up the environment for creating the initial context
-    Hashtable env = new Hashtable();
-    env.put(Context.INITIAL_CONTEXT_FACTORY, 
-        "com.sun.jndi.ldap.LdapCtxFactory");
-    
-    Properties properties = GrouperClientUtils.propertiesFromResourceName(
-        "grouper.client.properties", true, true, GrouperClientUtils.class);
-    String ldapUrl = GrouperClientUtils.propertiesValue(properties, "grouperClient.ldap.url");
-    
-    env.put(Context.PROVIDER_URL, ldapUrl);
-
-    env.put(Context.SECURITY_AUTHENTICATION, "simple");
-    String user = GrouperClientUtils.argMapString(argMap, "user", true);
-    env.put(Context.SECURITY_PRINCIPAL, "uid=" + user + ",ou=entities,dc=upenn,dc=edu");
-    String pass = GrouperClientUtils.argMapString(argMap, "pass", true);
-    env.put(Context.SECURITY_CREDENTIALS, pass);
-
-    // Create the initial context
-    DirContext context = new InitialDirContext(env);
     String operation = GrouperClientUtils.argMapString(argMap, "operation", true);
     if (GrouperClientUtils.equals(operation, "pennnameToPennid")) {
       String pennnameToDecode = GrouperClientUtils.argMapString(argMap, "pennnameToDecode", true);
@@ -150,7 +130,7 @@ public class LdapTest {
     searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
     NamingEnumeration namingEnumeration = context.search("ou=pennnames", "name=" + pennname, searchControls);
     //printNamingEnumeration(namingEnumeration);
-    return retrieveAttributeStringValue(namingEnumeration, "pennid");
+    return GrouperClientLdapUtils.retrieveAttributeStringValue(namingEnumeration, "pennid");
   }
   
   /**
@@ -165,9 +145,9 @@ public class LdapTest {
     searchControls.setReturningAttributes(new String[]{"pennname"});
     searchControls.setReturningObjFlag(false);
     searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
-    NamingEnumeration namingEnumeration = context.search("ou=pennnames", "pennid=" + pennid, searchControls);
+    NamingEnumeration<?> namingEnumeration = context.search("ou=pennnames", "pennid=" + pennid, searchControls);
     //printNamingEnumeration(namingEnumeration);
-    return retrieveAttributeStringValue(namingEnumeration, "pennname");
+    return GrouperClientLdapUtils.retrieveAttributeStringValue(namingEnumeration, "pennname");
   }
   
   /**
@@ -186,7 +166,7 @@ public class LdapTest {
     NamingEnumeration namingEnumeration = context.search(
         "ou=groups",
         searchAttributes, new String[]{"cn"});
-    String cn = retrieveAttributeStringValue(namingEnumeration, "cn");
+    String cn = GrouperClientLdapUtils.retrieveAttributeStringValue(namingEnumeration, "cn");
     //printNamingEnumeration(namingEnumeration);
     boolean isInGroup = GrouperClientUtils.equals(groupName, cn);
     return isInGroup;
@@ -206,7 +186,7 @@ public class LdapTest {
     NamingEnumeration namingEnumeration = context.search(
         "ou=groups",
         searchAttributes, new String[]{"hasMember"});
-    List<String> members = retrieveAttributeStringListValue(namingEnumeration, "hasMember");
+    List<String> members = GrouperClientLdapUtils.retrieveAttributeStringListValue(namingEnumeration, "hasMember");
     return members;
   }
   
@@ -234,7 +214,7 @@ public class LdapTest {
     searchControls.setReturningObjFlag(false);
     searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
     NamingEnumeration namingEnumeration3 = ctx.search("ou=pennnames", "name=jorj", searchControls);
-    printNamingEnumeration(namingEnumeration3);
+    GrouperClientLdapUtils.printNamingEnumeration(namingEnumeration3);
     
     
     //Attribute: pennGloballyVisible: TRUE, 
@@ -244,11 +224,11 @@ public class LdapTest {
     System.out.println("Group: ");
     Attributes attributes = ctx.getAttributes("cn=penn:isc:ait:apps:fast:pennCommunity,ou=groups", new String[]{"hasMember"});
     NamingEnumeration<? extends Attribute> namingEnumeration2 = attributes.getAll();
-    printNamingEnumeration(namingEnumeration2);
+    GrouperClientLdapUtils.printNamingEnumeration(namingEnumeration2);
     System.out.println("Group2: ");
     attributes = ctx.getAttributes("cn=penn:isc:ait:apps:fast:pennCommunity,ou=groups");
     namingEnumeration2 = attributes.getAll();
-    printNamingEnumeration(namingEnumeration2);
+    GrouperClientLdapUtils.printNamingEnumeration(namingEnumeration2);
 
     System.out.println("Group by hasMember: ");
     Attributes searchAttributes = new BasicAttributes();
@@ -258,7 +238,7 @@ public class LdapTest {
     NamingEnumeration namingEnumeration7 = ctx.search(
         "ou=groups",
         searchAttributes, new String[]{"cn"});
-    printNamingEnumeration(namingEnumeration7);
+    GrouperClientLdapUtils.printNamingEnumeration(namingEnumeration7);
     
     //cant list entities
 //    NamingEnumeration namingEnumeration5 = ctx.search((String)"", "ou=entities", null);
@@ -297,140 +277,5 @@ public class LdapTest {
       //Attribute: pennid: 10018604, 
       //Attribute: objectClass: pennidTranslation, 
       //Attribute: pennname: jorj, 
-  }
-
-  /**
-   * print attributes
-   * @param attributes
-   * @throws NamingException
-   */
-  public static void printAttributes(Attributes attributes) throws NamingException {
-    NamingEnumeration<? extends Attribute> namingEnumeration = attributes.getAll();
-    printNamingEnumeration(namingEnumeration);
-  }
-   
-  /**
-   * print out a naming enumeration
-   * @param namingEnumeration
-   * @throws NamingException 
-   */
-  public static void printNamingEnumeration(NamingEnumeration namingEnumeration) throws NamingException {
-    while (namingEnumeration.hasMore()) {
-      Object nextElement = namingEnumeration.next();
-      if (nextElement instanceof Attribute) {
-        Attribute attribute = (Attribute)nextElement;
-        printAttribute(attribute);
-      } else if (nextElement instanceof SearchResult) {
-        SearchResult searchResult = (SearchResult)nextElement;
-        System.out.println("Search result: " + searchResult.getNameInNamespace());
-        Attributes attributes = searchResult.getAttributes();
-        printAttributes(attributes);
-      } else if (nextElement instanceof NameClassPair) {
-        NameClassPair nameClassPair = (NameClassPair)namingEnumeration.nextElement();
-        System.out.println("Name class pair: " + nameClassPair.getClassName() + ", " + nameClassPair.getNameInNamespace());
-      } else {
-        throw new RuntimeException("Not expecting type: " + nextElement);
-      }
-      
-    }
-    
-  }
-  
-  /**
-   * retrieve a single valued attribute as string
-   * @param object
-   * @param attributeName 
-   * @throws NamingException 
-   * @return the attribute value or null if not there
-   */
-  public static String retrieveAttributeStringValue(Object object, 
-      String attributeName) throws NamingException {
-    if (object == null) {
-      return null;
-    }
-    if (object instanceof Attribute) {
-      Attribute attribute = (Attribute)object;
-      if (GrouperClientUtils.equals(attribute.getID(), attributeName)) {
-        return (String)attribute.get();
-      }
-      return null;
-    } else if (object instanceof SearchResult) {
-      SearchResult searchResult = (SearchResult)object;
-      Attributes attributes = searchResult.getAttributes();
-      Attribute attribute = attributes.get(attributeName);
-      return retrieveAttributeStringValue(attribute, attributeName);
-    } else if (object instanceof NamingEnumeration) {
-      NamingEnumeration namingEnumeration = (NamingEnumeration)object;
-      if (!namingEnumeration.hasMore()) {
-        return null;
-      }
-      Object next = namingEnumeration.next();
-      if (namingEnumeration.hasMore()) {
-        throw new RuntimeException("Expecting one result");
-      }
-      return retrieveAttributeStringValue(next, attributeName);
-    } else {
-      throw new RuntimeException("Not expecting type: " + object);
-    }
-  }
-  
-  /**
-   * retrieve a string array of values
-   * @param object
-   * @param attributeName 
-   * @throws NamingException 
-   * @return the attribute value or null if not there
-   */
-  public static List<String> retrieveAttributeStringListValue(Object object, 
-      String attributeName) throws NamingException {
-    if (object == null) {
-      return null;
-    }
-    if (object instanceof Attribute) {
-      Attribute attribute = (Attribute)object;
-      NamingEnumeration namingEnumeration = attribute.getAll();
-      return retrieveAttributeStringListValue(namingEnumeration, attributeName);
-    } else if (object instanceof SearchResult) {
-      SearchResult searchResult = (SearchResult)object;
-      Attributes attributes = searchResult.getAttributes();
-      Attribute attribute = attributes.get(attributeName);
-      return retrieveAttributeStringListValue(attribute, attributeName);
-    } else if (object instanceof NamingEnumeration) {
-      int size = 0;
-      NamingEnumeration namingEnumeration = (NamingEnumeration)object;
-      List<String> resultList = new ArrayList<String>();
-      while (namingEnumeration.hasMore()) {
-        Object next = namingEnumeration.next();
-        if (next instanceof SearchResult) {
-          if (size == 0 && !namingEnumeration.hasMore()) {
-            return retrieveAttributeStringListValue(next, attributeName);
-          }
-          throw new RuntimeException("Error: multiple search results found!");
-        }
-        resultList.add((String)next);
-        size++;
-      }
-      if (size == 0) {
-        return null;
-      }
-      return resultList;
-    } else {
-      throw new RuntimeException("Not expecting type: " + object);
-    }
-  }
-  
-  /**
-   * 
-   * @param attribute
-   * @throws NamingException 
-   */
-  public static void printAttribute(Attribute attribute) throws NamingException {
-    System.out.print("Attribute: " + attribute.getID() + ": ");
-    NamingEnumeration namingEnumeration3 = attribute.getAll();
-    while (namingEnumeration3.hasMore()) {
-      System.out.print(((String)namingEnumeration3.next()) + ", ");
-    }
-    System.out.println("");
-    
   }
 }
