@@ -4,8 +4,10 @@
 package edu.internet2.middleware.grouperClient.commandLine;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.api.GcLdapSearchAttribute;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -23,61 +25,125 @@ public class GcLdapSearchAttributeConfig {
   public static enum SearchAttributeResultType {
     
     /** if the is one result, with one string */
-    string {
+    STRING {
       
       /**
        * process the output
        * @param gcLdapSearchAttributeConfig
        * @param gcLdapSearchAttribute
+       * @param outputTemplate
        * @return the string of the output
        */
       @Override
-      public String processOutput(GcLdapSearchAttributeConfig gcLdapSearchAttributeConfig, GcLdapSearchAttribute gcLdapSearchAttribute) {
+      public String processOutput(GcLdapSearchAttributeConfig gcLdapSearchAttributeConfig, 
+          GcLdapSearchAttribute gcLdapSearchAttribute, String outputTemplate) {
         //get the first label
-        String returningAttributeLabel = gcLdapSearchAttributeConfig.getReturningAttributes().keySet().iterator().next();
+        String returningLdapAttribute = gcLdapSearchAttributeConfig.getReturningAttributes().iterator().next();
         String returningAttributeValue = GrouperClientUtils.defaultString(gcLdapSearchAttribute.retrieveResultAttributeString());
-        return returningAttributeLabel + ": " + returningAttributeValue + "\n";
+
+        Map<String, Object> substitutionVars = new LinkedHashMap<String, Object>();
+        substitutionVars.put(returningLdapAttribute, returningAttributeValue);
+        
+        addMatchingAttributesToSubstitutionVars(gcLdapSearchAttributeConfig,
+            gcLdapSearchAttribute, substitutionVars);
+        
+        String result = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substitutionVars);
+        
+        return result + "\n";
       }
     },
     
-    /** if there are multiple results, with one string in each */
-    stringList {
+    /** if it is one result, with one string, and it matches the input */
+    BOOLEAN {
       
       /**
        * process the output
        * @param gcLdapSearchAttributeConfig
        * @param gcLdapSearchAttribute
+       * @param outputTemplate
        * @return the string of the output
        */
       @Override
-      public String processOutput(GcLdapSearchAttributeConfig gcLdapSearchAttributeConfig, GcLdapSearchAttribute gcLdapSearchAttribute) {
+      public String processOutput(GcLdapSearchAttributeConfig gcLdapSearchAttributeConfig, 
+          GcLdapSearchAttribute gcLdapSearchAttribute, String outputTemplate) {
         //get the first label
-        String returningAttributeLabel = gcLdapSearchAttributeConfig.getReturningAttributes().keySet().iterator().next();
+        String ldapReturningAttribute = gcLdapSearchAttributeConfig.getReturningAttributes().iterator().next();
+
+        String inputValue = gcLdapSearchAttribute.getMatchingAttribute(ldapReturningAttribute);
+
+        //see if the input attribute value is the same as the one found (if found)
+        String returningAttributeValue = GrouperClientUtils.defaultString(gcLdapSearchAttribute.retrieveResultAttributeString());
+        boolean foundAttribute = GrouperClientUtils.equals(inputValue, returningAttributeValue);
+
+        Map<String, Object> substitutionVars = new LinkedHashMap<String, Object>();
+        substitutionVars.put(ldapReturningAttribute, returningAttributeValue);
+        substitutionVars.put("resultBoolean", foundAttribute);
+        
+        addMatchingAttributesToSubstitutionVars(gcLdapSearchAttributeConfig,
+            gcLdapSearchAttribute, substitutionVars);
+        
+        String result = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substitutionVars);
+        
+        return result + "\n";
+      }
+    },
+
+    /** if there are multiple results, with one string in each */
+    STRING_LIST {
+
+      /**
+       * process the output
+       * @param gcLdapSearchAttributeConfig
+       * @param gcLdapSearchAttribute
+       * @param outputTemplate
+       * @return the string of the output
+       */
+      @Override
+      public String processOutput(GcLdapSearchAttributeConfig gcLdapSearchAttributeConfig, 
+          GcLdapSearchAttribute gcLdapSearchAttribute, String outputTemplate) {
+
         List<String> returningAttributeValueList = GrouperClientUtils.nonNull(gcLdapSearchAttribute.retrieveResultAttributeStringList());
         StringBuilder result = new StringBuilder();
+        
+        Map<String, Object> substitutionVars = new LinkedHashMap<String, Object>();
+        
+        addMatchingAttributesToSubstitutionVars(gcLdapSearchAttributeConfig,
+            gcLdapSearchAttribute, substitutionVars);
+        
         for (String returningAttributeValue : returningAttributeValueList) {
           returningAttributeValue = GrouperClientUtils.defaultString(returningAttributeValue);
-          result.append(returningAttributeLabel + ": " + returningAttributeValue + "\n");
+          substitutionVars.put("resultString", returningAttributeValue);
+
+          String row = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substitutionVars);
+          result.append(row);
         }
+        result.append("\n");
         return result.toString();
       }
     },
     
     /** if there are one or multiple results, and multiple strings in each */
-    stringListList {
+    STRING_LIST_LIST {
       
       /**
        * process the output
        * @param gcLdapSearchAttributeConfig
        * @param gcLdapSearchAttribute
+       * @param outputTemplate
        * @return the string of the output
        */
       @Override
-      public String processOutput(GcLdapSearchAttributeConfig gcLdapSearchAttributeConfig, GcLdapSearchAttribute gcLdapSearchAttribute) {
+      public String processOutput(GcLdapSearchAttributeConfig gcLdapSearchAttributeConfig, 
+          GcLdapSearchAttribute gcLdapSearchAttribute, String outputTemplate) {
         throw new RuntimeException("Still need to implement");
       }
     };
     
+    /**
+     * 
+     * @param string
+     * @return the type
+     */
     public static SearchAttributeResultType valueOfIgnoreCase(String string) {
       return GrouperClientUtils.enumValueOfIgnoreCase(SearchAttributeResultType.class, string, true);
     }
@@ -86,9 +152,36 @@ public class GcLdapSearchAttributeConfig {
      * process the output
      * @param gcLdapSearchAttributeConfig
      * @param gcLdapSearchAttribute
+     * @param outputTemplate
      * @return the string of the output and a newline on the last line
      */
-    public abstract String processOutput(GcLdapSearchAttributeConfig gcLdapSearchAttributeConfig, GcLdapSearchAttribute gcLdapSearchAttribute);
+    public abstract String processOutput(GcLdapSearchAttributeConfig gcLdapSearchAttributeConfig, 
+        GcLdapSearchAttribute gcLdapSearchAttribute, String outputTemplate);
+
+    /**
+     * @param gcLdapSearchAttributeConfig
+     * @param gcLdapSearchAttribute
+     * @param substitutionVars
+     */
+    void addMatchingAttributesToSubstitutionVars(
+        GcLdapSearchAttributeConfig gcLdapSearchAttributeConfig,
+        GcLdapSearchAttribute gcLdapSearchAttribute, Map<String, Object> substitutionVars) {
+      //also add the input
+      for (String matchingAttributeLabel: gcLdapSearchAttributeConfig.getMatchingAttributes().keySet()) {
+        String ldapName = gcLdapSearchAttributeConfig.getMatchingAttributes().get(matchingAttributeLabel);
+        String ldapValue = gcLdapSearchAttribute.getMatchingAttribute(ldapName);
+        substitutionVars.put(ldapName, ldapValue);
+      }
+
+      //might as well add labels if there is no conflict
+      for (String matchingAttributeLabel: gcLdapSearchAttributeConfig.getMatchingAttributes().keySet()) {
+        String ldapName = gcLdapSearchAttributeConfig.getMatchingAttributes().get(matchingAttributeLabel);
+        String ldapValue = gcLdapSearchAttribute.getMatchingAttribute(ldapName);
+        if (!substitutionVars.containsKey(matchingAttributeLabel)) {
+          substitutionVars.put(matchingAttributeLabel, ldapValue);
+        }
+      }
+    }
     
   }
 
@@ -98,6 +191,25 @@ public class GcLdapSearchAttributeConfig {
   private SearchAttributeResultType searchAttributeResultTypeEnum;
   /** operation name in the config file */
   private String operationName = null;
+
+  /** output template */
+  private String outputTemplate = null;
+  
+  /**
+   * output template
+   * @return output template
+   */
+  public String getOutputTemplate() {
+    return this.outputTemplate;
+  }
+
+  /**
+   * output template
+   * @param outputTemplate1
+   */
+  public void setOutputTemplate(String outputTemplate1) {
+    this.outputTemplate = outputTemplate1;
+  }
 
   /**
    * the result type
@@ -118,6 +230,7 @@ public class GcLdapSearchAttributeConfig {
   /**
    * @see Object#toString()
    */
+  @Override
   public String toString() {
    return "operationName: " + this.operationName 
      + ", resultType: " + this.searchAttributeResultTypeEnum;
@@ -126,7 +239,6 @@ public class GcLdapSearchAttributeConfig {
   /**
    * operation name
    * @param theOperationName
-   * @return this for chaining
    */
   public void setOperationName(String theOperationName) {
     this.operationName = theOperationName;
@@ -147,15 +259,14 @@ public class GcLdapSearchAttributeConfig {
   /**
    * returning attribute label and ldap name
    */
-  private Map<String, String> returningAttributes = new LinkedHashMap<String, String>();
+  private Set<String> returningAttributes = new LinkedHashSet<String>();
   
   /**
    * add a returning attribute
-   * @param attributeLabel
    * @param ldapAttribute
    */
-  public void addReturningAttribute(String attributeLabel, String ldapAttribute) {
-    this.returningAttributes.put(attributeLabel, ldapAttribute);
+  public void addReturningAttribute(String ldapAttribute) {
+    this.returningAttributes.add(ldapAttribute);
   }
 
   /**
@@ -163,15 +274,15 @@ public class GcLdapSearchAttributeConfig {
    * @return matching attributes
    */
   public Map<String, String> getMatchingAttributes() {
-    return matchingAttributes;
+    return this.matchingAttributes;
   }
 
   /**
    * returning attribute (label to ldap)
    * @return the attributes
    */
-  public Map<String, String> getReturningAttributes() {
-    return returningAttributes;
+  public Set<String> getReturningAttributes() {
+    return this.returningAttributes;
   }
   
   /** ldap name */
@@ -182,7 +293,7 @@ public class GcLdapSearchAttributeConfig {
    * @return ldap name
    */
   public String getLdapName() {
-    return ldapName;
+    return this.ldapName;
   }
 
   /**

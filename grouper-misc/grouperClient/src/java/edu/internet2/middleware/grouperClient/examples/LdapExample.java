@@ -1,10 +1,11 @@
 /*
  * @author mchyzer
- * $Id: LdapExample.java,v 1.1 2008-11-27 14:25:53 mchyzer Exp $
+ * $Id: LdapExample.java,v 1.2 2008-11-30 10:57:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.examples;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -83,7 +84,8 @@ public class LdapExample {
       System.exit(1);
     }
     Map<String, String> argMap = GrouperClientUtils.argMap(args);
-    
+    Map<String, String> argMapNotUsed = new HashMap<String, String>(argMap);
+
     //testLdap();
     
     // Set up the environment for creating the initial context
@@ -98,29 +100,29 @@ public class LdapExample {
     env.put(Context.PROVIDER_URL, ldapUrl);
 
     env.put(Context.SECURITY_AUTHENTICATION, "simple");
-    String user = GrouperClientUtils.argMapString(argMap, "user", true);
+    String user = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "user", true);
     env.put(Context.SECURITY_PRINCIPAL, "uid=" + user + ",ou=entities,dc=upenn,dc=edu");
-    String pass = GrouperClientUtils.argMapString(argMap, "pass", true);
+    String pass = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pass", true);
     env.put(Context.SECURITY_CREDENTIALS, pass);
 
     // Create the initial context
     DirContext context = new InitialDirContext(env);
-    String operation = GrouperClientUtils.argMapString(argMap, "operation", true);
+    String operation = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "operation", true);
     if (GrouperClientUtils.equals(operation, "pennnameToPennid")) {
-      String pennnameToDecode = GrouperClientUtils.argMapString(argMap, "pennnameToDecode", true);
+      String pennnameToDecode = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pennnameToDecode", true);
       String pennid = pennnameToPennid(context, pennnameToDecode);
       System.out.println("pennid: " + GrouperClientUtils.defaultString(pennid));
     } else if (GrouperClientUtils.equals(operation, "pennidToPennname")) {
-      String pennidToDecode = GrouperClientUtils.argMapString(argMap, "pennidToDecode", true);
+      String pennidToDecode = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pennidToDecode", true);
       String pennname = pennidToPennname(context, pennidToDecode);
       System.out.println("pennname: " + GrouperClientUtils.defaultString(pennname));
     } else if (GrouperClientUtils.equals(operation, "isInGroup")) {
-      String groupName = GrouperClientUtils.argMapString(argMap, "groupName", true);
-      String pennnameToCheck = GrouperClientUtils.argMapString(argMap, "pennnameToCheck", true);
+      String groupName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupName", true);
+      String pennnameToCheck = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "pennnameToCheck", true);
       boolean isInGroup = isInGroup(context, groupName, pennnameToCheck);
       System.out.println("isInGroup: " + isInGroup);
     } else if (GrouperClientUtils.equals(operation, "groupList")) {
-      String groupName = GrouperClientUtils.argMapString(argMap, "groupName", true);
+      String groupName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupName", true);
       List<String> results = groupList(context, groupName);
       System.out.print("groupList: ");
       for (int i=0;i<GrouperClientUtils.length(results);i++) {
@@ -224,7 +226,7 @@ public class LdapExample {
 
     env.put(Context.SECURITY_AUTHENTICATION, "simple");
     env.put(Context.SECURITY_PRINCIPAL, "uid=penngroups/medley.isc-seo.upenn.edu,ou=entities,dc=upenn,dc=edu");
-    env.put(Context.SECURITY_CREDENTIALS, "sfsadfsd");
+    env.put(Context.SECURITY_CREDENTIALS, "xc5ai39bm");
 
     // Create the initial context
     DirContext ctx = new InitialDirContext(env);

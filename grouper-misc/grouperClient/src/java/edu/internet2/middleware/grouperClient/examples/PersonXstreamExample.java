@@ -1,16 +1,16 @@
 /*
  * @author mchyzer
- * $Id: PersonXstreamExample.java,v 1.1 2008-11-27 14:25:53 mchyzer Exp $
+ * $Id: PersonXstreamExample.java,v 1.2 2008-11-30 10:57:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.examples;
 
-import edu.internet2.middleware.grouperClient.ext.com.thoughtworks.xstream.XStream;
-import edu.internet2.middleware.grouperClient.ext.com.thoughtworks.xstream.annotations.XStreamOmitField;
-import edu.internet2.middleware.grouperClient.ext.com.thoughtworks.xstream.converters.ConversionException;
-import edu.internet2.middleware.grouperClient.ext.com.thoughtworks.xstream.io.xml.DomDriver;
-import edu.internet2.middleware.grouperClient.ext.com.thoughtworks.xstream.mapper.MapperWrapper;
-import edu.internet2.middleware.grouperClient.ext.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStream;
+import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.annotations.XStreamOmitField;
+import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.converters.ConversionException;
+import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.io.xml.DomDriver;
+import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.mapper.MapperWrapper;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 /**
  *
@@ -40,7 +40,7 @@ public class PersonXstreamExample {
 
       /**
        * 
-       * @see edu.internet2.middleware.grouperClient.ext.com.thoughtworks.xstream.XStream#wrapMapper(edu.internet2.middleware.grouperClient.ext.com.thoughtworks.xstream.mapper.MapperWrapper)
+       * @see edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStream#wrapMapper(edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.mapper.MapperWrapper)
        */
       @Override
       protected MapperWrapper wrapMapper(MapperWrapper next) {
@@ -48,7 +48,7 @@ public class PersonXstreamExample {
 
           /**
            * 
-           * @see edu.internet2.middleware.grouperClient.ext.com.thoughtworks.xstream.mapper.MapperWrapper#shouldSerializeMember(java.lang.Class, java.lang.String)
+           * @see edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.mapper.MapperWrapper#shouldSerializeMember(java.lang.Class, java.lang.String)
            */
           @Override
           public boolean shouldSerializeMember(Class definedIn, String fieldName) {

@@ -1,17 +1,17 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientXstreamUtils.java,v 1.1 2008-11-27 14:25:50 mchyzer Exp $
+ * $Id: GrouperClientXstreamUtils.java,v 1.2 2008-11-30 10:57:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.util;
 
 import java.util.Map;
 
 import edu.internet2.middleware.grouperClient.examples.PersonXstreamExample;
-import edu.internet2.middleware.grouperClient.ext.com.thoughtworks.xstream.XStream;
-import edu.internet2.middleware.grouperClient.ext.com.thoughtworks.xstream.io.xml.DomDriver;
-import edu.internet2.middleware.grouperClient.ext.com.thoughtworks.xstream.mapper.MapperWrapper;
-import edu.internet2.middleware.grouperClient.ext.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClient.ws.WsRestClassLookup;
+import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStream;
+import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.io.xml.DomDriver;
+import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.mapper.MapperWrapper;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
 /**
@@ -42,7 +42,7 @@ public class GrouperClientXstreamUtils {
 
       /**
        * 
-       * @see edu.internet2.middleware.grouperClient.ext.com.thoughtworks.xstream.XStream#wrapMapper(edu.internet2.middleware.grouperClient.ext.com.thoughtworks.xstream.mapper.MapperWrapper)
+       * @see edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStream#wrapMapper(edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.mapper.MapperWrapper)
        */
       @Override
       protected MapperWrapper wrapMapper(MapperWrapper next) {
@@ -50,7 +50,7 @@ public class GrouperClientXstreamUtils {
 
           /**
            * 
-           * @see edu.internet2.middleware.grouperClient.ext.com.thoughtworks.xstream.mapper.MapperWrapper#shouldSerializeMember(java.lang.Class, java.lang.String)
+           * @see edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.mapper.MapperWrapper#shouldSerializeMember(java.lang.Class, java.lang.String)
            */
           @Override
           public boolean shouldSerializeMember(Class definedIn, String fieldName) {

@@ -1,0 +1,33 @@
+USAGE:
+
+This program runs queries against ldap and web services
+The system exit code will be 0 for success, and not 0 for failure
+Output data is printed to stdout, error messages are printed to stderr or logs (configured in grouper.client.properties)
+
+Arguments are in the format: --argName=argValue
+Example argument: --operation=encryptPassword
+
+Encrypt passwords for storing passwords in external encrypted files:
+java -jar grouperClient.jar --operation=encryptPassword 
+
+pennname to pennid usage: 
+  java -jar grouperClient --operation=pennnameToPennid --pennnameToDecode=pennname
+  e.g.: java -jar grouperClient --operation=pennnameToPennid --pennnameToDecode=jsmith
+  output: pennid: 12341234
+
+pennid to pennname usage: 
+  java -jar grouperClient --operation=pennidToPennkey --pennidToDecode=pennid
+  e.g.: java -jar grouperClient --operation=pennidToPennkey --pennidToDecode=12341234
+  output: pennname: jsmith
+
+is in group usage: 
+  java -jar grouperClient --operation=isInGroup --groupName=groupName --pennnameToCheck=pennkey
+  e.g.: java -jar grouperClient --operation=isInGroup --groupName=penn:myfolder:mygroup --pennnameToCheck=jsmith
+  output: isInGroup: true
+
+group list usage: 
+  java -jar grouperClient --engine=ldap --operation=groupList --groupName=groupName
+  e.g.: java -jar grouperClient --engine=ldap --operation=group
+List --groupName=penn:myfolder:mygroup
+  output: groupList: jsmith, tsmith, msmith
+  note: extremely large group lists might not display (e.g. over 20k members)

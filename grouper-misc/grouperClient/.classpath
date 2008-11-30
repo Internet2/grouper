@@ -20,5 +20,8 @@
 	<classpathentry kind="lib" path="lib/xstream/xml-writer-0.2.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/xom-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/xpp3_min-1.1.4c.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging/log4j.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouper"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouper-ws_HEAD"/>
 	<classpathentry kind="output" path="build/eclipseBin"/>
 </classpath>

@@ -18,6 +18,7 @@ import javax.naming.directory.DirContext;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientLdapUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 /**
  * Generate an ldap call and get results.  Note, you can only call the result methods once
@@ -29,33 +30,19 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GcLdapSearchAttribute {
 
   
-  
   /**
-  SearchControls searchControls = new SearchControls();
-  searchControls.setReturningAttributes(new String[]{"pennname"});
-  searchControls.setReturningObjFlag(false);
-  searchControls.setSearchScope(SearchControls.ONELEVEL_SCOPE);
-  NamingEnumeration<?> namingEnumeration = context.search("ou=pennnames", "pennid=" + pennid, searchControls);
-  //printNamingEnumeration(namingEnumeration);
-  return GrouperClientLdapUtils.retrieveAttributeStringValue(namingEnumeration, "pennname");
-  
-      Attributes searchAttributes = new BasicAttributes();
-    searchAttributes.put(new BasicAttribute("cn", groupName));
-    
-    NamingEnumeration namingEnumeration = context.search(
-        "ou=groups",
-        searchAttributes, new String[]{"hasMember"});
-    List<String> members = GrouperClientLdapUtils.retrieveAttributeStringListValue(namingEnumeration, "hasMember");
-
-*/
-
+   * 
+   * @return string
+   */
   public String retrieveResultAttributeString() {
     if (this.returningAttributes.size() != 1) {
       throw new RuntimeException("Should be looking for 1 attribute, but was looking for "
           + this.returningAttributes.size() + ", " + GrouperClientUtils.toStringForLog(this.returningAttributes));
     }
     try {
-      return GrouperClientLdapUtils.retrieveAttributeStringValue(this.namingEnumeration, this.returningAttributes.iterator().next());
+      String ldapAttribute = this.returningAttributes.iterator().next();
+      LOG.debug("LDAP looking for attribute: '" + ldapAttribute + "'");
+      return GrouperClientLdapUtils.retrieveAttributeStringValue(this.namingEnumeration, ldapAttribute);
     } catch (NamingException ne) {
       throw new RuntimeException("Problem returning one attribute string: " 
           + this.toString(), ne);
@@ -128,6 +115,9 @@ public class GcLdapSearchAttribute {
     return this;
   }
 
+  /**
+   * 
+   */
   public void validate() {
     if (this.returningAttributes.isEmpty()) {
       throw new RuntimeException("Returning attributes are empty!");
@@ -140,19 +130,37 @@ public class GcLdapSearchAttribute {
     }
   }
   
+  /**
+   * logger
+   */
+  private static Log LOG = GrouperClientUtils.retrieveLog(GcLdapSearchAttribute.class);
+
+  /**
+   * execute the call
+   */
   public void execute() {
 
     this.validate();
     
     DirContext context = GrouperClientLdapUtils.retrieveContext();
     
+    LOG.debug("LDAP search name: '" + this.ldapName + "'");
+    
     Attributes searchAttributes = new BasicAttributes();
     for (String key : this.matchingAttributes.keySet()) {
-      searchAttributes.put(new BasicAttribute(key, this.matchingAttributes.get(key)));
+      String value = this.matchingAttributes.get(key);
+      searchAttributes.put(new BasicAttribute(key, value));
+      LOG.debug("LDAP search attribute: '" + key + "' = '" + value + "'");
     }
 
     String[] returningAttributesArray = GrouperClientUtils.toArray(this.returningAttributes, String.class);
+
+    for (String returningAttribute : returningAttributesArray) {
+      LOG.debug("LDAP search returning attribute: '" + returningAttribute + "'");
+    }
+    
     try {
+
       this.namingEnumeration = context.search(this.ldapName, searchAttributes, returningAttributesArray);
     } catch (Exception e) {
       throw new RuntimeException("Error querying ldap for name: '" + this.ldapName + "', searchAttributes: " + 

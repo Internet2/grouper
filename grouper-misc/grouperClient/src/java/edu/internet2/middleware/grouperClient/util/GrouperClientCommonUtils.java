@@ -52,20 +52,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
-
-import edu.internet2.middleware.grouperClient.ext.org.apache.commons.httpclient.HttpMethodBase;
-import edu.internet2.middleware.grouperClient.ext.org.apache.commons.logging.Log;
-import edu.internet2.middleware.grouperClient.ext.org.apache.commons.logging.LogFactory;
-import edu.internet2.middleware.grouperClient.ext.org.apache.commons.logging.impl.Jdk14Logger;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpMethodBase;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
 
@@ -365,44 +354,6 @@ public class GrouperClientCommonUtils  {
   }
   
   /**
-   * see if there is a grouper properties db match
-   * @param whitelist true if whitelist, false if blacklist
-   * @param user is the db user
-   * @param url is the db url
-   * @return true if found match, false if not
-   */
-  public static boolean findGrouperPropertiesDbMatch(boolean whitelist, String user, String url) {
-
-    //lets check the whitelist and blacklist first
-    Properties grouperProperties = propertiesFromResourceName("grouper.properties");
-
-    //check blacklist
-    //db.change.deny.user.0=
-    //db.change.deny.url.0=
-    //db.change.allow.user.0=grouper
-    //db.change.allow.url.0=jdbc:mysql://localhost:3306/grouper
-
-    int index = 0;
-    String typeString = whitelist ? "allow" : "deny";
-    while (true) {
-      String currentUser = trim(grouperProperties.getProperty(
-          "db.change." + typeString + ".user." + index));
-      String currentUrl = trim(grouperProperties.getProperty(
-          "db.change." + typeString + ".url." + index));
-      
-      //if we are done checking
-      if (isBlank(currentUser) || isBlank(currentUrl)) {
-        break;
-      }
-      if (equals(currentUser, user) && equals(currentUrl, url)) {
-        return true;
-      }
-      index++;
-    }
-    return false;
-  }
-  
-  /**
    * get a unique string identifier based on the current time,
    * this is not globally unique, just unique for as long as this
    * server is running...
@@ -531,6 +482,65 @@ public class GrouperClientCommonUtils  {
     }
 
     return prefixOrSuffix;
+  }
+
+  /**
+   * <pre>
+   * this method will indent xml or json.
+   * this is for logging or documentations purposes only and should
+   * not be used for a production use (since it is not 100% tested
+   * or compliant with all constructs like xml CDATA
+   * 
+   * For xml, assumes elements either have text or sub elements, not both.
+   * No cdata, nothing fancy.
+   * 
+   * If the input is &lt;a&gt;&lt;b&gt;&lt;c&gt;hey&lt;/c&gt;&lt;d&gt;&lt;e&gt;there&lt;/e&gt;&lt;/d&gt;&lt;/b&gt;&lt;/a&gt;
+   * It would output:
+   * &lt;a&gt;
+   *   &lt;b&gt;
+   *     &lt;c&gt;hey&lt;/c&gt;
+   *     &lt;d&gt;
+   *       &lt;e&gt;there&lt;/e&gt;
+   *     &lt;/d&gt;
+   *   &lt;/b&gt;
+   * &lt;/a&gt;
+   * 
+   * For json, if the input is: {"a":{"b\"b":{"c\\":"d"},"e":"f","g":["h":"i"]}}
+   * It would output:
+   * {
+   *   "a":{
+   *     "b\"b":{
+   *       "c\\":"d"
+   *     },
+   *     "e":"f",
+   *     "g":[
+   *       "h":"i"
+   *     ]
+   *   }
+   * }
+   * 
+   * 
+   * <pre>
+   * @param string
+   * @param failIfTypeNotFound
+   * @return the indented string, 2 spaces per line
+   */
+  public static String indent(String string, boolean failIfTypeNotFound) {
+    if (string == null) {
+      return null;
+    }
+    string = trim(string);
+    if (string.startsWith("<")) {
+      //this is xml
+      return new XmlIndenter(string).result();
+    }
+    if (!failIfTypeNotFound) {
+      //just return if cant indent
+      return string;
+    }
+    throw new RuntimeException("Cant find type of string: " + string);
+    
+    
   }
 
   /**
@@ -5192,7 +5202,7 @@ public class GrouperClientCommonUtils  {
   /**
    * logger
    */
-  static Log LOG = retrieveLog(GrouperClientCommonUtils.class);
+  private static Log LOG = GrouperClientUtils.retrieveLog(GrouperClientCommonUtils.class);
 
   /**
    * read properties from a resource, dont modify the properties returned since they are cached
@@ -5219,7 +5229,9 @@ public class GrouperClientCommonUtils  {
         inputStream = url.openStream();
         properties.load(inputStream);
         success = true;
-        LOG.debug("Reading resource: " + resourceName + ", from: " + url.toURI());
+        if (LOG != null) {
+          LOG.debug("Reading resource: " + resourceName + ", from: " + url.toURI());
+        }
       } catch (Exception e) {
         
         //clear out just in case
@@ -5239,11 +5251,15 @@ public class GrouperClientCommonUtils  {
             inputStream = new FileInputStream(configFile);
             properties.load(inputStream);
             success = true;
-            LOG.debug("Reading resource: " + resourceName + ", from: " + url.toURI());
+            if (LOG != null) {
+              LOG.debug("Reading resource: " + resourceName + ", from: " + url.toURI());
+            }
           }
           
         } catch (Exception e2) {
-          LOG.debug("Error reading from file for resource: " + resourceName + ", file: " + fileName, e2);
+          if (LOG != null) {
+            LOG.debug("Error reading from file for resource: " + resourceName + ", file: " + fileName, e2);
+          }
         }
         if (!success) {
           properties = null;
@@ -5254,7 +5270,7 @@ public class GrouperClientCommonUtils  {
       } finally {
         closeQuietly(inputStream);
         
-        if (useCache) {
+        if (useCache && properties != null && properties.size() > 0) {
           resourcePropertiesCache.put(resourceName, properties);
         }
       }
@@ -5329,7 +5345,30 @@ public class GrouperClientCommonUtils  {
     if (isBlank(value)) {
       value = properties.getProperty(key);
     }
-    return trim(value);
+    value = trim(value);
+    value = substituteCommonVars(value);
+    return value;
+  }
+  
+  /**
+   * substitute common vars like $space$ and $newline$
+   * @param string
+   * @return the string
+   */
+  public static String substituteCommonVars(String string) {
+    if (string == null) {
+      return string;
+    }
+    //short circuit
+    if (string.indexOf('$') < 0) {
+      return string;
+    }
+    //might have $space$
+    string = GrouperClientUtils.replace(string, "$space$", " ");
+    
+    //note, at some point we could be OS specific
+    string = GrouperClientUtils.replace(string, "$newline$", "\n"); 
+    return string;
   }
   
   /**
@@ -5361,6 +5400,22 @@ public class GrouperClientCommonUtils  {
   }
   
   /**
+   * get an int property, or the default if cant find.  Validate also with a descriptive exception if problem
+   * @param resourceName 
+   * @param properties
+   * @param overrideMap for testing to override properties
+   * @param propertyName
+   * @param defaultValue 
+   * @param required 
+   * @return the int
+   */
+  public static int propertiesValueInt(String resourceName, Properties properties, 
+      Map<String, String> overrideMap, String propertyName, int defaultValue, boolean required) {
+    propertyValidateValueInt(resourceName, properties, overrideMap, propertyName, required, true);
+    return propertiesValueInt(properties, overrideMap, propertyName, defaultValue);
+  }
+  
+  /**
    * get a boolean property, or the default if cant find.  Validate also with a descriptive exception if problem
    * @param resourceName 
    * @param properties
@@ -5376,6 +5431,30 @@ public class GrouperClientCommonUtils  {
       propertyValidateValueRequired(resourceName, properties, overrideMap, propertyName, true);
     }
     return propertiesValue(properties, overrideMap, propertyName);
+  }
+  
+  /**
+   * get a int property, or the default if cant find
+   * @param properties
+   * @param overrideMap for testing to override properties
+   * @param propertyName
+   * @param defaultValue 
+   * @return the int
+   */
+  public static int propertiesValueInt(Properties properties, 
+      Map<String, String> overrideMap, String propertyName, int defaultValue) {
+
+    String value = propertiesValue(properties, overrideMap, propertyName);
+    if (isBlank(value)) {
+      return defaultValue;
+    }
+
+    try {
+      return intValue(value);
+    } catch (Exception e) {}
+    
+    throw new RuntimeException("Invalid int value: '" + value + "' for property: " + propertyName + " in grouper.properties");
+
   }
   
   /**
@@ -5407,7 +5486,7 @@ public class GrouperClientCommonUtils  {
     if ("f".equalsIgnoreCase(value)) {
       return false;
     }
-    throw new RuntimeException("Invalid value: '" + value + "' for property: " + propertyName + " in grouper.properties");
+    throw new RuntimeException("Invalid boolean value: '" + value + "' for property: " + propertyName + " in grouper.properties");
 
   }
   
@@ -7007,30 +7086,41 @@ public class GrouperClientCommonUtils  {
   /**
    * get the value from the argMap, throw exception if not there and required
    * @param argMap
+   * @param argMapNotUsed 
    * @param key
    * @param required
    * @return the value or null or exception
    */
-  public static String argMapString(Map<String, String> argMap, String key, boolean required) {
+  public static String argMapString(Map<String, String> argMap, Map<String, String> argMapNotUsed, 
+      String key, boolean required) {
+
     if (argMap.containsKey(key)) {
+      
+      //keep track that this is gone
+      argMapNotUsed.remove(key);
+      
       return argMap.get(key);
     }
     if (required) {
       throw new RuntimeException("Argument '--" + key + "' is required, but not specified.  e.g. --" + key + "=value");
     }
     return null;
+
   }
   
   /**
    * get the value from the argMap, throw exception if not there and required
    * @param argMap
+   * @param argMapNotUsed 
    * @param key
    * @param required
    * @param defaultValue 
    * @return the value or null or exception
    */
-  public static boolean argMapBoolean(Map<String, String> argMap, String key, boolean required, boolean defaultValue) {
-    String argString = argMapString(argMap, key, required);
+  public static boolean argMapBoolean(Map<String, String> argMap, Map<String, String> argMapNotUsed, 
+      String key, boolean required, boolean defaultValue) {
+    String argString = argMapString(argMap, argMapNotUsed, key, required);
+
     if (isBlank(argString) && required) {
       throw new RuntimeException("Argument '--" + key + "' is required, but not specified.  e.g. --" + key + "=true");
     }
@@ -7134,56 +7224,6 @@ public class GrouperClientCommonUtils  {
     return input;
   }
 
-  /**
-   * configure jdk14 logs once
-   */
-  private static boolean configuredLogs = false;
-
-  /**
-   * @param theClass
-   * @return the log
-   */
-  public static Log retrieveLog(Class<?> theClass) {
-    
-    Log theLog = LogFactory.getLog(theClass);
-
-    if (!configuredLogs) {
-      if (theLog instanceof Jdk14Logger) {
-        Jdk14Logger jdkLogger = (Jdk14Logger) theLog;
-        Logger logger = jdkLogger.getLogger();
-        long timeToLive = 60;
-        while (logger.getParent() != null && timeToLive-- > 0) {
-          //this should be root logger
-          logger = logger.getParent();
-        }
-
-        if (length(logger.getHandlers()) == 1) {
-
-          //remove console appender if only one
-          if (logger.getHandlers()[0].getClass() == ConsoleHandler.class) {
-            logger.removeHandler(logger.getHandlers()[0]);
-          }
-        }
-
-        if (length(logger.getHandlers()) == 0) {
-          try {
-            Handler fileHandler = new FileHandler("mylog.txt");
-            fileHandler.setFormatter(new SimpleFormatter());
-            logger.addHandler(fileHandler);
-          } catch (IOException ioe) {
-            throw new RuntimeException(ioe);
-          }
-          logger.setLevel(Level.INFO);
-          logger.setUseParentHandlers(false);
-        }
-      }
-      configuredLogs = true;
-    }
-    
-    return theLog;
-    
-  }
-  
   /**
    * retrieve a password from stdin
    * @param dontMask
@@ -7346,7 +7386,7 @@ public class GrouperClientCommonUtils  {
   public static boolean propertyValidateValueRequired(String resourceName, Properties properties, 
       Map<String, String> overrideMap, String key, boolean exceptionOnError) {
     String value = propertiesValue(properties, overrideMap, key);
-    if (!StringUtils.isBlank(value)) {
+    if (!GrouperClientUtils.isBlank(value)) {
       return true;
     }
     String error = "Cant find property " + key + " in resource: " + resourceName + ", it is required";
@@ -7381,7 +7421,7 @@ public class GrouperClientCommonUtils  {
   
     String value = propertiesValue(properties, overrideMap, key);
     //maybe ok not there
-    if (!required && StringUtils.isBlank(value)) {
+    if (!required && GrouperClientUtils.isBlank(value)) {
       return true;
     }
     try {
@@ -7391,6 +7431,45 @@ public class GrouperClientCommonUtils  {
       
     }
     String error = "Expecting true or false property " + key + " in resource: " + resourceName + ", but is '" + value + "'";
+    if (exceptionOnError) {
+      throw new RuntimeException(error);
+    }
+    System.err.println("Grouper error: " + error);
+    LOG.error(error);
+    return false;
+  }
+
+  /**
+   * make sure a value is int in properties
+   * @param resourceName
+   * @param properties 
+   * @param overrideMap
+   * @param key
+   * @param required
+   * @param exceptionOnError 
+   * @return true if ok, false if not
+   */
+  public static boolean propertyValidateValueInt(String resourceName, Properties properties, 
+      Map<String, String> overrideMap, String key, 
+      boolean required, boolean exceptionOnError) {
+    
+    if (required && !propertyValidateValueRequired(resourceName, properties, 
+        overrideMap, key, exceptionOnError)) {
+      return false;
+    }
+  
+    String value = propertiesValue(properties, overrideMap, key);
+    //maybe ok not there
+    if (!required && GrouperClientUtils.isBlank(value)) {
+      return true;
+    }
+    try {
+      intValue(value);
+      return true;
+    } catch (Exception e) {
+      
+    }
+    String error = "Expecting integer property " + key + " in resource: " + resourceName + ", but is '" + value + "'";
     if (exceptionOnError) {
       throw new RuntimeException(error);
     }
@@ -7420,7 +7499,7 @@ public class GrouperClientCommonUtils  {
     String value = propertiesValue(properties, overrideMap, key);
   
     //maybe ok not there
-    if (!required && StringUtils.isBlank(value)) {
+    if (!required && GrouperClientUtils.isBlank(value)) {
       return true;
     }
     
@@ -7435,7 +7514,7 @@ public class GrouperClientCommonUtils  {
       extraError = " does not derive from class: " + classType.getSimpleName();
       
     } catch (Exception e) {
-      extraError = ", " + ExceptionUtils.getFullStackTrace(e);
+      extraError = ", " + getFullStackTrace(e);
     }
     String error = "Cant process property " + key + " in resource: " + resourceName + ", the current" +
         " value is '" + value + "', which should be of type: " 
@@ -7446,6 +7525,440 @@ public class GrouperClientCommonUtils  {
     System.err.println("Grouper error: " + error);
     LOG.error(error);
     return false;
+
   }
+
+  /**
+   * <p>Strips any of a set of characters from the start of a String.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.
+   * An empty string ("") input returns the empty string.</p>
+   *
+   * <p>If the stripChars String is <code>null</code>, whitespace is
+   * stripped as defined by {@link Character#isWhitespace(char)}.</p>
+   *
+   * <pre>
+   * StringUtils.stripStart(null, *)          = null
+   * StringUtils.stripStart("", *)            = ""
+   * StringUtils.stripStart("abc", "")        = "abc"
+   * StringUtils.stripStart("abc", null)      = "abc"
+   * StringUtils.stripStart("  abc", null)    = "abc"
+   * StringUtils.stripStart("abc  ", null)    = "abc  "
+   * StringUtils.stripStart(" abc ", null)    = "abc "
+   * StringUtils.stripStart("yxabc  ", "xyz") = "abc  "
+   * </pre>
+   *
+   * @param str  the String to remove characters from, may be null
+   * @param stripChars  the characters to remove, null treated as whitespace
+   * @return the stripped String, <code>null</code> if null String input
+   */
+  public static String stripStart(String str, String stripChars) {
+    int strLen;
+    if (str == null || (strLen = str.length()) == 0) {
+      return str;
+    }
+    int start = 0;
+    if (stripChars == null) {
+      while ((start != strLen) && Character.isWhitespace(str.charAt(start))) {
+        start++;
+      }
+    } else if (stripChars.length() == 0) {
+      return str;
+    } else {
+      while ((start != strLen) && (stripChars.indexOf(str.charAt(start)) != -1)) {
+        start++;
+      }
+    }
+    return str.substring(start);
+  }
+
+  /**
+   * <p>Strips any of a set of characters from the end of a String.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.
+   * An empty string ("") input returns the empty string.</p>
+   *
+   * <p>If the stripChars String is <code>null</code>, whitespace is
+   * stripped as defined by {@link Character#isWhitespace(char)}.</p>
+   *
+   * <pre>
+   * StringUtils.stripEnd(null, *)          = null
+   * StringUtils.stripEnd("", *)            = ""
+   * StringUtils.stripEnd("abc", "")        = "abc"
+   * StringUtils.stripEnd("abc", null)      = "abc"
+   * StringUtils.stripEnd("  abc", null)    = "  abc"
+   * StringUtils.stripEnd("abc  ", null)    = "abc"
+   * StringUtils.stripEnd(" abc ", null)    = " abc"
+   * StringUtils.stripEnd("  abcyx", "xyz") = "  abc"
+   * </pre>
+   *
+   * @param str  the String to remove characters from, may be null
+   * @param stripChars  the characters to remove, null treated as whitespace
+   * @return the stripped String, <code>null</code> if null String input
+   */
+  public static String stripEnd(String str, String stripChars) {
+    int end;
+    if (str == null || (end = str.length()) == 0) {
+      return str;
+    }
+
+    if (stripChars == null) {
+      while ((end != 0) && Character.isWhitespace(str.charAt(end - 1))) {
+        end--;
+      }
+    } else if (stripChars.length() == 0) {
+      return str;
+    } else {
+      while ((end != 0) && (stripChars.indexOf(str.charAt(end - 1)) != -1)) {
+        end--;
+      }
+    }
+    return str.substring(0, end);
+  }
+
+  /**
+   * The empty String <code>""</code>.
+   * @since 2.0
+   */
+  public static final String EMPTY = "";
+
+  /**
+   * Represents a failed index search.
+   * @since 2.1
+   */
+  public static final int INDEX_NOT_FOUND = -1;
+
+  /**
+   * <p>The maximum size to which the padding constant(s) can expand.</p>
+   */
+  private static final int PAD_LIMIT = 8192;
+
+  /**
+   * <p>An array of <code>String</code>s used for padding.</p>
+   *
+   * <p>Used for efficient space padding. The length of each String expands as needed.</p>
+   */
+  private static final String[] PADDING = new String[Character.MAX_VALUE];
+
+  static {
+    // space padding is most common, start with 64 chars
+    PADDING[32] = "                                                                ";
+  }
+
+  /**
+   * <p>Repeat a String <code>repeat</code> times to form a
+   * new String.</p>
+   *
+   * <pre>
+   * StringUtils.repeat(null, 2) = null
+   * StringUtils.repeat("", 0)   = ""
+   * StringUtils.repeat("", 2)   = ""
+   * StringUtils.repeat("a", 3)  = "aaa"
+   * StringUtils.repeat("ab", 2) = "abab"
+   * StringUtils.repeat("a", -2) = ""
+   * </pre>
+   *
+   * @param str  the String to repeat, may be null
+   * @param repeat  number of times to repeat str, negative treated as zero
+   * @return a new String consisting of the original String repeated,
+   *  <code>null</code> if null String input
+   */
+  public static String repeat(String str, int repeat) {
+    // Performance tuned for 2.0 (JDK1.4)
+
+    if (str == null) {
+      return null;
+    }
+    if (repeat <= 0) {
+      return EMPTY;
+    }
+    int inputLength = str.length();
+    if (repeat == 1 || inputLength == 0) {
+      return str;
+    }
+    if (inputLength == 1 && repeat <= PAD_LIMIT) {
+      return padding(repeat, str.charAt(0));
+    }
+
+    int outputLength = inputLength * repeat;
+    switch (inputLength) {
+      case 1:
+        char ch = str.charAt(0);
+        char[] output1 = new char[outputLength];
+        for (int i = repeat - 1; i >= 0; i--) {
+          output1[i] = ch;
+        }
+        return new String(output1);
+      case 2:
+        char ch0 = str.charAt(0);
+        char ch1 = str.charAt(1);
+        char[] output2 = new char[outputLength];
+        for (int i = repeat * 2 - 2; i >= 0; i--, i--) {
+          output2[i] = ch0;
+          output2[i + 1] = ch1;
+        }
+        return new String(output2);
+      default:
+        StringBuffer buf = new StringBuffer(outputLength);
+        for (int i = 0; i < repeat; i++) {
+          buf.append(str);
+        }
+        return buf.toString();
+    }
+  }
+
+  /**
+   * <p>Returns padding using the specified delimiter repeated
+   * to a given length.</p>
+   *
+   * <pre>
+   * StringUtils.padding(0, 'e')  = ""
+   * StringUtils.padding(3, 'e')  = "eee"
+   * StringUtils.padding(-2, 'e') = IndexOutOfBoundsException
+   * </pre>
+   *
+   * @param repeat  number of times to repeat delim
+   * @param padChar  character to repeat
+   * @return String with repeated character
+   * @throws IndexOutOfBoundsException if <code>repeat &lt; 0</code>
+   */
+  private static String padding(int repeat, char padChar) {
+    // be careful of synchronization in this method
+    // we are assuming that get and set from an array index is atomic
+    String pad = PADDING[padChar];
+    if (pad == null) {
+      pad = String.valueOf(padChar);
+    }
+    while (pad.length() < repeat) {
+      pad = pad.concat(pad);
+    }
+    PADDING[padChar] = pad;
+    return pad.substring(0, repeat);
+  }
+
+  /**
+   * <p>Right pad a String with spaces (' ').</p>
+   *
+   * <p>The String is padded to the size of <code>size</code>.</p>
+   *
+   * <pre>
+   * StringUtils.rightPad(null, *)   = null
+   * StringUtils.rightPad("", 3)     = "   "
+   * StringUtils.rightPad("bat", 3)  = "bat"
+   * StringUtils.rightPad("bat", 5)  = "bat  "
+   * StringUtils.rightPad("bat", 1)  = "bat"
+   * StringUtils.rightPad("bat", -1) = "bat"
+   * </pre>
+   *
+   * @param str  the String to pad out, may be null
+   * @param size  the size to pad to
+   * @return right padded String or original String if no padding is necessary,
+   *  <code>null</code> if null String input
+   */
+  public static String rightPad(String str, int size) {
+    return rightPad(str, size, ' ');
+  }
+
+  /**
+   * <p>Right pad a String with a specified character.</p>
+   *
+   * <p>The String is padded to the size of <code>size</code>.</p>
+   *
+   * <pre>
+   * StringUtils.rightPad(null, *, *)     = null
+   * StringUtils.rightPad("", 3, 'z')     = "zzz"
+   * StringUtils.rightPad("bat", 3, 'z')  = "bat"
+   * StringUtils.rightPad("bat", 5, 'z')  = "batzz"
+   * StringUtils.rightPad("bat", 1, 'z')  = "bat"
+   * StringUtils.rightPad("bat", -1, 'z') = "bat"
+   * </pre>
+   *
+   * @param str  the String to pad out, may be null
+   * @param size  the size to pad to
+   * @param padChar  the character to pad with
+   * @return right padded String or original String if no padding is necessary,
+   *  <code>null</code> if null String input
+   * @since 2.0
+   */
+  public static String rightPad(String str, int size, char padChar) {
+    if (str == null) {
+      return null;
+    }
+    int pads = size - str.length();
+    if (pads <= 0) {
+      return str; // returns original String when possible
+    }
+    if (pads > PAD_LIMIT) {
+      return rightPad(str, size, String.valueOf(padChar));
+    }
+    return str.concat(padding(pads, padChar));
+  }
+
+  /**
+   * <p>Right pad a String with a specified String.</p>
+   *
+   * <p>The String is padded to the size of <code>size</code>.</p>
+   *
+   * <pre>
+   * StringUtils.rightPad(null, *, *)      = null
+   * StringUtils.rightPad("", 3, "z")      = "zzz"
+   * StringUtils.rightPad("bat", 3, "yz")  = "bat"
+   * StringUtils.rightPad("bat", 5, "yz")  = "batyz"
+   * StringUtils.rightPad("bat", 8, "yz")  = "batyzyzy"
+   * StringUtils.rightPad("bat", 1, "yz")  = "bat"
+   * StringUtils.rightPad("bat", -1, "yz") = "bat"
+   * StringUtils.rightPad("bat", 5, null)  = "bat  "
+   * StringUtils.rightPad("bat", 5, "")    = "bat  "
+   * </pre>
+   *
+   * @param str  the String to pad out, may be null
+   * @param size  the size to pad to
+   * @param padStr  the String to pad with, null or empty treated as single space
+   * @return right padded String or original String if no padding is necessary,
+   *  <code>null</code> if null String input
+   */
+  public static String rightPad(String str, int size, String padStr) {
+    if (str == null) {
+      return null;
+    }
+    if (isEmpty(padStr)) {
+      padStr = " ";
+    }
+    int padLen = padStr.length();
+    int strLen = str.length();
+    int pads = size - strLen;
+    if (pads <= 0) {
+      return str; // returns original String when possible
+    }
+    if (padLen == 1 && pads <= PAD_LIMIT) {
+      return rightPad(str, size, padStr.charAt(0));
+    }
+
+    if (pads == padLen) {
+      return str.concat(padStr);
+    } else if (pads < padLen) {
+      return str.concat(padStr.substring(0, pads));
+    } else {
+      char[] padding = new char[pads];
+      char[] padChars = padStr.toCharArray();
+      for (int i = 0; i < pads; i++) {
+        padding[i] = padChars[i % padLen];
+      }
+      return str.concat(new String(padding));
+    }
+  }
+
+  /**
+   * <p>Left pad a String with spaces (' ').</p>
+   *
+   * <p>The String is padded to the size of <code>size<code>.</p>
+   *
+   * <pre>
+   * StringUtils.leftPad(null, *)   = null
+   * StringUtils.leftPad("", 3)     = "   "
+   * StringUtils.leftPad("bat", 3)  = "bat"
+   * StringUtils.leftPad("bat", 5)  = "  bat"
+   * StringUtils.leftPad("bat", 1)  = "bat"
+   * StringUtils.leftPad("bat", -1) = "bat"
+   * </pre>
+   *
+   * @param str  the String to pad out, may be null
+   * @param size  the size to pad to
+   * @return left padded String or original String if no padding is necessary,
+   *  <code>null</code> if null String input
+   */
+  public static String leftPad(String str, int size) {
+    return leftPad(str, size, ' ');
+  }
+
+  /**
+   * <p>Left pad a String with a specified character.</p>
+   *
+   * <p>Pad to a size of <code>size</code>.</p>
+   *
+   * <pre>
+   * StringUtils.leftPad(null, *, *)     = null
+   * StringUtils.leftPad("", 3, 'z')     = "zzz"
+   * StringUtils.leftPad("bat", 3, 'z')  = "bat"
+   * StringUtils.leftPad("bat", 5, 'z')  = "zzbat"
+   * StringUtils.leftPad("bat", 1, 'z')  = "bat"
+   * StringUtils.leftPad("bat", -1, 'z') = "bat"
+   * </pre>
+   *
+   * @param str  the String to pad out, may be null
+   * @param size  the size to pad to
+   * @param padChar  the character to pad with
+   * @return left padded String or original String if no padding is necessary,
+   *  <code>null</code> if null String input
+   * @since 2.0
+   */
+  public static String leftPad(String str, int size, char padChar) {
+    if (str == null) {
+      return null;
+    }
+    int pads = size - str.length();
+    if (pads <= 0) {
+      return str; // returns original String when possible
+    }
+    if (pads > PAD_LIMIT) {
+      return leftPad(str, size, String.valueOf(padChar));
+    }
+    return padding(pads, padChar).concat(str);
+  }
+
+  /**
+   * <p>Left pad a String with a specified String.</p>
+   *
+   * <p>Pad to a size of <code>size</code>.</p>
+   *
+   * <pre>
+   * StringUtils.leftPad(null, *, *)      = null
+   * StringUtils.leftPad("", 3, "z")      = "zzz"
+   * StringUtils.leftPad("bat", 3, "yz")  = "bat"
+   * StringUtils.leftPad("bat", 5, "yz")  = "yzbat"
+   * StringUtils.leftPad("bat", 8, "yz")  = "yzyzybat"
+   * StringUtils.leftPad("bat", 1, "yz")  = "bat"
+   * StringUtils.leftPad("bat", -1, "yz") = "bat"
+   * StringUtils.leftPad("bat", 5, null)  = "  bat"
+   * StringUtils.leftPad("bat", 5, "")    = "  bat"
+   * </pre>
+   *
+   * @param str  the String to pad out, may be null
+   * @param size  the size to pad to
+   * @param padStr  the String to pad with, null or empty treated as single space
+   * @return left padded String or original String if no padding is necessary,
+   *  <code>null</code> if null String input
+   */
+  public static String leftPad(String str, int size, String padStr) {
+    if (str == null) {
+      return null;
+    }
+    if (isEmpty(padStr)) {
+      padStr = " ";
+    }
+    int padLen = padStr.length();
+    int strLen = str.length();
+    int pads = size - strLen;
+    if (pads <= 0) {
+      return str; // returns original String when possible
+    }
+    if (padLen == 1 && pads <= PAD_LIMIT) {
+      return leftPad(str, size, padStr.charAt(0));
+    }
+
+    if (pads == padLen) {
+      return padStr.concat(str);
+    } else if (pads < padLen) {
+      return padStr.substring(0, pads).concat(str);
+    } else {
+      char[] padding = new char[pads];
+      char[] padChars = padStr.toCharArray();
+      for (int i = 0; i < pads; i++) {
+        padding[i] = padChars[i % padLen];
+      }
+      return new String(padding).concat(str);
+    }
+  }
+
 
 }
