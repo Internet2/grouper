@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.4 2008-12-01 07:40:28 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.5 2008-12-01 19:28:54 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -450,9 +450,42 @@ public class GrouperClient {
    */
   private static WsSubjectLookup retrieveActAsSubjectFromArgs(Map<String, String> argMap,
       Map<String, String> argMapNotUsed) {
+    
+    String argMapActAsSubjectIdKey = "actAsSubjectId";
+    
+    //see if we have an alias
+    {
+      String aliasSubjectId = GrouperClientUtils.propertiesValue(
+          "grouperClient.alias.SubjectId", false);
+      
+      if (!GrouperClientUtils.isBlank(aliasSubjectId)) {
+        String aliasKey = "actAs" + aliasSubjectId;
+        boolean containsAliasKey = argMap.containsKey(aliasKey);
+        if (argMap.containsKey(argMapActAsSubjectIdKey) && containsAliasKey) {
+          throw new RuntimeException("You cannot pass both arguments actAsSubjectId and " + aliasKey + ", choose one or the other");
+        }
+        argMapActAsSubjectIdKey = containsAliasKey ? aliasKey : argMapActAsSubjectIdKey;
+      }
+    }    
+    
+    String argMapActAsSubjectIdentifierKey = "actAsSubjectIdentifier";
+    {
+      String aliasSubjectIdentifier = GrouperClientUtils.propertiesValue(
+          "grouperClient.alias.SubjectIdentifier", false);
+      
+      if (!GrouperClientUtils.isBlank(aliasSubjectIdentifier)) {
+        String aliasKey = "actAs" + aliasSubjectIdentifier;
+        boolean containsAliasKey = argMap.containsKey(aliasKey);
+        if (argMap.containsKey(argMapActAsSubjectIdentifierKey) && containsAliasKey) {
+          throw new RuntimeException("You cannot pass both arguments actAsSubjectIdentifier and " + aliasKey + ", choose one or the other");
+        }
+        argMapActAsSubjectIdentifierKey = containsAliasKey ? aliasKey : argMapActAsSubjectIdentifierKey;
+      }
+    }
+    
     // set the act as id
-    String actAsSubjectId = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "actAsSubjectId", false);
-    String actAsSubjectIdentifier = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "actAsSubjectIdentifier", false);
+    String actAsSubjectId = GrouperClientUtils.argMapString(argMap, argMapNotUsed, argMapActAsSubjectIdKey, false);
+    String actAsSubjectIdentifier = GrouperClientUtils.argMapString(argMap, argMapNotUsed, argMapActAsSubjectIdentifierKey, false);
     String actAsSubjectSource = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "actAsSubjectSource", false);
     
     if (GrouperClientUtils.isBlank(actAsSubjectId) 
@@ -496,9 +529,80 @@ public class GrouperClient {
    */
   private static List<WsSubjectLookup> retrieveSubjectsFromArgs(
       Map<String, String> argMap, Map<String, String> argMapNotUsed) {
-    List<String> subjectIdsList = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "subjectIds", false);
     
-    List<String> subjectIdentifiersList = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "subjectIdentifiers", false);
+    
+    String argMapSubjectIdsKey = "subjectIds";
+    
+    //see if we have an alias
+    {
+      String aliasSubjectIds = GrouperClientUtils.propertiesValue(
+          "grouperClient.alias.subjectIds", false);
+      
+      if (!GrouperClientUtils.isBlank(aliasSubjectIds)) {
+        boolean containsAliasKey = argMap.containsKey(aliasSubjectIds);
+        if (argMap.containsKey(argMapSubjectIdsKey) && containsAliasKey) {
+          throw new RuntimeException("You cannot pass both arguments subjectIds and " + aliasSubjectIds + ", choose one or the other");
+        }
+        argMapSubjectIdsKey = containsAliasKey ? aliasSubjectIds : argMapSubjectIdsKey;
+      }
+    }    
+
+    String argMapSubjectIdentifiersKey = "subjectIdentifiers";
+    
+    //see if we have an alias
+    {
+      String aliasSubjectIdentifiers = GrouperClientUtils.propertiesValue(
+          "grouperClient.alias.subjectIdentifiers", false);
+      
+      if (!GrouperClientUtils.isBlank(aliasSubjectIdentifiers)) {
+        boolean containsAliasKey = argMap.containsKey(aliasSubjectIdentifiers);
+        if (argMap.containsKey(argMapSubjectIdentifiersKey) && containsAliasKey) {
+          throw new RuntimeException("You cannot pass both arguments subjectIdentifiers and " + aliasSubjectIdentifiers + ", choose one or the other");
+        }
+        argMapSubjectIdentifiersKey = containsAliasKey ? aliasSubjectIdentifiers : argMapSubjectIdentifiersKey;
+      }
+    }    
+    
+    String argMapSubjectIdsFileKey = "subjectIdsFile";
+    
+    //see if we have an alias
+    {
+      String aliasSubjectIds = GrouperClientUtils.propertiesValue(
+          "grouperClient.alias.subjectIds", false);
+      
+      if (!GrouperClientUtils.isBlank(aliasSubjectIds)) {
+        String aliasSubjectIdsFile = aliasSubjectIds + "File";
+        boolean containsAliasKey = argMap.containsKey(aliasSubjectIdsFile);
+        if (argMap.containsKey(argMapSubjectIdsFileKey) && containsAliasKey) {
+          throw new RuntimeException("You cannot pass both arguments subjectIdsFile and " 
+              + aliasSubjectIdsFile + ", choose one or the other");
+        }
+        argMapSubjectIdsFileKey = containsAliasKey ? aliasSubjectIdsFile : argMapSubjectIdsFileKey;
+      }
+    }    
+
+    String argMapSubjectIdentifiersFileKey = "subjectIdentifiersFile";
+    
+    //see if we have an alias
+    {
+      String aliasSubjectIdentifiers = GrouperClientUtils.propertiesValue(
+          "grouperClient.alias.subjectIdentifiers", false);
+      
+      if (!GrouperClientUtils.isBlank(aliasSubjectIdentifiers)) {
+        String aliasSubjectIdentifiersFile = aliasSubjectIdentifiers + "File";
+        boolean containsAliasKey = argMap.containsKey(aliasSubjectIdentifiersFile);
+        if (argMap.containsKey(argMapSubjectIdentifiersFileKey) && containsAliasKey) {
+          throw new RuntimeException("You cannot pass both arguments subjectIdentifiersFile and " 
+              + aliasSubjectIdentifiersFile + ", choose one or the other");
+        }
+        argMapSubjectIdentifiersFileKey = containsAliasKey ? aliasSubjectIdentifiersFile : argMapSubjectIdentifiersFileKey;
+      }
+    }    
+    
+    List<String> subjectIdsList = GrouperClientUtils.argMapList(argMap, argMapNotUsed, argMapSubjectIdsKey, false);
+    
+    List<String> subjectIdentifiersList = GrouperClientUtils.argMapList(argMap, argMapNotUsed, 
+        argMapSubjectIdentifiersKey, false);
     
     List<String> sourceIdsList = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "sourceIds", false);
     
@@ -509,19 +613,22 @@ public class GrouperClient {
     int subjectIdentifierLength = GrouperClientUtils.length(subjectIdentifiersList);
     int sourceIdLength = GrouperClientUtils.length(sourceIdsList);
     
-    if (argMap.containsKey("subjectIdsFile")) {
+    if (argMap.containsKey(argMapSubjectIdsFileKey)) {
       if (subjectIdLength > 0) {
-        throw new RuntimeException("Cant pass in subjectIds and subjectIdsFile, use one or the other");
+        throw new RuntimeException("Cant pass in " + argMapSubjectIdsKey + " and " 
+            + argMapSubjectIdsFileKey + ", use one or the other");
       }
-      subjectIdsList = GrouperClientUtils.argMapFileList(argMap, argMapNotUsed, "subjectIdsFile", true);
+      subjectIdsList = GrouperClientUtils.argMapFileList(argMap, argMapNotUsed, argMapSubjectIdsFileKey, true);
       subjectIdLength = GrouperClientUtils.length(subjectIdsList);
     }
     
-    if (argMap.containsKey("subjectIdentifiersFile")) {
+    if (argMap.containsKey(argMapSubjectIdentifiersFileKey)) {
       if (subjectIdentifierLength > 0) {
-        throw new RuntimeException("Cant pass in subjectIdentifiers and subjectIdentifiersFile, use one or the other");
+        throw new RuntimeException("Cant pass in " + argMapSubjectIdentifiersKey 
+            + " and " + argMapSubjectIdentifiersFileKey + ", use one or the other");
       }
-      subjectIdentifiersList = GrouperClientUtils.argMapFileList(argMap, argMapNotUsed, "subjectIdentifiersFile", true);
+      subjectIdentifiersList = GrouperClientUtils.argMapFileList(argMap, argMapNotUsed, 
+          argMapSubjectIdentifiersFileKey, true);
       subjectIdentifierLength = GrouperClientUtils.length(subjectIdentifiersList);
     }
     

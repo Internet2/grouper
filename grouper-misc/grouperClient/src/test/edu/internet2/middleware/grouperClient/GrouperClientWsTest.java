@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.2 2008-12-01 07:40:28 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.3 2008-12-01 19:28:54 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -58,6 +58,11 @@ public class GrouperClientWsTest extends GrouperTest {
     GrouperClientUtils.grouperClientOverrideMap().put("webService.addMember.output", "Index ${index}: success: ${wsAddMemberResult.resultMetadata.success}: code: ${wsAddMemberResult.resultMetadata.resultCode}: ${wsAddMemberResult.wsSubject.id}$newline$");
     GrouperClientUtils.grouperClientOverrideMap().put("webService.getMembers.output", "GroupIndex ${groupIndex}: success: ${wsGetMembersResult.resultMetadata.success}: code: ${wsGetMembersResult.resultMetadata.resultCode}: group: ${wsGetMembersResult.wsGroup.name}: subjectIndex: ${subjectIndex}: ${wsSubject.id}$newline$");
     
+    GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.alias.subjectIds", "pennIds");
+    GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.alias.subjectIdentifiers", "pennKeys");
+    GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.alias.SubjectId", "PennId");
+    GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.alias.SubjectIdentifier", "PennKey");
+
     GrouperClient.exitOnError = false;
   }
 
@@ -137,7 +142,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
     
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1", " "));
+          "--operation=addMemberWs --groupName=aStem:aGroup --pennIds=test.subject.0,test.subject.1", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
       
@@ -184,7 +189,7 @@ public class GrouperClientWsTest extends GrouperTest {
       
       //test a command line template
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --outputTemplate=${index}", " "));
+          "--operation=addMemberWs --groupName=aStem:aGroup --subjectIdentifiers=id.test.subject.0,id.test.subject.1 --outputTemplate=${index}", " "));
 
       System.out.flush();
       
@@ -200,7 +205,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
     
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --fieldName=members", " "));
+          "--operation=addMemberWs --groupName=aStem:aGroup --pennKeys=id.test.subject.0,id.test.subject.1 --fieldName=members", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
       
@@ -754,6 +759,35 @@ public class GrouperClientWsTest extends GrouperTest {
         
         GrouperClient.main(GrouperClientUtils.splitTrim(
             "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2 --actAsSubjectId=GrouperSystem", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+  
+        assertTrue(GrouperClientWs.mostRecentRequest, 
+            !GrouperClientWs.mostRecentRequest.contains("memberFilter"));
+        assertTrue(GrouperClientWs.mostRecentRequest, 
+            !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest, 
+            !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        assertTrue(GrouperClientWs.mostRecentRequest, 
+            !GrouperClientWs.mostRecentRequest.contains("subjectAttributeNames"));
+        assertTrue(GrouperClientWs.mostRecentRequest, 
+            !GrouperClientWs.mostRecentRequest.contains("params"));
+        assertTrue(GrouperClientWs.mostRecentRequest, 
+            !GrouperClientWs.mostRecentRequest.contains("fieldName"));
+        assertTrue(GrouperClientWs.mostRecentRequest, 
+            GrouperClientWs.mostRecentRequest.contains("actAsSubject")
+            && GrouperClientWs.mostRecentRequest.contains("GrouperSystem"));
+        
+        //#######################################################
+        //try actAsSubject but with alias
+        
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2 --actAsPennId=GrouperSystem", " "));
         System.out.flush();
         output = new String(baos.toByteArray());
         
