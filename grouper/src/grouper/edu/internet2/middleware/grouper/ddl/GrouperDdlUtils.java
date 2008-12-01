@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.28 2008-11-22 21:39:14 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.29 2008-12-01 07:40:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1105,7 +1105,7 @@ public class GrouperDdlUtils {
   public static void removeAllTables(Database database) {
     
     //delete all foreign keys
-    for (Table table : GrouperUtil.nonNull(database.getTables())) {
+    for (Table table : GrouperUtil.nonNull(database.getTables(), Table.class)) {
       database.removeTable(table);
     }
 
@@ -1751,8 +1751,8 @@ public class GrouperDdlUtils {
    * @param database
    */
   public static void dropAllForeignKeys(Database database) {
-    for (Table table : GrouperUtil.nonNull(database.getTables())) {
-      for (ForeignKey foreignKey : GrouperUtil.nonNull(table.getForeignKeys())) {
+    for (Table table : GrouperUtil.nonNull(database.getTables(), Table.class)) {
+      for (ForeignKey foreignKey : GrouperUtil.nonNull(table.getForeignKeys(), ForeignKey.class)) {
         table.removeForeignKey(foreignKey);
       }
     }
@@ -1812,7 +1812,7 @@ public class GrouperDdlUtils {
   public static Column ddlutilsFindColumn(Table table, String columnName) {
     Column[] columns = table.getColumns();
     
-    for (Column column : GrouperUtil.nonNull(columns)) {
+    for (Column column : GrouperUtil.nonNull(columns, Column.class)) {
       
       if (StringUtils.equalsIgnoreCase(columnName, column.getName())) {
         return column;

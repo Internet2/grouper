@@ -3,6 +3,8 @@
  */
 package edu.internet2.middleware.grouperClient.ws.beans;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+
 
 /**
  * <pre>
@@ -58,6 +60,7 @@ public class WsSubjectLookup {
    */
   public void setSubjectId(String subjectId1) {
     this.subjectId = subjectId1;
+    this.validate();
   }
 
   /**
@@ -74,6 +77,7 @@ public class WsSubjectLookup {
    */
   public void setSubjectIdentifier(String subjectIdentifier1) {
     this.subjectIdentifier = subjectIdentifier1;
+    this.validate();
   }
 
   /**
@@ -86,8 +90,19 @@ public class WsSubjectLookup {
     this.subjectId = subjectId1;
     this.subjectSourceId = subjectSource1;
     this.subjectIdentifier = subjectIdentifier1;
+    this.validate();
   }
 
+  /**
+   * validate the subject lookup
+   */
+  public void validate() {
+    if (!GrouperClientUtils.isBlank(this.subjectId) && !GrouperClientUtils.isBlank(this.subjectIdentifier)) {
+      throw new RuntimeException("You must only specify the subjectId '" + this.subjectId 
+          + "' or subjectIdentifer '" + this.subjectIdentifier + "', but not both");
+    }
+  }
+  
   /**
    * 
    */

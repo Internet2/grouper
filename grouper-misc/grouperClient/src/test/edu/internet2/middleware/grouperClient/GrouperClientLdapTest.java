@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientLdapTest.java,v 1.1 2008-11-30 10:57:31 mchyzer Exp $
+ * $Id: GrouperClientLdapTest.java,v 1.2 2008-12-01 07:40:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -52,15 +52,15 @@ public class GrouperClientLdapTest extends TestCase {
     GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.returningAttributeLabels.1", "pennname:$space$");
     GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.resultType.1", "STRING");
 
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.operationName.2", "isInGroupLdap");
+    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.operationName.2", "hasMemberLdap");
     GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.ldapName.2", "ou=groups");
     GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.matchingAttributes.2", "cn, hasMember");
     GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.matchingAttributeLabels.2", "groupName, pennnameToCheck");
     GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.returningAttributes.2", "cn");
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.returningAttributeLabels.2", "isInGroup:$space$");
+    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.returningAttributeLabels.2", "hasMember:$space$");
     GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.resultType.2", "BOOLEAN");
 
-    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.operationName.3", "groupListLdap");
+    GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.operationName.3", "getMembersLdap");
     GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.ldapName.3", "ou=groups");
     GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.matchingAttributes.3", "cn");
     GrouperClientUtils.grouperClientOverrideMap().put("ldapSearchAttribute.matchingAttributeLabels.3", "groupName");
@@ -245,13 +245,13 @@ public class GrouperClientLdapTest extends TestCase {
     try {
       
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=isInGroupLdap --groupName=penn:isc:ait:apps:fast:pennCommunity --pennnameToCheck=mchyzer", " "));
+          "--operation=hasMemberLdap --groupName=penn:isc:ait:apps:fast:pennCommunity --pennnameToCheck=mchyzer", " "));
       System.out.flush();
       String pennname = new String(baos.toByteArray());
       
       System.setOut(systemOut);
       
-      Pattern pattern = Pattern.compile("^isInGroup: (.*)$", Pattern.DOTALL);
+      Pattern pattern = Pattern.compile("^hasMember: (.*)$", Pattern.DOTALL);
       Matcher matcher = pattern.matcher(pennname);
       
       assertTrue(pennname, matcher.matches());
@@ -279,13 +279,13 @@ public class GrouperClientLdapTest extends TestCase {
     try {
       
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=isInGroupLdap --groupName=penn:isc:ait:apps:fast:pennCommunity --pennnameToCheck=x1x1x1x1", " "));
+          "--operation=hasMemberLdap --groupName=penn:isc:ait:apps:fast:pennCommunity --pennnameToCheck=x1x1x1x1", " "));
       System.out.flush();
       String pennname = new String(baos.toByteArray());
       
       System.setOut(systemOut);
       
-      Pattern pattern = Pattern.compile("^isInGroup: (.*)$", Pattern.DOTALL);
+      Pattern pattern = Pattern.compile("^hasMember: (.*)$", Pattern.DOTALL);
       Matcher matcher = pattern.matcher(pennname);
       
       assertTrue(pennname, matcher.matches());
@@ -313,13 +313,13 @@ public class GrouperClientLdapTest extends TestCase {
     try {
       
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=isInGroupLdap --groupName=penn:isc:ait:apps:fast:x1x1x1x1x1 --pennnameToCheck=mchyzer", " "));
+          "--operation=hasMemberLdap --groupName=penn:isc:ait:apps:fast:x1x1x1x1x1 --pennnameToCheck=mchyzer", " "));
       System.out.flush();
       String pennname = new String(baos.toByteArray());
       
       System.setOut(systemOut);
       
-      Pattern pattern = Pattern.compile("^isInGroup: (.*)$", Pattern.DOTALL);
+      Pattern pattern = Pattern.compile("^hasMember: (.*)$", Pattern.DOTALL);
       Matcher matcher = pattern.matcher(pennname);
       
       assertTrue(pennname, matcher.matches());
@@ -347,13 +347,13 @@ public class GrouperClientLdapTest extends TestCase {
     try {
       
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=isInGroupLdap --groupName=penn:community:faculty --pennnameToCheck=mchyzer", " "));
+          "--operation=hasMemberLdap --groupName=penn:community:faculty --pennnameToCheck=mchyzer", " "));
       System.out.flush();
       String pennname = new String(baos.toByteArray());
       
       System.setOut(systemOut);
       
-      Pattern pattern = Pattern.compile("^isInGroup: (.*)$", Pattern.DOTALL);
+      Pattern pattern = Pattern.compile("^hasMember: (.*)$", Pattern.DOTALL);
       Matcher matcher = pattern.matcher(pennname);
       
       assertTrue(pennname, matcher.matches());
@@ -404,7 +404,7 @@ public class GrouperClientLdapTest extends TestCase {
   /**
    * note: this will only work at penn
    */
-  public void testGroupListLdap() {
+  public void testGetMembersLdap() {
     
     PrintStream systemOut = System.out;
   
@@ -414,7 +414,7 @@ public class GrouperClientLdapTest extends TestCase {
     try {
       
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=groupListLdap --groupName=penn:isc:ait:apps:fast:pennCommunity", " "));
+          "--operation=getMembersLdap --groupName=penn:isc:ait:apps:fast:pennCommunity", " "));
       System.out.flush();
       String output = new String(baos.toByteArray());
       
@@ -432,7 +432,7 @@ public class GrouperClientLdapTest extends TestCase {
   /**
    * note: this will only work at penn
    */
-  public void testGroupListLdapGroupNotExist() {
+  public void testGetMembersLdapGroupNotExist() {
     
     PrintStream systemOut = System.out;
   
@@ -442,7 +442,7 @@ public class GrouperClientLdapTest extends TestCase {
     try {
       
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=groupListLdap --groupName=penn:isc:ait:apps:fast:x1x1x1x1", " "));
+          "--operation=getMembersLdap --groupName=penn:isc:ait:apps:fast:x1x1x1x1", " "));
       System.out.flush();
       String output = new String(baos.toByteArray());
       
@@ -459,7 +459,7 @@ public class GrouperClientLdapTest extends TestCase {
   /**
    * note: this will only work at penn
    */
-  public void testGroupListLdapFile() {
+  public void testGetMembersLdapFile() {
     
     File file = new File("f:/temp/groupList.txt");
     if (file.exists()) {
@@ -474,7 +474,7 @@ public class GrouperClientLdapTest extends TestCase {
     try {
       
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=groupListLdap --groupName=penn:isc:ait:apps:fast:pennCommunity --saveResultsToFile=f:/temp/groupList.txt", " "));
+          "--operation=getMembersLdap --groupName=penn:isc:ait:apps:fast:pennCommunity --saveResultsToFile=f:/temp/groupList.txt", " "));
       System.out.flush();
       String output = new String(baos.toByteArray());
 

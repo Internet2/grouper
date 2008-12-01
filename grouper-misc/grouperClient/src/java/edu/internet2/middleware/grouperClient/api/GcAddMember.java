@@ -1,17 +1,20 @@
 /*
  * @author mchyzer
- * $Id: GcAddMember.java,v 1.1 2008-11-30 10:57:19 mchyzer Exp $
+ * $Id: GcAddMember.java,v 1.2 2008-12-01 07:40:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
-import edu.internet2.middleware.grouperClient.examples.WsExample.GrouperTestClientWs;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClient.ws.GcTransactionType;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
-import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 
@@ -37,6 +40,30 @@ public class GcAddMember {
   /** subject lookups */
   private List<WsSubjectLookup> subjectLookups = new ArrayList<WsSubjectLookup>();
 
+  /** params */
+  private List<WsParam> params = new ArrayList<WsParam>();
+
+  /**
+   * add a param to the list
+   * @param paramName
+   * @param paramValue
+   * @return this for chaining
+   */
+  public GcAddMember addParam(String paramName, String paramValue) {
+    this.params.add(new WsParam(paramName, paramValue));
+    return this;
+  }
+  
+  /**
+   * add a param to the list
+   * @param wsParam
+   * @return this for chaining
+   */
+  public GcAddMember addParam(WsParam wsParam) {
+    this.params.add(wsParam);
+    return this;
+  }
+  
   /** 
    * add a subject lookup
    * @param wsSubjectLookup
@@ -47,15 +74,35 @@ public class GcAddMember {
     return this;
   }
   
+  /** 
+   * add a subject lookup
+   * @param subjectId
+   * @return this for chaining
+   */
+  public GcAddMember addSubjectId(String subjectId) {
+    this.subjectLookups.add(new WsSubjectLookup(subjectId, null, null));
+    return this;
+  }
+  
+  /** 
+   * add a subject lookup
+   * @param subjectIdentifier
+   * @return this for chaining
+   */
+  public GcAddMember addSubjectIdentifier(String subjectIdentifier) {
+    this.subjectLookups.add(new WsSubjectLookup(null, null, subjectIdentifier));
+    return this;
+  }
+  
   /** if we should replace all existing */
-  private boolean replaceAllExisting = false;
+  private Boolean replaceAllExisting = null;
 
   /**
    * set if we should replace all existing members with new list
    * @param isReplaceAllExisting
    * @return this for chaining
    */
-  public GcAddMember assignReplaceAllExisting(boolean isReplaceAllExisting) {
+  public GcAddMember assignReplaceAllExisting(Boolean isReplaceAllExisting) {
     this.replaceAllExisting = isReplaceAllExisting;
     return this;
   }
@@ -85,6 +132,71 @@ public class GcAddMember {
     }
   }
   
+  /** field name to add member */
+  private String fieldName;
+  
+  /**
+   * assign the field name to the request
+   * @param theFieldName
+   * @return this for chaining
+   */
+  public GcAddMember assignFieldName(String theFieldName) {
+    this.fieldName = theFieldName;
+    return this;
+  }
+  
+  /** tx type for request */
+  private GcTransactionType txType;
+
+  /**
+   * assign the tx type
+   * @param gcTransactionType
+   * @return self for chaining
+   */
+  public GcAddMember assignTxType(GcTransactionType gcTransactionType) {
+    this.txType = gcTransactionType;
+    return this;
+  }
+  
+  /** if the group detail should be sent back */
+  private Boolean includeGroupDetail;
+  
+  /** if the subject detail should be sent back */
+  private Boolean includeSubjectDetail;
+
+  /** subject attribute names to return */
+  private Set<String> subjectAttributeNames = new LinkedHashSet<String>();
+
+  /**
+   * 
+   * @param subjectAttributeName
+   * @return this for chaining
+   */
+  public GcAddMember addSubjectAttributeName(String subjectAttributeName) {
+    this.subjectAttributeNames.add(subjectAttributeName);
+    return this;
+  }
+  
+  /**
+   * assign if the group detail should be included
+   * @param theIncludeGroupDetail
+   * @return this for chaining
+   */
+  public GcAddMember assignIncludeGroupDetail(Boolean theIncludeGroupDetail) {
+    this.includeGroupDetail = theIncludeGroupDetail;
+    return this;
+  }
+  
+  /**
+   * if should include subject detail
+   * @param theIncludeSubjectDetail
+   * @return this for chaining
+   */
+  public GcAddMember assignIncludeSubjectDetail(Boolean theIncludeSubjectDetail) {
+    this.includeSubjectDetail = theIncludeSubjectDetail;
+    return this;
+  }
+  
   /**
    * execute the call and return the results.  If there is a problem calling the service, an
    * exception will be thrown
@@ -93,6 +205,7 @@ public class GcAddMember {
    */
   public WsAddMemberResults execute() {
     this.validate();
+    WsAddMemberResults wsAddMemberResults = null;
     try {
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
@@ -100,108 +213,55 @@ public class GcAddMember {
 
       addMember.setActAsSubjectLookup(this.actAsSubject);
 
-      // just add, dont replace
-      addMember.setReplaceAllExisting(this.replaceAllExisting ? "T" : "F");
+      addMember.setFieldName(this.fieldName);
+      
+      addMember.setTxType(this.txType == null ? null : this.txType.name());
+      
+      if (this.replaceAllExisting != null) {
+        addMember.setReplaceAllExisting(this.replaceAllExisting ? "T" : "F");
+      }
+
+      if (this.includeGroupDetail != null) {
+        addMember.setIncludeGroupDetail(this.includeGroupDetail ? "T" : "F");
+      }
+
+      if (this.includeSubjectDetail != null) {
+        addMember.setIncludeSubjectDetail(this.includeSubjectDetail ? "T" : "F");
+      }
+      
+      WsGroupLookup wsGroupLookup = new WsGroupLookup();
+      wsGroupLookup.setGroupName(this.groupName);
+      
+      addMember.setWsGroupLookup(wsGroupLookup);
+      
+      if (this.subjectAttributeNames.size() > 0) {
+        addMember.setSubjectAttributeNames(
+            GrouperClientUtils.toArray(this.subjectAttributeNames, String.class));
+      }
       
       WsSubjectLookup[] subjectLookupsResults = GrouperClientUtils.toArray(this.subjectLookups, 
           WsSubjectLookup.class);
       addMember.setSubjectLookups(subjectLookupsResults);
+
+      //add params if there are any
+      if (this.params.size() > 0) {
+        addMember.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));
+      }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       
       //kick off the web service
-      WsAddMemberResults wsAddMemberResults = (WsAddMemberResults)
+      wsAddMemberResults = (WsAddMemberResults)
         grouperClientWs.executeService("groups/" + this.groupName + "/members", addMember, "addMember");
       
       String resultMessage = wsAddMemberResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(resultMessage);
       
-      return wsAddMemberResults;
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      GrouperClientUtils.convertToRuntimeException(e);
     }
-
-  }
-  
-  /**
-   * add member(s)
-   * @param groupName
-   * @param subjectIds
-   * @param subjectIdentifiers
-   * @param sourceIds
-   * @param replaceAllExisting if replace all existing
-   * @return the status
-   */
-  public static String addMember(String groupName, List<String> subjectIds, 
-      List<String> subjectIdentifiers, List<String> sourceIds, boolean replaceAllExisting) {
-    StringBuilder result = new StringBuilder();
-    try {
-      //Make the body of the request, in this case with beans and marshaling, but you can make
-      //your request document in whatever language or way you want
-      WsRestAddMemberRequest addMember = new WsRestAddMemberRequest();
-
-      // set the act as id
-      WsSubjectLookup actAsSubject = new WsSubjectLookup("GrouperSystem", null, null);
-      addMember.setActAsSubjectLookup(actAsSubject);
-
-      // just add, dont replace
-      addMember.setReplaceAllExisting(replaceAllExisting ? "T" : "F");
-
-      // add two subjects to the group
-      int subjectIdLength = GrouperClientUtils.length(subjectIds);
-      int subjectIdentifierLength = GrouperClientUtils.length(subjectIdentifiers);
-      int sourceIdLength = GrouperClientUtils.length(sourceIds);
-      
-      if (subjectIdLength == 0 && subjectIdentifierLength == 0) {
-        throw new RuntimeException("Cant pass no subject ids and no subject identifiers!");
-      }
-      if (subjectIdLength != 0 && subjectIdentifierLength != 0) {
-        throw new RuntimeException("Cant pass subject ids and subject identifiers! (pass one of the other)");
-      }
-      
-      if (sourceIdLength > 0 && sourceIdLength != subjectIdLength 
-          && sourceIdLength != subjectIdentifierLength) {
-        throw new RuntimeException("If source ids are passed in, you " +
-            "must pass the same number as subjectIds or subjectIdentifiers");
-      }
-      
-      int subjectsLength = Math.max(subjectIdLength, subjectIdentifierLength);
-      WsSubjectLookup[] subjectLookups = new WsSubjectLookup[subjectsLength];
-      for (int i=0;i<subjectsLength;i++) {
-        subjectLookups[i] = new WsSubjectLookup();
-        if (subjectIdLength > 0) {
-          subjectLookups[i].setSubjectId(subjectIds.get(i));
-        }
-        if (subjectIdentifierLength > 0) {
-          subjectLookups[i].setSubjectIdentifier(subjectIdentifiers.get(i));
-        }
-        if (sourceIdLength > 0) {
-          subjectLookups[i].setSubjectSourceId(sourceIds.get(i));
-        }
-      }
-      addMember.setSubjectLookups(subjectLookups);
-      
-      GrouperTestClientWs grouperClientWs = new GrouperTestClientWs();
-      
-      //convert to object (from xhtml, xml, json, etc)
-      WsAddMemberResults wsAddMemberResults = (WsAddMemberResults)grouperClientWs.executeService(addMember);
-      
-      String resultMessage = wsAddMemberResults.getResultMetadata().getResultMessage();
-      grouperClientWs.handleFailure(resultMessage);
-      
-      int index = 0;
-      for (WsAddMemberResult wsAddMemberResult : wsAddMemberResults.getResults()) {
-
-        result.append("Index " + index + ": success: " + wsAddMemberResult.getResultMetadata().getSuccess()
-            + ": code: " + wsAddMemberResult.getResultMetadata().getResultCode() + ": " 
-            + wsAddMemberResult.getWsSubject().getId() + "\n");
-        index++;
-      }
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-    return result.toString();
-
+    return wsAddMemberResults;
+    
   }
   
 }

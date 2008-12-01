@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsVersion.java,v 1.7 2008-10-27 21:28:15 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsVersion.java,v 1.8 2008-12-01 07:40:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -132,13 +132,13 @@ public enum GrouperWsVersion {
     if (currentVersion == null) {
       //find current version
       for (GrouperWsVersion grouperServiceVersion : GrouperWsVersion.values()) {
-        //make sure not more than one
-        if (currentVersion != null) {
-          GrouperUtil.assertion(!grouperServiceVersion.currentVersionBoolean,
-              "Cant have more than one current version");
-        }
         //we found it
         if (grouperServiceVersion.currentVersionBoolean) {
+          //make sure not more than one
+          if (currentVersion != null) {
+            GrouperUtil.assertion(!grouperServiceVersion.currentVersionBoolean,
+                "Cant have more than one current version");
+          }
           currentVersion = grouperServiceVersion;
         }
       }

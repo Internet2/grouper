@@ -1,33 +1,51 @@
-USAGE:
+Grouper Client USAGE:
 
-This program runs queries against ldap and web services
+This program runs queries against grouper ldap and web services
 The system exit code will be 0 for success, and not 0 for failure
 Output data is printed to stdout, error messages are printed to stderr or logs (configured in grouper.client.properties)
+Grouper client webpage: https://wiki.internet2.edu/confluence/display/GrouperWG/Grouper+Client
 
 Arguments are in the format: --argName=argValue
 Example argument: --operation=encryptPassword
+Example argument(OS dependent): --operation="value with whitespace"
+
+Optional arguments below are in [brackets]
 
 Encrypt passwords for storing passwords in external encrypted files:
-java -jar grouperClient.jar --operation=encryptPassword 
+  java -jar grouperClient.jar --operation=encryptPassword [--dontMask=true|false]
 
+NOTE: CHANGE THIS IN grouper.client.usage.txt FOR YOUR SCHOOOL'S LDAP QUERIES
 pennname to pennid usage: 
-  java -jar grouperClient --operation=pennnameToPennid --pennnameToDecode=pennname
+  java -jar grouperClient.jar --operation=pennnameToPennid --pennnameToDecode=pennname [--saveResultsToFile=fileName] [--outputTemplate=somePattern]
   e.g.: java -jar grouperClient --operation=pennnameToPennid --pennnameToDecode=jsmith
   output: pennid: 12341234
 
+NOTE: CHANGE THIS IN grouper.client.usage.txt FOR YOUR SCHOOOL'S LDAP QUERIES
 pennid to pennname usage: 
-  java -jar grouperClient --operation=pennidToPennkey --pennidToDecode=pennid
+  java -jar grouperClient.jar --operation=pennidToPennkey --pennidToDecode=pennid [--saveResultsToFile=fileName] [--outputTemplate=somePattern]
   e.g.: java -jar grouperClient --operation=pennidToPennkey --pennidToDecode=12341234
   output: pennname: jsmith
 
-is in group usage: 
-  java -jar grouperClient --operation=isInGroup --groupName=groupName --pennnameToCheck=pennkey
-  e.g.: java -jar grouperClient --operation=isInGroup --groupName=penn:myfolder:mygroup --pennnameToCheck=jsmith
-  output: isInGroup: true
+NOTE: CHANGE THIS IN grouper.client.usage.txt FOR YOUR SCHOOOL'S LDAP QUERIES
+hasMember ldap usage: 
+  java -jar grouperClient.jar --operation=hasMemberLdap --groupName=groupName --pennnameToCheck=pennkey [--saveResultsToFile=fileName] [--outputTemplate=somePattern]
+  e.g.: java -jar grouperClient --operation=hasMemberLdap --groupName=penn:myfolder:mygroup --pennnameToCheck=jsmith
+  output: hasMemberLdap: true
 
-group list usage: 
-  java -jar grouperClient --engine=ldap --operation=groupList --groupName=groupName
+NOTE: CHANGE THIS IN grouper.client.usage.txt FOR YOUR SCHOOOL'S LDAP QUERIES
+getMembers ldap usage: 
+  java -jar grouperClient.jar --operation=getMembersLdap --groupName=groupName [--saveResultsToFile=fileName] [--outputTemplate=somePattern]
   e.g.: java -jar grouperClient --engine=ldap --operation=group
 List --groupName=penn:myfolder:mygroup
   output: groupList: jsmith, tsmith, msmith
-  note: extremely large group lists might not display (e.g. over 20k members)
+  note: extremely large group lists might not display fully (e.g. over 1000 members)
+
+addMember web service usage (note: you can replace all members of a group also):
+  java -jar grouperClient.jar --operation=addMemberWs --groupName=groupName [--subjectIds=subjId0,subjId1] [--subjectIdentifierss=subjIdent0,subjIdent1] [--subjectSources=source0,source1] [--subjectIdsFile=fileName] [--subjectIdentifiersFile=fileName] [--subjectSourcesFile=fileName] [--defaultSubjectSource=subjectSourceId] [--fieldName=fieldNameToAdd] [--txType=GcTransactionType] [--includeGroupDetail=true|false] [--includeSubjectDetailtrue|false] [--subjectAttributeNames=name0,name1] [--replaceAllExisting=true|false] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue]  
+  e.g.: java -jar grouperClient.jar --operation=addMemberWs --groupName=aStem:aGroup --subjectIds=12345,23456
+  output: Index 0: success: T: code: SUCCESS: 12345
+  
+getMembers web service usage:
+  java -jar grouperClient.jar --operation=getMembersWs --groupNames=groupName0,groupName1[--fieldName=fieldNameToAdd] [--memberFilter=GcMemberFilter] [--includeGroupDetail=true|false] [--includeSubjectDetailtrue|false] [--subjectAttributeNames=name0,name1] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue]  
+  e.g.: java -jar grouperClient.jar --operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2
+  output: GroupIndex 0: success: T: code: SUCCESS: group: aStem:aGroup: subjectIndex: 0: 12345

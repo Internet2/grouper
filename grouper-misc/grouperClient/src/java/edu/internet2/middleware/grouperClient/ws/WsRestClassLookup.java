@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestClassLookup.java,v 1.1 2008-11-27 14:25:49 mchyzer Exp $
+ * $Id: WsRestClassLookup.java,v 1.2 2008-12-01 07:40:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws;
 
@@ -11,12 +11,15 @@ import java.util.Map;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDetail;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsResponseMeta;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAddMemberRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetMembersRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestResultProblem;
 import edu.internet2.middleware.grouperClient.ws.beans.WsResultMeta;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
@@ -33,8 +36,6 @@ public class WsRestClassLookup {
 
   /** add a bunch of xstream aliases */
   static {
-    addAliasClass(WsAddMemberResult.class);
-    addAliasClass(WsAddMemberResults.class);
     addAliasClass(WsGroup.class);
     addAliasClass(WsGroupDetail.class);
     addAliasClass(WsGroupLookup.class);
@@ -47,7 +48,12 @@ public class WsRestClassLookup {
 
     addAliasClass(WsRestResultProblem.class);
     addAliasClass(WsRestAddMemberRequest.class);
+    addAliasClass(WsAddMemberResult.class);
+    addAliasClass(WsAddMemberResults.class);
     
+    addAliasClass(WsRestGetMembersRequest.class);
+    addAliasClass(WsGetMembersResult.class);
+    addAliasClass(WsGetMembersResults.class);
     
   }
   

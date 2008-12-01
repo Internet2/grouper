@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: RestClientSettings.java,v 1.8 2008-11-06 21:51:49 mchyzer Exp $
+ * @author mchyzer $Id: RestClientSettings.java,v 1.9 2008-12-01 07:40:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.util;
 
@@ -83,6 +83,14 @@ public class RestClientSettings {
      * reset data, and insert groups, and add root user etc 
      */
     public static void resetData() {
+      resetData(RestClientSettings.USER, true);
+    }
+    /**
+     * reset data, and insert groups, and add root user etc 
+     * @param loginUserString 
+     * @param loginIsWheel
+     */
+    public static void resetData(String loginUserString, boolean loginIsWheel) {
       try {
         RegistryReset.internal_resetRegistryAndAddTestSubjects(false);
         
@@ -91,7 +99,7 @@ public class RestClientSettings {
         String userGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
         GrouperSession grouperSession = GrouperSession.startRootSession();
         Group wsUserGroup = Group.saveGroup(grouperSession, userGroupName, null, userGroupName, null, null, null, true);
-        Subject userSubject = SubjectFinder.findByIdentifier(USER);
+        Subject userSubject = SubjectFinder.findByIdOrIdentifier(loginUserString, true);
         wsUserGroup.addMember(userSubject, false);
 
         String actAsGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_ACT_AS_GROUP);
@@ -100,7 +108,9 @@ public class RestClientSettings {
         
         String wheelGroupName = GrouperConfig.getProperty(GrouperConfig.PROP_WHEEL_GROUP);
         Group wheelGroup = Group.saveGroup(grouperSession, wheelGroupName, null, wheelGroupName, null, null, null, true);
-        wheelGroup.addMember(userSubject, false);
+        if (loginIsWheel) {
+          wheelGroup.addMember(userSubject, false);
+        }
         
         //add the member
         Subject subject0 = SubjectFinder.findById("test.subject.0");
@@ -111,11 +121,13 @@ public class RestClientSettings {
         Stem aStem = Stem.saveStem(grouperSession, "aStem", null, "aStem", null, null, null, true);
 
         aStem.grantPriv(subject0, NamingPrivilege.CREATE);
+        aStem.grantPriv(userSubject, NamingPrivilege.CREATE);
         
         Group aGroup = Group.saveGroup(grouperSession, "aStem:aGroup", null, "aStem:aGroup", null, null, null, true);
         
         //grant a priv
         aGroup.grantPriv(subject0, AccessPrivilege.ADMIN);
+        aGroup.grantPriv(userSubject, AccessPrivilege.ADMIN);
         
         //add some types and attributes
         GroupType groupType = GroupType.createType(grouperSession, "aType", false);

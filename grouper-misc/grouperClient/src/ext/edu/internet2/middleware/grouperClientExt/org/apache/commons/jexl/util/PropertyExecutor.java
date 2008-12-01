@@ -119,7 +119,7 @@ public class PropertyExecutor extends AbstractExecutor {
             return null;
         }
 
-        return method.invoke(o, null);
+        return method.invoke(o, (Object[])null);
     }
 }
 

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsResponseMeta.java,v 1.4 2008-11-18 10:05:50 mchyzer Exp $
+ * @author mchyzer $Id: WsResponseMeta.java,v 1.5 2008-12-01 07:40:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
@@ -63,10 +63,10 @@ public class WsResponseMeta {
    * @return
    */
   public String getMillis() {
-    if (this.millis != -1) {
-      return Long.toString(this.millis);
+    if (this.millis == -1) {
+      this.millis = System.currentTimeMillis() - this.millisStart;
     }
-    return Long.toString(System.currentTimeMillis() - this.millisStart);
+    return Long.toString(this.millis);
   }
   
   /** server version */

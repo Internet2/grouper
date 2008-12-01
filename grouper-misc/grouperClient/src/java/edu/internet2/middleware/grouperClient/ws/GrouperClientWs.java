@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWs.java,v 1.1 2008-11-30 10:57:31 mchyzer Exp $
+ * $Id: GrouperClientWs.java,v 1.2 2008-12-01 07:40:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws;
 
@@ -71,6 +71,12 @@ public class GrouperClientWs {
    */
   private String resultCode = null;
   
+  /** keep a reference to the most recent for testing */
+  public static String mostRecentRequest = null;
+  
+  /** keep a reference to the most recent for testing */
+  public static String mostRecentResponse = null;
+  
   /**
    * @param urlSuffix e.g. groups/aStem:aGroup/members
    * @param toSend
@@ -91,14 +97,17 @@ public class GrouperClientWs {
       
       logDir = GrouperClientUtils.stripEnd(logDir, "/");
       logDir = GrouperClientUtils.stripEnd(logDir, "\\");
+      Date date = new Date();
       String logName = logDir  + File.separator + "wsLog_" 
-        + new SimpleDateFormat(
-            "yyyy_MM" + File.separator + "dd_HH_mm_ss_SSS").format(new Date())      
+        + new SimpleDateFormat("yyyy_MM").format(date)
+        + File.separator + "day_" 
+        + new SimpleDateFormat("dd" + File.separator + "HH_mm_ss_SSS").format(date)
         + "_" + ((int)(1000 * Math.random())) + "_" + labelForLog;
       
       requestFile = new File(logName + "_request.log");
-      responseFile = new File(logName + "_response.log");
       
+      responseFile = new File(logName + "_response.log");
+
       //make parents
       GrouperClientUtils.mkdirs(requestFile.getParentFile());
       
@@ -117,6 +126,8 @@ public class GrouperClientWs {
     this.resultCode = this.method.getResponseHeader("X-Grouper-resultCode").getValue();
     
     this.response = GrouperClientUtils.responseBodyAsString(this.method);
+
+    mostRecentResponse = this.response;
 
     if (responseFile != null) {
       LOG.debug("WebService: logging response to: " + GrouperClientUtils.fileCanonicalPath(responseFile));
@@ -275,6 +286,8 @@ public class GrouperClientWs {
 
       GrouperClientUtils.saveStringIntoFile(logFile, theRequestDocument);
     }
+    
+    mostRecentRequest = requestDocument;
     
     method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
     

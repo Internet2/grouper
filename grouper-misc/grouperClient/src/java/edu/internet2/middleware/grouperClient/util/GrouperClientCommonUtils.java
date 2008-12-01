@@ -434,11 +434,12 @@ public class GrouperClientCommonUtils  {
    * Note: this will probably not work for primitive arrays (e.g. int[])
    * @param <T>
    * @param array
+   * @param theClass to make array from
    * @return the list or empty list if null
    */
   @SuppressWarnings("unchecked")
-  public static <T> T[] nonNull(T[] array) {
-    return array == null ? ((T[])new Object[0]) : array;
+  public static <T> T[] nonNull(T[] array, Class<?> theClass) {
+    return array == null ? ((T[])Array.newInstance(theClass, 0)) : array;
   }
   
   /**
@@ -7071,7 +7072,7 @@ public class GrouperClientCommonUtils  {
     
     Map<String, String> result = new LinkedHashMap<String, String>();
 
-    for (String arg : nonNull(args)) {
+    for (String arg : nonNull(args,String.class)) {
       String key = argKey(arg);
       String value = argValue(arg);
       if (result.containsKey(key)) {
@@ -7125,6 +7126,86 @@ public class GrouperClientCommonUtils  {
       throw new RuntimeException("Argument '--" + key + "' is required, but not specified.  e.g. --" + key + "=true");
     }
     return booleanValue(argString, defaultValue);
+  }
+  
+  /**
+   * get the value from the argMap, throw exception if not there and required
+   * @param argMap
+   * @param argMapNotUsed 
+   * @param key
+   * @return the value or null or exception
+   */
+  public static Boolean argMapBoolean(Map<String, String> argMap, Map<String, String> argMapNotUsed, 
+      String key) {
+    String argString = argMapString(argMap, argMapNotUsed, key, false);
+
+    return booleanObjectValue(argString);
+  }
+  
+  /**
+   * get the set from comma separated from the argMap, throw exception if not there and required
+   * @param argMap
+   * @param argMapNotUsed 
+   * @param key
+   * @param required
+   * @return the value or null or exception
+   */
+  public static Set<String> argMapSet(Map<String, String> argMap, Map<String, String> argMapNotUsed, 
+      String key, boolean required) {
+    List<String> list = argMapList(argMap, argMapNotUsed, key, required);
+    return list == null ? null : new LinkedHashSet(list);
+  }
+  
+  /**
+   * get the list from comma separated from the argMap, throw exception if not there and required
+   * @param argMap
+   * @param argMapNotUsed 
+   * @param key
+   * @param required
+   * @return the value or null or exception
+   */
+  public static List<String> argMapList(Map<String, String> argMap, Map<String, String> argMapNotUsed, 
+      String key, boolean required) {
+    String argString = argMapString(argMap, argMapNotUsed, key, required);
+    if (isBlank(argString)) {
+      return null;
+    }
+    return splitTrimToList(argString, ",");
+  }
+  
+  /**
+   * get the list from comma separated from the argMap, throw exception if not there and required
+   * @param argMap
+   * @param argMapNotUsed 
+   * @param key
+   * @param required
+   * @return the value or null or exception
+   */
+  public static List<String> argMapFileList(Map<String, String> argMap, Map<String, String> argMapNotUsed, 
+      String key, boolean required) {
+    String argString = argMapString(argMap, argMapNotUsed, key, required);
+    if (isBlank(argString)) {
+      return null;
+    }
+    //read from file
+    File file = new File(argString);
+    try {
+      //do this by regex, since we dont know what platform we are on
+      String listString = GrouperClientUtils.readFileIntoString(file);
+      String[] array = listString.split("\\s+");
+      List<String> list = new ArrayList<String>();
+      for (String string : array) {
+        //dont know if any here will be blank or whatnot
+        if (!GrouperClientUtils.isBlank(string)) {
+          //should already be trimmed, but just in case
+          list.add(trim(string));
+        }
+      }
+      return list;
+    } catch (Exception e) {
+      throw new RuntimeException("Error reading file: '" 
+          + GrouperClientUtils.fileCanonicalPath(file) + "' from command line arg: " + key, e );
+    }
   }
   
   /**
@@ -7960,5 +8041,15 @@ public class GrouperClientCommonUtils  {
     }
   }
 
+  /**
+   * convert an exception to a runtime exception
+   * @param e
+   */
+  public static void convertToRuntimeException(Exception e) {
+    if (e instanceof RuntimeException) {
+      throw (RuntimeException)e;
+    }
+    throw new RuntimeException(e.getMessage(), e);
+  }
 
 }

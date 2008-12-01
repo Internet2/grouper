@@ -824,10 +824,12 @@ public class GrouperUtil {
    * Note: this will probably not work for primitive arrays (e.g. int[])
    * @param <T>
    * @param array
+   * @param theClass to make array from
    * @return the list or empty list if null
    */
-  public static <T> T[] nonNull(T[] array) {
-    return array == null ? ((T[])new Object[0]) : array;
+  @SuppressWarnings("unchecked")
+  public static <T> T[] nonNull(T[] array, Class<?> theClass) {
+    return array == null ? ((T[])Array.newInstance(theClass, 0)) : array;
   }
   
   /**
@@ -7709,4 +7711,438 @@ public class GrouperUtil {
     LOG.error(error);
     return false;
   }
+  
+  /**
+   * <p>Strips any of a set of characters from the start of a String.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.
+   * An empty string ("") input returns the empty string.</p>
+   *
+   * <p>If the stripChars String is <code>null</code>, whitespace is
+   * stripped as defined by {@link Character#isWhitespace(char)}.</p>
+   *
+   * <pre>
+   * StringUtils.stripStart(null, *)          = null
+   * StringUtils.stripStart("", *)            = ""
+   * StringUtils.stripStart("abc", "")        = "abc"
+   * StringUtils.stripStart("abc", null)      = "abc"
+   * StringUtils.stripStart("  abc", null)    = "abc"
+   * StringUtils.stripStart("abc  ", null)    = "abc  "
+   * StringUtils.stripStart(" abc ", null)    = "abc "
+   * StringUtils.stripStart("yxabc  ", "xyz") = "abc  "
+   * </pre>
+   *
+   * @param str  the String to remove characters from, may be null
+   * @param stripChars  the characters to remove, null treated as whitespace
+   * @return the stripped String, <code>null</code> if null String input
+   */
+  public static String stripStart(String str, String stripChars) {
+    int strLen;
+    if (str == null || (strLen = str.length()) == 0) {
+      return str;
+    }
+    int start = 0;
+    if (stripChars == null) {
+      while ((start != strLen) && Character.isWhitespace(str.charAt(start))) {
+        start++;
+      }
+    } else if (stripChars.length() == 0) {
+      return str;
+    } else {
+      while ((start != strLen) && (stripChars.indexOf(str.charAt(start)) != -1)) {
+        start++;
+      }
+    }
+    return str.substring(start);
+  }
+
+  /**
+   * <p>Strips any of a set of characters from the end of a String.</p>
+   *
+   * <p>A <code>null</code> input String returns <code>null</code>.
+   * An empty string ("") input returns the empty string.</p>
+   *
+   * <p>If the stripChars String is <code>null</code>, whitespace is
+   * stripped as defined by {@link Character#isWhitespace(char)}.</p>
+   *
+   * <pre>
+   * StringUtils.stripEnd(null, *)          = null
+   * StringUtils.stripEnd("", *)            = ""
+   * StringUtils.stripEnd("abc", "")        = "abc"
+   * StringUtils.stripEnd("abc", null)      = "abc"
+   * StringUtils.stripEnd("  abc", null)    = "  abc"
+   * StringUtils.stripEnd("abc  ", null)    = "abc"
+   * StringUtils.stripEnd(" abc ", null)    = " abc"
+   * StringUtils.stripEnd("  abcyx", "xyz") = "  abc"
+   * </pre>
+   *
+   * @param str  the String to remove characters from, may be null
+   * @param stripChars  the characters to remove, null treated as whitespace
+   * @return the stripped String, <code>null</code> if null String input
+   */
+  public static String stripEnd(String str, String stripChars) {
+    int end;
+    if (str == null || (end = str.length()) == 0) {
+      return str;
+    }
+
+    if (stripChars == null) {
+      while ((end != 0) && Character.isWhitespace(str.charAt(end - 1))) {
+        end--;
+      }
+    } else if (stripChars.length() == 0) {
+      return str;
+    } else {
+      while ((end != 0) && (stripChars.indexOf(str.charAt(end - 1)) != -1)) {
+        end--;
+      }
+    }
+    return str.substring(0, end);
+  }
+
+  /**
+   * The empty String <code>""</code>.
+   * @since 2.0
+   */
+  public static final String EMPTY = "";
+
+  /**
+   * Represents a failed index search.
+   * @since 2.1
+   */
+  public static final int INDEX_NOT_FOUND = -1;
+
+  /**
+   * <p>The maximum size to which the padding constant(s) can expand.</p>
+   */
+  private static final int PAD_LIMIT = 8192;
+
+  /**
+   * <p>An array of <code>String</code>s used for padding.</p>
+   *
+   * <p>Used for efficient space padding. The length of each String expands as needed.</p>
+   */
+  private static final String[] PADDING = new String[Character.MAX_VALUE];
+
+  static {
+    // space padding is most common, start with 64 chars
+    PADDING[32] = "                                                                ";
+  }
+
+  /**
+   * <p>Repeat a String <code>repeat</code> times to form a
+   * new String.</p>
+   *
+   * <pre>
+   * StringUtils.repeat(null, 2) = null
+   * StringUtils.repeat("", 0)   = ""
+   * StringUtils.repeat("", 2)   = ""
+   * StringUtils.repeat("a", 3)  = "aaa"
+   * StringUtils.repeat("ab", 2) = "abab"
+   * StringUtils.repeat("a", -2) = ""
+   * </pre>
+   *
+   * @param str  the String to repeat, may be null
+   * @param repeat  number of times to repeat str, negative treated as zero
+   * @return a new String consisting of the original String repeated,
+   *  <code>null</code> if null String input
+   */
+  public static String repeat(String str, int repeat) {
+    // Performance tuned for 2.0 (JDK1.4)
+
+    if (str == null) {
+      return null;
+    }
+    if (repeat <= 0) {
+      return EMPTY;
+    }
+    int inputLength = str.length();
+    if (repeat == 1 || inputLength == 0) {
+      return str;
+    }
+    if (inputLength == 1 && repeat <= PAD_LIMIT) {
+      return padding(repeat, str.charAt(0));
+    }
+
+    int outputLength = inputLength * repeat;
+    switch (inputLength) {
+      case 1:
+        char ch = str.charAt(0);
+        char[] output1 = new char[outputLength];
+        for (int i = repeat - 1; i >= 0; i--) {
+          output1[i] = ch;
+        }
+        return new String(output1);
+      case 2:
+        char ch0 = str.charAt(0);
+        char ch1 = str.charAt(1);
+        char[] output2 = new char[outputLength];
+        for (int i = repeat * 2 - 2; i >= 0; i--, i--) {
+          output2[i] = ch0;
+          output2[i + 1] = ch1;
+        }
+        return new String(output2);
+      default:
+        StringBuffer buf = new StringBuffer(outputLength);
+        for (int i = 0; i < repeat; i++) {
+          buf.append(str);
+        }
+        return buf.toString();
+    }
+  }
+
+  /**
+   * <p>Returns padding using the specified delimiter repeated
+   * to a given length.</p>
+   *
+   * <pre>
+   * StringUtils.padding(0, 'e')  = ""
+   * StringUtils.padding(3, 'e')  = "eee"
+   * StringUtils.padding(-2, 'e') = IndexOutOfBoundsException
+   * </pre>
+   *
+   * @param repeat  number of times to repeat delim
+   * @param padChar  character to repeat
+   * @return String with repeated character
+   * @throws IndexOutOfBoundsException if <code>repeat &lt; 0</code>
+   */
+  private static String padding(int repeat, char padChar) {
+    // be careful of synchronization in this method
+    // we are assuming that get and set from an array index is atomic
+    String pad = PADDING[padChar];
+    if (pad == null) {
+      pad = String.valueOf(padChar);
+    }
+    while (pad.length() < repeat) {
+      pad = pad.concat(pad);
+    }
+    PADDING[padChar] = pad;
+    return pad.substring(0, repeat);
+  }
+
+  /**
+   * <p>Right pad a String with spaces (' ').</p>
+   *
+   * <p>The String is padded to the size of <code>size</code>.</p>
+   *
+   * <pre>
+   * StringUtils.rightPad(null, *)   = null
+   * StringUtils.rightPad("", 3)     = "   "
+   * StringUtils.rightPad("bat", 3)  = "bat"
+   * StringUtils.rightPad("bat", 5)  = "bat  "
+   * StringUtils.rightPad("bat", 1)  = "bat"
+   * StringUtils.rightPad("bat", -1) = "bat"
+   * </pre>
+   *
+   * @param str  the String to pad out, may be null
+   * @param size  the size to pad to
+   * @return right padded String or original String if no padding is necessary,
+   *  <code>null</code> if null String input
+   */
+  public static String rightPad(String str, int size) {
+    return rightPad(str, size, ' ');
+  }
+
+  /**
+   * <p>Right pad a String with a specified character.</p>
+   *
+   * <p>The String is padded to the size of <code>size</code>.</p>
+   *
+   * <pre>
+   * StringUtils.rightPad(null, *, *)     = null
+   * StringUtils.rightPad("", 3, 'z')     = "zzz"
+   * StringUtils.rightPad("bat", 3, 'z')  = "bat"
+   * StringUtils.rightPad("bat", 5, 'z')  = "batzz"
+   * StringUtils.rightPad("bat", 1, 'z')  = "bat"
+   * StringUtils.rightPad("bat", -1, 'z') = "bat"
+   * </pre>
+   *
+   * @param str  the String to pad out, may be null
+   * @param size  the size to pad to
+   * @param padChar  the character to pad with
+   * @return right padded String or original String if no padding is necessary,
+   *  <code>null</code> if null String input
+   * @since 2.0
+   */
+  public static String rightPad(String str, int size, char padChar) {
+    if (str == null) {
+      return null;
+    }
+    int pads = size - str.length();
+    if (pads <= 0) {
+      return str; // returns original String when possible
+    }
+    if (pads > PAD_LIMIT) {
+      return rightPad(str, size, String.valueOf(padChar));
+    }
+    return str.concat(padding(pads, padChar));
+  }
+
+  /**
+   * <p>Right pad a String with a specified String.</p>
+   *
+   * <p>The String is padded to the size of <code>size</code>.</p>
+   *
+   * <pre>
+   * StringUtils.rightPad(null, *, *)      = null
+   * StringUtils.rightPad("", 3, "z")      = "zzz"
+   * StringUtils.rightPad("bat", 3, "yz")  = "bat"
+   * StringUtils.rightPad("bat", 5, "yz")  = "batyz"
+   * StringUtils.rightPad("bat", 8, "yz")  = "batyzyzy"
+   * StringUtils.rightPad("bat", 1, "yz")  = "bat"
+   * StringUtils.rightPad("bat", -1, "yz") = "bat"
+   * StringUtils.rightPad("bat", 5, null)  = "bat  "
+   * StringUtils.rightPad("bat", 5, "")    = "bat  "
+   * </pre>
+   *
+   * @param str  the String to pad out, may be null
+   * @param size  the size to pad to
+   * @param padStr  the String to pad with, null or empty treated as single space
+   * @return right padded String or original String if no padding is necessary,
+   *  <code>null</code> if null String input
+   */
+  public static String rightPad(String str, int size, String padStr) {
+    if (str == null) {
+      return null;
+    }
+    if (isEmpty(padStr)) {
+      padStr = " ";
+    }
+    int padLen = padStr.length();
+    int strLen = str.length();
+    int pads = size - strLen;
+    if (pads <= 0) {
+      return str; // returns original String when possible
+    }
+    if (padLen == 1 && pads <= PAD_LIMIT) {
+      return rightPad(str, size, padStr.charAt(0));
+    }
+
+    if (pads == padLen) {
+      return str.concat(padStr);
+    } else if (pads < padLen) {
+      return str.concat(padStr.substring(0, pads));
+    } else {
+      char[] padding = new char[pads];
+      char[] padChars = padStr.toCharArray();
+      for (int i = 0; i < pads; i++) {
+        padding[i] = padChars[i % padLen];
+      }
+      return str.concat(new String(padding));
+    }
+  }
+
+  /**
+   * <p>Left pad a String with spaces (' ').</p>
+   *
+   * <p>The String is padded to the size of <code>size<code>.</p>
+   *
+   * <pre>
+   * StringUtils.leftPad(null, *)   = null
+   * StringUtils.leftPad("", 3)     = "   "
+   * StringUtils.leftPad("bat", 3)  = "bat"
+   * StringUtils.leftPad("bat", 5)  = "  bat"
+   * StringUtils.leftPad("bat", 1)  = "bat"
+   * StringUtils.leftPad("bat", -1) = "bat"
+   * </pre>
+   *
+   * @param str  the String to pad out, may be null
+   * @param size  the size to pad to
+   * @return left padded String or original String if no padding is necessary,
+   *  <code>null</code> if null String input
+   */
+  public static String leftPad(String str, int size) {
+    return leftPad(str, size, ' ');
+  }
+
+  /**
+   * <p>Left pad a String with a specified character.</p>
+   *
+   * <p>Pad to a size of <code>size</code>.</p>
+   *
+   * <pre>
+   * StringUtils.leftPad(null, *, *)     = null
+   * StringUtils.leftPad("", 3, 'z')     = "zzz"
+   * StringUtils.leftPad("bat", 3, 'z')  = "bat"
+   * StringUtils.leftPad("bat", 5, 'z')  = "zzbat"
+   * StringUtils.leftPad("bat", 1, 'z')  = "bat"
+   * StringUtils.leftPad("bat", -1, 'z') = "bat"
+   * </pre>
+   *
+   * @param str  the String to pad out, may be null
+   * @param size  the size to pad to
+   * @param padChar  the character to pad with
+   * @return left padded String or original String if no padding is necessary,
+   *  <code>null</code> if null String input
+   * @since 2.0
+   */
+  public static String leftPad(String str, int size, char padChar) {
+    if (str == null) {
+      return null;
+    }
+    int pads = size - str.length();
+    if (pads <= 0) {
+      return str; // returns original String when possible
+    }
+    if (pads > PAD_LIMIT) {
+      return leftPad(str, size, String.valueOf(padChar));
+    }
+    return padding(pads, padChar).concat(str);
+  }
+
+  /**
+   * <p>Left pad a String with a specified String.</p>
+   *
+   * <p>Pad to a size of <code>size</code>.</p>
+   *
+   * <pre>
+   * StringUtils.leftPad(null, *, *)      = null
+   * StringUtils.leftPad("", 3, "z")      = "zzz"
+   * StringUtils.leftPad("bat", 3, "yz")  = "bat"
+   * StringUtils.leftPad("bat", 5, "yz")  = "yzbat"
+   * StringUtils.leftPad("bat", 8, "yz")  = "yzyzybat"
+   * StringUtils.leftPad("bat", 1, "yz")  = "bat"
+   * StringUtils.leftPad("bat", -1, "yz") = "bat"
+   * StringUtils.leftPad("bat", 5, null)  = "  bat"
+   * StringUtils.leftPad("bat", 5, "")    = "  bat"
+   * </pre>
+   *
+   * @param str  the String to pad out, may be null
+   * @param size  the size to pad to
+   * @param padStr  the String to pad with, null or empty treated as single space
+   * @return left padded String or original String if no padding is necessary,
+   *  <code>null</code> if null String input
+   */
+  public static String leftPad(String str, int size, String padStr) {
+    if (str == null) {
+      return null;
+    }
+    if (isEmpty(padStr)) {
+      padStr = " ";
+    }
+    int padLen = padStr.length();
+    int strLen = str.length();
+    int pads = size - strLen;
+    if (pads <= 0) {
+      return str; // returns original String when possible
+    }
+    if (padLen == 1 && pads <= PAD_LIMIT) {
+      return leftPad(str, size, padStr.charAt(0));
+    }
+
+    if (pads == padLen) {
+      return padStr.concat(str);
+    } else if (pads < padLen) {
+      return padStr.substring(0, pads).concat(str);
+    } else {
+      char[] padding = new char[pads];
+      char[] padChars = padStr.toCharArray();
+      for (int i = 0; i < pads; i++) {
+        padding[i] = padChars[i % padLen];
+      }
+      return new String(padding).concat(str);
+    }
+  }
+
+  
 }

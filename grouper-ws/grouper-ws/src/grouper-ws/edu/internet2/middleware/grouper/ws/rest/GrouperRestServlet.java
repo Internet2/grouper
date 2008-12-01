@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperRestServlet.java,v 1.8 2008-10-21 18:12:34 mchyzer Exp $
+ * @author mchyzer $Id: GrouperRestServlet.java,v 1.9 2008-12-01 07:40:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -196,7 +196,10 @@ public class GrouperRestServlet extends HttpServlet {
       response.setStatus(wsResponseBean.getResultMetadata().retrieveHttpStatusCode());
 
       response.setContentType(wsRestResponseContentType.getContentType());
-
+      
+      //init millis for rest since doesnt call getters
+      wsResponseBean.getResponseMetadata().getMillis();
+      
       wsRestResponseContentType.writeString(wsResponseBean, response.getWriter());
     } catch (RuntimeException re) {
       //problem!

@@ -61,4 +61,14 @@ public class WsGroupLookup {
     //blank
   }
 
+  /**
+   * construct with fields
+   * @param theGroupName
+   * @param groupUuid
+   */
+  public WsGroupLookup(String theGroupName, String groupUuid) {
+    this.groupName = theGroupName;
+    this.uuid = groupUuid;
+  }
+  
 }

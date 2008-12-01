@@ -1,15 +1,11 @@
 /*
  * @author mchyzer
- * $Id: XmlIndenter.java,v 1.1 2008-03-24 20:15:35 mchyzer Exp $
+ * $Id: XmlIndenter.java,v 1.2 2008-12-01 07:40:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 
 
 /**
@@ -49,7 +45,7 @@ public class XmlIndenter {
     if (this.xml == null) {
       return null;
     }
-    return StringUtils.trim(this.result.toString());
+    return GrouperUtil.trim(this.result.toString());
   }
 
   /**
@@ -99,7 +95,7 @@ public class XmlIndenter {
       this.currentTagName = findTagName();
       
       //if self closed, then carry on
-      if (selfClosedTag(xml, this.endTagIndex)) {
+      if (selfClosedTag(this.xml, this.endTagIndex)) {
         //just return and indent
         //lets put this tag on the queue
         this.printNewlineIndent(this.startTagIndex, this.endTagIndex+1);
@@ -161,7 +157,7 @@ public class XmlIndenter {
    * put a newline and indent
    */
   private void newlineIndent() {
-    this.result.append("\n").append(StringUtils.repeat("  ", this.currentNumberOfIndents));
+    this.result.append("\n").append(GrouperUtil.repeat("  ", this.currentNumberOfIndents));
   }
   
   /**
@@ -309,7 +305,7 @@ public class XmlIndenter {
    */
   static boolean textTag(String xml, int endTagIndex, String tagName, 
       String nextTagName, boolean isNextCloseTag) {
-    if (StringUtils.equals(tagName, nextTagName) && isNextCloseTag) {
+    if (GrouperUtil.equals(tagName, nextTagName) && isNextCloseTag) {
       return true;
     }
     return false;
@@ -321,16 +317,8 @@ public class XmlIndenter {
    */
   public XmlIndenter(String theXml) {
     if (theXml != null) {
-      this.xml = StringUtils.trimToEmpty(theXml);
+      this.xml = GrouperUtil.trimToEmpty(theXml);
     }
   }
   
-  /**
-   * 
-   * @see java.lang.Object#toString()
-   */
-  @Override
-  public String toString() {
-    return ReflectionToStringBuilder.toString(this, ToStringStyle.MULTI_LINE_STYLE);
-  }
 }

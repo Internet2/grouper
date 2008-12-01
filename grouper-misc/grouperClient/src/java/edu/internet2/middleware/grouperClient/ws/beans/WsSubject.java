@@ -79,6 +79,15 @@ public class WsSubject {
   public String[] getAttributeValues() {
     return this.attributeValues;
   }
+  
+  /**
+   * helper method to get an attribute value
+   * @param i
+   * @return the attribute value
+   */
+  public String getAttributeValue(int i) {
+    return this.attributeValues[i];
+  }
 
   /**
    * attribute data of subjects in group (in same order as attributeNames)
