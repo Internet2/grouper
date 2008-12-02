@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.5 2008-12-02 07:13:21 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.6 2008-12-02 19:51:16 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -35,7 +35,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testHasMember"));
+    TestRunner.run(new GrouperClientWsTest("testGetGroups"));
   }
   
   /**
@@ -470,6 +470,437 @@ public class GrouperClientWsTest extends GrouperTest {
               GrouperClientWs.mostRecentRequest.contains("replaceAllExisting"));
           
           
+          
+        } finally {
+          if (subjectIdsFile.exists()) {
+            subjectIdsFile.delete();
+          }
+        }
+      } finally {
+        System.setOut(systemOut);
+      }
+      
+    }
+
+    /**
+     * note: this will only work at penn
+     * @throws Exception 
+     */
+    public void testGetGroups() throws Exception {
+      
+      //make sure group exists
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      Group group = Group.saveGroup(grouperSession, "aStem:aGroup", null, "aStem:aGroup", "aGroup", null, null, true);
+      Group group2 = Group.saveGroup(grouperSession, "aStem:aGroup2", null, "aStem:aGroup2", "aGroup2", null, null, true);
+      Group group3 = Group.saveGroup(grouperSession, "aStem:aGroup3", null, "aStem:aGroup3", "aGroup3", null, null, true);
+      
+      //give permissions
+      String wsUserLabel = GrouperClientUtils.propertiesValue("grouperClient.webService.user.label", true);
+      String wsUserString = GrouperClientUtils.propertiesValue("grouperClient.webService." + wsUserLabel, true);
+      Subject wsUser = SubjectFinder.findByIdOrIdentifier(wsUserString, true);
+      
+      group.grantPriv(wsUser, AccessPrivilege.READ, false);
+      group.grantPriv(wsUser, AccessPrivilege.VIEW, false);
+      group2.grantPriv(wsUser, AccessPrivilege.READ, false);
+      group2.grantPriv(wsUser, AccessPrivilege.VIEW, false);
+      group3.grantPriv(wsUser, AccessPrivilege.READ, false);
+      group3.grantPriv(wsUser, AccessPrivilege.VIEW, false);
+      
+      //add some subjects
+      group.addMember(SubjectTestHelper.SUBJ0, false);
+      group2.addMember(SubjectTestHelper.SUBJ0, false);
+      group2.addMember(SubjectTestHelper.SUBJ1, false);
+      group3.addMember(SubjectTestHelper.SUBJ1, false);
+
+      
+      PrintStream systemOut = System.out;
+  
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getGroupsWs --subjectIds=test.subject.0,test.subject.1", " "));
+        System.out.flush();
+        String output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        System.out.println(output);
+        
+        String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        Pattern pattern = Pattern.compile(
+            "^SubjectIndex (\\d+): success: T: code: ([A-Z_]+): subject: (.*): groupIndex: (\\d+): (.*+)$");
+        Matcher matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("test.subject.0", matcher.group(3));
+        assertEquals("0", matcher.group(4));
+        assertTrue(matcher.group(5), 
+            GrouperClientUtils.equals("aStem:aGroup", matcher.group(5))
+            || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
+        
+        matcher = pattern.matcher(outputLines[1]);
+        
+        assertTrue(outputLines[1], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("test.subject.0", matcher.group(3));
+        assertEquals("1", matcher.group(4));
+        assertTrue(matcher.group(5), 
+            GrouperClientUtils.equals("aStem:aGroup", matcher.group(5))
+            || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
+  
+        matcher = pattern.matcher(outputLines[2]);
+        
+        assertTrue(outputLines[2], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("test.subject.1", matcher.group(3));
+        assertEquals("0", matcher.group(4));
+        assertTrue(matcher.group(5), 
+            GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5))
+            || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
+  
+        matcher = pattern.matcher(outputLines[3]);
+        
+        assertTrue(outputLines[3], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("test.subject.1", matcher.group(3));
+        assertEquals("1", matcher.group(4));
+        assertTrue(matcher.group(5), 
+            GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5))
+            || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
+  
+        //#####################################################
+        //run with invalid args
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        //test a command line template
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getGroupsWs --subjectIds=test.subject.0,test.subject.1 --ousdfsdfate=whatever", " "));
+        } catch (Exception e) {
+          assertTrue(e.getMessage(), e.getMessage().contains("ousdfsdfate"));
+        }
+        System.out.flush();
+        
+        System.setOut(systemOut);
+        
+        //#####################################################
+        //run with custom template
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        //test a command line template
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getGroupsWs --subjectIdentifiers=id.test.subject.0,id.test.subject.1 --outputTemplate=${subjectIndex}", " "));
+  
+        System.out.flush();
+        
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        assertEquals("0011", output);
+        
+        //#####################################################
+        //run again, with includeGroupDetail and includeSubjectDetail
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getGroupsWs --subjectIds=test.subject.0,test.subject.1 --includeGroupDetail=true --includeSubjectDetail=true", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("test.subject.0", matcher.group(3));
+        assertEquals("0", matcher.group(4));
+        assertTrue(matcher.group(5), 
+            GrouperClientUtils.equals("aStem:aGroup", matcher.group(5))
+            || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
+        
+        matcher = pattern.matcher(outputLines[1]);
+        
+        assertTrue(outputLines[1], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("test.subject.0", matcher.group(3));
+        assertEquals("1", matcher.group(4));
+        assertTrue(matcher.group(5), 
+            GrouperClientUtils.equals("aStem:aGroup", matcher.group(5))
+            || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
+  
+        matcher = pattern.matcher(outputLines[2]);
+        
+        assertTrue(outputLines[2], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("test.subject.1", matcher.group(3));
+        assertEquals("0", matcher.group(4));
+        assertTrue(matcher.group(5), 
+            GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5))
+            || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
+  
+        matcher = pattern.matcher(outputLines[3]);
+        
+        assertTrue(outputLines[3], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("test.subject.1", matcher.group(3));
+        assertEquals("1", matcher.group(4));
+        assertTrue(matcher.group(5), 
+            GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5))
+            || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
+        
+        assertTrue(
+            GrouperClientWs.mostRecentRequest.contains("includeGroupDetail") 
+            && GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        
+        //#####################################################
+        //run again, with subject attributes
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getGroupsWs --subjectIds=test.subject.0,test.subject.1 --subjectAttributeNames=name --outputTemplate=${subjectIndex}:$space$${wsGetGroupsResult.wsSubject.getAttributeValue(0)}$newline$", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        assertTrue(output, outputLines[0].contains("my name is test.subject.0"));
+        
+        assertTrue(output, outputLines[2].contains("my name is test.subject.1"));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest.contains(">name<"));
+        assertTrue(GrouperClientWs.mostRecentResponse.contains("my name is test.subject.0"));
+        
+        //#####################################################
+        //run again, with default subject source
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getGroupsWs --subjectIds=test.subject.0,test.subject.1 --defaultSubjectSource=jdbc", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("test.subject.0", matcher.group(3));
+        assertEquals("0", matcher.group(4));
+        assertTrue(matcher.group(5), 
+            GrouperClientUtils.equals("aStem:aGroup", matcher.group(5))
+            || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
+        
+        matcher = pattern.matcher(outputLines[1]);
+        
+        assertTrue(outputLines[1], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("test.subject.0", matcher.group(3));
+        assertEquals("1", matcher.group(4));
+        assertTrue(matcher.group(5), 
+            GrouperClientUtils.equals("aStem:aGroup", matcher.group(5))
+            || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
+  
+        matcher = pattern.matcher(outputLines[2]);
+        
+        assertTrue(outputLines[2], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("test.subject.1", matcher.group(3));
+        assertEquals("0", matcher.group(4));
+        assertTrue(matcher.group(5), 
+            GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5))
+            || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
+  
+        matcher = pattern.matcher(outputLines[3]);
+        
+        assertTrue(outputLines[3], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("test.subject.1", matcher.group(3));
+        assertEquals("1", matcher.group(4));
+        assertTrue(matcher.group(5), 
+            GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5))
+            || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));  
+
+        assertTrue(
+            GrouperClientWs.mostRecentRequest.contains("jdbc"));
+        
+        //#####################################################
+        //run again, subjects ids coming from file
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        String subjectIdsFileName = "subjectIdsFile_" + GrouperClientUtils.uniqueId() + ".txt";
+        File subjectIdsFile = new File(subjectIdsFileName);
+        
+        GrouperClientUtils.saveStringIntoFile(subjectIdsFile, "test.subject.0\ntest.subject.1");
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getGroupsWs --subjectIdsFile="+subjectIdsFileName, " "));
+          System.out.flush();
+          output = new String(baos.toByteArray());
+          
+          System.setOut(systemOut);
+          
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+          
+          matcher = pattern.matcher(outputLines[0]);
+          
+          matcher = pattern.matcher(outputLines[0]);
+          
+          assertTrue(outputLines[0], matcher.matches());
+          
+          assertEquals("0", matcher.group(1));
+          assertEquals("SUCCESS", matcher.group(2));
+          assertEquals("test.subject.0", matcher.group(3));
+          assertEquals("0", matcher.group(4));
+          assertTrue(matcher.group(5), 
+              GrouperClientUtils.equals("aStem:aGroup", matcher.group(5))
+              || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
+          
+          matcher = pattern.matcher(outputLines[1]);
+          
+          assertTrue(outputLines[1], matcher.matches());
+          
+          assertEquals("0", matcher.group(1));
+          assertEquals("SUCCESS", matcher.group(2));
+          assertEquals("test.subject.0", matcher.group(3));
+          assertEquals("1", matcher.group(4));
+          assertTrue(matcher.group(5), 
+              GrouperClientUtils.equals("aStem:aGroup", matcher.group(5))
+              || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
+    
+          matcher = pattern.matcher(outputLines[2]);
+          
+          assertTrue(outputLines[2], matcher.matches());
+          
+          assertEquals("1", matcher.group(1));
+          assertEquals("SUCCESS", matcher.group(2));
+          assertEquals("test.subject.1", matcher.group(3));
+          assertEquals("0", matcher.group(4));
+          assertTrue(matcher.group(5), 
+              GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5))
+              || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
+    
+          matcher = pattern.matcher(outputLines[3]);
+          
+          assertTrue(outputLines[3], matcher.matches());
+          
+          assertEquals("1", matcher.group(1));
+          assertEquals("SUCCESS", matcher.group(2));
+          assertEquals("test.subject.1", matcher.group(3));
+          assertEquals("1", matcher.group(4));
+          assertTrue(matcher.group(5), 
+              GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5))
+              || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
+          
+          //#####################################################
+          //run again, with params
+          baos = new ByteArrayOutputStream();
+          System.setOut(new PrintStream(baos));
+        
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getGroupsWs --subjectIds=test.subject.0,test.subject.1 --memberFilter=Immediate", " "));
+          System.out.flush();
+          output = new String(baos.toByteArray());
+          
+          System.setOut(systemOut);
+          
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+          
+          matcher = pattern.matcher(outputLines[0]);
+          
+          assertTrue(outputLines[0], matcher.matches());
+          
+          assertEquals("0", matcher.group(1));
+          assertEquals("SUCCESS", matcher.group(2));
+          assertEquals("test.subject.0", matcher.group(3));
+          assertEquals("0", matcher.group(4));
+          assertTrue(matcher.group(5), 
+              GrouperClientUtils.equals("aStem:aGroup", matcher.group(5))
+              || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
+          
+          matcher = pattern.matcher(outputLines[1]);
+          
+          assertTrue(outputLines[1], matcher.matches());
+          
+          assertEquals("0", matcher.group(1));
+          assertEquals("SUCCESS", matcher.group(2));
+          assertEquals("test.subject.0", matcher.group(3));
+          assertEquals("1", matcher.group(4));
+          assertTrue(matcher.group(5), 
+              GrouperClientUtils.equals("aStem:aGroup", matcher.group(5))
+              || GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5)));
+    
+          matcher = pattern.matcher(outputLines[2]);
+          
+          assertTrue(outputLines[2], matcher.matches());
+          
+          assertEquals("1", matcher.group(1));
+          assertEquals("SUCCESS", matcher.group(2));
+          assertEquals("test.subject.1", matcher.group(3));
+          assertEquals("0", matcher.group(4));
+          assertTrue(matcher.group(5), 
+              GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5))
+              || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
+    
+          matcher = pattern.matcher(outputLines[3]);
+          
+          assertTrue(outputLines[3], matcher.matches());
+          
+          assertEquals("1", matcher.group(1));
+          assertEquals("SUCCESS", matcher.group(2));
+          assertEquals("test.subject.1", matcher.group(3));
+          assertEquals("1", matcher.group(4));
+          assertTrue(matcher.group(5), 
+              GrouperClientUtils.equals("aStem:aGroup2", matcher.group(5))
+              || GrouperClientUtils.equals("aStem:aGroup3", matcher.group(5)));
+          
+          assertTrue(
+              GrouperClientWs.mostRecentRequest.contains("memberFilter") 
+              && GrouperClientWs.mostRecentRequest.contains("Immediate"));
           
         } finally {
           if (subjectIdsFile.exists()) {

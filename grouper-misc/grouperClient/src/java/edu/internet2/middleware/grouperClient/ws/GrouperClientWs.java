@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWs.java,v 1.2 2008-12-01 07:40:28 mchyzer Exp $
+ * $Id: GrouperClientWs.java,v 1.3 2008-12-02 19:51:16 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws;
 
@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.D
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.Header;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpClient;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpException;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpStatus;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.UsernamePasswordCredentials;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.auth.AuthScope;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.PostMethod;
@@ -112,9 +113,10 @@ public class GrouperClientWs {
       GrouperClientUtils.mkdirs(requestFile.getParentFile());
       
     }
+    int[] responseCode = new int[1];
     
     //make sure right content type is in request (e.g. application/xhtml+xml
-    this.method = postMethod(this.xStream, urlSuffix, toSend, requestFile);
+    this.method = postMethod(this.xStream, urlSuffix, toSend, requestFile, responseCode);
 
     //make sure a request came back
     Header successHeader = this.method.getResponseHeader("X-Grouper-success");
@@ -137,7 +139,22 @@ public class GrouperClientWs {
         theResponse = GrouperClientUtils.indent(theResponse, true);
       }
       
-      GrouperClientUtils.saveStringIntoFile(responseFile, theResponse);
+      StringBuilder headers = new StringBuilder();
+
+      headers.append("HTTP/1.1 ").append(responseCode[0]).append(" ").append(HttpStatus.getStatusText(responseCode[0])).append("\n");
+      
+      for (Header header : this.method.getResponseHeaders()) {
+        String name = header.getName();
+        String value = header.getValue();
+        
+        //dont allow cookies to go to logs
+        if (GrouperClientUtils.equals(name, "Set-Cookie")) {
+          value = value.replaceAll("JSESSIONID=(.*)?;", "JSESSIONID=xxxxxxxxxxxx;");
+        }
+        headers.append(name).append(": ").append(value).append("\n");
+      }
+      headers.append("\n");
+      GrouperClientUtils.saveStringIntoFile(responseFile, headers + theResponse);
     }
 
     Object resultObject = this.xStream.fromXML(this.response);
@@ -261,12 +278,14 @@ public class GrouperClientWs {
    * @param urlSuffix to put on end of base url, e.g. groups/aStem:aGroup/members
    * @param objectToMarshall
    * @param logFile if not null, log the contents of the request there
+   * @param responseCode array of size one to get the response code back
    * @return the post method
    * @throws UnsupportedEncodingException 
    * @throws HttpException 
    * @throws IOException 
    */
-  private static PostMethod postMethod(XStream xStream, String urlSuffix, Object objectToMarshall, File logFile) 
+  private static PostMethod postMethod(XStream xStream, 
+      String urlSuffix, Object objectToMarshall, File logFile, int[] responseCode) 
       throws UnsupportedEncodingException, HttpException, IOException {
     
     String contentType = "text/xml";
@@ -277,6 +296,8 @@ public class GrouperClientWs {
 
     String requestDocument = marshalObject(xStream, objectToMarshall);
     
+    method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
+    
     if (logFile != null) {
       LOG.debug("WebService: logging request to: " + GrouperClientUtils.fileCanonicalPath(logFile));
       String theRequestDocument = requestDocument;
@@ -284,15 +305,37 @@ public class GrouperClientWs {
         theRequestDocument = GrouperClientUtils.indent(theRequestDocument, true);
       }
 
-      GrouperClientUtils.saveStringIntoFile(logFile, theRequestDocument);
+      StringBuilder headers = new StringBuilder();
+//      POST /grouperWs/servicesRest/v1_4_000/subjects HTTP/1.1
+//      Connection: close
+//      Authorization: Basic bWNoeXplcjpEaTlyZWRwbw==
+//      User-Agent: Jakarta Commons-HttpClient/3.1
+//      Host: localhost:8090
+//      Content-Length: 226
+//      Content-Type: text/xml; charset=UTF-8
+      headers.append("POST ").append(method.getURI().getPathQuery()).append(" HTTP/1.1\n");
+      headers.append("Connection: close\n");
+      headers.append("Authorization: Basic xxxxxxxxxxxxxxxx\n");
+      headers.append("User-Agent: Jakarta Commons-HttpClient/3.1\n");
+      headers.append("Host: ").append(method.getURI().getHost()).append(":")
+        .append(method.getURI().getPort()).append("\n");
+      headers.append("Content-Length: ").append(
+          method.getRequestEntity().getContentLength()).append("\n");
+      headers.append("Content-Type: ").append(
+          method.getRequestEntity().getContentType()).append("\n");
+      headers.append("\n");
+      
+      GrouperClientUtils.saveStringIntoFile(logFile, headers + theRequestDocument);
     }
     
     mostRecentRequest = requestDocument;
     
-    method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
-    
-    httpClient.executeMethod(method);
+    int responseCodeInt = httpClient.executeMethod(method);
 
+    if (responseCode != null && responseCode.length > 0) {
+      responseCode[0] = responseCodeInt;
+    }
+    
     return method;
 
   }

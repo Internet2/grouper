@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestClassLookup.java,v 1.4 2008-12-02 07:13:21 mchyzer Exp $
+ * $Id: WsRestClassLookup.java,v 1.5 2008-12-02 19:51:16 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws;
 
@@ -13,6 +13,8 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
@@ -24,6 +26,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsResponseMeta;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestDeleteMemberRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetMembersRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestHasMemberRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestResultProblem;
@@ -68,6 +71,10 @@ public class WsRestClassLookup {
     addAliasClass(WsRestHasMemberRequest.class);
     addAliasClass(WsHasMemberResult.class);
     addAliasClass(WsHasMemberResults.class);
+    
+    addAliasClass(WsRestGetGroupsRequest.class);
+    addAliasClass(WsGetGroupsResult.class);
+    addAliasClass(WsGetGroupsResults.class);
     
   }
   
