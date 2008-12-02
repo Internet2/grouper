@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.7 2008-12-02 07:13:21 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.8 2008-12-02 14:46:16 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -10,8 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import bsh.StringUtil;
 
 import edu.internet2.middleware.grouperClient.api.GcAddMember;
 import edu.internet2.middleware.grouperClient.api.GcDeleteMember;
