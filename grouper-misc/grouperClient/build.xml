@@ -82,7 +82,7 @@
     </jar>
   </target>
 
-  <target name="javadoc" description="generate public api docs to doc/api">
+  <target name="javadoc" description="generate public api docs to doc/api" depends="init">
     <!-- Let's be sure we clear out old cruft first... -->
     <mkdir dir="doc/api" />
     <delete dir="doc/api" />

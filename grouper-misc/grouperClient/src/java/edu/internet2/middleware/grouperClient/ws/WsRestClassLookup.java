@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestClassLookup.java,v 1.3 2008-12-02 06:21:09 mchyzer Exp $
+ * $Id: WsRestClassLookup.java,v 1.4 2008-12-02 07:13:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws;
 
@@ -18,11 +18,14 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDetail;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsResponseMeta;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestDeleteMemberRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetMembersRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestHasMemberRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestResultProblem;
 import edu.internet2.middleware.grouperClient.ws.beans.WsResultMeta;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
@@ -61,6 +64,10 @@ public class WsRestClassLookup {
     addAliasClass(WsRestDeleteMemberRequest.class);
     addAliasClass(WsDeleteMemberResult.class);
     addAliasClass(WsDeleteMemberResults.class);
+    
+    addAliasClass(WsRestHasMemberRequest.class);
+    addAliasClass(WsHasMemberResult.class);
+    addAliasClass(WsHasMemberResults.class);
     
   }
   
