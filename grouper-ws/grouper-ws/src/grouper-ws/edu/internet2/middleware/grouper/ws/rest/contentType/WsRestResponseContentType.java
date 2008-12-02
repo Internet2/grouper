@@ -1,15 +1,22 @@
 /*
- * @author mchyzer $Id: WsRestResponseContentType.java,v 1.5 2008-11-18 10:05:50 mchyzer Exp $
+ * @author mchyzer $Id: WsRestResponseContentType.java,v 1.6 2008-12-02 05:16:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
 import java.io.Writer;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
+import com.thoughtworks.xstream.io.xml.XppDriver;
+import com.thoughtworks.xstream.mapper.MapperWrapper;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.WsRestClassLookup;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -134,6 +141,9 @@ public enum WsRestResponseContentType {
    */
   public abstract void writeString(Object object, Writer writer);
 
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(WsRestResponseContentType.class);
+
   /**
    * parse a string to an object
    * @param input
@@ -154,7 +164,65 @@ public enum WsRestResponseContentType {
    */
   public static XStream xstream(boolean isJson) {
     //note new JsonHierarchicalStreamDriver() doesnt work
-    XStream xstream = isJson ? new XStream(new JettisonMappedXmlDriver()) : new XStream();
+    XStream xstream = null;
+    
+    boolean ignoreExtraneousFields = GrouperWsConfig.getPropertyBoolean("ws.ignoreExtraneousXmlFieldsRest", false);
+    
+    if (ignoreExtraneousFields) {
+      xstream = new XStream(isJson ? new JettisonMappedXmlDriver() : new XppDriver()) {
+
+        /**
+         * 
+         * @see edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStream#wrapMapper(edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.mapper.MapperWrapper)
+         */
+        @Override
+        protected MapperWrapper wrapMapper(MapperWrapper next) {
+          return new MapperWrapper(next) {
+  
+            /**
+             * 
+             * @see edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.mapper.MapperWrapper#shouldSerializeMember(java.lang.Class, java.lang.String)
+             */
+            @SuppressWarnings("unchecked")
+            @Override
+            public boolean shouldSerializeMember(Class definedIn, String fieldName) {
+              boolean definedInNotObject = definedIn != Object.class;
+              if (definedInNotObject) {
+                return super.shouldSerializeMember(definedIn, fieldName);
+              }
+
+              LOG.info("Cant find field: " + fieldName);
+              return false;
+            }
+
+          };
+        }
+      };
+
+    } else {
+      xstream = isJson ? new XStream(new JettisonMappedXmlDriver()) : new XStream();
+    }
+
+    //see if omitting fields
+    String fieldsToOmit = GrouperWsConfig.getPropertyString("ws.omitXmlPropertiesRest");
+    if (!GrouperUtil.isBlank(fieldsToOmit)) {
+      String[] fieldsToOmitList = GrouperUtil.splitTrim(fieldsToOmit, ",");
+      for (String fieldToOmit: fieldsToOmitList) {
+        if (!GrouperUtil.isBlank(fieldToOmit)) {
+          try {
+            int dotIndex = fieldToOmit.lastIndexOf('.');
+            String className = fieldToOmit.substring(0, dotIndex);
+            String propertyName = fieldToOmit.substring(dotIndex+1, fieldToOmit.length());
+            Class<?> theClass = GrouperUtil.forName(className);
+            xstream.omitField(theClass, propertyName);
+          } catch (Exception e) {
+            throw new RuntimeException("Problem with ws.omitXmlPropertiesRest: " + fieldsToOmit + ", " + e.getMessage(), e);
+          }
+        }
+      }
+    }
+    
+
     //dont try to get fancy
     xstream.setMode(XStream.NO_REFERENCES);
     xstream.autodetectAnnotations(true);

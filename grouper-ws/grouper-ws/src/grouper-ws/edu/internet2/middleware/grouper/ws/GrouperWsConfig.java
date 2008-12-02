@@ -122,11 +122,11 @@ public final class GrouperWsConfig {
     // if there, convert to boolean
     try {
       // note, cant be blank at this point, so default value doesnt matter
-      boolean paramBoolean = GrouperUtil.booleanValue(property);
+      boolean paramBoolean = GrouperUtil.booleanValue(paramString);
       return paramBoolean;
-    } catch (NumberFormatException nfe) {
-      throw new NumberFormatException("Cannot convert the grouper.properties param: "
-          + property + " to an Integer.  Config value is '" + paramString + "' " + nfe);
+    } catch (RuntimeException re) {
+      throw new RuntimeException("Cannot convert the grouper.properties param: "
+          + property + " to a boolean.  Config value is '" + paramString + "' " + re, re);
     }
   }
 

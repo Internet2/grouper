@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestAddMemberRequest.java,v 1.1 2008-11-27 14:25:49 mchyzer Exp $
+ * $Id: WsRestAddMemberRequest.java,v 1.2 2008-12-02 05:16:38 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws.beans;
 
@@ -11,6 +11,9 @@ public class WsRestAddMemberRequest implements WsRequestBean {
   
   /** field */
   private String clientVersion;
+  
+  /** field */
+  private String clientVersion2 = "a";
   
   /** field */
   private WsGroupLookup wsGroupLookup;
