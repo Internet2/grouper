@@ -1,13 +1,14 @@
 
 <project name="morphString" default="build" basedir=".">
 
-
   <target name="build" description="full build" depends="init,clean,compile,jar">
   </target>
 
   <target name="init">
     <tstamp />
 
+    <property name="cvs.branch" value="HEAD" />
+    
     <property name="main.sourceDir" value="src/java" />
     <property name="main.sourceExtDir" value="src/ext" />
 

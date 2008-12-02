@@ -3,17 +3,17 @@
 <HTML>
 <HEAD>
 <TITLE>
-WsGetMembersResult
+WsHasMemberResults
 </TITLE>
 
-<META NAME="keywords" CONTENT="edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult class">
+<META NAME="keywords" CONTENT="edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResults class">
 
 <LINK REL ="stylesheet" TYPE="text/css" HREF="../../../../../../stylesheet.css?root=I2MI&view=co&pathrev=${cvs.branch}" TITLE="Style">
 
 <SCRIPT type="text/javascript">
 function windowTitle()
 {
-    parent.document.title="WsGetMembersResult";
+    parent.document.title="WsHasMemberResults";
 }
 </SCRIPT>
 <NOSCRIPT>
@@ -50,11 +50,11 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsDeleteMemberResults.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetMembersResults.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResult.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsParam.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?root=I2MI&view=co&pathrev=${cvs.branch}" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="WsGetMembersResult.html?root=I2MI&view=co&pathrev=${cvs.branch}" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="WsHasMemberResults.html?root=I2MI&view=co&pathrev=${cvs.branch}" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {
@@ -85,26 +85,28 @@ DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&n
 <FONT SIZE="-1">
 edu.internet2.middleware.grouperClient.ws.beans</FONT>
 <BR>
-Class WsGetMembersResult</H2>
+Class WsHasMemberResults</H2>
 <PRE>
 <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class or interface in java.lang">java.lang.Object</A>
-  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult</B>
+  <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResults</B>
 </PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResponseBean.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="interface in edu.internet2.middleware.grouperClient.ws.beans">WsResponseBean</A></DD>
+</DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>WsGetMembersResult</B><DT>extends <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <B>WsHasMemberResults</B><DT>extends <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResponseBean.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="interface in edu.internet2.middleware.grouperClient.ws.beans">WsResponseBean</A></DL>
 </PRE>
 
 <P>
 <pre>
- results for the get members call.
+ results for the has member call.
  
  result code:
  code of the result for this group overall
  SUCCESS: means everything ok
- GROUP_NOT_FOUND: cant find the group
- INVALID_QUERY: bad inputs
- EXCEPTION: something bad happened
+ GROUP_DUPLICATE: found multiple groups
+ etc
  </pre>
 <P>
 
@@ -126,7 +128,7 @@ Class WsGetMembersResult</H2>
 <B>Constructor Summary</B></FONT></TH>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetMembersResult.html?root=I2MI&view=co&pathrev=${cvs.branch}#WsGetMembersResult()">WsGetMembersResult</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResults.html?root=I2MI&view=co&pathrev=${cvs.branch}#WsHasMemberResults()">WsHasMemberResults</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -143,24 +145,64 @@ Class WsGetMembersResult</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResultMeta.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsResultMeta</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetMembersResult.html?root=I2MI&view=co&pathrev=${cvs.branch}#getResultMetadata()">getResultMetadata</A></B>()</CODE>
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResponseMeta.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsResponseMeta</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResults.html?root=I2MI&view=co&pathrev=${cvs.branch}#getResponseMetadata()">getResponseMetadata</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the response metadata</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResultMeta.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsResultMeta</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResults.html?root=I2MI&view=co&pathrev=${cvs.branch}#getResultMetadata()">getResultMetadata</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the result metadata</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResult.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsHasMemberResult</A>[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResults.html?root=I2MI&view=co&pathrev=${cvs.branch}#getResults()">getResults</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;results for each assignment sent in</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class or interface in java.lang">String</A>[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResults.html?root=I2MI&view=co&pathrev=${cvs.branch}#getSubjectAttributeNames()">getSubjectAttributeNames</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;attributes of subjects returned, in same order as the data</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroup.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGroup</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetMembersResult.html?root=I2MI&view=co&pathrev=${cvs.branch}#getWsGroup()">getWsGroup</A></B>()</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResults.html?root=I2MI&view=co&pathrev=${cvs.branch}#getWsGroup()">getWsGroup</A></B>()</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubject.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsSubject</A>[]</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetMembersResult.html?root=I2MI&view=co&pathrev=${cvs.branch}#getWsSubjects()">getWsSubjects</A></B>()</CODE>
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResults.html?root=I2MI&view=co&pathrev=${cvs.branch}#setResponseMetadata(edu.internet2.middleware.grouperClient.ws.beans.WsResponseMeta)">setResponseMetadata</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResponseMeta.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsResponseMeta</A>&nbsp;responseMetadata1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResults.html?root=I2MI&view=co&pathrev=${cvs.branch}#setResultMetadata(edu.internet2.middleware.grouperClient.ws.beans.WsResultMeta)">setResultMetadata</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResultMeta.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsResultMeta</A>&nbsp;resultMetadata1)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResults.html?root=I2MI&view=co&pathrev=${cvs.branch}#setResults(edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResult[])">setResults</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResult.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsHasMemberResult</A>[]&nbsp;results1)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;results for each assignment sent in</TD>
@@ -168,26 +210,18 @@ Class WsGetMembersResult</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetMembersResult.html?root=I2MI&view=co&pathrev=${cvs.branch}#setResultMetadata(edu.internet2.middleware.grouperClient.ws.beans.WsResultMeta)">setResultMetadata</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResultMeta.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsResultMeta</A>&nbsp;resultMetadata1)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResults.html?root=I2MI&view=co&pathrev=${cvs.branch}#setSubjectAttributeNames(java.lang.String[])">setSubjectAttributeNames</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class or interface in java.lang">String</A>[]&nbsp;attributeNamesa)</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;attributes of subjects returned, in same order as the data</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetMembersResult.html?root=I2MI&view=co&pathrev=${cvs.branch}#setWsGroup(edu.internet2.middleware.grouperClient.ws.beans.WsGroup)">setWsGroup</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroup.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGroup</A>&nbsp;wsGroup1)</CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResults.html?root=I2MI&view=co&pathrev=${cvs.branch}#setWsGroup(edu.internet2.middleware.grouperClient.ws.beans.WsGroup)">setWsGroup</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroup.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGroup</A>&nbsp;wsGroup1)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetMembersResult.html?root=I2MI&view=co&pathrev=${cvs.branch}#setWsSubjects(edu.internet2.middleware.grouperClient.ws.beans.WsSubject[])">setWsSubjects</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubject.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsSubject</A>[]&nbsp;results1)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;results for each assignment sent in</TD>
 </TR>
 </TABLE>
 &nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
@@ -212,10 +246,10 @@ Class WsGetMembersResult</H2>
 </TR>
 </TABLE>
 
-<A NAME="WsGetMembersResult()"><!-- --></A><H3>
-WsGetMembersResult</H3>
+<A NAME="WsHasMemberResults()"><!-- --></A><H3>
+WsHasMemberResults</H3>
 <PRE>
-public <B>WsGetMembersResult</B>()</PRE>
+public <B>WsHasMemberResults</B>()</PRE>
 <DL>
 </DL>
 
@@ -229,13 +263,16 @@ public <B>WsGetMembersResult</B>()</PRE>
 </TR>
 </TABLE>
 
-<A NAME="getWsSubjects()"><!-- --></A><H3>
-getWsSubjects</H3>
+<A NAME="getResults()"><!-- --></A><H3>
+getResults</H3>
 <PRE>
-public <A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubject.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsSubject</A>[] <B>getWsSubjects</B>()</PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResult.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsHasMemberResult</A>[] <B>getResults</B>()</PRE>
 <DL>
 <DD>results for each assignment sent in
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the results</DL>
@@ -243,13 +280,16 @@ public <A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/bean
 </DL>
 <HR>
 
-<A NAME="setWsSubjects(edu.internet2.middleware.grouperClient.ws.beans.WsSubject[])"><!-- --></A><H3>
-setWsSubjects</H3>
+<A NAME="setResults(edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResult[])"><!-- --></A><H3>
+setResults</H3>
 <PRE>
-public void <B>setWsSubjects</B>(<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsSubject.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsSubject</A>[]&nbsp;results1)</PRE>
+public void <B>setResults</B>(<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResult.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsHasMemberResult</A>[]&nbsp;results1)</PRE>
 <DL>
 <DD>results for each assignment sent in
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>results1</CODE> - the results to set</DL>
 </DD>
@@ -261,6 +301,9 @@ getWsGroup</H3>
 <PRE>
 public <A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroup.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGroup</A> <B>getWsGroup</B>()</PRE>
 <DL>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the wsGroup</DL>
@@ -274,6 +317,9 @@ setWsGroup</H3>
 public void <B>setWsGroup</B>(<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGroup.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsGroup</A>&nbsp;wsGroup1)</PRE>
 <DL>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>wsGroup1</CODE> - the wsGroup to set</DL>
 </DD>
 </DL>
@@ -284,9 +330,80 @@ getResultMetadata</H3>
 <PRE>
 public <A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResultMeta.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsResultMeta</A> <B>getResultMetadata</B>()</PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResponseBean.html?root=I2MI&view=co&pathrev=${cvs.branch}#getResultMetadata()">WsResponseBean</A></CODE></B></DD>
+<DD>get the result metadata
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResponseBean.html?root=I2MI&view=co&pathrev=${cvs.branch}#getResultMetadata()">getResultMetadata</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResponseBean.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="interface in edu.internet2.middleware.grouperClient.ws.beans">WsResponseBean</A></CODE></DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the resultMetadata</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSubjectAttributeNames()"><!-- --></A><H3>
+getSubjectAttributeNames</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class or interface in java.lang">String</A>[] <B>getSubjectAttributeNames</B>()</PRE>
+<DL>
+<DD>attributes of subjects returned, in same order as the data
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the attributeNames</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setSubjectAttributeNames(java.lang.String[])"><!-- --></A><H3>
+setSubjectAttributeNames</H3>
+<PRE>
+public void <B>setSubjectAttributeNames</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class or interface in java.lang">String</A>[]&nbsp;attributeNamesa)</PRE>
+<DL>
+<DD>attributes of subjects returned, in same order as the data
+<P>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>attributeNamesa</CODE> - the attributeNames to set</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getResponseMetadata()"><!-- --></A><H3>
+getResponseMetadata</H3>
+<PRE>
+public <A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResponseMeta.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsResponseMeta</A> <B>getResponseMetadata</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResponseBean.html?root=I2MI&view=co&pathrev=${cvs.branch}#getResponseMetadata()">WsResponseBean</A></CODE></B></DD>
+<DD>get the response metadata
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResponseBean.html?root=I2MI&view=co&pathrev=${cvs.branch}#getResponseMetadata()">getResponseMetadata</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResponseBean.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="interface in edu.internet2.middleware.grouperClient.ws.beans">WsResponseBean</A></CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the response metadata<DT><B>See Also:</B><DD><CODE>edu.internet2.middleware.grouper.ws.rest.WsResponseBean#getResponseMetadata()</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="setResponseMetadata(edu.internet2.middleware.grouperClient.ws.beans.WsResponseMeta)"><!-- --></A><H3>
+setResponseMetadata</H3>
+<PRE>
+public void <B>setResponseMetadata</B>(<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResponseMeta.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsResponseMeta</A>&nbsp;responseMetadata1)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>responseMetadata1</CODE> - the responseMetadata to set</DL>
 </DD>
 </DL>
 <HR>
@@ -296,6 +413,9 @@ setResultMetadata</H3>
 <PRE>
 public void <B>setResultMetadata</B>(<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsResultMeta.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans">WsResultMeta</A>&nbsp;resultMetadata1)</PRE>
 <DL>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>resultMetadata1</CODE> - the resultMetadata to set</DL>
 </DD>
@@ -330,11 +450,11 @@ public void <B>setResultMetadata</B>(<A HREF="../../../../../../edu/internet2/mi
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsDeleteMemberResults.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsGetMembersResults.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsHasMemberResult.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouperClient/ws/beans/WsParam.html?root=I2MI&view=co&pathrev=${cvs.branch}" title="class in edu.internet2.middleware.grouperClient.ws.beans"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../../index.html?root=I2MI&view=co&pathrev=${cvs.branch}" target="_top"><B>FRAMES</B></A>  &nbsp;
-&nbsp;<A HREF="WsGetMembersResult.html?root=I2MI&view=co&pathrev=${cvs.branch}" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="WsHasMemberResults.html?root=I2MI&view=co&pathrev=${cvs.branch}" target="_top"><B>NO FRAMES</B></A>  &nbsp;
 &nbsp;<SCRIPT type="text/javascript">
   <!--
   if(window==top) {
