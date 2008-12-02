@@ -92,9 +92,15 @@ public class Crypto {
   
   /** Default crypto object */
   public Crypto() {
+    this(Morph.key());
+  }
+  
+  /** Default crypto object 
+   * @param theKey used to encrypt/decrypt 
+   */
+  public Crypto(String theKey) {
     super();
-    String decryptKey = Morph.key();
-    init(decryptKey);
+    init(theKey);
   }
   
   /** only warn once */

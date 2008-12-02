@@ -35,7 +35,7 @@ import java.util.StringTokenizer;
 /**
  * ExceptionUtils from commons, and some other useful classes, used for websec in oracle
  * and other external plugin type java programs
- * @version $Id: MorphStringUtils.java,v 1.2 2008-09-14 04:53:55 mchyzer Exp $
+ * @version $Id: MorphStringUtils.java,v 1.3 2008-12-02 05:14:11 mchyzer Exp $
  * @author mchyzer
  */
 public class MorphStringUtils {
@@ -148,6 +148,7 @@ public class MorphStringUtils {
    *  and empty strings are ignored
    * @since 2.0
    */
+  @SuppressWarnings("unchecked")
   public static void addCauseMethodName(String methodName) {
     if (isNotEmpty(methodName) && !isCauseMethodName(methodName)) {
       List list = getCauseMethodNameList();
@@ -2892,20 +2893,36 @@ public class MorphStringUtils {
    * @return the result
    */
   public static String readFromFileIfFile(String in) {
+    return readFromFileIfFile(in, 
+        MorphPropertyFileUtils.retrievePropertyBoolean("grouper.encrypt.disableExternalFileLookup", false));
+  }
+
+  /**
+   * if the input is a file, read string from file.  
+   * if not, or if disabled from grouper.properties, return the input
+   * @param in
+   * @param disableExternalFileLookup 
+   * @return the result
+   */
+  public static String readFromFileIfFile(String in, boolean disableExternalFileLookup) {
+    
+    String newIn = in;
+    
     //convert both slashes to file slashes
     if (File.separatorChar == '/') {
-      in = replace(in, "\\", "/");
+      newIn = replace(newIn, "\\", "/");
     } else {
-      in = replace(in, "/", "\\");
+      newIn = replace(newIn, "/", "\\");
     }
     
     //see if it is a file reference
-    if (in.indexOf(File.separatorChar) != -1 && !MorphPropertyFileUtils.retrievePropertyBoolean("grouper.encrypt.disableExternalFileLookup", false)) {
+    if (newIn.indexOf(File.separatorChar) != -1 && !disableExternalFileLookup) {
       //read the contents of the file into a string
-      in = readFileIntoString(new File(in));
+      newIn = readFileIntoString(new File(newIn));
+      return newIn;
     }
+    //return original
     return in;
-  
   }
   
   /**

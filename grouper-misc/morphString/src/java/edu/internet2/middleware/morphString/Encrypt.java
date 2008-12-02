@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: Encrypt.java,v 1.2 2008-09-14 04:53:55 mchyzer Exp $
+ * @author mchyzer $Id: Encrypt.java,v 1.3 2008-12-02 05:14:11 mchyzer Exp $
  */
 package edu.internet2.middleware.morphString;
 
@@ -70,7 +70,7 @@ public class Encrypt {
       try { 
          passwordString = br.readLine(); 
       } catch (IOException ioe) { 
-         System.out.println("IO error trying to read your name! " + MorphStringUtils.getFullStackTrace(ioe));
+         System.out.println("IO error! " + MorphStringUtils.getFullStackTrace(ioe));
          System.exit(1); 
       } 
 
