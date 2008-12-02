@@ -1,13 +1,15 @@
 /*
  * @author mchyzer
- * $Id: WsRestAddMemberRequest.java,v 1.3 2008-12-02 06:21:09 mchyzer Exp $
+ * $Id: WsRestDeleteMemberRequest.java,v 1.1 2008-12-02 06:21:09 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws.beans;
 
+
 /**
  * bean that will be the data from rest request
+ * for method
  */
-public class WsRestAddMemberRequest implements WsRequestBean {
+public class WsRestDeleteMemberRequest implements WsRequestBean {
   
   /** field */
   private String clientVersion;
@@ -17,9 +19,6 @@ public class WsRestAddMemberRequest implements WsRequestBean {
   
   /** field */
   private WsSubjectLookup[] subjectLookups;
-  
-  /** field */
-  private String replaceAllExisting;
   
   /** field */
   private WsSubjectLookup actAsSubjectLookup;
@@ -87,22 +86,6 @@ public class WsRestAddMemberRequest implements WsRequestBean {
    */
   public void setSubjectLookups(WsSubjectLookup[] subjectLookups1) {
     this.subjectLookups = subjectLookups1;
-  }
-
-  
-  /**
-   * @return the replaceAllExisting
-   */
-  public String getReplaceAllExisting() {
-    return this.replaceAllExisting;
-  }
-
-  
-  /**
-   * @param replaceAllExisting1 the replaceAllExisting to set
-   */
-  public void setReplaceAllExisting(String replaceAllExisting1) {
-    this.replaceAllExisting = replaceAllExisting1;
   }
 
   

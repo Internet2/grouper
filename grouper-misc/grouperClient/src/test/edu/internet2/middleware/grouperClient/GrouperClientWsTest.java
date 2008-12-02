@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.3 2008-12-01 19:28:54 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.4 2008-12-02 06:21:09 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -35,7 +35,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testGetMembers"));
+    TestRunner.run(new GrouperClientWsTest("testDeleteMember"));
   }
   
   /**
@@ -57,6 +57,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     GrouperClientUtils.grouperClientOverrideMap().put("webService.addMember.output", "Index ${index}: success: ${wsAddMemberResult.resultMetadata.success}: code: ${wsAddMemberResult.resultMetadata.resultCode}: ${wsAddMemberResult.wsSubject.id}$newline$");
     GrouperClientUtils.grouperClientOverrideMap().put("webService.getMembers.output", "GroupIndex ${groupIndex}: success: ${wsGetMembersResult.resultMetadata.success}: code: ${wsGetMembersResult.resultMetadata.resultCode}: group: ${wsGetMembersResult.wsGroup.name}: subjectIndex: ${subjectIndex}: ${wsSubject.id}$newline$");
+    GrouperClientUtils.grouperClientOverrideMap().put("webService.deleteMember.output", "Index ${index}: success: ${wsDeleteMemberResult.resultMetadata.success}: code: ${wsDeleteMemberResult.resultMetadata.resultCode}: ${wsDeleteMemberResult.wsSubject.id}$newline$");
     
     GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.alias.subjectIds", "pennIds");
     GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.alias.subjectIdentifiers", "pennKeys");
@@ -87,19 +88,420 @@ public class GrouperClientWsTest extends GrouperTest {
   }
 
   /**
+     * note: this will only work at penn
+     * @throws Exception 
+     */
+    public void testAddMember() throws Exception {
+      
+      //make sure group exists
+  //    GrouperSession grouperSession = GrouperSession.startRootSession();
+  //    Group group = Group.saveGroup(grouperSession, "aStem:aGroup", null, "aStem:aGroup", "aGroup", null, null, true);
+  //    
+  //    //give permissions
+  //    String wsUserLabel = GrouperClientUtils.propertiesValue("grouperClient.webService.user.label", true);
+  //    String wsUserString = GrouperClientUtils.propertiesValue("grouperClient.webService." + wsUserLabel, true);
+  //    Subject wsUser = SubjectFinder.findByIdOrIdentifier(wsUserString, true);
+      
+      
+      PrintStream systemOut = System.out;
+  
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1", " "));
+        System.out.flush();
+        String output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        Pattern pattern = Pattern.compile(
+            "^Index (\\d+): success: T: code: ([A-Z_]+): (.*+)$");
+        Matcher matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("test.subject.0", matcher.group(3));
+        
+        matcher = pattern.matcher(outputLines[1]);
+        
+        assertTrue(outputLines[1], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("test.subject.1", matcher.group(3));
+  
+        //#####################################################
+        //run again, should be already added
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=addMemberWs --groupName=aStem:aGroup --pennIds=test.subject.0,test.subject.1", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+        assertEquals("test.subject.0", matcher.group(3));
+        
+        matcher = pattern.matcher(outputLines[1]);
+        
+        assertTrue(outputLines[1], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+        assertEquals("test.subject.1", matcher.group(3));
+        
+        //#####################################################
+        //run with invalid args
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        //test a command line template
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --ousdfsdfate=${index}", " "));
+        } catch (Exception e) {
+          assertTrue(e.getMessage(), e.getMessage().contains("ousdfsdfate"));
+        }
+        System.out.flush();
+        
+        System.setOut(systemOut);
+        
+        //#####################################################
+        //run with custom template
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        //test a command line template
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=addMemberWs --groupName=aStem:aGroup --subjectIdentifiers=id.test.subject.0,id.test.subject.1 --outputTemplate=${index}", " "));
+  
+        System.out.flush();
+        
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        assertEquals("01", output);
+        
+        //#####################################################
+        //run again, with field
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=addMemberWs --groupName=aStem:aGroup --pennKeys=id.test.subject.0,id.test.subject.1 --fieldName=members", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+        assertEquals("test.subject.0", matcher.group(3));
+        
+        matcher = pattern.matcher(outputLines[1]);
+        
+        assertTrue(outputLines[1], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+        assertEquals("test.subject.1", matcher.group(3));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest, GrouperClientWs.mostRecentRequest.contains("fieldName")
+            && GrouperClientWs.mostRecentRequest.contains("members")
+            && !GrouperClientWs.mostRecentRequest.contains("txType"));
+        
+        //#####################################################
+        //run again, with txType
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --txType=NONE", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+        assertEquals("test.subject.0", matcher.group(3));
+        
+        matcher = pattern.matcher(outputLines[1]);
+        
+        assertTrue(outputLines[1], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+        assertEquals("test.subject.1", matcher.group(3));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest, !GrouperClientWs.mostRecentRequest.contains("fieldName")
+            && !GrouperClientWs.mostRecentRequest.contains("members")
+            && GrouperClientWs.mostRecentRequest.contains("txType") 
+            && GrouperClientWs.mostRecentRequest.contains("NONE")
+            && !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail") 
+            && !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail")
+            && !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail") 
+            && !GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        
+        //#####################################################
+        //run again, with includeGroupDetail and includeSubjectDetail
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --includeGroupDetail=true --includeSubjectDetail=true", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+        assertEquals("test.subject.0", matcher.group(3));
+        
+        matcher = pattern.matcher(outputLines[1]);
+        
+        assertTrue(outputLines[1], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+        assertEquals("test.subject.1", matcher.group(3));
+  
+        assertTrue(
+            !GrouperClientWs.mostRecentRequest.contains("txType") 
+            && !GrouperClientWs.mostRecentRequest.contains("NONE")
+            && GrouperClientWs.mostRecentRequest.contains("includeGroupDetail") 
+            && GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        
+        //#####################################################
+        //run again, with subject attributes
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --subjectAttributeNames=name --outputTemplate=${index}:$space$${wsAddMemberResult.wsSubject.getAttributeValue(0)}$newline$", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        assertTrue(outputLines[0], outputLines[0].contains("my name is test.subject.0"));
+        
+        assertTrue(outputLines[1], outputLines[1].contains("my name is test.subject.1"));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest.contains(">name<"));
+        assertTrue(GrouperClientWs.mostRecentResponse.contains("my name is test.subject.0"));
+        
+        //#####################################################
+        //run again, with default subject source
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --defaultSubjectSource=jdbc", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+        assertEquals("test.subject.0", matcher.group(3));
+        
+        matcher = pattern.matcher(outputLines[1]);
+        
+        assertTrue(outputLines[1], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+        assertEquals("test.subject.1", matcher.group(3));
+  
+        assertTrue(
+            GrouperClientWs.mostRecentRequest.contains("jdbc"));
+        
+        //#####################################################
+        //run again, subjects ids coming from file
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        String subjectIdsFileName = "subjectIdsFile_" + GrouperClientUtils.uniqueId() + ".txt";
+        File subjectIdsFile = new File(subjectIdsFileName);
+        
+        GrouperClientUtils.saveStringIntoFile(subjectIdsFile, "test.subject.0\ntest.subject.1");
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=addMemberWs --groupName=aStem:aGroup --subjectIdsFile="+subjectIdsFileName, " "));
+          System.out.flush();
+          output = new String(baos.toByteArray());
+          
+          System.setOut(systemOut);
+          
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+          
+          matcher = pattern.matcher(outputLines[0]);
+          
+          assertTrue(outputLines[0], matcher.matches());
+          
+          assertEquals("0", matcher.group(1));
+          assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+          assertEquals("test.subject.0", matcher.group(3));
+          
+          matcher = pattern.matcher(outputLines[1]);
+          
+          assertTrue(outputLines[1], matcher.matches());
+          
+          assertEquals("1", matcher.group(1));
+          assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+          assertEquals("test.subject.1", matcher.group(3));
+  
+          //#####################################################
+          //run again, with params
+          baos = new ByteArrayOutputStream();
+          System.setOut(new PrintStream(baos));
+        
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --paramName0=whatever --paramValue0=someValue", " "));
+          System.out.flush();
+          output = new String(baos.toByteArray());
+          
+          System.setOut(systemOut);
+          
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+          
+          matcher = pattern.matcher(outputLines[0]);
+          
+          assertTrue(outputLines[0], matcher.matches());
+          
+          assertEquals("0", matcher.group(1));
+          assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+          assertEquals("test.subject.0", matcher.group(3));
+          
+          matcher = pattern.matcher(outputLines[1]);
+          
+          assertTrue(outputLines[1], matcher.matches());
+          
+          assertEquals("1", matcher.group(1));
+          assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+          assertEquals("test.subject.1", matcher.group(3));
+  
+          assertTrue(
+              GrouperClientWs.mostRecentRequest.contains("whatever") 
+              && GrouperClientWs.mostRecentRequest.contains("someValue"));
+          
+          
+          //#####################################################
+          //run again, with replaceAllExisting
+          baos = new ByteArrayOutputStream();
+          System.setOut(new PrintStream(baos));
+        
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --replaceAllExisting=true", " "));
+          System.out.flush();
+          output = new String(baos.toByteArray());
+          
+          System.setOut(systemOut);
+          
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+          
+          matcher = pattern.matcher(outputLines[0]);
+          
+          assertTrue(outputLines[0], matcher.matches());
+          
+          assertEquals("0", matcher.group(1));
+          assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+          assertEquals("test.subject.0", matcher.group(3));
+          
+          matcher = pattern.matcher(outputLines[1]);
+          
+          assertTrue(outputLines[1], matcher.matches());
+          
+          assertEquals("1", matcher.group(1));
+          assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+          assertEquals("test.subject.1", matcher.group(3));
+  
+          assertTrue(
+              GrouperClientWs.mostRecentRequest.contains("replaceAllExisting"));
+          
+          
+          
+        } finally {
+          if (subjectIdsFile.exists()) {
+            subjectIdsFile.delete();
+          }
+        }
+      } finally {
+        System.setOut(systemOut);
+      }
+      
+    }
+
+  /**
    * note: this will only work at penn
    * @throws Exception 
    */
-  public void testAddMember() throws Exception {
+  public void testDeleteMember() throws Exception {
     
     //make sure group exists
-//    GrouperSession grouperSession = GrouperSession.startRootSession();
-//    Group group = Group.saveGroup(grouperSession, "aStem:aGroup", null, "aStem:aGroup", "aGroup", null, null, true);
-//    
-//    //give permissions
-//    String wsUserLabel = GrouperClientUtils.propertiesValue("grouperClient.webService.user.label", true);
-//    String wsUserString = GrouperClientUtils.propertiesValue("grouperClient.webService." + wsUserLabel, true);
-//    Subject wsUser = SubjectFinder.findByIdOrIdentifier(wsUserString, true);
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group group = Group.saveGroup(grouperSession, "aStem:aGroup", null, "aStem:aGroup", "aGroup", null, null, true);
+    
+    //give permissions
+    String wsUserLabel = GrouperClientUtils.propertiesValue("grouperClient.webService.user.label", true);
+    String wsUserString = GrouperClientUtils.propertiesValue("grouperClient.webService." + wsUserLabel, true);
+    Subject wsUser = SubjectFinder.findByIdOrIdentifier(wsUserString, true);
+    
+    group.grantPriv(wsUser, AccessPrivilege.READ, false);
+    group.grantPriv(wsUser, AccessPrivilege.VIEW, false);
+    group.grantPriv(wsUser, AccessPrivilege.ADMIN, false);
+    
+    //add some subjects
+    group.addMember(SubjectTestHelper.SUBJ0, false);
+    group.addMember(SubjectTestHelper.SUBJ1, false);
     
     
     PrintStream systemOut = System.out;
@@ -110,7 +512,7 @@ public class GrouperClientWsTest extends GrouperTest {
     try {
       
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1", " "));
+          "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1", " "));
       System.out.flush();
       String output = new String(baos.toByteArray());
       
@@ -137,12 +539,12 @@ public class GrouperClientWsTest extends GrouperTest {
       assertEquals("test.subject.1", matcher.group(3));
 
       //#####################################################
-      //run again, should be already added
+      //run again, should be already deleted
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
     
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=addMemberWs --groupName=aStem:aGroup --pennIds=test.subject.0,test.subject.1", " "));
+          "--operation=deleteMemberWs --groupName=aStem:aGroup --pennIds=test.subject.0,test.subject.1", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
       
@@ -155,7 +557,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(outputLines[0], matcher.matches());
       
       assertEquals("0", matcher.group(1));
-      assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+      assertEquals("SUCCESS_WASNT_IMMEDIATE", matcher.group(2));
       assertEquals("test.subject.0", matcher.group(3));
       
       matcher = pattern.matcher(outputLines[1]);
@@ -163,7 +565,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(outputLines[1], matcher.matches());
       
       assertEquals("1", matcher.group(1));
-      assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+      assertEquals("SUCCESS_WASNT_IMMEDIATE", matcher.group(2));
       assertEquals("test.subject.1", matcher.group(3));
       
       //#####################################################
@@ -174,7 +576,7 @@ public class GrouperClientWsTest extends GrouperTest {
       //test a command line template
       try {
         GrouperClient.main(GrouperClientUtils.splitTrim(
-            "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --ousdfsdfate=${index}", " "));
+            "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --ousdfsdfate=${index}", " "));
       } catch (Exception e) {
         assertTrue(e.getMessage(), e.getMessage().contains("ousdfsdfate"));
       }
@@ -189,7 +591,7 @@ public class GrouperClientWsTest extends GrouperTest {
       
       //test a command line template
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=addMemberWs --groupName=aStem:aGroup --subjectIdentifiers=id.test.subject.0,id.test.subject.1 --outputTemplate=${index}", " "));
+          "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIdentifiers=id.test.subject.0,id.test.subject.1 --outputTemplate=${index}", " "));
 
       System.out.flush();
       
@@ -205,7 +607,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
     
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=addMemberWs --groupName=aStem:aGroup --pennKeys=id.test.subject.0,id.test.subject.1 --fieldName=members", " "));
+          "--operation=deleteMemberWs --groupName=aStem:aGroup --pennKeys=id.test.subject.0,id.test.subject.1 --fieldName=members", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
       
@@ -218,7 +620,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(outputLines[0], matcher.matches());
       
       assertEquals("0", matcher.group(1));
-      assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+      assertEquals("SUCCESS_WASNT_IMMEDIATE", matcher.group(2));
       assertEquals("test.subject.0", matcher.group(3));
       
       matcher = pattern.matcher(outputLines[1]);
@@ -226,7 +628,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(outputLines[1], matcher.matches());
       
       assertEquals("1", matcher.group(1));
-      assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+      assertEquals("SUCCESS_WASNT_IMMEDIATE", matcher.group(2));
       assertEquals("test.subject.1", matcher.group(3));
 
       assertTrue(GrouperClientWs.mostRecentRequest, GrouperClientWs.mostRecentRequest.contains("fieldName")
@@ -239,7 +641,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
     
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --txType=NONE", " "));
+          "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --txType=NONE", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
       
@@ -252,7 +654,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(outputLines[0], matcher.matches());
       
       assertEquals("0", matcher.group(1));
-      assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+      assertEquals("SUCCESS_WASNT_IMMEDIATE", matcher.group(2));
       assertEquals("test.subject.0", matcher.group(3));
       
       matcher = pattern.matcher(outputLines[1]);
@@ -260,7 +662,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(outputLines[1], matcher.matches());
       
       assertEquals("1", matcher.group(1));
-      assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+      assertEquals("SUCCESS_WASNT_IMMEDIATE", matcher.group(2));
       assertEquals("test.subject.1", matcher.group(3));
 
       assertTrue(GrouperClientWs.mostRecentRequest, !GrouperClientWs.mostRecentRequest.contains("fieldName")
@@ -278,7 +680,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
     
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --includeGroupDetail=true --includeSubjectDetail=true", " "));
+          "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --includeGroupDetail=true --includeSubjectDetail=true", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
       
@@ -291,7 +693,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(outputLines[0], matcher.matches());
       
       assertEquals("0", matcher.group(1));
-      assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+      assertEquals("SUCCESS_WASNT_IMMEDIATE", matcher.group(2));
       assertEquals("test.subject.0", matcher.group(3));
       
       matcher = pattern.matcher(outputLines[1]);
@@ -299,7 +701,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(outputLines[1], matcher.matches());
       
       assertEquals("1", matcher.group(1));
-      assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+      assertEquals("SUCCESS_WASNT_IMMEDIATE", matcher.group(2));
       assertEquals("test.subject.1", matcher.group(3));
 
       assertTrue(
@@ -314,7 +716,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
     
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --subjectAttributeNames=name --outputTemplate=${index}:$space$${wsAddMemberResult.wsSubject.getAttributeValue(0)}$newline$", " "));
+          "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --subjectAttributeNames=name --outputTemplate=${index}:$space$${wsDeleteMemberResult.wsSubject.getAttributeValue(0)}$newline$", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
       
@@ -335,7 +737,7 @@ public class GrouperClientWsTest extends GrouperTest {
       System.setOut(new PrintStream(baos));
     
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --defaultSubjectSource=jdbc", " "));
+          "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --defaultSubjectSource=jdbc", " "));
       System.out.flush();
       output = new String(baos.toByteArray());
       
@@ -348,7 +750,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(outputLines[0], matcher.matches());
       
       assertEquals("0", matcher.group(1));
-      assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+      assertEquals("SUCCESS_WASNT_IMMEDIATE", matcher.group(2));
       assertEquals("test.subject.0", matcher.group(3));
       
       matcher = pattern.matcher(outputLines[1]);
@@ -356,7 +758,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(outputLines[1], matcher.matches());
       
       assertEquals("1", matcher.group(1));
-      assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+      assertEquals("SUCCESS_WASNT_IMMEDIATE", matcher.group(2));
       assertEquals("test.subject.1", matcher.group(3));
 
       assertTrue(
@@ -374,7 +776,7 @@ public class GrouperClientWsTest extends GrouperTest {
       
       try {
         GrouperClient.main(GrouperClientUtils.splitTrim(
-            "--operation=addMemberWs --groupName=aStem:aGroup --subjectIdsFile="+subjectIdsFileName, " "));
+            "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIdsFile="+subjectIdsFileName, " "));
         System.out.flush();
         output = new String(baos.toByteArray());
         
@@ -387,7 +789,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertTrue(outputLines[0], matcher.matches());
         
         assertEquals("0", matcher.group(1));
-        assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+        assertEquals("SUCCESS_WASNT_IMMEDIATE", matcher.group(2));
         assertEquals("test.subject.0", matcher.group(3));
         
         matcher = pattern.matcher(outputLines[1]);
@@ -395,7 +797,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertTrue(outputLines[1], matcher.matches());
         
         assertEquals("1", matcher.group(1));
-        assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+        assertEquals("SUCCESS_WASNT_IMMEDIATE", matcher.group(2));
         assertEquals("test.subject.1", matcher.group(3));
 
         //#####################################################
@@ -404,7 +806,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
       
         GrouperClient.main(GrouperClientUtils.splitTrim(
-            "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --paramName0=whatever --paramValue0=someValue", " "));
+            "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --paramName0=whatever --paramValue0=someValue", " "));
         System.out.flush();
         output = new String(baos.toByteArray());
         
@@ -417,7 +819,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertTrue(outputLines[0], matcher.matches());
         
         assertEquals("0", matcher.group(1));
-        assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+        assertEquals("SUCCESS_WASNT_IMMEDIATE", matcher.group(2));
         assertEquals("test.subject.0", matcher.group(3));
         
         matcher = pattern.matcher(outputLines[1]);
@@ -425,7 +827,7 @@ public class GrouperClientWsTest extends GrouperTest {
         assertTrue(outputLines[1], matcher.matches());
         
         assertEquals("1", matcher.group(1));
-        assertEquals("SUCCESS_ALREADY_EXISTED", matcher.group(2));
+        assertEquals("SUCCESS_WASNT_IMMEDIATE", matcher.group(2));
         assertEquals("test.subject.1", matcher.group(3));
 
         assertTrue(
@@ -461,16 +863,16 @@ public class GrouperClientWsTest extends GrouperTest {
       String wsUserString = GrouperClientUtils.propertiesValue("grouperClient.webService." + wsUserLabel, true);
       Subject wsUser = SubjectFinder.findByIdOrIdentifier(wsUserString, true);
       
-      group.grantPriv(wsUser, AccessPrivilege.READ);
-      group.grantPriv(wsUser, AccessPrivilege.VIEW);
-      group2.grantPriv(wsUser, AccessPrivilege.READ);
-      group2.grantPriv(wsUser, AccessPrivilege.VIEW);
+      group.grantPriv(wsUser, AccessPrivilege.READ, false);
+      group.grantPriv(wsUser, AccessPrivilege.VIEW, false);
+      group2.grantPriv(wsUser, AccessPrivilege.READ, false);
+      group2.grantPriv(wsUser, AccessPrivilege.VIEW, false);
       
       //add some subjects
-      group.addMember(SubjectTestHelper.SUBJ0);
-      group.addMember(SubjectTestHelper.SUBJ1);
-      group2.addMember(SubjectTestHelper.SUBJ2);
-      group2.addMember(SubjectTestHelper.SUBJ3);
+      group.addMember(SubjectTestHelper.SUBJ0, false);
+      group.addMember(SubjectTestHelper.SUBJ1, false);
+      group2.addMember(SubjectTestHelper.SUBJ2, false);
+      group2.addMember(SubjectTestHelper.SUBJ3, false);
       
       PrintStream systemOut = System.out;
   

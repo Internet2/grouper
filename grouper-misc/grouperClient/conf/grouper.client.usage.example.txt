@@ -50,7 +50,7 @@ getMembers web service usage:
   e.g.: java -jar grouperClient.jar --operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2
   output: GroupIndex 0: success: T: code: SUCCESS: group: aStem:aGroup: subjectIndex: 0: 12345
 
-deleteMember web service usage (note: you can replace all members of a group also):
+deleteMember web service usage:
   java -jar grouperClient.jar --operation=deleteMemberWs --groupName=groupName [--subjectIds=subjId0,subjId1] [--subjectIdentifierss=subjIdent0,subjIdent1] [--subjectSources=source0,source1] [--subjectIdsFile=fileName] [--subjectIdentifiersFile=fileName] [--subjectSourcesFile=fileName] [--defaultSubjectSource=subjectSourceId] [--fieldName=fieldNameToAdd] [--txType=GcTransactionType] [--includeGroupDetail=true|false] [--includeSubjectDetailtrue|false] [--subjectAttributeNames=name0,name1] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue]  
   e.g.: java -jar grouperClient.jar --operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=12345,23456
   output: Index 0: success: T: code: SUCCESS: 12345

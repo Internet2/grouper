@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.5 2008-12-01 19:28:54 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.6 2008-12-02 06:21:09 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.api.GcAddMember;
+import edu.internet2.middleware.grouperClient.api.GcDeleteMember;
 import edu.internet2.middleware.grouperClient.api.GcGetMembers;
 import edu.internet2.middleware.grouperClient.api.GcLdapSearchAttribute;
 import edu.internet2.middleware.grouperClient.commandLine.GcLdapSearchAttributeConfig;
@@ -21,6 +22,8 @@ import edu.internet2.middleware.grouperClient.ws.GcTransactionType;
 import edu.internet2.middleware.grouperClient.ws.WsMemberFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
@@ -153,6 +156,9 @@ public class GrouperClient {
         result = ldapSearchAttribute(argMap, argMapNotUsed, operation);
       } else if (GrouperClientUtils.equals(operation, "addMemberWs")) {
         result = addMember(argMap, argMapNotUsed);
+
+      } else if (GrouperClientUtils.equals(operation, "deleteMemberWs")) {
+        result = deleteMember(argMap, argMapNotUsed);
 
       } else if (GrouperClientUtils.equals(operation, "getMembersWs")) {
         result = getMembers(argMap, argMapNotUsed);
@@ -347,6 +353,91 @@ public class GrouperClient {
   //          result.append("Index " + index + ": success: " + wsAddMemberResult.getResultMetadata().getSuccess()
   //              + ": code: " + wsAddMemberResult.getResultMetadata().getResultCode() + ": " 
   //              + wsAddMemberResult.getWsSubject().getId() + "\n");
+        
+        String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+        result.append(output);
+        
+        index++;
+      }
+      
+      return result.toString();
+    }
+
+  /**
+     * @param argMap
+     * @param argMapNotUsed
+     * @return result
+     */
+    private static String deleteMember(Map<String, String> argMap,
+        Map<String, String> argMapNotUsed) {
+      
+      String groupName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupName", true);
+      String fieldName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fieldName", false);
+      String txType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "txType", false);
+     
+      Boolean includeGroupDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeGroupDetail");
+      
+      Boolean includeSubjectDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeSubjectDetail");
+  
+      Set<String> subjectAttributeNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "subjectAttributeNames", false);
+  
+      List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+      
+      GcDeleteMember gcDeleteMember = new GcDeleteMember();        
+  
+      for (WsParam param : params) {
+        gcDeleteMember.addParam(param);
+      }
+      
+      List<WsSubjectLookup> wsSubjectLookupList = retrieveSubjectsFromArgs(argMap,
+          argMapNotUsed);
+      
+      for (WsSubjectLookup wsSubjectLookup : wsSubjectLookupList) {
+        gcDeleteMember.addSubjectLookup(wsSubjectLookup);
+      }
+      
+      gcDeleteMember.assignGroupName(groupName);
+      
+      WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+      
+      gcDeleteMember.assignActAsSubject(actAsSubject);
+      
+      gcDeleteMember.assignIncludeGroupDetail(includeGroupDetail);
+      gcDeleteMember.assignIncludeSubjectDetail(includeSubjectDetail);
+      
+      gcDeleteMember.assignFieldName(fieldName);
+      gcDeleteMember.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
+  
+      for (String subjectAttribute : GrouperClientUtils.nonNull(subjectAttributeNames)) {
+        gcDeleteMember.addSubjectAttributeName(subjectAttribute);
+      }
+      
+      WsDeleteMemberResults wsDeleteMemberResults = gcDeleteMember.execute();
+      
+      StringBuilder result = new StringBuilder();
+      int index = 0;
+      
+      Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+      substituteMap.put("wsDeleteMemberResults", wsDeleteMemberResults);
+  
+      String outputTemplate = null;
+  
+      if (argMap.containsKey("outputTemplate")) {
+        outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+        outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+      } else {
+        outputTemplate = GrouperClientUtils.propertiesValue("webService.deleteMember.output", true);
+      }
+  
+      for (WsDeleteMemberResult wsDeleteMemberResult : wsDeleteMemberResults.getResults()) {
+        
+        substituteMap.put("index", index);
+        substituteMap.put("wsDeleteMemberResult", wsDeleteMemberResult);
+        
+  //          result.append("Index " + index + ": success: " + wsDeleteMemberResult.getResultMetadata().getSuccess()
+  //              + ": code: " + wsDeleteMemberResult.getResultMetadata().getResultCode() + ": " 
+  //              + wsDeleteMemberResult.getWsSubject().getId() + "\n");
         
         String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
         result.append(output);
