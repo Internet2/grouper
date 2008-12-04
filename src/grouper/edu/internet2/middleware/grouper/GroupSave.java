@@ -1,12 +1,14 @@
 /*
  * @author mchyzer
- * $Id: GroupSave.java,v 1.1 2008-12-04 07:51:24 mchyzer Exp $
+ * $Id: GroupSave.java,v 1.2 2008-12-04 20:59:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -19,6 +21,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -130,31 +133,16 @@ public class GroupSave {
   }
 
   /** save type after the save */
-  private SaveType saveType = null;
+  private SaveResultType saveResultType = null;
   
   /**
    * get the save type
    * @return save type
    */
-  public SaveType getSaveType() {
-    return this.saveType;
+  public SaveResultType getSaveResultType() {
+    return this.saveResultType;
   }
   
-  /**
-   * save type
-   */
-  public static enum SaveType {
-
-    /** group was inserted */
-    INSERT,
-    
-    /** group was updated */
-    UPDATE,
-    
-    /** group didnt need an update */
-    NO_CHANGE;
-  }
-
   /**
    * <pre>
    * create or update a group.  Do not throw checked exceptions, wrap in unchecked
@@ -298,10 +286,10 @@ public class GroupSave {
                     }
                   }
                   //default
-                  GroupSave.this.saveType = SaveType.NO_CHANGE;
+                  GroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
                   //if inserting
                   if (!isUpdate) {
-                    saveType = SaveType.INSERT;
+                    saveResultType = SaveResultType.INSERT;
                     if (StringUtils.isBlank(GroupSave.this.uuid)) {
                       try {
                         //if no uuid
@@ -317,26 +305,35 @@ public class GroupSave {
                   } else {
                     //check if different so it doesnt make unneeded queries
                     if (!StringUtils.equals(theGroup.getExtension(), extensionNew)) {
-                      GroupSave.this.saveType = SaveType.UPDATE;
+                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
                       theGroup.setExtension(extensionNew);
                     }
                     if (!StringUtils.equals(theGroup.getDisplayExtension(), theDisplayExtension)) {
-                      GroupSave.this.saveType = SaveType.UPDATE;
+                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
                       theGroup.setDisplayExtension(theDisplayExtension);
                     }
                   }
                   
                   //now compare and put all attributes (then store if needed)
-                  if (!StringUtils.equals(theGroup.getDescription(), GroupSave.this.description)) {
-                    //null throws exception... hmmm
+                  //null throws exception? hmmm.  remove attribute if blank
+                  if (!StringUtils.equals(StringUtils.defaultString(theGroup.getDescription()), 
+                      StringUtils.defaultString(StringUtils.trim(GroupSave.this.description)))) {
+                    if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                    }
                     if (!StringUtils.isBlank(GroupSave.this.description)) {
-                      GroupSave.this.saveType = SaveType.UPDATE;
                       theGroup.setDescription(GroupSave.this.description);
+                    } else {
+                      try {
+                        theGroup.deleteAttribute(GrouperConfig.ATTR_DESCRIPTION);
+                      } catch (AttributeNotFoundException anfe) {
+                        throw new RuntimeException(anfe);
+                      }
                     }
                   }
 
                   //only store once
-                  if (GroupSave.this.saveType == SaveType.UPDATE) {
+                  if (GroupSave.this.saveResultType == SaveResultType.UPDATE) {
                     theGroup.store();
                   }
                   
