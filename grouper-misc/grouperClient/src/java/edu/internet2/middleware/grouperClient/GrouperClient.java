@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.11 2008-12-04 20:59:23 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.12 2008-12-04 21:42:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouperClient.api.GcAddMember;
 import edu.internet2.middleware.grouperClient.api.GcDeleteMember;
 import edu.internet2.middleware.grouperClient.api.GcGetGroups;
 import edu.internet2.middleware.grouperClient.api.GcGetMembers;
+import edu.internet2.middleware.grouperClient.api.GcGroupDelete;
 import edu.internet2.middleware.grouperClient.api.GcGroupSave;
 import edu.internet2.middleware.grouperClient.api.GcHasMember;
 import edu.internet2.middleware.grouperClient.api.GcLdapSearchAttribute;
@@ -35,6 +36,8 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDeleteResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDeleteResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDetail;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupSaveResult;
@@ -210,6 +213,9 @@ public class GrouperClient {
       } else if (GrouperClientUtils.equals(operation, "stemSaveWs")) {
         result = stemSave(argMap, argMapNotUsed);
 
+      } else if (GrouperClientUtils.equals(operation, "groupDeleteWs")) {
+        result = groupDelete(argMap, argMapNotUsed);
+
       } else {
         usage();
       }
@@ -350,7 +356,7 @@ public class GrouperClient {
   
       String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
       gcAddMember.assignClientVersion(clientVersion);
-
+  
       for (WsParam param : params) {
         gcAddMember.addParam(param);
       }
@@ -387,6 +393,7 @@ public class GrouperClient {
       Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
   
       substituteMap.put("wsAddMemberResults", wsAddMemberResults);
+      substituteMap.put("grouperClientUtils", new GrouperClientUtils());
   
       String outputTemplate = null;
   
@@ -405,6 +412,76 @@ public class GrouperClient {
   //          result.append("Index " + index + ": success: " + wsAddMemberResult.getResultMetadata().getSuccess()
   //              + ": code: " + wsAddMemberResult.getResultMetadata().getResultCode() + ": " 
   //              + wsAddMemberResult.getWsSubject().getId() + "\n");
+        
+        String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+        result.append(output);
+        
+        index++;
+      }
+      
+      return result.toString();
+    }
+
+  /**
+     * @param argMap
+     * @param argMapNotUsed
+     * @return result
+     */
+    private static String groupDelete(Map<String, String> argMap,
+        Map<String, String> argMapNotUsed) {
+      
+      List<String> groupNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupNames", true);
+      String txType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "txType", false);
+     
+      Boolean includeGroupDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeGroupDetail");
+      
+      List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+      
+      GcGroupDelete gcGroupDelete = new GcGroupDelete();        
+  
+      String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+      gcGroupDelete.assignClientVersion(clientVersion);
+
+      for (WsParam param : params) {
+        gcGroupDelete.addParam(param);
+      }
+
+      for (String groupName : groupNames) {
+        WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, null);
+        gcGroupDelete.addGroupLookup(wsGroupLookup);
+      }
+      
+      WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+      
+      gcGroupDelete.assignActAsSubject(actAsSubject);
+      
+      gcGroupDelete.assignIncludeGroupDetail(includeGroupDetail);
+      
+      gcGroupDelete.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
+  
+      WsGroupDeleteResults wsGroupDeleteResults = gcGroupDelete.execute();
+      
+      StringBuilder result = new StringBuilder();
+      int index = 0;
+      
+      Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+      substituteMap.put("wsGroupDeleteResults", wsGroupDeleteResults);
+      substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+
+      String outputTemplate = null;
+  
+      if (argMap.containsKey("outputTemplate")) {
+        outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+        outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+      } else {
+        outputTemplate = GrouperClientUtils.propertiesValue("webService.groupDelete.output", true);
+      }
+  
+      for (WsGroupDeleteResult wsGroupDeleteResult : wsGroupDeleteResults.getResults()) {
+        
+        substituteMap.put("index", index);
+        substituteMap.put("wsGroupDeleteResult", wsGroupDeleteResult);
         
         String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
         result.append(output);
@@ -592,7 +669,8 @@ public class GrouperClient {
     Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
   
     substituteMap.put("wsGroupSaveResults", wsGroupSaveResults);
-  
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+
     String outputTemplate = null;
   
     if (argMap.containsKey("outputTemplate")) {
@@ -706,6 +784,8 @@ public class GrouperClient {
   
       substituteMap.put("wsStemSaveResults", wsStemSaveResults);
   
+      substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+      
       String outputTemplate = null;
   
       if (argMap.containsKey("outputTemplate")) {
@@ -795,7 +875,8 @@ public class GrouperClient {
       Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
   
       substituteMap.put("wsHasMemberResults", wsHasMemberResults);
-  
+      substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+
       String outputTemplate = null;
   
       if (argMap.containsKey("outputTemplate")) {
@@ -884,7 +965,8 @@ public class GrouperClient {
       Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
   
       substituteMap.put("wsDeleteMemberResults", wsDeleteMemberResults);
-  
+      substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+
       String outputTemplate = null;
   
       if (argMap.containsKey("outputTemplate")) {
@@ -968,7 +1050,8 @@ public class GrouperClient {
     Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
   
     substituteMap.put("wsGetMembersResults", wsGetMembersResults);
-  
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+
     String outputTemplate = null;
   
     if (argMap.containsKey("outputTemplate")) {
@@ -1055,6 +1138,7 @@ public class GrouperClient {
     Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
 
     substituteMap.put("wsGetGroupsResults", wsGetGroupsResults);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
 
     String outputTemplate = null;
 

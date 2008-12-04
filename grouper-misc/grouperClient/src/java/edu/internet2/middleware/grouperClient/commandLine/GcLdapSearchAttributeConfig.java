@@ -43,7 +43,8 @@ public class GcLdapSearchAttributeConfig {
 
         Map<String, Object> substitutionVars = new LinkedHashMap<String, Object>();
         substitutionVars.put(returningLdapAttribute, returningAttributeValue);
-        
+        substitutionVars.put("grouperClientUtils", new GrouperClientUtils());
+
         addMatchingAttributesToSubstitutionVars(gcLdapSearchAttributeConfig,
             gcLdapSearchAttribute, substitutionVars);
         
@@ -78,7 +79,8 @@ public class GcLdapSearchAttributeConfig {
         Map<String, Object> substitutionVars = new LinkedHashMap<String, Object>();
         substitutionVars.put(ldapReturningAttribute, returningAttributeValue);
         substitutionVars.put("resultBoolean", foundAttribute);
-        
+        substitutionVars.put("grouperClientUtils", new GrouperClientUtils());
+
         addMatchingAttributesToSubstitutionVars(gcLdapSearchAttributeConfig,
             gcLdapSearchAttribute, substitutionVars);
         
@@ -106,7 +108,8 @@ public class GcLdapSearchAttributeConfig {
         StringBuilder result = new StringBuilder();
         
         Map<String, Object> substitutionVars = new LinkedHashMap<String, Object>();
-        
+        substitutionVars.put("grouperClientUtils", new GrouperClientUtils());
+
         addMatchingAttributesToSubstitutionVars(gcLdapSearchAttributeConfig,
             gcLdapSearchAttribute, substitutionVars);
         
