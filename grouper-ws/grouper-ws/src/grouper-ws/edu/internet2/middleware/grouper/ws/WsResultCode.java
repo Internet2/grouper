@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsResultCode.java,v 1.1 2008-03-24 20:19:49 mchyzer Exp $
+ * @author mchyzer $Id: WsResultCode.java,v 1.2 2008-12-04 07:51:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -23,4 +23,10 @@ public interface WsResultCode {
    * @return the name
    */
   public String name();
+  
+  /** get the name label for a certain version of client 
+   * @param clientVersion 
+   * @return */
+  public String nameForVersion(GrouperWsVersion clientVersion);
+  
 }

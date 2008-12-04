@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
@@ -63,6 +64,13 @@ public class WsGetMembersLiteResult implements WsResponseBean {
      */
     GROUP_UUID_DOESNT_MATCH_NAME(400);
     
+    /** get the name label for a certain version of client 
+     * @param clientVersion 
+     * @return */
+    public String nameForVersion(GrouperWsVersion clientVersion) {
+      return this.name();
+    }
+
     /**
      * construct with http code
      * @param theHttpStatusCode the code

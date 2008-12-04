@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
@@ -30,8 +31,59 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
    */
   public static enum WsGroupSaveLiteResultCode implements WsResultCode {
 
+    /** didnt find the groups, inserted them (lite http status code 201) (success: T) */
+    SUCCESS_INSERTED(201) {
+      
+      /** get the name label for a certain version of client 
+       * @param clientVersion 
+       * @return */
+      @Override
+      public String nameForVersion(GrouperWsVersion clientVersion) {
+
+        //before 1.4 we had SUCCESS and nothing more descriptive
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+          return "SUCCESS";
+        }
+        return this.name();
+      }
+      
+    },
+
     /** found the groups, saved them (lite http status code 201) (success: T) */
-    SUCCESS(201),
+    SUCCESS_UPDATED(201) {
+      
+      /** get the name label for a certain version of client 
+       * @param clientVersion 
+       * @return */
+      @Override
+      public String nameForVersion(GrouperWsVersion clientVersion) {
+
+        //before 1.4 we had SUCCESS and nothing more descriptive
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+          return "SUCCESS";
+        }
+        return this.name();
+      }
+      
+    },
+
+    /** found the groups, saved them (lite http status code 201) (success: T) */
+    SUCCESS_NO_CHANGES_NEEDED(201) {
+      
+      /** get the name label for a certain version of client 
+       * @param clientVersion 
+       * @return */
+      @Override
+      public String nameForVersion(GrouperWsVersion clientVersion) {
+
+        //before 1.4 we had SUCCESS and nothing more descriptive
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+          return "SUCCESS";
+        }
+        return this.name();
+      }
+      
+    },
 
     /** either overall exception, or one or more groups had exceptions (lite http status code 500) (success: F) */
     EXCEPTION(500),
@@ -51,12 +103,19 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
     /** the stem was not found  (lite http status code 404) (success: F) */
     STEM_NOT_FOUND(404);
 
+    /** get the name label for a certain version of client 
+     * @param clientVersion 
+     * @return */
+    public String nameForVersion(GrouperWsVersion clientVersion) {
+      return this.name();
+    }
+
     /**
      * if this is a successful result
      * @return true if success
      */
     public boolean isSuccess() {
-      return this == SUCCESS;
+      return this.name().startsWith("SUCCESS");
     }
 
     /** http status code for rest/lite e.g. 200 */
@@ -89,9 +148,10 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
    * @param wsGroupSaveResultsCodeOverride
    * @param theError
    * @param e
+   * @param clientVersion
    */
   public void assignResultCodeException(
-      WsGroupSaveLiteResultCode wsGroupSaveResultsCodeOverride, String theError, Exception e) {
+      WsGroupSaveLiteResultCode wsGroupSaveResultsCodeOverride, String theError, Exception e, GrouperWsVersion clientVersion) {
 
     if (e instanceof WsInvalidQueryException) {
       wsGroupSaveResultsCodeOverride = GrouperUtil.defaultIfNull(
@@ -100,7 +160,7 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
       //        wsGroupSaveResultsCodeOverride = WsGroupSaveResultsCode.GROUP_NOT_FOUND;
       //      }
       //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsGroupSaveResultsCodeOverride);
+      this.assignResultCode(wsGroupSaveResultsCodeOverride, clientVersion);
       this.getResultMetadata().appendResultMessage(e.getMessage());
       this.getResultMetadata().appendResultMessage(theError);
       LOG.warn(e);
@@ -113,7 +173,7 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
       this.getResultMetadata().appendResultMessage(
           theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsGroupSaveResultsCodeOverride);
+      this.assignResultCode(wsGroupSaveResultsCodeOverride, clientVersion);
 
     }
   }
@@ -121,9 +181,10 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
   /**
    * assign the code from the enum
    * @param groupSaveResultsCode
+   * @param clientVersion 
    */
-  public void assignResultCode(WsGroupSaveLiteResultCode groupSaveResultsCode) {
-    this.getResultMetadata().assignResultCode(groupSaveResultsCode);
+  public void assignResultCode(WsGroupSaveLiteResultCode groupSaveResultsCode, GrouperWsVersion clientVersion) {
+    this.getResultMetadata().assignResultCode(groupSaveResultsCode, clientVersion);
   }
 
   /**

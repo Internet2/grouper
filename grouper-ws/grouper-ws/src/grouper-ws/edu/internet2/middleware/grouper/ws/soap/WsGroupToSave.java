@@ -13,10 +13,13 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
+
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -59,6 +62,20 @@ public class WsGroupToSave {
   /** if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default) */
   private String saveMode;
 
+  /**
+   * what ended up happening
+   */
+  @XStreamOmitField
+  private GroupSave.SaveType saveType;
+
+  /**
+   * get the save type
+   * @return save type
+   */
+  public GroupSave.SaveType saveType() {
+    return this.saveType;
+  }
+  
   /**
    * 
    */
@@ -113,17 +130,30 @@ public class WsGroupToSave {
     try {
       SaveMode theSaveMode = SaveMode.valueOfIgnoreCase(this.saveMode);
   
+      if (this.getWsGroupLookup() == null) {
+        throw new WsInvalidQueryException(
+            "wsGroupLookup is required to save a group (probably just put the name in it)");
+      }
+       
       this.getWsGroupLookup().retrieveGroupIfNeeded(grouperSession);
   
       Group groupLookedup = this.getWsGroupLookup().retrieveGroup();
   
       String groupNameLookup = groupLookedup == null ? null : groupLookedup.getName();
   
-      group = Group.saveGroup(grouperSession, groupNameLookup, 
-          this.getWsGroup().getUuid(), 
-          this.getWsGroup().getName(), this.getWsGroup().getDisplayExtension(), 
-          this.getWsGroup().getDescription(), theSaveMode, false);
+      GroupSave groupSave = new GroupSave(grouperSession);
+      groupSave.assignGroupNameToEdit(groupNameLookup);
+      groupSave.assignUuid(this.getWsGroup().getUuid()).assignName(this.getWsGroup().getName());
+      groupSave.assignDisplayExtension(this.getWsGroup().getDisplayExtension());
+      groupSave.assignDescription(this.getWsGroup().getDescription());
+      groupSave.assignSaveMode(theSaveMode);
+      groupSave.assignCreateParentStemsIfNotExist(false);
       
+      group = groupSave.save();
+      
+      this.saveType = groupSave.getSaveType();
+      boolean isInsert = this.saveType == GroupSave.SaveType.INSERT;
+
       //lets do attributes and types
       WsGroupDetail wsGroupDetail = this.getWsGroup().getDetail();
       
@@ -146,6 +176,7 @@ public class WsGroupToSave {
           if (!group.hasType(groupType)) {
             LOG.debug("Group:" + group.getName() + ": adding type: " + groupType);
             group.addType(groupType);
+            this.saveType = isInsert ? this.saveType : GroupSave.SaveType.UPDATE;
           }
         }
         if (LOG.isDebugEnabled()) {
@@ -193,6 +224,7 @@ public class WsGroupToSave {
                 + attributeName + ": " + attributeValue);
             }
             group.setAttribute(attributeName, attributeValue);
+            this.saveType = isInsert ? this.saveType : GroupSave.SaveType.UPDATE;
             groupDirty = true;
           }
           
@@ -221,6 +253,7 @@ public class WsGroupToSave {
                 + ", groupType: " + groupType + ", groupHasType? " + group.hasType(groupType));
             }
             group.deleteAttribute(key);
+            this.saveType = isInsert ? this.saveType : GroupSave.SaveType.UPDATE;
           }
           
           
@@ -242,6 +275,7 @@ public class WsGroupToSave {
                 if (LOG.isDebugEnabled()) {
                   LOG.debug("Group:" + group.getName() + ": deleting type: " + groupType + " index: " + index);
                 }
+                this.saveType = isInsert ? this.saveType : GroupSave.SaveType.UPDATE;
                 group.deleteType(groupType);
               }
             }
@@ -253,7 +287,8 @@ public class WsGroupToSave {
         //######################
         //Composites
         String compositeType = wsGroupDetail.getCompositeType();
-        if (StringUtils.equals("T", wsGroupDetail.getHasComposite())) {
+        boolean hasComposite = GrouperUtil.booleanValue(wsGroupDetail.getHasComposite(), false);
+        if (hasComposite) {
           
           if (StringUtils.isBlank(compositeType)) {
             throw new WsInvalidQueryException("compositeType cannot be blank if hasComposite is T");
@@ -299,6 +334,7 @@ public class WsGroupToSave {
             }
           }
           if (needsChange) {
+            this.saveType = isInsert ? this.saveType : GroupSave.SaveType.UPDATE;
             String prefix = composite != null ? "Changing" : "Adding";
             if (LOG.isDebugEnabled()) {
               LOG.debug(prefix + " composite group for group: " + group.getName() + 
@@ -310,17 +346,16 @@ public class WsGroupToSave {
             group.addCompositeMember(theCompositeType, leftGroup, rightGroup);
           }
           
-        } else if (StringUtils.equals("F", wsGroupDetail.getHasComposite())) {
+        } else {
           
           if (!StringUtils.isBlank(compositeType)) {
-            throw new WsInvalidQueryException("compositeType must be blank if hasComposite is F");
+            throw new WsInvalidQueryException("compositeType must be blank if hasComposite is blank or F");
           }
           if (group.hasComposite()) {
+            this.saveType = isInsert ? this.saveType : GroupSave.SaveType.UPDATE;
             group.deleteCompositeMember();
           }
           
-        } else {
-          throw new WsInvalidQueryException("compositeType must be blank if hasComposite is blank");
         }
           
         

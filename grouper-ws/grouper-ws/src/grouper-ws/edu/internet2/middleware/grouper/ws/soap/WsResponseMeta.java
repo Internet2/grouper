@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsResponseMeta.java,v 1.5 2008-12-01 07:40:19 mchyzer Exp $
+ * @author mchyzer $Id: WsResponseMeta.java,v 1.6 2008-12-04 07:51:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
@@ -28,7 +28,7 @@ public class WsResponseMeta {
   /** 
    * if there are warnings, they will be there
    */
-  private StringBuilder resultWarnings = new StringBuilder();
+  private StringBuilder resultWarnings = null;
 
   /**
    * append error message to list of error messages
@@ -36,6 +36,9 @@ public class WsResponseMeta {
    * @param warning
    */
   public void appendResultWarning(String warning) {
+    if (this.resultWarnings == null) {
+      this.resultWarnings = new StringBuilder();
+    }
     this.resultWarnings.append(warning);
   }
 
@@ -44,7 +47,7 @@ public class WsResponseMeta {
    * @return any warnings
    */
   public String getResultWarnings() {
-    return this.resultWarnings.toString();
+    return StringUtils.trimToNull(this.resultWarnings == null ? null : this.resultWarnings.toString());
   }
 
   /**
@@ -91,7 +94,7 @@ public class WsResponseMeta {
    * @param resultWarnings1 the resultWarnings to set
    */
   public void setResultWarnings(String resultWarnings1) {
-    this.resultWarnings = new StringBuilder(StringUtils.defaultString(resultWarnings1));
+    this.resultWarnings = StringUtils.isBlank(resultWarnings1) ? null : new StringBuilder(resultWarnings1);
   }
   
   /**

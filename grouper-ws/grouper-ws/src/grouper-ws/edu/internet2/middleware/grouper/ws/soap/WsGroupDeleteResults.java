@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
@@ -45,6 +46,13 @@ public class WsGroupDeleteResults implements WsResponseBean {
 
     /** invalid query (e.g. if everything blank) (lite status code 400) (success: F) */
     INVALID_QUERY(400);
+
+    /** get the name label for a certain version of client 
+     * @param clientVersion 
+     * @return */
+    public String nameForVersion(GrouperWsVersion clientVersion) {
+      return this.name();
+    }
 
     /** http status code for rest/lite e.g. 200 */
     private int httpStatusCode;

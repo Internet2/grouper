@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperServiceLogicTest.java,v 1.1 2008-11-06 21:51:49 mchyzer Exp $
+ * $Id: GrouperServiceLogicTest.java,v 1.2 2008-12-04 07:51:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -140,7 +140,7 @@ public class GrouperServiceLogicTest extends TestCase {
     
     if (!StringUtils.equals("T", wsGroupSaveResults.getResultMetadata().getSuccess())) {
       int index = 0;
-      for (WsGroupSaveResult wsGroupSaveResult : GrouperUtil.nonNull(wsGroupSaveResults.getResults())) {
+      for (WsGroupSaveResult wsGroupSaveResult : GrouperUtil.nonNull(wsGroupSaveResults.getResults(), WsGroupSaveResult.class)) {
         if (!StringUtils.equals("T", wsGroupSaveResult.getResultMetadata().getSuccess())) {
           System.out.println("Error on index: " + index + ", " + wsGroupSaveResult.getResultMetadata().getResultMessage());
         }
@@ -210,7 +210,7 @@ public class GrouperServiceLogicTest extends TestCase {
     
     if (!StringUtils.equals("T", wsGroupSaveResults.getResultMetadata().getSuccess())) {
       int index = 0;
-      for (WsGroupSaveResult wsGroupSaveResult : GrouperUtil.nonNull(wsGroupSaveResults.getResults())) {
+      for (WsGroupSaveResult wsGroupSaveResult : GrouperUtil.nonNull(wsGroupSaveResults.getResults(), WsGroupSaveResult.class)) {
         if (!StringUtils.equals("T", wsGroupSaveResult.getResultMetadata().getSuccess())) {
           System.out.println("Error on index: " + index + ", " + wsGroupSaveResult.getResultMetadata().getResultMessage());
         }
@@ -280,7 +280,7 @@ public class GrouperServiceLogicTest extends TestCase {
     
     if (!StringUtils.equals("T", wsGroupSaveResults.getResultMetadata().getSuccess())) {
       int index = 0;
-      for (WsGroupSaveResult wsGroupSaveResult : GrouperUtil.nonNull(wsGroupSaveResults.getResults())) {
+      for (WsGroupSaveResult wsGroupSaveResult : GrouperUtil.nonNull(wsGroupSaveResults.getResults(), WsGroupSaveResult.class)) {
         if (!StringUtils.equals("T", wsGroupSaveResult.getResultMetadata().getSuccess())) {
           System.out.println("Error on index: " + index + ", " + wsGroupSaveResult.getResultMetadata().getResultMessage());
         }
@@ -368,14 +368,13 @@ public class GrouperServiceLogicTest extends TestCase {
     
     if (!StringUtils.equals("T", wsGroupSaveResults.getResultMetadata().getSuccess())) {
       int index = 0;
-      for (WsGroupSaveResult wsGroupSaveResult : GrouperUtil.nonNull(wsGroupSaveResults.getResults())) {
+      for (WsGroupSaveResult wsGroupSaveResult : GrouperUtil.nonNull(wsGroupSaveResults.getResults(), WsGroupSaveResult.class)) {
         if (!StringUtils.equals("T", wsGroupSaveResult.getResultMetadata().getSuccess())) {
           System.out.println("Error on index: " + index + ", " + wsGroupSaveResult.getResultMetadata().getResultMessage());
         }
         index++;
       }
     }
-    
     
     assertEquals(wsGroupSaveResults.getResultMetadata().getResultMessage(), "T", 
         wsGroupSaveResults.getResultMetadata().getSuccess());

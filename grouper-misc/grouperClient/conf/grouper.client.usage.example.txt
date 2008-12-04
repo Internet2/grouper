@@ -16,52 +16,56 @@ Encrypt passwords for storing passwords in external encrypted files:
 
 NOTE: CHANGE THIS IN grouper.client.usage.txt FOR YOUR SCHOOOL'S LDAP QUERIES
 pennname to pennid usage: 
-  java -jar grouperClient.jar --operation=pennnameToPennid --pennnameToDecode=pennname [--saveResultsToFile=fileName] [--outputTemplate=somePattern]
+  java -jar grouperClient.jar --operation=pennnameToPennid --pennnameToDecode=pennname [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--debug=true]
   e.g.: java -jar grouperClient --operation=pennnameToPennid --pennnameToDecode=jsmith
   output: pennid: 12341234
 
 NOTE: CHANGE THIS IN grouper.client.usage.txt FOR YOUR SCHOOOL'S LDAP QUERIES
 pennid to pennname usage: 
-  java -jar grouperClient.jar --operation=pennidToPennkey --pennidToDecode=pennid [--saveResultsToFile=fileName] [--outputTemplate=somePattern]
+  java -jar grouperClient.jar --operation=pennidToPennkey --pennidToDecode=pennid [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--debug=true]
   e.g.: java -jar grouperClient --operation=pennidToPennkey --pennidToDecode=12341234
   output: pennname: jsmith
 
 NOTE: CHANGE THIS IN grouper.client.usage.txt FOR YOUR SCHOOOL'S LDAP QUERIES
 hasMember ldap usage: 
-  java -jar grouperClient.jar --operation=hasMemberLdap --groupName=groupName --pennnameToCheck=pennkey [--saveResultsToFile=fileName] [--outputTemplate=somePattern]
+  java -jar grouperClient.jar --operation=hasMemberLdap --groupName=groupName --pennnameToCheck=pennkey [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--debug=true]
   e.g.: java -jar grouperClient --operation=hasMemberLdap --groupName=penn:myfolder:mygroup --pennnameToCheck=jsmith
   output: hasMemberLdap: true
 
 NOTE: CHANGE THIS IN grouper.client.usage.txt FOR YOUR SCHOOOL'S LDAP QUERIES
 getMembers ldap usage: 
-  java -jar grouperClient.jar --operation=getMembersLdap --groupName=groupName [--saveResultsToFile=fileName] [--outputTemplate=somePattern]
+  java -jar grouperClient.jar --operation=getMembersLdap --groupName=groupName [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--debug=true]
   e.g.: java -jar grouperClient --operation=getMembersLdap --groupName=penn:myfolder:mygroup
   output line: groupList: jsmith, tsmith, msmith
   note: extremely large group lists might not display fully (e.g. over 1000 members)
 
 addMember web service usage (note: you can replace all members of a group also):
-  java -jar grouperClient.jar --operation=addMemberWs --groupName=groupName [--subjectIds=subjId0,subjId1] [--subjectIdentifierss=subjIdent0,subjIdent1] [--subjectSources=source0,source1] [--subjectIdsFile=fileName] [--subjectIdentifiersFile=fileName] [--subjectSourcesFile=fileName] [--defaultSubjectSource=subjectSourceId] [--fieldName=fieldNameToAdd] [--txType=GcTransactionType] [--includeGroupDetail=true|false] [--includeSubjectDetailtrue|false] [--subjectAttributeNames=name0,name1] [--replaceAllExisting=true|false] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue]  
+  java -jar grouperClient.jar --operation=addMemberWs --groupName=groupName [--subjectIds=subjId0,subjId1] [--subjectIdentifierss=subjIdent0,subjIdent1] [--subjectSources=source0,source1] [--subjectIdsFile=fileName] [--subjectIdentifiersFile=fileName] [--subjectSourcesFile=fileName] [--defaultSubjectSource=subjectSourceId] [--fieldName=fieldNameToAdd] [--txType=GcTransactionType] [--includeGroupDetail=true|false] [--includeSubjectDetail=true|false] [--subjectAttributeNames=name0,name1] [--replaceAllExisting=true|false] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
   e.g.: java -jar grouperClient.jar --operation=addMemberWs --groupName=aStem:aGroup --subjectIds=12345,23456
   output line: Index 0: success: T: code: SUCCESS: 12345
   
 getMembers web service usage:
-  java -jar grouperClient.jar --operation=getMembersWs --groupNames=groupName0,groupName1[--fieldName=fieldNameToAdd] [--memberFilter=GcMemberFilter] [--includeGroupDetail=true|false] [--includeSubjectDetailtrue|false] [--subjectAttributeNames=name0,name1] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue]  
+  java -jar grouperClient.jar --operation=getMembersWs --groupNames=groupName0,groupName1[--fieldName=fieldNameToAdd] [--memberFilter=GcMemberFilter] [--includeGroupDetail=true|false] [--includeSubjectDetail=true|false] [--subjectAttributeNames=name0,name1] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
   e.g.: java -jar grouperClient.jar --operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2
   output line: GroupIndex 0: success: T: code: SUCCESS: group: aStem:aGroup: subjectIndex: 0: 12345
 
 deleteMember web service usage:
-  java -jar grouperClient.jar --operation=deleteMemberWs --groupName=groupName [--subjectIds=subjId0,subjId1] [--subjectIdentifierss=subjIdent0,subjIdent1] [--subjectSources=source0,source1] [--subjectIdsFile=fileName] [--subjectIdentifiersFile=fileName] [--subjectSourcesFile=fileName] [--defaultSubjectSource=subjectSourceId] [--fieldName=fieldNameToAdd] [--txType=GcTransactionType] [--includeGroupDetail=true|false] [--includeSubjectDetailtrue|false] [--subjectAttributeNames=name0,name1] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue]  
+  java -jar grouperClient.jar --operation=deleteMemberWs --groupName=groupName [--subjectIds=subjId0,subjId1] [--subjectIdentifierss=subjIdent0,subjIdent1] [--subjectSources=source0,source1] [--subjectIdsFile=fileName] [--subjectIdentifiersFile=fileName] [--subjectSourcesFile=fileName] [--defaultSubjectSource=subjectSourceId] [--fieldName=fieldNameToAdd] [--txType=GcTransactionType] [--includeGroupDetail=true|false] [--includeSubjectDetail=true|false] [--subjectAttributeNames=name0,name1] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
   e.g.: java -jar grouperClient.jar --operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=12345,23456
   output line: Index 0: success: T: code: SUCCESS: 12345
 
 hasMember web service usage:
-  java -jar grouperClient.jar --operation=hasMemberWs --groupName=groupName [--subjectIds=subjId0,subjId1] [--subjectIdentifierss=subjIdent0,subjIdent1] [--subjectSources=source0,source1] [--subjectIdsFile=fileName] [--subjectIdentifiersFile=fileName] [--subjectSourcesFile=fileName] [--defaultSubjectSource=subjectSourceId] [--fieldName=fieldNameToAdd] [--memberFilter=GcMemberFilter] [--includeGroupDetail=true|false] [--includeSubjectDetailtrue|false] [--subjectAttributeNames=name0,name1] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue]  
+  java -jar grouperClient.jar --operation=hasMemberWs --groupName=groupName [--subjectIds=subjId0,subjId1] [--subjectIdentifierss=subjIdent0,subjIdent1] [--subjectSources=source0,source1] [--subjectIdsFile=fileName] [--subjectIdentifiersFile=fileName] [--subjectSourcesFile=fileName] [--defaultSubjectSource=subjectSourceId] [--fieldName=fieldNameToAdd] [--memberFilter=GcMemberFilter] [--includeGroupDetail=true|false] [--includeSubjectDetail=true|false] [--subjectAttributeNames=name0,name1] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
   e.g.: java -jar grouperClient.jar --operation=hasMemberWs --groupName=aStem:aGroup --subjectIds=12345,23456
   output line: Index 0: success: T: code: IS_MEMBER: 12345: true
   
 getGroups web service usage:
-  java -jar grouperClient.jar --operation=getGroupsWs [--subjectIds=subjId0,subjId1] [--subjectIdentifierss=subjIdent0,subjIdent1] [--subjectSources=source0,source1] [--subjectIdsFile=fileName] [--subjectIdentifiersFile=fileName] [--subjectSourcesFile=fileName] [--defaultSubjectSource=subjectSourceId] [--memberFilter=GcMemberFilter] [--includeGroupDetail=true|false] [--includeSubjectDetailtrue|false] [--subjectAttributeNames=name0,name1] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue]  
+  java -jar grouperClient.jar --operation=getGroupsWs [--subjectIds=subjId0,subjId1] [--subjectIdentifierss=subjIdent0,subjIdent1] [--subjectSources=source0,source1] [--subjectIdsFile=fileName] [--subjectIdentifiersFile=fileName] [--subjectSourcesFile=fileName] [--defaultSubjectSource=subjectSourceId] [--memberFilter=GcMemberFilter] [--includeGroupDetail=true|false] [--includeSubjectDetail=true|false] [--subjectAttributeNames=name0,name1] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
   e.g.: java -jar grouperClient.jar --operation=getGroupsWs --subjectIds=12345,23456
   output line: SubjectIndex 0: success: T: code: SUCCESS: subject: 12345: groupIndex: 0: aStem:aGroup2
   
+groupSave web service usage:
+  java -jar grouperClient.jar --operation=groupSaveWs --name=groupName [--includeGroupDetail=true] [--txType=transactionType] [--saveMode=SaveMode] [--groupLookupName=theName] [--groupLookupUuid=theUuid] [--description=theDescription] [--displayExtension=theDisplayExtension] [--attributeName0=someName] [--attributeValue0=someValue] [--attributeNameX=xthName] [--attributeValueX=xthValue] [--compositeType=COMPLEMENT|INTERSECTION|UNION] [--leftGroupName=compositeLeft] [--rightGroupName=compositeRight] [--groupDetailParamName0=paramName] [--groupDetailParamValue0=paramValue] [--groupDetailParamNameX=xthName] [--groupDetailParamNameX=xthValue] [--typeNames=namesOfGroupTypes]  [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
+  e.g.: java -jar grouperClient.jar --operation=groupSaveWs --name=aStem:aGroup
+  output line: SubjectIndex 0: success: T: code: SUCCESS: subject: 12345: groupIndex: 0: aStem:aGroup2
   

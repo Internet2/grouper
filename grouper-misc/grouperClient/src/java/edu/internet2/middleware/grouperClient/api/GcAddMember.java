@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcAddMember.java,v 1.2 2008-12-01 07:40:28 mchyzer Exp $
+ * $Id: GcAddMember.java,v 1.3 2008-12-04 07:51:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -197,6 +197,19 @@ public class GcAddMember {
     return this;
   }
   
+  /** client version */
+  private String clientVersion;
+
+  /**
+   * assign client version
+   * @param theClientVersion
+   * @return this for chaining
+   */
+  public GcAddMember assignClientVersion(String theClientVersion) {
+    this.clientVersion = theClientVersion;
+    return this;
+  }
+  
   /**
    * execute the call and return the results.  If there is a problem calling the service, an
    * exception will be thrown
@@ -252,7 +265,7 @@ public class GcAddMember {
       
       //kick off the web service
       wsAddMemberResults = (WsAddMemberResults)
-        grouperClientWs.executeService("groups/" + this.groupName + "/members", addMember, "addMember");
+        grouperClientWs.executeService("groups/" + this.groupName + "/members", addMember, "addMember", this.clientVersion);
       
       String resultMessage = wsAddMemberResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(resultMessage);

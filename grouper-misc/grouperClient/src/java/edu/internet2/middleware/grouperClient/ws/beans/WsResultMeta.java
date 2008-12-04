@@ -1,12 +1,11 @@
 /*
- * @author mchyzer $Id: WsResultMeta.java,v 1.1 2008-11-27 14:25:49 mchyzer Exp $
+ * @author mchyzer $Id: WsResultMeta.java,v 1.2 2008-12-04 07:51:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws.beans;
 
 /**
  * result metadata (if success, result code, etc) for one result
  * (each ws call can have one or many result metadatas)
- * @see WsResultCode for all implementations of responses
  */
 public class WsResultMeta {
 

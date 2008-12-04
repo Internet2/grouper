@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcHasMember.java,v 1.1 2008-12-02 07:13:21 mchyzer Exp $
+ * $Id: GcHasMember.java,v 1.2 2008-12-04 07:51:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -24,6 +24,19 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
  */
 public class GcHasMember {
 
+  /** client version */
+  private String clientVersion;
+
+  /**
+   * assign client version
+   * @param theClientVersion
+   * @return this for chaining
+   */
+  public GcHasMember assignClientVersion(String theClientVersion) {
+    this.clientVersion = theClientVersion;
+    return this;
+  }
+  
   /** group name to add member to */
   private String groupName;
   
@@ -227,7 +240,7 @@ public class GcHasMember {
       
       //kick off the web service
       wsHasMemberResults = (WsHasMemberResults)
-        grouperClientWs.executeService("groups/" + this.groupName + "/members", hasMember, "hasMember");
+        grouperClientWs.executeService("groups/" + this.groupName + "/members", hasMember, "hasMember", this.clientVersion);
       
       String resultMessage = wsHasMemberResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(resultMessage);

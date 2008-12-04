@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
@@ -56,6 +57,13 @@ public class WsGroupDeleteLiteResult implements WsResponseBean {
     
     /** the group was not found (lite status code 200) (success: F) */
     SUCCESS_GROUP_NOT_FOUND(200);
+
+    /** get the name label for a certain version of client 
+     * @param clientVersion 
+     * @return */
+    public String nameForVersion(GrouperWsVersion clientVersion) {
+      return this.name();
+    }
 
     /** http status code for rest/lite e.g. 200 */
     private int httpStatusCode;

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWs.java,v 1.3 2008-12-02 19:51:16 mchyzer Exp $
+ * $Id: GrouperClientWs.java,v 1.4 2008-12-04 07:51:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws;
 
@@ -11,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientXstreamUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestResultProblem;
@@ -82,12 +83,13 @@ public class GrouperClientWs {
    * @param urlSuffix e.g. groups/aStem:aGroup/members
    * @param toSend
    * @param labelForLog label if the request is logged to file
+   * @param clientVersion 
    * @return the response object
    * @throws UnsupportedEncodingException
    * @throws HttpException
    * @throws IOException
    */
-  public Object executeService(String urlSuffix, Object toSend, String labelForLog) 
+  public Object executeService(String urlSuffix, Object toSend, String labelForLog, String clientVersion) 
       throws UnsupportedEncodingException, HttpException, IOException {
     
     String logDir = GrouperClientUtils.propertiesValue("grouperClient.logging.webService.documentDir", false);
@@ -116,7 +118,7 @@ public class GrouperClientWs {
     int[] responseCode = new int[1];
     
     //make sure right content type is in request (e.g. application/xhtml+xml
-    this.method = postMethod(this.xStream, urlSuffix, toSend, requestFile, responseCode);
+    this.method = postMethod(this.xStream, urlSuffix, toSend, requestFile, responseCode, clientVersion);
 
     //make sure a request came back
     Header successHeader = this.method.getResponseHeader("X-Grouper-success");
@@ -131,8 +133,10 @@ public class GrouperClientWs {
 
     mostRecentResponse = this.response;
 
-    if (responseFile != null) {
-      LOG.debug("WebService: logging response to: " + GrouperClientUtils.fileCanonicalPath(responseFile));
+    if (responseFile != null || GrouperClientLog.debugToConsole()) {
+      if (responseFile != null) {
+        LOG.debug("WebService: logging response to: " + GrouperClientUtils.fileCanonicalPath(responseFile));
+      }
       
       String theResponse = this.response;
       if (GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.webService.indent", true, true)) {
@@ -154,7 +158,15 @@ public class GrouperClientWs {
         headers.append(name).append(": ").append(value).append("\n");
       }
       headers.append("\n");
-      GrouperClientUtils.saveStringIntoFile(responseFile, headers + theResponse);
+      String theResponseTotal = headers + theResponse;
+      if (responseFile != null) {
+        GrouperClientUtils.saveStringIntoFile(responseFile, theResponseTotal);
+      }
+      if (GrouperClientLog.debugToConsole()) {
+        System.err.println("\n################ RESPONSE START ###############\n");
+        System.err.println(theResponseTotal);
+        System.err.println("\n################ RESPONSE END ###############\n\n");
+      }
     }
 
     Object resultObject = this.xStream.fromXML(this.response);
@@ -241,9 +253,10 @@ public class GrouperClientWs {
 
   /**
    * @param suffix e.g. groups/aStem:aGroup/members
+   * @param clientVersion
    * @return the method
    */
-  private static PostMethod postMethod(String suffix) {
+  private static PostMethod postMethod(String suffix, String clientVersion) {
     
     suffix = GrouperClientUtils.trimToEmpty(suffix);
     
@@ -255,6 +268,10 @@ public class GrouperClientWs {
     
     String webServiceVersion = GrouperClientUtils.propertiesValue("grouperClient.webService.client.version", true);
 
+    if (!GrouperClientUtils.isBlank(clientVersion)) {
+      webServiceVersion = clientVersion;
+    }
+    
     webServiceVersion = GrouperClientUtils.stripStart(webServiceVersion, "/");
     webServiceVersion = GrouperClientUtils.stripEnd(webServiceVersion, "/");
 
@@ -279,27 +296,30 @@ public class GrouperClientWs {
    * @param objectToMarshall
    * @param logFile if not null, log the contents of the request there
    * @param responseCode array of size one to get the response code back
+   * @param clientVersion 
    * @return the post method
    * @throws UnsupportedEncodingException 
    * @throws HttpException 
    * @throws IOException 
    */
   private static PostMethod postMethod(XStream xStream, 
-      String urlSuffix, Object objectToMarshall, File logFile, int[] responseCode) 
+      String urlSuffix, Object objectToMarshall, File logFile, int[] responseCode, String clientVersion) 
       throws UnsupportedEncodingException, HttpException, IOException {
     
     String contentType = "text/xml";
     
     HttpClient httpClient = httpClient();
 
-    PostMethod method = postMethod(urlSuffix);
+    PostMethod method = postMethod(urlSuffix, clientVersion);
 
     String requestDocument = marshalObject(xStream, objectToMarshall);
     
     method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
     
-    if (logFile != null) {
-      LOG.debug("WebService: logging request to: " + GrouperClientUtils.fileCanonicalPath(logFile));
+    if (logFile != null || GrouperClientLog.debugToConsole()) {
+      if (logFile != null) {
+        LOG.debug("WebService: logging request to: " + GrouperClientUtils.fileCanonicalPath(logFile));
+      }
       String theRequestDocument = requestDocument;
       if (GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.webService.indent", true, true)) {
         theRequestDocument = GrouperClientUtils.indent(theRequestDocument, true);
@@ -325,7 +345,15 @@ public class GrouperClientWs {
           method.getRequestEntity().getContentType()).append("\n");
       headers.append("\n");
       
-      GrouperClientUtils.saveStringIntoFile(logFile, headers + theRequestDocument);
+      String theRequest = headers + theRequestDocument;
+      if (logFile != null) {
+        GrouperClientUtils.saveStringIntoFile(logFile, theRequest);
+      }
+      if (GrouperClientLog.debugToConsole()) {
+        System.err.println("\n################ REQUEST START ###############\n");
+        System.err.println(theRequest);
+        System.err.println("\n################ REQUEST END ###############\n\n");
+      }
     }
     
     mostRecentRequest = requestDocument;

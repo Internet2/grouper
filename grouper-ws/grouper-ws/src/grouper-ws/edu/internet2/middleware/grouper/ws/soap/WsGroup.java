@@ -5,6 +5,7 @@ package edu.internet2.middleware.grouper.ws.soap;
 
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Group;
@@ -95,7 +96,7 @@ public class WsGroup {
    */
   public WsGroup(Group group, WsGroupLookup wsGroupLookup, boolean includeDetail) {
     if (group != null) {
-      this.setDescription(group.getDescription());
+      this.setDescription(StringUtils.trimToNull(group.getDescription()));
       this.setDisplayName(group.getDisplayName());
       this.setName(group.getName());
       this.setUuid(group.getUuid());

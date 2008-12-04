@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
@@ -40,6 +41,13 @@ public class WsFindGroupsResults implements WsResponseBean {
 
     /** cant find the stem in a stem search (lite http status code 404) (success: F) */
     STEM_NOT_FOUND(404);
+
+    /** get the name label for a certain version of client 
+     * @param clientVersion 
+     * @return */
+    public String nameForVersion(GrouperWsVersion clientVersion) {
+      return this.name();
+    }
 
     /** http status code for rest/lite e.g. 200 */
     private int httpStatusCode;

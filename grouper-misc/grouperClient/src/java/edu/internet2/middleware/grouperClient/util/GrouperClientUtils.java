@@ -42,7 +42,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
     //if this isnt here, dont configure yet
     if (isBlank(GrouperClientUtils.propertiesValue("encrypt.disableExternalFileLookup", false))
         || theClass.equals(GrouperClientCommonUtils.class)) {
-      return theLog;
+      return new GrouperClientLog(theLog);
     }
     
     if (!configuredLogs) {
@@ -113,7 +113,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
       configuredLogs = true;
     }
     
-    return theLog;
+    return new GrouperClientLog(theLog);
     
   }
   

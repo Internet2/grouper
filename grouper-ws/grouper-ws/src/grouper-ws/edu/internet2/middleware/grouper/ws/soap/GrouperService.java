@@ -883,13 +883,13 @@ public class GrouperService {
       String paramName1, String paramValue1) {
 
     WsGroupSaveLiteResult wsGroupSaveLiteResult = new WsGroupSaveLiteResult();
-
+    GrouperWsVersion grouperWsVersion = null;
     try {
 
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
           clientVersion, true);
       
       SaveMode saveModeEnum = SaveMode.valueOfIgnoreCase(saveMode);
@@ -899,7 +899,7 @@ public class GrouperService {
           actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, includeGroupDetailBoolean,  
           paramName0, paramValue0, paramName1, paramValue1);
     } catch (Exception e) {
-      wsGroupSaveLiteResult.assignResultCodeException(null, null, e);
+      wsGroupSaveLiteResult.assignResultCodeException(null, null, e, grouperWsVersion);
     }
 
     //set response headers
@@ -1252,14 +1252,14 @@ public class GrouperService {
       final String txType, final String includeGroupDetail, final WsParam[] params) {
 
     WsGroupSaveResults wsGroupSaveResults = new WsGroupSaveResults();
-
+    GrouperWsVersion grouperWsVersion = null;
     try {
 
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
           .convertTransactionType(txType);
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
           clientVersion, true);
       
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
@@ -1268,7 +1268,7 @@ public class GrouperService {
       wsGroupSaveResults = GrouperServiceLogic.groupSave(grouperWsVersion, wsGroupToSaves,
           actAsSubjectLookup, grouperTransactionType, includeGroupDetailBoolean, params);
     } catch (Exception e) {
-      wsGroupSaveResults.assignResultCodeException(null, null, e);
+      wsGroupSaveResults.assignResultCodeException(null, null, e, grouperWsVersion);
     }
 
     //set response headers

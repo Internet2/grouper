@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsVersion.java,v 1.8 2008-12-01 07:40:19 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsVersion.java,v 1.9 2008-12-04 07:51:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -41,6 +41,11 @@ public enum GrouperWsVersion {
    * @return true if less than, false if equal or greater
    */
   public boolean lessThanArg(GrouperWsVersion other) {
+    
+    if (this == other) {
+      return false;
+    }
+    
     Matcher matcher = versionPattern.matcher(this.name());
     if (!matcher.matches()) {
       throw new RuntimeException("Cant match string: " + this.name());
@@ -63,7 +68,7 @@ public enum GrouperWsVersion {
     if (thisMajorNumber < otherMajorNumber) {
       return true;
     }
-    if (thisMajorNumber > otherBuildNumber) {
+    if (thisMajorNumber > otherMajorNumber) {
       return false;
     }
     if (thisMinorNumber < otherMinorNumber) {

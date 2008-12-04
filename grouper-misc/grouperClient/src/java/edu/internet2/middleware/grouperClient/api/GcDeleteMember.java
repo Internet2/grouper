@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcDeleteMember.java,v 1.1 2008-12-02 06:21:09 mchyzer Exp $
+ * $Id: GcDeleteMember.java,v 1.2 2008-12-04 07:51:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -23,6 +23,20 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
  * class to run an delete member web service call
  */
 public class GcDeleteMember {
+
+  /** client version */
+  private String clientVersion;
+
+  /**
+   * assign client version
+   * @param theClientVersion
+   * @return this for chaining
+   */
+  public GcDeleteMember assignClientVersion(String theClientVersion) {
+    this.clientVersion = theClientVersion;
+    return this;
+  }
+  
 
   /** group name to delete member from */
   private String groupName;
@@ -235,7 +249,7 @@ public class GcDeleteMember {
       
       //kick off the web service
       wsDeleteMemberResults = (WsDeleteMemberResults)
-        grouperClientWs.executeService("groups/" + this.groupName + "/members", deleteMember, "deleteMember");
+        grouperClientWs.executeService("groups/" + this.groupName + "/members", deleteMember, "deleteMember", this.clientVersion);
       
       String resultMessage = wsDeleteMemberResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(resultMessage);

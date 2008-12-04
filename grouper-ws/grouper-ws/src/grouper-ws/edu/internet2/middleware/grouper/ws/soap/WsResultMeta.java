@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsResultMeta.java,v 1.6 2008-11-18 10:05:50 mchyzer Exp $
+ * @author mchyzer $Id: WsResultMeta.java,v 1.7 2008-12-04 07:51:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
@@ -8,6 +8,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
+import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -64,7 +65,7 @@ public class WsResultMeta {
   /**
    * error message if there is an error
    */
-  private StringBuilder resultMessage = new StringBuilder();
+  private StringBuilder resultMessage = null;
 
   /** T or F as to whether it was a successful assignment */
   private String success;
@@ -79,6 +80,12 @@ public class WsResultMeta {
    * @param errorMessage
    */
   public void appendResultMessage(String errorMessage) {
+    if (StringUtils.isBlank(errorMessage)) {
+      return;
+    }
+    if (this.resultMessage == null) {
+      this.resultMessage = new StringBuilder();
+    }
     this.resultMessage.append(errorMessage);
   }
 
@@ -114,7 +121,7 @@ public class WsResultMeta {
    * @return the errorMessage
    */
   public String getResultMessage() {
-    return this.resultMessage.toString();
+    return this.resultMessage == null ? null : StringUtils.trimToNull(this.resultMessage.toString());
   }
 
   /**
@@ -168,9 +175,19 @@ public class WsResultMeta {
   /**
    * set result code which includes the success and http status code
    * @param wsResultCode1 bean
+   * @param grouperWsVersion 
    */
   public void assignResultCode(WsResultCode wsResultCode1) {
-    this.assignResultCode(wsResultCode1.name());
+    this.assignResultCode(wsResultCode1, null);
+  }
+ 
+  /**
+   * set result code which includes the success and http status code
+   * @param wsResultCode1 bean
+   * @param clientVersion 
+   */
+  public void assignResultCode(WsResultCode wsResultCode1, GrouperWsVersion clientVersion) {
+    this.assignResultCode(wsResultCode1.nameForVersion(clientVersion));
     this.assignSuccess(GrouperServiceUtils.booleanToStringOneChar(wsResultCode1
         .isSuccess()));
     this.assignHttpStatusCode(wsResultCode1.getHttpStatusCode());
@@ -183,7 +200,11 @@ public class WsResultMeta {
    *            the errorMessage to set
    */
   public void setResultMessage(String errorMessage) {
-    this.resultMessage = new StringBuilder(StringUtils.defaultString(errorMessage));
+    if (StringUtils.isBlank(errorMessage)) {
+      this.resultMessage = null;
+    } else {
+      this.resultMessage = new StringBuilder(errorMessage);
+    }
   }
 
   /**

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.6 2008-12-02 19:51:16 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.7 2008-12-04 07:51:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -35,7 +35,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testGetGroups"));
+    TestRunner.run(new GrouperClientWsTest("testGroupSave"));
   }
   
   /**
@@ -45,7 +45,8 @@ public class GrouperClientWsTest extends GrouperTest {
   @Override
   protected void setUp() {
     
-    super.setUp();
+    //dont do this, it deletes types
+    //super.setUp();
 
     String wsUserLabel = GrouperClientUtils.propertiesValue("grouperClient.webService.user.label", true);
     String wsUserString = GrouperClientUtils.propertiesValue("grouperClient.webService." + wsUserLabel, true);
@@ -469,6 +470,443 @@ public class GrouperClientWsTest extends GrouperTest {
           assertTrue(
               GrouperClientWs.mostRecentRequest.contains("replaceAllExisting"));
           
+          
+          
+        } finally {
+          if (subjectIdsFile.exists()) {
+            subjectIdsFile.delete();
+          }
+        }
+      } finally {
+        System.setOut(systemOut);
+      }
+      
+    }
+
+    /**
+     * @throws Exception 
+     */
+    public void testGroupSave() throws Exception {
+      
+      
+      PrintStream systemOut = System.out;
+  
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=groupSaveWs --name=aStem:newGroup0", " "));
+        System.out.flush();
+        String output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        Pattern pattern = Pattern.compile(
+            "^Success: T: code: ([A-Z_]+): (.*+)$");
+        Matcher matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("SUCCESS_INSERTED", matcher.group(1));
+        assertEquals("aStem:newGroup0", matcher.group(2));
+  
+        //#####################################################
+        //run again, with clientVersion
+        
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=groupSaveWs --name=aStem:newGroup0 --clientVersion=v1_3_000", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("SUCCESS", matcher.group(1));
+        assertEquals("aStem:newGroup0", matcher.group(2));
+
+        //#####################################################
+        //run again, should be already added
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=groupSaveWs --name=aStem:newGroup0", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("SUCCESS_NO_CHANGES_NEEDED", matcher.group(1));
+        assertEquals("aStem:newGroup0", matcher.group(2));
+        
+        //#####################################################
+        //run again, should be already added
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=groupSaveWs --name=aStem:newGroup0 --displayExtension=newGroup0displayExtension", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("SUCCESS_UPDATED", matcher.group(1));
+        assertEquals("aStem:newGroup0", matcher.group(2));
+        
+        //#####################################################
+        //run with invalid args
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        //test a command line template
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=groupSaveWs --name=aStem:newGroup0 --ousdfsdfate=${index}", " "));
+        } catch (Exception e) {
+          assertTrue(e.getMessage(), e.getMessage().contains("ousdfsdfate"));
+        }
+        System.out.flush();
+        
+        System.setOut(systemOut);
+        
+        //#####################################################
+        //run with custom template
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        //test a command line template
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=groupSaveWs --name=aStem:newGroup0 --outputTemplate=${index}", " "));
+  
+        System.out.flush();
+        
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        assertEquals("0", output);
+        
+        //#####################################################
+        //run again, with field
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=groupSaveWs --name=aStem:newGroup0 --saveMode=UPDATE", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("SUCCESS_NO_CHANGES_NEEDED", matcher.group(1));
+        assertEquals("aStem:newGroup0", matcher.group(2));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest, GrouperClientWs.mostRecentRequest.contains("saveMode")
+            && GrouperClientWs.mostRecentRequest.contains("UPDATE"));
+        
+        //#####################################################
+        //run again, with txType
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=groupSaveWs --name=aStem:newGroup0 --txType=NONE", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("SUCCESS_NO_CHANGES_NEEDED", matcher.group(1));
+        assertEquals("aStem:newGroup0", matcher.group(2));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest, 
+            GrouperClientWs.mostRecentRequest.contains("txType") 
+            && GrouperClientWs.mostRecentRequest.contains("NONE")
+            && !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        
+        //#####################################################
+        //run again, with includeGroupDetail
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=groupSaveWs --name=aStem:newGroup0 --includeGroupDetail=true", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("SUCCESS_NO_CHANGES_NEEDED", matcher.group(1));
+        assertEquals("aStem:newGroup0", matcher.group(2));
+  
+        assertTrue(
+            !GrouperClientWs.mostRecentRequest.contains("txType") 
+            && !GrouperClientWs.mostRecentRequest.contains("NONE")
+            && GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
+        
+        //#####################################################
+        //run again, with groupLookupName
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=groupSaveWs --name=aStem:newGroup1 --groupLookupName=aStem:newGroup0", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("SUCCESS_UPDATED", matcher.group(1));
+        assertEquals("aStem:newGroup1", matcher.group(2));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest, 
+            !GrouperClientWs.mostRecentRequest.contains("txType") 
+            && !GrouperClientWs.mostRecentRequest.contains("NONE")
+            && !GrouperClientWs.mostRecentRequest.contains("includeGroupDetail")
+            && GrouperClientWs.mostRecentRequest.contains("wsGroupLookup")
+            && GrouperClientWs.mostRecentRequest.contains("aStem:newGroup1")
+            && GrouperClientWs.mostRecentRequest.contains("aStem:newGroup0"));
+        
+        //#####################################################
+        //run again, with default subject source
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=groupSaveWs --name=aStem:newGroup0 --saveMode=INSERT", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("SUCCESS_INSERTED", matcher.group(1));
+        assertEquals("aStem:newGroup0", matcher.group(2));
+  
+        assertTrue(
+            GrouperClientWs.mostRecentRequest.contains("saveMode")
+            && GrouperClientWs.mostRecentRequest.contains("INSERT"));
+        
+        //#####################################################
+        //run again, description
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        String subjectIdsFileName = "subjectIdsFile_" + GrouperClientUtils.uniqueId() + ".txt";
+        File subjectIdsFile = new File(subjectIdsFileName);
+        
+        GrouperClientUtils.saveStringIntoFile(subjectIdsFile, "test.subject.0\ntest.subject.1");
+        
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=groupSaveWs --name=aStem:newGroup0 --description=aDescription", " "));
+          System.out.flush();
+          output = new String(baos.toByteArray());
+          
+          System.setOut(systemOut);
+          
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+          
+          matcher = pattern.matcher(outputLines[0]);
+          
+          assertTrue(outputLines[0], matcher.matches());
+          
+          assertEquals("SUCCESS_UPDATED", matcher.group(1));
+          assertEquals("aStem:newGroup0", matcher.group(2));
+
+          assertTrue(
+              GrouperClientWs.mostRecentRequest.contains("description")
+              && GrouperClientWs.mostRecentRequest.contains("aDescription"));
+
+          //#####################################################
+          //run again, with params
+          baos = new ByteArrayOutputStream();
+          System.setOut(new PrintStream(baos));
+        
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=groupSaveWs --name=aStem:newGroup0 --paramName0=whatever --paramValue0=someValue", " "));
+          System.out.flush();
+          output = new String(baos.toByteArray());
+          
+          System.setOut(systemOut);
+          
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+          
+          matcher = pattern.matcher(outputLines[0]);
+          
+          assertTrue(outputLines[0], matcher.matches());
+          
+          assertEquals("SUCCESS_NO_CHANGES_NEEDED", matcher.group(1));
+          assertEquals("aStem:newGroup0", matcher.group(2));
+  
+          assertTrue(
+              GrouperClientWs.mostRecentRequest.contains("whatever") 
+              && GrouperClientWs.mostRecentRequest.contains("someValue"));
+          
+          
+          //#####################################################
+          //run again, with typeNames
+          baos = new ByteArrayOutputStream();
+          System.setOut(new PrintStream(baos));
+        
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=groupSaveWs --name=aStem:newGroup0 --typeNames=aType", " "));
+          System.out.flush();
+          output = new String(baos.toByteArray());
+          
+          System.setOut(systemOut);
+          
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+          
+          matcher = pattern.matcher(outputLines[0]);
+          
+          assertTrue(outputLines[0], matcher.matches());
+          
+          assertEquals("SUCCESS_UPDATED", matcher.group(1));
+          assertEquals("aStem:newGroup0", matcher.group(2));
+  
+          assertTrue(
+              GrouperClientWs.mostRecentRequest.contains("typeNames")
+              && GrouperClientWs.mostRecentRequest.contains("aType"));
+          
+          
+          //#####################################################
+          //run again, with attributes
+          baos = new ByteArrayOutputStream();
+          System.setOut(new PrintStream(baos));
+        
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=groupSaveWs --name=aStem:newGroup0 --typeNames=aType --attributeName0=attr_1 --attributeValue0=whatever", " "));
+          System.out.flush();
+          output = new String(baos.toByteArray());
+          
+          System.setOut(systemOut);
+          
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+          
+          matcher = pattern.matcher(outputLines[0]);
+          
+          assertTrue(outputLines[0], matcher.matches());
+          
+          assertEquals("SUCCESS_UPDATED", matcher.group(1));
+          assertEquals("aStem:newGroup0", matcher.group(2));
+  
+          assertTrue(
+              GrouperClientWs.mostRecentRequest.contains("attr_1")
+              && GrouperClientWs.mostRecentRequest.contains("whatever"));
+          
+          //#####################################################
+          //run again, with groupDetailParamName0
+          baos = new ByteArrayOutputStream();
+          System.setOut(new PrintStream(baos));
+        
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=groupSaveWs --name=aStem:newGroup0 --groupDetailParamName0=something --groupDetailParamValue0=whatever", " "));
+          System.out.flush();
+          output = new String(baos.toByteArray());
+          
+          System.setOut(systemOut);
+          
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+          
+          matcher = pattern.matcher(outputLines[0]);
+          
+          assertTrue(outputLines[0], matcher.matches());
+          
+          assertEquals("SUCCESS_UPDATED", matcher.group(1));
+          assertEquals("aStem:newGroup0", matcher.group(2));
+  
+          assertTrue(
+              GrouperClientWs.mostRecentRequest.contains("something")
+              && GrouperClientWs.mostRecentRequest.contains("whatever"));
+
+          //#####################################################
+          //run again, with composite
+          
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=groupSaveWs --name=aStem:leftGroup", " "));
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=groupSaveWs --name=aStem:rightGroup", " "));
+          
+          baos = new ByteArrayOutputStream();
+          System.setOut(new PrintStream(baos));
+        
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=groupSaveWs --name=aStem:newGroup0 --compositeType=union --leftGroupName=aStem:leftGroup --rightGroupName=aStem:rightGroup --includeGroupDetail=true", " "));
+          System.out.flush();
+          output = new String(baos.toByteArray());
+          
+          System.setOut(systemOut);
+          
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+          
+          matcher = pattern.matcher(outputLines[0]);
+          
+          assertTrue(outputLines[0], matcher.matches());
+          
+          assertEquals("SUCCESS_UPDATED", matcher.group(1));
+          assertEquals("aStem:newGroup0", matcher.group(2));
+  
+          assertTrue(
+              GrouperClientWs.mostRecentRequest.contains("union")
+              && GrouperClientWs.mostRecentRequest.contains("aStem:leftGroup")
+              && GrouperClientWs.mostRecentRequest.contains("aStem:rightGroup")
+              );
           
           
         } finally {

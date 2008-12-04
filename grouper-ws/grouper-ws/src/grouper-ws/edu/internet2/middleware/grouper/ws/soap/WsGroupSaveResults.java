@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
@@ -42,6 +43,13 @@ public class WsGroupSaveResults implements WsResponseBean {
 
     /** invalid query (e.g. if everything blank) (lite http status code 400) (success: F) */
     INVALID_QUERY(400);
+
+    /** get the name label for a certain version of client 
+     * @param clientVersion 
+     * @return */
+    public String nameForVersion(GrouperWsVersion clientVersion) {
+      return this.name();
+    }
 
     /**
      * if this is a successful result
@@ -81,9 +89,10 @@ public class WsGroupSaveResults implements WsResponseBean {
    * @param wsGroupSaveResultsCodeOverride
    * @param theError
    * @param e
+   * @param clientVersion 
    */
   public void assignResultCodeException(
-      WsGroupSaveResultsCode wsGroupSaveResultsCodeOverride, String theError, Exception e) {
+      WsGroupSaveResultsCode wsGroupSaveResultsCodeOverride, String theError, Exception e, GrouperWsVersion clientVersion) {
 
     if (e instanceof WsInvalidQueryException) {
       wsGroupSaveResultsCodeOverride = GrouperUtil.defaultIfNull(
@@ -92,7 +101,7 @@ public class WsGroupSaveResults implements WsResponseBean {
       //        wsGroupSaveResultsCodeOverride = WsGroupSaveResultsCode.GROUP_NOT_FOUND;
       //      }
       //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsGroupSaveResultsCodeOverride);
+      this.assignResultCode(wsGroupSaveResultsCodeOverride, clientVersion);
       this.getResultMetadata().appendResultMessage(e.getMessage());
       this.getResultMetadata().appendResultMessage(theError);
       LOG.warn(e);
@@ -105,7 +114,7 @@ public class WsGroupSaveResults implements WsResponseBean {
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
       this.getResultMetadata().appendResultMessage(
           theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsGroupSaveResultsCodeOverride);
+      this.assignResultCode(wsGroupSaveResultsCodeOverride, clientVersion);
 
     }
   }
@@ -113,19 +122,21 @@ public class WsGroupSaveResults implements WsResponseBean {
   /**
    * assign the code from the enum
    * @param groupSaveResultsCode
+   * @param clientVersion 
    */
-  public void assignResultCode(WsGroupSaveResultsCode groupSaveResultsCode) {
-    this.getResultMetadata().assignResultCode(groupSaveResultsCode);
+  public void assignResultCode(WsGroupSaveResultsCode groupSaveResultsCode, GrouperWsVersion clientVersion) {
+    this.getResultMetadata().assignResultCode(groupSaveResultsCode, clientVersion);
   }
 
   /**
    * make sure if there is an error, to record that as an error
    * @param grouperTransactionType for request
    * @param theSummary
+   * @param clientVersion 
    * @return true if success, false if not
    */
   public boolean tallyResults(GrouperTransactionType grouperTransactionType,
-      String theSummary) {
+      String theSummary, GrouperWsVersion clientVersion) {
     //maybe already a failure
     boolean successOverall = GrouperUtil.booleanValue(this.getResultMetadata()
         .getSuccess(), true);
@@ -150,7 +161,7 @@ public class WsGroupSaveResults implements WsResponseBean {
           if (GrouperUtil.booleanValue(wsGroupSaveResult.getResultMetadata().getSuccess(),
               true)) {
             wsGroupSaveResult
-                .assignResultCode(WsGroupSaveResultCode.TRANSACTION_ROLLED_BACK);
+                .assignResultCode(WsGroupSaveResultCode.TRANSACTION_ROLLED_BACK, clientVersion);
             failures++;
           }
         }
@@ -160,16 +171,16 @@ public class WsGroupSaveResults implements WsResponseBean {
         this.getResultMetadata().appendResultMessage(
             "There were " + successes + " successes and " + failures
                 + " failures of saving groups.   ");
-        this.assignResultCode(WsGroupSaveResultsCode.PROBLEM_SAVING_GROUPS);
+        this.assignResultCode(WsGroupSaveResultsCode.PROBLEM_SAVING_GROUPS, clientVersion);
         //this might not be a problem
         LOG.warn(this.getResultMetadata().getResultMessage());
 
       } else {
-        this.assignResultCode(WsGroupSaveResultsCode.SUCCESS);
+        this.assignResultCode(WsGroupSaveResultsCode.SUCCESS, clientVersion);
       }
     } else {
       //none is not ok
-      this.assignResultCode(WsGroupSaveResultsCode.INVALID_QUERY);
+      this.assignResultCode(WsGroupSaveResultsCode.INVALID_QUERY, clientVersion);
       this.getResultMetadata().setResultMessage("Must pass in at least one group to save");
     }
     //make response descriptive

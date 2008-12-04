@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
@@ -33,6 +34,7 @@ public class WsAddMemberLiteResult implements WsResponseBean {
   /**
    * construct from results of other
    * @param wsAddMemberResults
+   * @param clientVersion 
    */
   public WsAddMemberLiteResult(WsAddMemberResults wsAddMemberResults) {
 
@@ -152,6 +154,13 @@ public class WsAddMemberLiteResult implements WsResponseBean {
 
     /** success but it was already a member */
     SUCCESS_ALREADY_EXISTED(200);
+
+    /** get the name label for a certain version of client 
+     * @param clientVersion 
+     * @return */
+    public String nameForVersion(GrouperWsVersion clientVersion) {
+      return this.name();
+    }
 
     /**
      * if this is a successful result

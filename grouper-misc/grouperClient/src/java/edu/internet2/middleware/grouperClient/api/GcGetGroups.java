@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcGetGroups.java,v 1.1 2008-12-02 19:51:16 mchyzer Exp $
+ * $Id: GcGetGroups.java,v 1.2 2008-12-04 07:51:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -22,6 +22,20 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
  * class to run an add member web service call
  */
 public class GcGetGroups {
+
+  /** client version */
+  private String clientVersion;
+
+  /**
+   * assign client version
+   * @param theClientVersion
+   * @return this for chaining
+   */
+  public GcGetGroups assignClientVersion(String theClientVersion) {
+    this.clientVersion = theClientVersion;
+    return this;
+  }
+  
 
   /** subject lookups */
   private List<WsSubjectLookup> subjectLookups = new ArrayList<WsSubjectLookup>();
@@ -190,7 +204,7 @@ public class GcGetGroups {
       
       //kick off the web service
       wsGetGroupsResults = (WsGetGroupsResults)
-        grouperClientWs.executeService("subjects", getGroups, "getGroups");
+        grouperClientWs.executeService("subjects", getGroups, "getGroups", this.clientVersion);
       
       String resultMessage = wsGetGroupsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(resultMessage);

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.16 2008-11-14 21:07:25 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.17 2008-12-04 07:51:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -15,12 +15,14 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.GroupSave.SaveType;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeRuntimeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -1079,7 +1081,7 @@ public class GrouperServiceLogic {
       int groupLookupsLength = GrouperUtil.length(wsGroupLookups);
       wsGetMembersResults.setResults(new WsGetMembersResult[groupLookupsLength]);
       
-      for (WsGroupLookup wsGroupLookup : GrouperUtil.nonNull(wsGroupLookups)) {
+      for (WsGroupLookup wsGroupLookup : GrouperUtil.nonNull(wsGroupLookups, WsGroupLookup.class)) {
         WsGetMembersResult wsGetMembersResult = new WsGetMembersResult();
         wsGetMembersResults.getResults()[resultIndex++] = wsGetMembersResult;
         
@@ -1577,27 +1579,39 @@ public class GrouperServiceLogic {
                 final WsGroupToSave WS_GROUP_TO_SAVE = wsGroupToSave;
                 try {
                   //this should be autonomous, so that within one group, it is transactional
-                  HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
+                  HibernateSession.callbackHibernateSession(
+                      GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
 
                     public Object callback(HibernateSession hibernateSession)
                         throws GrouperDAOException {
                       //make sure everything is in order
                       WS_GROUP_TO_SAVE.validate();
                       Group group = WS_GROUP_TO_SAVE.save(SESSION);
-      
-                      wsGroupSaveResult.setWsGroup(new WsGroup(group, WS_GROUP_TO_SAVE.getWsGroupLookup(), includeGroupDetail));
-                      wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.SUCCESS);
+                      GroupSave.SaveType saveType = WS_GROUP_TO_SAVE.saveType();
+                      wsGroupSaveResult.setWsGroup(new WsGroup(group, 
+                          WS_GROUP_TO_SAVE.getWsGroupLookup(), includeGroupDetail));
+                      
+                      if (saveType == SaveType.INSERT) {
+                        wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.SUCCESS_INSERTED, clientVersion);
+                      } else if (saveType == SaveType.UPDATE) {
+                        wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.SUCCESS_UPDATED, clientVersion);
+                      } else if (saveType == SaveType.NO_CHANGE) {
+                        wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.SUCCESS_NO_CHANGES_NEEDED, clientVersion);
+                      } else {
+                        throw new RuntimeException("Invalid saveType: " + saveType);
+                      }
+
                       return null;
                     }
                     
                   });
   
                 } catch (Exception e) {
-                  wsGroupSaveResult.assignResultCodeException(e, wsGroupToSave);
+                  wsGroupSaveResult.assignResultCodeException(e, wsGroupToSave, clientVersion);
                 }
               }
               //see if any inner failures cause the whole tx to fail, and/or change the outer status
-              if (!wsGroupSaveResults.tallyResults(TX_TYPE, THE_SUMMARY)) {
+              if (!wsGroupSaveResults.tallyResults(TX_TYPE, THE_SUMMARY, clientVersion)) {
                 grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
               }
   
@@ -1605,7 +1619,7 @@ public class GrouperServiceLogic {
             }
           });
     } catch (Exception e) {
-      wsGroupSaveResults.assignResultCodeException(null, theSummary, e);
+      wsGroupSaveResults.assignResultCodeException(null, theSummary, e, clientVersion);
     } finally {
       GrouperSession.stopQuietly(session);
     }
