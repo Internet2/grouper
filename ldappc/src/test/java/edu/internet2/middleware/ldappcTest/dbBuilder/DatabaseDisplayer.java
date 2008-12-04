@@ -18,16 +18,24 @@
 
 package edu.internet2.middleware.ldappcTest.dbBuilder;
 
-import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
-import edu.internet2.middleware.grouper.SubjectFinder;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
-import edu.internet2.middleware.grouper.GrouperSession;
+import javax.naming.Binding;
+import javax.naming.NameClassPair;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.directory.DirContext;
+import javax.naming.ldap.LdapContext;
+
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.SessionException;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.GrouperSubjectRetriever;
 import edu.internet2.middleware.ldappc.logging.DebugLog;
@@ -35,18 +43,8 @@ import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
 import edu.internet2.middleware.ldappcTest.AllJUnitTests;
-
-import javax.naming.Binding;
-import javax.naming.NamingException;
-import javax.naming.NamingEnumeration;
-import javax.naming.NameClassPair;
-
-import java.util.Set;
-import java.util.Map;
-import java.util.Iterator;
-
-import javax.naming.directory.DirContext;
-import javax.naming.ldap.LdapContext;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Class for displaying a grouper database.

@@ -20,14 +20,14 @@ package edu.internet2.middleware.ldappcTest;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemDeleteException;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.StemNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.SessionException;
+import edu.internet2.middleware.grouper.exception.StemDeleteException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
 import edu.internet2.middleware.ldappc.StemProcessor;
 

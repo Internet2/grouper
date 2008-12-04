@@ -27,8 +27,8 @@ import java.io.PrintWriter;
 import java.util.Properties;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SessionException;
-import edu.internet2.middleware.grouper.XmlExporter;
+import edu.internet2.middleware.grouper.exception.SessionException;
+import edu.internet2.middleware.grouper.xml.XmlExporter;
 import edu.internet2.middleware.ldappc.GrouperSubjectRetriever;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.subject.Subject;

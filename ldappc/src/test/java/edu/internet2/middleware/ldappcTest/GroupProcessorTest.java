@@ -22,13 +22,13 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupNotFoundException;
-import edu.internet2.middleware.grouper.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.MemberAddException;
-import edu.internet2.middleware.grouper.SessionException;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberAddException;
+import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.subject.Subject;

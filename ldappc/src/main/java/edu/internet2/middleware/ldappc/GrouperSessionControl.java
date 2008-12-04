@@ -21,7 +21,7 @@ package edu.internet2.middleware.ldappc;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SessionException;
+import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.subject.Subject;

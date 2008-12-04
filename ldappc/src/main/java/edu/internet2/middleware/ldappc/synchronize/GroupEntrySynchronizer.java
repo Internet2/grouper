@@ -38,10 +38,10 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import edu.internet2.middleware.grouper.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.ldappc.GrouperProvisioner;
 import edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;

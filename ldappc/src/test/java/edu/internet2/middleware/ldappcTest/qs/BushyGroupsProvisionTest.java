@@ -38,13 +38,13 @@ import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.LdapName;
 
-import edu.internet2.middleware.grouper.AttributeNotFoundException;
-import edu.internet2.middleware.grouper.ChildGroupFilter;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperQuery;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
+import edu.internet2.middleware.grouper.filter.ChildGroupFilter;
+import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
 import edu.internet2.middleware.ldappc.Ldappc;

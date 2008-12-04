@@ -19,7 +19,7 @@
 package edu.internet2.middleware.ldappcTest;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SessionException;
+import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
 import edu.internet2.middleware.ldappc.InputOptions;
 import edu.internet2.middleware.ldappc.LdappcProvisionControl;
