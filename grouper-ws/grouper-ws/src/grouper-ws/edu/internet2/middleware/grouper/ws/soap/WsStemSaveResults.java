@@ -87,9 +87,11 @@ public class WsStemSaveResults implements WsResponseBean {
   /**
    * assign the code from the enum
    * @param stemSaveResultsCode
+   * @param clientVersion 
    */
-  public void assignResultCode(WsStemSaveResultsCode stemSaveResultsCode) {
-    this.getResultMetadata().assignResultCode(stemSaveResultsCode);
+  public void assignResultCode(WsStemSaveResultsCode stemSaveResultsCode,
+      GrouperWsVersion clientVersion) {
+    this.getResultMetadata().assignResultCode(stemSaveResultsCode, clientVersion);
   }
 
   /**
@@ -145,10 +147,11 @@ public class WsStemSaveResults implements WsResponseBean {
    * make sure if there is an error, to record that as an error
    * @param grouperTransactionType for request
    * @param theSummary
+   * @param clientVersion 
    * @return true if success, false if not
    */
   public boolean tallyResults(GrouperTransactionType grouperTransactionType,
-      String theSummary) {
+      String theSummary, GrouperWsVersion clientVersion) {
     //maybe already a failure
     boolean successOverall = GrouperUtil.booleanValue(this.getResultMetadata()
         .getSuccess(), true);
@@ -173,7 +176,7 @@ public class WsStemSaveResults implements WsResponseBean {
           if (GrouperUtil.booleanValue(wsStemSaveResult.getResultMetadata().getSuccess(),
               true)) {
             wsStemSaveResult
-                .assignResultCode(WsStemSaveResultCode.TRANSACTION_ROLLED_BACK);
+                .assignResultCode(WsStemSaveResultCode.TRANSACTION_ROLLED_BACK, clientVersion);
             failures++;
           }
         }
@@ -183,16 +186,16 @@ public class WsStemSaveResults implements WsResponseBean {
         this.getResultMetadata().appendResultMessage(
             "There were " + successes + " successes and " + failures
                 + " failures of saving stems.   ");
-        this.assignResultCode(WsStemSaveResultsCode.PROBLEM_SAVING_STEMS);
+        this.assignResultCode(WsStemSaveResultsCode.PROBLEM_SAVING_STEMS, clientVersion);
         //this might not be a problem
         LOG.warn(this.getResultMetadata().getResultMessage());
 
       } else {
-        this.assignResultCode(WsStemSaveResultsCode.SUCCESS);
+        this.assignResultCode(WsStemSaveResultsCode.SUCCESS, clientVersion);
       }
     } else {
       //none is not ok
-      this.assignResultCode(WsStemSaveResultsCode.INVALID_QUERY);
+      this.assignResultCode(WsStemSaveResultsCode.INVALID_QUERY, clientVersion);
       this.getResultMetadata().setResultMessage("Must pass in at least one stem to save");
     }
     //make response descriptive
@@ -209,9 +212,11 @@ public class WsStemSaveResults implements WsResponseBean {
    * @param wsStemSaveResultsCodeOverride
    * @param theError
    * @param e
+   * @param clientVersion 
    */
   public void assignResultCodeException(
-      WsStemSaveResultsCode wsStemSaveResultsCodeOverride, String theError, Exception e) {
+      WsStemSaveResultsCode wsStemSaveResultsCodeOverride, String theError, 
+      Exception e, GrouperWsVersion clientVersion) {
 
     if (e instanceof WsInvalidQueryException) {
       wsStemSaveResultsCodeOverride = GrouperUtil.defaultIfNull(
@@ -220,7 +225,7 @@ public class WsStemSaveResults implements WsResponseBean {
       //        wsStemSaveResultsCodeOverride = WsStemSaveResultsCode.STEM_NOT_FOUND;
       //      }
       //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsStemSaveResultsCodeOverride);
+      this.assignResultCode(wsStemSaveResultsCodeOverride, clientVersion);
       this.getResultMetadata().appendResultMessage(e.getMessage());
       this.getResultMetadata().appendResultMessage(theError);
       LOG.warn(e);
@@ -233,7 +238,7 @@ public class WsStemSaveResults implements WsResponseBean {
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
       this.getResultMetadata().appendResultMessage(
           theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsStemSaveResultsCodeOverride);
+      this.assignResultCode(wsStemSaveResultsCodeOverride, clientVersion);
 
     }
   }

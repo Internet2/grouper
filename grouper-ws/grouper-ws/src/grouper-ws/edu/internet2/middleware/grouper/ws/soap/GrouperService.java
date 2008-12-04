@@ -951,9 +951,11 @@ public class GrouperService {
 
     WsStemSaveLiteResult wsStemSaveLiteResult = new WsStemSaveLiteResult();
 
+    GrouperWsVersion grouperWsVersion = null;
+    
     try {
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
           clientVersion, true);
       
       SaveMode saveModeEnum = SaveMode.valueOfIgnoreCase(saveMode);
@@ -963,7 +965,7 @@ public class GrouperService {
           actAsSubjectId, actAsSubjectSourceId, actAsSubjectIdentifier, 
           paramName0, paramValue0, paramName1, paramValue1);
     } catch (Exception e) {
-      wsStemSaveLiteResult.assignResultCodeException(null, null, e);
+      wsStemSaveLiteResult.assignResultCodeException(null, null, e, grouperWsVersion);
     }
 
     //set response headers
@@ -1300,21 +1302,21 @@ public class GrouperService {
       final String txType, final WsParam[] params) {
 
     WsStemSaveResults wsStemSaveResults = new WsStemSaveResults();
-
+    GrouperWsVersion grouperWsVersion = null;
     try {
 
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
           .convertTransactionType(txType);
 
-      GrouperWsVersion grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
+      grouperWsVersion = GrouperWsVersion.valueOfIgnoreCase(
           clientVersion, true);
       
       wsStemSaveResults = GrouperServiceLogic.stemSave(grouperWsVersion, wsStemToSaves,
           actAsSubjectLookup, 
           grouperTransactionType, params);
     } catch (Exception e) {
-      wsStemSaveResults.assignResultCodeException(null, null, e);
+      wsStemSaveResults.assignResultCodeException(null, null, e, grouperWsVersion);
     }
 
     //set response headers

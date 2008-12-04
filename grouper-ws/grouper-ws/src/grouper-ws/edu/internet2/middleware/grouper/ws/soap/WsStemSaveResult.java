@@ -9,6 +9,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsStemSaveLiteResult.WsStemSaveLiteResultCode;
 
@@ -63,7 +64,7 @@ public class WsStemSaveResult {
   public static enum WsStemSaveResultCode {
 
     /** successful addition */
-    SUCCESS {
+    SUCCESS_INSERTED {
 
       /** 
        * if there is one result, convert to the results code
@@ -71,9 +72,73 @@ public class WsStemSaveResult {
        */
       @Override
       public WsStemSaveLiteResultCode convertToLiteCode() {
-        return WsStemSaveLiteResultCode.SUCCESS;
+        return WsStemSaveLiteResultCode.SUCCESS_INSERTED;
       }
 
+      /** get the name label for a certain version of client 
+       * @param clientVersion 
+       * @return */
+      @Override
+      public String nameForVersion(GrouperWsVersion clientVersion) {
+
+        //before 1.4 we had SUCCESS and nothing more descriptive
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+          return "SUCCESS";
+        }
+        return this.name();
+      }
+    },
+
+    /** successful addition */
+    SUCCESS_UPDATED {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsStemSaveLiteResultCode
+       */
+      @Override
+      public WsStemSaveLiteResultCode convertToLiteCode() {
+        return WsStemSaveLiteResultCode.SUCCESS_UPDATED;
+      }
+
+      /** get the name label for a certain version of client 
+       * @param clientVersion 
+       * @return */
+      @Override
+      public String nameForVersion(GrouperWsVersion clientVersion) {
+
+        //before 1.4 we had SUCCESS and nothing more descriptive
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+          return "SUCCESS";
+        }
+        return this.name();
+      }
+    },
+
+    /** successful addition */
+    SUCCESS_NO_CHANGES_NEEDED {
+
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsStemSaveLiteResultCode
+       */
+      @Override
+      public WsStemSaveLiteResultCode convertToLiteCode() {
+        return WsStemSaveLiteResultCode.SUCCESS_NO_CHANGES_NEEDED;
+      }
+
+      /** get the name label for a certain version of client 
+       * @param clientVersion 
+       * @return */
+      @Override
+      public String nameForVersion(GrouperWsVersion clientVersion) {
+
+        //before 1.4 we had SUCCESS and nothing more descriptive
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+          return "SUCCESS";
+        }
+        return this.name();
+      }
     },
 
     /** invalid query, can only happen if lite query */
@@ -146,12 +211,19 @@ public class WsStemSaveResult {
 
     };
 
+    /** get the name label for a certain version of client 
+     * @param clientVersion 
+     * @return */
+    public String nameForVersion(GrouperWsVersion clientVersion) {
+      return this.name();
+    }
+
     /**
      * if this is a successful result
      * @return true if success
      */
     public boolean isSuccess() {
-      return this == SUCCESS;
+      return this.name().startsWith("SUCCESS");
     }
 
     /** 
@@ -164,10 +236,11 @@ public class WsStemSaveResult {
   /**
    * assign the code from the enum
    * @param saveSaveResultCode
+   * @param clientVersion 
    */
-  public void assignResultCode(WsStemSaveResultCode saveSaveResultCode) {
+  public void assignResultCode(WsStemSaveResultCode saveSaveResultCode, GrouperWsVersion clientVersion) {
     this.getResultMetadata().assignResultCode(
-        saveSaveResultCode == null ? null : saveSaveResultCode.name());
+        saveSaveResultCode == null ? null : saveSaveResultCode.nameForVersion(clientVersion));
     this.getResultMetadata().assignSuccess(saveSaveResultCode.isSuccess() ? "T" : "F");
   }
 
@@ -182,25 +255,27 @@ public class WsStemSaveResult {
    * assign a resultcode of exception, and process/log the exception
    * @param e
    * @param wsStemToSave
+   * @param clientVersion
    */
-  public void assignResultCodeException(Exception e, WsStemToSave wsStemToSave) {
+  public void assignResultCodeException(Exception e, WsStemToSave wsStemToSave, 
+      GrouperWsVersion clientVersion) {
     //get root exception (might be wrapped in wsInvalidQuery)
     Throwable mainThrowable = (e instanceof WsInvalidQueryException 
         && e.getCause() != null) ? e.getCause() : e;
     
     if (mainThrowable instanceof InsufficientPrivilegeException) {
       this.getResultMetadata().setResultMessage(mainThrowable.getMessage());
-      this.assignResultCode(WsStemSaveResultCode.INSUFFICIENT_PRIVILEGES);
+      this.assignResultCode(WsStemSaveResultCode.INSUFFICIENT_PRIVILEGES, clientVersion);
       
     } else if (mainThrowable  instanceof StemNotFoundException) {
       this.getResultMetadata().setResultMessage(mainThrowable.getMessage());
-      this.assignResultCode(WsStemSaveResultCode.STEM_NOT_FOUND);
+      this.assignResultCode(WsStemSaveResultCode.STEM_NOT_FOUND, clientVersion);
     } else if (e  instanceof WsInvalidQueryException) {
       this.getResultMetadata().setResultMessage(mainThrowable.getMessage());
-      this.assignResultCode(WsStemSaveResultCode.INVALID_QUERY);
+      this.assignResultCode(WsStemSaveResultCode.INVALID_QUERY, clientVersion);
     } else {
       this.getResultMetadata().setResultMessage(ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(WsStemSaveResultCode.EXCEPTION);
+      this.assignResultCode(WsStemSaveResultCode.EXCEPTION, clientVersion);
     }
     LOG.error(wsStemToSave + ", " + e, e);
   }

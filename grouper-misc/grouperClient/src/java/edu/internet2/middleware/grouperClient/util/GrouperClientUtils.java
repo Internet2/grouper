@@ -136,7 +136,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
     Properties properties = null;
     try {
       properties = propertiesFromResourceName(
-        "grouper.client.properties", true, true, GrouperClientCommonUtils.class);
+        "grouper.client.properties", true, true, GrouperClientCommonUtils.class, null);
     } catch (Exception e) {
       throw new RuntimeException("Error accessing file: grouper.client.properties  " +
           "This properties file needs to be in the same directory as grouperClient.jar, or on your Java classpath", e);

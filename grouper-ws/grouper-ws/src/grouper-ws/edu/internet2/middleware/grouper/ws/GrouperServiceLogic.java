@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.17 2008-12-04 07:51:34 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.18 2008-12-04 20:59:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -15,14 +15,12 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.GroupSave.SaveType;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeRuntimeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -36,6 +34,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.GrouperPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -1587,18 +1586,18 @@ public class GrouperServiceLogic {
                       //make sure everything is in order
                       WS_GROUP_TO_SAVE.validate();
                       Group group = WS_GROUP_TO_SAVE.save(SESSION);
-                      GroupSave.SaveType saveType = WS_GROUP_TO_SAVE.saveType();
+                      SaveResultType saveResultType = WS_GROUP_TO_SAVE.saveResultType();
                       wsGroupSaveResult.setWsGroup(new WsGroup(group, 
                           WS_GROUP_TO_SAVE.getWsGroupLookup(), includeGroupDetail));
                       
-                      if (saveType == SaveType.INSERT) {
+                      if (saveResultType == SaveResultType.INSERT) {
                         wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.SUCCESS_INSERTED, clientVersion);
-                      } else if (saveType == SaveType.UPDATE) {
+                      } else if (saveResultType == SaveResultType.UPDATE) {
                         wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.SUCCESS_UPDATED, clientVersion);
-                      } else if (saveType == SaveType.NO_CHANGE) {
+                      } else if (saveResultType == SaveResultType.NO_CHANGE) {
                         wsGroupSaveResult.assignResultCode(WsGroupSaveResultCode.SUCCESS_NO_CHANGES_NEEDED, clientVersion);
                       } else {
-                        throw new RuntimeException("Invalid saveType: " + saveType);
+                        throw new RuntimeException("Invalid saveType: " + saveResultType);
                       }
 
                       return null;
@@ -2239,14 +2238,25 @@ public class GrouperServiceLogic {
                   Stem stem = wsStemToSave.save(SESSION);
   
                   wsStemSaveResult.setWsStem(new WsStem(stem));
-                  wsStemSaveResult.assignResultCode(WsStemSaveResultCode.SUCCESS);
   
+                  SaveResultType saveResultType = wsStemToSave.saveResultType();
+                  
+                  if (saveResultType == SaveResultType.INSERT) {
+                    wsStemSaveResult.assignResultCode(WsStemSaveResultCode.SUCCESS_INSERTED, clientVersion);
+                  } else if (saveResultType == SaveResultType.UPDATE) {
+                    wsStemSaveResult.assignResultCode(WsStemSaveResultCode.SUCCESS_UPDATED, clientVersion);
+                  } else if (saveResultType == SaveResultType.NO_CHANGE) {
+                    wsStemSaveResult.assignResultCode(WsStemSaveResultCode.SUCCESS_NO_CHANGES_NEEDED, clientVersion);
+                  } else {
+                    throw new RuntimeException("Invalid saveResultType: " + saveResultType);
+                  }
+                    
                 } catch (Exception e) {
-                  wsStemSaveResult.assignResultCodeException(e, wsStemToSave);
+                  wsStemSaveResult.assignResultCodeException(e, wsStemToSave, clientVersion);
                 }
               }
               //see if any inner failures cause the whole tx to fail, and/or change the outer status
-              if (!wsStemSaveResults.tallyResults(TX_TYPE, THE_SUMMARY)) {
+              if (!wsStemSaveResults.tallyResults(TX_TYPE, THE_SUMMARY, clientVersion)) {
                 grouperTransaction.rollback(GrouperRollbackType.ROLLBACK_NOW);
               }
   
@@ -2254,7 +2264,7 @@ public class GrouperServiceLogic {
             }
           });
     } catch (Exception e) {
-      wsStemSaveResults.assignResultCodeException(null, theSummary, e);
+      wsStemSaveResults.assignResultCodeException(null, theSummary, e, clientVersion);
     } finally {
       GrouperSession.stopQuietly(session);
     }

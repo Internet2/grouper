@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: RestClientSettings.java,v 1.9 2008-12-01 07:40:19 mchyzer Exp $
+ * @author mchyzer $Id: RestClientSettings.java,v 1.10 2008-12-04 20:59:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.util;
 
@@ -122,6 +122,8 @@ public class RestClientSettings {
 
         aStem.grantPriv(subject0, NamingPrivilege.CREATE);
         aStem.grantPriv(userSubject, NamingPrivilege.CREATE);
+        aStem.grantPriv(subject0, NamingPrivilege.STEM);
+        aStem.grantPriv(userSubject, NamingPrivilege.STEM);
         
         Group aGroup = Group.saveGroup(grouperSession, "aStem:aGroup", null, "aStem:aGroup", null, null, null, true);
         

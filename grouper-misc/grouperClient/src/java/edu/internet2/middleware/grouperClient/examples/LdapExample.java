@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: LdapExample.java,v 1.2 2008-11-30 10:57:31 mchyzer Exp $
+ * $Id: LdapExample.java,v 1.3 2008-12-04 20:59:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.examples;
 
@@ -94,7 +94,7 @@ public class LdapExample {
         "com.sun.jndi.ldap.LdapCtxFactory");
     
     Properties properties = GrouperClientUtils.propertiesFromResourceName(
-        "grouper.client.properties", true, true, GrouperClientUtils.class);
+        "grouper.client.properties", true, true, GrouperClientUtils.class, null);
     String ldapUrl = GrouperClientUtils.propertiesValue(properties, "grouperClient.ldap.url");
     
     env.put(Context.PROVIDER_URL, ldapUrl);

@@ -8,13 +8,17 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
 /**
@@ -42,6 +46,20 @@ public class WsStemToSave {
   /** if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default) */
   private String saveMode;
 
+  /**
+   * what ended up happening
+   */
+  @XStreamOmitField
+  private SaveResultType saveResultType;
+
+  /**
+   * get the save type
+   * @return save type
+   */
+  public SaveResultType saveResultType() {
+    return this.saveResultType;
+  }
+  
   /**
    * 
    */
@@ -97,10 +115,18 @@ public class WsStemToSave {
 
     String stemNameLookup = stemLookedup == null ? null : stemLookedup.getName();
 
-    Stem stem = Stem.saveStem(grouperSession, stemNameLookup, 
-        this.getWsStem().getUuid(), 
-        this.getWsStem().getName(), this.getWsStem().getDisplayExtension(), 
-        this.getWsStem().getDescription(), theSaveMode, false);
+    StemSave stemSave = new StemSave(grouperSession);
+    stemSave.assignStemNameToEdit(stemNameLookup);
+    stemSave.assignUuid(this.getWsStem().getUuid()).assignName(this.getWsStem().getName());
+    stemSave.assignDisplayExtension(this.getWsStem().getDisplayExtension());
+    stemSave.assignDescription(this.getWsStem().getDescription());
+    stemSave.assignSaveMode(theSaveMode);
+    stemSave.assignCreateParentStemsIfNotExist(false);
+    
+    Stem stem = stemSave.save();
+    
+    this.saveResultType = stemSave.getSaveResultType();
+    
     return stem;
   }
 

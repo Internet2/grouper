@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 
@@ -66,14 +67,14 @@ public class WsGroupToSave {
    * what ended up happening
    */
   @XStreamOmitField
-  private GroupSave.SaveType saveType;
+  private SaveResultType saveResultType;
 
   /**
    * get the save type
    * @return save type
    */
-  public GroupSave.SaveType saveType() {
-    return this.saveType;
+  public SaveResultType saveResultType() {
+    return this.saveResultType;
   }
   
   /**
@@ -151,8 +152,8 @@ public class WsGroupToSave {
       
       group = groupSave.save();
       
-      this.saveType = groupSave.getSaveType();
-      boolean isInsert = this.saveType == GroupSave.SaveType.INSERT;
+      this.saveResultType = groupSave.getSaveResultType();
+      boolean isInsert = this.saveResultType == SaveResultType.INSERT;
 
       //lets do attributes and types
       WsGroupDetail wsGroupDetail = this.getWsGroup().getDetail();
@@ -176,7 +177,7 @@ public class WsGroupToSave {
           if (!group.hasType(groupType)) {
             LOG.debug("Group:" + group.getName() + ": adding type: " + groupType);
             group.addType(groupType);
-            this.saveType = isInsert ? this.saveType : GroupSave.SaveType.UPDATE;
+            this.saveResultType = isInsert ? this.saveResultType : SaveResultType.UPDATE;
           }
         }
         if (LOG.isDebugEnabled()) {
@@ -224,7 +225,7 @@ public class WsGroupToSave {
                 + attributeName + ": " + attributeValue);
             }
             group.setAttribute(attributeName, attributeValue);
-            this.saveType = isInsert ? this.saveType : GroupSave.SaveType.UPDATE;
+            this.saveResultType = isInsert ? this.saveResultType : SaveResultType.UPDATE;
             groupDirty = true;
           }
           
@@ -253,7 +254,7 @@ public class WsGroupToSave {
                 + ", groupType: " + groupType + ", groupHasType? " + group.hasType(groupType));
             }
             group.deleteAttribute(key);
-            this.saveType = isInsert ? this.saveType : GroupSave.SaveType.UPDATE;
+            this.saveResultType = isInsert ? this.saveResultType : SaveResultType.UPDATE;
           }
           
           
@@ -275,7 +276,7 @@ public class WsGroupToSave {
                 if (LOG.isDebugEnabled()) {
                   LOG.debug("Group:" + group.getName() + ": deleting type: " + groupType + " index: " + index);
                 }
-                this.saveType = isInsert ? this.saveType : GroupSave.SaveType.UPDATE;
+                this.saveResultType = isInsert ? this.saveResultType : SaveResultType.UPDATE;
                 group.deleteType(groupType);
               }
             }
@@ -334,7 +335,7 @@ public class WsGroupToSave {
             }
           }
           if (needsChange) {
-            this.saveType = isInsert ? this.saveType : GroupSave.SaveType.UPDATE;
+            this.saveResultType = isInsert ? this.saveResultType : SaveResultType.UPDATE;
             String prefix = composite != null ? "Changing" : "Adding";
             if (LOG.isDebugEnabled()) {
               LOG.debug(prefix + " composite group for group: " + group.getName() + 
@@ -352,7 +353,7 @@ public class WsGroupToSave {
             throw new WsInvalidQueryException("compositeType must be blank if hasComposite is blank or F");
           }
           if (group.hasComposite()) {
-            this.saveType = isInsert ? this.saveType : GroupSave.SaveType.UPDATE;
+            this.saveResultType = isInsert ? this.saveResultType : SaveResultType.UPDATE;
             group.deleteCompositeMember();
           }
           

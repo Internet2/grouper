@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.10 2008-12-04 07:51:39 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.11 2008-12-04 20:59:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -18,8 +18,10 @@ import edu.internet2.middleware.grouperClient.api.GcGetMembers;
 import edu.internet2.middleware.grouperClient.api.GcGroupSave;
 import edu.internet2.middleware.grouperClient.api.GcHasMember;
 import edu.internet2.middleware.grouperClient.api.GcLdapSearchAttribute;
+import edu.internet2.middleware.grouperClient.api.GcStemSave;
 import edu.internet2.middleware.grouperClient.commandLine.GcLdapSearchAttributeConfig;
 import edu.internet2.middleware.grouperClient.commandLine.GcLdapSearchAttributeConfig.SearchAttributeResultType;
+import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GcTransactionType;
@@ -41,6 +43,11 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGroupToSave;
 import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
+import edu.internet2.middleware.grouperClient.ws.beans.WsStem;
+import edu.internet2.middleware.grouperClient.ws.beans.WsStemLookup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsStemSaveResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsStemSaveResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsStemToSave;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto;
@@ -149,7 +156,19 @@ public class GrouperClient {
       Map<String, String> argMapNotUsed = new LinkedHashMap<String, String>(argMap);
 
       boolean debugMode = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "debug", false, false);
+      
       GrouperClientLog.assignDebugToConsole(debugMode);
+      
+      //init if not already
+      GrouperClientUtils.grouperClientProperties();
+      
+      //see where log file came from
+      StringBuilder callingLog = new StringBuilder();
+      GrouperClientUtils.propertiesFromResourceName("grouper.client.properties", 
+          false, true, GrouperClientCommonUtils.class, callingLog);
+      
+      //see if the message about where it came from is
+      //log.debug(callingLog.toString());
       
       String operation = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "operation", true);
       
@@ -187,6 +206,9 @@ public class GrouperClient {
 
       } else if (GrouperClientUtils.equals(operation, "groupSaveWs")) {
         result = groupSave(argMap, argMapNotUsed);
+
+      } else if (GrouperClientUtils.equals(operation, "stemSaveWs")) {
+        result = stemSave(argMap, argMapNotUsed);
 
       } else {
         usage();
@@ -394,66 +416,268 @@ public class GrouperClient {
     }
 
   /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String groupSave(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+    
+    String txType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "txType", false);
+     
+    Boolean includeGroupDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeGroupDetail");
+    
+    List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+    
+    GcGroupSave gcGroupSave = new GcGroupSave();        
+  
+    for (WsParam param : params) {
+      gcGroupSave.addParam(param);
+    }
+    
+    WsGroupToSave wsGroupToSave = new WsGroupToSave();
+    gcGroupSave.addGroupToSave(wsGroupToSave);
+    WsGroup wsGroup = new WsGroup();
+    wsGroupToSave.setWsGroup(wsGroup);
+  
+    String groupLookupName = GrouperClientUtils.argMapString(argMap, 
+        argMapNotUsed, "groupLookupName", false);
+    String groupLookupUuid = GrouperClientUtils.argMapString(argMap, 
+        argMapNotUsed, "groupLookupUuid", false);
+    
+    String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+    gcGroupSave.assignClientVersion(clientVersion);
+    
+    String name = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "name", true);
+    wsGroup.setName(name);
+    
+    WsGroupLookup wsGroupLookup = new WsGroupLookup();
+    wsGroupToSave.setWsGroupLookup(wsGroupLookup);
+    //do the lookup if an edit
+    if (!GrouperClientUtils.isBlank(groupLookupName) || !GrouperClientUtils.isBlank(groupLookupUuid)) {
+      if (!GrouperClientUtils.isBlank(groupLookupName)) {
+        wsGroupLookup.setGroupName(groupLookupName);
+      }
+      if (!GrouperClientUtils.isBlank(groupLookupUuid)) {
+        wsGroupLookup.setUuid(groupLookupUuid);
+      }
+    } else {
+      //just edit the name passed in
+      wsGroupLookup.setGroupName(name);
+    }
+    
+    //save mode
+    String saveMode = GrouperClientUtils.argMapString(argMap, 
+        argMapNotUsed, "saveMode", false);
+    if (saveMode != null) {
+      wsGroupToSave.setSaveMode(saveMode);
+    }
+    
+    String description = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "description", false);
+    if (!GrouperClientUtils.isBlank(description)) {
+      wsGroup.setDescription(description);
+    }
+    
+    String displayExtension = GrouperClientUtils.argMapString(argMap, argMapNotUsed, 
+        "displayExtension", false);
+  
+    //just default to the id
+    if (GrouperClientUtils.isBlank(displayExtension)) {
+      displayExtension = GrouperClientUtils.substringAfterLast(name, ":");
+    }
+    
+    wsGroup.setDisplayExtension(displayExtension);
+  
+    boolean hasAttribute0 = GrouperClientUtils.isNotBlank(GrouperClientUtils.argMapString(
+        argMap, argMapNotUsed, "attributeName0", false));
+    boolean hasGroupDetailParamName0 = GrouperClientUtils.isNotBlank(GrouperClientUtils.argMapString(
+        argMap, argMapNotUsed, "groupDetailParamName0", false));
+    boolean hasCompositeType = GrouperClientUtils.isNotBlank(GrouperClientUtils.argMapString(
+        argMap, argMapNotUsed, "compositeType", false));
+    boolean hasLeftGroupName = GrouperClientUtils.isNotBlank(GrouperClientUtils.argMapString(
+        argMap, argMapNotUsed, "leftGroupName", false));
+    boolean hasRightGroupName = GrouperClientUtils.isNotBlank(GrouperClientUtils.argMapString(
+        argMap, argMapNotUsed, "rightGroupName", false));
+    boolean hasTypeNames = GrouperClientUtils.isNotBlank(GrouperClientUtils.argMapString(
+        argMap, argMapNotUsed, "typeNames", false));
+    
+    if (hasAttribute0 || hasGroupDetailParamName0 || hasCompositeType 
+        || hasLeftGroupName || hasRightGroupName || hasTypeNames) {
+      
+      WsGroupDetail wsGroupDetail = new WsGroupDetail();
+      wsGroup.setDetail(wsGroupDetail);
+  
+      //attributes
+      if (hasAttribute0) {
+        int i=0;
+        List<String> attributeNameList = new ArrayList<String>();
+        List<String> attributeValueList = new ArrayList<String>();
+        while (true) {
+          String attributeName = GrouperClientUtils.argMapString(
+              argMap, argMapNotUsed, "attributeName" + i, false);
+          if (GrouperClientUtils.isBlank(attributeName)) {
+            break;
+          }
+          String attributeValue = GrouperClientUtils.argMapString(
+              argMap, argMapNotUsed, "attributeValue" + i, true);
+          attributeNameList.add(attributeName);
+          attributeValueList.add(attributeValue);
+          i++;
+        }
+        wsGroupDetail.setAttributeNames(GrouperClientUtils.toArray(attributeNameList, String.class));
+        wsGroupDetail.setAttributeValues(GrouperClientUtils.toArray(attributeValueList, String.class));
+      }
+      
+      //params
+      if (hasGroupDetailParamName0) {
+        int i=0;
+        List<WsParam> paramList = new ArrayList<WsParam>();
+        while (true) {
+          String paramName = GrouperClientUtils.argMapString(
+              argMap, argMapNotUsed, "groupDetailParamName" + i, false);
+          if (GrouperClientUtils.isBlank(paramName)) {
+            break;
+          }
+          String paramValue = GrouperClientUtils.argMapString(
+              argMap, argMapNotUsed, "groupDetailParamValue" + i, true);
+          paramList.add(new WsParam(paramName, paramValue));
+          i++;
+        }
+        wsGroupDetail.setParams(GrouperClientUtils.toArray(paramList, WsParam.class));
+      }
+  
+      if (hasCompositeType) {
+        wsGroupDetail.setHasComposite("T");
+        String compositeType = GrouperClientUtils.argMapString(
+            argMap, argMapNotUsed, "compositeType", true);
+        wsGroupDetail.setCompositeType(compositeType);
+        {
+          String leftGroupName = GrouperClientUtils.argMapString(
+              argMap, argMapNotUsed, "leftGroupName", true);
+          WsGroup leftGroup = new WsGroup();
+          leftGroup.setName(leftGroupName);
+          wsGroupDetail.setLeftGroup(leftGroup);
+        }
+        {
+          String rightGroupName = GrouperClientUtils.argMapString(
+              argMap, argMapNotUsed, "rightGroupName", true);
+          WsGroup rightGroup = new WsGroup();
+          rightGroup.setName(rightGroupName);
+          wsGroupDetail.setRightGroup(rightGroup);
+        }
+      }
+  
+      if (hasTypeNames) {
+        List<String> typeNamesList = GrouperClientUtils.argMapList(
+            argMap, argMapNotUsed, "typeNames", true);
+        String[] typeNamesArray = GrouperClientUtils.toArray(typeNamesList, String.class);
+        wsGroupDetail.setTypeNames(typeNamesArray);
+      }
+      
+    }
+    
+    WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+    
+    gcGroupSave.assignActAsSubject(actAsSubject);
+    
+    gcGroupSave.assignIncludeGroupDetail(includeGroupDetail);
+    
+    gcGroupSave.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
+  
+    WsGroupSaveResults wsGroupSaveResults = gcGroupSave.execute();
+    
+    StringBuilder result = new StringBuilder();
+    int index = 0;
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsGroupSaveResults", wsGroupSaveResults);
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientUtils.propertiesValue("webService.groupSave.output", true);
+    }
+  
+    //there is one result...  but loop anyways
+    for (WsGroupSaveResult wsGroupSaveResult : wsGroupSaveResults.getResults()) {
+      
+      substituteMap.put("index", index);
+      substituteMap.put("wsGroupSaveResult", wsGroupSaveResult);
+      wsGroupSaveResult.getWsGroup();
+      substituteMap.put("wsGroup", wsGroup);
+      
+      String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+      result.append(output);
+      
+      index++;
+    }
+    
+    return result.toString();
+  }
+
+  /**
      * @param argMap
      * @param argMapNotUsed
      * @return result
      */
-    private static String groupSave(Map<String, String> argMap,
+    private static String stemSave(Map<String, String> argMap,
         Map<String, String> argMapNotUsed) {
       
       String txType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "txType", false);
        
-      Boolean includeGroupDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeGroupDetail");
-      
       List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
       
-      GcGroupSave gcGroupSave = new GcGroupSave();        
+      GcStemSave gcStemSave = new GcStemSave();        
   
       for (WsParam param : params) {
-        gcGroupSave.addParam(param);
+        gcStemSave.addParam(param);
       }
       
-      WsGroupToSave wsGroupToSave = new WsGroupToSave();
-      gcGroupSave.addGroupToSave(wsGroupToSave);
-      WsGroup wsGroup = new WsGroup();
-      wsGroupToSave.setWsGroup(wsGroup);
+      WsStemToSave wsStemToSave = new WsStemToSave();
+      gcStemSave.addStemToSave(wsStemToSave);
+      WsStem wsStem = new WsStem();
+      wsStemToSave.setWsStem(wsStem);
 
-      String groupLookupName = GrouperClientUtils.argMapString(argMap, 
-          argMapNotUsed, "groupLookupName", false);
-      String groupLookupUuid = GrouperClientUtils.argMapString(argMap, 
-          argMapNotUsed, "groupLookupUuid", false);
+      String stemLookupName = GrouperClientUtils.argMapString(argMap, 
+          argMapNotUsed, "stemLookupName", false);
+      String stemLookupUuid = GrouperClientUtils.argMapString(argMap, 
+          argMapNotUsed, "stemLookupUuid", false);
       
       String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
-      gcGroupSave.assignClientVersion(clientVersion);
+      gcStemSave.assignClientVersion(clientVersion);
       
       String name = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "name", true);
-      wsGroup.setName(name);
+      wsStem.setName(name);
       
-      WsGroupLookup wsGroupLookup = new WsGroupLookup();
-      wsGroupToSave.setWsGroupLookup(wsGroupLookup);
+      WsStemLookup wsStemLookup = new WsStemLookup();
+      wsStemToSave.setWsStemLookup(wsStemLookup);
       //do the lookup if an edit
-      if (!GrouperClientUtils.isBlank(groupLookupName) || !GrouperClientUtils.isBlank(groupLookupUuid)) {
-        if (!GrouperClientUtils.isBlank(groupLookupName)) {
-          wsGroupLookup.setGroupName(groupLookupName);
+      if (!GrouperClientUtils.isBlank(stemLookupName) || !GrouperClientUtils.isBlank(stemLookupUuid)) {
+        if (!GrouperClientUtils.isBlank(stemLookupName)) {
+          wsStemLookup.setStemName(stemLookupName);
         }
-        if (!GrouperClientUtils.isBlank(groupLookupUuid)) {
-          wsGroupLookup.setUuid(groupLookupUuid);
+        if (!GrouperClientUtils.isBlank(stemLookupUuid)) {
+          wsStemLookup.setUuid(stemLookupUuid);
         }
       } else {
         //just edit the name passed in
-        wsGroupLookup.setGroupName(name);
+        wsStemLookup.setStemName(name);
       }
       
       //save mode
       String saveMode = GrouperClientUtils.argMapString(argMap, 
           argMapNotUsed, "saveMode", false);
       if (saveMode != null) {
-        wsGroupToSave.setSaveMode(saveMode);
+        wsStemToSave.setSaveMode(saveMode);
       }
       
       String description = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "description", false);
       if (!GrouperClientUtils.isBlank(description)) {
-        wsGroup.setDescription(description);
+        wsStem.setDescription(description);
       }
       
       String displayExtension = GrouperClientUtils.argMapString(argMap, argMapNotUsed, 
@@ -464,112 +688,23 @@ public class GrouperClient {
         displayExtension = GrouperClientUtils.substringAfterLast(name, ":");
       }
       
-      wsGroup.setDisplayExtension(displayExtension);
+      wsStem.setDisplayExtension(displayExtension);
 
-      boolean hasAttribute0 = GrouperClientUtils.isNotBlank(GrouperClientUtils.argMapString(
-          argMap, argMapNotUsed, "attributeName0", false));
-      boolean hasGroupDetailParamName0 = GrouperClientUtils.isNotBlank(GrouperClientUtils.argMapString(
-          argMap, argMapNotUsed, "groupDetailParamName0", false));
-      boolean hasCompositeType = GrouperClientUtils.isNotBlank(GrouperClientUtils.argMapString(
-          argMap, argMapNotUsed, "compositeType", false));
-      boolean hasLeftGroupName = GrouperClientUtils.isNotBlank(GrouperClientUtils.argMapString(
-          argMap, argMapNotUsed, "leftGroupName", false));
-      boolean hasRightGroupName = GrouperClientUtils.isNotBlank(GrouperClientUtils.argMapString(
-          argMap, argMapNotUsed, "rightGroupName", false));
-      boolean hasTypeNames = GrouperClientUtils.isNotBlank(GrouperClientUtils.argMapString(
-          argMap, argMapNotUsed, "typeNames", false));
-      
-      if (hasAttribute0 || hasGroupDetailParamName0 || hasCompositeType 
-          || hasLeftGroupName || hasRightGroupName || hasTypeNames) {
-        
-        WsGroupDetail wsGroupDetail = new WsGroupDetail();
-        wsGroup.setDetail(wsGroupDetail);
-
-        //attributes
-        if (hasAttribute0) {
-          int i=0;
-          List<String> attributeNameList = new ArrayList<String>();
-          List<String> attributeValueList = new ArrayList<String>();
-          while (true) {
-            String attributeName = GrouperClientUtils.argMapString(
-                argMap, argMapNotUsed, "attributeName" + i, false);
-            if (GrouperClientUtils.isBlank(attributeName)) {
-              break;
-            }
-            String attributeValue = GrouperClientUtils.argMapString(
-                argMap, argMapNotUsed, "attributeValue" + i, true);
-            attributeNameList.add(attributeName);
-            attributeValueList.add(attributeValue);
-            i++;
-          }
-          wsGroupDetail.setAttributeNames(GrouperClientUtils.toArray(attributeNameList, String.class));
-          wsGroupDetail.setAttributeValues(GrouperClientUtils.toArray(attributeValueList, String.class));
-        }
-        
-        //params
-        if (hasGroupDetailParamName0) {
-          int i=0;
-          List<WsParam> paramList = new ArrayList<WsParam>();
-          while (true) {
-            String paramName = GrouperClientUtils.argMapString(
-                argMap, argMapNotUsed, "groupDetailParamName" + i, false);
-            if (GrouperClientUtils.isBlank(paramName)) {
-              break;
-            }
-            String paramValue = GrouperClientUtils.argMapString(
-                argMap, argMapNotUsed, "groupDetailParamValue" + i, true);
-            paramList.add(new WsParam(paramName, paramValue));
-            i++;
-          }
-          wsGroupDetail.setParams(GrouperClientUtils.toArray(paramList, WsParam.class));
-        }
-
-        if (hasCompositeType) {
-          wsGroupDetail.setHasComposite("T");
-          String compositeType = GrouperClientUtils.argMapString(
-              argMap, argMapNotUsed, "compositeType", true);
-          wsGroupDetail.setCompositeType(compositeType);
-          {
-            String leftGroupName = GrouperClientUtils.argMapString(
-                argMap, argMapNotUsed, "leftGroupName", true);
-            WsGroup leftGroup = new WsGroup();
-            leftGroup.setName(leftGroupName);
-            wsGroupDetail.setLeftGroup(leftGroup);
-          }
-          {
-            String rightGroupName = GrouperClientUtils.argMapString(
-                argMap, argMapNotUsed, "rightGroupName", true);
-            WsGroup rightGroup = new WsGroup();
-            rightGroup.setName(rightGroupName);
-            wsGroupDetail.setRightGroup(rightGroup);
-          }
-        }
-
-        if (hasTypeNames) {
-          List<String> typeNamesList = GrouperClientUtils.argMapList(
-              argMap, argMapNotUsed, "typeNames", true);
-          String[] typeNamesArray = GrouperClientUtils.toArray(typeNamesList, String.class);
-          wsGroupDetail.setTypeNames(typeNamesArray);
-        }
-        
-      }
       
       WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
       
-      gcGroupSave.assignActAsSubject(actAsSubject);
+      gcStemSave.assignActAsSubject(actAsSubject);
       
-      gcGroupSave.assignIncludeGroupDetail(includeGroupDetail);
-      
-      gcGroupSave.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
+      gcStemSave.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
   
-      WsGroupSaveResults wsGroupSaveResults = gcGroupSave.execute();
+      WsStemSaveResults wsStemSaveResults = gcStemSave.execute();
       
       StringBuilder result = new StringBuilder();
       int index = 0;
       
       Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
   
-      substituteMap.put("wsGroupSaveResults", wsGroupSaveResults);
+      substituteMap.put("wsStemSaveResults", wsStemSaveResults);
   
       String outputTemplate = null;
   
@@ -577,16 +712,16 @@ public class GrouperClient {
         outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
         outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
       } else {
-        outputTemplate = GrouperClientUtils.propertiesValue("webService.groupSave.output", true);
+        outputTemplate = GrouperClientUtils.propertiesValue("webService.stemSave.output", true);
       }
 
       //there is one result...  but loop anyways
-      for (WsGroupSaveResult wsGroupSaveResult : wsGroupSaveResults.getResults()) {
+      for (WsStemSaveResult wsStemSaveResult : wsStemSaveResults.getResults()) {
         
         substituteMap.put("index", index);
-        substituteMap.put("wsGroupSaveResult", wsGroupSaveResult);
-        wsGroupSaveResult.getWsGroup();
-        substituteMap.put("wsGroup", wsGroup);
+        substituteMap.put("wsStemSaveResult", wsStemSaveResult);
+        wsStemSaveResult.getWsStem();
+        substituteMap.put("wsStem", wsStem);
         
         String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
         result.append(output);

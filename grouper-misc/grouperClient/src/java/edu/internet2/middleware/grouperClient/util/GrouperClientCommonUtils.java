@@ -5197,7 +5197,7 @@ public class GrouperClientCommonUtils  {
    * @return the properties
    */
   public synchronized static Properties propertiesFromResourceName(String resourceName) {
-    return propertiesFromResourceName(resourceName, true, true, null);
+    return propertiesFromResourceName(resourceName, true, true, null, null);
   }
 
   /**
@@ -5211,10 +5211,11 @@ public class GrouperClientCommonUtils  {
    * @param useCache 
    * @param exceptionIfNotExist 
    * @param classInJar if not null, then look for the jar where this file is, and look in the same dir
+   * @param callingLog 
    * @return the properties or null if not exist
    */
   public synchronized static Properties propertiesFromResourceName(String resourceName, boolean useCache, 
-      boolean exceptionIfNotExist, Class<?> classInJar) {
+      boolean exceptionIfNotExist, Class<?> classInJar, StringBuilder callingLog) {
 
     Properties properties = resourcePropertiesCache.get(resourceName);
     
@@ -5230,8 +5231,12 @@ public class GrouperClientCommonUtils  {
         inputStream = url.openStream();
         properties.load(inputStream);
         success = true;
+        String theLog = "Reading resource: " + resourceName + ", from: " + url.toURI();
         if (LOG != null) {
-          LOG.debug("Reading resource: " + resourceName + ", from: " + url.toURI());
+          LOG.debug(theLog);
+        }
+        if (callingLog != null) {
+          callingLog.append(theLog);
         }
       } catch (Exception e) {
         
@@ -5252,8 +5257,12 @@ public class GrouperClientCommonUtils  {
             inputStream = new FileInputStream(configFile);
             properties.load(inputStream);
             success = true;
+            String theLog = "Reading resource: " + resourceName + ", from: " + fileCanonicalPath(configFile);
             if (LOG != null) {
-              LOG.debug("Reading resource: " + resourceName + ", from: " + url.toURI());
+              LOG.debug(theLog);
+            }
+            if (callingLog != null) {
+              callingLog.append(theLog);
             }
           }
           

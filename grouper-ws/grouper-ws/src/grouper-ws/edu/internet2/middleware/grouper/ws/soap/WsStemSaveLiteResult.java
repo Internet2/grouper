@@ -31,8 +31,59 @@ public class WsStemSaveLiteResult implements WsResponseBean {
    */
   public static enum WsStemSaveLiteResultCode implements WsResultCode {
 
-    /** found the stems, saved them (lite http status code 201) (success: T) */
-    SUCCESS(201),
+    /** inserted a new stem (lite http status code 201) (success: T) */
+    SUCCESS_INSERTED(201) {
+      
+      /** get the name label for a certain version of client 
+       * @param clientVersion 
+       * @return */
+      @Override
+      public String nameForVersion(GrouperWsVersion clientVersion) {
+
+        //before 1.4 we had SUCCESS and nothing more descriptive
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+          return "SUCCESS";
+        }
+        return this.name();
+      }
+      
+    },
+
+    /** found the stem, updated it (lite http status code 201) (success: T) */
+    SUCCESS_UPDATED(201) {
+      
+      /** get the name label for a certain version of client 
+       * @param clientVersion 
+       * @return */
+      @Override
+      public String nameForVersion(GrouperWsVersion clientVersion) {
+
+        //before 1.4 we had SUCCESS and nothing more descriptive
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+          return "SUCCESS";
+        }
+        return this.name();
+      }
+      
+    },
+
+    /** found the stem, no changes needed (lite http status code 201) (success: T) */
+    SUCCESS_NO_CHANGES_NEEDED(201) {
+      
+      /** get the name label for a certain version of client 
+       * @param clientVersion 
+       * @return */
+      @Override
+      public String nameForVersion(GrouperWsVersion clientVersion) {
+
+        //before 1.4 we had SUCCESS and nothing more descriptive
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+          return "SUCCESS";
+        }
+        return this.name();
+      }
+      
+    },
 
     /** either overall exception, or one or more stems had exceptions (lite http status code 500) (success: F) */
     EXCEPTION(500),
@@ -79,7 +130,7 @@ public class WsStemSaveLiteResult implements WsResponseBean {
      * @return true if success
      */
     public boolean isSuccess() {
-      return this == SUCCESS;
+      return this.name().startsWith("SUCCESS");
     }
 
   }
@@ -92,9 +143,11 @@ public class WsStemSaveLiteResult implements WsResponseBean {
   /**
    * assign the code from the enum
    * @param stemSaveResultsCode
+   * @param clientVersion 
    */
-  public void assignResultCode(WsStemSaveLiteResultCode stemSaveResultsCode) {
-    this.getResultMetadata().assignResultCode(stemSaveResultsCode);
+  public void assignResultCode(WsStemSaveLiteResultCode stemSaveResultsCode,
+      GrouperWsVersion clientVersion) {
+    this.getResultMetadata().assignResultCode(stemSaveResultsCode, clientVersion);
   }
 
   /**
@@ -160,9 +213,11 @@ public class WsStemSaveLiteResult implements WsResponseBean {
    * @param wsStemSaveResultsCodeOverride
    * @param theError
    * @param e
+   * @param clientVersion 
    */
   public void assignResultCodeException(
-      WsStemSaveLiteResultCode wsStemSaveResultsCodeOverride, String theError, Exception e) {
+      WsStemSaveLiteResultCode wsStemSaveResultsCodeOverride, 
+      String theError, Exception e, GrouperWsVersion clientVersion) {
 
     if (e instanceof WsInvalidQueryException) {
       wsStemSaveResultsCodeOverride = GrouperUtil.defaultIfNull(
@@ -171,7 +226,7 @@ public class WsStemSaveLiteResult implements WsResponseBean {
       //        wsStemSaveResultsCodeOverride = WsStemSaveResultsCode.STEM_NOT_FOUND;
       //      }
       //a helpful exception will probably be in the getMessage()
-      this.assignResultCode(wsStemSaveResultsCodeOverride);
+      this.assignResultCode(wsStemSaveResultsCodeOverride, clientVersion);
       this.getResultMetadata().appendResultMessage(e.getMessage());
       this.getResultMetadata().appendResultMessage(theError);
       LOG.warn(e);
@@ -184,7 +239,7 @@ public class WsStemSaveLiteResult implements WsResponseBean {
       theError = StringUtils.isBlank(theError) ? "" : (theError + ", ");
       this.getResultMetadata().appendResultMessage(
           theError + ExceptionUtils.getFullStackTrace(e));
-      this.assignResultCode(wsStemSaveResultsCodeOverride);
+      this.assignResultCode(wsStemSaveResultsCodeOverride, clientVersion);
 
     }
   }
