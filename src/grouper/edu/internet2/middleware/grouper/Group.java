@@ -24,7 +24,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -113,7 +112,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.212 2008-11-11 22:08:33 mchyzer Exp $
+ * @version $Id: Group.java,v 1.213 2008-12-04 07:51:24 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -195,168 +194,17 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
       SaveMode saveMode, final boolean createParentStemsIfNotExist) 
         throws StemNotFoundException, InsufficientPrivilegeException, StemAddException, 
         GroupModifyException, GroupNotFoundException, GroupAddException {
-  
-    //validate
-    //get the stem name
-    if (!StringUtils.contains(name, ":")) {
-      throw new RuntimeException("Group name must exist and must contain at least one stem name (separated by colons)");
-    }
 
-    //default to insert or update
-    saveMode = (SaveMode)ObjectUtils.defaultIfNull(saveMode, SaveMode.INSERT_OR_UPDATE);
-    final SaveMode SAVE_MODE = saveMode;
-    try {
-      //do this in a transaction
-      Group group = (Group)GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
-  
-        public Object callback(GrouperTransaction grouperTransaction)
-            throws GrouperDAOException {
+    GroupSave groupSave = new GroupSave(GROUPER_SESSION);
 
-          return (Group)GrouperSession.callbackGrouperSession(GROUPER_SESSION, new GrouperSessionHandler() {
+    groupSave.assignGroupNameToEdit(groupNameToEdit).assignUuid(uuid);
+    groupSave.assignName(name).assignDisplayExtension(displayExtension);
+    groupSave.assignDescription(description).assignSaveMode(saveMode);
+    groupSave.assignCreateParentStemsIfNotExist(createParentStemsIfNotExist);
+    Group group = groupSave.save();
 
-              public Object callback(GrouperSession grouperSession)
-                  throws GrouperSessionException {
-                
-                try {
-                  String groupNameForError = GrouperUtil.defaultIfBlank(groupNameToEdit, name);
-                  
-                  int lastColonIndex = name.lastIndexOf(':');
-                  boolean topLevelGroup = lastColonIndex < 0;
-          
-                  //empty is root stem
-                  String parentStemNameNew = GrouperUtil.parentStemNameFromName(name);
-                  String extensionNew = GrouperUtil.extensionFromName(name);
-                  
-                  String theDisplayExtension = StringUtils.isBlank(displayExtension) ? extensionNew : displayExtension;
-                  
-                  //lets find the stem
-                  Stem parentStem = null;
-                  
-                  try {
-                    parentStem = topLevelGroup ? StemFinder.findRootStem(grouperSession) 
-                        : StemFinder.findByName(grouperSession, parentStemNameNew);
-                  } catch (StemNotFoundException snfe) {
-                    
-                    //see if we should fix this problem
-                    if (createParentStemsIfNotExist) {
-                      
-                      //at this point the stem should be there (and is equal to currentStem), 
-                      //just to be sure, query again
-                      parentStem = Stem._createStemAndParentStemsIfNotExist(grouperSession, parentStemNameNew);
-                    } else {
-                      throw new GrouperSessionException(new StemNotFoundException("Cant find stem: '" + parentStemNameNew 
-                          + "' (from update on stem name: '" + groupNameForError + "')"));
-                    }
-                  }
-                  
-                  Group theGroup = null;
-                  //see if update
-                  boolean isUpdate = SAVE_MODE.isUpdate(groupNameToEdit);
-          
-                  if (isUpdate) {
-                    String parentStemNameLookup = GrouperUtil.parentStemNameFromName(groupNameToEdit);
-                    if (!StringUtils.equals(parentStemNameLookup, parentStemNameNew)) {
-                      throw new GrouperSessionException(new GroupModifyException("Can't move a group.  Existing parentStem: '"
-                          + parentStemNameLookup + "', new stem: '" + parentStemNameNew + "'"));
-                  }    
-                  try {
-                      theGroup = GroupFinder.findByName(grouperSession, groupNameToEdit);
-                      
-                      //while we are here, make sure uuid's match if passed in
-                      if (!StringUtils.isBlank(uuid) && !StringUtils.equals(uuid, theGroup.getUuid())) {
-                        throw new RuntimeException("UUID group changes are not supported: new: " + uuid + ", old: " 
-                            + theGroup.getUuid() + ", " + groupNameForError);
-                      }
-                      
-                    } catch (GroupNotFoundException gnfe) {
-                      if (SAVE_MODE.equals(SaveMode.INSERT_OR_UPDATE) || SAVE_MODE.equals(SaveMode.INSERT)) {
-                        isUpdate = false;
-                      } else {
-                          throw new GrouperSessionException(gnfe);
-                      }
-                    }
-                  }
-                  
-                  //if inserting
-                  if (!isUpdate) {
-                    if (StringUtils.isBlank(uuid)) {
-                      try {
-                        //if no uuid
-                        theGroup = parentStem.addChildGroup(extensionNew, theDisplayExtension);
-                      } catch (GroupAddException gae) {
-                        //here for debugging
-                        throw new GrouperSessionException(gae);
-                      }
-                    } else {
-                      //if uuid
-                      theGroup = parentStem.internal_addChildGroup(extensionNew, theDisplayExtension, uuid);
-                    }
-                  } else {
-                    //check if different so it doesnt make unneeded queries
-                    if (!StringUtils.equals(theGroup.getExtension(), extensionNew)) {
-                      theGroup.setExtension(extensionNew);
-                      theGroup.store();
-                    }
-                    if (!StringUtils.equals(theGroup.getDisplayExtension(), theDisplayExtension)) {
-                      theGroup.setDisplayExtension(theDisplayExtension);
-                      theGroup.store();
-                    }
-                  }
-                  
-                  //now compare and put all attributes (then store if needed)
-                  if (!StringUtils.equals(theGroup.getDescription(), description)) {
-                    //null throws exception... hmmm
-                    if (!StringUtils.isBlank(description)) {
-                      theGroup.setDescription(description);
-                      theGroup.store();
-                    }
-                  }
-                  
-                  return theGroup;
-                  //wrap checked exceptions inside unchecked, and rethrow outside
-                } catch (StemNotFoundException snfe) {
-                  throw new RuntimeException(snfe);
-                } catch (InsufficientPrivilegeException ipe) {
-                  throw new RuntimeException(ipe);
-                } catch (StemAddException sae) {
-                  throw new RuntimeException(sae);
-                } catch (GroupModifyException gme) {
-                  throw new RuntimeException(gme);
-                } catch (GroupAddException gae) {
-                  throw new RuntimeException(gae);
-                }
-              }
-              
-            });
-            
-        }
-      });
-      return group;
-    } catch (RuntimeException re) {
-      
-      Throwable throwable = re.getCause();
-      if (throwable instanceof StemNotFoundException) {
-        throw (StemNotFoundException)throwable;
-      }
-      if (throwable instanceof InsufficientPrivilegeException) {
-        throw (InsufficientPrivilegeException)throwable;
-      }
-      if (throwable instanceof StemAddException) {
-        throw (StemAddException)throwable;
-      }
-      if (throwable instanceof GroupModifyException) {
-        throw (GroupModifyException)throwable;
-      }
-      if (throwable instanceof GroupNotFoundException) {
-        throw (GroupNotFoundException)throwable;
-      }
-      if (throwable instanceof GroupAddException) {
-        throw (GroupAddException)throwable;
-      }
-      //must just be runtime
-      throw re;
-    }
-    
+    return group;
+
   }
   
   /** */
