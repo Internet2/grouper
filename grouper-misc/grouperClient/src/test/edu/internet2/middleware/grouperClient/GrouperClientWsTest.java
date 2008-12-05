@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.10 2008-12-05 02:24:39 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.11 2008-12-05 02:37:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -35,7 +35,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testGroupDelete"));
+    TestRunner.run(new GrouperClientWsTest("testStemDelete"));
   }
   
   /**
@@ -670,7 +670,7 @@ public class GrouperClientWsTest extends GrouperTest {
       try {
         
         GrouperClient.main(GrouperClientUtils.splitTrim(
-            "--operation=groupDeleteWs --groupName=aStem:aGroup", " "));
+            "--operation=stemDeleteWs --stemNames=aStem:aStem0", " "));
         System.out.flush();
         String output = new String(baos.toByteArray());
         
@@ -686,7 +686,7 @@ public class GrouperClientWsTest extends GrouperTest {
         
         assertEquals("0", matcher.group(1));
         assertEquals("SUCCESS", matcher.group(2));
-        assertEquals("aStem:aGroup", matcher.group(3));
+        assertEquals("aStem:aStem0", matcher.group(3));
         
   
         //#####################################################
@@ -695,7 +695,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
       
         GrouperClient.main(GrouperClientUtils.splitTrim(
-            "--operation=groupDeleteWs --groupName=aStem:aGroup", " "));
+            "--operation=stemDeleteWs --stemNames=aStem:aStem0", " "));
         System.out.flush();
         output = new String(baos.toByteArray());
         
@@ -708,8 +708,8 @@ public class GrouperClientWsTest extends GrouperTest {
         assertTrue(outputLines[0], matcher.matches());
         
         assertEquals("0", matcher.group(1));
-        assertEquals("SUCCESS_GROUP_NOT_FOUND", matcher.group(2));
-        assertEquals("aStem:aGroup", matcher.group(3));
+        assertEquals("SUCCESS_STEM_NOT_FOUND", matcher.group(2));
+        assertEquals("aStem:aStem0", matcher.group(3));
         
         
         //#####################################################
@@ -720,7 +720,7 @@ public class GrouperClientWsTest extends GrouperTest {
         //test a command line template
         try {
           GrouperClient.main(GrouperClientUtils.splitTrim(
-              "--operation=groupDeleteWs --groupName=aStem:aGroup --ousdfsdfate=${index}", " "));
+              "--operation=stemDeleteWs --stemNames=aStem:aStem0 --ousdfsdfate=${index}", " "));
         } catch (Exception e) {
           assertTrue(e.getMessage(), e.getMessage().contains("ousdfsdfate"));
         }
@@ -735,7 +735,7 @@ public class GrouperClientWsTest extends GrouperTest {
         
         //test a command line template
         GrouperClient.main(GrouperClientUtils.splitTrim(
-            "--operation=groupDeleteWs --groupName=aStem:aGroup --outputTemplate=${index}", " "));
+            "--operation=stemDeleteWs --stemNames=aStem:aStem0 --outputTemplate=${index}", " "));
   
         System.out.flush();
         
@@ -751,7 +751,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
       
         GrouperClient.main(GrouperClientUtils.splitTrim(
-            "--operation=groupDeleteWs --groupName=aStem:aGroup --txType=NONE", " "));
+            "--operation=stemDeleteWs --stemNames=aStem:aStem0 --txType=NONE", " "));
         System.out.flush();
         output = new String(baos.toByteArray());
         
@@ -764,38 +764,11 @@ public class GrouperClientWsTest extends GrouperTest {
         assertTrue(outputLines[0], matcher.matches());
         
         assertEquals("0", matcher.group(1));
-        assertEquals("SUCCESS_GROUP_NOT_FOUND", matcher.group(2));
-        assertEquals("aStem:aGroup", matcher.group(3));
+        assertEquals("SUCCESS_STEM_NOT_FOUND", matcher.group(2));
+        assertEquals("aStem:aStem0", matcher.group(3));
   
         assertTrue(GrouperClientWs.mostRecentRequest, GrouperClientWs.mostRecentRequest.contains("txType") 
             && GrouperClientWs.mostRecentRequest.contains("NONE"));
-        
-        //#####################################################
-        //run again, with includeSubjectDetail
-        baos = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(baos));
-      
-        GrouperClient.main(GrouperClientUtils.splitTrim(
-            "--operation=groupDeleteWs --groupName=aStem:aGroup --includeGroupDetail=true", " "));
-        System.out.flush();
-        output = new String(baos.toByteArray());
-        
-        System.setOut(systemOut);
-        
-        outputLines = GrouperClientUtils.splitTrim(output, "\n");
-        
-        matcher = pattern.matcher(outputLines[0]);
-        
-        assertTrue(outputLines[0], matcher.matches());
-        
-        assertEquals("0", matcher.group(1));
-        assertEquals("SUCCESS_GROUP_NOT_FOUND", matcher.group(2));
-        assertEquals("aStem:aGroup", matcher.group(3));
-  
-        assertTrue(
-            !GrouperClientWs.mostRecentRequest.contains("txType") 
-            && !GrouperClientWs.mostRecentRequest.contains("NONE")
-            && GrouperClientWs.mostRecentRequest.contains("includeGroupDetail") );
         
         //#####################################################
         //run again, with params
@@ -803,7 +776,7 @@ public class GrouperClientWsTest extends GrouperTest {
         System.setOut(new PrintStream(baos));
       
         GrouperClient.main(GrouperClientUtils.splitTrim(
-            "--operation=groupDeleteWs --groupName=aStem:aGroup --paramName0=whatever --paramValue0=someValue", " "));
+            "--operation=stemDeleteWs --stemNames=aStem:aStem0 --paramName0=whatever --paramValue0=someValue", " "));
         System.out.flush();
         output = new String(baos.toByteArray());
         
@@ -816,8 +789,8 @@ public class GrouperClientWsTest extends GrouperTest {
         assertTrue(outputLines[0], matcher.matches());
         
         assertEquals("0", matcher.group(1));
-        assertEquals("SUCCESS_GROUP_NOT_FOUND", matcher.group(2));
-        assertEquals("aStem:aGroup", matcher.group(3));
+        assertEquals("SUCCESS_STEM_NOT_FOUND", matcher.group(2));
+        assertEquals("aStem:aStem0", matcher.group(3));
 
         assertTrue(
             GrouperClientWs.mostRecentRequest.contains("whatever") 

@@ -76,6 +76,12 @@ stemSave web service usage:
 
 groupDelete web service usage:
   java -jar grouperClient.jar --operation=groupDeleteWs --groupNames=groupName0,groupName1 [--txType=GcTransactionType] [--includeGroupDetail=true|false] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
-  e.g.: java -jar grouperClient.jar --operation=groupDeleteWs --groupNames=aStem:aGroup0,aStem:aGroup1 --subjectIds=12345,23456
+  e.g.: java -jar grouperClient.jar --operation=groupDeleteWs --groupNames=aStem:aGroup0,aStem:aGroup1
   output line: Index 0: success: T: code: SUCCESS: aStem:aGroup0
+
+stemDelete web service usage:
+  java -jar grouperClient.jar --operation=stemDeleteWs --stemNames=stemName0,stemName1 [--txType=GcTransactionType] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
+  e.g.: java -jar grouperClient.jar --operation=stemDeleteWs --groupNames=aStem:aStem0,aStem:aStem1
+  output line: Index 0: success: T: code: SUCCESS: aStem:aStem0
+
   

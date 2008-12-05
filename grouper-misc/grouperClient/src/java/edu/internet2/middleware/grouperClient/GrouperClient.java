@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.13 2008-12-05 02:24:40 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.14 2008-12-05 02:37:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -329,7 +329,8 @@ public class GrouperClient {
       outputTemplate = gcLdapSearchAttributeConfig.getOutputTemplate();
     }
     
-    
+    log.debug("Output template: " + outputTemplate);
+
     
     String results = searchAttributeResultType.processOutput(gcLdapSearchAttributeConfig, gcLdapSearchAttribute, outputTemplate);
     
@@ -409,7 +410,8 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientUtils.propertiesValue("webService.addMember.output", true);
       }
-  
+      log.debug("Output template: " + outputTemplate);
+
       for (WsAddMemberResult wsAddMemberResult : wsAddMemberResults.getResults()) {
         
         substituteMap.put("index", index);
@@ -483,7 +485,8 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientUtils.propertiesValue("webService.groupDelete.output", true);
     }
-  
+    log.debug("Output template: " + outputTemplate);
+
     for (WsGroupDeleteResult wsGroupDeleteResult : wsGroupDeleteResults.getResults()) {
       
       substituteMap.put("index", index);
@@ -549,7 +552,9 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientUtils.propertiesValue("webService.stemDelete.output", true);
       }
-  
+      
+      log.debug("Output template: " + outputTemplate);
+      
       for (WsStemDeleteResult wsStemDeleteResult : wsStemDeleteResults.getResults()) {
         
         substituteMap.put("index", index);
@@ -751,7 +756,8 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientUtils.propertiesValue("webService.groupSave.output", true);
     }
-  
+    log.debug("Output template: " + outputTemplate);
+
     //there is one result...  but loop anyways
     for (WsGroupSaveResult wsGroupSaveResult : wsGroupSaveResults.getResults()) {
       
@@ -866,6 +872,7 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientUtils.propertiesValue("webService.stemSave.output", true);
       }
+      log.debug("Output template: " + outputTemplate);
 
       //there is one result...  but loop anyways
       for (WsStemSaveResult wsStemSaveResult : wsStemSaveResults.getResults()) {
@@ -957,7 +964,8 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientUtils.propertiesValue("webService.hasMember.output", true);
       }
-  
+      log.debug("Output template: " + outputTemplate);
+
       for (WsHasMemberResult wsHasMemberResult : wsHasMemberResults.getResults()) {
         
         substituteMap.put("index", index);
@@ -1047,7 +1055,8 @@ public class GrouperClient {
       } else {
         outputTemplate = GrouperClientUtils.propertiesValue("webService.deleteMember.output", true);
       }
-  
+      log.debug("Output template: " + outputTemplate);
+
       for (WsDeleteMemberResult wsDeleteMemberResult : wsDeleteMemberResults.getResults()) {
         
         substituteMap.put("index", index);
@@ -1132,7 +1141,8 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientUtils.propertiesValue("webService.getMembers.output", true);
     }
-  
+    log.debug("Output template: " + outputTemplate);
+
     for (WsGetMembersResult wsGetMembersResult : GrouperClientUtils.nonNull(wsGetMembersResults.getResults(), WsGetMembersResult.class)) {
       
       substituteMap.put("groupIndex", groupIndex);
@@ -1220,6 +1230,7 @@ public class GrouperClient {
     } else {
       outputTemplate = GrouperClientUtils.propertiesValue("webService.getGroups.output", true);
     }
+    log.debug("Output template: " + outputTemplate);
 
     for (WsGetGroupsResult wsGetGroupsResult : GrouperClientUtils.nonNull(wsGetGroupsResults.getResults(), WsGetGroupsResult.class)) {
       
