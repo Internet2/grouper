@@ -60,4 +60,13 @@ public class WsStemLookup {
     //blank
   }
 
+  /**
+   * construct with fields
+   * @param theStemName
+   * @param stemUuid
+   */
+  public WsStemLookup(String theStemName, String stemUuid) {
+    this.stemName = theStemName;
+    this.uuid = stemUuid;
+  }
 }

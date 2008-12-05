@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcStemSave.java,v 1.1 2008-12-04 20:59:23 mchyzer Exp $
+ * $Id: GcStemSave.java,v 1.2 2008-12-05 02:24:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -18,7 +18,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 
 
 /**
- * class to run an add member web service call
+ * class to run a stem save web service call
  */
 public class GcStemSave {
 

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcGroupDelete.java,v 1.2 2008-12-05 02:24:39 mchyzer Exp $
+ * $Id: GcStemDelete.java,v 1.1 2008-12-05 02:24:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -10,28 +10,28 @@ import java.util.List;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GcTransactionType;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
-import edu.internet2.middleware.grouperClient.ws.beans.WsGroupDeleteResults;
-import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
-import edu.internet2.middleware.grouperClient.ws.beans.WsRestGroupDeleteRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestStemDeleteRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsStemDeleteResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsStemLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 
 
 /**
- * class to run a group delete web service call
+ * class to run a stem delete service call
  */
-public class GcGroupDelete {
+public class GcStemDelete {
 
   /** delete group lookups */
-  private List<WsGroupLookup> groupLookups = new ArrayList<WsGroupLookup>();
+  private List<WsStemLookup> stemLookups = new ArrayList<WsStemLookup>();
   
   /**
    * add group lookup
-   * @param wsGroupLookup
+   * @param wsStemLookup
    * @return this for chaining
    */
-  public GcGroupDelete addGroupLookup(WsGroupLookup wsGroupLookup) {
-    this.groupLookups.add(wsGroupLookup);
+  public GcStemDelete addGroupLookup(WsStemLookup wsStemLookup) {
+    this.stemLookups.add(wsStemLookup);
     return this;
   }
   
@@ -44,7 +44,7 @@ public class GcGroupDelete {
    * @param paramValue
    * @return this for chaining
    */
-  public GcGroupDelete addParam(String paramName, String paramValue) {
+  public GcStemDelete addParam(String paramName, String paramValue) {
     this.params.add(new WsParam(paramName, paramValue));
     return this;
   }
@@ -54,7 +54,7 @@ public class GcGroupDelete {
    * @param wsParam
    * @return this for chaining
    */
-  public GcGroupDelete addParam(WsParam wsParam) {
+  public GcStemDelete addParam(WsParam wsParam) {
     this.params.add(wsParam);
     return this;
   }
@@ -67,7 +67,7 @@ public class GcGroupDelete {
    * @param theActAsSubject
    * @return this for chaining
    */
-  public GcGroupDelete assignActAsSubject(WsSubjectLookup theActAsSubject) {
+  public GcStemDelete assignActAsSubject(WsSubjectLookup theActAsSubject) {
     this.actAsSubject = theActAsSubject;
     return this;
   }
@@ -76,7 +76,7 @@ public class GcGroupDelete {
    * validate this call
    */
   private void validate() {
-    if (GrouperClientUtils.length(this.groupLookups) == 0) {
+    if (GrouperClientUtils.length(this.stemLookups) == 0) {
       throw new RuntimeException("Need at least one group to delete: " + this);
     }
   }
@@ -89,21 +89,8 @@ public class GcGroupDelete {
    * @param gcTransactionType
    * @return self for chaining
    */
-  public GcGroupDelete assignTxType(GcTransactionType gcTransactionType) {
+  public GcStemDelete assignTxType(GcTransactionType gcTransactionType) {
     this.txType = gcTransactionType;
-    return this;
-  }
-  
-  /** if the group detail should be sent back */
-  private Boolean includeGroupDetail;
-  
-  /**
-   * assign if the group detail should be included
-   * @param theIncludeGroupDetail
-   * @return this for chaining
-   */
-  public GcGroupDelete assignIncludeGroupDetail(Boolean theIncludeGroupDetail) {
-    this.includeGroupDetail = theIncludeGroupDetail;
     return this;
   }
   
@@ -115,7 +102,7 @@ public class GcGroupDelete {
    * @param theClientVersion
    * @return this for chaining
    */
-  public GcGroupDelete assignClientVersion(String theClientVersion) {
+  public GcStemDelete assignClientVersion(String theClientVersion) {
     this.clientVersion = theClientVersion;
     return this;
   }
@@ -126,43 +113,39 @@ public class GcGroupDelete {
    * 
    * @return the results
    */
-  public WsGroupDeleteResults execute() {
+  public WsStemDeleteResults execute() {
     this.validate();
-    WsGroupDeleteResults wsGroupDeleteResults = null;
+    WsStemDeleteResults wsStemDeleteResults = null;
     try {
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestGroupDeleteRequest groupDelete = new WsRestGroupDeleteRequest();
+      WsRestStemDeleteRequest stemDelete = new WsRestStemDeleteRequest();
 
-      groupDelete.setActAsSubjectLookup(this.actAsSubject);
+      stemDelete.setActAsSubjectLookup(this.actAsSubject);
 
-      groupDelete.setTxType(this.txType == null ? null : this.txType.name());
+      stemDelete.setTxType(this.txType == null ? null : this.txType.name());
       
-      if (this.includeGroupDetail != null) {
-        groupDelete.setIncludeGroupDetail(this.includeGroupDetail ? "T" : "F");
-      }
-      
-      groupDelete.setWsGroupLookups(GrouperClientUtils.toArray(this.groupLookups, 
-          WsGroupLookup.class));
+      stemDelete.setWsStemLookups(GrouperClientUtils.toArray(this.stemLookups, 
+          WsStemLookup.class));
 
       //add params if there are any
       if (this.params.size() > 0) {
-        groupDelete.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));
+        stemDelete.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       
       //kick off the web service
-      wsGroupDeleteResults = (WsGroupDeleteResults)
-        grouperClientWs.executeService("groups", groupDelete, "groupDelete", this.clientVersion);
+      wsStemDeleteResults = (WsStemDeleteResults)
+        grouperClientWs.executeService("stems", stemDelete, "stemDelete", this.clientVersion);
       
-      String resultMessage = wsGroupDeleteResults.getResultMetadata().getResultMessage();
+      String resultMessage = wsStemDeleteResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(resultMessage);
       
     } catch (Exception e) {
       GrouperClientUtils.convertToRuntimeException(e);
     }
-    return wsGroupDeleteResults;
+    return wsStemDeleteResults;
     
   }
   

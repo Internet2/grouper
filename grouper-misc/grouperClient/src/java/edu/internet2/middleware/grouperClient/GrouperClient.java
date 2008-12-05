@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.12 2008-12-04 21:42:15 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.13 2008-12-05 02:24:40 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouperClient.api.GcGroupDelete;
 import edu.internet2.middleware.grouperClient.api.GcGroupSave;
 import edu.internet2.middleware.grouperClient.api.GcHasMember;
 import edu.internet2.middleware.grouperClient.api.GcLdapSearchAttribute;
+import edu.internet2.middleware.grouperClient.api.GcStemDelete;
 import edu.internet2.middleware.grouperClient.api.GcStemSave;
 import edu.internet2.middleware.grouperClient.commandLine.GcLdapSearchAttributeConfig;
 import edu.internet2.middleware.grouperClient.commandLine.GcLdapSearchAttributeConfig.SearchAttributeResultType;
@@ -47,6 +48,8 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsHasMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsStem;
+import edu.internet2.middleware.grouperClient.ws.beans.WsStemDeleteResult;
+import edu.internet2.middleware.grouperClient.ws.beans.WsStemDeleteResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsStemLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsStemSaveResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsStemSaveResults;
@@ -215,6 +218,9 @@ public class GrouperClient {
 
       } else if (GrouperClientUtils.equals(operation, "groupDeleteWs")) {
         result = groupDelete(argMap, argMapNotUsed);
+
+      } else if (GrouperClientUtils.equals(operation, "stemDeleteWs")) {
+        result = stemDelete(argMap, argMapNotUsed);
 
       } else {
         usage();
@@ -423,50 +429,116 @@ public class GrouperClient {
     }
 
   /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String groupDelete(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+    
+    List<String> groupNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupNames", true);
+    String txType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "txType", false);
+  
+    Boolean includeGroupDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeGroupDetail");
+    
+    List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+    
+    GcGroupDelete gcGroupDelete = new GcGroupDelete();        
+  
+    String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+    gcGroupDelete.assignClientVersion(clientVersion);
+  
+    for (WsParam param : params) {
+      gcGroupDelete.addParam(param);
+    }
+  
+    for (String groupName : groupNames) {
+      WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, null);
+      gcGroupDelete.addGroupLookup(wsGroupLookup);
+    }
+    
+    WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+    
+    gcGroupDelete.assignActAsSubject(actAsSubject);
+    
+    gcGroupDelete.assignIncludeGroupDetail(includeGroupDetail);
+    
+    gcGroupDelete.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
+  
+    WsGroupDeleteResults wsGroupDeleteResults = gcGroupDelete.execute();
+    
+    StringBuilder result = new StringBuilder();
+    int index = 0;
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsGroupDeleteResults", wsGroupDeleteResults);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientUtils.propertiesValue("webService.groupDelete.output", true);
+    }
+  
+    for (WsGroupDeleteResult wsGroupDeleteResult : wsGroupDeleteResults.getResults()) {
+      
+      substituteMap.put("index", index);
+      substituteMap.put("wsGroupDeleteResult", wsGroupDeleteResult);
+      
+      String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+      result.append(output);
+      
+      index++;
+    }
+    
+    return result.toString();
+  }
+
+  /**
      * @param argMap
      * @param argMapNotUsed
      * @return result
      */
-    private static String groupDelete(Map<String, String> argMap,
+    private static String stemDelete(Map<String, String> argMap,
         Map<String, String> argMapNotUsed) {
       
-      List<String> groupNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "groupNames", true);
+      List<String> stemNames = GrouperClientUtils.argMapList(argMap, argMapNotUsed, "stemNames", true);
       String txType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "txType", false);
      
-      Boolean includeGroupDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeGroupDetail");
-      
       List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
       
-      GcGroupDelete gcGroupDelete = new GcGroupDelete();        
+      GcStemDelete gcStemDelete = new GcStemDelete();        
   
       String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
-      gcGroupDelete.assignClientVersion(clientVersion);
+      gcStemDelete.assignClientVersion(clientVersion);
 
       for (WsParam param : params) {
-        gcGroupDelete.addParam(param);
+        gcStemDelete.addParam(param);
       }
 
-      for (String groupName : groupNames) {
-        WsGroupLookup wsGroupLookup = new WsGroupLookup(groupName, null);
-        gcGroupDelete.addGroupLookup(wsGroupLookup);
+      for (String stemName : stemNames) {
+        WsStemLookup wsStemLookup = new WsStemLookup(stemName, null);
+        gcStemDelete.addGroupLookup(wsStemLookup);
       }
       
       WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
       
-      gcGroupDelete.assignActAsSubject(actAsSubject);
+      gcStemDelete.assignActAsSubject(actAsSubject);
       
-      gcGroupDelete.assignIncludeGroupDetail(includeGroupDetail);
-      
-      gcGroupDelete.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
+      gcStemDelete.assignTxType(GcTransactionType.valueOfIgnoreCase(txType));
   
-      WsGroupDeleteResults wsGroupDeleteResults = gcGroupDelete.execute();
+      WsStemDeleteResults wsStemDeleteResults = gcStemDelete.execute();
       
       StringBuilder result = new StringBuilder();
       int index = 0;
       
       Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
   
-      substituteMap.put("wsGroupDeleteResults", wsGroupDeleteResults);
+      substituteMap.put("wsStemDeleteResults", wsStemDeleteResults);
       substituteMap.put("grouperClientUtils", new GrouperClientUtils());
 
       String outputTemplate = null;
@@ -475,13 +547,13 @@ public class GrouperClient {
         outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
         outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
       } else {
-        outputTemplate = GrouperClientUtils.propertiesValue("webService.groupDelete.output", true);
+        outputTemplate = GrouperClientUtils.propertiesValue("webService.stemDelete.output", true);
       }
   
-      for (WsGroupDeleteResult wsGroupDeleteResult : wsGroupDeleteResults.getResults()) {
+      for (WsStemDeleteResult wsStemDeleteResult : wsStemDeleteResults.getResults()) {
         
         substituteMap.put("index", index);
-        substituteMap.put("wsGroupDeleteResult", wsGroupDeleteResult);
+        substituteMap.put("wsStemDeleteResult", wsStemDeleteResult);
         
         String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
         result.append(output);

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcGetGroups.java,v 1.2 2008-12-04 07:51:39 mchyzer Exp $
+ * $Id: GcGetGroups.java,v 1.3 2008-12-05 02:24:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 
 
 /**
- * class to run an add member web service call
+ * class to run a get groups web service call
  */
 public class GcGetGroups {
 
