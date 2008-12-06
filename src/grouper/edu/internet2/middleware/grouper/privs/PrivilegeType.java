@@ -58,12 +58,15 @@ public enum PrivilegeType {
       if (StringUtils.equalsIgnoreCase(name, NamingPrivilege.STEM.getName())) {
         return NamingPrivilege.STEM;
       }
+      if (StringUtils.isBlank(name)) {
+        return null;
+      }
       throw new RuntimeException("Cant find access privilege name '" + name + "'");
     }
   };
 
   /**
-   * retrieve a privilege with this name
+   * retrieve a privilege with this name.  should return null if blank
    * @param name
    * @return the privilege
    */

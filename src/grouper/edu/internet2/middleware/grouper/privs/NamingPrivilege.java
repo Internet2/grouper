@@ -16,6 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
@@ -26,13 +29,63 @@ import edu.internet2.middleware.subject.Subject;
  * An instance of a granted naming privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingPrivilege.java,v 1.3 2008-10-23 04:48:57 mchyzer Exp $
+ * @version $Id: NamingPrivilege.java,v 1.4 2008-12-06 20:39:36 mchyzer Exp $
  */
-public class NamingPrivilege implements GrouperPrivilege {
+public class NamingPrivilege implements GrouperPrivilege, Comparable {
 
   // Public Class Constants
   public static final Privilege CREATE  = Privilege.getInstance("create");
   public static final Privilege STEM    = Privilege.getInstance("stem");
+
+  /**
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof NamingPrivilege)) {
+      return false;
+    }
+    return new EqualsBuilder()
+      .append( this.stem, ( (NamingPrivilege) other ).stem )
+      .append( this.name, ( (NamingPrivilege) other ).name )
+      .append( this.subj, ( (NamingPrivilege) other ).subj )
+      .isEquals();
+  } // public boolean equals(other)
+
+  /**
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(Object o) {
+    if (o == null || (!(o instanceof NamingPrivilege))) {
+      return -1;
+    }
+    NamingPrivilege that = (NamingPrivilege)o;
+    
+    //dont use source since might be down
+    String thisSubjectId = this.subj == null ? null : this.subj.getId();
+    String thatSubjectName = that.subj == null ? null : that.subj.getId();
+    
+    return new CompareToBuilder()
+      .append(this.stem, that.stem)
+      .append(thisSubjectId, thatSubjectName)
+      .append(this.name, that.name)
+      .toComparison();
+  }
+
+  /**
+   * @return hashcode
+   * @since   1.2.0
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+    .append( this.stem )
+    .append( this.name )
+    .append( this.subj )
+      .toHashCode();
+  } // public int hashCode()
 
 
   // Private Instance Variables

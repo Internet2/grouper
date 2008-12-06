@@ -91,10 +91,10 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.170 2008-11-13 20:26:10 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.171 2008-12-06 20:39:36 mchyzer Exp $
  */
 @SuppressWarnings("serial")
-public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
+public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
 
   /** table for stems table in the db */
   public static final String TABLE_GROUPER_STEMS = "grouper_stems";
@@ -172,6 +172,20 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned {
       FIELD_NAME, FIELD_PARENT_UUID, FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+
+  /**
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(Object o) {
+    if (o==null || (!(o instanceof Stem))) {
+      return 1;
+    }
+    String thisName = StringUtils.defaultString(this.getName());
+    Stem that = (Stem)o;
+    String thatName = StringUtils.defaultString(that.getName());
+    return thisName.compareTo(thatName);
+  }
+
 
   /**
    * Search scope: one-level or subtree.
