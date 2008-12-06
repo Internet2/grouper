@@ -3390,7 +3390,29 @@ public class GrouperService {
 
       PrivilegeType privilegeTypeEnum = PrivilegeType.valueOfIgnoreCase(privilegeType);
       
-      Privilege privilege = privilegeTypeEnum.retrievePrivilege(privilegeName);
+      Privilege privilege = privilegeTypeEnum == null ? null : privilegeTypeEnum.retrievePrivilege(privilegeName);
+
+      //its ok to just pass in the name of the privilege, and not type
+      if (privilegeTypeEnum == null && !GrouperUtil.isBlank(privilegeName)) {
+        //better be unique
+        for (PrivilegeType privilegeTypeEnumLocal : PrivilegeType.values()) {
+          Privilege privilegeLocal = null;
+          //dont worry if invalid
+          try {
+            privilegeLocal = privilegeTypeEnumLocal.retrievePrivilege(privilegeName);
+          } catch (Exception e) {
+            //empty
+          }
+          if (privilegeLocal != null) {
+            if (privilegeTypeEnum != null) {
+              throw new RuntimeException("Problem, two privilege types have the same named privilege: " 
+                  + privilegeTypeEnumLocal + ", " + privilegeTypeEnum + ": " + privilege);
+            }
+            privilegeTypeEnum = privilegeTypeEnumLocal;
+            privilege = privilegeLocal;
+          }
+        }
+      }
   
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");

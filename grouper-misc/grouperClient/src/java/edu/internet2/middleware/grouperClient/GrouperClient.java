@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.15 2008-12-06 20:32:16 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.16 2008-12-06 22:40:16 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.api.GcAddMember;
+import edu.internet2.middleware.grouperClient.api.GcAssignGrouperPrivilegesLite;
 import edu.internet2.middleware.grouperClient.api.GcDeleteMember;
 import edu.internet2.middleware.grouperClient.api.GcGetGrouperPrivilegesLite;
 import edu.internet2.middleware.grouperClient.api.GcGetGroups;
@@ -31,6 +32,7 @@ import edu.internet2.middleware.grouperClient.ws.GcTransactionType;
 import edu.internet2.middleware.grouperClient.ws.WsMemberFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsDeleteMemberResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetGrouperPrivilegesLiteResult;
@@ -230,6 +232,9 @@ public class GrouperClient {
 
       } else if (GrouperClientUtils.equals(operation, "getGrouperPrivilegesLiteWs")) {
         result = getGrouperPrivilegesLite(argMap, argMapNotUsed);
+
+      } else if (GrouperClientUtils.equals(operation, "assignGrouperPrivilegesLiteWs")) {
+        result = assignGrouperPrivilegesLite(argMap, argMapNotUsed);
 
       } else {
         usage();
@@ -458,19 +463,118 @@ public class GrouperClient {
     }
 
     /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String getGrouperPrivilegesLite(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+    
+    String groupName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupName", false);
+    String stemName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "stemName", false);
+    String privilegeType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "privilegeType", false);
+    String privilegeName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "privilegeName", false);
+  
+    Boolean includeGroupDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeGroupDetail");
+    
+    Boolean includeSubjectDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeSubjectDetail");
+  
+    Set<String> subjectAttributeNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "subjectAttributeNames", false);
+  
+    List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+    
+    GcGetGrouperPrivilegesLite gcGetGrouperPrivilegesLite = new GcGetGrouperPrivilegesLite();        
+  
+    String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+    gcGetGrouperPrivilegesLite.assignClientVersion(clientVersion);
+  
+    for (WsParam param : params) {
+      gcGetGrouperPrivilegesLite.addParam(param);
+    }
+    
+    WsSubjectLookup wsSubjectLookup = retrieveSubjectFromArgs(argMap,
+        argMapNotUsed);
+    
+    gcGetGrouperPrivilegesLite.assignStemName(stemName);
+    gcGetGrouperPrivilegesLite.assignPrivilegeType(privilegeType);
+    gcGetGrouperPrivilegesLite.assignPrivilegeName(privilegeName);
+    
+    gcGetGrouperPrivilegesLite.assignSubjectLookup(wsSubjectLookup);
+    
+    gcGetGrouperPrivilegesLite.assignGroupName(groupName);
+    
+    WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+    
+    gcGetGrouperPrivilegesLite.assignActAsSubject(actAsSubject);
+    
+    gcGetGrouperPrivilegesLite.assignIncludeGroupDetail(includeGroupDetail);
+    gcGetGrouperPrivilegesLite.assignIncludeSubjectDetail(includeSubjectDetail);
+    
+  
+    for (String subjectAttribute : GrouperClientUtils.nonNull(subjectAttributeNames)) {
+      gcGetGrouperPrivilegesLite.addSubjectAttributeName(subjectAttribute);
+    }
+    
+    //register that we will use this
+    GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    WsGetGrouperPrivilegesLiteResult wsGetGrouperPrivilegesLiteResult = gcGetGrouperPrivilegesLite.execute();
+    
+    StringBuilder result = new StringBuilder();
+    int index = 0;
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsGetGrouperPrivilegesLiteResult", wsGetGrouperPrivilegesLiteResult);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientUtils.propertiesValue("webService.getGrouperPrivilegesLite.output", true);
+    }
+    log.debug("Output template: " + outputTemplate);
+  
+    for (WsGrouperPrivilegeResult wsGrouperPrivilegeResult : wsGetGrouperPrivilegesLiteResult.getPrivilegeResults()) {
+      
+      substituteMap.put("index", index);
+      substituteMap.put("wsGrouperPrivilegeResult", wsGrouperPrivilegeResult);
+      substituteMap.put("wsSubject", wsGrouperPrivilegeResult.getWsSubject());
+      substituteMap.put("wsGroup", wsGrouperPrivilegeResult.getWsGroup());
+      substituteMap.put("wsStem", wsGrouperPrivilegeResult.getWsStem());
+      substituteMap.put("objectType", wsGrouperPrivilegeResult.getWsStem() == null ? "group" : "stem");
+      substituteMap.put("objectName", wsGrouperPrivilegeResult.getWsStem() == null 
+          ? wsGrouperPrivilegeResult.getWsGroup().getName() : wsGrouperPrivilegeResult.getWsStem().getName());
+      
+      String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+      result.append(output);
+      
+      index++;
+    }
+    
+    return result.toString();
+  }
+
+    /**
      * @param argMap
      * @param argMapNotUsed
      * @return result
      */
-    private static String getGrouperPrivilegesLite(Map<String, String> argMap,
+    private static String assignGrouperPrivilegesLite(Map<String, String> argMap,
         Map<String, String> argMapNotUsed) {
       
       String groupName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "groupName", false);
       String stemName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "stemName", false);
       String privilegeType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "privilegeType", false);
-      String privilegeName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "privilegeName", false);
+      String privilegeName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "privilegeName", true);
      
       Boolean includeGroupDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeGroupDetail");
+      
+      boolean allowed = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "allowed", true, true);
       
       Boolean includeSubjectDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeSubjectDetail");
   
@@ -478,50 +582,51 @@ public class GrouperClient {
   
       List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
       
-      GcGetGrouperPrivilegesLite gcGetGrouperPrivilegesLite = new GcGetGrouperPrivilegesLite();        
+      GcAssignGrouperPrivilegesLite gcAssignGrouperPrivilegesLite = new GcAssignGrouperPrivilegesLite();        
   
       String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
-      gcGetGrouperPrivilegesLite.assignClientVersion(clientVersion);
+      gcAssignGrouperPrivilegesLite.assignClientVersion(clientVersion);
 
       for (WsParam param : params) {
-        gcGetGrouperPrivilegesLite.addParam(param);
+        gcAssignGrouperPrivilegesLite.addParam(param);
       }
       
       WsSubjectLookup wsSubjectLookup = retrieveSubjectFromArgs(argMap,
           argMapNotUsed);
       
-      gcGetGrouperPrivilegesLite.assignStemName(stemName);
-      gcGetGrouperPrivilegesLite.assignPrivilegeType(privilegeType);
-      gcGetGrouperPrivilegesLite.assignPrivilegeName(privilegeName);
+      gcAssignGrouperPrivilegesLite.assignStemName(stemName);
+      gcAssignGrouperPrivilegesLite.assignPrivilegeType(privilegeType);
+      gcAssignGrouperPrivilegesLite.assignPrivilegeName(privilegeName);
       
-      gcGetGrouperPrivilegesLite.assignSubjectLookup(wsSubjectLookup);
+      gcAssignGrouperPrivilegesLite.assignSubjectLookup(wsSubjectLookup);
       
-      gcGetGrouperPrivilegesLite.assignGroupName(groupName);
+      gcAssignGrouperPrivilegesLite.assignAllowed(allowed);
+      
+      gcAssignGrouperPrivilegesLite.assignGroupName(groupName);
       
       WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
       
-      gcGetGrouperPrivilegesLite.assignActAsSubject(actAsSubject);
+      gcAssignGrouperPrivilegesLite.assignActAsSubject(actAsSubject);
       
-      gcGetGrouperPrivilegesLite.assignIncludeGroupDetail(includeGroupDetail);
-      gcGetGrouperPrivilegesLite.assignIncludeSubjectDetail(includeSubjectDetail);
+      gcAssignGrouperPrivilegesLite.assignIncludeGroupDetail(includeGroupDetail);
+      gcAssignGrouperPrivilegesLite.assignIncludeSubjectDetail(includeSubjectDetail);
       
   
       for (String subjectAttribute : GrouperClientUtils.nonNull(subjectAttributeNames)) {
-        gcGetGrouperPrivilegesLite.addSubjectAttributeName(subjectAttribute);
+        gcAssignGrouperPrivilegesLite.addSubjectAttributeName(subjectAttribute);
       }
       
       //register that we will use this
       GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
       failOnArgsNotUsed(argMapNotUsed);
 
-      WsGetGrouperPrivilegesLiteResult wsGetGrouperPrivilegesLiteResult = gcGetGrouperPrivilegesLite.execute();
+      WsAssignGrouperPrivilegesLiteResult wsAssignGrouperPrivilegesLiteResult = gcAssignGrouperPrivilegesLite.execute();
       
       StringBuilder result = new StringBuilder();
-      int index = 0;
       
       Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
   
-      substituteMap.put("wsGetGrouperPrivilegesLiteResult", wsGetGrouperPrivilegesLiteResult);
+      substituteMap.put("wsAssignGrouperPrivilegesLiteResult", wsAssignGrouperPrivilegesLiteResult);
       substituteMap.put("grouperClientUtils", new GrouperClientUtils());
   
       String outputTemplate = null;
@@ -530,26 +635,19 @@ public class GrouperClient {
         outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
         outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
       } else {
-        outputTemplate = GrouperClientUtils.propertiesValue("webService.getGrouperPrivilegesLite.output", true);
+        outputTemplate = GrouperClientUtils.propertiesValue("webService.assignGrouperPrivilegesLite.output", true);
       }
       log.debug("Output template: " + outputTemplate);
 
-      for (WsGrouperPrivilegeResult wsGrouperPrivilegeResult : wsGetGrouperPrivilegesLiteResult.getPrivilegeResults()) {
-        
-        substituteMap.put("index", index);
-        substituteMap.put("wsGrouperPrivilegeResult", wsGrouperPrivilegeResult);
-        substituteMap.put("wsSubject", wsGrouperPrivilegeResult.getWsSubject());
-        substituteMap.put("wsGroup", wsGrouperPrivilegeResult.getWsGroup());
-        substituteMap.put("wsStem", wsGrouperPrivilegeResult.getWsStem());
-        substituteMap.put("objectType", wsGrouperPrivilegeResult.getWsStem() == null ? "group" : "stem");
-        substituteMap.put("objectName", wsGrouperPrivilegeResult.getWsStem() == null 
-            ? wsGrouperPrivilegeResult.getWsGroup().getName() : wsGrouperPrivilegeResult.getWsStem().getName());
-        
-        String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
-        result.append(output);
-        
-        index++;
-      }
+      substituteMap.put("wsSubject", wsAssignGrouperPrivilegesLiteResult.getWsSubject());
+      substituteMap.put("wsGroup", wsAssignGrouperPrivilegesLiteResult.getWsGroup());
+      substituteMap.put("wsStem", wsAssignGrouperPrivilegesLiteResult.getWsStem());
+      substituteMap.put("objectType", wsAssignGrouperPrivilegesLiteResult.getWsStem() == null ? "group" : "stem");
+      substituteMap.put("objectName", wsAssignGrouperPrivilegesLiteResult.getWsStem() == null 
+          ? wsAssignGrouperPrivilegesLiteResult.getWsGroup().getName() : wsAssignGrouperPrivilegesLiteResult.getWsStem().getName());
+      
+      String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+      result.append(output);
       
       return result.toString();
     }

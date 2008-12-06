@@ -194,23 +194,10 @@
                     <xs:element minOccurs="0" name="allowed" nillable="true" type="xs:string"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="params" nillable="true" type="ns:WsParam"/>
                     <xs:element minOccurs="0" name="privilegeName" nillable="true" type="xs:string"/>
-                    <xs:element maxOccurs="unbounded" minOccurs="0" name="privilegeResults" nillable="true" type="ns:WsGrouperPrivilegeResult"/>
                     <xs:element minOccurs="0" name="privilegeType" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
                     <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="wsGroup" nillable="true" type="ns:WsGroup"/>
-                    <xs:element minOccurs="0" name="wsStem" nillable="true" type="ns:WsStem"/>
-                    <xs:element minOccurs="0" name="wsSubject" nillable="true" type="ns:WsSubject"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="WsGrouperPrivilegeResult">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="allowed" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="ownerSubject" nillable="true" type="ns:WsSubject"/>
-                    <xs:element minOccurs="0" name="privilegeName" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="privilegeType" nillable="true" type="xs:string"/>
-                    <xs:element minOccurs="0" name="revokable" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="wsGroup" nillable="true" type="ns:WsGroup"/>
                     <xs:element minOccurs="0" name="wsStem" nillable="true" type="ns:WsStem"/>
                     <xs:element minOccurs="0" name="wsSubject" nillable="true" type="ns:WsSubject"/>
@@ -479,6 +466,18 @@
                     <xs:element minOccurs="0" name="responseMetadata" nillable="true" type="ns:WsResponseMeta"/>
                     <xs:element minOccurs="0" name="resultMetadata" nillable="true" type="ns:WsResultMeta"/>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="subjectAttributeNames" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="WsGrouperPrivilegeResult">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="allowed" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="ownerSubject" nillable="true" type="ns:WsSubject"/>
+                    <xs:element minOccurs="0" name="privilegeName" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="privilegeType" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="revokable" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="wsGroup" nillable="true" type="ns:WsGroup"/>
+                    <xs:element minOccurs="0" name="wsStem" nillable="true" type="ns:WsStem"/>
+                    <xs:element minOccurs="0" name="wsSubject" nillable="true" type="ns:WsSubject"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:element name="getGroupsLite">

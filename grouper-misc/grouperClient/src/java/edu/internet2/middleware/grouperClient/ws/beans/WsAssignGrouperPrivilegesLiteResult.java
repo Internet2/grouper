@@ -28,11 +28,6 @@ public class WsAssignGrouperPrivilegesLiteResult implements WsResponseBean {
   private String[] subjectAttributeNames;
 
   /**
-   * Privileges for this query
-   */
-  private WsGrouperPrivilegeResult[] privilegeResults;
-  
-  /**
    * @return the resultMetadata
    */
   public WsResultMeta getResultMetadata() {
@@ -132,22 +127,6 @@ public class WsAssignGrouperPrivilegesLiteResult implements WsResponseBean {
    */
   public void setParams(WsParam[] params1) {
     this.params = params1;
-  }
-
-  /**
-   * Privileges for this query
-   * @return the privileges
-   */
-  public WsGrouperPrivilegeResult[] getPrivilegeResults() {
-    return this.privilegeResults;
-  }
-
-  /**
-   * Privileges for this query
-   * @param privilegeResults1
-   */
-  public void setPrivilegeResults(WsGrouperPrivilegeResult[] privilegeResults1) {
-    this.privilegeResults = privilegeResults1;
   }
 
   /**

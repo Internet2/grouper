@@ -202,88 +202,6 @@
                             
 
                         /**
-                        * field for PrivilegeResults
-                        * This was an Array!
-                        */
-
-                        
-                                    protected edu.internet2.middleware.grouper.ws.soap.xsd.WsGrouperPrivilegeResult[] localPrivilegeResults ;
-                                
-                           /*  This tracker boolean wil be used to detect whether the user called the set method
-                          *   for this attribute. It will be used to determine whether to include this field
-                           *   in the serialized XML
-                           */
-                           protected boolean localPrivilegeResultsTracker = false ;
-                           
-
-                           /**
-                           * Auto generated getter method
-                           * @return edu.internet2.middleware.grouper.ws.soap.xsd.WsGrouperPrivilegeResult[]
-                           */
-                           public  edu.internet2.middleware.grouper.ws.soap.xsd.WsGrouperPrivilegeResult[] getPrivilegeResults(){
-                               return localPrivilegeResults;
-                           }
-
-                           
-                        
-
-
-                               
-                              /**
-                               * validate the array for PrivilegeResults
-                               */
-                              protected void validatePrivilegeResults(edu.internet2.middleware.grouper.ws.soap.xsd.WsGrouperPrivilegeResult[] param){
-                             
-                              }
-
-
-                             /**
-                              * Auto generated setter method
-                              * @param param PrivilegeResults
-                              */
-                              public void setPrivilegeResults(edu.internet2.middleware.grouper.ws.soap.xsd.WsGrouperPrivilegeResult[] param){
-                              
-                                   validatePrivilegeResults(param);
-
-                               
-                                          if (param != null){
-                                             //update the setting tracker
-                                             localPrivilegeResultsTracker = true;
-                                          } else {
-                                             localPrivilegeResultsTracker = true;
-                                                 
-                                          }
-                                      
-                                      this.localPrivilegeResults=param;
-                              }
-
-                               
-                             
-                             /**
-                             * Auto generated add method for the array for convenience
-                             * @param param edu.internet2.middleware.grouper.ws.soap.xsd.WsGrouperPrivilegeResult
-                             */
-                             public void addPrivilegeResults(edu.internet2.middleware.grouper.ws.soap.xsd.WsGrouperPrivilegeResult param){
-                                   if (localPrivilegeResults == null){
-                                   localPrivilegeResults = new edu.internet2.middleware.grouper.ws.soap.xsd.WsGrouperPrivilegeResult[]{};
-                                   }
-
-                            
-                                 //update the setting tracker
-                                localPrivilegeResultsTracker = true;
-                            
-
-                               java.util.List list =
-                            org.apache.axis2.databinding.utils.ConverterUtil.toList(localPrivilegeResults);
-                               list.add(param);
-                               this.localPrivilegeResults =
-                             (edu.internet2.middleware.grouper.ws.soap.xsd.WsGrouperPrivilegeResult[])list.toArray(
-                            new edu.internet2.middleware.grouper.ws.soap.xsd.WsGrouperPrivilegeResult[list.size()]);
-
-                             }
-                             
-
-                        /**
                         * field for PrivilegeType
                         */
 
@@ -855,69 +773,7 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
-                             } if (localPrivilegeResultsTracker){
-                                       if (localPrivilegeResults!=null){
-                                            for (int i = 0;i < localPrivilegeResults.length;i++){
-                                                if (localPrivilegeResults[i] != null){
-                                                 localPrivilegeResults[i].serialize(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","privilegeResults"),
-                                                           factory,xmlWriter);
-                                                } else {
-                                                   
-                                                            // write null attribute
-                                                            java.lang.String namespace2 = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
-                                                            if (! namespace2.equals("")) {
-                                                                java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
-
-                                                                if (prefix2 == null) {
-                                                                    prefix2 = generatePrefix(namespace2);
-
-                                                                    xmlWriter.writeStartElement(prefix2,"privilegeResults", namespace2);
-                                                                    xmlWriter.writeNamespace(prefix2, namespace2);
-                                                                    xmlWriter.setPrefix(prefix2, namespace2);
-
-                                                                } else {
-                                                                    xmlWriter.writeStartElement(namespace2,"privilegeResults");
-                                                                }
-
-                                                            } else {
-                                                                xmlWriter.writeStartElement("privilegeResults");
-                                                            }
-
-                                                           // write the nil attribute
-                                                           writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
-                                                           xmlWriter.writeEndElement();
-                                                    
-                                                }
-
-                                            }
-                                     } else {
-                                        
-                                                // write null attribute
-                                                java.lang.String namespace2 = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
-                                                if (! namespace2.equals("")) {
-                                                    java.lang.String prefix2 = xmlWriter.getPrefix(namespace2);
-
-                                                    if (prefix2 == null) {
-                                                        prefix2 = generatePrefix(namespace2);
-
-                                                        xmlWriter.writeStartElement(prefix2,"privilegeResults", namespace2);
-                                                        xmlWriter.writeNamespace(prefix2, namespace2);
-                                                        xmlWriter.setPrefix(prefix2, namespace2);
-
-                                                    } else {
-                                                        xmlWriter.writeStartElement(namespace2,"privilegeResults");
-                                                    }
-
-                                                } else {
-                                                    xmlWriter.writeStartElement("privilegeResults");
-                                                }
-
-                                               // write the nil attribute
-                                               writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
-                                               xmlWriter.writeEndElement();
-                                        
-                                    }
-                                 } if (localPrivilegeTypeTracker){
+                             } if (localPrivilegeTypeTracker){
                                     namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
                                     if (! namespace.equals("")) {
                                         prefix = xmlWriter.getPrefix(namespace);
@@ -1391,32 +1247,7 @@
                                  
                                          elementList.add(localPrivilegeName==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localPrivilegeName));
-                                    } if (localPrivilegeResultsTracker){
-                             if (localPrivilegeResults!=null) {
-                                 for (int i = 0;i < localPrivilegeResults.length;i++){
-
-                                    if (localPrivilegeResults[i] != null){
-                                         elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "privilegeResults"));
-                                         elementList.add(localPrivilegeResults[i]);
-                                    } else {
-                                        
-                                                elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "privilegeResults"));
-                                                elementList.add(null);
-                                            
-                                    }
-
-                                 }
-                             } else {
-                                 
-                                        elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
-                                                                          "privilegeResults"));
-                                        elementList.add(localPrivilegeResults);
-                                    
-                             }
-
-                        } if (localPrivilegeTypeTracker){
+                                    } if (localPrivilegeTypeTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "privilegeType"));
                                  
@@ -1562,9 +1393,7 @@
                 
                         java.util.ArrayList list2 = new java.util.ArrayList();
                     
-                        java.util.ArrayList list4 = new java.util.ArrayList();
-                    
-                        java.util.ArrayList list8 = new java.util.ArrayList();
+                        java.util.ArrayList list7 = new java.util.ArrayList();
                     
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
@@ -1681,64 +1510,6 @@
                                     
                                     while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
                                 
-                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","privilegeResults").equals(reader.getName())){
-                                
-                                    
-                                    
-                                    // Process the array and step past its final element's end.
-                                    
-                                                          nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
-                                                          if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                                              list4.add(null);
-                                                              reader.next();
-                                                          } else {
-                                                        list4.add(edu.internet2.middleware.grouper.ws.soap.xsd.WsGrouperPrivilegeResult.Factory.parse(reader));
-                                                                }
-                                                        //loop until we find a start element that is not part of this array
-                                                        boolean loopDone4 = false;
-                                                        while(!loopDone4){
-                                                            // We should be at the end element, but make sure
-                                                            while (!reader.isEndElement())
-                                                                reader.next();
-                                                            // Step out of this element
-                                                            reader.next();
-                                                            // Step to next element event.
-                                                            while (!reader.isStartElement() && !reader.isEndElement())
-                                                                reader.next();
-                                                            if (reader.isEndElement()){
-                                                                //two continuous end elements means we are exiting the xml structure
-                                                                loopDone4 = true;
-                                                            } else {
-                                                                if (new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","privilegeResults").equals(reader.getName())){
-                                                                    
-                                                                      nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
-                                                                      if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                                                          list4.add(null);
-                                                                          reader.next();
-                                                                      } else {
-                                                                    list4.add(edu.internet2.middleware.grouper.ws.soap.xsd.WsGrouperPrivilegeResult.Factory.parse(reader));
-                                                                        }
-                                                                }else{
-                                                                    loopDone4 = true;
-                                                                }
-                                                            }
-                                                        }
-                                                        // call the converter utility  to convert and set the array
-                                                        
-                                                        object.setPrivilegeResults((edu.internet2.middleware.grouper.ws.soap.xsd.WsGrouperPrivilegeResult[])
-                                                            org.apache.axis2.databinding.utils.ConverterUtil.convertToArray(
-                                                                edu.internet2.middleware.grouper.ws.soap.xsd.WsGrouperPrivilegeResult.class,
-                                                                list4));
-                                                            
-                              }  // End of if for expected property start element
-                                
-                                    else {
-                                        
-                                    }
-                                
-                                    
-                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
-                                
                                     if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","privilegeType").equals(reader.getName())){
                                 
                                        nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
@@ -1822,15 +1593,15 @@
                                     
                                               nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
                                               if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                                  list8.add(null);
+                                                  list7.add(null);
                                                        
                                                   reader.next();
                                               } else {
-                                            list8.add(reader.getElementText());
+                                            list7.add(reader.getElementText());
                                             }
                                             //loop until we find a start element that is not part of this array
-                                            boolean loopDone8 = false;
-                                            while(!loopDone8){
+                                            boolean loopDone7 = false;
+                                            while(!loopDone7){
                                                 // Ensure we are at the EndElement
                                                 while (!reader.isEndElement()){
                                                     reader.next();
@@ -1842,27 +1613,27 @@
                                                     reader.next();
                                                 if (reader.isEndElement()){
                                                     //two continuous end elements means we are exiting the xml structure
-                                                    loopDone8 = true;
+                                                    loopDone7 = true;
                                                 } else {
                                                     if (new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","subjectAttributeNames").equals(reader.getName())){
                                                          
                                                           nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
                                                           if ("true".equals(nillableValue) || "1".equals(nillableValue)){
-                                                              list8.add(null);
+                                                              list7.add(null);
                                                                    
                                                               reader.next();
                                                           } else {
-                                                        list8.add(reader.getElementText());
+                                                        list7.add(reader.getElementText());
                                                         }
                                                     }else{
-                                                        loopDone8 = true;
+                                                        loopDone7 = true;
                                                     }
                                                 }
                                             }
                                             // call the converter utility  to convert and set the array
                                             
                                                     object.setSubjectAttributeNames((java.lang.String[])
-                                                        list8.toArray(new java.lang.String[list8.size()]));
+                                                        list7.toArray(new java.lang.String[list7.size()]));
                                                 
                               }  // End of if for expected property start element
                                 

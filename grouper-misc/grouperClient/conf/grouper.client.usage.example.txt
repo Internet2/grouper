@@ -85,7 +85,13 @@ stemDelete web service usage:
   output line: Index 0: success: T: code: SUCCESS: aStem:aStem0
 
 getGrouperPrivilegesLite web service usage
-  java -jar grouperClient.jar --operation=getGrouperPrivilegesLiteWs [--groupName=a:b:c] [--stemName=a:b] [--privilegeName=admin|view|read|etc] [--privilegeType=access|naming|etc] [--subjectId=subjId0] [--subjectIdentifier=subjIdent0] [--subjectSource=source0] [--includeGroupDetail=true|false] [--includeSubjectDetail=true|false] [--subjectAttributeNames=name0,name1] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
+  java -jar grouperClient.jar --operation=getGrouperPrivilegesLiteWs [--groupName=a:b:c] [--stemName=a:b] [--privilegeName=admin|view|read|optin|optout|update|stem|create|etc] [--privilegeType=access|naming|etc] [--subjectId=subjId0] [--subjectIdentifier=subjIdent0] [--subjectSource=source0] [--includeGroupDetail=true|false] [--includeSubjectDetail=true|false] [--subjectAttributeNames=name0,name1] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
   e.g.: java -jar grouperClient.jar --operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectId=test.subject.0
-  output line: Index 0: success: T: code: SUCCESS: 12345
+  output line: Index 0: success: T: code: SUCCESS: group: aStem:aGroup: subject: test.subject.0: access: admin
+
+assignGrouperPrivilegesLite web service usage
+  java -jar grouperClient.jar --operation=assignGrouperPrivilegesLiteWs --privilegeName=admin|view|read|optin|optout|update|stem|create|etc --allowed=true|false [--groupName=a:b:c] [--stemName=a:b] [--privilegeType=access|naming|etc] [--subjectId=subjId0] [--subjectIdentifier=subjIdent0] [--subjectSource=source0] [--includeGroupDetail=true|false] [--includeSubjectDetail=true|false] [--subjectAttributeNames=name0,name1] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
+  e.g.: java -jar grouperClient.jar --operation=assignGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectId=test.subject.0 --privilegeName=admin --allowed=true
+  output: Success: T: code: SUCCESS: group: aStem:aGroup: subject: test.subject.0: access: admin
+
   

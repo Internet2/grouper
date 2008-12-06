@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.19 2008-12-06 20:39:33 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.20 2008-12-06 22:40:12 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -2845,7 +2845,7 @@ public class GrouperServiceLogic {
   
       theSummary = "clientVersion: " + clientVersion + ", wsSubject: "
           + subjectLookup + ", group: " +  wsGroupLookup + ", stem: " + wsStemLookup 
-          + ", privilege: " + (privilegeType == null ? null : privilegeType.name()) 
+          + ", privilege: " + (privilegeType == null ? null : privilegeType.getPrivilegeName()) 
           + "-" + (privilegeName == null ? null : privilegeName.getName())
           + ", actAsSubject: "
           + actAsSubjectLookup 
@@ -3489,7 +3489,7 @@ public class GrouperServiceLogic {
           
           String thePrivilegeName = privilegeName.getName();
           wsAssignGrouperPrivilegesLiteResult.setPrivilegeName(thePrivilegeName);
-          wsAssignGrouperPrivilegesLiteResult.setPrivilegeType(privilegeType.name());
+          wsAssignGrouperPrivilegesLiteResult.setPrivilegeType(privilegeType.getPrivilegeName());
           
           wsAssignGrouperPrivilegesLiteResult.setWsSubject(new WsSubject(subject, subjectAttributeArray, subjectLookup));
             
