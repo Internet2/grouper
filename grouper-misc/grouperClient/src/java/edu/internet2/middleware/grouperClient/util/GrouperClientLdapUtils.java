@@ -87,7 +87,9 @@ public class GrouperClientLdapUtils {
         passPrefix = "LDAP pass: reading scalar value from grouper.client.properties";
       }
       
-      LOG.debug(passPrefix + ": " + GrouperClientUtils.repeat("*", ldapPass.length()));
+      if (GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.logMaskedPassword", false, false)) {
+        LOG.debug(passPrefix + ": " + GrouperClientUtils.repeat("*", ldapPass.length()));
+      }
       
       env.put(Context.SECURITY_CREDENTIALS, ldapPass);
        

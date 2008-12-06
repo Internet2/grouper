@@ -15,6 +15,25 @@ public class WsSubject {
   /** T or F */
   private String success;
 
+  /** if lookedup by identifier, this is that identifier */
+  private String identifierLookup;
+
+  /**
+   * identifier used to lookup subject
+   * @return the identifier
+   */
+  public String getIdentifierLookup() {
+    return this.identifierLookup;
+  }
+
+  /**
+   * return the identifier looked up
+   * @param identifierLookup1
+   */
+  public void setIdentifierLookup(String identifierLookup1) {
+    this.identifierLookup = identifierLookup1;
+  }
+
   /**
    * constructor
    */

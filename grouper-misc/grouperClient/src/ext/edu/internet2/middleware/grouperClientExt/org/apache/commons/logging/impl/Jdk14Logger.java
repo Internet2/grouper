@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
  * @author <a href="mailto:sanders@apache.org">Scott Sanders</a>
  * @author <a href="mailto:bloritsch@apache.org">Berin Loritsch</a>
  * @author <a href="mailto:donaldp@apache.org">Peter Donald</a>
- * @version $Revision: 1.1 $ $Date: 2008-11-30 10:57:27 $
+ * @version $Revision: 1.2 $ $Date: 2008-12-06 20:32:16 $
  */
 
 public class Jdk14Logger implements Log, Serializable {
@@ -90,8 +90,8 @@ public class Jdk14Logger implements Log, Serializable {
             // Caller will be the third element
             String cname="unknown";
             String method="unknown";
-            if( locations!=null && locations.length >2 ) {
-                StackTraceElement caller=locations[2];
+            if( locations!=null && locations.length >3 ) {
+                StackTraceElement caller=locations[3];
                 cname=caller.getClassName();
                 method=caller.getMethodName();
             }

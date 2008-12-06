@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWs.java,v 1.4 2008-12-04 07:51:39 mchyzer Exp $
+ * $Id: GrouperClientWs.java,v 1.5 2008-12-06 20:32:16 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws;
 
@@ -139,8 +139,15 @@ public class GrouperClientWs {
       }
       
       String theResponse = this.response;
-      if (GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.webService.indent", true, true)) {
-        theResponse = GrouperClientUtils.indent(theResponse, true);
+      Exception indentException = null;
+
+      boolean isIndent = GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.webService.indent", true, true);
+      if (isIndent) {
+        try {
+          theResponse = GrouperClientUtils.indent(theResponse, true);
+        } catch (Exception e) {
+          indentException = e;
+        }
       }
       
       StringBuilder headers = new StringBuilder();
@@ -163,9 +170,13 @@ public class GrouperClientWs {
         GrouperClientUtils.saveStringIntoFile(responseFile, theResponseTotal);
       }
       if (GrouperClientLog.debugToConsole()) {
-        System.err.println("\n################ RESPONSE START ###############\n");
+        System.err.println("\n################ RESPONSE START " + (isIndent ? "(indented) " : "") + "###############\n");
         System.err.println(theResponseTotal);
         System.err.println("\n################ RESPONSE END ###############\n\n");
+      }
+      if (indentException != null) {
+        throw new RuntimeException("Problems indenting xml (is it valid?), turn off the indenting in the " +
+            "grouper.client.properties: grouperClient.logging.webService.indent", indentException);
       }
     }
 
@@ -209,7 +220,8 @@ public class GrouperClientWs {
           "grouperClient.webService.httpSocketTimeoutMillis", 90000, true);
       
       httpClient.getParams().setSoTimeout(soTimeoutMillis);
-
+      httpClient.getParams().setParameter(HttpMethodParams.HEAD_BODY_CHECK_TIMEOUT, soTimeoutMillis);
+      
       int connectionManagerMillis = GrouperClientUtils.propertiesValueInt(
           "grouperClient.webService.httpConnectionManagerTimeoutMillis", 90000, true);
       
@@ -241,7 +253,9 @@ public class GrouperClientWs {
         passPrefix = "WebService pass: reading scalar value from grouper.client.properties";
       }
       
-      LOG.debug(passPrefix + ": " + GrouperClientUtils.repeat("*", wsPass.length()));
+      if (GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.logMaskedPassword", false, false)) {
+        LOG.debug(passPrefix + ": " + GrouperClientUtils.repeat("*", wsPass.length()));
+      }
 
       Credentials defaultcreds = new UsernamePasswordCredentials(user, wsPass);
   
@@ -321,8 +335,14 @@ public class GrouperClientWs {
         LOG.debug("WebService: logging request to: " + GrouperClientUtils.fileCanonicalPath(logFile));
       }
       String theRequestDocument = requestDocument;
-      if (GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.webService.indent", true, true)) {
-        theRequestDocument = GrouperClientUtils.indent(theRequestDocument, true);
+      Exception indentException = null;
+      boolean isIndent = GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.webService.indent", true, true);
+      if (isIndent) {
+        try {
+          theRequestDocument = GrouperClientUtils.indent(theRequestDocument, true);
+        } catch (Exception e) {
+          indentException = e;
+        }
       }
 
       StringBuilder headers = new StringBuilder();
@@ -350,9 +370,13 @@ public class GrouperClientWs {
         GrouperClientUtils.saveStringIntoFile(logFile, theRequest);
       }
       if (GrouperClientLog.debugToConsole()) {
-        System.err.println("\n################ REQUEST START ###############\n");
+        System.err.println("\n################ REQUEST START " + (isIndent ? "(indented) " : "") + "###############\n");
         System.err.println(theRequest);
         System.err.println("\n################ REQUEST END ###############\n\n");
+      }
+      if (indentException != null) {
+        throw new RuntimeException("Problems indenting xml (is it valid?), turn off the indenting in the " +
+        		"grouper.client.properties: grouperClient.logging.webService.indent", indentException);
       }
     }
     

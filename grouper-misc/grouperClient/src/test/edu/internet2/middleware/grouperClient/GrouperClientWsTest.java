@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.11 2008-12-05 02:37:28 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.12 2008-12-06 20:32:16 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -12,7 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import junit.textui.TestRunner;
-
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperTest;
@@ -35,7 +34,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testStemDelete"));
+    TestRunner.run(new GrouperClientWsTest("testGetGrouperPrivilegeLite"));
   }
   
   /**
@@ -64,6 +63,8 @@ public class GrouperClientWsTest extends GrouperTest {
     GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.alias.subjectIdentifiers", "pennKeys");
     GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.alias.SubjectId", "PennId");
     GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.alias.SubjectIdentifier", "PennKey");
+    GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.alias.subjectId", "pennId");
+    GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.alias.subjectIdentifier", "pennKey");
 
     GrouperClientUtils.grouperClientOverrideMap().put("webService.hasMember.output", "Index ${index}: success: ${wsHasMemberResult.resultMetadata.success}: code: ${wsHasMemberResult.resultMetadata.resultCode}: ${wsHasMemberResult.wsSubject.id}: ${hasMember}$newline$");
 
@@ -90,8 +91,7 @@ public class GrouperClientWsTest extends GrouperTest {
     super(name);
   }
 
-  /**
-     * note: this will only work at penn
+   /**
      * @throws Exception 
      */
     public void testAddMember() throws Exception {
@@ -483,8 +483,373 @@ public class GrouperClientWsTest extends GrouperTest {
       
     }
 
+    /**
+     * @throws Exception 
+     */
+    public void testGetGrouperPrivilegeLite() throws Exception {
+      
+      PrintStream systemOut = System.out;
+  
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectId=test.subject.0", " "));
+        System.out.flush();
+        String output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        Pattern pattern = Pattern.compile(
+            "^Index (\\d+): success: T: code: ([A-Z_]+): (group|stem): (.+): subject: (.+): (.+): (.+)$");
+        Matcher matcher = pattern.matcher(outputLines[0]);
+        
+        assertEquals(GrouperClientUtils.length(outputLines), 3);
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("group", matcher.group(3));
+        assertEquals("aStem:aGroup", matcher.group(4));
+        assertEquals("test.subject.0", matcher.group(5));
+        assertEquals("access", matcher.group(6));
+        assertEquals("admin", matcher.group(7));
+        
+        matcher = pattern.matcher(outputLines[1]);
+        
+        assertTrue(outputLines[1], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("group", matcher.group(3));
+        assertEquals("aStem:aGroup", matcher.group(4));
+        assertEquals("test.subject.0", matcher.group(5));
+        assertEquals("access", matcher.group(6));
+        assertEquals("read", matcher.group(7));
+  
+        matcher = pattern.matcher(outputLines[2]);
+        
+        assertTrue(outputLines[2], matcher.matches());
+        
+        assertEquals("2", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("group", matcher.group(3));
+        assertEquals("aStem:aGroup", matcher.group(4));
+        assertEquals("test.subject.0", matcher.group(5));
+        assertEquals("access", matcher.group(6));
+        assertEquals("view", matcher.group(7));
+  
+        //#####################################################
+        //run again with subject identifier, and privilege type
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectIdentifier=id.test.subject.0 --privilegeType=access", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertEquals(GrouperClientUtils.length(outputLines), 3);
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("group", matcher.group(3));
+        assertEquals("aStem:aGroup", matcher.group(4));
+        assertEquals("test.subject.0", matcher.group(5));
+        assertEquals("access", matcher.group(6));
+        assertEquals("admin", matcher.group(7));
+        
+        matcher = pattern.matcher(outputLines[1]);
+        
+        assertTrue(outputLines[1], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("group", matcher.group(3));
+        assertEquals("aStem:aGroup", matcher.group(4));
+        assertEquals("test.subject.0", matcher.group(5));
+        assertEquals("access", matcher.group(6));
+        assertEquals("read", matcher.group(7));
+  
+        matcher = pattern.matcher(outputLines[2]);
+        
+        assertTrue(outputLines[2], matcher.matches());
+        
+        assertEquals("2", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("group", matcher.group(3));
+        assertEquals("aStem:aGroup", matcher.group(4));
+        assertEquals("test.subject.0", matcher.group(5));
+        assertEquals("access", matcher.group(6));
+        assertEquals("view", matcher.group(7));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest, GrouperClientWs.mostRecentRequest.contains("access")
+            && GrouperClientWs.mostRecentRequest.contains("privilegeType")
+            && GrouperClientWs.mostRecentRequest.contains("id.test.subject.0"));
+
+        //#####################################################
+        //run with invalid args
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        //test a command line template
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectId=test.subject.0 --ousdfsdfate=${index}", " "));
+        } catch (Exception e) {
+          assertTrue(e.getMessage(), e.getMessage().contains("ousdfsdfate"));
+        }
+        System.out.flush();
+        
+        System.setOut(systemOut);
+        
+        //#####################################################
+        //run with custom template
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        //test a command line template
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --pennKey=id.test.subject.0 --outputTemplate=${index}", " "));
+  
+        System.out.flush();
+        
+        output = new String(baos.toByteArray());
+        
+        assertEquals("012", output);
+
+        System.setOut(systemOut);
+        
+        //#####################################################
+        //run with privilege name
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        //test a command line template
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --pennKey=id.test.subject.0 --privilegeName=admin", " "));
+  
+        System.out.flush();
+        
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertEquals(output, GrouperClientUtils.length(outputLines), 1);
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals(outputLines[0], "SUCCESS_ALLOWED", matcher.group(2));
+        assertEquals("group", matcher.group(3));
+        assertEquals("aStem:aGroup", matcher.group(4));
+        assertEquals("test.subject.0", matcher.group(5));
+        assertEquals("access", matcher.group(6));
+        assertEquals("admin", matcher.group(7));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest, GrouperClientWs.mostRecentRequest.contains("admin")
+            && GrouperClientWs.mostRecentRequest.contains("privilegeName")
+            && GrouperClientWs.mostRecentRequest.contains("id.test.subject.0"));
+        
+        
+        //#####################################################
+        //run again, with stem
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getGrouperPrivilegesLiteWs --stemName=aStem --pennKey=id.test.subject.0", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertEquals(GrouperClientUtils.length(outputLines), 2);
+        assertTrue(outputLines[0], matcher.matches());
+        
+        
+//        Index 0: success: T: code: SUCCESS: stem: aStem: subject: test.subject.0: naming: create
+//        Index 1: success: T: code: SUCCESS: stem: aStem: subject: test.subject.0: naming: stem
+
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("stem", matcher.group(3));
+        assertEquals("aStem", matcher.group(4));
+        assertEquals("test.subject.0", matcher.group(5));
+        assertEquals("naming", matcher.group(6));
+        assertEquals("create", matcher.group(7));
+        
+        matcher = pattern.matcher(outputLines[1]);
+        
+        assertTrue(outputLines[1], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("stem", matcher.group(3));
+        assertEquals("aStem", matcher.group(4));
+        assertEquals("test.subject.0", matcher.group(5));
+        assertEquals("naming", matcher.group(6));
+        assertEquals("stem", matcher.group(7));
+
+        
+        //#####################################################
+        //run again, with includeGroupDetail and includeSubjectDetail
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectId=test.subject.0 --includeGroupDetail=true --includeSubjectDetail=true", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertEquals(3, GrouperClientUtils.length(outputLines));
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("group", matcher.group(3));
+        assertEquals("aStem:aGroup", matcher.group(4));
+        assertEquals("test.subject.0", matcher.group(5));
+        assertEquals("access", matcher.group(6));
+        assertEquals("admin", matcher.group(7));
+        
+        matcher = pattern.matcher(outputLines[1]);
+        
+        assertTrue(outputLines[1], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("group", matcher.group(3));
+        assertEquals("aStem:aGroup", matcher.group(4));
+        assertEquals("test.subject.0", matcher.group(5));
+        assertEquals("access", matcher.group(6));
+        assertEquals("read", matcher.group(7));
+  
+        matcher = pattern.matcher(outputLines[2]);
+        
+        assertTrue(outputLines[2], matcher.matches());
+        
+        assertEquals("2", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("group", matcher.group(3));
+        assertEquals("aStem:aGroup", matcher.group(4));
+        assertEquals("test.subject.0", matcher.group(5));
+        assertEquals("access", matcher.group(6));
+        assertEquals("view", matcher.group(7));
+        
+        assertTrue(
+            GrouperClientWs.mostRecentRequest.contains("includeGroupDetail") 
+            && GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        
+        //#####################################################
+        //run again, with subject attributes
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectId=test.subject.0 --subjectAttributeNames=name --outputTemplate=${index}:$space$${wsSubject.getAttributeValue(0)}$newline$", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        assertTrue(outputLines[0], outputLines[0].contains("my name is test.subject.0"));
+        
+        assertTrue(outputLines[1], outputLines[1].contains("my name is test.subject.0"));
+  
+        assertTrue(GrouperClientWs.mostRecentRequest.contains(">name<"));
+        assertTrue(GrouperClientWs.mostRecentResponse.contains("my name is test.subject.0"));
+        
+  
+        //#####################################################
+        //run again, with params
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=getGrouperPrivilegesLiteWs --groupName=aStem:aGroup --subjectId=test.subject.0 --paramName0=whatever --paramValue0=someValue", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertEquals(GrouperClientUtils.length(outputLines), 3);
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("0", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("group", matcher.group(3));
+        assertEquals("aStem:aGroup", matcher.group(4));
+        assertEquals("test.subject.0", matcher.group(5));
+        assertEquals("access", matcher.group(6));
+        assertEquals("admin", matcher.group(7));
+        
+        matcher = pattern.matcher(outputLines[1]);
+        
+        assertTrue(outputLines[1], matcher.matches());
+        
+        assertEquals("1", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("group", matcher.group(3));
+        assertEquals("aStem:aGroup", matcher.group(4));
+        assertEquals("test.subject.0", matcher.group(5));
+        assertEquals("access", matcher.group(6));
+        assertEquals("read", matcher.group(7));
+  
+        matcher = pattern.matcher(outputLines[2]);
+        
+        assertTrue(outputLines[2], matcher.matches());
+        
+        assertEquals("2", matcher.group(1));
+        assertEquals("SUCCESS", matcher.group(2));
+        assertEquals("group", matcher.group(3));
+        assertEquals("aStem:aGroup", matcher.group(4));
+        assertEquals("test.subject.0", matcher.group(5));
+        assertEquals("access", matcher.group(6));
+        assertEquals("view", matcher.group(7));
+
+        assertTrue(
+            GrouperClientWs.mostRecentRequest.contains("whatever") 
+            && GrouperClientWs.mostRecentRequest.contains("someValue"));
+          
+      } finally {
+        System.setOut(systemOut);
+      }
+      
+    }
+
   /**
-   * note: this will only work at penn
    * @throws Exception 
    */
   public void testGroupDelete() throws Exception {
@@ -656,8 +1021,7 @@ public class GrouperClientWsTest extends GrouperTest {
     
   }
 
-  /**
-     * note: this will only work at penn
+    /**
      * @throws Exception 
      */
     public void testStemDelete() throws Exception {
@@ -802,7 +1166,7 @@ public class GrouperClientWsTest extends GrouperTest {
       
     }
 
-    /**
+  /**
    * @throws Exception 
    */
   public void testGroupSave() throws Exception {
@@ -1535,7 +1899,6 @@ public class GrouperClientWsTest extends GrouperTest {
     }
 
     /**
-     * note: this will only work at penn
      * @throws Exception 
      */
     public void testGetGroups() throws Exception {
@@ -1965,8 +2328,7 @@ matcher = pattern.matcher(outputLines[0]);
       
     }
 
-  /**
-     * note: this will only work at penn
+    /**
      * @throws Exception 
      */
     public void testHasMember() throws Exception {
@@ -2310,7 +2672,6 @@ matcher = pattern.matcher(outputLines[0]);
     }
 
   /**
-   * note: this will only work at penn
    * @throws Exception 
    */
   public void testDeleteMember() throws Exception {
@@ -2676,8 +3037,7 @@ matcher = pattern.matcher(outputLines[0]);
     
   }
 
-  /**
-     * note: this will only work at penn
+    /**
      * @throws Exception 
      */
     public void testGetMembers() throws Exception {
