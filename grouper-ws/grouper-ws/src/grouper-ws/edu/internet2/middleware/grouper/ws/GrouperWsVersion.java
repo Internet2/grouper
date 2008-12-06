@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsVersion.java,v 1.9 2008-12-04 07:51:34 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsVersion.java,v 1.10 2008-12-06 20:39:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -127,6 +127,25 @@ public enum GrouperWsVersion {
 
   }
 
+  /** current client version */
+  public static ThreadLocal<GrouperWsVersion> currentClientVersion = new ThreadLocal<GrouperWsVersion>();
+
+  /**
+   * put the current client version
+   * @param clientVersion
+   */
+  public static void assignCurrentClientVersion(GrouperWsVersion clientVersion) {
+    currentClientVersion.set(clientVersion);
+  }
+  
+  /**
+   * return current client version or null
+   * @return the current client version or null
+   */
+  public static GrouperWsVersion retrieveCurrentClientVersion() {
+    return currentClientVersion.get();
+  }
+  
   /**
    * get the current version
    * @return the current version

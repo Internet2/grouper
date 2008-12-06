@@ -221,7 +221,7 @@ public class WsMemberChangeSubjectResult {
 
     this.setWsSubjectNew(new WsSubject(wsSubjectLookup1));
     this.setWsSubjectNew(new WsSubject(wsSubjectLookup1.retrieveSubject("Subject"),
-        subjectAttributeNames));
+        subjectAttributeNames, wsSubjectLookup1));
     
     SubjectFindResult subjectFindResult = wsSubjectLookup1.retrieveSubjectFindResult();
 

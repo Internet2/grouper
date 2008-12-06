@@ -352,7 +352,7 @@ public class WsDeleteMemberResult {
 
     this.setWsSubject(new WsSubject(wsSubjectLookup1));
     this.setWsSubject(new WsSubject(wsSubjectLookup1.retrieveSubject("Subject"),
-        subjectAttributeNames));
+        subjectAttributeNames, wsSubjectLookup1));
 
     SubjectFindResult subjectFindResult = wsSubjectLookup1.retrieveSubjectFindResult();
 

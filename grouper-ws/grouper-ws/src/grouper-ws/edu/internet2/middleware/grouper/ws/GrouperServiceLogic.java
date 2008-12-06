@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.18 2008-12-04 20:59:19 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.19 2008-12-06 20:39:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -163,7 +164,7 @@ public class GrouperServiceLogic {
     GrouperSession session = null;
     String theSummary = null;
     try {
-      
+      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
       txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
       final GrouperTransactionType TX_TYPE = txType;
       
@@ -307,6 +308,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsAddMemberResults.assignResultCodeException(null, theSummary, e);
     } finally {
+      GrouperWsVersion.assignCurrentClientVersion(null);
       GrouperSession.stopQuietly(session);
     }
 
@@ -423,6 +425,7 @@ public class GrouperServiceLogic {
     String theSummary = null;
     try {
   
+      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
       txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
       final GrouperTransactionType TX_TYPE = txType;
       
@@ -521,6 +524,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsDeleteMemberResults.assignResultCodeException(null, theSummary, e);
     } finally {
+      GrouperWsVersion.assignCurrentClientVersion(null);
       GrouperSession.stopQuietly(session);
     }
   
@@ -621,7 +625,8 @@ public class GrouperServiceLogic {
     GrouperSession session = null;
     String theSummary = null;
     try {
-  
+      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
+
       theSummary = "clientVersion: " + clientVersion + ", wsQueryFilter: "
           + wsQueryFilter + "\n, includeGroupDetail: " + includeGroupDetail
           + ", actAsSubject: " + actAsSubjectLookup + ", paramNames: "
@@ -654,6 +659,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsFindGroupsResults.assignResultCodeException(null, theSummary, e);
     } finally {
+      GrouperWsVersion.assignCurrentClientVersion(null);
       GrouperSession.stopQuietly(session);
     }
   
@@ -753,7 +759,8 @@ public class GrouperServiceLogic {
     GrouperSession session = null;
     String theSummary = null;
     try {
-  
+      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
+
       theSummary = "clientVersion: " + clientVersion + ", wsStemQueryFilter: "
           + wsStemQueryFilter + ", actAsSubject: " + actAsSubjectLookup
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
@@ -785,6 +792,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsFindStemsResults.assignResultCodeException(null, theSummary, e);
     } finally {
+      GrouperWsVersion.assignCurrentClientVersion(null);
       GrouperSession.stopQuietly(session);
     }
   
@@ -897,7 +905,8 @@ public class GrouperServiceLogic {
     GrouperSession session = null;
     String theSummary = null;
     try {
-  
+      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
+
       theSummary = "clientVersion: " + clientVersion + ", subjectLookups: "
           + GrouperUtil.toStringForLog(subjectLookups, 200) 
           + "\nmemberFilter: " + memberFilter + ", includeGroupDetail: "
@@ -927,7 +936,7 @@ public class GrouperServiceLogic {
           //init in case error
           wsGetGroupsResult.setWsSubject(new WsSubject(wsSubjectLookup));
           Subject subject = wsSubjectLookup.retrieveSubject("subjectLookup");
-          wsGetGroupsResult.setWsSubject(new WsSubject(subject, subjectAttributeNames));
+          wsGetGroupsResult.setWsSubject(new WsSubject(subject, subjectAttributeNames, wsSubjectLookup));
           Member member = MemberFinder.internal_findBySubject(subject, false);
           Set<Group> groups = member == null ? new HashSet<Group>() : memberFilter.getGroups(member);
           wsGetGroupsResult.assignGroupResult(groups, includeGroupDetail);
@@ -942,6 +951,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsGetGroupsResults.assignResultCodeException(null, theSummary, e);
     } finally {
+      GrouperWsVersion.assignCurrentClientVersion(null);
       GrouperSession.stopQuietly(session);
     }
   
@@ -1054,7 +1064,8 @@ public class GrouperServiceLogic {
     GrouperSession session = null;
     String theSummary = null;
     try {
-  
+      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
+
       theSummary = "clientVersion: " + clientVersion + ", wsGroupLookups: "
           + GrouperUtil.toStringForLog(wsGroupLookups,200) + "\n, memberFilter: " 
           + memberFilter
@@ -1119,6 +1130,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsGetMembersResults.assignResultCodeException(null, theSummary, e);
     } finally {
+      GrouperWsVersion.assignCurrentClientVersion(null);
       GrouperSession.stopQuietly(session);
     }
   
@@ -1362,7 +1374,8 @@ public class GrouperServiceLogic {
     GrouperSession session = null;
     String theSummary = null;
     try {
-  
+      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
+
       txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
       final GrouperTransactionType TX_TYPE = txType;
       theSummary = "clientVersion: " + clientVersion + ", wsGroupLookups: "
@@ -1454,6 +1467,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsGroupDeleteResults.assignResultCodeException(null, theSummary, e);
     } finally {
+      GrouperWsVersion.assignCurrentClientVersion(null);
       GrouperSession.stopQuietly(session);
     }
   
@@ -1536,7 +1550,8 @@ public class GrouperServiceLogic {
     GrouperSession session = null;
     String theSummary = null;
     try {
-  
+      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
+
       txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
       final GrouperTransactionType TX_TYPE = txType;
       
@@ -1620,6 +1635,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsGroupSaveResults.assignResultCodeException(null, theSummary, e, clientVersion);
     } finally {
+      GrouperWsVersion.assignCurrentClientVersion(null);
       GrouperSession.stopQuietly(session);
     }
   
@@ -1666,7 +1682,8 @@ public class GrouperServiceLogic {
     GrouperSession session = null;
     String theSummary = null;
     try {
-  
+      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
+
       theSummary = "clientVersion: " + clientVersion + ", wsGroupLookup: "
           + wsGroupLookup + ", subjectLookups: "
           + GrouperUtil.toStringForLog(subjectLookups, 200)
@@ -1730,6 +1747,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsHasMemberResults.assignResultCodeException(null, theSummary, e);
     } finally {
+      GrouperWsVersion.assignCurrentClientVersion(null);
       GrouperSession.stopQuietly(session);
     }
   
@@ -1918,7 +1936,8 @@ public class GrouperServiceLogic {
     GrouperSession session = null;
     String theSummary = null;
     try {
-  
+      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
+
       txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
       final GrouperTransactionType TX_TYPE = txType;
       
@@ -1997,6 +2016,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsMemberChangeSubjectResults.assignResultCodeException(null, theSummary, e);
     } finally {
+      GrouperWsVersion.assignCurrentClientVersion(null);
       GrouperSession.stopQuietly(session);
     }
   
@@ -2028,7 +2048,8 @@ public class GrouperServiceLogic {
     GrouperSession session = null;
     String theSummary = null;
     try {
-  
+      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
+
       txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
       final GrouperTransactionType TX_TYPE = txType;
       
@@ -2113,6 +2134,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsStemDeleteResults.assignResultCodeException(null, theSummary, e);
     } finally {
+      GrouperWsVersion.assignCurrentClientVersion(null);
       GrouperSession.stopQuietly(session);
     }
   
@@ -2192,7 +2214,8 @@ public class GrouperServiceLogic {
     GrouperSession session = null;
     String theSummary = null;
     try {
-  
+      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
+
       txType = GrouperUtil.defaultIfNull(txType, GrouperTransactionType.NONE);
       final GrouperTransactionType TX_TYPE = txType;
       
@@ -2266,6 +2289,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsStemSaveResults.assignResultCodeException(null, theSummary, e, clientVersion);
     } finally {
+      GrouperWsVersion.assignCurrentClientVersion(null);
       GrouperSession.stopQuietly(session);
     }
   
@@ -2793,6 +2817,8 @@ public class GrouperServiceLogic {
       boolean includeGroupDetail, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
 
+    GrouperWsVersion.assignCurrentClientVersion(clientVersion);
+
     String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
 
     WsSubjectLookup subjectLookup = new WsSubjectLookup(subjectId, 
@@ -2851,7 +2877,7 @@ public class GrouperServiceLogic {
         Set<? extends GrouperPrivilege> privileges = null;
         if (wsGroupLookup.hasData()) {
           
-          if (!privilegeType.equals(PrivilegeType.ACCESS)) {
+          if (privilegeType != null && !privilegeType.equals(PrivilegeType.ACCESS)) {
             throw new WsInvalidQueryException("If you are querying a group, you need to pass in an " +
             		"access privilege type: '" + privilegeType + "'");
           }
@@ -2862,9 +2888,9 @@ public class GrouperServiceLogic {
 
         } else if (wsStemLookup.hasData()) {
 
-          if (!privilegeType.equals(PrivilegeType.NAMING)) {
-            throw new WsInvalidQueryException("If you are querying a group, you need to pass in an " +
-                "access privilege type: '" + privilegeType + "'");
+          if (privilegeType != null && !privilegeType.equals(PrivilegeType.NAMING)) {
+            throw new WsInvalidQueryException("If you are querying a stem, you need to pass in a " +
+                "naming privilege type: '" + privilegeType + "'");
           }
 
           wsStemLookup.retrieveStemIfNeeded(session, true);
@@ -2884,6 +2910,10 @@ public class GrouperServiceLogic {
 
         WsGrouperPrivilegeResult[] privilegeResults = new WsGrouperPrivilegeResult[privileges.size()];
         if (privileges.size() > 0) {
+          
+          //sort these for unit testing
+          privileges = new TreeSet<GrouperPrivilege>(privileges);
+          
           wsGetGrouperPrivilegesLiteResult.setPrivilegeResults(privilegeResults);
         }
         
@@ -2895,7 +2925,7 @@ public class GrouperServiceLogic {
           
           wsGrouperPrivilegeResult.setAllowed("T");
           Subject owner = grouperPrivilege.getOwner();
-          wsGrouperPrivilegeResult.setOwnerSubject(owner == null ? null : new WsSubject(subject, subjectAttributeArray));
+          wsGrouperPrivilegeResult.setOwnerSubject(owner == null ? null : new WsSubject(owner, subjectAttributeArray, null));
 
           String thePrivilegeName = grouperPrivilege.getName();
           wsGrouperPrivilegeResult.setPrivilegeName(thePrivilegeName);
@@ -2912,7 +2942,18 @@ public class GrouperServiceLogic {
             wsGrouperPrivilegeResult.setWsStem(new WsStem(stem));
           }
 
-          wsGrouperPrivilegeResult.setWsSubject(new WsSubject(grouperPrivilege.getSubject(), subjectAttributeArray));
+          //note, if there is a subejct lookup, it should match here
+          //make sure they match
+          Subject privilegeSubject = grouperPrivilege.getSubject(); 
+          
+          //(granted we should check source too, but it might not be available
+          if (!StringUtils.equals(privilegeSubject.getId(), subject.getId())) {
+            throw new RuntimeException("These subjects should be equal: " 
+                + GrouperUtil.subjectToString(privilegeSubject) + ", " 
+                + GrouperUtil.subjectToString(subject));
+          }
+
+          wsGrouperPrivilegeResult.setWsSubject(new WsSubject(privilegeSubject, subjectAttributeArray, subjectLookup));
           
           i++;
         }
@@ -2944,6 +2985,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsGetGrouperPrivilegesLiteResult.assignResultCodeException(null, theSummary, e);
     } finally {
+      GrouperWsVersion.assignCurrentClientVersion(null);
       GrouperSession.stopQuietly(session);
     }
   
@@ -3338,6 +3380,8 @@ public class GrouperServiceLogic {
         boolean includeGroupDetail, String paramName0,
         String paramValue0, String paramName1, String paramValue1) {
 
+      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
+      
       String[] subjectAttributeArray = GrouperUtil.splitTrim(subjectAttributeNames, ",");
 
       WsSubjectLookup subjectLookup = new WsSubjectLookup(subjectId, 
@@ -3447,7 +3491,7 @@ public class GrouperServiceLogic {
           wsAssignGrouperPrivilegesLiteResult.setPrivilegeName(thePrivilegeName);
           wsAssignGrouperPrivilegesLiteResult.setPrivilegeType(privilegeType.name());
           
-          wsAssignGrouperPrivilegesLiteResult.setWsSubject(new WsSubject(subject, subjectAttributeArray));
+          wsAssignGrouperPrivilegesLiteResult.setWsSubject(new WsSubject(subject, subjectAttributeArray, subjectLookup));
             
           //assign one of 6 success codes
           //setup the resultcode
@@ -3479,6 +3523,7 @@ public class GrouperServiceLogic {
       } catch (Exception e) {
         wsAssignGrouperPrivilegesLiteResult.assignResultCodeException(null, theSummary, e);
       } finally {
+        GrouperWsVersion.assignCurrentClientVersion(null);
         GrouperSession.stopQuietly(session);
       }
     

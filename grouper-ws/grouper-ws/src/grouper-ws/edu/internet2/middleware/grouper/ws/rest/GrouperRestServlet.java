@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperRestServlet.java,v 1.9 2008-12-01 07:40:19 mchyzer Exp $
+ * @author mchyzer $Id: GrouperRestServlet.java,v 1.10 2008-12-06 20:39:32 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -132,6 +132,8 @@ public class GrouperRestServlet extends HttpServlet {
       //will get enum and validate
       clientVersion = GrouperWsVersion.valueOfIgnoreCase(clientVersionString, true);
 
+      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
+      
       WsRequestBean requestObject = null;
 
       if (!StringUtils.isBlank(body)) {
@@ -153,6 +155,9 @@ public class GrouperRestServlet extends HttpServlet {
 
       wsResponseBean = grouperRestHttpMethod.service(clientVersion, urlStrings, requestObject);
 
+      //set this again, since it was probably just removed
+      GrouperWsVersion.assignCurrentClientVersion(clientVersion);
+      
     } catch (GrouperRestInvalidRequest glir) {
 
       wsResponseBean = new WsRestResultProblem();
@@ -207,6 +212,7 @@ public class GrouperRestServlet extends HttpServlet {
     } finally {
 
       IOUtils.closeQuietly(response.getWriter());
+      GrouperWsVersion.assignCurrentClientVersion(null);
     }
     
     HttpSession httpSession = request.getSession(false);

@@ -72,7 +72,7 @@ public class WsHasMemberResult {
         this.assignResultCode(subjectFindResult.convertToHasMemberResultCode());
       }
     } else {
-      this.wsSubject = new WsSubject(subject, subjectAttributeNamesToRetrieve);
+      this.wsSubject = new WsSubject(subject, subjectAttributeNamesToRetrieve, wsSubjectLookup);
     }
   }
 

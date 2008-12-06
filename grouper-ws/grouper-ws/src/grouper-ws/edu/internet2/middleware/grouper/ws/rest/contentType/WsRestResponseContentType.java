@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsRestResponseContentType.java,v 1.6 2008-12-02 05:16:36 mchyzer Exp $
+ * @author mchyzer $Id: WsRestResponseContentType.java,v 1.7 2008-12-06 20:39:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
@@ -17,8 +17,10 @@ import com.thoughtworks.xstream.mapper.MapperWrapper;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
+import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.rest.WsRestClassLookup;
+import edu.internet2.middleware.grouper.ws.soap.WsSubject;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
@@ -221,8 +223,10 @@ public enum WsRestResponseContentType {
         }
       }
     }
-    
-
+    GrouperWsVersion clientVersion = GrouperWsVersion.retrieveCurrentClientVersion();
+    if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+      xstream.omitField(WsSubject.class, "identifierLookup");
+    }
     //dont try to get fancy
     xstream.setMode(XStream.NO_REFERENCES);
     xstream.autodetectAnnotations(true);

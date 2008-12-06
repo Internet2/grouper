@@ -17,6 +17,9 @@
 
 package edu.internet2.middleware.grouper.privs;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.CompareToBuilder;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Group;
@@ -28,9 +31,9 @@ import edu.internet2.middleware.subject.Subject;
  * An instance of a granted access privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.4 2008-10-27 10:03:36 mchyzer Exp $
+ * @version $Id: AccessPrivilege.java,v 1.5 2008-12-06 20:39:36 mchyzer Exp $
  */
-public class AccessPrivilege implements GrouperPrivilege {
+public class AccessPrivilege implements GrouperPrivilege, Comparable {
 
 
   // Public Class Constants
@@ -65,6 +68,36 @@ public class AccessPrivilege implements GrouperPrivilege {
     this.owner        = owner;
     this.subj         = subj;
   } // public AccessPrivilege(object, subj, owner, priv, klass, isRevokable)
+
+  /**
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  public boolean equals(Object other) {
+    if (this == other) {
+      return true;
+    }
+    if (!(other instanceof AccessPrivilege)) {
+      return false;
+    }
+    return new EqualsBuilder()
+      .append( this.group, ( (AccessPrivilege) other ).group )
+      .append( this.name, ( (AccessPrivilege) other ).name )
+      .append( this.subj, ( (AccessPrivilege) other ).subj )
+      .isEquals();
+  } // public boolean equals(other)
+
+  /**
+   * @return hashcode
+   * @since   1.2.0
+   */
+  public int hashCode() {
+    return new HashCodeBuilder()
+    .append( this.group )
+    .append( this.name )
+    .append( this.subj )
+      .toHashCode();
+  } // public int hashCode()
 
   /**
    * get the privilege, convert from name
@@ -149,6 +182,26 @@ public class AccessPrivilege implements GrouperPrivilege {
    */
   public String getType() {
     return "access";
+  }
+
+  /**
+   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   */
+  public int compareTo(Object o) {
+    if (o == null || (!(o instanceof AccessPrivilege))) {
+      return -1;
+    }
+    AccessPrivilege that = (AccessPrivilege)o;
+    
+    //dont use source since might be down
+    String thisSubjectId = this.subj == null ? null : this.subj.getId();
+    String thatSubjectId = that.subj == null ? null : that.subj.getId();
+    
+    return new CompareToBuilder()
+      .append(this.group, that.group)
+      .append(thisSubjectId, thatSubjectId)
+      .append(this.name, that.name)
+      .toComparison();
   }
   
   

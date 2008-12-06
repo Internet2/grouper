@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: RestClientSettings.java,v 1.10 2008-12-04 20:59:19 mchyzer Exp $
+ * @author mchyzer $Id: RestClientSettings.java,v 1.11 2008-12-06 20:39:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.util;
 
@@ -124,12 +124,23 @@ public class RestClientSettings {
         aStem.grantPriv(userSubject, NamingPrivilege.CREATE);
         aStem.grantPriv(subject0, NamingPrivilege.STEM);
         aStem.grantPriv(userSubject, NamingPrivilege.STEM);
+
+        Stem aStem0 = Stem.saveStem(grouperSession, "aStem:aStem0", null, "aStem:aStem0", null, null, null, true);
+
+        aStem0.grantPriv(subject0, NamingPrivilege.CREATE);
+        aStem0.grantPriv(userSubject, NamingPrivilege.CREATE);
+        aStem0.grantPriv(subject0, NamingPrivilege.STEM);
+        aStem0.grantPriv(userSubject, NamingPrivilege.STEM);
         
         Group aGroup = Group.saveGroup(grouperSession, "aStem:aGroup", null, "aStem:aGroup", null, null, null, true);
         
         //grant a priv
         aGroup.grantPriv(subject0, AccessPrivilege.ADMIN);
         aGroup.grantPriv(userSubject, AccessPrivilege.ADMIN);
+        aGroup.grantPriv(subject0, AccessPrivilege.READ);
+        aGroup.grantPriv(userSubject, AccessPrivilege.READ);
+        aGroup.grantPriv(subject0, AccessPrivilege.VIEW);
+        aGroup.grantPriv(userSubject, AccessPrivilege.VIEW);
         
         //add some types and attributes
         GroupType groupType = GroupType.createType(grouperSession, "aType", false);

@@ -21,6 +21,25 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 public class WsSubject {
 
+  /** if lookedup by identifier, this is that identifier */
+  private String identifierLookup;
+
+  /**
+   * identifier used to lookup subject
+   * @return the identifier
+   */
+  public String getIdentifierLookup() {
+    return this.identifierLookup;
+  }
+
+  /**
+   * return the identifier looked up
+   * @param identifierLookup1
+   */
+  public void setIdentifierLookup(String identifierLookup1) {
+    this.identifierLookup = identifierLookup1;
+  }
+
   /**
    * make sure this is an explicit toString
    */
@@ -128,9 +147,13 @@ public class WsSubject {
    * 
    * @param subject (can be null)
    * @param subjectAttributeNames (should be calculated based on if detail or not)
+   * @param wsSubjectLookup can be null, else the lookup which got the subject
    */
-  public WsSubject(Subject subject, String[] subjectAttributeNames) {
+  public WsSubject(Subject subject, String[] subjectAttributeNames, WsSubjectLookup wsSubjectLookup) {
     this.assignSubjectData(subject, subjectAttributeNames);
+    if (wsSubjectLookup != null && StringUtils.isNotBlank(wsSubjectLookup.getSubjectIdentifier())) {
+      this.identifierLookup = wsSubjectLookup.getSubjectIdentifier();
+    }
 
   }
 

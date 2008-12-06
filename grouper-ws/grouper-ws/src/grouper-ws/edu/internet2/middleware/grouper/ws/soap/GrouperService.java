@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
@@ -3277,7 +3278,29 @@ public class GrouperService {
       PrivilegeType privilegeTypeEnum = PrivilegeType.valueOfIgnoreCase(privilegeType);
       
       Privilege privilege = privilegeTypeEnum == null ? null : privilegeTypeEnum.retrievePrivilege(privilegeName);
-  
+
+      //its ok to just pass in the name of the privilege, and not type
+      if (privilegeTypeEnum == null && !GrouperUtil.isBlank(privilegeName)) {
+        //better be unique
+        for (PrivilegeType privilegeTypeEnumLocal : PrivilegeType.values()) {
+          Privilege privilegeLocal = null;
+          //dont worry if invalid
+          try {
+            privilegeLocal = privilegeTypeEnumLocal.retrievePrivilege(privilegeName);
+          } catch (Exception e) {
+            //empty
+          }
+          if (privilegeLocal != null) {
+            if (privilegeTypeEnum != null) {
+              throw new RuntimeException("Problem, two privilege types have the same named privilege: " 
+                  + privilegeTypeEnumLocal + ", " + privilegeTypeEnum + ": " + privilege);
+            }
+            privilegeTypeEnum = privilegeTypeEnumLocal;
+            privilege = privilegeLocal;
+          }
+        }
+      }
+      
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
   
