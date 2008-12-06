@@ -158,6 +158,50 @@
                             
 
                         /**
+                        * field for IdentifierLookup
+                        */
+
+                        
+                                    protected java.lang.String localIdentifierLookup ;
+                                
+                           /*  This tracker boolean wil be used to detect whether the user called the set method
+                          *   for this attribute. It will be used to determine whether to include this field
+                           *   in the serialized XML
+                           */
+                           protected boolean localIdentifierLookupTracker = false ;
+                           
+
+                           /**
+                           * Auto generated getter method
+                           * @return java.lang.String
+                           */
+                           public  java.lang.String getIdentifierLookup(){
+                               return localIdentifierLookup;
+                           }
+
+                           
+                        
+                            /**
+                               * Auto generated setter method
+                               * @param param IdentifierLookup
+                               */
+                               public void setIdentifierLookup(java.lang.String param){
+                            
+                                       if (param != null){
+                                          //update the setting tracker
+                                          localIdentifierLookupTracker = true;
+                                       } else {
+                                          localIdentifierLookupTracker = true;
+                                              
+                                       }
+                                   
+                                            this.localIdentifierLookup=param;
+                                    
+
+                               }
+                            
+
+                        /**
                         * field for Name
                         */
 
@@ -549,6 +593,40 @@
                                           }
                                     
                                    xmlWriter.writeEndElement();
+                             } if (localIdentifierLookupTracker){
+                                    namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
+                                    if (! namespace.equals("")) {
+                                        prefix = xmlWriter.getPrefix(namespace);
+
+                                        if (prefix == null) {
+                                            prefix = generatePrefix(namespace);
+
+                                            xmlWriter.writeStartElement(prefix,"identifierLookup", namespace);
+                                            xmlWriter.writeNamespace(prefix, namespace);
+                                            xmlWriter.setPrefix(prefix, namespace);
+
+                                        } else {
+                                            xmlWriter.writeStartElement(namespace,"identifierLookup");
+                                        }
+
+                                    } else {
+                                        xmlWriter.writeStartElement("identifierLookup");
+                                    }
+                                
+
+                                          if (localIdentifierLookup==null){
+                                              // write the nil attribute
+                                              
+                                                     writeAttribute("xsi","http://www.w3.org/2001/XMLSchema-instance","nil","1",xmlWriter);
+                                                  
+                                          }else{
+
+                                        
+                                                   xmlWriter.writeCharacters(localIdentifierLookup);
+                                            
+                                          }
+                                    
+                                   xmlWriter.writeEndElement();
                              } if (localNameTracker){
                                     namespace = "http://soap.ws.grouper.middleware.internet2.edu/xsd";
                                     if (! namespace.equals("")) {
@@ -880,6 +958,12 @@
                                  
                                          elementList.add(localId==null?null:
                                          org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localId));
+                                    } if (localIdentifierLookupTracker){
+                                      elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
+                                                                      "identifierLookup"));
+                                 
+                                         elementList.add(localIdentifierLookup==null?null:
+                                         org.apache.axis2.databinding.utils.ConverterUtil.convertToString(localIdentifierLookup));
                                     } if (localNameTracker){
                                       elementList.add(new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd",
                                                                       "name"));
@@ -1052,6 +1136,33 @@
                                     java.lang.String content = reader.getElementText();
                                     
                                               object.setId(
+                                                    org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
+                                            
+                                       } else {
+                                           
+                                           
+                                           reader.getElementText(); // throw away text nodes if any.
+                                       }
+                                      
+                                        reader.next();
+                                    
+                              }  // End of if for expected property start element
+                                
+                                    else {
+                                        
+                                    }
+                                
+                                    
+                                    while (!reader.isStartElement() && !reader.isEndElement()) reader.next();
+                                
+                                    if (reader.isStartElement() && new javax.xml.namespace.QName("http://soap.ws.grouper.middleware.internet2.edu/xsd","identifierLookup").equals(reader.getName())){
+                                
+                                       nillableValue = reader.getAttributeValue("http://www.w3.org/2001/XMLSchema-instance","nil");
+                                       if (!"true".equals(nillableValue) && !"1".equals(nillableValue)){
+                                    
+                                    java.lang.String content = reader.getElementText();
+                                    
+                                              object.setIdentifierLookup(
                                                     org.apache.axis2.databinding.utils.ConverterUtil.convertToString(content));
                                             
                                        } else {

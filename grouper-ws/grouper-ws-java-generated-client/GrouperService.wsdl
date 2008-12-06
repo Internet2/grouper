@@ -96,6 +96,7 @@
                 <xs:sequence>
                     <xs:element maxOccurs="unbounded" minOccurs="0" name="attributeValues" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="id" nillable="true" type="xs:string"/>
+                    <xs:element minOccurs="0" name="identifierLookup" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="name" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="resultCode" nillable="true" type="xs:string"/>
                     <xs:element minOccurs="0" name="sourceId" nillable="true" type="xs:string"/>
