@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestFindGroupsRequest.java,v 1.1 2008-12-04 07:51:39 mchyzer Exp $
+ * $Id: WsRestFindGroupsRequest.java,v 1.2 2008-12-07 05:57:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws.beans;
 
@@ -12,7 +12,6 @@ public class WsRestFindGroupsRequest implements WsRequestBean {
   
   /** query filter for request */
   private WsQueryFilter wsQueryFilter;
-
   
   /** field */
   private String clientVersion;

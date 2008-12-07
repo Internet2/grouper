@@ -1,10 +1,12 @@
 /*
- * @author mchyzer $Id: WsQueryFilter.java,v 1.3 2008-07-21 05:16:04 mchyzer Exp $
+ * @author mchyzer $Id: WsQueryFilter.java,v 1.4 2008-12-07 05:57:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+
+import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -24,6 +26,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 public class WsQueryFilter {
 
   /** grouper session */
+  @XStreamOmitField
   private GrouperSession grouperSession = null;
 
   /**
@@ -524,6 +527,13 @@ public class WsQueryFilter {
    */
   public void assignGrouperSession(GrouperSession grouperSession1) {
     this.grouperSession = grouperSession1;
+    
+    if (this.queryFilter0 != null) {
+      this.queryFilter0.assignGrouperSession(grouperSession1);
+    }
+    if (this.queryFilter1 != null) {
+      this.queryFilter1.assignGrouperSession(grouperSession1);
+    }
   }
 
   /**
