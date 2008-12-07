@@ -10,7 +10,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public enum PrivilegeType {
   
   /** access privileges are for groups */
-  ACCESS {
+  ACCESS("access") {
     /**
      * retrieve a privilege with this name
      * @param name
@@ -44,7 +44,7 @@ public enum PrivilegeType {
   },
 
   /** naming privileges are for stems */
-  NAMING {
+  NAMING("naming") {
     /**
      * retrieve a privilege with this name
      * @param name
@@ -65,6 +65,27 @@ public enum PrivilegeType {
     }
   };
 
+  /**
+   * privilege name
+   */
+  private String privilegeName = null;
+  
+  /**
+   * construct
+   * @param thePrivilegeName
+   */
+  private PrivilegeType(String thePrivilegeName) {
+    this.privilegeName = thePrivilegeName;
+  }
+  
+  /**
+   * privilege name
+   * @return privilege name
+   */
+  public String getPrivilegeName() {
+    return this.privilegeName;
+  }
+  
   /**
    * retrieve a privilege with this name.  should return null if blank
    * @param name
