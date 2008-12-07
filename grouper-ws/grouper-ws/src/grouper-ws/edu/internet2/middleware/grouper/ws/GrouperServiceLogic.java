@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.20 2008-12-06 22:40:12 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.21 2008-12-07 17:32:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -782,7 +782,8 @@ public class GrouperServiceLogic {
       QueryFilter queryFilter = wsStemQueryFilter.retrieveQueryFilter();
       GrouperQuery grouperQuery = GrouperQuery.createQuery(session, queryFilter);
       Set<Stem> stems = grouperQuery.getStems();
-  
+      //lets alphabetize for easy testing
+      stems = new TreeSet<Stem>(stems);
       wsFindStemsResults.assignStemResult(stems);
   
       wsFindStemsResults.assignResultCode(WsFindStemsResultsCode.SUCCESS);

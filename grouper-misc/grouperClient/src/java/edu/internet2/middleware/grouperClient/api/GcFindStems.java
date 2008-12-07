@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcFindGroups.java,v 1.2 2008-12-07 17:32:21 mchyzer Exp $
+ * $Id: GcFindStems.java,v 1.1 2008-12-07 17:32:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -9,28 +9,28 @@ import java.util.List;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
-import edu.internet2.middleware.grouperClient.ws.beans.WsFindGroupsResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsFindStemsResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
-import edu.internet2.middleware.grouperClient.ws.beans.WsQueryFilter;
-import edu.internet2.middleware.grouperClient.ws.beans.WsRestFindGroupsRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestFindStemsRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsStemQueryFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
 
 
 /**
- * class to run find groups
+ * class to run find stems
  */
-public class GcFindGroups {
+public class GcFindStems {
 
   /** query filters */
-  private WsQueryFilter queryFilter;
+  private WsStemQueryFilter wsStemQueryFilter;
 
   /**
    * assign a query filter
-   * @param theQueryFilter
+   * @param theStemQueryFilter
    * @return this for chaining
    */
-  public GcFindGroups assignQueryFilter(WsQueryFilter theQueryFilter) {
-    this.queryFilter = theQueryFilter;
+  public GcFindStems assignStemQueryFilter(WsStemQueryFilter theStemQueryFilter) {
+    this.wsStemQueryFilter = theStemQueryFilter;
     return this;
   }
   
@@ -42,7 +42,7 @@ public class GcFindGroups {
    * @param theClientVersion
    * @return this for chaining
    */
-  public GcFindGroups assignClientVersion(String theClientVersion) {
+  public GcFindStems assignClientVersion(String theClientVersion) {
     this.clientVersion = theClientVersion;
     return this;
   }
@@ -57,7 +57,7 @@ public class GcFindGroups {
    * @param paramValue
    * @return this for chaining
    */
-  public GcFindGroups addParam(String paramName, String paramValue) {
+  public GcFindStems addParam(String paramName, String paramValue) {
     this.params.add(new WsParam(paramName, paramValue));
     return this;
   }
@@ -67,7 +67,7 @@ public class GcFindGroups {
    * @param wsParam
    * @return this for chaining
    */
-  public GcFindGroups addParam(WsParam wsParam) {
+  public GcFindStems addParam(WsParam wsParam) {
     this.params.add(wsParam);
     return this;
   }
@@ -80,7 +80,7 @@ public class GcFindGroups {
    * @param theActAsSubject
    * @return this for chaining
    */
-  public GcFindGroups assignActAsSubject(WsSubjectLookup theActAsSubject) {
+  public GcFindStems assignActAsSubject(WsSubjectLookup theActAsSubject) {
     this.actAsSubject = theActAsSubject;
     return this;
   }
@@ -89,22 +89,9 @@ public class GcFindGroups {
    * validate this call
    */
   private void validate() {
-    if (this.queryFilter == null) {
-      throw new RuntimeException("Need to pass in a query filter: " + this);
+    if (this.wsStemQueryFilter == null) {
+      throw new RuntimeException("Need to pass in a stem query filter: " + this);
     }
-  }
-  
-  /** if the group detail should be sent back */
-  private Boolean includeGroupDetail;
-  
-  /**
-   * assign if the group detail should be included
-   * @param theIncludeGroupDetail
-   * @return this for chaining
-   */
-  public GcFindGroups assignIncludeGroupDetail(Boolean theIncludeGroupDetail) {
-    this.includeGroupDetail = theIncludeGroupDetail;
-    return this;
   }
   
   /**
@@ -113,40 +100,36 @@ public class GcFindGroups {
    * 
    * @return the results
    */
-  public WsFindGroupsResults execute() {
+  public WsFindStemsResults execute() {
     this.validate();
-    WsFindGroupsResults wsFindGroupsResults = null;
+    WsFindStemsResults wsFindStemsResults = null;
     try {
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestFindGroupsRequest findGroups = new WsRestFindGroupsRequest();
+      WsRestFindStemsRequest findStems = new WsRestFindStemsRequest();
 
-      findGroups.setActAsSubjectLookup(this.actAsSubject);
+      findStems.setActAsSubjectLookup(this.actAsSubject);
 
-      if (this.includeGroupDetail != null) {
-        findGroups.setIncludeGroupDetail(this.includeGroupDetail ? "T" : "F");
-      }
-      
-      findGroups.setWsQueryFilter(this.queryFilter);
+      findStems.setWsStemQueryFilter(this.wsStemQueryFilter);
       
       //add params if there are any
       if (this.params.size() > 0) {
-        findGroups.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));
+        findStems.setParams(GrouperClientUtils.toArray(this.params, WsParam.class));
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       
       //kick off the web service
-      wsFindGroupsResults = (WsFindGroupsResults)
-        grouperClientWs.executeService("groups", findGroups, "findGroups", this.clientVersion);
+      wsFindStemsResults = (WsFindStemsResults)
+        grouperClientWs.executeService("stems", findStems, "findStems", this.clientVersion);
       
-      String resultMessage = wsFindGroupsResults.getResultMetadata().getResultMessage();
+      String resultMessage = wsFindStemsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(resultMessage);
       
     } catch (Exception e) {
       GrouperClientUtils.convertToRuntimeException(e);
     }
-    return wsFindGroupsResults;
+    return wsFindStemsResults;
     
   }
   

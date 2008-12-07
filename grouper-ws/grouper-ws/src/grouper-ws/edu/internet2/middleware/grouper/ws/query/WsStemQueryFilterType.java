@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsStemQueryFilterType.java,v 1.2 2008-07-21 05:16:05 mchyzer Exp $
+ * @author mchyzer $Id: WsStemQueryFilterType.java,v 1.3 2008-12-07 17:32:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.query;
 
@@ -18,6 +18,7 @@ import edu.internet2.middleware.grouper.filter.StemNameExactFilter;
 import edu.internet2.middleware.grouper.filter.StemUuidFilter;
 import edu.internet2.middleware.grouper.filter.StemsInStemFilter;
 import edu.internet2.middleware.grouper.filter.UnionFilter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsStemQueryFilter;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -187,11 +188,15 @@ public enum WsStemQueryFilterType {
     @Override
     public QueryFilter retrieveQueryFilter(WsStemQueryFilter wsStemQueryFilter) {
 
-      Scope scope = wsStemQueryFilter.retrieveStemScope(StemScope.ONE_LEVEL)
+      StemScope stemScope = StemScope.valueOfIgnoreCase(wsStemQueryFilter.getParentStemNameScope());
+      
+      stemScope = GrouperUtil.defaultIfNull(stemScope, StemScope.ONE_LEVEL);
+      
+      Scope scope = wsStemQueryFilter.retrieveStemScope(stemScope)
           .convertToScope();
 
       //fail if the stem is not found, that is probably bad
-      return new StemsInStemFilter(wsStemQueryFilter.getStemName(), scope, true);
+      return new StemsInStemFilter(wsStemQueryFilter.getParentStemName(), scope, true);
     }
 
   },

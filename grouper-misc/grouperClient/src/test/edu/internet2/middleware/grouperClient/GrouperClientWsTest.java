@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.14 2008-12-07 05:57:47 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.15 2008-12-07 17:32:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -37,7 +37,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testFindGroups"));
+    TestRunner.run(new GrouperClientWsTest("testFindStems"));
   }
   
   /**
@@ -3266,7 +3266,7 @@ matcher = pattern.matcher(outputLines[0]);
     group.store();
     
     PrintStream systemOut = System.out;
-
+  
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     System.setOut(new PrintStream(baos));
     
@@ -3292,7 +3292,7 @@ matcher = pattern.matcher(outputLines[0]);
       assertEquals(output, "aStem:aGroup", matcher.group(2));
       assertEquals(output, "aStem:aGroup", matcher.group(3));
       
-
+  
       //#####################################################
       //run with invalid args
       baos = new ByteArrayOutputStream();
@@ -3317,7 +3317,7 @@ matcher = pattern.matcher(outputLines[0]);
       //test a command line template
       GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:aGroup --outputTemplate=${index}", " "));
-
+  
       System.out.flush();
       
       output = new String(baos.toByteArray());
@@ -3348,7 +3348,7 @@ matcher = pattern.matcher(outputLines[0]);
       assertEquals(output, "0", matcher.group(1));
       assertEquals(output, "aStem:aGroup", matcher.group(2));
       assertEquals(output, "aStem:aGroup", matcher.group(3));
-
+  
       assertTrue(
           GrouperClientWs.mostRecentRequest.contains("includeGroupDetail"));
       
@@ -3374,7 +3374,7 @@ matcher = pattern.matcher(outputLines[0]);
       assertEquals(output, "0", matcher.group(1));
       assertEquals(output, "aStem:aGroup", matcher.group(2));
       assertEquals(output, "aStem:aGroup", matcher.group(3));
-
+  
       assertTrue(
           GrouperClientWs.mostRecentRequest.contains("whatever") 
           && GrouperClientWs.mostRecentRequest.contains("someValue"));
@@ -3422,7 +3422,7 @@ matcher = pattern.matcher(outputLines[0]);
       assertEquals(output, "0", matcher.group(1));
       assertEquals(output, "aStem:aGroup", matcher.group(2));
       assertEquals(output, "aStem:aGroup", matcher.group(3));
-
+  
       assertTrue(
           GrouperClientWs.mostRecentRequest.contains("stemName") 
           && GrouperClientWs.mostRecentRequest.contains(">aStem<"));
@@ -3449,7 +3449,7 @@ matcher = pattern.matcher(outputLines[0]);
       assertEquals(output, "0", matcher.group(1));
       assertEquals(output, "aStem:aGroup", matcher.group(2));
       assertEquals(output, "aStem:aGroup", matcher.group(3));
-
+  
       assertTrue(
           GrouperClientWs.mostRecentRequest.contains("FIND_BY_TYPE") 
           && GrouperClientWs.mostRecentRequest.contains("groupTypeName") 
@@ -3473,16 +3473,16 @@ matcher = pattern.matcher(outputLines[0]);
       
       assertEquals(output, 1, outputLines.length);
       assertTrue(outputLines[0], matcher.matches());
-
+  
       assertEquals(output, "0", matcher.group(1));
       assertEquals(output, "aStem:aGroup", matcher.group(2));
       assertEquals(output, "aStem:aGroup", matcher.group(3));
-
+  
       assertTrue(
           GrouperClientWs.mostRecentRequest.contains("FIND_BY_EXACT_ATTRIBUTE") 
           && GrouperClientWs.mostRecentRequest.contains("groupAttributeName") 
           && GrouperClientWs.mostRecentRequest.contains("attr_1"));
-
+  
       //#####################################################
       //run again, with sub filters
       baos = new ByteArrayOutputStream();
@@ -3501,14 +3501,223 @@ matcher = pattern.matcher(outputLines[0]);
       
       assertEquals(output, 1, outputLines.length);
       assertTrue(outputLines[0], matcher.matches());
-
+  
       assertEquals(output, "0", matcher.group(1));
       assertEquals(output, "aStem:aGroup", matcher.group(2));
       assertEquals(output, "aStem:aGroup", matcher.group(3));
-
+  
       assertTrue(
           GrouperClientWs.mostRecentRequest.contains("OR") 
           && GrouperClientWs.mostRecentRequest.contains("FIND_BY_GROUP_NAME_APPROXIMATE") );
+  
+    } finally {
+      System.setOut(systemOut);
+    }
+  
+  }
+
+  /**
+   * @throws Exception 
+   */
+  public void testFindStems() throws Exception {
+    
+    PrintStream systemOut = System.out;
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+    
+    try {
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=findStemsWs --stemQueryFilterType=FIND_BY_STEM_NAME --stemName=aStem", " "));
+      System.out.flush();
+      String output = new String(baos.toByteArray());
+      
+      System.setOut(systemOut);
+      
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+      Pattern pattern = Pattern.compile(
+          "^Index (\\d+): name: (.+), displayName: (.+)$");
+      Matcher matcher = pattern.matcher(outputLines[0]);
+      
+      assertEquals(output, 1, outputLines.length);
+      assertTrue(outputLines[0], matcher.matches());
+      
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "aStem", matcher.group(2));
+      assertEquals(output, "aStem", matcher.group(3));
+      
+
+      //#####################################################
+      //run with invalid args
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      //test a command line template
+      try {
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=findStemsWs --stemQueryFilterType=FIND_BY_STEM_NAME --groupName=aStem:aGroup --ousdfsdfate=${index}", " "));
+      } catch (Exception e) {
+        assertTrue(e.getMessage(), e.getMessage().contains("ousdfsdfate"));
+      }
+      System.out.flush();
+      
+      System.setOut(systemOut);
+      
+      //#####################################################
+      //run with custom template
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      //test a command line template
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=findStemsWs --stemQueryFilterType=FIND_BY_STEM_NAME --stemName=aStem --outputTemplate=${index}", " "));
+
+      System.out.flush();
+      
+      output = new String(baos.toByteArray());
+      
+      System.setOut(systemOut);
+      
+      assertEquals("0", output);
+      
+      //#####################################################
+      //run again, with parentStemScope
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+    
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=findStemsWs  --stemQueryFilterType=FIND_BY_PARENT_STEM_NAME --parentStemName=aStem --parentStemNameScope=ALL_IN_SUBTREE", " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+      
+      System.setOut(systemOut);
+      
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+      matcher = pattern.matcher(outputLines[0]);
+      
+      assertEquals(output, 1, outputLines.length);
+      assertTrue(outputLines[0], matcher.matches());
+      
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "aStem:aStem0", matcher.group(2));
+      assertEquals(output, "aStem:aStem0", matcher.group(3));
+
+      assertTrue( GrouperClientWs.mostRecentRequest, 
+          GrouperClientWs.mostRecentRequest.contains("parentStemName")
+          && GrouperClientWs.mostRecentRequest.contains("parentStemNameScope"));
+      
+      //#####################################################
+      //run again, with params
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+    
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=findStemsWs --stemQueryFilterType=FIND_BY_STEM_NAME --stemName=aStem --paramName0=whatever --paramValue0=someValue", " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+      
+      System.setOut(systemOut);
+      
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+      matcher = pattern.matcher(outputLines[0]);
+      
+      assertEquals(output, 1, outputLines.length);
+      assertTrue(outputLines[0], matcher.matches());
+      
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "aStem", matcher.group(2));
+      assertEquals(output, "aStem", matcher.group(3));
+
+      assertTrue(
+          GrouperClientWs.mostRecentRequest.contains("whatever") 
+          && GrouperClientWs.mostRecentRequest.contains("someValue"));
+      
+      
+      //#####################################################
+      //run again, with uuid
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+    
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=findStemsWs --stemQueryFilterType=FIND_BY_STEM_UUID --stemUuid=abc", " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+      
+      System.setOut(systemOut);
+      
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+      assertTrue(output, GrouperClientUtils.isBlank(output));
+      
+      assertTrue(
+          GrouperClientWs.mostRecentRequest.contains("stemUuid") 
+          && GrouperClientWs.mostRecentRequest.contains("abc"));
+      
+      //#####################################################
+      //run again, with stem attribute
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+    
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=findStemsWs --stemQueryFilterType=FIND_BY_APPROXIMATE_ATTRIBUTE --stemAttributeName=name --stemAttributeValue=aStem", " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+      
+      System.setOut(systemOut);
+      
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+      matcher = pattern.matcher(outputLines[0]);
+      
+      assertEquals(output, 2, outputLines.length);
+      assertTrue(outputLines[0], matcher.matches());
+      
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "aStem", matcher.group(2));
+      assertEquals(output, "aStem", matcher.group(3));
+
+      matcher = pattern.matcher(outputLines[1]);
+      assertTrue(outputLines[1], matcher.matches());
+      
+      assertEquals(output, "1", matcher.group(1));
+      assertEquals(output, "aStem:aStem0", matcher.group(2));
+      assertEquals(output, "aStem:aStem0", matcher.group(3));
+
+      assertTrue(
+          GrouperClientWs.mostRecentRequest.contains("FIND_BY_APPROXIMATE_ATTRIBUTE") 
+          && GrouperClientWs.mostRecentRequest.contains("stemAttributeName") 
+          && GrouperClientWs.mostRecentRequest.contains("aStem"));
+
+      //#####################################################
+      //run again, with sub filters
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+    
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=findStemsWs --stemQueryFilterType=OR --stemQueryFilterType0=OR --stemQueryFilterType00=FIND_BY_STEM_NAME --stemName00=aStem --stemQueryFilterType01=FIND_BY_STEM_NAME --stemName01=aStem --stemQueryFilterType1=FIND_BY_STEM_NAME --stemName1=aStem", " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+      
+      System.setOut(systemOut);
+      
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      
+      matcher = pattern.matcher(outputLines[0]);
+      
+      assertEquals(output, 1, outputLines.length);
+      assertTrue(outputLines[0], matcher.matches());
+      
+      assertEquals(output, "0", matcher.group(1));
+      assertEquals(output, "aStem", matcher.group(2));
+      assertEquals(output, "aStem", matcher.group(3));
+
+      assertTrue(
+          GrouperClientWs.mostRecentRequest.contains("OR") 
+          && GrouperClientWs.mostRecentRequest.contains("FIND_BY_STEM_NAME") );
 
     } finally {
       System.setOut(systemOut);

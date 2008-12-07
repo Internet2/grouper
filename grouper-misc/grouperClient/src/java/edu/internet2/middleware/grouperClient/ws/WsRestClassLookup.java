@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsRestClassLookup.java,v 1.6 2008-12-04 07:51:39 mchyzer Exp $
+ * $Id: WsRestClassLookup.java,v 1.7 2008-12-07 17:32:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws;
 
@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestDeleteMemberRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestFindGroupsRequest;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestFindStemsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetMembersRequest;
@@ -119,6 +120,8 @@ public class WsRestClassLookup {
 
     addAliasClass(WsRestDeleteMemberRequest.class);
     addAliasClass(WsRestFindGroupsRequest.class);
+    addAliasClass(WsRestFindStemsRequest.class);
+    
     addAliasClass(WsRestGetGrouperPrivilegesLiteRequest.class);
 
     addAliasClass(WsRestGetGroupsRequest.class);
