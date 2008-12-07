@@ -97,7 +97,7 @@ assignGrouperPrivilegesLite web service usage
 findGroups web service usage
   java -jar grouperClient.jar --operation=findGroupsWs --queryFilterType=AND|MINUS|OR|FIND_BY_APPROXIMATE_ATTRIBUTE|FIND_BY_EXACT_ATTRIBUTE|FIND_BY_GROUP_NAME_APPROXIMATE|FIND_BY_GROUP_NAME_EXACT|FIND_BY_GROUP_UUID|FIND_BY_STEM_NAME|FIND_BY_TYPE|etc [--groupName=a:b:c] [--groupName=a:b:c] [--groupUuid=12as-1234gjth] [--stemName=aStem:someStem] [--stemUuid=sfds-sds234] [--groupTypeName=someName] [--groupAttributeName=someName] [--groupAttributeValue=someValue] [--includeGroupDetail=true|false] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
   e.g.: java -jar grouperClient.jar --operation=findGroupsWs --queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE --groupName=aStem:aGroup
-  output: Success: T: code: SUCCESS: group: aStem:aGroup: subject: test.subject.0: access: admin
+  output: Index 0: name: aStem:aGroup, displayName: A stem:A Group
 
   Note: to specify group math, use queryFilterType of AND|OR|MINUS, and then specify attribute for the left group with a 0 after attribute name, and 1 for the right group. 
   e.g.: java -jar grouperClient.jar --operation=findGroupsWs --queryFilterType=OR --queryFilterType0=OR --queryFilterType00=FIND_BY_GROUP_NAME_APPROXIMATE --groupName00=aStem:aGroup --queryFilterType01=FIND_BY_GROUP_NAME_APPROXIMATE --groupName01=aStem:aGroup --queryFilterType1=FIND_BY_GROUP_NAME_APPROXIMATE --groupName1=aStem:aGroup
