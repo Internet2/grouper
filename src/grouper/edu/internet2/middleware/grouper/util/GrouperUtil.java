@@ -1086,6 +1086,7 @@ public class GrouperUtil {
             if (maxChars != -1 && result.length() > maxChars) {
               return;
             }
+            i++;
           }
         }
       } else {
