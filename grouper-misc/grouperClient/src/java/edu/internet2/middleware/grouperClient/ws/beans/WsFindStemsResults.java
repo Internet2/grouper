@@ -6,7 +6,7 @@ package edu.internet2.middleware.grouperClient.ws.beans;
  * @author mchyzer
  * 
  */
-public class WsFindStemsResults implements WsResponseBean {
+public class WsFindStemsResults implements WsResponseBean, ResultMetadataHolder {
 
   /**
    * has 0 to many stems that match the query by example

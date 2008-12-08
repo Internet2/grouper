@@ -10,7 +10,7 @@ package edu.internet2.middleware.grouperClient.ws.beans;
  * </pre>
  * @author mchyzer
  */
-public class WsStemDeleteResults implements WsResponseBean {
+public class WsStemDeleteResults implements WsResponseBean, ResultMetadataHolder {
 
   /**
    * results for each deletion sent in

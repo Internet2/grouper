@@ -10,7 +10,7 @@ package edu.internet2.middleware.grouperClient.ws.beans;
  * 
  * @author mchyzer
  */
-public class WsDeleteMemberResult {
+public class WsDeleteMemberResult implements ResultMetadataHolder {
 
   /** subject that was added */
   private WsSubject wsSubject;

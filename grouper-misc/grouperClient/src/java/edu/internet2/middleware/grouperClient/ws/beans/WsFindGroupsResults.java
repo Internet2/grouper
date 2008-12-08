@@ -6,7 +6,7 @@ package edu.internet2.middleware.grouperClient.ws.beans;
  * @author mchyzer
  * 
  */
-public class WsFindGroupsResults implements WsResponseBean {
+public class WsFindGroupsResults implements WsResponseBean, ResultMetadataHolder {
 
   /**
    * has 0 to many groups that match the query

@@ -14,7 +14,7 @@ package edu.internet2.middleware.grouperClient.ws.beans;
  * </pre>
  * @author mchyzer
  */
-public class WsGetMembersResult {
+public class WsGetMembersResult implements ResultMetadataHolder{
 
   /** group that we are checking */
   private WsGroup wsGroup;

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWs.java,v 1.6 2008-12-08 02:55:52 mchyzer Exp $
+ * $Id: GrouperClientWs.java,v 1.7 2008-12-08 02:56:49 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws;
 
@@ -10,8 +10,6 @@ import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -210,7 +208,7 @@ public class GrouperClientWs {
       for (int i=0;i<GrouperClientUtils.length(resultMetadataHolders);i++) {
         try {
           WsResultMeta resultMetadata = resultMetadataHolders[i].getResultMetadata();
-          if (!StringUtils.equals(resultMetadata.getSuccess(), "T")) {
+          if (!GrouperClientUtils.equals(resultMetadata.getSuccess(), "T")) {
             error.append("\nError ").append(errorIndex).append(", result index: ").append(i).append(", code: ").append(resultMetadata.getResultCode())
               .append(", message: ").append(resultMetadata.getResultMessage());
             errorIndex++;

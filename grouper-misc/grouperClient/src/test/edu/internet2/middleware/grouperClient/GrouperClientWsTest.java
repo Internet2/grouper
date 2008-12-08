@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.15 2008-12-07 17:32:21 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.16 2008-12-08 02:55:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -23,7 +23,9 @@ import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClient.ws.GcWebServiceError;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
+import edu.internet2.middleware.grouperClient.ws.beans.WsMemberChangeSubjectResults;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -37,7 +39,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testFindStems"));
+    TestRunner.run(new GrouperClientWsTest("testMemberChangeSubject"));
   }
   
   /**
@@ -58,9 +60,20 @@ public class GrouperClientWsTest extends GrouperTest {
     GrouperClientUtils.grouperClientOverrideMap().put("encrypt.key", "sdfklj24lkj34lk34");
     GrouperClientUtils.grouperClientOverrideMap().put("encrypt.disableExternalFileLookup", "false");
 
-    GrouperClientUtils.grouperClientOverrideMap().put("webService.addMember.output", "Index ${index}: success: ${wsAddMemberResult.resultMetadata.success}: code: ${wsAddMemberResult.resultMetadata.resultCode}: ${wsAddMemberResult.wsSubject.id}$newline$");
-    GrouperClientUtils.grouperClientOverrideMap().put("webService.getMembers.output", "GroupIndex ${groupIndex}: success: ${wsGetMembersResult.resultMetadata.success}: code: ${wsGetMembersResult.resultMetadata.resultCode}: group: ${wsGetMembersResult.wsGroup.name}: subjectIndex: ${subjectIndex}: ${wsSubject.id}$newline$");
-    GrouperClientUtils.grouperClientOverrideMap().put("webService.deleteMember.output", "Index ${index}: success: ${wsDeleteMemberResult.resultMetadata.success}: code: ${wsDeleteMemberResult.resultMetadata.resultCode}: ${wsDeleteMemberResult.wsSubject.id}$newline$");
+    GrouperClientUtils.grouperClientOverrideMap().put("webService.addMember.output", "Index ${index}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsSubject.id}$newline$");
+    GrouperClientUtils.grouperClientOverrideMap().put("webService.getMembers.output", "GroupIndex ${groupIndex}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: group: ${wsGroup.name}: subjectIndex: ${subjectIndex}: ${wsSubject.id}$newline$");
+    GrouperClientUtils.grouperClientOverrideMap().put("webService.deleteMember.output", "Index ${index}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsSubject.id}$newline$");
+    GrouperClientUtils.grouperClientOverrideMap().put("webService.hasMember.output", "Index ${index}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsSubject.id}: ${hasMember}$newline$");
+    GrouperClientUtils.grouperClientOverrideMap().put("webService.getGroups.output", "SubjectIndex ${subjectIndex}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: subject: ${wsSubject.id}: groupIndex: ${groupIndex}: ${wsGroup.name}$newline$");
+    GrouperClientUtils.grouperClientOverrideMap().put("webService.groupSave.output", "Success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsGroup.name}$newline$");
+    GrouperClientUtils.grouperClientOverrideMap().put("webService.stemSave.output", "Success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsStem.name}$newline$");
+    GrouperClientUtils.grouperClientOverrideMap().put("webService.groupDelete.output", "Index ${index}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsGroup.name}$newline$");
+    GrouperClientUtils.grouperClientOverrideMap().put("webService.stemDelete.output", "Index ${index}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${wsStem.name}$newline$");
+    GrouperClientUtils.grouperClientOverrideMap().put("webService.getGrouperPrivilegesLite.output", "Index ${index}: success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${objectType}: ${objectName}: subject: ${wsSubject.id}: ${wsGrouperPrivilegeResult.privilegeType}: ${wsGrouperPrivilegeResult.privilegeName}$newline$");
+    GrouperClientUtils.grouperClientOverrideMap().put("webService.assignGrouperPrivilegesLite.output", "Success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: ${objectType}: ${objectName}: subject: ${wsSubject.id}: ${wsAssignGrouperPrivilegesLiteResult.privilegeType}: ${wsAssignGrouperPrivilegesLiteResult.privilegeName}$newline$");
+    GrouperClientUtils.grouperClientOverrideMap().put("webService.findGroups.output", "Index ${index}: name: ${wsGroup.name}, displayName: ${wsGroup.displayName}$newline$");
+    GrouperClientUtils.grouperClientOverrideMap().put("webService.findStems.output", "Index ${index}: name: ${wsStem.name}, displayName: ${wsStem.displayName}$newline$");
+    GrouperClientUtils.grouperClientOverrideMap().put("webService.memberChangeSubject.output", "Success: ${resultMetadata.success}: code: ${resultMetadata.resultCode}: oldSubject: ${wsSubjectOld.id}, newSubject: ${wsSubjectNew.id}$newline$");
     
     GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.alias.subjectIds", "pennIds");
     GrouperClientUtils.grouperClientOverrideMap().put("grouperClient.alias.subjectIdentifiers", "pennKeys");
@@ -2885,7 +2898,7 @@ matcher = pattern.matcher(outputLines[0]);
       
     }
 
-  /**
+    /**
      * @throws Exception 
      */
     public void testDeleteMember() throws Exception {
@@ -3245,6 +3258,190 @@ matcher = pattern.matcher(outputLines[0]);
             subjectIdsFile.delete();
           }
         }
+      } finally {
+        System.setOut(systemOut);
+      }
+      
+    }
+
+    /**
+     * @throws Exception 
+     */
+    public void testMemberChangeSubject() throws Exception {      
+      
+      PrintStream systemOut = System.out;
+    
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      try {
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=memberChangeSubjectWs --oldSubjectId=test.subject.0 --newSubjectId=test.subject.1 --actAsSubjectId=GrouperSystem", " "));
+        System.out.flush();
+        String output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+        Pattern pattern = Pattern.compile(
+            "^Success: T: code: ([A-Z_]+): oldSubject: (.+), newSubject: (.+)$");
+        Matcher matcher = pattern.matcher(outputLines[0]);
+        
+        assertEquals(1, outputLines.length);
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("SUCCESS", matcher.group(1));
+        assertEquals("test.subject.0", matcher.group(2));
+        assertEquals("test.subject.1", matcher.group(3));
+    
+        //#####################################################
+        //run again, should be already moved
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        //this should fail with member not found
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=memberChangeSubjectWs --oldSubjectId=test.subject.0 --newSubjectId=test.subject.1 --actAsSubjectId=GrouperSystem", " "));
+          fail("Should not get here");
+        } catch (GcWebServiceError gwse) {
+          WsMemberChangeSubjectResults wsMemberChangeSubjectResults = (WsMemberChangeSubjectResults)gwse.getContainerResponseObject();
+          assertEquals("PROBLEM_WITH_CHANGE", wsMemberChangeSubjectResults.getResultMetadata().getResultCode());
+        }
+        
+        //#####################################################
+        //run with invalid args
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        //test a command line template
+        try {
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=memberChangeSubjectWs --oldSubjectId=test.subject.0 --newSubjectId=test.subject.1 --actAsSubjectId=GrouperSystem --ousdfsdfate=${index}", " "));
+        } catch (Exception e) {
+          assertTrue(e.getMessage(), e.getMessage().contains("ousdfsdfate"));
+        }
+        System.out.flush();
+        
+        System.setOut(systemOut);
+        
+        //#####################################################
+        //run with custom template and pennkeys
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+        
+        //test a command line template
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=memberChangeSubjectWs --oldPennKey=id.test.subject.1 --newPennKey=id.test.subject.0 --actAsPennId=GrouperSystem --outputTemplate=${index}", " "));
+    
+        System.out.flush();
+        
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        assertEquals("0", output);
+        
+        //#####################################################
+        //run again, with delete old member
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=memberChangeSubjectWs --oldSubjectIdentifier=id.test.subject.0 --newSubjectIdentifier=id.test.subject.1 --actAsSubjectId=GrouperSystem --deleteOldMember=false", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertEquals(1, outputLines.length);
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("SUCCESS", matcher.group(1));
+        assertEquals("test.subject.0", matcher.group(2));
+        assertEquals("test.subject.1", matcher.group(3));
+    
+        assertTrue(GrouperClientWs.mostRecentRequest, GrouperClientWs.mostRecentRequest.contains("deleteOldMember"));
+        
+        
+        //#####################################################
+        //run again, with includeSubjectDetail
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=memberChangeSubjectWs --oldSubjectId=test.subject.1 --newSubjectId=test.subject.0 --actAsSubjectId=GrouperSystem --includeSubjectDetail=true", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertEquals(1, outputLines.length);
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("SUCCESS", matcher.group(1));
+        assertEquals("test.subject.1", matcher.group(2));
+        assertEquals("test.subject.0", matcher.group(3));
+    
+        assertTrue(GrouperClientWs.mostRecentRequest.contains("includeSubjectDetail"));
+        
+        //#####################################################
+        //run again, with subject attributes
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=memberChangeSubjectWs --oldSubjectId=test.subject.0 --newSubjectId=test.subject.1 --actAsSubjectId=GrouperSystem --subjectAttributeNames=name --outputTemplate=${index}:$space$${wsSubjectOld.getAttributeValue(0)}$newline$", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        assertTrue(outputLines[0], outputLines[0].contains("my name is test.subject.0"));
+        
+        assertTrue(GrouperClientWs.mostRecentRequest.contains(">name<"));
+        assertTrue(GrouperClientWs.mostRecentResponse.contains("my name is test.subject.0"));
+        
+    
+        //#####################################################
+        //run again, with params
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+      
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=memberChangeSubjectWs --oldSubjectId=test.subject.1 --newSubjectId=test.subject.0 --actAsSubjectId=GrouperSystem --paramName0=whatever --paramValue0=someValue", " "));
+        System.out.flush();
+        output = new String(baos.toByteArray());
+        
+        System.setOut(systemOut);
+        
+        outputLines = GrouperClientUtils.splitTrim(output, "\n");
+        
+        matcher = pattern.matcher(outputLines[0]);
+        
+        assertEquals(1, outputLines.length);
+        assertTrue(outputLines[0], matcher.matches());
+        
+        assertEquals("SUCCESS", matcher.group(1));
+        assertEquals("test.subject.1", matcher.group(2));
+        assertEquals("test.subject.0", matcher.group(3));
+  
+        assertTrue(
+            GrouperClientWs.mostRecentRequest.contains("whatever") 
+            && GrouperClientWs.mostRecentRequest.contains("someValue"));
+          
       } finally {
         System.setOut(systemOut);
       }

@@ -10,7 +10,7 @@ package edu.internet2.middleware.grouperClient.ws.beans;
  * 
  * @author mchyzer
  */
-public class WsStemDeleteResult {
+public class WsStemDeleteResult implements ResultMetadataHolder {
 
   /**
    * empty constructor

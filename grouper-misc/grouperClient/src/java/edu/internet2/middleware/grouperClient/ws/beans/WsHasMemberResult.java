@@ -10,7 +10,7 @@ package edu.internet2.middleware.grouperClient.ws.beans;
  * 
  * @author mchyzer
  */
-public class WsHasMemberResult {
+public class WsHasMemberResult implements ResultMetadataHolder {
 
   /** sujbect info for hasMember */
   private WsSubject wsSubject;

@@ -13,7 +13,7 @@ package edu.internet2.middleware.grouperClient.ws.beans;
  * 
  * @author mchyzer
  */
-public class WsAddMemberResults implements WsResponseBean {
+public class WsAddMemberResults implements WsResponseBean, ResultMetadataHolder {
 
   /**
    * results for each assignment sent in

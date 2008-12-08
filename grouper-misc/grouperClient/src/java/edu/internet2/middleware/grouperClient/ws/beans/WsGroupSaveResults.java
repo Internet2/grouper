@@ -12,7 +12,7 @@ package edu.internet2.middleware.grouperClient.ws.beans;
  * </pre>
  * @author mchyzer
  */
-public class WsGroupSaveResults implements WsResponseBean {
+public class WsGroupSaveResults implements WsResponseBean, ResultMetadataHolder {
 
   /**
    * results for each deletion sent in

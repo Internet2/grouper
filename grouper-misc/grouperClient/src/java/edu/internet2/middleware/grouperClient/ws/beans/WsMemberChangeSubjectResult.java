@@ -9,7 +9,7 @@ package edu.internet2.middleware.grouperClient.ws.beans;
  * 
  * @author mchyzer
  */
-public class WsMemberChangeSubjectResult {
+public class WsMemberChangeSubjectResult implements ResultMetadataHolder {
 
   /** subject that was switched to */
   private WsSubject wsSubjectNew;

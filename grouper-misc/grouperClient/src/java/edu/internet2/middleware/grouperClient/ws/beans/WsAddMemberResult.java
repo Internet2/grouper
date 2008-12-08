@@ -3,13 +3,14 @@
  */
 package edu.internet2.middleware.grouperClient.ws.beans;
 
+
 /**
  * Result of one subject being added to a group.  The number of
  * subjects will equal the number of subjects sent in to the method
  * 
  * @author mchyzer
  */
-public class WsAddMemberResult {
+public class WsAddMemberResult implements ResultMetadataHolder {
 
   /** subject that was added */
   private WsSubject wsSubject;
