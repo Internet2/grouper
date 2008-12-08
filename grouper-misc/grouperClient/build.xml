@@ -53,7 +53,7 @@
     </if> 
 
     <if><not><available file="${main.confDir}/grouper.client.usage.txt" /></not>
-      <then><copy file="${main.confDir}/grouper.client.usage.example/txt" 
+      <then><copy file="${main.confDir}/grouper.client.usage.example.txt" 
         tofile="${main.confDir}/grouper.client.usage.txt" /></then>
     </if> 
 

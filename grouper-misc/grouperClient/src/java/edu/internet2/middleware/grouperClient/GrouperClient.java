@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.20 2008-12-08 05:36:31 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.21 2008-12-08 07:36:04 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -460,6 +460,7 @@ public class GrouperClient {
   
       substituteMap.put("wsAddMemberResults", wsAddMemberResults);
       substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+      substituteMap.put("wsGroupAssigned", wsAddMemberResults.getWsGroupAssigned());
   
       String outputTemplate = null;
   
@@ -470,7 +471,7 @@ public class GrouperClient {
         outputTemplate = GrouperClientUtils.propertiesValue("webService.addMember.output", true);
       }
       log.debug("Output template: " + outputTemplate + ", available variables: wsAddMemberResults, " +
-        "grouperClientUtils, index, wsAddMemberResult, wsSubject, resultMetadata");
+        "grouperClientUtils, wsGroupAssigned, index, wsAddMemberResult, wsSubject, resultMetadata");
 
       for (WsAddMemberResult wsAddMemberResult : wsAddMemberResults.getResults()) {
         
@@ -1486,7 +1487,8 @@ public class GrouperClient {
   
       substituteMap.put("wsDeleteMemberResults", wsDeleteMemberResults);
       substituteMap.put("grouperClientUtils", new GrouperClientUtils());
-  
+      substituteMap.put("wsGroup", wsDeleteMemberResults.getWsGroup());
+      
       String outputTemplate = null;
   
       if (argMap.containsKey("outputTemplate")) {
@@ -1496,7 +1498,7 @@ public class GrouperClient {
         outputTemplate = GrouperClientUtils.propertiesValue("webService.deleteMember.output", true);
       }
       log.debug("Output template: " + outputTemplate + ", available variables: wsDeleteMemberResults, " +
-      		"grouperClientUtils, index, wsDeleteMemberResult, wsSubject, resultMetadata");
+      		"grouperClientUtils, wsGroup, index, wsDeleteMemberResult, wsSubject, resultMetadata");
   
       for (WsDeleteMemberResult wsDeleteMemberResult : wsDeleteMemberResults.getResults()) {
         
@@ -2294,7 +2296,7 @@ public class GrouperClient {
    */
   public static void usage() {
     //read in the usage file
-    String usage = GrouperClientUtils.readResourceIntoString("grouper.client.usage.txt", false);
+    String usage = GrouperClientUtils.readResourceIntoString("grouper.client.usage.txt", GrouperClientCommonUtils.class);
     System.err.println(usage);
   }
 
