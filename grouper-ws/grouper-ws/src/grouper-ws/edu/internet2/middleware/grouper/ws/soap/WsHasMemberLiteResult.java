@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
+import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
@@ -25,7 +26,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * </pre>
  * @author mchyzer
  */
-public class WsHasMemberLiteResult implements WsResponseBean {
+public class WsHasMemberLiteResult implements WsResponseBean, ResultMetadataHolder {
 
   /**
    * logger 

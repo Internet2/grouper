@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcGroupSave.java,v 1.2 2008-12-05 02:24:39 mchyzer Exp $
+ * $Id: GcGroupSave.java,v 1.3 2008-12-08 02:55:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -157,7 +157,7 @@ public class GcGroupSave {
       String resultMessage = wsGroupSaveResults.getResultMetadata().getResultMessage() + "\n"
         + groupSaveResultMessage;
       
-      grouperClientWs.handleFailure(resultMessage);
+      grouperClientWs.handleFailure(wsGroupSaveResults, wsGroupSaveResults.getResults(), resultMessage);
       
     } catch (Exception e) {
       GrouperClientUtils.convertToRuntimeException(e);

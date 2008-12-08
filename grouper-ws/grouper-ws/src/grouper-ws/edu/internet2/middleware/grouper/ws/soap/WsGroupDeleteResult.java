@@ -8,6 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupDeleteLiteResult.WsGroupDeleteLiteResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -18,7 +19,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * 
  * @author mchyzer
  */
-public class WsGroupDeleteResult {
+public class WsGroupDeleteResult implements ResultMetadataHolder {
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(WsGroupDeleteResult.class);

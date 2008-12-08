@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
+import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult.WsGetGroupsLiteResultCode;
@@ -30,7 +31,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * </pre>
  * @author mchyzer
  */
-public class WsGetGroupsResult {
+public class WsGetGroupsResult implements ResultMetadataHolder {
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(WsGetGroupsResult.class);

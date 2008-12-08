@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcGetMembers.java,v 1.3 2008-12-05 02:24:39 mchyzer Exp $
+ * $Id: GcGetMembers.java,v 1.4 2008-12-08 02:55:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -212,7 +212,7 @@ public class GcGetMembers {
         grouperClientWs.executeService("groups", getMembers, "getMembers", this.clientVersion);
       
       String resultMessage = wsGetMembersResults.getResultMetadata().getResultMessage();
-      grouperClientWs.handleFailure(resultMessage);
+      grouperClientWs.handleFailure(wsGetMembersResults, wsGetMembersResults.getResults(), resultMessage);
       
     } catch (Exception e) {
       GrouperClientUtils.convertToRuntimeException(e);

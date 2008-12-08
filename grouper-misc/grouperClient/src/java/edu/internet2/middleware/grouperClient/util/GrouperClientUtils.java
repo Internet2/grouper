@@ -229,7 +229,8 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
         Object o = e.evaluate(jc);
   
         if (o == null) {
-          LOG.warn("expression returned null: " + script + ", in pattern: '" + stringToParse + "'");
+          LOG.warn("expression returned null: " + script + ", in pattern: '" + stringToParse + "', available variables are: "
+              + GrouperClientUtils.toStringForLog(variableMap.keySet()));
         }
         
         result.append(o);

@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
+import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveLiteResult.WsGroupSaveLiteResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -22,7 +23,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * 
  * @author mchyzer
  */
-public class WsGroupSaveResult {
+public class WsGroupSaveResult implements ResultMetadataHolder {
 
   /**
    * logger 

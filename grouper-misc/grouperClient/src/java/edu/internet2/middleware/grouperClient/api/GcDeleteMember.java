@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcDeleteMember.java,v 1.2 2008-12-04 07:51:39 mchyzer Exp $
+ * $Id: GcDeleteMember.java,v 1.3 2008-12-08 02:55:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -252,7 +252,7 @@ public class GcDeleteMember {
         grouperClientWs.executeService("groups/" + this.groupName + "/members", deleteMember, "deleteMember", this.clientVersion);
       
       String resultMessage = wsDeleteMemberResults.getResultMetadata().getResultMessage();
-      grouperClientWs.handleFailure(resultMessage);
+      grouperClientWs.handleFailure(wsDeleteMemberResults, wsDeleteMemberResults.getResults(), resultMessage);
       
     } catch (Exception e) {
       GrouperClientUtils.convertToRuntimeException(e);

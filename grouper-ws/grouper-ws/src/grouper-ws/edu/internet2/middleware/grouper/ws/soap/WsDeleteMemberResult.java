@@ -7,6 +7,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.soap.WsDeleteMemberLiteResult.WsDeleteMemberLiteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.SubjectFindResult;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -17,7 +18,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * 
  * @author mchyzer
  */
-public class WsDeleteMemberResult {
+public class WsDeleteMemberResult  implements ResultMetadataHolder {
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(WsDeleteMemberResult.class);

@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
+import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsStemSaveLiteResult.WsStemSaveLiteResultCode;
 
@@ -20,7 +21,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsStemSaveLiteResult.WsStemSaveL
  * 
  * @author mchyzer
  */
-public class WsStemSaveResult {
+public class WsStemSaveResult implements ResultMetadataHolder {
 
   /**
    * empty

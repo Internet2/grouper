@@ -7,6 +7,8 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectLiteResult.WsMemberChangeSubjectLiteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.MemberFindResult;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.SubjectFindResult;
@@ -16,7 +18,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.SubjectFindResul
  * 
  * @author mchyzer
  */
-public class WsMemberChangeSubjectResult {
+public class WsMemberChangeSubjectResult implements ResultMetadataHolder {
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(WsMemberChangeSubjectResult.class);
@@ -252,9 +254,9 @@ public class WsMemberChangeSubjectResult {
    * @param wsSubjectLookup1
    * @param subjectAttributeNames
    */
-  public void processMemberOld(WsSubjectLookup wsSubjectLookup1) {
+  public void processMemberOld(WsSubjectLookup wsSubjectLookup1, String[] subjectAttributeNames) {
 
-    wsSubjectLookup1.retrieveMember();
+    Member oldMember = wsSubjectLookup1.retrieveMember();
     
     MemberFindResult memberFindResult = wsSubjectLookup1.retrieveMemberFindResult();
 
@@ -266,6 +268,9 @@ public class WsMemberChangeSubjectResult {
         this.assignResultCode(WsMemberChangeSubjectResultCode.MEMBER_NOT_FOUND);
         break;
       case SUCCESS:
+        WsSubject oldWsSubject = new WsSubject(oldMember, subjectAttributeNames, wsSubjectLookup1);
+        this.setWsSubjectOld(oldWsSubject);
+        
         return;
     }
 

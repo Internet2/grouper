@@ -128,12 +128,21 @@ findStemsWs web service usage
   Note: it is not clear which attributes go with which filter types, the rules are in the Java class: WsStemQueryFilterType
   or use trial and error
 
+memberChangeSubjectWs web service usage (note: you need to be in the sysAdminGroup or actAs someone who is)
+  java -jar grouperClient.jar --operation=memberChangeSubjectWs [--oldSubjectId=oldId] [--oldSubjectIdentifier=oldIdent] [--oldSubjectSource=oldSourceId] [--newSubjectId=newId] [--newSubjectIdentifier=newIdent] [--newSubjectSource=newSourceId] [--deleteOldMember=false] [--actAsSubjectId=subjId] [--actAsSubjectIdentifier=subjIdent] [--actAsSubjectSource=source] [--outputTemplate=somePattern] [--paramName0=name0] [--paramValue0=value1] [--paramNameX=xthParamName] [--paramValueX=xthParamValue] [--debug=true] [--clientVersion=someVersion]
+  e.g.: --operation=memberChangeSubjectWs --oldSubjectId=test.subject.0 --newSubjectId=test.subject.1 --actAsSubjectId=GrouperSystem
+  output: Success: T: code: SUCCESS: oldSubject: test.subject.0, newSubject: test.subject.1
+
+
 ###############################################
 Common options:
   --outputTemplate=${index}: ${wsGroup.name}
     the output template allow the caller to customize what is displayed in the output from the XML
-    anything in ${} will be evaluated, and there are different variables available for various operations
-    see the grouper client website for more information
+    anything in ${} will be evaluated, and there are different variables available for various operations.
+    if you pass in --debug=true, it will tell you the xml and the variables you can use.  You can drill down
+    in the variables, e.g. ${wsGroupDeleteResult.wsGroup.name}, you can do operations, e.g. ${index+1},
+    you can do simple string utilities from GrouperClientUtils or GrouperClientCommonUtils, e.g.
+    ${grouperClientUtils.trimToEmpty(wsGroup.name)}
     
   --debug=true
     this will display debug information including the request and response to stderr
@@ -160,4 +169,9 @@ Common options:
     affects how batched operations are executed on the server (e.g. adding multiple subjects to a group)
     generally the only values which make sense are to use a large transaction or not: READ_WRITE_NEW, NONE
   
-  
+  --includeGroupDetail=true
+    if applicable, this option will return not only the group's name, but more information such as the
+    attribuites, types, composite members, etc.
+    
+  --subjectAttributeNames=a,b,c
+    if applicable, subjects will be returned from the server with these attributes in a string array

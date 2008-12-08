@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcFindStems.java,v 1.1 2008-12-07 17:32:21 mchyzer Exp $
+ * $Id: GcFindStems.java,v 1.2 2008-12-08 02:55:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -124,7 +124,7 @@ public class GcFindStems {
         grouperClientWs.executeService("stems", findStems, "findStems", this.clientVersion);
       
       String resultMessage = wsFindStemsResults.getResultMetadata().getResultMessage();
-      grouperClientWs.handleFailure(resultMessage);
+      grouperClientWs.handleFailure(wsFindStemsResults, null, resultMessage);
       
     } catch (Exception e) {
       GrouperClientUtils.convertToRuntimeException(e);

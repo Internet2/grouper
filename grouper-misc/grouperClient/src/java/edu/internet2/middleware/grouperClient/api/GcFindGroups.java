@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcFindGroups.java,v 1.2 2008-12-07 17:32:21 mchyzer Exp $
+ * $Id: GcFindGroups.java,v 1.3 2008-12-08 02:55:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -141,7 +141,7 @@ public class GcFindGroups {
         grouperClientWs.executeService("groups", findGroups, "findGroups", this.clientVersion);
       
       String resultMessage = wsFindGroupsResults.getResultMetadata().getResultMessage();
-      grouperClientWs.handleFailure(resultMessage);
+      grouperClientWs.handleFailure(wsFindGroupsResults, null, resultMessage);
       
     } catch (Exception e) {
       GrouperClientUtils.convertToRuntimeException(e);

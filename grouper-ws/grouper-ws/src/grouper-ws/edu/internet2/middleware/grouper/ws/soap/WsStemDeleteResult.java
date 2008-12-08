@@ -7,6 +7,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteLiteResult.WsStemDeleteLiteResultCode;
 
 /**
@@ -16,7 +17,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsStemDeleteLiteResult.WsStemDel
  * 
  * @author mchyzer
  */
-public class WsStemDeleteResult {
+public class WsStemDeleteResult implements ResultMetadataHolder {
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(WsStemDeleteResult.class);

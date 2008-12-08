@@ -8,6 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
+import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
@@ -24,7 +25,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectResult.WsMe
  * 
  * @author mchyzer
  */
-public class WsMemberChangeSubjectResults implements WsResponseBean {
+public class WsMemberChangeSubjectResults implements WsResponseBean, ResultMetadataHolder {
 
   /**
    * result code of a request

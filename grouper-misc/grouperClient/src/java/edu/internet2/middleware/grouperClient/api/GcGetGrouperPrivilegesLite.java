@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcGetGrouperPrivilegesLite.java,v 1.1 2008-12-06 20:32:16 mchyzer Exp $
+ * $Id: GcGetGrouperPrivilegesLite.java,v 1.2 2008-12-08 02:55:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -247,7 +247,7 @@ public class GcGetGrouperPrivilegesLite {
         grouperClientWs.executeService("grouperPrivileges", wsGetGrouperPrivilegesLite, "getGrouperPrivilegesLite", this.clientVersion);
       
       String resultMessage = wsGetGrouperPrivilegesLiteResult.getResultMetadata().getResultMessage();
-      grouperClientWs.handleFailure(resultMessage);
+      grouperClientWs.handleFailure(wsGetGrouperPrivilegesLiteResult, null, resultMessage);
       
     } catch (Exception e) {
       GrouperClientUtils.convertToRuntimeException(e);

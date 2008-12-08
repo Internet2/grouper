@@ -149,7 +149,7 @@ public class WsMembership {
       // member fields will be null if this happens
     }
     if (member != null) {
-      this.subject = new WsSubject(member, subjectAttributeNames);
+      this.subject = new WsSubject(member, subjectAttributeNames, null);
       //propagate the result code back up to this object
       if (!GrouperUtil.booleanValue(this.subject.getSuccess())) {
         this.assignResultCode(WsGetMembershipResultCode.valueOf(this.subject

@@ -93,7 +93,7 @@ public class WsSubject {
     WsSubject[] wsSubjectResults = new WsSubject[memberSetLength];
     int index = 0;
     for (Member member : memberSet) {
-      wsSubjectResults[index++] = new WsSubject(member, attributeNames);
+      wsSubjectResults[index++] = new WsSubject(member, attributeNames, null);
     }
     return wsSubjectResults;
   }
@@ -163,14 +163,19 @@ public class WsSubject {
   * @param member
   * @param subjectAttributeNames are the attributes the user is getting (either requested or in config)
   * (should be calculated for is detail or not)
+   * @param subjectLookup 
   * @param retrieveExtendedSubjectDataBoolean
   *            true to retrieve subject info (more than just the id)
   */
-  public WsSubject(Member member, String[] subjectAttributeNames) {
+  public WsSubject(Member member, String[] subjectAttributeNames, WsSubjectLookup subjectLookup) {
     this.setId(member.getSubjectId());
     this.setSourceId(member.getSubjectSource().getId());
 
     int attributesLength = GrouperUtil.length(subjectAttributeNames);
+
+    if (subjectLookup != null && StringUtils.isNotBlank(subjectLookup.getSubjectIdentifier())) {
+      this.identifierLookup = subjectLookup.getSubjectIdentifier();
+    }
 
     // if getting the subject data (extra queries)
     if (attributesLength > 0) {

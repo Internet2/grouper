@@ -7,6 +7,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberLiteResult.WsAddMemberLiteResultCode;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.SubjectFindResult;
 
@@ -16,7 +17,7 @@ import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup.SubjectFindResul
  * 
  * @author mchyzer
  */
-public class WsAddMemberResult {
+public class WsAddMemberResult implements ResultMetadataHolder {
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(WsAddMemberResult.class);

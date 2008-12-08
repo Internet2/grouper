@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcStemSave.java,v 1.2 2008-12-05 02:24:39 mchyzer Exp $
+ * $Id: GcStemSave.java,v 1.3 2008-12-08 02:55:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -9,6 +9,7 @@ import java.util.List;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GcTransactionType;
+import edu.internet2.middleware.grouperClient.ws.GcWebServiceError;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestStemSaveRequest;
@@ -104,6 +105,7 @@ public class GcStemSave {
    * exception will be thrown
    * 
    * @return the results
+   * @throws GcWebServiceError if there is a problem
    */
   public WsStemSaveResults execute() {
     this.validate();
@@ -141,7 +143,7 @@ public class GcStemSave {
       String resultMessage = wsStemSaveResults.getResultMetadata().getResultMessage() + "\n"
         + stemSaveResultMessage;
       
-      grouperClientWs.handleFailure(resultMessage);
+      grouperClientWs.handleFailure(wsStemSaveResults, wsStemSaveResults.getResults(), resultMessage);
       
     } catch (Exception e) {
       GrouperClientUtils.convertToRuntimeException(e);

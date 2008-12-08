@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersLiteResult.WsGetMembersLiteResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -27,7 +28,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  * </pre>
  * @author mchyzer
  */
-public class WsGetMembersResult {
+public class WsGetMembersResult  implements ResultMetadataHolder {
 
   /**
    * logger 

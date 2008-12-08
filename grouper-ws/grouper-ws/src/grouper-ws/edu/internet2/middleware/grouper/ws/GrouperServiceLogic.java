@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.21 2008-12-07 17:32:18 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.22 2008-12-08 02:55:48 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -1978,7 +1978,7 @@ public class GrouperServiceLogic {
                 try {
   
                   Member oldMember = wsMemberChangeSubject.getOldSubjectLookup().retrieveMember();
-                  wsMemberChangeSubjectResult.processMemberOld(wsMemberChangeSubject.getOldSubjectLookup());
+                  wsMemberChangeSubjectResult.processMemberOld(wsMemberChangeSubject.getOldSubjectLookup(), subjectAttributeNames);
                   if (oldMember == null) {
                     continue;
                   }

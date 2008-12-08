@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcStemDelete.java,v 1.1 2008-12-05 02:24:39 mchyzer Exp $
+ * $Id: GcStemDelete.java,v 1.2 2008-12-08 02:55:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -140,7 +140,7 @@ public class GcStemDelete {
         grouperClientWs.executeService("stems", stemDelete, "stemDelete", this.clientVersion);
       
       String resultMessage = wsStemDeleteResults.getResultMetadata().getResultMessage();
-      grouperClientWs.handleFailure(resultMessage);
+      grouperClientWs.handleFailure(wsStemDeleteResults, wsStemDeleteResults.getResults(), resultMessage);
       
     } catch (Exception e) {
       GrouperClientUtils.convertToRuntimeException(e);

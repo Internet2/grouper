@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWs.java,v 1.5 2008-12-06 20:32:16 mchyzer Exp $
+ * $Id: GrouperClientWs.java,v 1.6 2008-12-08 02:55:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws;
 
@@ -11,10 +11,14 @@ import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientXstreamUtils;
+import edu.internet2.middleware.grouperClient.ws.beans.ResultMetadataHolder;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestResultProblem;
+import edu.internet2.middleware.grouperClient.ws.beans.WsResultMeta;
 import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStream;
 import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.io.xml.CompactWriter;
 import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto;
@@ -192,13 +196,31 @@ public class GrouperClientWs {
 
   /**
    * if failure, handle it
+   * @param responseContainer is the object that everything marshaled to
+   * @param resultMetadataHolders
    * @param resultMessage
+   * @throws GcWebServiceError if there is a problem
    */
-  public void handleFailure(String resultMessage) {
+  public void handleFailure(Object responseContainer, ResultMetadataHolder[] resultMetadataHolders, String resultMessage) {
     // see if request worked or not
     if (!this.success) {
-      throw new RuntimeException("Bad response from web service: resultCode: " + this.resultCode
-          + ", " + resultMessage);
+      StringBuilder error = new StringBuilder("Bad response from web service: resultCode: " + this.resultCode
+        + ", " + resultMessage);
+      int errorIndex = 0;
+      for (int i=0;i<GrouperClientUtils.length(resultMetadataHolders);i++) {
+        try {
+          WsResultMeta resultMetadata = resultMetadataHolders[i].getResultMetadata();
+          if (!StringUtils.equals(resultMetadata.getSuccess(), "T")) {
+            error.append("\nError ").append(errorIndex).append(", result index: ").append(i).append(", code: ").append(resultMetadata.getResultCode())
+              .append(", message: ").append(resultMetadata.getResultMessage());
+            errorIndex++;
+          }
+        } catch (Exception e) {
+          //object not there
+          LOG.debug("issue with error message: ", e);
+        }
+      }
+      throw new GcWebServiceError(responseContainer, error.toString());
     }
 
   }

@@ -694,6 +694,7 @@ public class GrouperClientCommonUtils  {
             if (maxChars != -1 && result.length() > maxChars) {
               return;
             }
+            i++;
           }
         }
       } else {

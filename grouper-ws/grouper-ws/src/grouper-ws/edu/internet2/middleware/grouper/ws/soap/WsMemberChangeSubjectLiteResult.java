@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeRuntimeEx
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
+import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.WsResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.rest.WsResponseBean;
@@ -24,7 +25,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * 
  * @author mchyzer
  */
-public class WsMemberChangeSubjectLiteResult implements WsResponseBean {
+public class WsMemberChangeSubjectLiteResult implements WsResponseBean, ResultMetadataHolder {
 
   /**
    * empty
