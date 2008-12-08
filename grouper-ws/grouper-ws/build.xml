@@ -7,6 +7,43 @@
 		</classpath>
 	</taskdef>
 
+  <if><not><available file="resources/ehcache.xml" /></not>
+    <then><copy file="resources/ehcache.example.xml" 
+      tofile="resources/ehcache.xml" /></then>
+  </if> 
+  <if><not><available file="resources/grouper.ehcache.xml" /></not>
+    <then><copy file="resources/grouper.ehcache.example.xml" 
+      tofile="resources/grouper.ehcache.xml" /></then>
+  </if> 
+    <if><not><available file="resources/grouper.properties" /></not>
+      <then><copy file="resources/grouper.example.properties" 
+        tofile="resources/grouper.properties" /></then>
+    </if> 
+    <if><not><available file="resources/grouper.hibernate.properties" /></not>
+      <then><copy file="resources/grouper.hibernate.example.properties" 
+        tofile="resources/grouper.hibernate.properties" /></then>
+    </if> 
+    <if><not><available file="resources/grouper-ws.properties" /></not>
+      <then><copy file="resources/grouper-ws.example.properties" 
+        tofile="resources/grouper-ws.properties" /></then>
+    </if> 
+  <if><not><available file="resources/log4j.properties" /></not>
+    <then><copy file="resources/log4j.example.properties" 
+      tofile="resources/log4j.properties" /></then>
+  </if> 
+    <if><not><available file="resources/morphString.properties" /></not>
+      <then><copy file="resources/morphString.example.properties" 
+        tofile="resources/morphString.properties" /></then>
+    </if> 
+    <if><not><available file="resources/sources.xml" /></not>
+      <then><copy file="resources/sources.example.xml" 
+        tofile="resources/sources.xml" /></then>
+    </if> 
+    <if><not><available file="resources/spy.properties" /></not>
+      <then><copy file="resources/spy.example.properties" 
+        tofile="resources/spy.properties" /></then>
+    </if> 
+
 	<!-- 
 	provides all environment variables as Ant properties prefixed by "env.". 
 	For example, CLASSPATH would be accessible in Ant as ${env.CLASSPATH}. 

@@ -12,6 +12,15 @@
     </classpath>
   </taskdef>
 
+  <if><not><available file="build.properties" /></not>
+    <then><copy file="build.properties.template" 
+      tofile="build.properties" /></then>
+  </if> 
+  <if><not><available file="tomcat-context.xml" /></not>
+    <then><copy file="template-tomcat-context.xml" 
+      tofile="tomcat-context.xml" /></then>
+  </if> 
+
 	<filter filtersfile="build.properties"/>
 	<property file=".lastbuild.properties"/>
 

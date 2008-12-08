@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: LoginCheckFilter.java,v 1.16 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: LoginCheckFilter.java,v 1.17 2008-12-08 21:00:00 mchyzer Exp $
  */
 
 public class LoginCheckFilter implements Filter {
@@ -202,7 +202,7 @@ public class LoginCheckFilter implements Filter {
 		edu.internet2.middleware.subject.Subject subj = null;
 		UnrecoverableErrorException unrecov = null;
 		try {
-			subj = SubjectFinder.findByIdentifier(remoteUser);
+			subj = SubjectFinder.findByIdOrIdentifier(remoteUser, true);
 		} catch (SubjectNotFoundException e) {
 			LOG.error(remoteUser + " is not recognised",e);
 			unrecov = new UnrecoverableErrorException("error.login.not-recognised",e);		
