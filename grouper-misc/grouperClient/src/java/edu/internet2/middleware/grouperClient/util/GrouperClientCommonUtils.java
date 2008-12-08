@@ -4904,6 +4904,31 @@ public class GrouperClientCommonUtils  {
   }
 
   /**
+   * read resource into string
+   * @param resourceName
+   * @param classInJar if not null, then look for the jar where this file is, and look in the same dir
+   * @return the properties or null if not exist
+   */
+  public static String readResourceIntoString(String resourceName, Class<?> classInJar) {
+
+    try {
+      return readResourceIntoString(resourceName, false);
+    } catch (Exception e) {
+      //try from jar location
+    }
+  
+    //lets look next to jar
+    File jarFile = classInJar == null ? null : jarFile(classInJar);
+    File parentDir = jarFile == null ? null : jarFile.getParentFile();
+    String fileName = parentDir == null ? null 
+        : (stripLastSlashIfExists(fileCanonicalPath(parentDir)) + File.separator + resourceName);
+    File configFile = fileName == null ? null 
+        : new File(fileName);
+
+    return readFileIntoString(configFile);
+  }
+
+  /**
    * <p>
    * Reads the contents of a file into a String.
    * </p>
