@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.16 2008-12-08 02:55:52 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.17 2008-12-08 05:36:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -39,7 +39,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testMemberChangeSubject"));
+    TestRunner.run(new GrouperClientWsTest("testSendFile"));
   }
   
   /**
@@ -3284,7 +3284,7 @@ matcher = pattern.matcher(outputLines[0]);
         System.setOut(systemOut);
         
         String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
-
+    
         Pattern pattern = Pattern.compile(
             "^Success: T: code: ([A-Z_]+): oldSubject: (.+), newSubject: (.+)$");
         Matcher matcher = pattern.matcher(outputLines[0]);
@@ -3437,13 +3437,69 @@ matcher = pattern.matcher(outputLines[0]);
         assertEquals("SUCCESS", matcher.group(1));
         assertEquals("test.subject.1", matcher.group(2));
         assertEquals("test.subject.0", matcher.group(3));
-  
+    
         assertTrue(
             GrouperClientWs.mostRecentRequest.contains("whatever") 
             && GrouperClientWs.mostRecentRequest.contains("someValue"));
           
       } finally {
         System.setOut(systemOut);
+      }
+      
+    }
+
+    /**
+     * @throws Exception 
+     */
+    public void testSendFile() throws Exception {      
+      
+      PrintStream systemOut = System.out;
+    
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      File file = new File("testSendFile.txt");
+      file.deleteOnExit();
+      
+      try {
+        String contents = "<WsRestAddMemberRequest>" +
+        "<wsGroupLookup><groupName>aStem:aGroup</groupName></wsGroupLookup>" +
+        "<subjectLookups><WsSubjectLookup>" +
+        "<subjectId>test.subject.0</subjectId></WsSubjectLookup>" +
+        "</subjectLookups></WsRestAddMemberRequest>";
+        GrouperClientUtils.saveStringIntoFile(file, contents);
+        
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=sendFile --fileName=testSendFile.txt --urlSuffix=groups/aStem:aGroup/members", " "));
+        System.out.flush();
+        String output = new String(baos.toByteArray());
+
+        System.setOut(systemOut);
+
+        assertTrue(output.contains("<resultCode>SUCCESS</resultCode>")
+            && output.contains("        "));
+
+        //#####################################################
+        //run again, with contents, and no formatting
+        baos = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(baos));
+
+        GrouperClient.main(GrouperClientUtils.splitTrim(
+            "--operation=sendFile --fileContents=" + contents + " --urlSuffix=groups/aStem:aGroup/members --indentOutput=false", " "));
+        
+        System.out.flush();
+        output = new String(baos.toByteArray());
+
+        System.setOut(systemOut);
+
+        assertTrue(output.contains("<resultCode>SUCCESS</resultCode>")
+            && !output.contains("        "));
+        
+        
+        
+      } finally {
+        System.setOut(systemOut);
+        file.delete();
       }
       
     }

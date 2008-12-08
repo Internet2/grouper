@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.19 2008-12-08 02:55:52 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.20 2008-12-08 05:36:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GcTransactionType;
+import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.WsMemberFilter;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsAddMemberResults;
@@ -254,6 +255,9 @@ public class GrouperClient {
 
       } else if (GrouperClientUtils.equals(operation, "memberChangeSubjectWs")) {
         result = memberChangeSubject(argMap, argMapNotUsed);
+
+      } else if (GrouperClientUtils.equals(operation, "sendFile")) {
+        result = sendFile(argMap, argMapNotUsed);
 
       } else {
         System.err.println("Error: invalid operation: '" + operation + "', for usage help, run: java -jar grouperClient.jar" );
@@ -489,91 +493,151 @@ public class GrouperClient {
     }
 
   /**
+   * @param argMap
+   * @param argMapNotUsed
+   * @return result
+   */
+  private static String memberChangeSubject(Map<String, String> argMap,
+      Map<String, String> argMapNotUsed) {
+    
+    Boolean includeSubjectDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeSubjectDetail");
+  
+    Set<String> subjectAttributeNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "subjectAttributeNames", false);
+  
+    List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
+    
+    GcMemberChangeSubject gcMemberChangeSubject = new GcMemberChangeSubject();        
+  
+    String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
+    gcMemberChangeSubject.assignClientVersion(clientVersion);
+  
+    for (WsParam param : params) {
+      gcMemberChangeSubject.addParam(param);
+    }
+    
+    Boolean deleteOldMember = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "deleteOldMember");
+    if (deleteOldMember != null) {
+      gcMemberChangeSubject.assignDeleteOldMember(deleteOldMember);
+    }
+    
+    WsSubjectLookup oldSubjectLookup = retrieveSuffixSubjectFromArgs(argMap, argMapNotUsed, "old", true);
+    WsSubjectLookup newSubjectLookup = retrieveSuffixSubjectFromArgs(argMap, argMapNotUsed, "new", true);
+  
+    gcMemberChangeSubject.assignOldSubjectLookup(oldSubjectLookup);
+    gcMemberChangeSubject.assignNewSubjectLookup(newSubjectLookup);
+    
+    
+    WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
+    
+    gcMemberChangeSubject.assignActAsSubject(actAsSubject);
+    
+    gcMemberChangeSubject.assignIncludeSubjectDetail(includeSubjectDetail);
+    
+    for (String subjectAttribute : GrouperClientUtils.nonNull(subjectAttributeNames)) {
+      gcMemberChangeSubject.addSubjectAttributeName(subjectAttribute);
+    }
+    
+    //register that we will use this
+    GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+    failOnArgsNotUsed(argMapNotUsed);
+  
+    WsMemberChangeSubjectResults wsMemberChangeSubjectResults = gcMemberChangeSubject.execute();
+    
+    StringBuilder result = new StringBuilder();
+    int index = 0;
+    
+    Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
+  
+    substituteMap.put("wsMemberChangeSubjectResults", wsMemberChangeSubjectResults);
+    substituteMap.put("grouperClientUtils", new GrouperClientUtils());
+  
+    String outputTemplate = null;
+  
+    if (argMap.containsKey("outputTemplate")) {
+      outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
+      outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
+    } else {
+      outputTemplate = GrouperClientUtils.propertiesValue("webService.memberChangeSubject.output", true);
+    }
+    log.debug("Output template: " + outputTemplate + ", available variables: wsMemberChangeSubjectResults, " +
+      "grouperClientUtils, index, resultMetadata, wsMemberChangeSubjectResult, wsSubjectOld, wsSubjectNew");
+  
+    //there will only be one result, but loop anyways
+    for (WsMemberChangeSubjectResult wsMemberChangeSubjectResult : wsMemberChangeSubjectResults.getResults()) {
+      
+      substituteMap.put("index", index);
+      substituteMap.put("resultMetadata", wsMemberChangeSubjectResult.getResultMetadata());
+      substituteMap.put("wsMemberChangeSubjectResult", wsMemberChangeSubjectResult);
+      substituteMap.put("wsSubjectOld", wsMemberChangeSubjectResult.getWsSubjectOld());
+      substituteMap.put("wsSubjectNew", wsMemberChangeSubjectResult.getWsSubjectNew());
+  
+      String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
+      result.append(output);
+      
+      index++;
+    }
+    
+    return result.toString();
+  }
+
+  /**
      * @param argMap
      * @param argMapNotUsed
      * @return result
      */
-    private static String memberChangeSubject(Map<String, String> argMap,
+    private static String sendFile(Map<String, String> argMap,
         Map<String, String> argMapNotUsed) {
       
-      Boolean includeSubjectDetail = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "includeSubjectDetail");
-  
-      Set<String> subjectAttributeNames = GrouperClientUtils.argMapSet(argMap, argMapNotUsed, "subjectAttributeNames", false);
-  
-      List<WsParam> params = retrieveParamsFromArgs(argMap, argMapNotUsed);
-      
-      GcMemberChangeSubject gcMemberChangeSubject = new GcMemberChangeSubject();        
-  
       String clientVersion = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "clientVersion", false);
-      gcMemberChangeSubject.assignClientVersion(clientVersion);
-  
-      for (WsParam param : params) {
-        gcMemberChangeSubject.addParam(param);
-      }
       
-      Boolean deleteOldMember = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "deleteOldMember");
-      if (deleteOldMember != null) {
-        gcMemberChangeSubject.assignDeleteOldMember(deleteOldMember);
-      }
+      String fileContents = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fileContents", false);
       
-      WsSubjectLookup oldSubjectLookup = retrieveSuffixSubjectFromArgs(argMap, argMapNotUsed, "old", true);
-      WsSubjectLookup newSubjectLookup = retrieveSuffixSubjectFromArgs(argMap, argMapNotUsed, "new", true);
+      String theFileName = "[contents on command line]";
+      if (GrouperClientUtils.isBlank(fileContents)) {
+        String fileName = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "fileName", true);
 
-      gcMemberChangeSubject.assignOldSubjectLookup(oldSubjectLookup);
-      gcMemberChangeSubject.assignNewSubjectLookup(newSubjectLookup);
-      
-      
-      WsSubjectLookup actAsSubject = retrieveActAsSubjectFromArgs(argMap, argMapNotUsed);
-      
-      gcMemberChangeSubject.assignActAsSubject(actAsSubject);
-      
-      gcMemberChangeSubject.assignIncludeSubjectDetail(includeSubjectDetail);
-      
-      for (String subjectAttribute : GrouperClientUtils.nonNull(subjectAttributeNames)) {
-        gcMemberChangeSubject.addSubjectAttributeName(subjectAttribute);
+        fileContents = GrouperClientUtils.readFileIntoString(new File(fileName));
+        
+        theFileName = GrouperClientUtils.fileCanonicalPath(new File(fileName));
       }
       
-      //register that we will use this
-      GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", false);
+      if (fileContents.startsWith("POST") || fileContents.startsWith("GET")
+          || fileContents.startsWith("PUT") || fileContents.startsWith("DELETE")
+          || fileContents.startsWith("Connection:")) {
+        throw new RuntimeException("The file is detected as containing HTTP headers, it should only contain the payload (e.g. the XML): " + theFileName);
+      }
+      
+      String urlSuffix = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "urlSuffix", true);
+
+      //this is part of the log file if logging output
+      String labelForLog = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "labelForLog", false);
+      
+      labelForLog = GrouperClientUtils.defaultIfBlank(labelForLog, "sendFile");
+      
+      boolean indentOutput = GrouperClientUtils.argMapBoolean(argMap, argMapNotUsed, "indentOutput", false, true);
+      
+      String contentType = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "contentType", false);
+      
       failOnArgsNotUsed(argMapNotUsed);
-
-      WsMemberChangeSubjectResults wsMemberChangeSubjectResults = gcMemberChangeSubject.execute();
       
-      StringBuilder result = new StringBuilder();
-      int index = 0;
+      GrouperClientWs grouperClientWs = new GrouperClientWs();
       
-      Map<String, Object> substituteMap = new LinkedHashMap<String, Object>();
-  
-      substituteMap.put("wsMemberChangeSubjectResults", wsMemberChangeSubjectResults);
-      substituteMap.put("grouperClientUtils", new GrouperClientUtils());
-  
-      String outputTemplate = null;
-  
-      if (argMap.containsKey("outputTemplate")) {
-        outputTemplate = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "outputTemplate", true);
-        outputTemplate = GrouperClientUtils.substituteCommonVars(outputTemplate);
-      } else {
-        outputTemplate = GrouperClientUtils.propertiesValue("webService.memberChangeSubject.output", true);
-      }
-      log.debug("Output template: " + outputTemplate + ", available variables: wsMemberChangeSubjectResults, " +
-        "grouperClientUtils, index, resultMetadata, wsMemberChangeSubjectResult, wsSubjectOld, wsSubjectNew");
-  
-      //there will only be one result, but loop anyways
-      for (WsMemberChangeSubjectResult wsMemberChangeSubjectResult : wsMemberChangeSubjectResults.getResults()) {
-        
-        substituteMap.put("index", index);
-        substituteMap.put("resultMetadata", wsMemberChangeSubjectResult.getResultMetadata());
-        substituteMap.put("wsMemberChangeSubjectResult", wsMemberChangeSubjectResult);
-        substituteMap.put("wsSubjectOld", wsMemberChangeSubjectResult.getWsSubjectOld());
-        substituteMap.put("wsSubjectNew", wsMemberChangeSubjectResult.getWsSubjectNew());
-
-        String output = GrouperClientUtils.substituteExpressionLanguage(outputTemplate, substituteMap);
-        result.append(output);
-        
-        index++;
+      if (GrouperClientUtils.isNotBlank(contentType)) {
+        grouperClientWs.assignContentType(contentType);
       }
       
-      return result.toString();
+      try {
+        String results = (String)grouperClientWs.executeService(urlSuffix, fileContents, labelForLog, clientVersion);
+
+        if (indentOutput) {
+          results = GrouperClientUtils.indent(results, false);
+        }
+        
+        return results;
+        
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
     }
 
     /**

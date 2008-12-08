@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWs.java,v 1.7 2008-12-08 02:56:49 mchyzer Exp $
+ * $Id: GrouperClientWs.java,v 1.8 2008-12-08 05:36:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws;
 
@@ -46,6 +46,21 @@ public class GrouperClientWs {
   private static Log LOG = GrouperClientUtils.retrieveLog(GrouperClientWs.class);
 
   /**
+   * content type
+   */
+  private String contentType = null;
+  
+  /**
+   * assign the content type, defaults to xml
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GrouperClientWs assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
+  
+  /**
    * 
    */
   private XStream xStream;
@@ -83,7 +98,7 @@ public class GrouperClientWs {
   
   /**
    * @param urlSuffix e.g. groups/aStem:aGroup/members
-   * @param toSend
+   * @param toSend is the bean which will transform into XML, or just a string of XML to send...
    * @param labelForLog label if the request is logged to file
    * @param clientVersion 
    * @return the response object
@@ -182,7 +197,7 @@ public class GrouperClientWs {
       }
     }
 
-    Object resultObject = this.xStream.fromXML(this.response);
+    Object resultObject = toSend instanceof String ? this.response : this.xStream.fromXML(this.response);
     
     //see if problem
     if (resultObject instanceof WsRestResultProblem) {
@@ -290,7 +305,7 @@ public class GrouperClientWs {
    * @param clientVersion
    * @return the method
    */
-  private static PostMethod postMethod(String suffix, String clientVersion) {
+  private PostMethod postMethod(String suffix, String clientVersion) {
     
     suffix = GrouperClientUtils.trimToEmpty(suffix);
     
@@ -315,19 +330,19 @@ public class GrouperClientWs {
 
     //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
     //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
-    PostMethod method = new PostMethod(url);
+    PostMethod postMethod = new PostMethod(url);
 
     //no keep alive so response if easier to indent for tests
-    method.setRequestHeader("Connection", "close");
+    postMethod.setRequestHeader("Connection", "close");
     
-    return method;
+    return postMethod;
   }
 
   /**
    * 
-   * @param xStream
+   * @param theXstream
    * @param urlSuffix to put on end of base url, e.g. groups/aStem:aGroup/members
-   * @param objectToMarshall
+   * @param objectToMarshall is the bean to convert to XML, or it could be a string of xml
    * @param logFile if not null, log the contents of the request there
    * @param responseCode array of size one to get the response code back
    * @param clientVersion 
@@ -336,19 +351,19 @@ public class GrouperClientWs {
    * @throws HttpException 
    * @throws IOException 
    */
-  private static PostMethod postMethod(XStream xStream, 
+  private PostMethod postMethod(XStream theXstream, 
       String urlSuffix, Object objectToMarshall, File logFile, int[] responseCode, String clientVersion) 
       throws UnsupportedEncodingException, HttpException, IOException {
     
-    String contentType = "text/xml";
+    String theContentType = GrouperClientUtils.defaultIfBlank(this.contentType, "text/xml");
     
     HttpClient httpClient = httpClient();
 
-    PostMethod method = postMethod(urlSuffix, clientVersion);
+    PostMethod postMethod = postMethod(urlSuffix, clientVersion);
 
-    String requestDocument = marshalObject(xStream, objectToMarshall);
+    String requestDocument = objectToMarshall instanceof String ? (String)objectToMarshall : marshalObject(theXstream, objectToMarshall);
     
-    method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
+    postMethod.setRequestEntity(new StringRequestEntity(requestDocument, theContentType, "UTF-8"));
     
     if (logFile != null || GrouperClientLog.debugToConsole()) {
       if (logFile != null) {
@@ -373,16 +388,16 @@ public class GrouperClientWs {
 //      Host: localhost:8090
 //      Content-Length: 226
 //      Content-Type: text/xml; charset=UTF-8
-      headers.append("POST ").append(method.getURI().getPathQuery()).append(" HTTP/1.1\n");
+      headers.append("POST ").append(postMethod.getURI().getPathQuery()).append(" HTTP/1.1\n");
       headers.append("Connection: close\n");
       headers.append("Authorization: Basic xxxxxxxxxxxxxxxx\n");
       headers.append("User-Agent: Jakarta Commons-HttpClient/3.1\n");
-      headers.append("Host: ").append(method.getURI().getHost()).append(":")
-        .append(method.getURI().getPort()).append("\n");
+      headers.append("Host: ").append(postMethod.getURI().getHost()).append(":")
+        .append(postMethod.getURI().getPort()).append("\n");
       headers.append("Content-Length: ").append(
-          method.getRequestEntity().getContentLength()).append("\n");
+          postMethod.getRequestEntity().getContentLength()).append("\n");
       headers.append("Content-Type: ").append(
-          method.getRequestEntity().getContentType()).append("\n");
+          postMethod.getRequestEntity().getContentType()).append("\n");
       headers.append("\n");
       
       String theRequest = headers + theRequestDocument;
@@ -402,13 +417,13 @@ public class GrouperClientWs {
     
     mostRecentRequest = requestDocument;
     
-    int responseCodeInt = httpClient.executeMethod(method);
+    int responseCodeInt = httpClient.executeMethod(postMethod);
 
     if (responseCode != null && responseCode.length > 0) {
       responseCode[0] = responseCodeInt;
     }
     
-    return method;
+    return postMethod;
 
   }
   

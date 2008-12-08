@@ -4787,7 +4787,7 @@ public class GrouperClientCommonUtils  {
    */
   public static void saveStringIntoFile(File file, String contents) {
     try {
-      writeStringToFile(file, contents, "ISO-8859-1");
+      writeStringToFile(file, contents, GrouperClientUtils.propertiesValue("grouperClient.default.fileEncoding", true));
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -4863,7 +4863,7 @@ public class GrouperClientCommonUtils  {
       return null;
     }
     try {
-      return readFileToString(file, "ISO-8859-1");
+      return readFileToString(file, GrouperClientUtils.propertiesValue("grouperClient.default.fileEncoding", true));
     } catch (IOException ioe) {
       throw new RuntimeException(ioe);
     }
@@ -4893,7 +4893,7 @@ public class GrouperClientCommonUtils  {
     StringWriter stringWriter = new StringWriter();
     try {
       inputStream = url.openStream();
-      copy(inputStream, stringWriter, "ISO-8859-1");
+      copy(inputStream, stringWriter, GrouperClientUtils.propertiesValue("grouperClient.default.fileEncoding", true));
     } catch (IOException ioe) {
       throw new RuntimeException("Error reading resource: '" + resourceName + "'", ioe);
     } finally {

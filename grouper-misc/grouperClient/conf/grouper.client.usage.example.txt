@@ -20,6 +20,10 @@ Encrypt passwords for storing passwords in external encrypted files:
 Usage (this message):
   java -jar grouperClient.jar
 
+Send file to web service:
+  java -jar grouperClient.jar --operation=sendFile --urlSuffix=groups/aStem:aGroup/members [fileName=theFileName] [fileContents=theFileContents] [--contentType=text/xml] [--labelForLog=addMember] [--indentOutput=false] [--saveResultsToFile=fileName] [--debug=true] [--clientVersion=someVersion]
+  e.g. java -jar grouperClient.jar --operation=sendFile --fileName="C:/addMember.xml" --urlSuffix=groups/aStem:aGroup/members
+
 ###############################################
 ## LDAP operations
 
@@ -45,7 +49,7 @@ NOTE: CHANGE THIS OR REMOVE IN grouper.client.usage.txt FOR YOUR SCHOOOL'S LDAP 
 getMembers ldap usage: 
   java -jar grouperClient.jar --operation=getMembersLdap --groupName=a:b:c [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--debug=true]
   e.g.: java -jar grouperClient --operation=getMembersLdap --groupName=penn:myfolder:mygroup
-  output line: groupList: jsmith, tsmith, msmith
+  output: groupList: jsmith, tsmith, msmith
   note: extremely large group lists might not display fully (e.g. over 1000 members)
 
 ###############################################
