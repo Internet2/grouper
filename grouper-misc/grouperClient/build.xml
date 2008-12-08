@@ -138,6 +138,7 @@
       </tarfileset>
     </tar>            
     <echo message="Output is: dist/grouperClient.jar and dist/${instName}.tar.gz" />
+    <echo message="Note: dist/${instName}.tar.gz contains the conf/grouper.client.properties, make sure it has not sensitive credentials in it" />
    </target>
   
   <target name="distPackage" description="build tar gz on internet2 box" depends="init,javadoc">
