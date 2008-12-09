@@ -994,6 +994,12 @@ public class GrouperUtil {
    * @return the parent stem name or null if none
    */
   public static String parentStemNameFromName(String name) {
+    
+    //null safe
+    if (GrouperUtil.isBlank(name)) {
+      return name;
+    }
+    
     int lastColonIndex = name.lastIndexOf(':');
     if (lastColonIndex == -1) {
       return null;

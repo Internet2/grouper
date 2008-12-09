@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: StemSave.java,v 1.1 2008-12-04 20:59:11 mchyzer Exp $
+ * $Id: StemSave.java,v 1.2 2008-12-09 08:11:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -130,6 +130,11 @@ public class StemSave {
 
   /** save type after the save */
   private SaveResultType saveResultType = null;
+
+  /**
+   * display name, really only necessary if creating parent stems 
+   */
+  private String displayName;
   
   /**
    * get the save type
@@ -216,9 +221,31 @@ public class StemSave {
         
                 //empty is root stem
                 String parentStemNameNew = GrouperUtil.parentStemNameFromName(name);
+                String parentStemDisplayNameNew = GrouperUtil.parentStemNameFromName(displayName);
                 String extensionNew = GrouperUtil.extensionFromName(name);
+                String displayExtensionFromDisplayNameNew = GrouperUtil.extensionFromName(StemSave.this.displayName);
                 
-                String theDisplayExtension = StringUtils.isBlank(displayExtension) ? extensionNew : displayExtension;
+                //figure out the display extension from the extension or the name (or both!)
+                String theDisplayExtension = null;
+                
+                //if blank, and display name blank, then, use extension
+                if (StringUtils.isBlank(StemSave.this.displayExtension) && StringUtils.isBlank(StemSave.this.displayName)) {
+                  theDisplayExtension = extensionNew;
+                } else if (!StringUtils.isBlank(StemSave.this.displayExtension) && !StringUtils.isBlank(StemSave.this.displayName)) {
+                  //if neither blank
+                  if (!StringUtils.equals(displayExtensionFromDisplayNameNew, StemSave.this.displayExtension)) {
+                    throw new RuntimeException("The display extension '" + StemSave.this.displayExtension 
+                        + "' is not consistent with the last part of the stem name '" 
+                        + displayExtensionFromDisplayNameNew + "', display name: " + StemSave.this.displayName);
+                  }
+                  theDisplayExtension = displayExtensionFromDisplayNameNew;
+                } else if (!StringUtils.isBlank(StemSave.this.displayExtension)) {
+                  theDisplayExtension = StemSave.this.displayExtension;
+                } else if (!StringUtils.isBlank(StemSave.this.displayName)) {
+                  theDisplayExtension = displayExtensionFromDisplayNameNew;
+                } else {
+                  throw new RuntimeException("Shouldnt get here");
+                }
                 
                 //lets find the stem
                 Stem parentStem = null;
@@ -233,7 +260,8 @@ public class StemSave {
                     
                     //at this point the stem should be there (and is equal to currentStem), 
                     //just to be sure, query again
-                    parentStem = Stem._createStemAndParentStemsIfNotExist(grouperSession, parentStemNameNew);
+                    parentStem = Stem._createStemAndParentStemsIfNotExist(grouperSession, 
+                        parentStemNameNew, parentStemDisplayNameNew);
                   } else {
                     throw new StemNotFoundException("Cant find stem: '" + parentStemNameNew 
                         + "' (from update on stem name: '" + stemNameForError + "')");
@@ -243,7 +271,7 @@ public class StemSave {
                 Stem theStem = null;
                 //see if update
                 boolean isUpdate = SAVE_MODE.isUpdate(stemNameToEdit);
-        
+
                 if (isUpdate) {
                   String parentStemNameLookup = GrouperUtil.parentStemNameFromName(stemNameToEdit);
                   if (!StringUtils.equals(parentStemNameLookup, parentStemNameNew)) {
@@ -270,7 +298,8 @@ public class StemSave {
                 }
                 //default
                 StemSave.this.saveResultType = SaveResultType.NO_CHANGE;
-                
+                boolean needsSave = false;
+
                 //if inserting
                 if (!isUpdate) {
                   StemSave.this.saveResultType = SaveResultType.INSERT;
@@ -284,10 +313,12 @@ public class StemSave {
                 } else {
                   //check if different so it doesnt make unneeded queries
                   if (!StringUtils.equals(theStem.getExtension(), extensionNew)) {
+                    needsSave = true;
                     StemSave.this.saveResultType = SaveResultType.UPDATE;
                     theStem.setExtension(extensionNew);
                   }
                   if (!StringUtils.equals(theStem.getDisplayExtension(), theDisplayExtension)) {
+                    needsSave = true;
                     StemSave.this.saveResultType = SaveResultType.UPDATE;
                     theStem.setDisplayExtension(theDisplayExtension);
                   }
@@ -296,23 +327,15 @@ public class StemSave {
                 //now compare and put all attributes (then store if needed)
                 if (!StringUtils.equals(StringUtils.defaultString(theStem.getDescription()), 
                     StringUtils.defaultString(StringUtils.trim(StemSave.this.description)))) {
+                  needsSave = true;
                   if (StemSave.this.saveResultType == SaveResultType.NO_CHANGE) {
                     StemSave.this.saveResultType = SaveResultType.UPDATE;
                   }
                   theStem.setDescription(StemSave.this.description);
                 }
 
-                //now compare and put all attributes (then store if needed)
-                if (!StringUtils.equals(StringUtils.defaultString(theStem.getDescription()), 
-                    StringUtils.defaultString(StringUtils.trim(description)))) {
-                  if (StemSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                    StemSave.this.saveResultType = SaveResultType.UPDATE;
-                  }
-                  theStem.setDescription(description);
-                }
-                
                 //only store once
-                if (StemSave.this.saveResultType == SaveResultType.UPDATE) {
+                if (needsSave) {
                   theStem.store();
                 }
     
@@ -351,5 +374,15 @@ public class StemSave {
       //must just be runtime
       throw gse;
     }
+  }
+
+  /**
+   * 
+   * @param theDisplayName
+   * @return this for chaining
+   */
+  public StemSave assignDisplayName(String theDisplayName) {
+    this.displayName = theDisplayName;
+    return this;
   }
 }

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoader.java,v 1.8 2008-11-08 08:15:34 mchyzer Exp $
+ * $Id: GrouperLoader.java,v 1.9 2008-12-09 08:11:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -89,6 +89,12 @@ public class GrouperLoader {
    * no longer in loader sql results, list the sql like name, e.g. stem1:stem2:%:%org
    */
   public static final String GROUPER_LOADER_GROUPS_LIKE = "grouperLoaderGroupsLike";
+
+  /**
+   * optional group information for a group list query: e.g. to specify the display name of the
+   * group/stem when it is created
+   */
+  public static final String GROUPER_LOADER_GROUP_QUERY = "grouperLoaderGroupQuery";
 
   /**
    * types to add to loaded groups
