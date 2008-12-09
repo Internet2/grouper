@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderJob.java,v 1.5 2008-11-08 08:15:34 mchyzer Exp $
+ * $Id: GrouperLoaderJob.java,v 1.6 2008-12-09 08:11:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -215,12 +215,14 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       
       String groupTypesString = null;
       String groupLikeString = null;
+      String groupQuery = null;
       
       if (jobGroup != null) {
         grouperLoaderDbName = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_DB_NAME);
         grouperLoaderQuery = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_QUERY);
         groupTypesString = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_GROUP_TYPES);
         groupLikeString = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_GROUPS_LIKE);
+        groupQuery = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_GROUP_QUERY);
         groupName = jobGroup.getName();
       }
       
@@ -238,7 +240,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       
       //based on type, run query from the db and sync members
       grouperLoaderTypeEnum.syncGroupMembership(groupName, grouperLoaderDb, 
-          grouperLoaderQuery, hib3GrouploaderLog, startTime, grouperSession, andGroups, groupTypes, groupLikeString);
+          grouperLoaderQuery, hib3GrouploaderLog, startTime, grouperSession, andGroups, groupTypes, groupLikeString, groupQuery);
       
     } catch (Exception t) {
       LOG.error("Error on job: " + jobName, t);

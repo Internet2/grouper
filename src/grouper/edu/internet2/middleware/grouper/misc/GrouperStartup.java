@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.16 2008-11-13 20:26:10 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.17 2008-12-09 08:11:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -156,8 +156,9 @@ public class GrouperStartup {
                 AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
             loaderType.addAttribute(grouperSession,"grouperLoaderGroupsLike", 
                 AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderGroupQuery", 
+                AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
 
-            
           } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
           } finally {
@@ -165,9 +166,9 @@ public class GrouperStartup {
           }
           return null;
         }
-        
+
       });
-      
+
       //register the hook if not already
       GroupTypeTupleIncludeExcludeHook.registerHookIfNecessary(true);
       

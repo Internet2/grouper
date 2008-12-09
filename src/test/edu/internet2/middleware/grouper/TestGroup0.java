@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -45,7 +46,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup0.java,v 1.15 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroup0.java,v 1.16 2008-12-09 08:11:51 mchyzer Exp $
  */
 public class TestGroup0 extends GrouperTest {
 
@@ -58,7 +59,7 @@ public class TestGroup0 extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new TestGroup0("testStaticSaveGroupTransactions"));
+    TestRunner.run(new TestGroup0("testStaticSaveGroupWithDisplayNames"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
     //runPerfProblem2();
@@ -112,6 +113,84 @@ public class TestGroup0 extends GrouperTest {
    * test
    * @throws Exception if problem
    */
+  public void testStaticSaveGroupWithDisplayNames() throws Exception {
+
+    GrouperSession rootSession = SessionHelper.getRootSession();
+
+    String groupNameNotExist = "whatever:whatever1:testing123";
+    String groupNameSiblingNotExist = "whatever:whatever1:testing1234";
+    String groupDisplayNameNotExist = "what ever:what ever1:testing 123";
+    String groupDisplayNameChange = "what ever:what ever1234:testing 123";
+    String groupDisplayNameSiblingNotExist = "what ever:what ever234:testing 1234";
+    String groupDisplayNameSiblingResult = "what ever:what ever1:testing 1234";
+
+    GrouperTest.deleteGroupIfExists(rootSession, groupNameNotExist);
+
+    GroupSave groupSave = new GroupSave(rootSession);
+
+    groupSave.assignGroupNameToEdit(groupNameNotExist);
+    groupSave.assignName(groupNameNotExist).assignDisplayName(groupDisplayNameNotExist);
+    groupSave.assignCreateParentStemsIfNotExist(true);
+    
+    //try with display extension which doesnt match
+    groupSave.assignDisplayExtension("abc");
+    
+    Group group = null;
+    
+    try {
+      group = groupSave.save();
+      fail("Should have exception");
+    } catch (Exception e) {
+      //good
+    }
+    
+    groupSave.assignDisplayExtension(null);
+    group = groupSave.save();
+    
+    assertEquals(SaveResultType.INSERT, groupSave.getSaveResultType());
+    assertEquals(groupNameNotExist, group.getName());
+    assertEquals(groupDisplayNameNotExist, group.getDisplayName());
+    
+    //####################################
+    //try again but change the name
+    
+    groupSave = new GroupSave(rootSession);
+
+    groupSave.assignGroupNameToEdit(groupNameNotExist);
+    groupSave.assignName(groupNameNotExist).assignDisplayName(groupDisplayNameChange);
+    groupSave.assignCreateParentStemsIfNotExist(true);
+    group = groupSave.save();
+    
+    assertEquals(SaveResultType.NO_CHANGE, groupSave.getSaveResultType());
+    
+    assertEquals(groupNameNotExist, group.getName());
+
+    //should be original one
+    assertEquals(groupDisplayNameNotExist, group.getDisplayName());
+    
+    //###################################
+    //try again but do a new group in same stem, and the same name shouldnt change
+    
+    groupSave = new GroupSave(rootSession);
+
+    groupSave.assignGroupNameToEdit(groupNameSiblingNotExist);
+    groupSave.assignName(groupNameSiblingNotExist).assignDisplayName(groupDisplayNameSiblingNotExist);
+    groupSave.assignCreateParentStemsIfNotExist(true);
+    group = groupSave.save();
+    
+    assertEquals(SaveResultType.INSERT, groupSave.getSaveResultType());
+    
+    assertEquals(groupNameSiblingNotExist, group.getName());
+
+    //should be original one
+    assertEquals(groupDisplayNameSiblingResult, group.getDisplayName());
+    
+  }
+  
+  /**
+   * test
+   * @throws Exception if problem
+   */
   public void testStaticSaveGroup() throws Exception {
 
     R.populateRegistry(1, 2, 0);
@@ -131,6 +210,7 @@ public class TestGroup0 extends GrouperTest {
       //good, caught an exception
       //e.printStackTrace();
     }
+
 
     //////////////////////////////////
     //this should insert

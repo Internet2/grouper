@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupSave.java,v 1.2 2008-12-04 20:59:11 mchyzer Exp $
+ * $Id: GroupSave.java,v 1.3 2008-12-09 08:11:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -70,6 +70,19 @@ public class GroupSave {
   /** name to change to */
   private String name;
 
+  /** display name, really only necessary if creating parent stems */
+  private String displayName;
+
+  /**
+   * 
+   * @param theDisplayName
+   * @return this for chaining
+   */
+  public GroupSave assignDisplayName(String theDisplayName) {
+    this.displayName = theDisplayName;
+    return this;
+  }
+  
   /**
    * name
    * @param name1
@@ -233,10 +246,35 @@ public class GroupSave {
           
                   //empty is root stem
                   String parentStemNameNew = GrouperUtil.parentStemNameFromName(GroupSave.this.name);
+                  
+                  //note, this might be blank
+                  String parentStemDisplayNameNew = GrouperUtil.parentStemNameFromName(displayName);
                   String extensionNew = GrouperUtil.extensionFromName(GroupSave.this.name);
                   
-                  String theDisplayExtension = StringUtils.isBlank(GroupSave.this.displayExtension) 
-                    ? extensionNew : GroupSave.this.displayExtension;
+                  String displayExtensionFromDisplayNameNew = GrouperUtil.extensionFromName(GroupSave.this.displayName);
+
+                  //figure out the display extension from the extension or the name (or both!)
+                  String theDisplayExtension = null;
+                  
+                  //if blank, and display name blank, then, use extension
+                  if (StringUtils.isBlank(GroupSave.this.displayExtension) && StringUtils.isBlank(GroupSave.this.displayName)) {
+                    theDisplayExtension = extensionNew;
+                  } else if (!StringUtils.isBlank(GroupSave.this.displayExtension) && !StringUtils.isBlank(GroupSave.this.displayName)) {
+                    //if neither blank
+                    if (!StringUtils.equals(displayExtensionFromDisplayNameNew, GroupSave.this.displayExtension)) {
+                      throw new RuntimeException("The display extension '" + GroupSave.this.displayExtension 
+                          + "' is not consistent with the last part of the group name '" 
+                          + displayExtensionFromDisplayNameNew + "', display name: " + GroupSave.this.displayName);
+                    }
+                    theDisplayExtension = displayExtensionFromDisplayNameNew;
+                  } else if (!StringUtils.isBlank(GroupSave.this.displayExtension)) {
+                    theDisplayExtension = GroupSave.this.displayExtension;
+                  } else if (!StringUtils.isBlank(GroupSave.this.displayName)) {
+                    theDisplayExtension = displayExtensionFromDisplayNameNew;
+                  } else {
+                    throw new RuntimeException("Shouldnt get here");
+                  }
+
                   
                   //lets find the stem
                   Stem parentStem = null;
@@ -251,7 +289,7 @@ public class GroupSave {
                       
                       //at this point the stem should be there (and is equal to currentStem), 
                       //just to be sure, query again
-                      parentStem = Stem._createStemAndParentStemsIfNotExist(grouperSession, parentStemNameNew);
+                      parentStem = Stem._createStemAndParentStemsIfNotExist(grouperSession, parentStemNameNew, parentStemDisplayNameNew);
                     } else {
                       throw new GrouperSessionException(new StemNotFoundException("Cant find stem: '" + parentStemNameNew 
                           + "' (from update on stem name: '" + groupNameForError + "')"));
@@ -287,6 +325,7 @@ public class GroupSave {
                   }
                   //default
                   GroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
+                  boolean needsSave = false;
                   //if inserting
                   if (!isUpdate) {
                     saveResultType = SaveResultType.INSERT;
@@ -307,10 +346,12 @@ public class GroupSave {
                     if (!StringUtils.equals(theGroup.getExtension(), extensionNew)) {
                       GroupSave.this.saveResultType = SaveResultType.UPDATE;
                       theGroup.setExtension(extensionNew);
+                      needsSave = true;
                     }
                     if (!StringUtils.equals(theGroup.getDisplayExtension(), theDisplayExtension)) {
                       GroupSave.this.saveResultType = SaveResultType.UPDATE;
                       theGroup.setDisplayExtension(theDisplayExtension);
+                      needsSave = true;
                     }
                   }
                   
@@ -318,6 +359,7 @@ public class GroupSave {
                   //null throws exception? hmmm.  remove attribute if blank
                   if (!StringUtils.equals(StringUtils.defaultString(theGroup.getDescription()), 
                       StringUtils.defaultString(StringUtils.trim(GroupSave.this.description)))) {
+                    needsSave = true;
                     if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
                       GroupSave.this.saveResultType = SaveResultType.UPDATE;
                     }
@@ -333,7 +375,7 @@ public class GroupSave {
                   }
 
                   //only store once
-                  if (GroupSave.this.saveResultType == SaveResultType.UPDATE) {
+                  if (needsSave) {
                     theGroup.store();
                   }
                   

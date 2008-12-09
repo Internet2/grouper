@@ -19,8 +19,6 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.io.File;
 import java.util.Properties;
 
-import net.sf.ehcache.CacheManager;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
@@ -42,7 +40,7 @@ import edu.internet2.middleware.morphString.Morph;
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.21 2008-11-26 19:10:11 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.22 2008-12-09 08:11:51 mchyzer Exp $
  * @since   @HEAD@
  */
 public abstract class Hib3DAO {
@@ -116,10 +114,11 @@ public abstract class Hib3DAO {
         .addResource(resourceNameFromClassName(Hib3GrouperLoaderLog.class))
             .setInterceptor(new Hib3SessionInterceptor());
       
-      //if we are testing, map this class to the table (which may or may not exist)
-      Class<?> testgrouperLoaderClass = null;
+      //if we are testing, map these classes to the table (which may or may not exist)
       try {
-        testgrouperLoaderClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperLoader");
+        Class<?> testgrouperLoaderClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperLoader");
+        CFG.addResource(resourceNameFromClassName(testgrouperLoaderClass));
+        testgrouperLoaderClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperLoaderGroups");
         CFG.addResource(resourceNameFromClassName(testgrouperLoaderClass));
       } catch (ClassNotFoundException cnfe) {
         //this is ok
