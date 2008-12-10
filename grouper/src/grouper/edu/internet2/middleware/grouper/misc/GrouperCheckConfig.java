@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.14 2008-11-26 19:10:11 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.15 2008-12-10 07:40:14 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -725,7 +725,6 @@ public class GrouperCheckConfig {
         LOG.error(error);
         missingOne = true;
       }
-      dbMap.remove(userKey);
       String passKey = "db." + dbName + ".pass";
       if (!dbMap.containsKey(passKey)) {
         String error = "cannot find grouper-loader.properties key: " + passKey; 
@@ -733,7 +732,6 @@ public class GrouperCheckConfig {
         LOG.error(error);
         missingOne = true;
       }
-      dbMap.remove(passKey);
       String urlKey = "db." + dbName + ".url";
       if (!dbMap.containsKey(urlKey)) {
         String error = "cannot find grouper-loader.properties key: " + urlKey; 
@@ -741,7 +739,6 @@ public class GrouperCheckConfig {
         LOG.error(error);
         missingOne = true;
       }
-      dbMap.remove(urlKey);
       String driverKey = "db." + dbName + ".driver";
       if (!dbMap.containsKey(driverKey)) {
         String error = "cannot find grouper-loader.properties key: " + driverKey; 
@@ -749,7 +746,6 @@ public class GrouperCheckConfig {
         LOG.error(error);
         missingOne = true;
       }
-      dbMap.remove(driverKey);
       if (missingOne) {
         return;
       }
@@ -760,6 +756,12 @@ public class GrouperCheckConfig {
 
       //try to connect to database
       checkDatabase(driver, url, user, password, "grouper-loader.properties database name '" + dbName + "'");
+      
+      dbMap.remove(userKey);
+      dbMap.remove(passKey);
+      dbMap.remove(urlKey);
+      dbMap.remove(driverKey);
+
     }
     
   }
