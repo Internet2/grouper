@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperReport.java,v 1.4 2008-12-11 15:25:20 mchyzer Exp $
+ * $Id: GrouperReport.java,v 1.5 2008-12-11 16:28:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.usdu.USDU;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -166,16 +167,23 @@ public class GrouperReport {
           .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
       result.append("jobs:                  ").append(formatCommas(loaderLogCount)).append("\n");
       
-      Long loaderSuccessCount = HibernateSession.byHqlStatic().createQuery(
-        "select count(*) from Hib3GrouperLoaderLog where status = 'SUCCESS' and lastUpdated > :lastUpdated")
-        .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
-      result.append("successes:             ").append(formatCommas(loaderSuccessCount)).append("\n");
-  
-      Long loaderErrorCount = HibernateSession.byHqlStatic().createQuery(
-        "select count(*) from Hib3GrouperLoaderLog where status = 'ERROR' and lastUpdated > :lastUpdated")
-        .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
-      result.append("errors:                ").append(formatCommas(loaderErrorCount)).append("\n");
-  
+      long loaderErrorCount = -1;
+      for (GrouperLoaderStatus grouperLoaderStatus : GrouperLoaderStatus.values()) {
+        Long loaderCount = HibernateSession.byHqlStatic().createQuery(
+            "select count(*) from Hib3GrouperLoaderLog where status = '" + grouperLoaderStatus.name() + "' and lastUpdated > :lastUpdated")
+            .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
+
+        if (grouperLoaderStatus == GrouperLoaderStatus.ERROR) {
+          loaderErrorCount = loaderCount;
+        }
+        
+        if (grouperLoaderStatus == GrouperLoaderStatus.SUCCESS 
+            || grouperLoaderStatus == GrouperLoaderStatus.ERROR || loaderCount > 0) {
+          String label = grouperLoaderStatus.getFriendlyString();
+          result.append(label).append(":").append(StringUtils.repeat(" ", 22-label.length()))
+            .append(formatCommas(loaderCount)).append("\n");
+        }
+      }
       Long loaderUsduCount = HibernateSession.byHqlStatic().createQuery(
         "select count(unresolvableSubjectCount) from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated" +
         " and jobType like 'SQL%'")
@@ -205,23 +213,6 @@ public class GrouperReport {
           .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class), new Long(0));
       result.append("processing time:       ").append(formatCommas(processingSum)).append("ms\n");
 
-      if (loaderLogCount > 0) {
-        List<Hib3GrouperLoaderLog> loaderLogs = HibernateSession.byHqlStatic().createQuery(
-          "from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated and status != 'ERROR'")
-            .setTimestamp("lastUpdated", yesterday).list(Hib3GrouperLoaderLog.class);
-        result.append("\n----------------\n");
-        result.append("LOADER JOBS NON-ERROR\n");
-        result.append("----------------\n");
-        for (Hib3GrouperLoaderLog loaderLog : loaderLogs) {
-          result.append("\njob:               ").append(loaderLog.getJobName())
-            .append(" (").append(loaderLog.getTotalCount()).append(" total count)\n");
-          result.append("status:            ").append(loaderLog.getStatus()).append(", started: ")
-            .append(loaderLog.getStartedTime()).append(" (").append(loaderLog.getMillis()).append("ms)\n");
-          result.append("inserts/updates/deletes: ").append(loaderLog.getInsertCount()).append("/")
-            .append(loaderLog.getUpdateCount()).append(loaderLog.getDeleteCount()).append("\n");
-          result.append("unresolvable subjects: ").append(loaderLog.getUnresolvableSubjectCount()).append("\n");
-        }
-      }
       if (loaderErrorCount > 0) {
         List<Hib3GrouperLoaderLog> loaderLogs = HibernateSession.byHqlStatic().createQuery(
           "from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated and status = 'ERROR'")
@@ -234,12 +225,37 @@ public class GrouperReport {
             .append("(").append(loaderLog.getTotalCount()).append(" total count)\n");
           result.append("status:            ").append(loaderLog.getStatus()).append(", started: ")
             .append(loaderLog.getStartedTime()).append(" (").append(loaderLog.getMillis()).append("ms)\n");
-          result.append("inserts/updates/deletes: ").append(loaderLog.getInsertCount()).append("/")
+          result.append("ins/upd/del:       ").append(loaderLog.getInsertCount()).append("/")
             .append(loaderLog.getUpdateCount()).append("/").append(loaderLog.getDeleteCount()).append("\n");
-          result.append("unresolvable subjects: ").append(loaderLog.getUnresolvableSubjectCount()).append("\n");
+          if (loaderLog.getUnresolvableSubjectCount() > 0) {
+            result.append("unresolv subjects: ").append(loaderLog.getUnresolvableSubjectCount()).append("\n");
+          }
           result.append("error:             ").append(loaderLog.getJobDescription()).append("\n");
         }
       }
+
+      if (loaderLogCount > 0) {
+        List<Hib3GrouperLoaderLog> loaderLogs = HibernateSession.byHqlStatic().createQuery(
+          "from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated and status != 'ERROR'")
+            .setTimestamp("lastUpdated", yesterday).list(Hib3GrouperLoaderLog.class);
+        if (loaderLogs.size() > 0) {
+          result.append("\n----------------\n");
+          result.append("LOADER JOBS NON-ERROR\n");
+          result.append("----------------\n");
+          for (Hib3GrouperLoaderLog loaderLog : loaderLogs) {
+            result.append("\njob:               ").append(loaderLog.getJobName())
+              .append(" (").append(loaderLog.getTotalCount()).append(" total count)\n");
+            result.append("status:            ").append(loaderLog.getStatus()).append(", started: ")
+              .append(loaderLog.getStartedTime()).append(" (").append(loaderLog.getMillis()).append("ms)\n");
+            result.append("ins/upd/del:       ").append(loaderLog.getInsertCount()).append("/")
+              .append(loaderLog.getUpdateCount()).append("/").append(loaderLog.getDeleteCount()).append("\n");
+            if (loaderLog.getUnresolvableSubjectCount() > 0) {
+              result.append("unresolv subjects: ").append(loaderLog.getUnresolvableSubjectCount()).append("\n");
+            }
+          }
+        }
+      }
+
       
       if (usduMembers.size() > 0) {
         int usduToPrint = Math.min(50, usduMembers.size());

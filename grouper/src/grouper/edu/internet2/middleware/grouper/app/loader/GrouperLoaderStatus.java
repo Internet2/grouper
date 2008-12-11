@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderStatus.java,v 1.2 2008-10-30 20:57:17 mchyzer Exp $
+ * $Id: GrouperLoaderStatus.java,v 1.3 2008-12-11 16:28:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -13,25 +13,44 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public enum GrouperLoaderStatus {
   
   /** job was started */
-  STARTED,
+  STARTED("started"),
 
   /** job is running */
-  RUNNING,
+  RUNNING("running"),
 
   /** job cant even start */
-  CONFIG_ERROR,
+  CONFIG_ERROR("config error"),
 
   /** job finished but there were problems with one or more subjects (e.g. not found, duplicate, unresolvable) */
-  SUBJECT_PROBLEMS,
+  SUBJECT_PROBLEMS("subject problems"),
 
   /** job finished with success */
-  SUCCESS,
+  SUCCESS("successes"),
 
   /** job finished, but had problems.  Or maybe some subjobs ok, some not */
-  WARNING,
+  WARNING("warnings"),
   
   /** job didnt finish, it had problems */
-  ERROR;
+  ERROR("errors");
+  
+  /** friendly string */
+  private String friendlyString;
+  
+  /**
+   * 
+   * @param theFriendlyStatus
+   */
+  private GrouperLoaderStatus(String theFriendlyStatus) {
+    this.friendlyString = theFriendlyStatus;
+  }
+  
+  /**
+   * friendly string e.g. for report
+   * @return the friendly string
+   */
+  public String getFriendlyString() {
+    return this.friendlyString;
+  }
   
   /**
    * do a case-insensitive matching
