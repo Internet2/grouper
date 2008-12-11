@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.10 2008-12-09 08:11:50 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.11 2008-12-11 05:49:13 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperReport;
+import edu.internet2.middleware.grouper.misc.GrouperReportException;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -189,10 +190,25 @@ public enum GrouperLoaderType {
             throw new RuntimeException("grouper-loader.properties property daily.report.emailTo needs to be filled in");
           }
           
-          String report = GrouperReport.report(isRunUsdu, isRunBadMember);
+          String report = null;
+          //keep track if ends up being error
+          RuntimeException re = null;
+          try {
+            report = GrouperReport.report(isRunUsdu, isRunBadMember);
+          } catch (RuntimeException e) {
+            report = e.toString() + "\n\n" + GrouperUtil.getFullStackTrace(e) + "\n\n";
+            if (e instanceof GrouperReportException) {
+              report += ((GrouperReportException)e).getResult();
+            }
+            re = e;
+          }
           
           new GrouperEmail().setBody(report).setSubject("Grouper report").setTo(emailTo).send();
           
+          //end in error if error
+          if (re != null) {
+            throw re;
+          }
           
           hib3GrouploaderLog.setJobMessage("Ran the grouper report, isRunUnresolvable: " 
               + isRunUsdu + ", isRunBadMembershipFinder: " + isRunBadMember + ", sent to: " + emailTo);
