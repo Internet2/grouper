@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperReport.java,v 1.2 2008-11-10 15:14:30 shilen Exp $
+ * $Id: GrouperReport.java,v 1.3 2008-12-11 05:49:13 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -29,6 +30,12 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 public class GrouperReport {
+
+  /**
+   * logger 
+   */
+  @SuppressWarnings("unused")
+  private static final Log LOG = GrouperUtil.getLog(GrouperReport.class);
 
   /**
    * @param args
@@ -55,6 +62,7 @@ public class GrouperReport {
    * @param findUnresolvables 
    * @param findBadMemberships 
    * @return the report
+   * @throws GrouperReportException
    */
   public static String report(boolean findUnresolvables, boolean findBadMemberships) {
     GrouperStartup.startup();
@@ -216,7 +224,7 @@ public class GrouperReport {
       }
       if (loaderErrorCount > 0) {
         List<Hib3GrouperLoaderLog> loaderLogs = HibernateSession.byHqlStatic().createQuery(
-          "from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated and status == 'ERROR'")
+          "from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated and status = 'ERROR'")
             .setTimestamp("lastUpdated", yesterday).list(Hib3GrouperLoaderLog.class);
         result.append("\n----------------\n");
         result.append("LOADER JOBS WITH ERROR\n");
@@ -267,7 +275,9 @@ public class GrouperReport {
       result.append(new String(baos.toByteArray()));
       
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      GrouperReportException gre = new GrouperReportException("Problem generating daily report", e);
+      gre.setResult(result.toString());
+      throw gre;
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
