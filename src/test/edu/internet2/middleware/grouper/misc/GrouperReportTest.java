@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperReportTest.java,v 1.1 2008-11-08 03:42:33 mchyzer Exp $
+ * $Id: GrouperReportTest.java,v 1.2 2008-12-11 16:28:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -23,8 +23,9 @@ public class GrouperReportTest extends GrouperTest {
    * test the report
    */
   public void testReport() {
-    GrouperReport.report(false, false);
-    GrouperReport.report(true, true);
+    @SuppressWarnings("unused")
+    String report = GrouperReport.report(false, false);
+    report = GrouperReport.report(true, true);
   }
   
 }
