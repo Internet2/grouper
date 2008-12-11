@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperReport.java,v 1.3 2008-12-11 05:49:13 mchyzer Exp $
+ * $Id: GrouperReport.java,v 1.4 2008-12-11 15:25:20 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -109,7 +109,7 @@ public class GrouperReport {
       result.append("unresolvable subjects: ").append(unresolvableResults).append("\n");
       
       
-      String badMembershipResults = "Not configures to computer this today";
+      String badMembershipResults = "Not configures to compute this today";
       String badMembershipGshScript = null;
       String badMembershipOutput = null;
       int badMembershipCount = 0;
@@ -251,6 +251,9 @@ public class GrouperReport {
         while (count <= usduToPrint && iterator.hasNext()) {
           Member member = iterator.next();
           result.append(member.getSubjectSourceId() + ": " + member.getSubjectId()).append("\n");
+          if (++count > usduToPrint) {
+            break;
+          }
         }
       }
       
