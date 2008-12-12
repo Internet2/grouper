@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.MissingGroupOrStemException;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
@@ -208,7 +209,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateAssignNewMembersAction.java,v 1.8 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: PopulateAssignNewMembersAction.java,v 1.9 2008-12-12 16:58:50 isgwb Exp $
  */
 public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 	protected static Log LOG = LogFactory.getLog(PopulateAssignNewMembersAction.class);
@@ -297,32 +298,36 @@ public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 			String sourceId;
 			Group subjectGroup;
 			Map subjectMap = null;
-			for (int i = 0; i < members.length; i++) {
-				subjectId = members[i];
-				//Type specified for each subjectId since there could be 
-				//a mixture
-				subjectTypeId = request.getParameter("subjectType:"
-						+ members[i]);
-				sourceId = request.getParameter("sourceId:"
-						+ members[i]);
-				try {
-					if ("group".equals(subjectTypeId)) {
-						subjectGroup = GroupFinder.findByUuid(grouperSession,
-								subjectId);
-						subjectMap = GrouperHelper.group2Map(grouperSession,
-								subjectGroup);
-					} else {
-						
-						subjectMap = GrouperHelper.subject2Map(grouperSession,
-								subjectId, subjectTypeId,sourceId);
+			if(members!=null) {
+				for (int i = 0; i < members.length; i++) {
+					subjectId = members[i];
+					//Type specified for each subjectId since there could be 
+					//a mixture
+					subjectTypeId = request.getParameter("subjectType:"
+							+ members[i]);
+					sourceId = request.getParameter("sourceId:"
+							+ members[i]);
+					try {
+						if ("group".equals(subjectTypeId)) {
+							subjectGroup = GroupFinder.findByUuid(grouperSession,
+									subjectId);
+							subjectMap = GrouperHelper.group2Map(grouperSession,
+									subjectGroup);
+						} else {
+							
+							subjectMap = GrouperHelper.subject2Map(grouperSession,
+									subjectId, subjectTypeId,sourceId);
+						}
+					}catch(Exception e) {
+						Throwable t=NavExceptionHelper.fillInStacktrace(e);
+						LOG.error("Error retrieving subject: " + subjectId + "," + subjectTypeId + ","+sourceId + ": " + NavExceptionHelper.toLog(t));
+						throw new UnrecoverableErrorException("error.populate-assign-new-members.bad-subject",t,subjectId);
+					
 					}
-				}catch(Exception e) {
-					Throwable t=NavExceptionHelper.fillInStacktrace(e);
-					LOG.error("Error retrieving subject: " + subjectId + "," + subjectTypeId + ","+sourceId + ": " + NavExceptionHelper.toLog(t));
-					throw new UnrecoverableErrorException("error.populate-assign-new-members.bad-subject",t,subjectId);
-				
+					subjectRes.add(subjectMap);
 				}
-				subjectRes.add(subjectMap);
+			}else{
+				addMessage(new Message("error.assign-members.none-selected",true), request);
 			}
 			total = subjectRes.size();
 
