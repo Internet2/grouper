@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.29 2008-12-01 07:40:23 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.30 2008-12-12 07:19:16 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -601,7 +601,7 @@ public class GrouperDdlUtils {
         File scriptFile = GrouperUtil.newFileUniqueName(scriptDirName, "grouperDdl", ".sql", true);
         GrouperUtil.saveStringIntoFile(scriptFile, resultString);
   
-        String logMessage = "Grouper database schema DDL requires updates\n(should run script manually and carefully, in sections, verify data before drop statements, backup/export important data before starting, follow change log on confluence, dont run exact same script in multiple envs - generate a new one for each env),\nscript file is:\n" + scriptFile.getAbsolutePath();
+        String logMessage = "Grouper database schema DDL requires updates\n(should run script manually and carefully, in sections, verify data before drop statements, backup/export important data before starting, follow change log on confluence, dont run exact same script in multiple envs - generate a new one for each env),\nscript file is:\n" + GrouperUtil.fileCanonicalPath(scriptFile);
         LOG.error(logMessage);
         System.err.println(logMessage);
         logMessage = "";
@@ -1619,9 +1619,27 @@ public class GrouperDdlUtils {
    * @param indexName 
    * @param unique
    * @param columnNames
-   * @return the index which is the new one, or existing one if it already exists
+   * @return the index which is the new one, or existing one if it already exists, or null if a custom index
    */
-  public static Index ddlutilsFindOrCreateIndex(Database database, String tableName, String indexName, 
+  public static Index ddlutilsFindOrCreateIndex(Database database,  
+      String tableName, String indexName, 
+      boolean unique, String... columnNames) {
+    return ddlutilsFindOrCreateIndex(database, null, tableName, indexName, null, unique, columnNames);
+  }
+
+  /**
+   * add an index on a table.  drop a misnamed or a misuniqued index which is existing
+   * @param database
+   * @param ddlVersionBean can be null unless custom script
+   * @param tableName
+   * @param indexName 
+   * @param customScript use this script to create the index, not ddlutils
+   * @param unique
+   * @param columnNames
+   * @return the index which is the new one, or existing one if it already exists, or null if a custom index
+   */
+  public static Index ddlutilsFindOrCreateIndex(Database database, DdlVersionBean ddlVersionBean, 
+      String tableName, String indexName, String customScript,
       boolean unique, String... columnNames) {
     Table table = GrouperDdlUtils.ddlutilsFindTable(database,tableName);
 
@@ -1650,6 +1668,13 @@ public class GrouperDdlUtils {
       }
     }
     
+    if (!StringUtils.isBlank(customScript)) {
+      //this better be there
+      ddlVersionBean.appendAdditionalScriptUnique(customScript);
+      return null;
+    }
+    
+    //add this index with ddl utils
     Index index = unique ? new UniqueIndex() : new NonUniqueIndex();
     index.setName(indexName);
 
