@@ -4,13 +4,14 @@
 		  the group summary and shows the appropriate privileges for the user selected through SubjectSummary page
 --%><%--
   @author Gary Brown.
-  @version $Id: groupSearchResultWithPrivsView.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: groupSearchResultWithPrivsView.jsp,v 1.3 2008-12-12 15:00:33 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute name="viewObject"/>
 <jsp:useBean id="params" class="java.util.HashMap"/>
 <c:set target="${params}" property="subjectId" value="${subjectOfInterest.id}"/>
 <c:set target="${params}" property="subjectType" value="${subjectOfInterest.type}"/>
+<c:set target="${params}" property="sourceId" value="${subjectOfInterest.source.id}"/>
 <c:set target="${params}" property="asMemberOf" value="${viewObject.groupId}"/>
 <c:set target="${params}" property="callerPageId" value="${thisPageId}"/>
 
