@@ -99,10 +99,10 @@ fi
 if [ "$arg1" != "-initEnv" ]; then
 	# ----- Execute The Requested Command ---------------------------------------
 
-	echo Using GROUPER_HOME:  $GROUPER_HOME
-	echo Using GROUPER_CONF:  $GROUPER_CONF
-	echo Using JAVA:          $JAVA
-	echo using MEMORY:        $MEM_START-$MEM_MAX
+	echo Using GROUPER_HOME:           $GROUPER_HOME
+	echo Using GROUPER_CONF:           $GROUPER_CONF
+	echo Using JAVA:                   $JAVA
+	echo using MEMORY:                 $MEM_START-$MEM_MAX
 
 
 	GSH=edu.internet2.middleware.grouper.app.gsh.GrouperShell

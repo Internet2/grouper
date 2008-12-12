@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.23 2008-11-13 05:04:03 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.24 2008-12-12 07:19:16 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -115,7 +115,7 @@ public enum GrouperDdl implements DdlVersionable {
       Table attributesTable = GrouperDdlUtils.ddlutilsFindTable(database, 
           Attribute.TABLE_GROUPER_ATTRIBUTES);
 
-      addAttributeFieldIndexes(database, attributesTable);
+      addAttributeFieldIndexes(database, ddlVersionBean, attributesTable);
 
       Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
           Membership.TABLE_GROUPER_MEMBERSHIPS);
@@ -747,11 +747,15 @@ public enum GrouperDdl implements DdlVersionable {
   
         //dont add foreign keys if col not there
         if (attributeTable.findColumn(Attribute.COLUMN_FIELD_ID) != null) {
-          addAttributeFieldIndexes(database, attributeTable);
+          addAttributeFieldIndexes(database, ddlVersionBean, attributeTable);
         }
         
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeTable.getName(), "attribute_value_idx", false, "value");
+        //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
+        String scriptOverride = ddlVersionBean.isMysql() ? "\nCREATE INDEX attribute_value_idx " +
+            "ON grouper_attributes (value(333));\n" : null;
         
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, attributeTable.getName(), 
+            "attribute_value_idx", scriptOverride, false, "value");
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeTable.getName(), "attribute_group_idx", false, "group_id");
         
@@ -2357,12 +2361,17 @@ public enum GrouperDdl implements DdlVersionable {
   
   /**
    * @param database
+   * @param ddlVersionBean 
    * @param attributeTable
    */
-  private static void addAttributeFieldIndexes(Database database, Table attributeTable) {
+  private static void addAttributeFieldIndexes(Database database, DdlVersionBean ddlVersionBean,  Table attributeTable) {
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeTable.getName(), "attribute_uniq_idx", true, "group_id", Attribute.COLUMN_FIELD_ID);
-  
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeTable.getName(), "attribute_field_value_idx", false, Attribute.COLUMN_FIELD_ID, "value");
+    
+    //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
+    String scriptOverride = ddlVersionBean.isMysql() ? "\nCREATE INDEX attribute_field_value_idx " +
+        "ON grouper_attributes (field_id, value(333));\n" : null;
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, attributeTable.getName(), "attribute_field_value_idx", 
+        scriptOverride, false, Attribute.COLUMN_FIELD_ID, "value");
   }
 
   /**

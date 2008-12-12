@@ -1,9 +1,10 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.11 2008-12-11 05:49:13 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.12 2008-12-12 07:19:16 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -186,8 +187,11 @@ public enum GrouperLoaderType {
           boolean isRunBadMember = dayListContainsToday(badMemberSchedule);
           
           String emailTo = GrouperLoaderConfig.getPropertyString("daily.report.emailTo");
-          if (StringUtils.isBlank(emailTo)) {
-            throw new RuntimeException("grouper-loader.properties property daily.report.emailTo needs to be filled in");
+          String reportDirectory = GrouperLoaderConfig.getPropertyString("daily.report.saveInDirectory");
+          
+          if (StringUtils.isBlank(emailTo) && StringUtils.isBlank(reportDirectory)) {
+            throw new RuntimeException("grouper-loader.properties property daily.report.emailTo " +
+            		"or daily.report.saveInDirectory needs to be filled in");
           }
           
           String report = null;
@@ -203,7 +207,19 @@ public enum GrouperLoaderType {
             re = e;
           }
           
-          new GrouperEmail().setBody(report).setSubject("Grouper report").setTo(emailTo).send();
+          //if we are emailing
+          if (!StringUtils.isBlank(emailTo)) {
+            new GrouperEmail().setBody(report).setSubject("Grouper report").setTo(emailTo).send();
+          }
+          
+          //if we are saving to dir on server
+          if (!StringUtils.isBlank(reportDirectory)) {
+            reportDirectory = GrouperUtil.stripLastSlashIfExists(reportDirectory) + File.separator;
+            GrouperUtil.mkdirs(new File(reportDirectory));
+            File reportFile = new File(reportDirectory + "grouperReport_" 
+                + new SimpleDateFormat("yyyyMMdd_HH_mm_ss").format(new Date()) + ".txt");
+            GrouperUtil.saveStringIntoFile(reportFile, report);
+          }
           
           //end in error if error
           if (re != null) {
