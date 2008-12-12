@@ -33,12 +33,15 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.grouper.ui.util.ProcessSearchTerm;
 import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
@@ -112,7 +115,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: DoSearchSubjectsAction.java,v 1.9 2007-11-08 14:40:03 isgwb Exp $
+ * @version $Id: DoSearchSubjectsAction.java,v 1.10 2008-12-12 15:31:51 isgwb Exp $
  */
 public class DoSearchSubjectsAction extends GrouperCapableAction {
 
@@ -174,6 +177,20 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 		} else {
 			results = new LinkedHashSet();
 		}
+		Iterator it = results.iterator();
+		Subject subj;
+		
+		while(it.hasNext()) {
+			subj=(Subject)it.next();
+			if(subj.getSource().getId().equals("g:gsa")) {
+				try {
+					Group g = GroupFinder.findByUuid(grouperSession, subj.getId());
+				}catch(Exception e) {
+					it.remove();
+				}
+			}
+		}
+		
 		Map addAttr = new HashMap();
 		addAttr.put("returnTo","/doSearchSubjects.do");
 		addAttr.put("returnToLinkKey","subject.action.return-results");
