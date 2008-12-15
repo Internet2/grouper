@@ -90,9 +90,12 @@ Class WsGetGroupsResult</H2>
 <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResult</B>
 </PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws">ResultMetadataHolder</A></DD>
+</DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>WsGetGroupsResult</B><DT>extends <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <B>WsGetGroupsResult</B><DT>extends <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws">ResultMetadataHolder</A></DL>
 </PRE>
 
 <P>
@@ -192,7 +195,7 @@ Class WsGetGroupsResult</H2>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGetGroupsResult.html?root=I2MI&view=co&pathrev=HEAD#getResultMetadata()">getResultMetadata</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the result metadata</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -298,6 +301,9 @@ public void <B>assignResultCode</B>(<A HREF="../../../../../../edu/internet2/mid
 <DD>assign the code from the enum
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>wsGetGroupsResultsCode</CODE> - </DL>
 </DD>
 </DL>
@@ -310,6 +316,9 @@ public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGet
 <DL>
 <DD>convert the result code back to enum
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the enum code</DL>
@@ -325,6 +334,9 @@ public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGro
 <DD>results for each assignment sent in
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 
 <DT><B>Returns:</B><DD>the results</DL>
 </DD>
@@ -338,6 +350,9 @@ public void <B>setWsGroups</B>(<A HREF="../../../../../../edu/internet2/middlewa
 <DL>
 <DD>results for each assignment sent in
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>results1</CODE> - the results to set</DL>
 </DD>
@@ -355,6 +370,9 @@ public void <B>assignResultCodeException</B>(<A HREF="../../../../../../edu/inte
 <DD>prcess an exception, log, etc
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>wsGetGroupsResultsCodeOverride</CODE> - <DD><CODE>wsAddMemberResultsCodeOverride</CODE> - <DD><CODE>theError</CODE> - <DD><CODE>wsSubjectLookup</CODE> - is current subject<DD><CODE>e</CODE> - </DL>
 </DD>
 </DL>
@@ -369,6 +387,9 @@ public void <B>assignGroupResult</B>(<A HREF="http://java.sun.com/j2se/1.4.2/doc
 <DD>put a group in the results
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>includeDetail</CODE> - true if the detail for each group should be included<DD><CODE>groupSet</CODE> - </DL>
 </DD>
 </DL>
@@ -379,6 +400,12 @@ getResultMetadata</H3>
 <PRE>
 public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsResultMeta.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsResultMeta</A> <B>getResultMetadata</B>()</PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD#getResultMetadata()">ResultMetadataHolder</A></CODE></B></DD>
+<DD>get the result metadata
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD#getResultMetadata()">getResultMetadata</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws">ResultMetadataHolder</A></CODE></DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the resultMetadata</DL>
@@ -394,6 +421,9 @@ public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSub
 <DD>subject that was added
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 
 <DT><B>Returns:</B><DD>the subjectId</DL>
 </DD>
@@ -408,6 +438,9 @@ public void <B>setWsSubject</B>(<A HREF="../../../../../../edu/internet2/middlew
 <DD>subject that was added
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>wsSubject1</CODE> - the wsSubject1 to set</DL>
 </DD>
 </DL>
@@ -418,6 +451,9 @@ setResultMetadata</H3>
 <PRE>
 public void <B>setResultMetadata</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsResultMeta.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsResultMeta</A>&nbsp;resultMetadata1)</PRE>
 <DL>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>resultMetadata1</CODE> - the resultMetadata to set</DL>
 </DD>
@@ -431,6 +467,9 @@ public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGet
 <DL>
 <DD>convert string to result code
 <P>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the result code</DL>

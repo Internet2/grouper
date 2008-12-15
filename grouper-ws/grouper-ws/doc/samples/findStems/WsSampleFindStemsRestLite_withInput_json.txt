@@ -11,7 +11,7 @@ Grouper web service sample of service: findStems, WsSampleFindStemsRestLite, man
 
 POST /grouperWs/servicesRest/v1_4_000/stems HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 137
@@ -36,12 +36,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=8879190E8FD12AAA24AE804AB31814AA; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 27 Oct 2008 21:13:25 GMT
+Date: Mon, 15 Dec 2008 09:07:00 GMT
 Connection: close
 
 {
@@ -53,20 +53,17 @@ Connection: close
         "description":"a stem description",
         "displayName":"a stem",
         "name":"aStem",
-        "uuid":"ffa584fe-0523-46f2-bfe5-2d67b4079e22"
+        "uuid":"5120ec06-a933-4924-9e4d-42570da633b7"
       }
       
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
       "resultMessage":"Success for: clientVersion: v1_4_000, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: null",
-      "success":"T",
-      "httpStatusCode":"200"
+      "success":"T"
     },
     "responseMetadata":{
-      "resultWarnings":"",
-      "millis":"-1",
-      "millisStart":"1225142005538",
+      "millis":"484",
       "serverVersion":"v1_4_000"
     }
   }

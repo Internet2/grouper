@@ -60,7 +60,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 15 Dec 2008 08:57:22 GMT
+Date: Mon, 15 Dec 2008 09:10:30 GMT
 Connection: close
 
 <WsGroupSaveResults>
@@ -72,7 +72,7 @@ Connection: close
         <description>desc1</description>
         <displayName>a stem:disp1</displayName>
         <name>aStem:whateverGroup</name>
-        <uuid>b91ffe59-d53c-408c-8b49-aa93b4c842fe</uuid>
+        <uuid>ec8526f9-a08e-41ba-88e5-4f2863612bf0</uuid>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS_INSERTED</resultCode>
@@ -86,7 +86,7 @@ Connection: close
         <description>descs</description>
         <displayName>a stem:disp2</displayName>
         <name>aStem:whateverGroup2</name>
-        <uuid>4bae3a5d-cb05-4cef-b646-cf01301bf4d5</uuid>
+        <uuid>2d865289-4042-4774-97a1-41b8bfc5e719</uuid>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS_INSERTED</resultCode>
@@ -104,7 +104,7 @@ wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
-    <millis>641</millis>
+    <millis>563</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
 </WsGroupSaveResults>

@@ -91,11 +91,11 @@ Class WsAssignGrouperPrivilegesLiteResult</H2>
   <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.ws.soap.WsAssignGrouperPrivilegesLiteResult</B>
 </PRE>
 <DL>
-<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws.rest">WsResponseBean</A></DD>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws.rest">WsResponseBean</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws">ResultMetadataHolder</A></DD>
 </DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>WsAssignGrouperPrivilegesLiteResult</B><DT>extends <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws.rest">WsResponseBean</A></DL>
+<DT><PRE>public class <B>WsAssignGrouperPrivilegesLiteResult</B><DT>extends <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws.rest">WsResponseBean</A>, <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws">ResultMetadataHolder</A></DL>
 </PRE>
 
 <P>
@@ -196,14 +196,6 @@ Result of assigning or removing a privilege
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGrouperPrivilegeResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGrouperPrivilegeResult</A>[]</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignGrouperPrivilegesLiteResult.html?root=I2MI&view=co&pathrev=HEAD#getPrivilegeResults()">getPrivilegeResults</A></B>()</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Privileges for this query</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignGrouperPrivilegesLiteResult.html?root=I2MI&view=co&pathrev=HEAD#getPrivilegeType()">getPrivilegeType</A></B>()</CODE>
 
@@ -290,14 +282,6 @@ Result of assigning or removing a privilege
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;privilege type, e.g.</TD>
-</TR>
-<TR BGCOLOR="white" CLASS="TableRowColor">
-<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
-<CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsAssignGrouperPrivilegesLiteResult.html?root=I2MI&view=co&pathrev=HEAD#setPrivilegeResults(edu.internet2.middleware.grouper.ws.soap.WsGrouperPrivilegeResult[])">setPrivilegeResults</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGrouperPrivilegeResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGrouperPrivilegeResult</A>[]&nbsp;privilegeResults1)</CODE>
-
-<BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Privileges for this query</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -481,7 +465,7 @@ public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsRes
 <DD>get the result metadata
 <P>
 <DD><DL>
-<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?root=I2MI&view=co&pathrev=HEAD#getResultMetadata()">getResultMetadata</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws.rest">WsResponseBean</A></CODE></DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?root=I2MI&view=co&pathrev=HEAD#getResultMetadata()">getResultMetadata</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/rest/WsResponseBean.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws.rest">WsResponseBean</A></CODE><DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD#getResultMetadata()">getResultMetadata</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws">ResultMetadataHolder</A></CODE></DL>
 </DD>
 <DD><DL>
 
@@ -594,39 +578,6 @@ public void <B>setParams</B>(<A HREF="../../../../../../edu/internet2/middleware
 </DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>params1</CODE> - the params to set</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="getPrivilegeResults()"><!-- --></A><H3>
-getPrivilegeResults</H3>
-<PRE>
-public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGrouperPrivilegeResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGrouperPrivilegeResult</A>[] <B>getPrivilegeResults</B>()</PRE>
-<DL>
-<DD>Privileges for this query
-<P>
-<DD><DL>
-</DL>
-</DD>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>the privileges</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="setPrivilegeResults(edu.internet2.middleware.grouper.ws.soap.WsGrouperPrivilegeResult[])"><!-- --></A><H3>
-setPrivilegeResults</H3>
-<PRE>
-public void <B>setPrivilegeResults</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsGrouperPrivilegeResult.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsGrouperPrivilegeResult</A>[]&nbsp;privilegeResults1)</PRE>
-<DL>
-<DD>Privileges for this query
-<P>
-<DD><DL>
-</DL>
-</DD>
-<DD><DL>
-<DT><B>Parameters:</B><DD><CODE>privilegeResults1</CODE> - </DL>
 </DD>
 </DL>
 <HR>

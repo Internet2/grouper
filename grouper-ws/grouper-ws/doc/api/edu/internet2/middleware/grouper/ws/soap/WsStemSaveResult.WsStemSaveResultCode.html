@@ -143,7 +143,19 @@ result code of a request
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the save was not found</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
-<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemSaveResult.WsStemSaveResultCode.html?root=I2MI&view=co&pathrev=HEAD#SUCCESS">SUCCESS</A></B></CODE>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemSaveResult.WsStemSaveResultCode.html?root=I2MI&view=co&pathrev=HEAD#SUCCESS_INSERTED">SUCCESS_INSERTED</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;successful addition</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemSaveResult.WsStemSaveResultCode.html?root=I2MI&view=co&pathrev=HEAD#SUCCESS_NO_CHANGES_NEEDED">SUCCESS_NO_CHANGES_NEEDED</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;successful addition</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemSaveResult.WsStemSaveResultCode.html?root=I2MI&view=co&pathrev=HEAD#SUCCESS_UPDATED">SUCCESS_UPDATED</A></B></CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;successful addition</TD>
@@ -179,6 +191,14 @@ result code of a request
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a successful result</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemSaveResult.WsStemSaveResultCode.html?root=I2MI&view=co&pathrev=HEAD#nameForVersion(edu.internet2.middleware.grouper.ws.GrouperWsVersion)">nameForVersion</A></B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the name label for a certain version of client</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -229,10 +249,34 @@ the order they're declared.</TD>
 </TR>
 </TABLE>
 
-<A NAME="SUCCESS"><!-- --></A><H3>
-SUCCESS</H3>
+<A NAME="SUCCESS_INSERTED"><!-- --></A><H3>
+SUCCESS_INSERTED</H3>
 <PRE>
-public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemSaveResult.WsStemSaveResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsStemSaveResult.WsStemSaveResultCode</A> <B>SUCCESS</B></PRE>
+public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemSaveResult.WsStemSaveResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsStemSaveResult.WsStemSaveResultCode</A> <B>SUCCESS_INSERTED</B></PRE>
+<DL>
+<DD>successful addition
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="SUCCESS_UPDATED"><!-- --></A><H3>
+SUCCESS_UPDATED</H3>
+<PRE>
+public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemSaveResult.WsStemSaveResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsStemSaveResult.WsStemSaveResultCode</A> <B>SUCCESS_UPDATED</B></PRE>
+<DL>
+<DD>successful addition
+<P>
+<DL>
+</DL>
+</DL>
+<HR>
+
+<A NAME="SUCCESS_NO_CHANGES_NEEDED"><!-- --></A><H3>
+SUCCESS_NO_CHANGES_NEEDED</H3>
+<PRE>
+public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemSaveResult.WsStemSaveResultCode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws.soap">WsStemSaveResult.WsStemSaveResultCode</A> <B>SUCCESS_NO_CHANGES_NEEDED</B></PRE>
 <DL>
 <DD>successful addition
 <P>
@@ -347,6 +391,20 @@ not permitted.)
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/IllegalArgumentException.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">IllegalArgumentException</A></CODE> - if this enum type has no constant
 with the specified name</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="nameForVersion(edu.internet2.middleware.grouper.ws.GrouperWsVersion)"><!-- --></A><H3>
+nameForVersion</H3>
+<PRE>
+public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A> <B>nameForVersion</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion)</PRE>
+<DL>
+<DD>get the name label for a certain version of client
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - 
+<DT><B>Returns:</B><DD></DL>
 </DD>
 </DL>
 <HR>

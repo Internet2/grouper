@@ -42,7 +42,7 @@ X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 15 Dec 2008 08:57:57 GMT
+Date: Mon, 15 Dec 2008 09:11:01 GMT
 Connection: close
 
 {
@@ -53,7 +53,7 @@ Connection: close
       "success":"T"
     },
     "responseMetadata":{
-      "millis":"578",
+      "millis":"500",
       "serverVersion":"v1_4_000"
     },
     "wsGroup":{
@@ -62,7 +62,7 @@ Connection: close
       "description":"desc1",
       "displayName":"a stem:disp1",
       "name":"aStem:aGroupToSave",
-      "uuid":"f29e213e-519b-428a-83fe-bc0bda8802a6"
+      "uuid":"0f16b294-2ce7-4fee-853a-c2e1e5c82084"
     }
   }
 }

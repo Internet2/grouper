@@ -11,7 +11,7 @@ Grouper web service sample of service: stemDelete, WsSampleStemDeleteRestLite, m
 
 DELETE /grouperWs/servicesRest/json/v1_4_000/stems/aStem%3AaStemToDelete HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
@@ -26,26 +26,23 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=605DE3059222A1C85C9481CD423AB866; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_STEM_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 27 Oct 2008 21:13:45 GMT
+Date: Mon, 15 Dec 2008 09:07:37 GMT
 Connection: close
 
 {
   "WsStemDeleteLiteResult":{
     "resultMetadata":{
       "resultCode":"SUCCESS_STEM_NOT_FOUND",
-      "resultMessage":"Success for: clientVersion: v1_4_000, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]\n\n, actAsSubject: WsSubjectLookup[], txType: NONE, paramNames: \n, params: nullCant find stem: 'WsStemLookup[stemName=aStem:aStemToDelete,\n  stemFindResult=STEM_NOT_FOUND]'.  ",
-      "success":"T",
-      "httpStatusCode":"200"
+      "resultMessage":"Success for: clientVersion: v1_4_000, wsStemLookups: Array size: 1: [0]: WsStemLookup[stemName=aStem:aStemToDelete]\n\n, actAsSubject: WsSubjectLookup[], txType: NONE, paramNames: \n, params: nullCant find stem: 'WsStemLookup[stemName=aStem:aStemToDelete,\n  stemFindResult=STEM_NOT_FOUND]'.",
+      "success":"T"
     },
     "responseMetadata":{
-      "resultWarnings":"",
-      "millis":"-1",
-      "millisStart":"1225142025335",
+      "millis":"407",
       "serverVersion":"v1_4_000"
     },
     "wsStem":{
@@ -190,4 +187,4 @@ Server version: v1_4_000, result code: SUCCESS_STEM_NOT_FOUND, result message: S
 
 , actAsSubject: WsSubjectLookup[], txType: NONE, paramNames: 
 , params: nullCant find stem: 'WsStemLookup[stemName=aStem:aStemToDelete,
-  stemFindResult=STEM_NOT_FOUND]'.  
+  stemFindResult=STEM_NOT_FOUND]'.

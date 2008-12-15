@@ -11,7 +11,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manuall
 
 POST /grouperWs/servicesRest/v1_4_000/subjects HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 164
@@ -47,12 +47,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=D5B3E7CDD697B3BEC494CB17E0E43C8F; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 27 Oct 2008 21:10:43 GMT
+Date: Mon, 15 Dec 2008 09:03:59 GMT
 Connection: close
 
 {
@@ -63,20 +63,19 @@ Connection: close
           "wsGroups":{
             "WsGroup":[
               {
-                "extension":"webServiceClientUsers",
-                "displayExtension":"webServiceClientUsers",
-                "description":"",
-                "displayName":"penn:etc:webServiceClientUsers",
-                "name":"penn:etc:webServiceClientUsers",
-                "uuid":"33f83688-82ff-45dc-a2ed-d642621f413b"
+                "extension":"aGroup2",
+                "displayExtension":"a group2",
+                "description":"a group description2",
+                "displayName":"a stem:a group2",
+                "name":"aStem:aGroup2",
+                "uuid":"7ca17144-b8d7-4b34-9136-964b422cdaea"
               },
               {
                 "extension":"webServiceActAsGroup",
                 "displayExtension":"webServiceActAsGroup",
-                "description":"",
                 "displayName":"penn:etc:webServiceActAsGroup",
                 "name":"penn:etc:webServiceActAsGroup",
-                "uuid":"263ed46b-0af6-4a35-aea0-a3c1483802c1"
+                "uuid":"eaa2249d-7ca5-4921-88f6-f1b9a6139b24"
               },
               {
                 "extension":"aGroup",
@@ -84,32 +83,28 @@ Connection: close
                 "description":"a group description",
                 "displayName":"a stem:a group",
                 "name":"aStem:aGroup",
-                "uuid":"c05bc60b-d328-4458-a059-3a97d8f255c4"
+                "uuid":"31c27399-ffc6-4800-b27e-d79ffa21dbf7"
               },
               {
-                "extension":"aGroup2",
-                "displayExtension":"a group2",
-                "description":"a group description2",
-                "displayName":"a stem:a group2",
-                "name":"aStem:aGroup2",
-                "uuid":"9ce3decf-3709-4cf1-b6b7-2ab3ec0a0a3a"
+                "extension":"webServiceClientUsers",
+                "displayExtension":"webServiceClientUsers",
+                "displayName":"penn:etc:webServiceClientUsers",
+                "name":"penn:etc:webServiceClientUsers",
+                "uuid":"c16efb75-6268-4051-a702-ef0de6cc9f85"
               },
               {
                 "extension":"sysAdminGroup",
                 "displayExtension":"sysAdminGroup",
-                "description":"",
                 "displayName":"penn:etc:sysAdminGroup",
                 "name":"penn:etc:sysAdminGroup",
-                "uuid":"4c09ce4f-10bf-42f0-8adc-8917c350a6f7"
+                "uuid":"4e30573d-69da-47ec-9b9d-6df2d8a0d3fe"
               }
             ]
             
           },
           "resultMetadata":{
             "resultCode":"SUCCESS",
-            "resultMessage":"",
-            "success":"T",
-            "httpStatusCode":"200"
+            "success":"T"
           },
           "wsSubject":{
             "resultCode":"SUCCESS",
@@ -128,7 +123,7 @@ Connection: close
                 "description":"a group description",
                 "displayName":"a stem:a group",
                 "name":"aStem:aGroup",
-                "uuid":"c05bc60b-d328-4458-a059-3a97d8f255c4"
+                "uuid":"31c27399-ffc6-4800-b27e-d79ffa21dbf7"
               },
               {
                 "extension":"aGroup2",
@@ -136,16 +131,14 @@ Connection: close
                 "description":"a group description2",
                 "displayName":"a stem:a group2",
                 "name":"aStem:aGroup2",
-                "uuid":"9ce3decf-3709-4cf1-b6b7-2ab3ec0a0a3a"
+                "uuid":"7ca17144-b8d7-4b34-9136-964b422cdaea"
               }
             ]
             
           },
           "resultMetadata":{
             "resultCode":"SUCCESS",
-            "resultMessage":"",
-            "success":"T",
-            "httpStatusCode":"200"
+            "success":"T"
           },
           "wsSubject":{
             "resultCode":"SUCCESS",
@@ -160,13 +153,10 @@ Connection: close
     "resultMetadata":{
       "resultCode":"SUCCESS",
       "resultMessage":"Success for: clientVersion: v1_4_000, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]\n, params: null",
-      "success":"T",
-      "httpStatusCode":"201"
+      "success":"T"
     },
     "responseMetadata":{
-      "resultWarnings":"",
-      "millis":"-1",
-      "millisStart":"1225141842818",
+      "millis":"735",
       "serverVersion":"v1_4_000"
     }
   }

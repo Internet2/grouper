@@ -11,7 +11,7 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRestLite2, ma
 
 PUT /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 65
@@ -34,12 +34,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=ACB1ACFD18A85DA0AC1A3C3611496632; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_ALREADY_EXISTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 27 Oct 2008 20:28:21 GMT
+Date: Mon, 15 Dec 2008 09:01:47 GMT
 Connection: close
 
 {
@@ -47,8 +47,7 @@ Connection: close
     "resultMetadata":{
       "resultCode":"SUCCESS_ALREADY_EXISTED",
       "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\n, replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n, params: null",
-      "success":"T",
-      "httpStatusCode":"200"
+      "success":"T"
     },
     "wsGroupAssigned":{
       "extension":"aGroup",
@@ -56,7 +55,7 @@ Connection: close
       "description":"a group description",
       "displayName":"a stem:a group",
       "name":"aStem:aGroup",
-      "uuid":"c2a29579-3bc8-478d-a20b-b86d3cda8600"
+      "uuid":"0645dd00-dd01-4a34-8644-3a9553dd5ab2"
     },
     "wsSubject":{
       "resultCode":"SUCCESS",
@@ -65,9 +64,7 @@ Connection: close
       "sourceId":"pennperson"
     },
     "responseMetadata":{
-      "resultWarnings":"",
-      "millis":"-1",
-      "millisStart":"1225139301223",
+      "millis":"500",
       "serverVersion":"v1_4_000"
     }
   }

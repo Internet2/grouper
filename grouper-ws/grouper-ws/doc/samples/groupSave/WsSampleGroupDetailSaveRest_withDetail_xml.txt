@@ -99,7 +99,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 15 Dec 2008 08:57:42 GMT
+Date: Mon, 15 Dec 2008 09:10:47 GMT
 Connection: close
 
 <WsGroupSaveResults>
@@ -111,7 +111,7 @@ Connection: close
         <description>whateverGroupLeftDesc</description>
         <displayName>a stem:whateverGroupLeftDispExt</displayName>
         <name>aStem:whateverGroupLeft</name>
-        <uuid>4b1cda6b-b1db-4278-869d-d96f3798c831</uuid>
+        <uuid>30c8ef24-d10f-4ca9-9050-26898d4d493f</uuid>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS_INSERTED</resultCode>
@@ -125,7 +125,7 @@ Connection: close
         <description>whateverGroupRightDesc</description>
         <displayName>a stem:whateverGroupRightDispExt</displayName>
         <name>aStem:whateverGroupRight</name>
-        <uuid>049314c1-e82c-4619-a3dd-67b03de35f5a</uuid>
+        <uuid>64b412c6-49cf-4122-a173-a7e0012f6cbd</uuid>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS_INSERTED</resultCode>
@@ -139,7 +139,7 @@ Connection: close
         <description>desc1</description>
         <displayName>a stem:disp1</displayName>
         <name>aStem:whateverGroup</name>
-        <uuid>362b71f4-16a6-479d-be8b-c1e35a425bcd</uuid>
+        <uuid>88a7b76b-e6c3-49d1-aa4b-1d309489b6bc</uuid>
       </wsGroup>
       <resultMetadata>
         <resultCode>SUCCESS_INSERTED</resultCode>
@@ -157,7 +157,7 @@ wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDi
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
-    <millis>687</millis>
+    <millis>750</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
 </WsGroupSaveResults>

@@ -11,7 +11,7 @@ Grouper web service sample of service: findGroups, WsSampleFindGroupsRestLite, m
 
 POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 120
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestFindGroupsLiteRequest&groupName=aGr&stemName=aStem&queryF
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=EA6E495907A9B6221536806F290E704E; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:12:29 GMT
+Date: Mon, 15 Dec 2008 09:06:25 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -54,7 +54,7 @@ Connection: close
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">422</p>
+        <p class="millis">547</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -65,7 +65,7 @@ Connection: close
           <p class="description">a group description2</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">aGroup2</p>
-          <p class="uuid">220ad020-374a-4e5e-b3a7-d4c32773b2c8</p>
+          <p class="uuid">25919bf1-1d8b-438b-8d6c-517b587a7893</p>
           <p class="displayExtension">a group2</p>
         </li>
         <li title="WsGroup">
@@ -74,7 +74,7 @@ Connection: close
           <p class="description">a group description</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">aGroup</p>
-          <p class="uuid">5d430dc5-4963-40f9-8c09-694a53f40d03</p>
+          <p class="uuid">d8987a22-b84a-407d-bd60-b09434acb235</p>
           <p class="displayExtension">a group</p>
         </li>
       </ul>

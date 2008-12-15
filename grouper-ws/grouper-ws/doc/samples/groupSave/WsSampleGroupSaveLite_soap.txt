@@ -55,7 +55,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:groupSaveLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 15 Dec 2008 08:57:00 GMT
+Date: Mon, 15 Dec 2008 09:10:14 GMT
 
 727
 <?xml version='1.0' encoding='UTF-8'?>
@@ -64,7 +64,7 @@ Date: Mon, 15 Dec 2008 08:57:00 GMT
     <ns:groupSaveLiteResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsGroupSaveLiteResult">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>609</ns:millis>
+          <ns:millis>531</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_4_000</ns:serverVersion>
         </ns:responseMetadata>
@@ -87,7 +87,7 @@ wsGroup=WsGroup[displayExtension=the test group,description=test group,name=aSte
           <ns:displayName>a stem:the test group</ns:displayName>
           <ns:extension>test</ns:extension>
           <ns:name>aStem:test</ns:name>
-          <ns:uuid>d0b78419-42e5-4667-b760-f931ad9fc4cc</ns:uuid>
+          <ns:uuid>451a63e7-6dd6-43c4-a290-03ff502c8684</ns:uuid>
         </ns:wsGroup>
       </ns:return>
     </ns:groupSaveLiteResponse>
@@ -206,6 +206,6 @@ public class WsSampleGroupSaveLite implements WsSampleGenerated {
 
 
 WsGroupSaveLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@9f0df0,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@4c2394,localResultMetadataTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@b3cbc0,localWsGroupTracker=true]
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@48adc2,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@187bb80,localResultMetadataTracker=true,
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@26db8b,localWsGroupTracker=true]

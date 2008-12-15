@@ -11,7 +11,7 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite2
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup123 HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 92
@@ -35,26 +35,23 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=EB8747B0DBB70B8F6C6B1B8A135EC81A; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_GROUP_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 27 Oct 2008 21:15:57 GMT
+Date: Mon, 15 Dec 2008 09:09:57 GMT
 Connection: close
 
 {
   "WsGroupDeleteLiteResult":{
     "resultMetadata":{
       "resultCode":"SUCCESS_GROUP_NOT_FOUND",
-      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup123]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames: \n, params: nullCant find group: 'WsGroupLookup[groupName=aStem:aGroup123,\n  groupFindResult=GROUP_NOT_FOUND]'.  ",
-      "success":"T",
-      "httpStatusCode":"200"
+      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookups: Array size: 1: [0]: WsGroupLookup[groupName=aStem:aGroup123]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames: \n, params: nullCant find group: 'WsGroupLookup[groupName=aStem:aGroup123,\n  groupFindResult=GROUP_NOT_FOUND]'.",
+      "success":"T"
     },
     "responseMetadata":{
-      "resultWarnings":"",
-      "millis":"-1",
-      "millisStart":"1225142157335",
+      "millis":"453",
       "serverVersion":"v1_4_000"
     },
     "wsGroup":{
@@ -225,4 +222,4 @@ Server version: v1_4_000, result code: SUCCESS_GROUP_NOT_FOUND, result message: 
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames: 
 , params: nullCant find group: 'WsGroupLookup[groupName=aStem:aGroup123,
-  groupFindResult=GROUP_NOT_FOUND]'.  
+  groupFindResult=GROUP_NOT_FOUND]'.

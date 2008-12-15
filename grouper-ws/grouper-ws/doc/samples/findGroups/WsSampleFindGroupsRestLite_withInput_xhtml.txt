@@ -11,7 +11,7 @@ Grouper web service sample of service: findGroups, WsSampleFindGroupsRestLite, m
 
 POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 858
@@ -28,20 +28,20 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="groupUuid" />
       <p class="groupName">aGr</p>
       <p class="clientVersion" />
-      <p class="includeGroupDetail" />
+      <p class="stemName">aStem</p>
       <p class="actAsSubjectId" />
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
+      <p class="includeGroupDetail" />
       <p class="paramName0" />
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
-      <p class="stemName">aStem</p>
       <p class="queryFilterType">FIND_BY_GROUP_NAME_APPROXIMATE</p>
       <p class="stemNameScope" />
       <p class="groupAttributeName" />
-      <p class="groupAttributeValue" />
       <p class="groupTypeName" />
+      <p class="groupAttributeValue" />
     </div>
   </body>
 </html>
@@ -57,12 +57,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=183EBDBF3B86AF6995CCEE1111470913; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:12:21 GMT
+Date: Mon, 15 Dec 2008 09:06:18 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -82,28 +82,28 @@ Connection: close
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">782</p>
+        <p class="millis">843</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
       <ul class="groupResults">
-        <li title="WsGroup">
-          <p class="name">aStem:aGroup2</p>
-          <p class="displayName">a stem:a group2</p>
-          <p class="description">a group description2</p>
-          <div class="detail" title="WsGroupDetail" />
-          <p class="extension">aGroup2</p>
-          <p class="uuid">220ad020-374a-4e5e-b3a7-d4c32773b2c8</p>
-          <p class="displayExtension">a group2</p>
-        </li>
         <li title="WsGroup">
           <p class="name">aStem:aGroup</p>
           <p class="displayName">a stem:a group</p>
           <p class="description">a group description</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">aGroup</p>
-          <p class="uuid">5d430dc5-4963-40f9-8c09-694a53f40d03</p>
+          <p class="uuid">50f43098-4003-4b60-af6d-74ff3a7772f1</p>
           <p class="displayExtension">a group</p>
+        </li>
+        <li title="WsGroup">
+          <p class="name">aStem:aGroup2</p>
+          <p class="displayName">a stem:a group2</p>
+          <p class="description">a group description2</p>
+          <div class="detail" title="WsGroupDetail" />
+          <p class="extension">aGroup2</p>
+          <p class="uuid">ca7e037d-409a-4ba0-b306-e718f3d8e9f4</p>
+          <p class="displayExtension">a group2</p>
         </li>
       </ul>
     </div>

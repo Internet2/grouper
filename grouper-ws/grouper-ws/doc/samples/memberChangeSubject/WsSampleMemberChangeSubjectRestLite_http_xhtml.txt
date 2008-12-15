@@ -11,7 +11,7 @@ Grouper web service sample of service: memberChangeSubject, WsSampleMemberChange
 
 POST /grouperWs/servicesRest/v1_4_000/members HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 138
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestMemberChangeSubjectLiteRequest&actAsSubjectId=GrouperSyst
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=B8DD4E98FB4797434E72E0AEF14FE432; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:23:36 GMT
+Date: Mon, 15 Dec 2008 09:12:08 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -57,7 +57,7 @@ newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">375</p>
+        <p class="millis">390</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -66,9 +66,17 @@ newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]
         <p class="id">test.subject.1</p>
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
+        <p class="identifierLookup" />
         <p class="sourceId">jdbc</p>
       </div>
-      <div class="wsSubjectOld" title="WsSubject" />
+      <div class="wsSubjectOld" title="WsSubject">
+        <p class="name" />
+        <p class="id">test.subject.0</p>
+        <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
+        <p class="identifierLookup" />
+        <p class="sourceId">jdbc</p>
+      </div>
     </div>
   </body>
 </html>

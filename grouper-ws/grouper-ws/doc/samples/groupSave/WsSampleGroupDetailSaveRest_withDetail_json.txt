@@ -114,7 +114,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 15 Dec 2008 08:57:38 GMT
+Date: Mon, 15 Dec 2008 09:10:44 GMT
 Connection: close
 
 {
@@ -128,7 +128,7 @@ Connection: close
             "description":"whateverGroupLeftDesc",
             "displayName":"a stem:whateverGroupLeftDispExt",
             "name":"aStem:whateverGroupLeft",
-            "uuid":"3a58eda2-0694-48da-b185-fdc4e4d707a8"
+            "uuid":"78813948-6c87-4305-8eb4-775c0cb4227d"
           },
           "resultMetadata":{
             "resultCode":"SUCCESS_INSERTED",
@@ -143,7 +143,7 @@ Connection: close
             "description":"whateverGroupRightDesc",
             "displayName":"a stem:whateverGroupRightDispExt",
             "name":"aStem:whateverGroupRight",
-            "uuid":"e7feff7f-c5ab-4482-add3-ea7c10ecb1e4"
+            "uuid":"c5ef6541-896d-491f-8d74-444516635b4d"
           },
           "resultMetadata":{
             "resultCode":"SUCCESS_INSERTED",
@@ -158,7 +158,7 @@ Connection: close
             "description":"desc1",
             "displayName":"a stem:disp1",
             "name":"aStem:whateverGroup",
-            "uuid":"745dabeb-1a7f-47c0-aeb2-a50fda37f306"
+            "uuid":"ea3ccc88-4efd-4312-84a9-d5ea137bc4e9"
           },
           "resultMetadata":{
             "resultCode":"SUCCESS_INSERTED",
@@ -174,7 +174,7 @@ Connection: close
       "success":"T"
     },
     "responseMetadata":{
-      "millis":"703",
+      "millis":"656",
       "serverVersion":"v1_4_000"
     }
   }

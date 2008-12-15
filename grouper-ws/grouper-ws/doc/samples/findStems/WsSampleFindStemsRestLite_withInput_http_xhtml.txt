@@ -11,12 +11,12 @@ Grouper web service sample of service: findStems, WsSampleFindStemsRestLite, man
 
 POST /grouperWs/servicesRest/v1_4_000/stems HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 136
 
-wsLiteObjectType=WsRestFindStemsLiteRequest&stemName=aSte&stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE&actAsSubjectId=GrouperSystem
+wsLiteObjectType=WsRestFindStemsLiteRequest&stemName=aSte&actAsSubjectId=GrouperSystem&stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE
 
 
 #########################################
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestFindStemsLiteRequest&stemName=aSte&stemQueryFilterType=FI
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=6A6B50E22F9C248B390937C386197D1D; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:13:27 GMT
+Date: Mon, 15 Dec 2008 09:07:03 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -53,7 +53,7 @@ Connection: close
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">359</p>
+        <p class="millis">422</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -63,7 +63,7 @@ Connection: close
           <p class="displayName">a stem</p>
           <p class="description">a stem description</p>
           <p class="extension">aStem</p>
-          <p class="uuid">ffa584fe-0523-46f2-bfe5-2d67b4079e22</p>
+          <p class="uuid">d51aeac7-ae2c-4995-8311-d2e1979b1dad</p>
           <p class="displayExtension">a stem</p>
         </li>
       </ul>

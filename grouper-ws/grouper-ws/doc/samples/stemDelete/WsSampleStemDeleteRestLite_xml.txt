@@ -11,7 +11,7 @@ Grouper web service sample of service: stemDelete, WsSampleStemDeleteRestLite, m
 
 DELETE /grouperWs/servicesRest/xml/v1_4_000/stems/aStem%3AaStemToDelete HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
@@ -26,12 +26,12 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=A6CD89E58A97B4C0583306B3218B2EE6; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_STEM_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 21:13:50 GMT
+Date: Mon, 15 Dec 2008 09:07:43 GMT
 Connection: close
 
 <WsStemDeleteLiteResult>
@@ -41,14 +41,11 @@ Connection: close
 
 , actAsSubject: WsSubjectLookup[], txType: NONE, paramNames:
 , params: nullCant find stem: &apos;WsStemLookup[stemName=aStem:aStemToDelete,
-stemFindResult=STEM_NOT_FOUND]&apos;.  </resultMessage>
+stemFindResult=STEM_NOT_FOUND]&apos;.</resultMessage>
     <success>T</success>
-    <httpStatusCode>200</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1225142029756</millisStart>
+    <millis>438</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
   <wsStem>
@@ -192,4 +189,4 @@ Server version: v1_4_000, result code: SUCCESS_STEM_NOT_FOUND, result message: S
 
 , actAsSubject: WsSubjectLookup[], txType: NONE, paramNames: 
 , params: nullCant find stem: 'WsStemLookup[stemName=aStem:aStemToDelete,
-  stemFindResult=STEM_NOT_FOUND]'.  
+  stemFindResult=STEM_NOT_FOUND]'.

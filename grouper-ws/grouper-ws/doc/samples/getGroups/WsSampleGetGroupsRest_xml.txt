@@ -11,7 +11,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manuall
 
 POST /grouperWs/servicesRest/v1_4_000/subjects HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 291
@@ -42,12 +42,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=7448DEDFFD834BF71F30CA30DA94ABEF; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 21:10:44 GMT
+Date: Mon, 15 Dec 2008 09:04:02 GMT
 Connection: close
 
 <WsGetGroupsResults>
@@ -55,20 +55,26 @@ Connection: close
     <WsGetGroupsResult>
       <wsGroups>
         <WsGroup>
-          <extension>webServiceClientUsers</extension>
-          <displayExtension>webServiceClientUsers</displayExtension>
-          <description></description>
-          <displayName>penn:etc:webServiceClientUsers</displayName>
-          <name>penn:etc:webServiceClientUsers</name>
-          <uuid>33f83688-82ff-45dc-a2ed-d642621f413b</uuid>
+          <extension>aGroup2</extension>
+          <displayExtension>a group2</displayExtension>
+          <description>a group description2</description>
+          <displayName>a stem:a group2</displayName>
+          <name>aStem:aGroup2</name>
+          <uuid>00d307fe-c9d2-493f-b9ad-208928f6ecc4</uuid>
+        </WsGroup>
+        <WsGroup>
+          <extension>sysAdminGroup</extension>
+          <displayExtension>sysAdminGroup</displayExtension>
+          <displayName>penn:etc:sysAdminGroup</displayName>
+          <name>penn:etc:sysAdminGroup</name>
+          <uuid>8d54c982-fed8-4468-9d8b-e17ecbd8819d</uuid>
         </WsGroup>
         <WsGroup>
           <extension>webServiceActAsGroup</extension>
           <displayExtension>webServiceActAsGroup</displayExtension>
-          <description></description>
           <displayName>penn:etc:webServiceActAsGroup</displayName>
           <name>penn:etc:webServiceActAsGroup</name>
-          <uuid>263ed46b-0af6-4a35-aea0-a3c1483802c1</uuid>
+          <uuid>5a66445c-3d59-4c20-bba6-8118ec84107b</uuid>
         </WsGroup>
         <WsGroup>
           <extension>aGroup</extension>
@@ -76,30 +82,19 @@ Connection: close
           <description>a group description</description>
           <displayName>a stem:a group</displayName>
           <name>aStem:aGroup</name>
-          <uuid>c05bc60b-d328-4458-a059-3a97d8f255c4</uuid>
+          <uuid>ae367acf-cd9f-4e89-9064-c95c6f8c5277</uuid>
         </WsGroup>
         <WsGroup>
-          <extension>aGroup2</extension>
-          <displayExtension>a group2</displayExtension>
-          <description>a group description2</description>
-          <displayName>a stem:a group2</displayName>
-          <name>aStem:aGroup2</name>
-          <uuid>9ce3decf-3709-4cf1-b6b7-2ab3ec0a0a3a</uuid>
-        </WsGroup>
-        <WsGroup>
-          <extension>sysAdminGroup</extension>
-          <displayExtension>sysAdminGroup</displayExtension>
-          <description></description>
-          <displayName>penn:etc:sysAdminGroup</displayName>
-          <name>penn:etc:sysAdminGroup</name>
-          <uuid>4c09ce4f-10bf-42f0-8adc-8917c350a6f7</uuid>
+          <extension>webServiceClientUsers</extension>
+          <displayExtension>webServiceClientUsers</displayExtension>
+          <displayName>penn:etc:webServiceClientUsers</displayName>
+          <name>penn:etc:webServiceClientUsers</name>
+          <uuid>14b463db-6bcb-4946-bf93-08309231503a</uuid>
         </WsGroup>
       </wsGroups>
       <resultMetadata>
         <resultCode>SUCCESS</resultCode>
-        <resultMessage></resultMessage>
         <success>T</success>
-        <httpStatusCode>200</httpStatusCode>
       </resultMetadata>
       <wsSubject>
         <resultCode>SUCCESS</resultCode>
@@ -111,27 +106,25 @@ Connection: close
     <WsGetGroupsResult>
       <wsGroups>
         <WsGroup>
-          <extension>aGroup</extension>
-          <displayExtension>a group</displayExtension>
-          <description>a group description</description>
-          <displayName>a stem:a group</displayName>
-          <name>aStem:aGroup</name>
-          <uuid>c05bc60b-d328-4458-a059-3a97d8f255c4</uuid>
-        </WsGroup>
-        <WsGroup>
           <extension>aGroup2</extension>
           <displayExtension>a group2</displayExtension>
           <description>a group description2</description>
           <displayName>a stem:a group2</displayName>
           <name>aStem:aGroup2</name>
-          <uuid>9ce3decf-3709-4cf1-b6b7-2ab3ec0a0a3a</uuid>
+          <uuid>00d307fe-c9d2-493f-b9ad-208928f6ecc4</uuid>
+        </WsGroup>
+        <WsGroup>
+          <extension>aGroup</extension>
+          <displayExtension>a group</displayExtension>
+          <description>a group description</description>
+          <displayName>a stem:a group</displayName>
+          <name>aStem:aGroup</name>
+          <uuid>ae367acf-cd9f-4e89-9064-c95c6f8c5277</uuid>
         </WsGroup>
       </wsGroups>
       <resultMetadata>
         <resultCode>SUCCESS</resultCode>
-        <resultMessage></resultMessage>
         <success>T</success>
-        <httpStatusCode>200</httpStatusCode>
       </resultMetadata>
       <wsSubject>
         <resultCode>SUCCESS</resultCode>
@@ -149,12 +142,9 @@ Connection: close
 memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null</resultMessage>
     <success>T</success>
-    <httpStatusCode>201</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1225141844474</millisStart>
+    <millis>594</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
 </WsGetGroupsResults>

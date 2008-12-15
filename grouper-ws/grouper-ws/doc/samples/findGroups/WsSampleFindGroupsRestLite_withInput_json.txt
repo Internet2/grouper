@@ -11,7 +11,7 @@ Grouper web service sample of service: findGroups, WsSampleFindGroupsRestLite, m
 
 POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 121
@@ -36,12 +36,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=1FBCEA6F77E75E55BF43F407B7F72DBA; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 27 Oct 2008 21:12:27 GMT
+Date: Mon, 15 Dec 2008 09:06:21 GMT
 Connection: close
 
 {
@@ -54,7 +54,7 @@ Connection: close
           "description":"a group description2",
           "displayName":"a stem:a group2",
           "name":"aStem:aGroup2",
-          "uuid":"220ad020-374a-4e5e-b3a7-d4c32773b2c8"
+          "uuid":"499d535e-dedb-4e28-a9c0-7bb730024250"
         },
         {
           "extension":"aGroup",
@@ -62,7 +62,7 @@ Connection: close
           "description":"a group description",
           "displayName":"a stem:a group",
           "name":"aStem:aGroup",
-          "uuid":"5d430dc5-4963-40f9-8c09-694a53f40d03"
+          "uuid":"140717c8-ada8-4c81-85e1-4b4b0de6913d"
         }
       ]
       
@@ -70,13 +70,10 @@ Connection: close
     "resultMetadata":{
       "resultCode":"SUCCESS",
       "resultMessage":"Success for: clientVersion: v1_4_000, wsQueryFilter: WsQueryFilter[queryFilterType=FIND_BY_GROUP_NAME_APPROXIMATE,groupName=aGr,stemName=aStem]\n, includeGroupDetail: false, actAsSubject: WsSubjectLookup[], paramNames: \n, params: null",
-      "success":"T",
-      "httpStatusCode":"200"
+      "success":"T"
     },
     "responseMetadata":{
-      "resultWarnings":"",
-      "millis":"-1",
-      "millisStart":"1225141946568",
+      "millis":"484",
       "serverVersion":"v1_4_000"
     }
   }

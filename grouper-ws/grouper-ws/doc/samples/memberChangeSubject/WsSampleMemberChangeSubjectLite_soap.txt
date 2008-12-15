@@ -12,7 +12,7 @@ Grouper web service sample of service: memberChangeSubject, WsSampleMemberChange
 POST /grouperWs/services/GrouperService HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:memberChangeSubjectLite"
 User-Agent: Axis2
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
@@ -50,23 +50,23 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=D87A5B3503A7B00C60B2BC30EB1DA1D7; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:memberChangeSubjectLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 27 Oct 2008 21:22:52 GMT
+Date: Mon, 15 Dec 2008 09:11:33 GMT
 
-811
+a29
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
     <ns:memberChangeSubjectLiteResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsMemberChangeSubjectLiteResult">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>406</ns:millis>
-          <ns:resultWarnings></ns:resultWarnings>
+          <ns:millis>437</ns:millis>
+          <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_4_000</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
@@ -83,15 +83,25 @@ newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1,subjectIdentifier=,sub
         </ns:resultMetadata>
         <ns:subjectAttributeNames xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
         <ns:wsSubjectNew type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
-          <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:attributeValues>id.test.subject.1</ns:attributeValues>
           <ns:attributeValues>description.test.subject.1</ns:attributeValues>
           <ns:id>test.subject.1</ns:id>
+          <ns:identifierLookup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:name xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:sourceId>jdbc</ns:sourceId>
           <ns:success>T</ns:success>
         </ns:wsSubjectNew>
-        <ns:wsSubjectOld xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+        <ns:wsSubjectOld type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
+          <ns:attributeValues>id.test.subject.0</ns:attributeValues>
+          <ns:attributeValues>description.test.subject.0</ns:attributeValues>
+          <ns:id>test.subject.0</ns:id>
+          <ns:identifierLookup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:name xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:resultCode>SUCCESS</ns:resultCode>
+          <ns:sourceId>jdbc</ns:sourceId>
+          <ns:success>T</ns:success>
+        </ns:wsSubjectOld>
       </ns:return>
     </ns:memberChangeSubjectLiteResponse>
   </soapenv:Body>
@@ -122,11 +132,11 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.MemberChangeSubjectLite;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsMemberChangeSubjectLiteResult;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+import edu.internet2.middleware.grouper.ws.soap.xsd.MemberChangeSubjectLite;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsMemberChangeSubjectLiteResult;
 
 
 /**
@@ -220,8 +230,9 @@ public class WsSampleMemberChangeSubjectLite implements WsSampleGenerated {
 #########################################
 
 
-GrouperServiceStub.WsMemberChangeSubjectLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@74a7af,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@ad0bd6,localResultMetadataTracker=true,
+WsMemberChangeSubjectLiteResult[
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@1e53507,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@fc7307,localResultMetadataTracker=true,
   localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,
-  localWsSubjectNew=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsSubject@9d93be,localWsSubjectNewTracker=true,localWsSubjectOldTracker=true]
+  localWsSubjectNew=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@110ce45,localWsSubjectNewTracker=true,
+  localWsSubjectOld=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@565114,localWsSubjectOldTracker=true]

@@ -11,7 +11,7 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRestLite, man
 
 PUT /grouperWs/servicesRest/xhtml/v1_4_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 0
@@ -27,12 +27,12 @@ Content-Length: 0
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=329548B8EFA84EBACAE68ED1FB7E2498; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_ALREADY_EXISTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 20:28:11 GMT
+Date: Mon, 15 Dec 2008 09:01:36 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -63,7 +63,7 @@ Connection: close
         <p class="description">a group description</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
-        <p class="uuid">c2a29579-3bc8-478d-a20b-b86d3cda8600</p>
+        <p class="uuid">95bec88d-4dac-48cf-ae0c-ce52e449b501</p>
         <p class="displayExtension">a group</p>
       </div>
       <div class="wsSubject" title="WsSubject">
@@ -71,6 +71,7 @@ Connection: close
         <p class="id">10021368</p>
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
+        <p class="identifierLookup" />
         <p class="sourceId">pennperson</p>
       </div>
     </div>

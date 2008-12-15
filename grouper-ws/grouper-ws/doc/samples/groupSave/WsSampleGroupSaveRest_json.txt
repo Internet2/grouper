@@ -65,7 +65,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 15 Dec 2008 08:57:18 GMT
+Date: Mon, 15 Dec 2008 09:10:27 GMT
 Connection: close
 
 {
@@ -79,7 +79,7 @@ Connection: close
             "description":"desc1",
             "displayName":"a stem:disp1",
             "name":"aStem:whateverGroup",
-            "uuid":"9f457bb8-b6be-4552-94a1-6a5e63d7ad88"
+            "uuid":"744e6a3f-7ad3-457a-8f4c-e55e638ca198"
           },
           "resultMetadata":{
             "resultCode":"SUCCESS_INSERTED",
@@ -94,7 +94,7 @@ Connection: close
             "description":"descs",
             "displayName":"a stem:disp2",
             "name":"aStem:whateverGroup2",
-            "uuid":"6d83b98f-2dfe-45f9-beda-bc2b859e5886"
+            "uuid":"5c8b4a04-c8bd-422d-935e-29b6af881a1d"
           },
           "resultMetadata":{
             "resultCode":"SUCCESS_INSERTED",
@@ -110,7 +110,7 @@ Connection: close
       "success":"T"
     },
     "responseMetadata":{
-      "millis":"1094",
+      "millis":"578",
       "serverVersion":"v1_4_000"
     }
   }

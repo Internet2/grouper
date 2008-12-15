@@ -11,7 +11,7 @@ Grouper web service sample of service: getMembers, WsSampleGetMembersRestLite, m
 
 GET /grouperWs/servicesRest/xhtml/v1_4_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
@@ -26,12 +26,12 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=3D059D64C482A4C5331D1D514911B463; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:11:54 GMT
+Date: Mon, 15 Dec 2008 09:05:31 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -53,7 +53,7 @@ Connection: close
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">437</p>
+        <p class="millis">547</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -63,15 +63,16 @@ Connection: close
         <p class="description">a group description</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
-        <p class="uuid">5d430dc5-4963-40f9-8c09-694a53f40d03</p>
+        <p class="uuid">6913d385-79dd-4bae-9fe8-b6a7f4f218ad</p>
         <p class="displayExtension">a group</p>
       </div>
       <ul class="wsSubjects">
         <li title="WsSubject">
           <p class="name" />
-          <p class="id">10039438</p>
+          <p class="id">10021368</p>
           <p class="resultCode">SUCCESS</p>
           <p class="success">T</p>
+          <p class="identifierLookup" />
           <p class="sourceId">pennperson</p>
         </li>
         <li title="WsSubject">
@@ -79,13 +80,15 @@ Connection: close
           <p class="id">GrouperSystem</p>
           <p class="resultCode">SUCCESS</p>
           <p class="success">T</p>
+          <p class="identifierLookup" />
           <p class="sourceId">g:isa</p>
         </li>
         <li title="WsSubject">
           <p class="name" />
-          <p class="id">10021368</p>
+          <p class="id">10039438</p>
           <p class="resultCode">SUCCESS</p>
           <p class="success">T</p>
+          <p class="identifierLookup" />
           <p class="sourceId">pennperson</p>
         </li>
       </ul>

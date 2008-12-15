@@ -11,7 +11,7 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRestLite, manua
 
 POST /grouperWs/servicesRest/v1_4_000/stems/aStem%3AaStemToSave HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 787
@@ -25,11 +25,10 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestStemSaveLiteRequest">
-      <p class="description">desc1</p>
       <p class="displayExtension">disp1</p>
       <p class="clientVersion" />
-      <p class="saveMode" />
       <p class="stemName">aStem:aStemToSave</p>
+      <p class="stemUuid" />
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
@@ -39,7 +38,8 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="paramValue1" />
       <p class="stemLookupUuid" />
       <p class="stemLookupName" />
-      <p class="stemUuid" />
+      <p class="saveMode" />
+      <p class="description">desc1</p>
     </div>
   </body>
 </html>
@@ -55,12 +55,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=EB228C7E671A729F8DE13805DAE872AE; Path=/grouperWs
-X-Grouper-resultCode: SUCCESS
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:15:19 GMT
+Date: Mon, 15 Dec 2008 09:09:00 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -72,7 +72,7 @@ Connection: close
   <body>
     <div title="WsStemSaveLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
+        <p class="resultCode">SUCCESS_INSERTED</p>
         <p class="success">T</p>
         <p class="resultMessage">Success for: clientVersion: v1_4_000, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
 wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave],
@@ -83,7 +83,7 @@ wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">2922</p>
+        <p class="millis">4126</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -92,7 +92,7 @@ wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
         <p class="displayName">a stem:disp1</p>
         <p class="description">desc1</p>
         <p class="extension">aStemToSave</p>
-        <p class="uuid">aaafb134-fa47-4069-830c-4ae1add8d35d</p>
+        <p class="uuid">e3fbb66e-13a7-4b4e-a44c-9f2bc4e54bf2</p>
         <p class="displayExtension">disp1</p>
       </div>
     </div>
@@ -257,7 +257,7 @@ public class WsSampleStemSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
+Server version: v1_4_000, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: v1_4_000, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
   wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave],
   wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
 

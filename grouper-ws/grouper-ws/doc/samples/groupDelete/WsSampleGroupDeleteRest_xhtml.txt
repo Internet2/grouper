@@ -11,7 +11,7 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRest, man
 
 POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 683
@@ -26,9 +26,9 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestGroupDeleteRequest">
       <p class="clientVersion" />
+      <p class="includeGroupDetail" />
       <div class="actAsSubjectLookup" title="WsSubjectLookup" />
       <p class="txType" />
-      <p class="includeGroupDetail" />
       <ul class="wsGroupLookups">
         <li title="WsGroupLookup">
           <p class="uuid" />
@@ -54,12 +54,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=5CAC4D60A101136C9AED3BE63E1F5D45; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:15:34 GMT
+Date: Mon, 15 Dec 2008 09:09:24 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -76,7 +76,7 @@ Connection: close
             <p class="resultCode">SUCCESS_GROUP_NOT_FOUND</p>
             <p class="success">T</p>
             <p class="resultMessage">Cant find group: 'WsGroupLookup[groupName=aStem:whatever,
-groupFindResult=GROUP_NOT_FOUND]'.  </p>
+groupFindResult=GROUP_NOT_FOUND]'.</p>
             <p class="resultCode2" />
           </div>
           <div class="wsGroup" title="WsGroup">
@@ -94,7 +94,7 @@ groupFindResult=GROUP_NOT_FOUND]'.  </p>
             <p class="resultCode">SUCCESS_GROUP_NOT_FOUND</p>
             <p class="success">T</p>
             <p class="resultMessage">Cant find group: 'WsGroupLookup[groupName=aStem:whatever2,
-groupFindResult=GROUP_NOT_FOUND]'.  </p>
+groupFindResult=GROUP_NOT_FOUND]'.</p>
             <p class="resultCode2" />
           </div>
           <div class="wsGroup" title="WsGroup">
@@ -119,7 +119,7 @@ groupFindResult=GROUP_NOT_FOUND]'.  </p>
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">703</p>
+        <p class="millis">4141</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>

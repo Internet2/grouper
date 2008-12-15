@@ -11,7 +11,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, man
 
 GET /grouperWs/servicesRest/xml/v1_4_000/subjects/10021368/groups HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
@@ -26,12 +26,12 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=9E9C18294492FB73ED51DE98A9023FFD; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 21:10:53 GMT
+Date: Mon, 15 Dec 2008 09:04:17 GMT
 Connection: close
 
 <WsGetGroupsLiteResult>
@@ -42,38 +42,26 @@ Connection: close
 memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]
 , params: null</resultMessage>
     <success>T</success>
-    <httpStatusCode>200</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1225141853537</millisStart>
+    <millis>484</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
   <wsGroups>
-    <WsGroup>
-      <extension>webServiceClientUsers</extension>
-      <displayExtension>webServiceClientUsers</displayExtension>
-      <description></description>
-      <displayName>penn:etc:webServiceClientUsers</displayName>
-      <name>penn:etc:webServiceClientUsers</name>
-      <uuid>33f83688-82ff-45dc-a2ed-d642621f413b</uuid>
-    </WsGroup>
-    <WsGroup>
-      <extension>webServiceActAsGroup</extension>
-      <displayExtension>webServiceActAsGroup</displayExtension>
-      <description></description>
-      <displayName>penn:etc:webServiceActAsGroup</displayName>
-      <name>penn:etc:webServiceActAsGroup</name>
-      <uuid>263ed46b-0af6-4a35-aea0-a3c1483802c1</uuid>
-    </WsGroup>
     <WsGroup>
       <extension>aGroup</extension>
       <displayExtension>a group</displayExtension>
       <description>a group description</description>
       <displayName>a stem:a group</displayName>
       <name>aStem:aGroup</name>
-      <uuid>c05bc60b-d328-4458-a059-3a97d8f255c4</uuid>
+      <uuid>2afecf2e-965f-42ff-a37f-571bc27ec59e</uuid>
+    </WsGroup>
+    <WsGroup>
+      <extension>webServiceClientUsers</extension>
+      <displayExtension>webServiceClientUsers</displayExtension>
+      <displayName>penn:etc:webServiceClientUsers</displayName>
+      <name>penn:etc:webServiceClientUsers</name>
+      <uuid>72ec8ca3-2684-4721-b1ea-d5c100dc5deb</uuid>
     </WsGroup>
     <WsGroup>
       <extension>aGroup2</extension>
@@ -81,15 +69,21 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]
       <description>a group description2</description>
       <displayName>a stem:a group2</displayName>
       <name>aStem:aGroup2</name>
-      <uuid>9ce3decf-3709-4cf1-b6b7-2ab3ec0a0a3a</uuid>
+      <uuid>8a5bda19-cd47-4fb3-ae1f-e0d4a8b3c9bd</uuid>
     </WsGroup>
     <WsGroup>
       <extension>sysAdminGroup</extension>
       <displayExtension>sysAdminGroup</displayExtension>
-      <description></description>
       <displayName>penn:etc:sysAdminGroup</displayName>
       <name>penn:etc:sysAdminGroup</name>
-      <uuid>4c09ce4f-10bf-42f0-8adc-8917c350a6f7</uuid>
+      <uuid>ba7bc112-7fbd-467d-a94e-5ba17c29c694</uuid>
+    </WsGroup>
+    <WsGroup>
+      <extension>webServiceActAsGroup</extension>
+      <displayExtension>webServiceActAsGroup</displayExtension>
+      <displayName>penn:etc:webServiceActAsGroup</displayName>
+      <name>penn:etc:webServiceActAsGroup</name>
+      <uuid>a0a647f7-9134-408f-8a1b-fce87850500a</uuid>
     </WsGroup>
   </wsGroups>
   <wsSubject>

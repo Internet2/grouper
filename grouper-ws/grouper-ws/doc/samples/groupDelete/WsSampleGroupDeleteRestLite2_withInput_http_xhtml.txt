@@ -11,7 +11,7 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite2
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup123 HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 95
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestGroupDeleteLiteRequest&actAsSubjectId=GrouperSystem&inclu
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=A9CDCD8680F3FE6D4837C6D0E271A80A; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_GROUP_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:15:59 GMT
+Date: Mon, 15 Dec 2008 09:10:01 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -52,11 +52,11 @@ Connection: close
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames:
 , params: nullCant find group: 'WsGroupLookup[groupName=aStem:aGroup123,
-groupFindResult=GROUP_NOT_FOUND]'.  </p>
+groupFindResult=GROUP_NOT_FOUND]'.</p>
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">328</p>
+        <p class="millis">406</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>

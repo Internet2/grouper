@@ -11,7 +11,7 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRest, man
 
 POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 223
@@ -39,12 +39,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=9A8C19CAAB1D0472620559B7BC91D9F4; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 21:15:40 GMT
+Date: Mon, 15 Dec 2008 09:09:34 GMT
 Connection: close
 
 <WsGroupDeleteResults>
@@ -59,7 +59,6 @@ Connection: close
         <resultMessage>Cant find group: &apos;WsGroupLookup[groupName=aStem:whatever,
 groupFindResult=GROUP_NOT_FOUND]&apos;.  </resultMessage>
         <success>T</success>
-        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
     </WsGroupDeleteResult>
     <WsGroupDeleteResult>
@@ -72,7 +71,6 @@ groupFindResult=GROUP_NOT_FOUND]&apos;.  </resultMessage>
         <resultMessage>Cant find group: &apos;WsGroupLookup[groupName=aStem:whatever2,
 groupFindResult=GROUP_NOT_FOUND]&apos;.  </resultMessage>
         <success>T</success>
-        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
     </WsGroupDeleteResult>
   </results>
@@ -84,12 +82,9 @@ groupFindResult=GROUP_NOT_FOUND]&apos;.  </resultMessage>
 , actAsSubject: null, txType: NONE, includeGroupDetail: false, paramNames:
 , params: null</resultMessage>
     <success>T</success>
-    <httpStatusCode>200</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1225142140507</millisStart>
+    <millis>469</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
 </WsGroupDeleteResults>

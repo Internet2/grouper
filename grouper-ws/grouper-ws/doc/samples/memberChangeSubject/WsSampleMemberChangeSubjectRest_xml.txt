@@ -11,7 +11,7 @@ Grouper web service sample of service: memberChangeSubject, WsSampleMemberChange
 
 POST /grouperWs/servicesRest/v1_4_000/members HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 659
@@ -53,12 +53,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=C1886719F7CF54F420DCC5E5916AB109; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 21:23:14 GMT
+Date: Mon, 15 Dec 2008 09:11:50 GMT
 Connection: close
 
 <WsMemberChangeSubjectResults>
@@ -72,10 +72,15 @@ Connection: close
       </wsSubjectNew>
       <resultMetadata>
         <resultCode>SUCCESS</resultCode>
-        <resultMessage></resultMessage>
         <success>T</success>
-        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
+      <wsSubjectOld>
+        <identifierLookup>id.test.subject.0</identifierLookup>
+        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+        <id>test.subject.0</id>
+        <sourceId>jdbc</sourceId>
+      </wsSubjectOld>
     </WsMemberChangeSubjectResult>
     <WsMemberChangeSubjectResult>
       <wsSubjectNew>
@@ -86,10 +91,15 @@ Connection: close
       </wsSubjectNew>
       <resultMetadata>
         <resultCode>SUCCESS</resultCode>
-        <resultMessage></resultMessage>
         <success>T</success>
-        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
+      <wsSubjectOld>
+        <identifierLookup>id.test.subject.2</identifierLookup>
+        <resultCode>SUCCESS</resultCode>
+        <success>T</success>
+        <id>test.subject.2</id>
+        <sourceId>jdbc</sourceId>
+      </wsSubjectOld>
     </WsMemberChangeSubjectResult>
   </results>
   <resultMetadata>
@@ -104,12 +114,9 @@ newSubjectLookup=WsSubjectLookup[subjectId=test.subject.3],deleteOldMember=F]
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE
 , params: null</resultMessage>
     <success>T</success>
-    <httpStatusCode>200</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1225142594463</millisStart>
+    <millis>437</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
 </WsMemberChangeSubjectResults>

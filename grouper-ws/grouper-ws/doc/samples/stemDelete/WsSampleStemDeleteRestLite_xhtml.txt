@@ -11,7 +11,7 @@ Grouper web service sample of service: stemDelete, WsSampleStemDeleteRestLite, m
 
 DELETE /grouperWs/servicesRest/xhtml/v1_4_000/stems/aStem%3AaStemToDelete HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
@@ -26,12 +26,12 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=2BBA3374549D0C8E058EFDB219D7660C; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_STEM_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:13:43 GMT
+Date: Mon, 15 Dec 2008 09:07:33 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -49,11 +49,11 @@ Connection: close
 
 , actAsSubject: WsSubjectLookup[], txType: NONE, paramNames:
 , params: nullCant find stem: 'WsStemLookup[stemName=aStem:aStemToDelete,
-stemFindResult=STEM_NOT_FOUND]'.  </p>
+stemFindResult=STEM_NOT_FOUND]'.</p>
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">344</p>
+        <p class="millis">484</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>

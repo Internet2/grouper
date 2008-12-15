@@ -90,9 +90,12 @@ Class WsStemDeleteResult</H2>
 <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">java.lang.Object</A>
   <IMG SRC="../../../../../../resources/inherit.gif" ALT="extended by "><B>edu.internet2.middleware.grouper.ws.soap.WsStemDeleteResult</B>
 </PRE>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws">ResultMetadataHolder</A></DD>
+</DL>
 <HR>
 <DL>
-<DT><PRE>public class <B>WsStemDeleteResult</B><DT>extends <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Object</A></DL>
+<DT><PRE>public class <B>WsStemDeleteResult</B><DT>extends <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Object</A><DT>implements <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws">ResultMetadataHolder</A></DL>
 </PRE>
 
 <P>
@@ -180,7 +183,7 @@ Result of one stem being deleted.  The number of
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStemDeleteResult.html?root=I2MI&view=co&pathrev=HEAD#getResultMetadata()">getResultMetadata</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get the result metadata</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -276,6 +279,9 @@ public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsSte
 <DD>convert string to result code
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 
 <DT><B>Returns:</B><DD>the result code</DL>
 </DD>
@@ -290,6 +296,9 @@ public void <B>assignResultCode</B>(<A HREF="../../../../../../edu/internet2/mid
 <DD>assign the code from the enum
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>stemDeleteResultCode</CODE> - </DL>
 </DD>
 </DL>
@@ -300,6 +309,9 @@ getWsStem</H3>
 <PRE>
 public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStem.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsStem</A> <B>getWsStem</B>()</PRE>
 <DL>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the wsStem</DL>
@@ -312,6 +324,9 @@ setWsStem</H3>
 <PRE>
 public void <B>setWsStem</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsStem.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsStem</A>&nbsp;wsStem1)</PRE>
 <DL>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>wsStem1</CODE> - the wsStem to set</DL>
 </DD>
@@ -327,6 +342,9 @@ public void <B>assignResultCodeException</B>(<A HREF="http://java.sun.com/j2se/1
 <DD>assign a resultcode of exception, and process/log the exception
 <P>
 <DD><DL>
+</DL>
+</DD>
+<DD><DL>
 <DT><B>Parameters:</B><DD><CODE>e</CODE> - <DD><CODE>wsStemLookup1</CODE> - </DL>
 </DD>
 </DL>
@@ -337,6 +355,12 @@ getResultMetadata</H3>
 <PRE>
 public <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsResultMeta.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsResultMeta</A> <B>getResultMetadata</B>()</PRE>
 <DL>
+<DD><B>Description copied from interface: <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD#getResultMetadata()">ResultMetadataHolder</A></CODE></B></DD>
+<DD>get the result metadata
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD#getResultMetadata()">getResultMetadata</A></CODE> in interface <CODE><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws">ResultMetadataHolder</A></CODE></DL>
+</DD>
 <DD><DL>
 
 <DT><B>Returns:</B><DD>the resultMetadata</DL>
@@ -349,6 +373,9 @@ setResultMetadata</H3>
 <PRE>
 public void <B>setResultMetadata</B>(<A HREF="../../../../../../edu/internet2/middleware/grouper/ws/soap/WsResultMeta.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws.soap">WsResultMeta</A>&nbsp;resultMetadata1)</PRE>
 <DL>
+<DD><DL>
+</DL>
+</DD>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>resultMetadata1</CODE> - the resultMetadata to set</DL>
 </DD>

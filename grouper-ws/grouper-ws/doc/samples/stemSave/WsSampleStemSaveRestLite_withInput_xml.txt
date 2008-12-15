@@ -11,7 +11,7 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRestLite, manua
 
 POST /grouperWs/servicesRest/v1_4_000/stems/aStem%3AaStemToSave HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 213
@@ -35,17 +35,17 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=6AD60E82E9F46894E6F840E06C8596BB; Path=/grouperWs
-X-Grouper-resultCode: SUCCESS
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 21:15:29 GMT
+Date: Mon, 15 Dec 2008 09:09:11 GMT
 Connection: close
 
 <WsStemSaveLiteResult>
   <resultMetadata>
-    <resultCode>SUCCESS</resultCode>
+    <resultCode>SUCCESS_INSERTED</resultCode>
     <resultMessage>Success for: clientVersion: v1_4_000, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
 wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave],
 wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
@@ -53,12 +53,9 @@ wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: null</resultMessage>
     <success>T</success>
-    <httpStatusCode>201</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1225142129226</millisStart>
+    <millis>515</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
   <wsStem>
@@ -67,7 +64,7 @@ wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
     <description>desc1</description>
     <displayName>a stem:disp1</displayName>
     <name>aStem:aStemToSave</name>
-    <uuid>aaafb134-fa47-4069-830c-4ae1add8d35d</uuid>
+    <uuid>de7f774a-981a-4560-8e10-67c93f9e57b5</uuid>
   </wsStem>
 </WsStemSaveLiteResult>
 
@@ -229,7 +226,7 @@ public class WsSampleStemSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
+Server version: v1_4_000, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: v1_4_000, wsStemToSaves: Array size: 1: [0]: WsStemToSave[
   wsStemLookup=WsStemLookup[stemName=aStem:aStemToSave],
   wsStem=WsStem[displayExtension=disp1,description=desc1,name=aStem:aStemToSave]]
 

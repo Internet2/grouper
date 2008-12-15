@@ -11,12 +11,12 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, ma
 
 POST /grouperWs/servicesRest/v1_4_000/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 116
 
-wsLiteObjectType=WsRestGetGroupsLiteRequest&includeGroupDetail=T&includeSubjectDetail=T&actAsSubjectId=GrouperSystem
+wsLiteObjectType=WsRestGetGroupsLiteRequest&actAsSubjectId=GrouperSystem&includeSubjectDetail=T&includeGroupDetail=T
 
 
 #########################################
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestGetGroupsLiteRequest&includeGroupDetail=T&includeSubjectD
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=2F33264E3449176E70A385541E4BEEDB; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:11:03 GMT
+Date: Mon, 15 Dec 2008 09:04:27 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -55,7 +55,7 @@ memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subje
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">375</p>
+        <p class="millis">422</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -64,6 +64,7 @@ memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subje
         <p class="id">test.subject.0</p>
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
+        <p class="identifierLookup" />
         <p class="sourceId">jdbc</p>
       </div>
     </div>

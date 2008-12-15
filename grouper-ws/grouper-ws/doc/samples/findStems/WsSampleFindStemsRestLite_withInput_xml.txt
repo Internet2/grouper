@@ -11,7 +11,7 @@ Grouper web service sample of service: findStems, WsSampleFindStemsRestLite, man
 
 POST /grouperWs/servicesRest/v1_4_000/stems HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 200
@@ -34,12 +34,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=75F194D544AF05F7A72B2F4AF9DAE160; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 21:13:29 GMT
+Date: Mon, 15 Dec 2008 09:07:06 GMT
 Connection: close
 
 <WsFindStemsResults>
@@ -50,7 +50,7 @@ Connection: close
       <description>a stem description</description>
       <displayName>a stem</displayName>
       <name>aStem</name>
-      <uuid>ffa584fe-0523-46f2-bfe5-2d67b4079e22</uuid>
+      <uuid>bbdd564d-6e49-46e7-986e-5694c42700b2</uuid>
     </WsStem>
   </stemResults>
   <resultMetadata>
@@ -58,12 +58,9 @@ Connection: close
     <resultMessage>Success for: clientVersion: v1_4_000, wsStemQueryFilter: WsStemQueryFilter[stemQueryFilterType=FIND_BY_STEM_NAME_APPROXIMATE,stemName=aSte], actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null</resultMessage>
     <success>T</success>
-    <httpStatusCode>200</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1225142009428</millisStart>
+    <millis>454</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
 </WsFindStemsResults>

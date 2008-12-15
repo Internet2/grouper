@@ -11,7 +11,7 @@ Grouper web service sample of service: groupDelete, WsSampleGroupDeleteRestLite2
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup123 HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 149
@@ -33,12 +33,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=0C2957482818592CE16EEB1E5B2802B6; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_GROUP_NOT_FOUND
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 21:16:02 GMT
+Date: Mon, 15 Dec 2008 09:10:04 GMT
 Connection: close
 
 <WsGroupDeleteLiteResult>
@@ -48,14 +48,11 @@ Connection: close
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames:
 , params: nullCant find group: &apos;WsGroupLookup[groupName=aStem:aGroup123,
-groupFindResult=GROUP_NOT_FOUND]&apos;.  </resultMessage>
+groupFindResult=GROUP_NOT_FOUND]&apos;.</resultMessage>
     <success>T</success>
-    <httpStatusCode>200</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1225142161929</millisStart>
+    <millis>438</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
   <wsGroup>
@@ -225,4 +222,4 @@ Server version: v1_4_000, result code: SUCCESS_GROUP_NOT_FOUND, result message: 
 
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, includeGroupDetail: true, paramNames: 
 , params: nullCant find group: 'WsGroupLookup[groupName=aStem:aGroup123,
-  groupFindResult=GROUP_NOT_FOUND]'.  
+  groupFindResult=GROUP_NOT_FOUND]'.

@@ -11,7 +11,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manuall
 
 POST /grouperWs/servicesRest/v1_4_000/subjects HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 896
@@ -26,6 +26,13 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestGetGroupsRequest">
       <p class="clientVersion" />
+      <p class="includeSubjectDetail" />
+      <p class="includeGroupDetail" />
+      <div class="actAsSubjectLookup" title="WsSubjectLookup">
+        <p class="subjectSourceId" />
+        <p class="subjectId">GrouperSystem</p>
+        <p class="subjectIdentifier" />
+      </div>
       <ul class="subjectLookups">
         <li title="WsSubjectLookup">
           <p class="subjectSourceId" />
@@ -39,13 +46,6 @@ Content-Type: application/xhtml+xml; charset=UTF-8
         </li>
       </ul>
       <p class="memberFilter" />
-      <div class="actAsSubjectLookup" title="WsSubjectLookup">
-        <p class="subjectSourceId" />
-        <p class="subjectId">GrouperSystem</p>
-        <p class="subjectIdentifier" />
-      </div>
-      <p class="includeGroupDetail" />
-      <p class="includeSubjectDetail" />
     </div>
   </body>
 </html>
@@ -61,12 +61,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=765E68FFA624ACCE3E61753F222CB284; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:10:37 GMT
+Date: Mon, 15 Dec 2008 09:03:51 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -87,13 +87,13 @@ Connection: close
           </div>
           <ul class="wsGroups">
             <li title="WsGroup">
-              <p class="name">penn:etc:webServiceClientUsers</p>
-              <p class="displayName">penn:etc:webServiceClientUsers</p>
-              <p class="description" />
+              <p class="name">aStem:aGroup2</p>
+              <p class="displayName">a stem:a group2</p>
+              <p class="description">a group description2</p>
               <div class="detail" title="WsGroupDetail" />
-              <p class="extension">webServiceClientUsers</p>
-              <p class="uuid">33f83688-82ff-45dc-a2ed-d642621f413b</p>
-              <p class="displayExtension">webServiceClientUsers</p>
+              <p class="extension">aGroup2</p>
+              <p class="uuid">18973f48-f5d4-4842-a751-f773184048c5</p>
+              <p class="displayExtension">a group2</p>
             </li>
             <li title="WsGroup">
               <p class="name">penn:etc:webServiceActAsGroup</p>
@@ -101,7 +101,7 @@ Connection: close
               <p class="description" />
               <div class="detail" title="WsGroupDetail" />
               <p class="extension">webServiceActAsGroup</p>
-              <p class="uuid">263ed46b-0af6-4a35-aea0-a3c1483802c1</p>
+              <p class="uuid">53888bbb-a8b2-4aa5-b9ab-3c40d9df2c31</p>
               <p class="displayExtension">webServiceActAsGroup</p>
             </li>
             <li title="WsGroup">
@@ -110,17 +110,8 @@ Connection: close
               <p class="description">a group description</p>
               <div class="detail" title="WsGroupDetail" />
               <p class="extension">aGroup</p>
-              <p class="uuid">c05bc60b-d328-4458-a059-3a97d8f255c4</p>
+              <p class="uuid">537905a7-f39c-4d93-b070-2dc9a4a83522</p>
               <p class="displayExtension">a group</p>
-            </li>
-            <li title="WsGroup">
-              <p class="name">aStem:aGroup2</p>
-              <p class="displayName">a stem:a group2</p>
-              <p class="description">a group description2</p>
-              <div class="detail" title="WsGroupDetail" />
-              <p class="extension">aGroup2</p>
-              <p class="uuid">9ce3decf-3709-4cf1-b6b7-2ab3ec0a0a3a</p>
-              <p class="displayExtension">a group2</p>
             </li>
             <li title="WsGroup">
               <p class="name">penn:etc:sysAdminGroup</p>
@@ -128,8 +119,17 @@ Connection: close
               <p class="description" />
               <div class="detail" title="WsGroupDetail" />
               <p class="extension">sysAdminGroup</p>
-              <p class="uuid">4c09ce4f-10bf-42f0-8adc-8917c350a6f7</p>
+              <p class="uuid">569bfbf8-2cba-4626-a7cb-e5bda44e130d</p>
               <p class="displayExtension">sysAdminGroup</p>
+            </li>
+            <li title="WsGroup">
+              <p class="name">penn:etc:webServiceClientUsers</p>
+              <p class="displayName">penn:etc:webServiceClientUsers</p>
+              <p class="description" />
+              <div class="detail" title="WsGroupDetail" />
+              <p class="extension">webServiceClientUsers</p>
+              <p class="uuid">13c4d606-1744-4cbb-ad2c-57069a11b533</p>
+              <p class="displayExtension">webServiceClientUsers</p>
             </li>
           </ul>
           <div class="wsSubject" title="WsSubject">
@@ -137,6 +137,7 @@ Connection: close
             <p class="id">10021368</p>
             <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
+            <p class="identifierLookup" />
             <p class="sourceId">pennperson</p>
           </div>
         </li>
@@ -154,7 +155,7 @@ Connection: close
               <p class="description">a group description</p>
               <div class="detail" title="WsGroupDetail" />
               <p class="extension">aGroup</p>
-              <p class="uuid">c05bc60b-d328-4458-a059-3a97d8f255c4</p>
+              <p class="uuid">537905a7-f39c-4d93-b070-2dc9a4a83522</p>
               <p class="displayExtension">a group</p>
             </li>
             <li title="WsGroup">
@@ -163,7 +164,7 @@ Connection: close
               <p class="description">a group description2</p>
               <div class="detail" title="WsGroupDetail" />
               <p class="extension">aGroup2</p>
-              <p class="uuid">9ce3decf-3709-4cf1-b6b7-2ab3ec0a0a3a</p>
+              <p class="uuid">18973f48-f5d4-4842-a751-f773184048c5</p>
               <p class="displayExtension">a group2</p>
             </li>
           </ul>
@@ -172,6 +173,7 @@ Connection: close
             <p class="id">10039438</p>
             <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
+            <p class="identifierLookup" />
             <p class="sourceId">pennperson</p>
           </div>
         </li>
@@ -187,7 +189,7 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[subj
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">4125</p>
+        <p class="millis">4266</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>

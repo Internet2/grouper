@@ -11,7 +11,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, man
 
 GET /grouperWs/servicesRest/json/v1_4_000/subjects/10021368/groups HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
@@ -26,12 +26,12 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=20749B32650A24EF1C3D561C2C9B2B94; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 27 Oct 2008 21:10:49 GMT
+Date: Mon, 15 Dec 2008 09:04:09 GMT
 Connection: close
 
 {
@@ -39,40 +39,34 @@ Connection: close
     "resultMetadata":{
       "resultCode":"SUCCESS",
       "resultMessage":"Success for: clientVersion: v1_4_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]\n, params: null",
-      "success":"T",
-      "httpStatusCode":"200"
+      "success":"T"
     },
     "responseMetadata":{
-      "resultWarnings":"",
-      "millis":"-1",
-      "millisStart":"1225141849099",
+      "millis":"469",
       "serverVersion":"v1_4_000"
     },
     "wsGroups":{
       "WsGroup":[
         {
+          "extension":"sysAdminGroup",
+          "displayExtension":"sysAdminGroup",
+          "displayName":"penn:etc:sysAdminGroup",
+          "name":"penn:etc:sysAdminGroup",
+          "uuid":"434fdb2f-9423-48f9-8d8d-40a7daa94d92"
+        },
+        {
           "extension":"webServiceClientUsers",
           "displayExtension":"webServiceClientUsers",
-          "description":"",
           "displayName":"penn:etc:webServiceClientUsers",
           "name":"penn:etc:webServiceClientUsers",
-          "uuid":"33f83688-82ff-45dc-a2ed-d642621f413b"
+          "uuid":"307dd97a-08b8-43c7-9a7f-09991480b0cc"
         },
         {
           "extension":"webServiceActAsGroup",
           "displayExtension":"webServiceActAsGroup",
-          "description":"",
           "displayName":"penn:etc:webServiceActAsGroup",
           "name":"penn:etc:webServiceActAsGroup",
-          "uuid":"263ed46b-0af6-4a35-aea0-a3c1483802c1"
-        },
-        {
-          "extension":"aGroup",
-          "displayExtension":"a group",
-          "description":"a group description",
-          "displayName":"a stem:a group",
-          "name":"aStem:aGroup",
-          "uuid":"c05bc60b-d328-4458-a059-3a97d8f255c4"
+          "uuid":"9af51c76-1f4c-4c6c-8fbb-edb94aed67ac"
         },
         {
           "extension":"aGroup2",
@@ -80,15 +74,15 @@ Connection: close
           "description":"a group description2",
           "displayName":"a stem:a group2",
           "name":"aStem:aGroup2",
-          "uuid":"9ce3decf-3709-4cf1-b6b7-2ab3ec0a0a3a"
+          "uuid":"dba5e6e9-5859-46bf-afa1-ce1c42f3ac97"
         },
         {
-          "extension":"sysAdminGroup",
-          "displayExtension":"sysAdminGroup",
-          "description":"",
-          "displayName":"penn:etc:sysAdminGroup",
-          "name":"penn:etc:sysAdminGroup",
-          "uuid":"4c09ce4f-10bf-42f0-8adc-8917c350a6f7"
+          "extension":"aGroup",
+          "displayExtension":"a group",
+          "description":"a group description",
+          "displayName":"a stem:a group",
+          "name":"aStem:aGroup",
+          "uuid":"f8e9450c-6e0b-4643-a8fd-93b57f4ffbc8"
         }
       ]
       

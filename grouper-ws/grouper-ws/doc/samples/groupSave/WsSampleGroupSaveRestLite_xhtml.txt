@@ -25,22 +25,22 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestGroupSaveLiteRequest">
-      <p class="description">desc1</p>
       <p class="displayExtension">disp1</p>
       <p class="groupUuid" />
       <p class="groupName">aStem:aGroupToSave</p>
       <p class="clientVersion" />
-      <p class="includeGroupDetail" />
-      <p class="saveMode" />
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
+      <p class="includeGroupDetail" />
       <p class="paramName0" />
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
+      <p class="saveMode" />
       <p class="groupLookupUuid" />
       <p class="groupLookupName" />
+      <p class="description">desc1</p>
     </div>
   </body>
 </html>
@@ -61,7 +61,7 @@ X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 15 Dec 2008 08:57:50 GMT
+Date: Mon, 15 Dec 2008 09:10:54 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -84,7 +84,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">4125</p>
+        <p class="millis">4172</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -94,7 +94,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave
         <p class="description">desc1</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroupToSave</p>
-        <p class="uuid">2fd6da60-d631-448f-99d2-784be38e75d0</p>
+        <p class="uuid">e5f98bfb-6d61-4a2a-82c4-6954d0afac9b</p>
         <p class="displayExtension">disp1</p>
       </div>
     </div>

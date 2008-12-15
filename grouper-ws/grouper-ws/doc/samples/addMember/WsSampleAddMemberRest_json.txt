@@ -11,7 +11,7 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRest, manuall
 
 PUT /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 189
@@ -48,12 +48,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=A392B8C6D5554AB8E5D76395F242AC46; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 27 Oct 2008 20:28:03 GMT
+Date: Mon, 15 Dec 2008 09:01:23 GMT
 Connection: close
 
 {
@@ -69,9 +69,7 @@ Connection: close
           },
           "resultMetadata":{
             "resultCode":"SUCCESS_ALREADY_EXISTED",
-            "resultMessage":"",
-            "success":"T",
-            "httpStatusCode":"500"
+            "success":"T"
           }
           
         },
@@ -84,9 +82,7 @@ Connection: close
           },
           "resultMetadata":{
             "resultCode":"SUCCESS_ALREADY_EXISTED",
-            "resultMessage":"",
-            "success":"T",
-            "httpStatusCode":"500"
+            "success":"T"
           }
         }
       ]
@@ -98,18 +94,15 @@ Connection: close
       "description":"a group description",
       "displayName":"a stem:a group",
       "name":"aStem:aGroup",
-      "uuid":"c2a29579-3bc8-478d-a20b-b86d3cda8600"
+      "uuid":"44c2eedd-7e2a-437f-895e-6d9a7da6a19e"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
       "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\n, replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n, params: null",
-      "success":"T",
-      "httpStatusCode":"201"
+      "success":"T"
     },
     "responseMetadata":{
-      "resultWarnings":"",
-      "millis":"-1",
-      "millisStart":"1225139283083",
+      "millis":"484",
       "serverVersion":"v1_4_000"
     }
   }
@@ -165,6 +158,11 @@ public class WsSampleAddMemberRest implements WsSampleRest {
       
       DefaultHttpParams.getDefaultParams().setParameter(
           HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.SO_TIMEOUT, new Integer(30000));
+
+      //httpClient.getParams().setParameter("http.socket.timeout", new Integer(30000));
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
@@ -255,7 +253,8 @@ public class WsSampleAddMemberRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    addMemberLite(WsSampleRestType.xhtml);
+    RestClientSettings.resetData();
+    addMemberLite(WsSampleRestType.xml);
   }
 
   /**

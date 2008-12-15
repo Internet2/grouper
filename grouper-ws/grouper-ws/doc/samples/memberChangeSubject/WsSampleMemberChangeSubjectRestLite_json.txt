@@ -11,7 +11,7 @@ Grouper web service sample of service: memberChangeSubject, WsSampleMemberChange
 
 POST /grouperWs/servicesRest/v1_4_000/members HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 139
@@ -36,12 +36,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=62F682614FC3755B4D45B9BBB11E02CC; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 27 Oct 2008 21:23:31 GMT
+Date: Mon, 15 Dec 2008 09:12:05 GMT
 Connection: close
 
 {
@@ -49,8 +49,7 @@ Connection: close
     "resultMetadata":{
       "resultCode":"SUCCESS",
       "resultMessage":"Success for: clientVersion: v1_4_000, wsMemberChangeSubject: Array size: 1: [0]: WsMemberChangeSubject[\n  oldSubjectLookup=WsSubjectLookup[subjectId=test.subject.0],\n  newSubjectLookup=WsSubjectLookup[subjectId=test.subject.1],deleteOldMember=T]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE\n, params: null",
-      "success":"T",
-      "httpStatusCode":"200"
+      "success":"T"
     },
     "wsSubjectNew":{
       "resultCode":"SUCCESS",
@@ -59,10 +58,14 @@ Connection: close
       "sourceId":"jdbc"
     },
     "responseMetadata":{
-      "resultWarnings":"",
-      "millis":"-1",
-      "millisStart":"1225142611307",
+      "millis":"375",
       "serverVersion":"v1_4_000"
+    },
+    "wsSubjectOld":{
+      "resultCode":"SUCCESS",
+      "success":"T",
+      "id":"test.subject.0",
+      "sourceId":"jdbc"
     }
   }
 }

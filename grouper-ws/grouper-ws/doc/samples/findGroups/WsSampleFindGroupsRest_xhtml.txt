@@ -11,7 +11,7 @@ Grouper web service sample of service: findGroups, WsSampleFindGroupsRest, manua
 
 POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 992
@@ -26,24 +26,24 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestFindGroupsRequest">
       <p class="clientVersion" />
+      <p class="includeGroupDetail" />
       <div class="actAsSubjectLookup" title="WsSubjectLookup">
         <p class="subjectSourceId" />
         <p class="subjectId">GrouperSystem</p>
         <p class="subjectIdentifier" />
       </div>
-      <p class="includeGroupDetail" />
       <div class="wsQueryFilter" title="WsQueryFilter">
         <p class="groupUuid" />
         <p class="groupName">aGr</p>
         <p class="stemName">aStem</p>
         <p class="queryFilterType">FIND_BY_GROUP_NAME_APPROXIMATE</p>
         <p class="stemNameScope" />
-        <p class="groupAttributeName" />
-        <p class="groupAttributeValue" />
-        <p class="groupTypeName" />
         <p class="queryTerm" />
+        <p class="groupAttributeName" />
+        <p class="groupTypeName" />
         <div class="queryFilter0" title="WsQueryFilter" />
         <div class="queryFilter1" title="WsQueryFilter" />
+        <p class="groupAttributeValue" />
       </div>
     </div>
   </body>
@@ -60,12 +60,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=56BE64A79D0DF0A55A7F292A6EB13FEC; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:12:14 GMT
+Date: Mon, 15 Dec 2008 09:06:05 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -85,7 +85,7 @@ Connection: close
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">859</p>
+        <p class="millis">4109</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -96,7 +96,7 @@ Connection: close
           <p class="description">a group description2</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">aGroup2</p>
-          <p class="uuid">220ad020-374a-4e5e-b3a7-d4c32773b2c8</p>
+          <p class="uuid">efcaba1f-49d5-498d-8670-a52a85f834eb</p>
           <p class="displayExtension">a group2</p>
         </li>
         <li title="WsGroup">
@@ -105,7 +105,7 @@ Connection: close
           <p class="description">a group description</p>
           <div class="detail" title="WsGroupDetail" />
           <p class="extension">aGroup</p>
-          <p class="uuid">5d430dc5-4963-40f9-8c09-694a53f40d03</p>
+          <p class="uuid">0952b13c-1a4f-41de-9ce8-4a0c3e55f32a</p>
           <p class="displayExtension">a group</p>
         </li>
       </ul>

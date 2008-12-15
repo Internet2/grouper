@@ -12,7 +12,7 @@ Grouper web service sample of service: findGroups, WsSampleFindGroupsLite, code 
 POST /grouperWs/services/GrouperService HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:findGroupsLite"
 User-Agent: Axis2
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
@@ -50,15 +50,15 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=4F1D96DFF81CA3ED0CDBC93FDDECEF52; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:findGroupsLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 27 Oct 2008 21:12:12 GMT
+Date: Mon, 15 Dec 2008 09:05:58 GMT
 
-e0c
+1bcf
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
@@ -67,50 +67,98 @@ e0c
         <ns:groupResults type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
           <ns:description>a group description</ns:description>
           <ns:detail type="edu.internet2.middleware.grouper.ws.soap.WsGroupDetail">
-            <ns:attributeNames>description</ns:attributeNames>
-            <ns:attributeValues>a group description</ns:attributeValues>
+            <ns:attributeNames xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:compositeType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:createSubjectId>GrouperSystem</ns:createSubjectId>
-            <ns:createTime>2008/10/27 17:11:27.615</ns:createTime>
+            <ns:createTime>2008/12/15 04:05:56.348</ns:createTime>
             <ns:hasComposite>F</ns:hasComposite>
             <ns:isCompositeFactor>F</ns:isCompositeFactor>
             <ns:leftGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:modifySource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
-            <ns:modifyTime>2008/10/27 17:11:28.365</ns:modifyTime>
+            <ns:modifyTime>2008/12/15 04:05:56.520</ns:modifyTime>
+            <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:rightGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-            <ns:typeNames>base</ns:typeNames>
           </ns:detail>
           <ns:displayExtension>a group</ns:displayExtension>
           <ns:displayName>a stem:a group</ns:displayName>
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
-          <ns:uuid>5d430dc5-4963-40f9-8c09-694a53f40d03</ns:uuid>
+          <ns:uuid>914fbb81-b68c-4904-a43a-34a382ee7361</ns:uuid>
         </ns:groupResults>
         <ns:groupResults type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
-          <ns:description>a group description2</ns:description>
+          <ns:description>If value is true, members of the overall group must be an active student (in the school:community:activeStudent group).  Otherwise leave this value not filled in.</ns:description>
           <ns:detail type="edu.internet2.middleware.grouper.ws.soap.WsGroupDetail">
-            <ns:attributeNames>description</ns:attributeNames>
-            <ns:attributeValues>a group description2</ns:attributeValues>
+            <ns:attributeNames xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:compositeType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:createSubjectId>GrouperSystem</ns:createSubjectId>
-            <ns:createTime>2008/10/27 17:11:27.896</ns:createTime>
+            <ns:createTime>2008/12/15 04:05:56.223</ns:createTime>
             <ns:hasComposite>F</ns:hasComposite>
             <ns:isCompositeFactor>F</ns:isCompositeFactor>
             <ns:leftGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:modifySource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
-            <ns:modifyTime>2008/10/27 17:11:28.631</ns:modifyTime>
+            <ns:modifyTime>2008/12/15 04:05:56.317</ns:modifyTime>
+            <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
             <ns:rightGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-            <ns:typeNames>base</ns:typeNames>
+          </ns:detail>
+          <ns:displayExtension>activeStudent</ns:displayExtension>
+          <ns:displayName>a stem:activeStudent</ns:displayName>
+          <ns:extension>activeStudent</ns:extension>
+          <ns:name>aStem:activeStudent</ns:name>
+          <ns:uuid>48376634-0784-49b1-9183-14c6e076d0a4</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
+          <ns:description>If value is true, members of the overall group must be an active employee (in the school:community:activeEmployee group).  Otherwise, leave this value not filled in.</ns:description>
+          <ns:detail type="edu.internet2.middleware.grouper.ws.soap.WsGroupDetail">
+            <ns:attributeNames xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:compositeType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:createSubjectId>GrouperSystem</ns:createSubjectId>
+            <ns:createTime>2008/12/15 04:05:56.176</ns:createTime>
+            <ns:hasComposite>F</ns:hasComposite>
+            <ns:isCompositeFactor>F</ns:isCompositeFactor>
+            <ns:leftGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:modifySource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
+            <ns:modifyTime>2008/12/15 04:05:56.317</ns:modifyTime>
+            <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:rightGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          </ns:detail>
+          <ns:displayExtension>activeEmployee</ns:displayExtension>
+          <ns:displayName>a stem:activeEmployee</ns:displayName>
+          <ns:extension>activeEmployee</ns:extension>
+          <ns:name>aStem:activeEmployee</ns:name>
+          <ns:uuid>c1d67702-3e1f-4ff6-98d2-73065900f832</ns:uuid>
+        </ns:groupResults>
+        <ns:groupResults type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
+          <ns:description>a group description2</ns:description>
+          <ns:detail type="edu.internet2.middleware.grouper.ws.soap.WsGroupDetail">
+            <ns:attributeNames xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:compositeType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:createSubjectId>GrouperSystem</ns:createSubjectId>
+            <ns:createTime>2008/12/15 04:05:56.395</ns:createTime>
+            <ns:hasComposite>F</ns:hasComposite>
+            <ns:isCompositeFactor>F</ns:isCompositeFactor>
+            <ns:leftGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:modifySource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:modifySubjectId>GrouperSystem</ns:modifySubjectId>
+            <ns:modifyTime>2008/12/15 04:05:56.598</ns:modifyTime>
+            <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+            <ns:rightGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           </ns:detail>
           <ns:displayExtension>a group2</ns:displayExtension>
           <ns:displayName>a stem:a group2</ns:displayName>
           <ns:extension>aGroup2</ns:extension>
           <ns:name>aStem:aGroup2</ns:name>
-          <ns:uuid>220ad020-374a-4e5e-b3a7-d4c32773b2c8</ns:uuid>
+          <ns:uuid>6e2b808f-1deb-460c-8297-a08b7fd09b9c</ns:uuid>
         </ns:groupResults>
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>547</ns:millis>
-          <ns:resultWarnings></ns:resultWarnings>
+          <ns:millis>641</ns:millis>
+          <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_4_000</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
@@ -144,19 +192,18 @@ e0c
  */
 package edu.internet2.middleware.grouper.webservicesClient;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.FindGroupsLite;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsFindGroupsResults;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsGroup;
-import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
-import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
-import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
-
 import org.apache.axis2.client.Options;
 import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.axis2.transport.http.HttpTransportProperties;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
+
+import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
+import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+import edu.internet2.middleware.grouper.ws.soap.xsd.FindGroupsLite;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsFindGroupsResults;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup;
 
 
 /**
@@ -251,11 +298,15 @@ public class WsSampleFindGroupsLite implements WsSampleGenerated {
 #########################################
 
 
-GrouperServiceStub.WsFindGroupsResults[
-  localGroupResults={edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@33c1aa,edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@1efa3e7},localGroupResultsTracker=true,
-  localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@1f1cc1a,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@18eef25,localResultMetadataTracker=true]
-GrouperServiceStub.WsGroup[localDescription=a group description,localDescriptionTracker=true,
-  localDetail=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroupDetail@f67d81,localDetailTracker=true,localDisplayExtension=a group,localDisplayExtensionTracker=true,localDisplayName=a stem:a group,localDisplayNameTracker=true,localExtension=aGroup,localExtensionTracker=true,localName=aStem:aGroup,localNameTracker=true,localUuid=5d430dc5-4963-40f9-8c09-694a53f40d03,localUuidTracker=true]
-GrouperServiceStub.WsGroup[localDescription=a group description2,localDescriptionTracker=true,
-  localDetail=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroupDetail@a9a1ac,localDetailTracker=true,localDisplayExtension=a group2,localDisplayExtensionTracker=true,localDisplayName=a stem:a group2,localDisplayNameTracker=true,localExtension=aGroup2,localExtensionTracker=true,localName=aStem:aGroup2,localNameTracker=true,localUuid=220ad020-374a-4e5e-b3a7-d4c32773b2c8,localUuidTracker=true]
+WsFindGroupsResults[
+  localGroupResults={edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@1d3722c,edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@ecb914,edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@16ad7b3,edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@177559b},localGroupResultsTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@195475b,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@17fad4d,localResultMetadataTracker=true]
+WsGroup[localDescription=a group description,localDescriptionTracker=true,
+  localDetail=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupDetail@14ad67f,localDetailTracker=true,localDisplayExtension=a group,localDisplayExtensionTracker=true,localDisplayName=a stem:a group,localDisplayNameTracker=true,localExtension=aGroup,localExtensionTracker=true,localName=aStem:aGroup,localNameTracker=true,localUuid=914fbb81-b68c-4904-a43a-34a382ee7361,localUuidTracker=true]
+WsGroup[localDescription=If value is true, members of the overall group must be an active student (in the school:community:activeStudent group).  Otherwise leave this value not filled in.,localDescriptionTracker=true,
+  localDetail=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupDetail@4834b7,localDetailTracker=true,localDisplayExtension=activeStudent,localDisplayExtensionTracker=true,localDisplayName=a stem:activeStudent,localDisplayNameTracker=true,localExtension=activeStudent,localExtensionTracker=true,localName=aStem:activeStudent,localNameTracker=true,localUuid=48376634-0784-49b1-9183-14c6e076d0a4,localUuidTracker=true]
+WsGroup[localDescription=If value is true, members of the overall group must be an active employee (in the school:community:activeEmployee group).  Otherwise, leave this value not filled in.,localDescriptionTracker=true,
+  localDetail=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupDetail@7cff73,localDetailTracker=true,localDisplayExtension=activeEmployee,localDisplayExtensionTracker=true,localDisplayName=a stem:activeEmployee,localDisplayNameTracker=true,localExtension=activeEmployee,localExtensionTracker=true,localName=aStem:activeEmployee,localNameTracker=true,localUuid=c1d67702-3e1f-4ff6-98d2-73065900f832,localUuidTracker=true]
+WsGroup[localDescription=a group description2,localDescriptionTracker=true,
+  localDetail=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroupDetail@6716de,localDetailTracker=true,localDisplayExtension=a group2,localDisplayExtensionTracker=true,localDisplayName=a stem:a group2,localDisplayNameTracker=true,localExtension=aGroup2,localExtensionTracker=true,localName=aStem:aGroup2,localNameTracker=true,localUuid=6e2b808f-1deb-460c-8297-a08b7fd09b9c,localUuidTracker=true]

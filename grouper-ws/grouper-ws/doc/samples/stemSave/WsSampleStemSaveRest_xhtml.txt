@@ -11,7 +11,7 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually 
 
 POST /grouperWs/servicesRest/v1_4_000/stems HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 1256
@@ -26,15 +26,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestStemSaveRequest">
       <p class="clientVersion" />
+      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
+      <p class="txType" />
       <ul class="wsStemToSaves">
         <li title="WsStemToSave">
           <p class="saveMode" />
           <div class="wsStem" title="WsStem">
+            <p class="uuid" />
+            <p class="displayExtension">disp1</p>
             <p class="name">aStem:whateverStem</p>
             <p class="displayName" />
-            <p class="uuid" />
             <p class="description">desc1</p>
-            <p class="displayExtension">disp1</p>
             <p class="extension">whateverStem</p>
           </div>
           <div class="wsStemLookup" title="WsStemLookup">
@@ -45,11 +47,11 @@ Content-Type: application/xhtml+xml; charset=UTF-8
         <li title="WsStemToSave">
           <p class="saveMode" />
           <div class="wsStem" title="WsStem">
+            <p class="uuid" />
+            <p class="displayExtension">disp2</p>
             <p class="name">aStem:whateverStem2</p>
             <p class="displayName" />
-            <p class="uuid" />
             <p class="description">descs</p>
-            <p class="displayExtension">disp2</p>
             <p class="extension">whateverStem2</p>
           </div>
           <div class="wsStemLookup" title="WsStemLookup">
@@ -58,8 +60,6 @@ Content-Type: application/xhtml+xml; charset=UTF-8
           </div>
         </li>
       </ul>
-      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
-      <p class="txType" />
     </div>
   </body>
 </html>
@@ -75,12 +75,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=5A8F2A7138D43E60C5B19E961C025392; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:14:56 GMT
+Date: Mon, 15 Dec 2008 09:08:22 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -94,7 +94,7 @@ Connection: close
       <ul class="results">
         <li title="WsStemSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode">SUCCESS</p>
+            <p class="resultCode">SUCCESS_INSERTED</p>
             <p class="success">T</p>
             <p class="resultMessage" />
             <p class="resultCode2" />
@@ -104,13 +104,13 @@ Connection: close
             <p class="displayName">a stem:disp1</p>
             <p class="description">desc1</p>
             <p class="extension">whateverStem</p>
-            <p class="uuid">efdb77aa-5c21-46d9-ad34-913f7d9366e5</p>
+            <p class="uuid">f862ebcf-0f06-4cd5-a42d-48c5f3aa9e98</p>
             <p class="displayExtension">disp1</p>
           </div>
         </li>
         <li title="WsStemSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode">SUCCESS</p>
+            <p class="resultCode">SUCCESS_INSERTED</p>
             <p class="success">T</p>
             <p class="resultMessage" />
             <p class="resultCode2" />
@@ -120,7 +120,7 @@ Connection: close
             <p class="displayName">a stem:disp2</p>
             <p class="description">descs</p>
             <p class="extension">whateverStem2</p>
-            <p class="uuid">437d1558-4f11-4efd-86d4-ba683f635d24</p>
+            <p class="uuid">4a69c657-ff1a-42a0-b0a1-c34ba8fce357</p>
             <p class="displayExtension">disp2</p>
           </div>
         </li>
@@ -136,7 +136,7 @@ wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,na
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">4219</p>
+        <p class="millis">4250</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>

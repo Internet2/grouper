@@ -40,7 +40,7 @@ X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 15 Dec 2008 08:58:05 GMT
+Date: Mon, 15 Dec 2008 09:11:07 GMT
 Connection: close
 
 <WsGroupSaveLiteResult>
@@ -55,7 +55,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
-    <millis>531</millis>
+    <millis>516</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
   <wsGroup>
@@ -64,7 +64,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave
     <description>desc1</description>
     <displayName>a stem:disp1</displayName>
     <name>aStem:aGroupToSave</name>
-    <uuid>61717864-66ab-4665-bdcd-b0956edaf927</uuid>
+    <uuid>2ddceb34-4b2f-439d-9c6d-5383da48a9d9</uuid>
   </wsGroup>
 </WsGroupSaveLiteResult>
 

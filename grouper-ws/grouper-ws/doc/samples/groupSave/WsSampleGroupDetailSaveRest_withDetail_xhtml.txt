@@ -26,53 +26,50 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   <body>
     <div title="WsRestGroupSaveRequest">
       <p class="clientVersion" />
+      <p class="includeGroupDetail" />
       <ul class="wsGroupToSaves">
         <li title="WsGroupToSave">
-          <p class="saveMode" />
-          <div class="wsGroup" title="WsGroup">
-            <p class="name">aStem:whateverGroupLeft</p>
-            <p class="displayName" />
-            <p class="uuid" />
-            <p class="description">whateverGroupLeftDesc</p>
-            <p class="displayExtension">whateverGroupLeftDispExt</p>
-            <p class="extension">whateverGroupLeft</p>
-            <div class="detail" title="WsGroupDetail" />
-          </div>
           <div class="wsGroupLookup" title="WsGroupLookup">
             <p class="uuid" />
             <p class="groupName">aStem:whateverGroupLeft</p>
           </div>
-        </li>
-        <li title="WsGroupToSave">
           <p class="saveMode" />
           <div class="wsGroup" title="WsGroup">
-            <p class="name">aStem:whateverGroupRight</p>
-            <p class="displayName" />
             <p class="uuid" />
-            <p class="description">whateverGroupRightDesc</p>
-            <p class="displayExtension">whateverGroupRightDispExt</p>
-            <p class="extension">whateverGroupRight</p>
+            <p class="displayExtension">whateverGroupLeftDispExt</p>
             <div class="detail" title="WsGroupDetail" />
+            <p class="name">aStem:whateverGroupLeft</p>
+            <p class="displayName" />
+            <p class="description">whateverGroupLeftDesc</p>
+            <p class="extension">whateverGroupLeft</p>
           </div>
+        </li>
+        <li title="WsGroupToSave">
           <div class="wsGroupLookup" title="WsGroupLookup">
             <p class="uuid" />
             <p class="groupName">aStem:whateverGroupRight</p>
           </div>
-        </li>
-        <li title="WsGroupToSave">
           <p class="saveMode" />
           <div class="wsGroup" title="WsGroup">
-            <p class="name">aStem:whateverGroup</p>
-            <p class="displayName" />
             <p class="uuid" />
-            <p class="description">desc1</p>
+            <p class="displayExtension">whateverGroupRightDispExt</p>
+            <div class="detail" title="WsGroupDetail" />
+            <p class="name">aStem:whateverGroupRight</p>
+            <p class="displayName" />
+            <p class="description">whateverGroupRightDesc</p>
+            <p class="extension">whateverGroupRight</p>
+          </div>
+        </li>
+        <li title="WsGroupToSave">
+          <div class="wsGroupLookup" title="WsGroupLookup">
+            <p class="uuid" />
+            <p class="groupName">aStem:whateverGroup</p>
+          </div>
+          <p class="saveMode" />
+          <div class="wsGroup" title="WsGroup">
+            <p class="uuid" />
             <p class="displayExtension">disp1</p>
-            <p class="extension">whateverGroup</p>
             <div class="detail" title="WsGroupDetail">
-              <ul class="attributeNames">
-                <li>attr_1</li>
-                <li>attr2_1</li>
-              </ul>
               <p class="createTime" />
               <p class="modifyTime" />
               <ul class="attributeValues">
@@ -80,44 +77,47 @@ Content-Type: application/xhtml+xml; charset=UTF-8
                 <li>val2_1</li>
               </ul>
               <div class="leftGroup" title="WsGroup">
+                <p class="uuid" />
+                <p class="displayExtension">whateverGroupLeftDispExt</p>
+                <div class="detail" title="WsGroupDetail" />
                 <p class="name">aStem:whateverGroupLeft</p>
                 <p class="displayName" />
-                <p class="uuid" />
                 <p class="description">whateverGroupLeftDesc</p>
-                <p class="displayExtension">whateverGroupLeftDispExt</p>
                 <p class="extension">whateverGroupLeft</p>
-                <div class="detail" title="WsGroupDetail" />
               </div>
               <div class="rightGroup" title="WsGroup">
+                <p class="uuid" />
+                <p class="displayExtension">whateverGroupRightDispExt</p>
+                <div class="detail" title="WsGroupDetail" />
                 <p class="name">aStem:whateverGroupRight</p>
                 <p class="displayName" />
-                <p class="uuid" />
                 <p class="description">whateverGroupRightDesc</p>
-                <p class="displayExtension">whateverGroupRightDispExt</p>
                 <p class="extension">whateverGroupRight</p>
-                <div class="detail" title="WsGroupDetail" />
               </div>
-              <p class="compositeType">intersection</p>
-              <p class="createSubjectId" />
-              <p class="hasComposite">T</p>
-              <p class="isCompositeFactor" />
-              <p class="modifySource" />
-              <p class="modifySubjectId" />
               <ul class="typeNames">
                 <li>aType</li>
                 <li>aType2</li>
               </ul>
+              <p class="createSubjectId" />
+              <p class="isCompositeFactor" />
+              <p class="modifySource" />
+              <p class="modifySubjectId" />
+              <p class="hasComposite">T</p>
+              <p class="compositeType">intersection</p>
+              <ul class="attributeNames">
+                <li>attr_1</li>
+                <li>attr2_1</li>
+              </ul>
             </div>
-          </div>
-          <div class="wsGroupLookup" title="WsGroupLookup">
-            <p class="uuid" />
-            <p class="groupName">aStem:whateverGroup</p>
+            <p class="name">aStem:whateverGroup</p>
+            <p class="displayName" />
+            <p class="description">desc1</p>
+            <p class="extension">whateverGroup</p>
           </div>
         </li>
       </ul>
       <div class="actAsSubjectLookup" title="WsSubjectLookup" />
       <p class="txType" />
-      <p class="includeGroupDetail" />
     </div>
   </body>
 </html>
@@ -138,7 +138,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 15 Dec 2008 08:57:30 GMT
+Date: Mon, 15 Dec 2008 09:10:37 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -163,7 +163,7 @@ Connection: close
             <p class="description">whateverGroupLeftDesc</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whateverGroupLeft</p>
-            <p class="uuid">b8c83f77-8f84-4549-85f4-451bb7edef36</p>
+            <p class="uuid">4a80131e-1f4d-4a11-85fc-0a73124af7ff</p>
             <p class="displayExtension">whateverGroupLeftDispExt</p>
           </div>
         </li>
@@ -180,7 +180,7 @@ Connection: close
             <p class="description">whateverGroupRightDesc</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whateverGroupRight</p>
-            <p class="uuid">1f111f9a-4626-4ff8-b9af-2a5ae47b3361</p>
+            <p class="uuid">45fb8e8a-4a1a-44dd-b479-7b39f3b928be</p>
             <p class="displayExtension">whateverGroupRightDispExt</p>
           </div>
         </li>
@@ -197,7 +197,7 @@ Connection: close
             <p class="description">desc1</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whateverGroup</p>
-            <p class="uuid">d17b5cca-6aaa-4cb6-a6d6-d954f0a29b4a</p>
+            <p class="uuid">29d1edd4-0015-4c4a-a3c0-025999f944b7</p>
             <p class="displayExtension">disp1</p>
           </div>
         </li>
@@ -213,7 +213,7 @@ wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDi
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">4375</p>
+        <p class="millis">4312</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>

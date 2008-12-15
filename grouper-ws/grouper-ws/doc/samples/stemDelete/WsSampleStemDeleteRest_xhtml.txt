@@ -11,7 +11,7 @@ Grouper web service sample of service: stemDelete, WsSampleStemDeleteRest, manua
 
 POST /grouperWs/servicesRest/v1_4_000/stems HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 652
@@ -53,12 +53,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=E0FCE5E6161C987A33939667F39A80F9; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:13:35 GMT
+Date: Mon, 15 Dec 2008 09:07:19 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -75,7 +75,7 @@ Connection: close
             <p class="resultCode">SUCCESS_STEM_NOT_FOUND</p>
             <p class="success">T</p>
             <p class="resultMessage">Cant find stem: 'WsStemLookup[stemName=aStem:whateverStem,
-stemFindResult=STEM_NOT_FOUND]'.  </p>
+stemFindResult=STEM_NOT_FOUND]'.</p>
             <p class="resultCode2" />
           </div>
           <div class="wsStem" title="WsStem">
@@ -92,7 +92,7 @@ stemFindResult=STEM_NOT_FOUND]'.  </p>
             <p class="resultCode">SUCCESS_STEM_NOT_FOUND</p>
             <p class="success">T</p>
             <p class="resultMessage">Cant find stem: 'WsStemLookup[stemName=aStem:whateverStem2,
-stemFindResult=STEM_NOT_FOUND]'.  </p>
+stemFindResult=STEM_NOT_FOUND]'.</p>
             <p class="resultCode2" />
           </div>
           <div class="wsStem" title="WsStem">
@@ -116,7 +116,7 @@ stemFindResult=STEM_NOT_FOUND]'.  </p>
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">750</p>
+        <p class="millis">4281</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>

@@ -15,6 +15,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -435,6 +437,9 @@ public final class GrouperServiceUtils {
     return queryString.toString();
   }
   
+  /** cookie response */
+  private static Pattern cookieResponsePattern = Pattern.compile("^Set-Cookie\\: JSESSIONID=.+; Path=/(.+)$");
+  
   /**
    * take an http request and format it (assume xml or json)
    * @param http
@@ -493,6 +498,14 @@ public final class GrouperServiceUtils {
         i = lines.length - 2;
         seenBody = true;
         continue;
+      }
+      //format authorization
+      if (line.matches("^Authorization\\: Basic (.+)$")) {
+        line = "Authorization: Basic xxxxxxxxxxxxxxxxx==";
+      }
+      Matcher matcher = cookieResponsePattern.matcher(line);
+      if (matcher.matches()) {
+        line = "Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/" + matcher.group(1);
       }
       result.append(line).append("\n");
     }

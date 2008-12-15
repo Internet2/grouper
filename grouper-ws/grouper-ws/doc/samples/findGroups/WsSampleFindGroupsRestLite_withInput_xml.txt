@@ -11,7 +11,7 @@ Grouper web service sample of service: findGroups, WsSampleFindGroupsRestLite, m
 
 POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 176
@@ -34,12 +34,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=AC2A3CB3EC1E5CD052AB8BC0F67EF6BC; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 21:12:30 GMT
+Date: Mon, 15 Dec 2008 09:06:28 GMT
 Connection: close
 
 <WsFindGroupsResults>
@@ -50,7 +50,7 @@ Connection: close
       <description>a group description2</description>
       <displayName>a stem:a group2</displayName>
       <name>aStem:aGroup2</name>
-      <uuid>220ad020-374a-4e5e-b3a7-d4c32773b2c8</uuid>
+      <uuid>1160ae57-9025-4d11-befc-f4f9295be426</uuid>
     </WsGroup>
     <WsGroup>
       <extension>aGroup</extension>
@@ -58,7 +58,7 @@ Connection: close
       <description>a group description</description>
       <displayName>a stem:a group</displayName>
       <name>aStem:aGroup</name>
-      <uuid>5d430dc5-4963-40f9-8c09-694a53f40d03</uuid>
+      <uuid>9fca950a-bfad-40d6-b374-de10068caf18</uuid>
     </WsGroup>
   </groupResults>
   <resultMetadata>
@@ -67,12 +67,9 @@ Connection: close
 , includeGroupDetail: false, actAsSubject: WsSubjectLookup[], paramNames:
 , params: null</resultMessage>
     <success>T</success>
-    <httpStatusCode>200</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1225141950537</millisStart>
+    <millis>437</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
 </WsFindGroupsResults>

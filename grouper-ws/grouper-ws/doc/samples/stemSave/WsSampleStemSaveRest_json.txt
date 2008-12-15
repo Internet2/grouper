@@ -11,7 +11,7 @@ Grouper web service sample of service: stemSave, WsSampleStemSaveRest, manually 
 
 POST /grouperWs/servicesRest/v1_4_000/stems HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 397
@@ -60,12 +60,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=F7CFE198A485459B1FFC68A47FCE3535; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 27 Oct 2008 21:15:02 GMT
+Date: Mon, 15 Dec 2008 09:08:29 GMT
 Connection: close
 
 {
@@ -79,13 +79,11 @@ Connection: close
             "description":"desc1",
             "displayName":"a stem:disp1",
             "name":"aStem:whateverStem",
-            "uuid":"efdb77aa-5c21-46d9-ad34-913f7d9366e5"
+            "uuid":"719bd79a-fb5c-4bb1-934d-d94695d0cb2a"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS",
-            "resultMessage":"",
-            "success":"T",
-            "httpStatusCode":"500"
+            "resultCode":"SUCCESS_INSERTED",
+            "success":"T"
           }
           
         },
@@ -96,13 +94,11 @@ Connection: close
             "description":"descs",
             "displayName":"a stem:disp2",
             "name":"aStem:whateverStem2",
-            "uuid":"437d1558-4f11-4efd-86d4-ba683f635d24"
+            "uuid":"46d69eab-7616-4ae6-b86f-a6bfb6aa22d0"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS",
-            "resultMessage":"",
-            "success":"T",
-            "httpStatusCode":"500"
+            "resultCode":"SUCCESS_INSERTED",
+            "success":"T"
           }
         }
       ]
@@ -111,13 +107,10 @@ Connection: close
     "resultMetadata":{
       "resultCode":"SUCCESS",
       "resultMessage":"Success for: clientVersion: v1_4_000, wsStemToSaves: Array size: 2: [0]: WsStemToSave[\n  wsStemLookup=WsStemLookup[stemName=aStem:whateverStem],\n  wsStem=WsStem[extension=whateverStem,displayExtension=disp1,description=desc1,name=aStem:whateverStem]]...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
-      "success":"T",
-      "httpStatusCode":"201"
+      "success":"T"
     },
     "responseMetadata":{
-      "resultWarnings":"",
-      "millis":"-1",
-      "millisStart":"1225142102523",
+      "millis":"610",
       "serverVersion":"v1_4_000"
     }
   }

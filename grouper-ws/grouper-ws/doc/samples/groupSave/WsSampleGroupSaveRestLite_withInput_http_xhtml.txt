@@ -16,7 +16,7 @@ User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 144
 
-wsLiteObjectType=WsRestGroupSaveLiteRequest&description=desc1&displayExtension=disp1&groupName=aStem%3AaGroupToSave&actAsSubjectId=GrouperSystem
+wsLiteObjectType=WsRestGroupSaveLiteRequest&displayExtension=disp1&groupName=aStem%3AaGroupToSave&actAsSubjectId=GrouperSystem&description=desc1
 
 
 #########################################
@@ -34,7 +34,7 @@ X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 15 Dec 2008 08:58:20 GMT
+Date: Mon, 15 Dec 2008 09:11:21 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -57,7 +57,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">593</p>
+        <p class="millis">578</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -67,7 +67,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave
         <p class="description">desc1</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroupToSave</p>
-        <p class="uuid">f00e7153-d205-4ae1-830a-e95be3f81234</p>
+        <p class="uuid">78234fb2-79c4-47fa-8426-3ca5ab544d5e</p>
         <p class="displayExtension">disp1</p>
       </div>
     </div>
