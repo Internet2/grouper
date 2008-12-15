@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
 
+import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
@@ -50,7 +51,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup0.java,v 1.17 2008-12-15 07:09:36 mchyzer Exp $
+ * @version $Id: TestGroup0.java,v 1.18 2008-12-15 07:36:22 mchyzer Exp $
  */
 public class TestGroup0 extends GrouperTest {
 
@@ -63,7 +64,7 @@ public class TestGroup0 extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new TestGroup0("testCompositeMemberRead"));
+    TestRunner.run(new TestGroup0("testMemberRead"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
     //runPerfProblem2();
@@ -217,6 +218,12 @@ public class TestGroup0 extends GrouperTest {
     } catch (MemberAddException e) {
       //this is ok
     }
+    try {
+      group1.grantPriv(SubjectFinder.findById(group2.getUuid()), AccessPrivilege.VIEW);
+      fail("Shouldnt be able to add this member without READ priv");
+    } catch (GrantPrivilegeException e) {
+      //this is ok
+    }
     grouperSession.stop();
     grouperSession = GrouperSession.startRootSession();
     group2.grantPriv(subject, AccessPrivilege.READ);
@@ -225,6 +232,7 @@ public class TestGroup0 extends GrouperTest {
     
     //this should work now with read priv
     group1.addMember(SubjectFinder.findById(group2.getUuid()));
+    group1.grantPriv(SubjectFinder.findById(group2.getUuid()), AccessPrivilege.VIEW);
   }
   
   /**
