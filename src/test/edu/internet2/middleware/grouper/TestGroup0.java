@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -51,7 +52,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup0.java,v 1.18 2008-12-15 07:36:22 mchyzer Exp $
+ * @version $Id: TestGroup0.java,v 1.19 2008-12-15 08:12:32 mchyzer Exp $
  */
 public class TestGroup0 extends GrouperTest {
 
@@ -203,13 +204,19 @@ public class TestGroup0 extends GrouperTest {
     Group group2 = GroupFinder.findByName(grouperSession, "i2:a:b");
     //System.out.println(group1);
     
+    Stem stem = StemFinder.findByName(grouperSession, "i2");
+    
+    
     Subject subject = SubjectFinder.findById("a");
     //System.out.println(GrouperUtil.subjectToString(subject));
     
     group1.grantPriv(subject, AccessPrivilege.ADMIN);
     group2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
     group2.grantPriv(subject, AccessPrivilege.VIEW, false);
-
+    
+    stem.grantPriv(subject, NamingPrivilege.CREATE);
+    stem.grantPriv(subject, NamingPrivilege.STEM);
+    
     grouperSession.stop();
     grouperSession = GrouperSession.start(subject);
     try {
@@ -220,7 +227,13 @@ public class TestGroup0 extends GrouperTest {
     }
     try {
       group1.grantPriv(SubjectFinder.findById(group2.getUuid()), AccessPrivilege.VIEW);
-      fail("Shouldnt be able to add this member without READ priv");
+      fail("Shouldnt be able to grant this member without READ priv");
+    } catch (GrantPrivilegeException e) {
+      //this is ok
+    }
+    try {
+      stem.grantPriv(SubjectFinder.findById(group2.getUuid()), NamingPrivilege.CREATE);
+      fail("Shouldnt be able to grant this member without READ priv");
     } catch (GrantPrivilegeException e) {
       //this is ok
     }
@@ -233,6 +246,7 @@ public class TestGroup0 extends GrouperTest {
     //this should work now with read priv
     group1.addMember(SubjectFinder.findById(group2.getUuid()));
     group1.grantPriv(SubjectFinder.findById(group2.getUuid()), AccessPrivilege.VIEW);
+    stem.grantPriv(SubjectFinder.findById(group2.getUuid()), NamingPrivilege.CREATE);
   }
   
   /**
