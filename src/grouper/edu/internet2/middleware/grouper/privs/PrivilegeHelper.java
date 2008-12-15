@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.Subject;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.3 2008-12-15 07:09:37 mchyzer Exp $
  * @since   1.2.1
  */
 public class PrivilegeHelper {
@@ -280,7 +280,7 @@ public class PrivilegeHelper {
     else if (priv.equals(AccessPrivilege.READ))   {
       rv = PrivilegeHelper.canRead(s, g, subj);
       if (!rv) {
-        msg = E.CANNOT_READ;
+        msg = "subject " + subj.getId() + " cannot READ group: " + g.getName();
       }
     }
     else if (priv.equals(AccessPrivilege.VIEW))   {

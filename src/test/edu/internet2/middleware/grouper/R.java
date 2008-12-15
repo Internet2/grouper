@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
  * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: R.java,v 1.24 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: R.java,v 1.25 2008-12-15 07:09:36 mchyzer Exp $
  * @since   1.2.0
  */
 public class R {
@@ -312,7 +312,17 @@ public class R {
   } // public void setSession(s)
 
 
-  // PROTECTED CLASS METHODS //
+  /**
+   * <pre>
+   * This will make stems and groups in the stems.
+   * e.g. group: i2:a:a, i2:a:b, then i2:b:a, i2:b:b
+   * </pre>
+   * @param nStems
+   * @param nGroups
+   * @param nSubjects
+   * @return R which is the 
+   * @throws Exception
+   */
   public static R populateRegistry(int nStems, int nGroups, int nSubjects) 
     throws  Exception
   {
@@ -364,7 +374,7 @@ public class R {
   // PRIVATE CLASS METHODS //
 
   private static String _getSuffix(int i) {
-    int     base  = 97;
+    int     base  = 'a';
     return  new Character( (char) (i + base) ).toString();
   } // private static String _getSuffix(i)
 

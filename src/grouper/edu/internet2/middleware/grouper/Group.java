@@ -112,7 +112,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.213 2008-12-04 07:51:24 mchyzer Exp $
+ * @version $Id: Group.java,v 1.214 2008-12-15 07:09:36 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -416,6 +416,10 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
 
       PrivilegeHelper.dispatch( GrouperSession.staticGrouperSession(), this, 
           GrouperSession.staticGrouperSession().getSubject(), Group.getDefaultList().getWritePriv() );
+      PrivilegeHelper.dispatch( GrouperSession.staticGrouperSession(), left, 
+          GrouperSession.staticGrouperSession().getSubject(), Group.getDefaultList().getReadPriv() );
+      PrivilegeHelper.dispatch( GrouperSession.staticGrouperSession(), right, 
+          GrouperSession.staticGrouperSession().getSubject(), Group.getDefaultList().getReadPriv() );
 
       Composite     c   = new Composite();
       c.setCreateTime( new Date().getTime() );

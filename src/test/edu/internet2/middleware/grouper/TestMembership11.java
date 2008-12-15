@@ -80,7 +80,10 @@ public class TestMembership11 extends GrouperTest {
   public void testNestedComposites() {
     LOG.info("testNestedComposites");
     try {
-      before   = DateHelper.getPastDate();
+      //sleep so if auto added members in config check, doesnt mess things up here
+      GrouperUtil.sleep(50);
+//      before   = DateHelper.getPastDate();
+      before   = new Date();
 
       r     = R.populateRegistry(1, 14, 5);
       gA    = r.getGroup("a", "a");
