@@ -73,7 +73,10 @@ public class TestMembership8 extends GrouperTest {
   public void testCircularMembershipsWithoutComposites2() {
     LOG.info("testCircularMembershipsWithoutComposites2");
     try {
-      before   = DateHelper.getPastDate();
+      //sleep so if auto added members in config check, doesnt mess things up here
+      GrouperUtil.sleep(50);
+//      before   = DateHelper.getPastDate();
+      before   = new Date();
 
       r     = R.populateRegistry(1, 4, 3);
       gA    = r.getGroup("a", "a");

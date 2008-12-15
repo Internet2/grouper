@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.ui.actions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -28,17 +29,22 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 import edu.internet2.middleware.grouper.ui.util.ProcessSearchTerm;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -177,7 +183,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 </table>
 
  * @author Gary Brown.
- * @version $Id: SearchNewMembersAction.java,v 1.8 2007-11-08 14:40:03 isgwb Exp $
+ * @version $Id: SearchNewMembersAction.java,v 1.9 2008-12-15 07:09:39 mchyzer Exp $
  */
 public class SearchNewMembersAction extends GrouperCapableAction {
 
@@ -242,7 +248,7 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 		int resultSize = 0;
 		searchObj.put("trueSearch", Boolean.TRUE);
 		searchObj.put("start", new Integer(Integer.parseInt(searchStart)));
-		List subjectRes = null;
+		List<Map<Object,Object>> subjectRes = null;
 
 		Boolean searchedPeople = Boolean.FALSE;
 		String targetId = null;
@@ -305,6 +311,47 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 					.subList(start, end));
 
 		}
+		
+		//loop through and make sure the subject can read the group if it is a group
+		Iterator<Map<Object,Object>> iterator = subjectRes.iterator();
+		while (iterator.hasNext()) {
+		  Map<Object,Object> map = iterator.next();
+		  String subjectType = (String)map.get("subjectType");
+		  //will this always be accurate??
+		  if (StringUtils.equals("group", subjectType)) {
+		    Object groupGet = map.get("group");
+		    Group group = groupGet instanceof Group ? (Group)groupGet : null;
+		    if (group == null) {
+	        String subjectId = (String)map.get("subjectId");
+		      try {
+		        group = GroupFinder.findByUuid(grouperSession,subjectId);
+		      } catch (Exception e) {
+		        //this is probably ok, just cant find it
+		        LOG.debug("Cant find group: " + subjectId, e);
+		      }
+		    }
+	      if (group != null) {
+	        
+	        try {
+	          PrivilegeHelper.dispatch( grouperSession, group, 
+	              grouperSession.getSubject(), Group.getDefaultList().getReadPriv() );
+	        } catch (Exception e) {
+            //this is probably ok, just not allowed
+	          if (LOG.isDebugEnabled()) {
+              LOG.debug("Not allowed to read: " 
+                + GrouperUtil.subjectToString(grouperSession.getSubject()) + ", " + group.getName(), e);
+	          }
+	          iterator.remove();
+	        }
+	        
+	      } else {
+	        iterator.remove();
+	      }
+		  }
+		}
+		
+		resultSize = subjectRes.size();
+		
 		//Make results and search criteria available
 		request.setAttribute("subjectResults", subjectRes);
 		request.setAttribute("subjectResultsSize", new Integer(resultSize));

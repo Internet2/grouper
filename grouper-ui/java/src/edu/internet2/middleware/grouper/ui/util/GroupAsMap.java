@@ -33,7 +33,7 @@ import edu.internet2.middleware.subject.Subject;
  * and works well with JSTL <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupAsMap.java,v 1.11 2008-03-03 09:05:55 isgwb Exp $
+ * @version $Id: GroupAsMap.java,v 1.12 2008-12-15 07:09:39 mchyzer Exp $
  */
 public class GroupAsMap extends ObjectAsMap {
 	//
@@ -58,6 +58,8 @@ public class GroupAsMap extends ObjectAsMap {
 		
 		put("groupId",group.getUuid());
 		put("subjectId",group.getUuid());
+    put("group",group);
+		
 		put("desc",get("displayExtension"));
 		
 	}

@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper.misc;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.2 2008-11-11 07:27:32 mchyzer Exp $
+ * @version $Id: E.java,v 1.3 2008-12-15 07:09:36 mchyzer Exp $
  * @since   1.0
  */
 public class E {
@@ -31,7 +31,6 @@ public class E {
   public static final String CANNOT_CREATE_STEM        = "cannot create child stem: ";
   public static final String CANNOT_OPTIN              = "subject cannot OPTIN";
   public static final String CANNOT_OPTOUT             = "subject cannot OPTOUT";
-  public static final String CANNOT_READ               = "subject cannot READ";
   public static final String CANNOT_REALIZE_INTERFACE  = "cannot realize interface ";
   public static final String CANNOT_SET_SUBJECTID      = "subject cannot setSubjectId()";
   public static final String CANNOT_STEM               = "subject cannot STEM";

@@ -27,8 +27,8 @@ import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.57 2008-11-11 22:08:33 mchyzer Exp $
+ * @version $Id: MemberFinder.java,v 1.58 2008-12-15 07:09:37 mchyzer Exp $
  */
 public class MemberFinder {
 	
@@ -219,8 +219,7 @@ public class MemberFinder {
   // @since   1.2.0
   public static Member internal_findViewableMemberBySubject(GrouperSession s, Subject subj)
     throws  InsufficientPrivilegeException,
-            MemberNotFoundException
-  {
+            MemberNotFoundException  {
     //note, no need for GrouperSession inverse of control
     Member m = findBySubject(s, subj);
     if ( SubjectFinder.internal_getGSA().getId().equals( m.getSubjectSourceId() )) {
@@ -234,6 +233,40 @@ public class MemberFinder {
     }
     return m;
   } // public static Member internal_findViewableMemberBySubject(s, subj)
+  
+  /**
+   * find a member object and if group, make sure it is readable
+   * @param grouperSession
+   * @param subject
+   * @return the member
+   * @throws MemberNotFoundException 
+   * @throws InsufficientPrivilegeException 
+   */
+  public static Member internal_findReadableMemberBySubject(GrouperSession grouperSession, 
+      Subject subject)
+     throws MemberNotFoundException, InsufficientPrivilegeException {
+    Member member = findBySubject(grouperSession, subject);
+    
+    //see if this subject is a group
+    if ( SubjectFinder.internal_getGSA().getId().equals( member.getSubjectSourceId() )) {
+      Group group = null;
+      
+      try {
+        group = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId());
+      } catch (GroupNotFoundException gnfe) {
+        throw new MemberNotFoundException("Cant find (or possibly view) group: " + member.getSubjectId(), gnfe);
+      }
+      
+      //see if the session can read the group
+      if ( PrivilegeHelper.canRead( grouperSession.internal_getRootSession(), group, grouperSession.getSubject() ) ) {
+        return member;
+      }
+      throw new InsufficientPrivilegeException("Subject: " 
+          + grouperSession.getSubject().getId() + " does not have READ privilege on group "
+          + group.getName());
+    }
+    return member;
+  }
   
   // @since   1.2.1
   public static void clearInternalMembers()

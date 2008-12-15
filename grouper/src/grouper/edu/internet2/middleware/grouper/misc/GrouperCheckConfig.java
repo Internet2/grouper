@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.15 2008-12-10 07:40:14 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.16 2008-12-15 07:09:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -439,46 +439,51 @@ public class GrouperCheckConfig {
       grouperSession = GrouperSession.startRootSession();
     
       while(true) {
-        String groupNameKey = "configuration.autocreate.group.name." + i;
-        String groupName = GrouperUtil.propertiesValue(properties,groupNameKey);
-        
-        if (StringUtils.isBlank(groupName)) {
-          break;
-        }
-        
-        String groupDescription = GrouperUtil.propertiesValue(properties,"configuration.autocreate.group.description." + i);
-        String subjectsKey = "configuration.autocreate.group.subjects." + i;
-        String subjects = GrouperUtil.propertiesValue(properties,subjectsKey);
-  
-        Group[] theGroup = new Group[1];
-        //first the group
-        checkGroup(grouperSession, groupName, wasInCheckConfig, true, wasInCheckConfig, null, groupDescription, "grouper.properties key " + groupNameKey, theGroup);
-        //now the subjects
-        if (!StringUtils.isBlank(subjects)) {
-          String[] subjectArray = GrouperUtil.splitTrim(subjects, ",");
-          for (String subjectId : subjectArray) {
-            
-            try {
-              Subject subject = SubjectFinder.findByIdOrIdentifier(subjectId, false);
-              boolean added = theGroup[0].addMember(subject, false);
-              if (added && wasInCheckConfig) {
-                String error = "auto-added subject " + subjectId + " to group: " + theGroup[0].getName();
-                System.err.println("Grouper warning: " + error);
-                LOG.warn(error);
-              }
-            } catch (MemberAddException mae) {
-              throw new RuntimeException("this should never happen", mae);
-            } catch (InsufficientPrivilegeException snfe) {
-              throw new RuntimeException("this should never happen", snfe);
-            } catch (SubjectNotFoundException snfe) {
-              throw new RuntimeException("this should never happen", snfe);
-            } catch (SubjectNotUniqueException snue) {
-              String error = "subject not unique from grouper.properties key: " + subjectsKey + ", " + subjectId;
-              System.err.println("Grouper error: " + error);
-              LOG.error(error, snue);
-            }
+        String groupName = null;
+        try {
+          String groupNameKey = "configuration.autocreate.group.name." + i;
+          groupName = GrouperUtil.propertiesValue(properties,groupNameKey);
+          
+          if (StringUtils.isBlank(groupName)) {
+            break;
           }
-            
+          
+          String groupDescription = GrouperUtil.propertiesValue(properties,"configuration.autocreate.group.description." + i);
+          String subjectsKey = "configuration.autocreate.group.subjects." + i;
+          String subjects = GrouperUtil.propertiesValue(properties,subjectsKey);
+    
+          Group[] theGroup = new Group[1];
+          //first the group
+          checkGroup(grouperSession, groupName, wasInCheckConfig, true, wasInCheckConfig, null, groupDescription, "grouper.properties key " + groupNameKey, theGroup);
+          //now the subjects
+          if (!StringUtils.isBlank(subjects)) {
+            String[] subjectArray = GrouperUtil.splitTrim(subjects, ",");
+            for (String subjectId : subjectArray) {
+              
+              try {
+                Subject subject = SubjectFinder.findByIdOrIdentifier(subjectId, false);
+                boolean added = theGroup[0].addMember(subject, false);
+                if (added && wasInCheckConfig) {
+                  String error = "auto-added subject " + subjectId + " to group: " + theGroup[0].getName();
+                  System.err.println("Grouper warning: " + error);
+                  LOG.warn(error);
+                }
+              } catch (MemberAddException mae) {
+                throw new RuntimeException("this should never happen", mae);
+              } catch (InsufficientPrivilegeException snfe) {
+                throw new RuntimeException("this should never happen", snfe);
+              } catch (SubjectNotFoundException snfe) {
+                throw new RuntimeException("this should never happen", snfe);
+              } catch (SubjectNotUniqueException snue) {
+                String error = "subject not unique from grouper.properties key: " + subjectsKey + ", " + subjectId;
+                System.err.println("Grouper error: " + error);
+                LOG.error(error, snue);
+              }
+            }
+              
+          }
+        } catch (RuntimeException re) {
+          GrouperUtil.injectInException(re, ", problem with auto-create group: " + groupName);
         }
         i++;
       }

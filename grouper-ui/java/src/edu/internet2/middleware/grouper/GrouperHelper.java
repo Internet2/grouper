@@ -78,7 +78,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.52 2008-09-09 20:03:40 mchyzer Exp $
+ * @version $Id: GrouperHelper.java,v 1.53 2008-12-15 07:09:39 mchyzer Exp $
  */
 
 
@@ -567,7 +567,7 @@ public class GrouperHelper {
 	 * @param addAttr Map of additional attributes
 	 * @return Subject wrapped as a Map
 	 */
-	public static Map subject2Map(Subject subject,Map addAttr) {
+	public static Map<Object, Object> subject2Map(Subject subject,Map addAttr) {
 		//@TODO what should happen if Group - see next method
 		SubjectAsMap map = (SubjectAsMap)ObjectAsMap.getInstance("SubjectAsMap", subject);
 		if(addAttr !=null) map.putAll(addAttr);
@@ -655,7 +655,7 @@ public class GrouperHelper {
 	 * @param addAttr Map of aditional attributes
 	 * @return List of Subjects wrapped as Maps
 	 */
-	public static List subjects2Maps(Subject[] subjects,Map addAttr) {
+	public static List<Map<Object,Object>> subjects2Maps(Subject[] subjects,Map addAttr) {
 		List maps = new ArrayList();
 		for (int i = 0; i < subjects.length; i++) {
 			if(subjects[i]!=null) maps.add(subject2Map(subjects[i],addAttr));

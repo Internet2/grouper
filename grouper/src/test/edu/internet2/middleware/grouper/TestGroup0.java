@@ -28,6 +28,8 @@ import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.filter.GroupAttributeFilter;
@@ -37,8 +39,10 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -46,7 +50,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup0.java,v 1.16 2008-12-09 08:11:51 mchyzer Exp $
+ * @version $Id: TestGroup0.java,v 1.17 2008-12-15 07:09:36 mchyzer Exp $
  */
 public class TestGroup0 extends GrouperTest {
 
@@ -59,7 +63,7 @@ public class TestGroup0 extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new TestGroup0("testStaticSaveGroupWithDisplayNames"));
+    TestRunner.run(new TestGroup0("testCompositeMemberRead"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
     //runPerfProblem2();
@@ -186,6 +190,82 @@ public class TestGroup0 extends GrouperTest {
     assertEquals(groupDisplayNameSiblingResult, group.getDisplayName());
     
   }
+  
+  /**
+   * @throws Exception 
+   * 
+   */
+  public void testMemberRead() throws Exception {
+    R.populateRegistry(1, 2, 1);
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group group1 = GroupFinder.findByName(grouperSession, "i2:a:a");
+    Group group2 = GroupFinder.findByName(grouperSession, "i2:a:b");
+    //System.out.println(group1);
+    
+    Subject subject = SubjectFinder.findById("a");
+    //System.out.println(GrouperUtil.subjectToString(subject));
+    
+    group1.grantPriv(subject, AccessPrivilege.ADMIN);
+    group2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    group2.grantPriv(subject, AccessPrivilege.VIEW, false);
+
+    grouperSession.stop();
+    grouperSession = GrouperSession.start(subject);
+    try {
+      group1.addMember(SubjectFinder.findById(group2.getUuid()));
+      fail("Shouldnt be able to add this member without READ priv");
+    } catch (MemberAddException e) {
+      //this is ok
+    }
+    grouperSession.stop();
+    grouperSession = GrouperSession.startRootSession();
+    group2.grantPriv(subject, AccessPrivilege.READ);
+    grouperSession.stop();
+    grouperSession = GrouperSession.start(subject);
+    
+    //this should work now with read priv
+    group1.addMember(SubjectFinder.findById(group2.getUuid()));
+  }
+  
+  /**
+   * 
+   * @throws Exception 
+   */
+  public void testCompositeMemberRead() throws Exception {
+    R.populateRegistry(1, 3, 1);
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group group1 = GroupFinder.findByName(grouperSession, "i2:a:a");
+    Group group2 = GroupFinder.findByName(grouperSession, "i2:a:b");
+    Group group3 = GroupFinder.findByName(grouperSession, "i2:a:c");
+    //System.out.println(group1);
+    
+    Subject subject = SubjectFinder.findById("a");
+    //System.out.println(GrouperUtil.subjectToString(subject));
+    
+    group1.grantPriv(subject, AccessPrivilege.ADMIN);
+    group2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    group2.grantPriv(subject, AccessPrivilege.VIEW, false);
+    group3.grantPriv(subject, AccessPrivilege.VIEW, false);
+    group3.grantPriv(subject, AccessPrivilege.READ, false);
+
+    grouperSession.stop();
+    grouperSession = GrouperSession.start(subject);
+    try {
+      group1.addCompositeMember(CompositeType.UNION,group2, group3);
+      fail("Shouldnt be able to add this member without READ priv");
+    } catch (InsufficientPrivilegeException e) {
+      //this is ok
+    }
+    grouperSession.stop();
+    grouperSession = GrouperSession.startRootSession();
+    group2.grantPriv(subject, AccessPrivilege.READ);
+    grouperSession.stop();
+    grouperSession = GrouperSession.start(subject);
+    
+    //this should work now with read priv
+    group1.addCompositeMember(CompositeType.UNION,group2, group3);
+  }
+  
   
   /**
    * test
