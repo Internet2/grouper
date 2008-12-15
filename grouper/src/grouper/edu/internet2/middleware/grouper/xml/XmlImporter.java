@@ -98,7 +98,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.8 2008-11-13 09:33:52 isgwb Exp $
+ * @version $Id: XmlImporter.java,v 1.9 2008-12-15 15:02:09 isgwb Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -690,7 +690,7 @@ public class XmlImporter {
 
   // @since   1.1.0
   private boolean _isMetadataGroupTypeAttributeImportEnabled() {
-    return XmlUtils.internal_getBooleanOption(this.options, "import.metadata.group-typea-attributes");
+    return XmlUtils.internal_getBooleanOption(this.options, "import.metadata.group-type-attributes");
   } // private boolean _isMetadataGroupTypeAttributeImportEnabled()
 
   // @since   1.1.0
