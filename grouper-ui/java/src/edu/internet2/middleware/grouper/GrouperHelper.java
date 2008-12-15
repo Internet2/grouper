@@ -31,7 +31,6 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
@@ -78,7 +77,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.53 2008-12-15 07:09:39 mchyzer Exp $
+ * @version $Id: GrouperHelper.java,v 1.54 2008-12-15 15:31:53 isgwb Exp $
  */
 
 
@@ -2569,6 +2568,7 @@ public class GrouperHelper {
 				}
 			}
 		}
+		accumulateFields(res);
 		return res;
 	}
 	
@@ -2612,6 +2612,7 @@ public class GrouperHelper {
 			field=FieldFinder.find(name);
 			if(!g.canReadField(field)) it.remove();
 		}
+		accumulateFields(writable);
 		return writable;
 	}
 	
@@ -2644,6 +2645,7 @@ public class GrouperHelper {
 			field=FieldFinder.find(name);
 			if(!g.canReadField(field)&& !g.canWriteField(field)) it.remove();
 		}
+		accumulateFields(readable);
 		return readable;
 	}
 	
@@ -2687,7 +2689,7 @@ public class GrouperHelper {
 				}
 			}
 		}
-		
+		accumulateFields(lists);
 		return lists;
 	}
 	
@@ -2718,7 +2720,7 @@ public class GrouperHelper {
 				}
 			}
 		}
-		
+		accumulateFields(fieldsMap.keySet());
 		return fieldsMap;
 	}
 	
@@ -2762,16 +2764,50 @@ public class GrouperHelper {
 	 */
 	public static  List getSearchableFields(ResourceBundle bundle) throws SchemaException{
 		List res = new ArrayList();
+		List<String> names=new ArrayList();
 		Set fields = FieldFinder.findAllByType(FieldType.ATTRIBUTE);
 		Iterator it = fields.iterator();
 		Field field;
 		while(it.hasNext()) {
 			field = (Field) it.next();
 			if(noSearchFields.indexOf(":" + field.getName() + ":") == -1) {
+				names.add(field.getName());
 				res.add(ObjectAsMap.getInstance("FieldAsMap",field,bundle));
 			}
 		}
+		accumulateFields(names);
 		return res;
+	}
+	
+	private static void accumulateFields(Collection<String> fields) {
+		Set<String> accumulated = (Set<String>)UIThreadLocal.get("accumulatedFields");
+		if(accumulated==null) {
+			accumulated = new HashSet<String>();
+			UIThreadLocal.put("accumulatedFields", accumulated);
+		}
+		accumulated.addAll(fields);
+	}
+	
+	/**
+	 * When we query fields we 'accumulate' them so we can check if tere are any new ones. If there are
+	 * we refresh the session list
+	 * @param fieldList Map of FieldAsMaps from the HttpSession
+	 * @param bundle	nav ResourceBundle
+	 * @throws SchemaException
+	 */
+	public static void fixSessionFields(Map fieldList, ResourceBundle bundle) throws SchemaException{
+		Set<String> accumulated = (Set<String>)UIThreadLocal.get("accumulatedFields");
+		if(accumulated==null) {
+			return;
+		}
+		for(String fieldName : accumulated) {
+			if(!fieldList.containsKey(fieldName)) {
+				Map newFields = GrouperHelper.getFieldsAsMap(bundle);
+				fieldList.clear();
+				fieldList.putAll(newFields);
+				break;
+			}
+		}
 	}
 	
 	/**

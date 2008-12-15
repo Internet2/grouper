@@ -32,7 +32,9 @@ import org.apache.struts.config.ModuleConfig;
 import org.apache.struts.upload.MultipartRequestWrapper;
 
 import java.util.*;
+
 import edu.internet2.middleware.grouper.*;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
@@ -178,7 +180,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.18 2008-10-10 07:37:55 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.19 2008-12-15 15:31:53 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -300,6 +302,11 @@ public abstract class GrouperCapableAction
 				try {
 				session.setAttribute("sessionMessage",request.getAttribute("message"));
 				}catch(IllegalStateException e){}
+			}
+			try {
+				GrouperHelper.fixSessionFields((Map)session.getAttribute("fieldList"), getNavResources(request));
+			}catch(SchemaException e) {
+				LOG.error(e);
 			}
 			if(Boolean.TRUE.equals(request.getAttribute("loggedOut"))) {
 				return forward;
