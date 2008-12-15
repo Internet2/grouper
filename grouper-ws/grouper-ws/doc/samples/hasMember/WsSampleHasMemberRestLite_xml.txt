@@ -11,7 +11,7 @@ Grouper web service sample of service: hasMember, WsSampleHasMemberRestLite, man
 
 GET /grouperWs/servicesRest/xml/v1_4_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
@@ -26,12 +26,12 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=D0644A47DE26E1A6DD515E8E38621858; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: IS_MEMBER
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 21:09:42 GMT
+Date: Mon, 15 Dec 2008 09:03:20 GMT
 Connection: close
 
 <WsHasMemberLiteResult>
@@ -41,22 +41,18 @@ Connection: close
     <description>a group description</description>
     <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>76da0c17-485c-4b0a-8ebb-24ebe2e8b513</uuid>
+    <uuid>0037047b-1d95-4a9a-b0cb-3d22e8ebada5</uuid>
   </wsGroup>
   <resultMetadata>
     <resultCode>IS_MEMBER</resultCode>
     <resultMessage>Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, actAsSubject: WsSubjectLookup[], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
-,params: null
-</resultMessage>
+,params: null</resultMessage>
     <success>T</success>
-    <httpStatusCode>200</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1225141782208</millisStart>
+    <millis>469</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
   <wsSubject>
@@ -202,4 +198,3 @@ Server version: v1_4_000, result code: IS_MEMBER, result message: Success for: c
 
  memberFilter: All, actAsSubject: WsSubjectLookup[], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null
-

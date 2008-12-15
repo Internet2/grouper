@@ -11,7 +11,7 @@ Grouper web service sample of service: hasMember, WsSampleHasMemberRestLite, man
 
 GET /grouperWs/servicesRest/json/v1_4_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
@@ -26,12 +26,12 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=36028F96D14E959834DF62364D55FB7F; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: IS_MEMBER
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 27 Oct 2008 21:09:38 GMT
+Date: Mon, 15 Dec 2008 09:03:13 GMT
 Connection: close
 
 {
@@ -42,18 +42,15 @@ Connection: close
       "description":"a group description",
       "displayName":"a stem:a group",
       "name":"aStem:aGroup",
-      "uuid":"76da0c17-485c-4b0a-8ebb-24ebe2e8b513"
+      "uuid":"4af6eda7-202b-4c60-b4c9-e0fc981d58ad"
     },
     "resultMetadata":{
       "resultCode":"IS_MEMBER",
-      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\n memberFilter: All, actAsSubject: WsSubjectLookup[], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n,params: null\n",
-      "success":"T",
-      "httpStatusCode":"200"
+      "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]\n\n memberFilter: All, actAsSubject: WsSubjectLookup[], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null\n,params: null",
+      "success":"T"
     },
     "responseMetadata":{
-      "resultWarnings":"",
-      "millis":"-1",
-      "millisStart":"1225141777786",
+      "millis":"468",
       "serverVersion":"v1_4_000"
     },
     "wsSubject":{
@@ -200,4 +197,3 @@ Server version: v1_4_000, result code: IS_MEMBER, result message: Success for: c
 
  memberFilter: All, actAsSubject: WsSubjectLookup[], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null
-

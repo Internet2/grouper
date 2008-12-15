@@ -51,7 +51,7 @@ function windowTitle()
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/WsHttpServletRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -71,9 +71,9 @@ function windowTitle()
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#enum_constant_summary">ENUM CONSTANTS</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#enum_constant_summary">ENUM CONSTANTS</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;<A HREF="#enum_constant_detail">ENUM CONSTANTS</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;<A HREF="#enum_constant_detail">ENUM CONSTANTS</A>&nbsp;|&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_top"></A>
@@ -134,6 +134,23 @@ grouper service version
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;grouper version 1.3.1, second build</TD>
 </TR>
 </TABLE>
+&nbsp;<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/ThreadLocal.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">ThreadLocal</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD#currentClientVersion">currentClientVersion</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;current client version</TD>
+</TR>
+</TABLE>
 &nbsp;
 <!-- ========== METHOD SUMMARY =========== -->
 
@@ -153,6 +170,14 @@ grouper service version
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD#assignCurrentClientVersion(edu.internet2.middleware.grouper.ws.GrouperWsVersion)">assignCurrentClientVersion</A></B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;put the current client version</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD#currentVersion()">currentVersion</A></B>()</CODE>
 
@@ -166,6 +191,14 @@ grouper service version
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;see if this version is less than the argument one</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD#retrieveCurrentClientVersion()">retrieveCurrentClientVersion</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return current client version or null</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -260,6 +293,27 @@ public static final <A HREF="../../../../../edu/internet2/middleware/grouper/ws/
 </DL>
 </DL>
 
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="currentClientVersion"><!-- --></A><H3>
+currentClientVersion</H3>
+<PRE>
+public static <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/ThreadLocal.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">ThreadLocal</A>&lt;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&gt; <B>currentClientVersion</B></PRE>
+<DL>
+<DD>current client version
+<P>
+<DL>
+</DL>
+</DL>
+
 <!-- ============ METHOD DETAIL ========== -->
 
 <A NAME="method_detail"><!-- --></A>
@@ -339,6 +393,33 @@ public <A HREF="../../../../../edu/internet2/middleware/grouper/ws/soap/WsAddMem
 </DL>
 <HR>
 
+<A NAME="assignCurrentClientVersion(edu.internet2.middleware.grouper.ws.GrouperWsVersion)"><!-- --></A><H3>
+assignCurrentClientVersion</H3>
+<PRE>
+public static void <B>assignCurrentClientVersion</B>(<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A>&nbsp;clientVersion)</PRE>
+<DL>
+<DD>put the current client version
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>clientVersion</CODE> - </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="retrieveCurrentClientVersion()"><!-- --></A><H3>
+retrieveCurrentClientVersion</H3>
+<PRE>
+public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouper.ws">GrouperWsVersion</A> <B>retrieveCurrentClientVersion</B>()</PRE>
+<DL>
+<DD>return current client version or null
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the current client version or null</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="currentVersion()"><!-- --></A><H3>
 currentVersion</H3>
 <PRE>
@@ -397,7 +478,7 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/Groupe
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
 &nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/GrouperWsConfig.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/WsHttpServletRequest.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouper.ws"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouper/ws/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouper.ws"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="GrouperWsVersion.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -417,9 +498,9 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouper/ws/Groupe
 </TR>
 <TR>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#enum_constant_summary">ENUM CONSTANTS</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#enum_constant_summary">ENUM CONSTANTS</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
 <TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
-DETAIL:&nbsp;<A HREF="#enum_constant_detail">ENUM CONSTANTS</A>&nbsp;|&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+DETAIL:&nbsp;<A HREF="#enum_constant_detail">ENUM CONSTANTS</A>&nbsp;|&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
 </TR>
 </TABLE>
 <A NAME="skip-navbar_bottom"></A>

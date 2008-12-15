@@ -11,7 +11,7 @@ Grouper web service sample of service: hasMember, WsSampleHasMemberRestLite2, ma
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members/sources/jdbc/subjectId/test.subject.0 HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 103
@@ -32,12 +32,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=25B49B24BC4D85C94B7790DB05DF3576; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: IS_NOT_MEMBER
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 21:09:54 GMT
+Date: Mon, 15 Dec 2008 09:03:38 GMT
 Connection: close
 
 <WsHasMemberLiteResult>
@@ -47,22 +47,18 @@ Connection: close
     <description>a group description</description>
     <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>76da0c17-485c-4b0a-8ebb-24ebe2e8b513</uuid>
+    <uuid>ab1727a1-d6db-4c79-b4a4-631308cd6b95</uuid>
   </wsGroup>
   <resultMetadata>
     <resultCode>IS_NOT_MEMBER</resultCode>
     <resultMessage>Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
-,params: null
-</resultMessage>
+,params: null</resultMessage>
     <success>T</success>
-    <httpStatusCode>200</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1225141793911</millisStart>
+    <millis>422</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
   <wsSubject>
@@ -232,4 +228,3 @@ Server version: v1_4_000, result code: IS_NOT_MEMBER, result message: Success fo
 
  memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null
-

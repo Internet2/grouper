@@ -11,7 +11,7 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRestLite, man
 
 PUT /grouperWs/servicesRest/xml/v1_4_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 0
@@ -27,12 +27,12 @@ Content-Length: 0
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=5D3CD228C81F7A64F5CCB061D3A59BE9; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_ALREADY_EXISTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 20:28:14 GMT
+Date: Mon, 15 Dec 2008 09:01:40 GMT
 Connection: close
 
 <WsAddMemberLiteResult>
@@ -43,7 +43,6 @@ Connection: close
 , replaceAllExisting: false, actAsSubject: WsSubjectLookup[], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null</resultMessage>
     <success>T</success>
-    <httpStatusCode>200</httpStatusCode>
   </resultMetadata>
   <wsGroupAssigned>
     <extension>aGroup</extension>
@@ -51,7 +50,7 @@ Connection: close
     <description>a group description</description>
     <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>c2a29579-3bc8-478d-a20b-b86d3cda8600</uuid>
+    <uuid>c72f25d4-1938-4eda-bab6-d34720983c57</uuid>
   </wsGroupAssigned>
   <wsSubject>
     <resultCode>SUCCESS</resultCode>
@@ -60,9 +59,7 @@ Connection: close
     <sourceId>pennperson</sourceId>
   </wsSubject>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1225139293801</millisStart>
+    <millis>484</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
 </WsAddMemberLiteResult>

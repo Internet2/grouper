@@ -11,7 +11,7 @@ Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGr
 
 POST /grouperWs/servicesRest/v1_4_000/grouperPrivileges HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 296
@@ -37,36 +37,32 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=1C7E377B4A754E91CB1242A5EBBF08BA; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 20:08:52 GMT
+Date: Mon, 15 Dec 2008 09:01:03 GMT
 Connection: close
 
 <WsAssignGrouperPrivilegesLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS_ALLOWED</resultCode>
-    <resultMessage></resultMessage>
     <success>T</success>
-    <httpStatusCode>200</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1225138132153</millisStart>
+    <millis>469</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
   <privilegeName>optin</privilegeName>
-  <privilegeType>ACCESS</privilegeType>
+  <privilegeType>access</privilegeType>
   <wsGroup>
     <extension>aGroup</extension>
     <displayExtension>a group</displayExtension>
     <description>a group description</description>
     <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>c5941f8b-fb2c-4107-a344-1a25f7a8c334</uuid>
+    <uuid>e8693f67-3982-4a5b-91c9-4811111c6645</uuid>
   </wsGroup>
   <wsSubject>
     <resultCode>SUCCESS</resultCode>
@@ -236,4 +232,4 @@ public class WsSampleAssignGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS_ALLOWED, result message: 
+Server version: v1_4_000, result code: SUCCESS_ALLOWED, result message: null

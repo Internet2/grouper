@@ -12,7 +12,7 @@ Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGr
 POST /grouperWs/services/GrouperService HTTP/1.1
 Content-Type: application/soap+xml; charset=UTF-8; action="urn:assignGrouperPrivilegesLite"
 User-Agent: Axis2
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 Host: localhost:8092
 Transfer-Encoding: chunked
 
@@ -54,15 +54,15 @@ Transfer-Encoding: chunked
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=AD3809273BB390CACFE3302E4D522D03; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:assignGrouperPrivilegesLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Mon, 27 Oct 2008 20:08:24 GMT
+Date: Mon, 15 Dec 2008 09:00:49 GMT
 
-968
+9ae
 <?xml version='1.0' encoding='UTF-8'?>
 <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
   <soapenv:Body>
@@ -71,18 +71,17 @@ Date: Mon, 27 Oct 2008 20:08:24 GMT
         <ns:allowed xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
         <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
         <ns:privilegeName>optin</ns:privilegeName>
-        <ns:privilegeResults xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-        <ns:privilegeType>ACCESS</ns:privilegeType>
+        <ns:privilegeType>access</ns:privilegeType>
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>516</ns:millis>
-          <ns:resultWarnings></ns:resultWarnings>
+          <ns:millis>547</ns:millis>
+          <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_4_000</ns:serverVersion>
         </ns:responseMetadata>
         <ns:resultMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResultMeta">
           <ns:params xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS_ALLOWED</ns:resultCode>
           <ns:resultCode2 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
-          <ns:resultMessage></ns:resultMessage>
+          <ns:resultMessage xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:success>T</ns:success>
         </ns:resultMetadata>
         <ns:subjectAttributeNames xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
@@ -93,13 +92,14 @@ Date: Mon, 27 Oct 2008 20:08:24 GMT
           <ns:displayName>a stem:a group</ns:displayName>
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
-          <ns:uuid>73850685-4287-4d3e-81a2-3aa5c8dd316e</ns:uuid>
+          <ns:uuid>0855b573-8736-4a39-b2dd-e9c0817058a0</ns:uuid>
         </ns:wsGroup>
         <ns:wsStem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
         <ns:wsSubject type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
-          <ns:attributeValues xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
+          <ns:attributeValues>id.test.subject.0</ns:attributeValues>
           <ns:attributeValues>description.test.subject.0</ns:attributeValues>
           <ns:id>test.subject.0</ns:id>
+          <ns:identifierLookup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:name xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:resultCode>SUCCESS</ns:resultCode>
           <ns:sourceId>jdbc</ns:sourceId>
@@ -135,11 +135,11 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.AssignGrouperPrivilegesLite;
-import edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub.WsAssignGrouperPrivilegesLiteResult;
 import edu.internet2.middleware.grouper.webservicesClient.util.GeneratedClientSettings;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGenerated;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleGeneratedType;
+import edu.internet2.middleware.grouper.ws.soap.xsd.AssignGrouperPrivilegesLite;
+import edu.internet2.middleware.grouper.ws.soap.xsd.WsAssignGrouperPrivilegesLiteResult;
 
 
 /**
@@ -239,11 +239,10 @@ public class WsSampleAssignGrouperPrivilegesLite implements WsSampleGenerated {
 #########################################
 
 
-GrouperServiceStub.WsAssignGrouperPrivilegesLiteResult[localAllowedTracker=false,
-  localParams={<null>},localParamsTracker=true,localPrivilegeName=optin,localPrivilegeNameTracker=true,
-  localPrivilegeResults={<null>},localPrivilegeResultsTracker=true,localPrivilegeType=ACCESS,localPrivilegeTypeTracker=true,
-  localResponseMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResponseMeta@e35571,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsResultMeta@fe9319,localResultMetadataTracker=true,
+WsAssignGrouperPrivilegesLiteResult[localAllowedTracker=false,
+  localParams={<null>},localParamsTracker=true,localPrivilegeName=optin,localPrivilegeNameTracker=true,localPrivilegeType=access,localPrivilegeTypeTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@16daf20,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@48075,localResultMetadataTracker=true,
   localSubjectAttributeNames={<null>},localSubjectAttributeNamesTracker=true,
-  localWsGroup=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsGroup@f5704f,localWsGroupTracker=true,localWsStemTracker=true,
-  localWsSubject=edu.internet2.middleware.grouper.webservicesClient.GrouperServiceStub$WsSubject@1a06ba5,localWsSubjectTracker=true]
+  localWsGroup=edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@75f756,localWsGroupTracker=true,localWsStemTracker=true,
+  localWsSubject=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@c14e1c,localWsSubjectTracker=true]

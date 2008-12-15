@@ -11,7 +11,7 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRestLite2, ma
 
 PUT /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 832
@@ -25,23 +25,23 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestAddMemberLiteRequest">
-      <p class="fieldName" />
       <p class="subjectSourceId" />
       <p class="subjectId" />
       <p class="groupUuid" />
       <p class="groupName" />
       <p class="clientVersion" />
-      <p class="includeGroupDetail" />
-      <p class="includeSubjectDetail" />
-      <p class="subjectAttributeNames" />
       <p class="subjectIdentifier" />
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
+      <p class="includeSubjectDetail" />
+      <p class="subjectAttributeNames" />
+      <p class="includeGroupDetail" />
       <p class="paramName0" />
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
+      <p class="fieldName" />
     </div>
   </body>
 </html>
@@ -57,12 +57,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=EF1F49D48878EF1C63E3401FBD3676CC; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_ALREADY_EXISTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 20:28:16 GMT
+Date: Mon, 15 Dec 2008 09:01:43 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -93,7 +93,7 @@ Connection: close
         <p class="description">a group description</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
-        <p class="uuid">c2a29579-3bc8-478d-a20b-b86d3cda8600</p>
+        <p class="uuid">cc1b53c6-aa3a-4862-9a8e-615cc012fb17</p>
         <p class="displayExtension">a group</p>
       </div>
       <div class="wsSubject" title="WsSubject">
@@ -101,6 +101,7 @@ Connection: close
         <p class="id">10021368</p>
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
+        <p class="identifierLookup" />
         <p class="sourceId">pennperson</p>
       </div>
     </div>

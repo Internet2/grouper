@@ -11,12 +11,12 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, man
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroupToSave HTTP/1.1
 Connection: close
-Authorization: Basic sdfasdfsadfsdfjsldkfjlkasdf==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 144
 
-wsLiteObjectType=WsRestGroupSaveLiteRequest&displayExtension=disp1&groupName=aStem%3AaGroupToSave&actAsSubjectId=GrouperSystem&description=desc1
+wsLiteObjectType=WsRestGroupSaveLiteRequest&description=desc1&displayExtension=disp1&groupName=aStem%3AaGroupToSave&actAsSubjectId=GrouperSystem
 
 
 #########################################
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestGroupSaveLiteRequest&displayExtension=disp1&groupName=aSt
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=08EECA3B4FE45D0AAE083D5FA61A512D; Path=/grouperWs
-X-Grouper-resultCode: SUCCESS
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Thu, 06 Nov 2008 21:30:35 GMT
+Date: Mon, 15 Dec 2008 08:58:20 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -46,7 +46,7 @@ Connection: close
   <body>
     <div title="WsGroupSaveLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS</p>
+        <p class="resultCode">SUCCESS_INSERTED</p>
         <p class="success">T</p>
         <p class="resultMessage">Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
 wsGroupLookup=WsGroupLookup[groupName=aStem:aGroupToSave],
@@ -57,7 +57,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">891</p>
+        <p class="millis">593</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -67,7 +67,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave
         <p class="description">desc1</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroupToSave</p>
-        <p class="uuid">99507e52-fe90-4537-bf11-52ddd657c01a</p>
+        <p class="uuid">f00e7153-d205-4ae1-830a-e95be3f81234</p>
         <p class="displayExtension">disp1</p>
       </div>
     </div>
@@ -232,7 +232,7 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
+Server version: v1_4_000, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
   wsGroupLookup=WsGroupLookup[groupName=aStem:aGroupToSave],
   wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave]]
 

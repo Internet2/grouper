@@ -11,7 +11,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, m
 
 POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic sdfasdfsadfsdfjsldkfjlkasdf==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 1716
@@ -94,12 +94,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=E5E82F59CF1E497201C2D644285AF7C3; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Thu, 06 Nov 2008 21:29:26 GMT
+Date: Mon, 15 Dec 2008 08:57:42 GMT
 Connection: close
 
 <WsGroupSaveResults>
@@ -111,13 +111,11 @@ Connection: close
         <description>whateverGroupLeftDesc</description>
         <displayName>a stem:whateverGroupLeftDispExt</displayName>
         <name>aStem:whateverGroupLeft</name>
-        <uuid>4d3902ca-7da7-42ab-a3ff-84a03304c0f4</uuid>
+        <uuid>4b1cda6b-b1db-4278-869d-d96f3798c831</uuid>
       </wsGroup>
       <resultMetadata>
-        <resultCode>SUCCESS</resultCode>
-        <resultMessage></resultMessage>
+        <resultCode>SUCCESS_INSERTED</resultCode>
         <success>T</success>
-        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
     </WsGroupSaveResult>
     <WsGroupSaveResult>
@@ -127,13 +125,11 @@ Connection: close
         <description>whateverGroupRightDesc</description>
         <displayName>a stem:whateverGroupRightDispExt</displayName>
         <name>aStem:whateverGroupRight</name>
-        <uuid>6ec11ca4-9738-4e62-bac7-260c53aaa548</uuid>
+        <uuid>049314c1-e82c-4619-a3dd-67b03de35f5a</uuid>
       </wsGroup>
       <resultMetadata>
-        <resultCode>SUCCESS</resultCode>
-        <resultMessage></resultMessage>
+        <resultCode>SUCCESS_INSERTED</resultCode>
         <success>T</success>
-        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
     </WsGroupSaveResult>
     <WsGroupSaveResult>
@@ -143,13 +139,11 @@ Connection: close
         <description>desc1</description>
         <displayName>a stem:disp1</displayName>
         <name>aStem:whateverGroup</name>
-        <uuid>bf24d4b7-4bfc-4b28-a1b9-5b964348cfe7</uuid>
+        <uuid>362b71f4-16a6-479d-be8b-c1e35a425bcd</uuid>
       </wsGroup>
       <resultMetadata>
-        <resultCode>SUCCESS</resultCode>
-        <resultMessage></resultMessage>
+        <resultCode>SUCCESS_INSERTED</resultCode>
         <success>T</success>
-        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
     </WsGroupSaveResult>
   </results>
@@ -161,12 +155,9 @@ wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDi
 , actAsSubject: null, txType: NONE, paramNames:
 , params: null</resultMessage>
     <success>T</success>
-    <httpStatusCode>201</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1226006963976</millisStart>
+    <millis>687</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
 </WsGroupSaveResults>

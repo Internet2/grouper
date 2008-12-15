@@ -11,7 +11,7 @@ Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLit
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members/sources/jdbc/subjectId/test.subject.0 HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 75
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestDeleteMemberLiteRequest&actAsSubjectId=GrouperSystem
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=8302508D172EE0A9FEDD881B03219075; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_WASNT_IMMEDIATE
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:08:32 GMT
+Date: Mon, 15 Dec 2008 09:02:41 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -55,7 +55,7 @@ Connection: close
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">406</p>
+        <p class="millis">469</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -65,7 +65,7 @@ Connection: close
         <p class="description">a group description</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
-        <p class="uuid">86cf72d4-8334-43ee-bf0e-ff882cdfa5fe</p>
+        <p class="uuid">e81a9054-a15c-4851-b720-fca4a363dd58</p>
         <p class="displayExtension">a group</p>
       </div>
       <div class="wsSubject" title="WsSubject">
@@ -73,6 +73,7 @@ Connection: close
         <p class="id">test.subject.0</p>
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
+        <p class="identifierLookup" />
         <p class="sourceId">jdbc</p>
       </div>
     </div>

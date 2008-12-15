@@ -11,7 +11,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manuall
 
 POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic sdfasdfsadfsdfjsldkfjlkasdf==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 1397
@@ -30,13 +30,13 @@ Content-Type: application/xhtml+xml; charset=UTF-8
         <li title="WsGroupToSave">
           <p class="saveMode" />
           <div class="wsGroup" title="WsGroup">
-            <p class="uuid" />
-            <p class="displayExtension">disp1</p>
-            <div class="detail" title="WsGroupDetail" />
             <p class="name">aStem:whateverGroup</p>
             <p class="displayName" />
+            <p class="uuid" />
             <p class="description">desc1</p>
+            <p class="displayExtension">disp1</p>
             <p class="extension">whateverGroup</p>
+            <div class="detail" title="WsGroupDetail" />
           </div>
           <div class="wsGroupLookup" title="WsGroupLookup">
             <p class="uuid" />
@@ -46,13 +46,13 @@ Content-Type: application/xhtml+xml; charset=UTF-8
         <li title="WsGroupToSave">
           <p class="saveMode" />
           <div class="wsGroup" title="WsGroup">
-            <p class="uuid" />
-            <p class="displayExtension">disp2</p>
-            <div class="detail" title="WsGroupDetail" />
             <p class="name">aStem:whateverGroup2</p>
             <p class="displayName" />
+            <p class="uuid" />
             <p class="description">descs</p>
+            <p class="displayExtension">disp2</p>
             <p class="extension">whateverGroup2</p>
+            <div class="detail" title="WsGroupDetail" />
           </div>
           <div class="wsGroupLookup" title="WsGroupLookup">
             <p class="uuid" />
@@ -78,12 +78,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=8FAFC8A2F347B95A23260E9452A7F9C7; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Thu, 06 Nov 2008 21:28:29 GMT
+Date: Mon, 15 Dec 2008 08:57:08 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -97,7 +97,7 @@ Connection: close
       <ul class="results">
         <li title="WsGroupSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode">SUCCESS</p>
+            <p class="resultCode">SUCCESS_INSERTED</p>
             <p class="success">T</p>
             <p class="resultMessage" />
             <p class="resultCode2" />
@@ -108,13 +108,13 @@ Connection: close
             <p class="description">desc1</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whateverGroup</p>
-            <p class="uuid">832db135-b51e-4be0-97cb-94743e722765</p>
+            <p class="uuid">a8f9234b-f030-455f-9024-7bc59bf5ca04</p>
             <p class="displayExtension">disp1</p>
           </div>
         </li>
         <li title="WsGroupSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode">SUCCESS</p>
+            <p class="resultCode">SUCCESS_INSERTED</p>
             <p class="success">T</p>
             <p class="resultMessage" />
             <p class="resultCode2" />
@@ -125,7 +125,7 @@ Connection: close
             <p class="description">descs</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whateverGroup2</p>
-            <p class="uuid">5b2d111d-9c7a-42ff-ba1e-53c3b051329c</p>
+            <p class="uuid">7d9bd98c-6ec1-4ffd-93e6-115874576022</p>
             <p class="displayExtension">disp2</p>
           </div>
         </li>
@@ -141,7 +141,7 @@ wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">4485</p>
+        <p class="millis">4312</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>

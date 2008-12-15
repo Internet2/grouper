@@ -11,7 +11,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manuall
 
 POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic sdfasdfsadfsdfjsldkfjlkasdf==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 615
@@ -55,12 +55,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=EEB5C53ED8B748DFD91DABF2B9A38A45; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Thu, 06 Nov 2008 21:28:50 GMT
+Date: Mon, 15 Dec 2008 08:57:22 GMT
 Connection: close
 
 <WsGroupSaveResults>
@@ -72,13 +72,11 @@ Connection: close
         <description>desc1</description>
         <displayName>a stem:disp1</displayName>
         <name>aStem:whateverGroup</name>
-        <uuid>ad3fff07-b7e1-4815-8fd1-4ff62be30f54</uuid>
+        <uuid>b91ffe59-d53c-408c-8b49-aa93b4c842fe</uuid>
       </wsGroup>
       <resultMetadata>
-        <resultCode>SUCCESS</resultCode>
-        <resultMessage></resultMessage>
+        <resultCode>SUCCESS_INSERTED</resultCode>
         <success>T</success>
-        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
     </WsGroupSaveResult>
     <WsGroupSaveResult>
@@ -88,13 +86,11 @@ Connection: close
         <description>descs</description>
         <displayName>a stem:disp2</displayName>
         <name>aStem:whateverGroup2</name>
-        <uuid>e72ac86d-dbc1-4614-8bc6-8e69b4ee82a7</uuid>
+        <uuid>4bae3a5d-cb05-4cef-b646-cf01301bf4d5</uuid>
       </wsGroup>
       <resultMetadata>
-        <resultCode>SUCCESS</resultCode>
-        <resultMessage></resultMessage>
+        <resultCode>SUCCESS_INSERTED</resultCode>
         <success>T</success>
-        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
     </WsGroupSaveResult>
   </results>
@@ -106,12 +102,9 @@ wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1
 , actAsSubject: null, txType: NONE, paramNames:
 , params: null</resultMessage>
     <success>T</success>
-    <httpStatusCode>201</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1226006929569</millisStart>
+    <millis>641</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
 </WsGroupSaveResults>

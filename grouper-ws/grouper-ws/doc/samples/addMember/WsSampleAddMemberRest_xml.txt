@@ -11,7 +11,7 @@ Grouper web service sample of service: addMember, WsSampleAddMemberRest, manuall
 
 PUT /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 333
@@ -43,12 +43,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=AD3C9EC484DD78430A476DFF4D723585; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 20:28:05 GMT
+Date: Mon, 15 Dec 2008 09:01:26 GMT
 Connection: close
 
 <WsAddMemberResults>
@@ -62,9 +62,7 @@ Connection: close
       </wsSubject>
       <resultMetadata>
         <resultCode>SUCCESS_ALREADY_EXISTED</resultCode>
-        <resultMessage></resultMessage>
         <success>T</success>
-        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
     </WsAddMemberResult>
     <WsAddMemberResult>
@@ -76,9 +74,7 @@ Connection: close
       </wsSubject>
       <resultMetadata>
         <resultCode>SUCCESS_ALREADY_EXISTED</resultCode>
-        <resultMessage></resultMessage>
         <success>T</success>
-        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
     </WsAddMemberResult>
   </results>
@@ -88,7 +84,7 @@ Connection: close
     <description>a group description</description>
     <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>c2a29579-3bc8-478d-a20b-b86d3cda8600</uuid>
+    <uuid>a28e35a5-c655-4c08-b6ed-7acd9352e85f</uuid>
   </wsGroupAssigned>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
@@ -98,12 +94,9 @@ Connection: close
 , replaceAllExisting: false, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 , params: null</resultMessage>
     <success>T</success>
-    <httpStatusCode>201</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1225139284801</millisStart>
+    <millis>500</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
 </WsAddMemberResults>
@@ -158,6 +151,11 @@ public class WsSampleAddMemberRest implements WsSampleRest {
       
       DefaultHttpParams.getDefaultParams().setParameter(
           HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+
+      DefaultHttpParams.getDefaultParams().setParameter(
+          HttpMethodParams.SO_TIMEOUT, new Integer(30000));
+
+      //httpClient.getParams().setParameter("http.socket.timeout", new Integer(30000));
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
@@ -248,7 +246,8 @@ public class WsSampleAddMemberRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    addMemberLite(WsSampleRestType.xhtml);
+    RestClientSettings.resetData();
+    addMemberLite(WsSampleRestType.xml);
   }
 
   /**

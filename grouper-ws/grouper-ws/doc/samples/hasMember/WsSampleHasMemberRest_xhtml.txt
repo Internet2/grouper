@@ -11,7 +11,7 @@ Grouper web service sample of service: hasMember, WsSampleHasMemberRest, manuall
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 970
@@ -25,8 +25,14 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestHasMemberRequest">
-      <p class="fieldName" />
       <p class="clientVersion" />
+      <p class="includeSubjectDetail" />
+      <p class="includeGroupDetail" />
+      <div class="actAsSubjectLookup" title="WsSubjectLookup">
+        <p class="subjectSourceId" />
+        <p class="subjectId">GrouperSystem</p>
+        <p class="subjectIdentifier" />
+      </div>
       <div class="wsGroupLookup" title="WsGroupLookup" />
       <ul class="subjectLookups">
         <li title="WsSubjectLookup">
@@ -41,13 +47,7 @@ Content-Type: application/xhtml+xml; charset=UTF-8
         </li>
       </ul>
       <p class="memberFilter" />
-      <div class="actAsSubjectLookup" title="WsSubjectLookup">
-        <p class="subjectSourceId" />
-        <p class="subjectId">GrouperSystem</p>
-        <p class="subjectIdentifier" />
-      </div>
-      <p class="includeGroupDetail" />
-      <p class="includeSubjectDetail" />
+      <p class="fieldName" />
     </div>
   </body>
 </html>
@@ -63,12 +63,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=DDBE274D691DF99B6C7BA6E35D74B4F5; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:09:26 GMT
+Date: Mon, 15 Dec 2008 09:02:57 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -92,6 +92,7 @@ Connection: close
             <p class="id">10021368</p>
             <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
+            <p class="identifierLookup" />
             <p class="sourceId">pennperson</p>
           </div>
         </li>
@@ -107,6 +108,7 @@ Connection: close
             <p class="id">10039438</p>
             <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
+            <p class="identifierLookup" />
             <p class="sourceId">pennperson</p>
           </div>
         </li>
@@ -118,12 +120,11 @@ Connection: close
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
-,params: null
-</p>
+,params: null</p>
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">4094</p>
+        <p class="millis">3531</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -133,7 +134,7 @@ memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], field
         <p class="description">a group description</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
-        <p class="uuid">76da0c17-485c-4b0a-8ebb-24ebe2e8b513</p>
+        <p class="uuid">68a5c4a6-f308-47db-b7e2-33e15eba83d9</p>
         <p class="displayExtension">a group</p>
       </div>
     </div>

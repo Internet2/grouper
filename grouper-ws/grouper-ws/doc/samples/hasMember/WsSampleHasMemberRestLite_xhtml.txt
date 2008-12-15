@@ -11,7 +11,7 @@ Grouper web service sample of service: hasMember, WsSampleHasMemberRestLite, man
 
 GET /grouperWs/servicesRest/xhtml/v1_4_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
@@ -26,12 +26,12 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=6B94D898B7CE27444A48E13C31AC556C; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: IS_MEMBER
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:09:35 GMT
+Date: Mon, 15 Dec 2008 09:03:09 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -48,12 +48,11 @@ Connection: close
         <p class="resultMessage">Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, actAsSubject: WsSubjectLookup[], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
-,params: null
-</p>
+,params: null</p>
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">516</p>
+        <p class="millis">406</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -63,7 +62,7 @@ memberFilter: All, actAsSubject: WsSubjectLookup[], fieldName: null, includeGrou
         <p class="description">a group description</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
-        <p class="uuid">76da0c17-485c-4b0a-8ebb-24ebe2e8b513</p>
+        <p class="uuid">11389587-bd6f-4908-9eb9-17dc823a8481</p>
         <p class="displayExtension">a group</p>
       </div>
       <div class="wsSubject" title="WsSubject">
@@ -71,6 +70,7 @@ memberFilter: All, actAsSubject: WsSubjectLookup[], fieldName: null, includeGrou
         <p class="id">10021368</p>
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
+        <p class="identifierLookup" />
         <p class="sourceId">pennperson</p>
       </div>
     </div>

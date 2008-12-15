@@ -11,7 +11,7 @@ Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGr
 
 POST /grouperWs/servicesRest/v1_4_000/grouperPrivileges HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 187
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestAssignGrouperPrivilegesLiteRequest&subjectId=test.subject
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=D6CF0D6DD3B648787874135EA4E06D61; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 20:08:47 GMT
+Date: Mon, 15 Dec 2008 09:01:00 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -52,17 +52,18 @@ Connection: close
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">594</p>
+        <p class="millis">484</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
+      <p class="privilegeName">optin</p>
       <div class="wsGroup" title="WsGroup">
         <p class="name">aStem:aGroup</p>
         <p class="displayName">a stem:a group</p>
         <p class="description">a group description</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
-        <p class="uuid">44c1680e-8fff-43d7-b536-9a034cf37703</p>
+        <p class="uuid">8f3d1e9e-819d-4da6-b97a-538e7d0564d0</p>
         <p class="displayExtension">a group</p>
       </div>
       <div class="wsStem" title="WsStem" />
@@ -71,11 +72,11 @@ Connection: close
         <p class="id">test.subject.0</p>
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
+        <p class="identifierLookup" />
         <p class="sourceId">jdbc</p>
       </div>
       <p class="allowed" />
-      <p class="privilegeName">optin</p>
-      <p class="privilegeType">ACCESS</p>
+      <p class="privilegeType">access</p>
     </div>
   </body>
 </html>
@@ -240,4 +241,4 @@ public class WsSampleAssignGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS_ALLOWED, result message: 
+Server version: v1_4_000, result code: SUCCESS_ALLOWED, result message: null

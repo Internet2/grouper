@@ -11,7 +11,7 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 
 POST /grouperWs/servicesRest/v1_4_000/grouperPrivileges HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 174
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestGetGrouperPrivilegesLiteRequest&subjectId=test.subject.0&
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=BBCEFF9FD511E2ECA216E966CBB67EED; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_NOT_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 20:07:52 GMT
+Date: Mon, 15 Dec 2008 09:00:24 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -52,7 +52,7 @@ Connection: close
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">453</p>
+        <p class="millis">438</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -218,4 +218,4 @@ public class WsSampleGetGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS_NOT_ALLOWED, result message: 
+Server version: v1_4_000, result code: SUCCESS_NOT_ALLOWED, result message: null

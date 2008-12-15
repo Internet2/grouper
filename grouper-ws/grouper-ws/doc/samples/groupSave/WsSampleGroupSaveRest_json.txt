@@ -11,7 +11,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRest, manuall
 
 POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic sdfasdfsadfsdfjsldkfjlkasdf==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 412
@@ -60,12 +60,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=314A8C05AE276F5211DD468457C1F186; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Thu, 06 Nov 2008 21:28:42 GMT
+Date: Mon, 15 Dec 2008 08:57:18 GMT
 Connection: close
 
 {
@@ -79,13 +79,11 @@ Connection: close
             "description":"desc1",
             "displayName":"a stem:disp1",
             "name":"aStem:whateverGroup",
-            "uuid":"e2776a19-98fd-40d6-b046-03d93a6f9b9c"
+            "uuid":"9f457bb8-b6be-4552-94a1-6a5e63d7ad88"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS",
-            "resultMessage":"",
-            "success":"T",
-            "httpStatusCode":"500"
+            "resultCode":"SUCCESS_INSERTED",
+            "success":"T"
           }
           
         },
@@ -96,13 +94,11 @@ Connection: close
             "description":"descs",
             "displayName":"a stem:disp2",
             "name":"aStem:whateverGroup2",
-            "uuid":"390bd7c8-502e-42ce-a505-16b5a2e8052e"
+            "uuid":"6d83b98f-2dfe-45f9-beda-bc2b859e5886"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS",
-            "resultMessage":"",
-            "success":"T",
-            "httpStatusCode":"500"
+            "resultCode":"SUCCESS_INSERTED",
+            "success":"T"
           }
         }
       ]
@@ -111,13 +107,10 @@ Connection: close
     "resultMetadata":{
       "resultCode":"SUCCESS",
       "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 2: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroup],\n  wsGroup=WsGroup[extension=whateverGroup,displayExtension=disp1,description=desc1,name=aStem:whatev...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
-      "success":"T",
-      "httpStatusCode":"201"
+      "success":"T"
     },
     "responseMetadata":{
-      "resultWarnings":"",
-      "millis":"-1",
-      "millisStart":"1226006920944",
+      "millis":"1094",
       "serverVersion":"v1_4_000"
     }
   }

@@ -11,7 +11,7 @@ Grouper web service sample of service: getGrouperPrivileges, WsSampleGetGrouperP
 
 POST /grouperWs/servicesRest/v1_4_000/grouperPrivileges HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 154
@@ -29,12 +29,12 @@ wsLiteObjectType=WsRestGetGrouperPrivilegesLiteRequest&subjectId=test.subject.0&
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=A167CAB65C88DD418DA16F9D7D6C8E53; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 20:08:13 GMT
+Date: Mon, 15 Dec 2008 09:00:43 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -52,19 +52,20 @@ Connection: close
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">422</p>
+        <p class="millis">453</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
       <ul class="privilegeResults">
         <li title="WsGrouperPrivilegeResult">
+          <p class="privilegeName">read</p>
           <div class="wsGroup" title="WsGroup">
             <p class="name">aStem:aGroup</p>
             <p class="displayName">a stem:a group</p>
             <p class="description">a group description</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">aGroup</p>
-            <p class="uuid">bc0af71a-7e54-425b-a1c0-262e7fc19f40</p>
+            <p class="uuid">1b718ac1-743d-4d5c-90e2-80141df45915</p>
             <p class="displayExtension">a group</p>
           </div>
           <div class="wsStem" title="WsStem" />
@@ -73,28 +74,30 @@ Connection: close
             <p class="id">test.subject.0</p>
             <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
+            <p class="identifierLookup" />
             <p class="sourceId">jdbc</p>
           </div>
           <p class="allowed">T</p>
-          <p class="privilegeName">view</p>
           <p class="privilegeType">access</p>
           <div class="ownerSubject" title="WsSubject">
             <p class="name" />
-            <p class="id">test.subject.0</p>
+            <p class="id">GrouperAll</p>
             <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
-            <p class="sourceId">jdbc</p>
+            <p class="identifierLookup" />
+            <p class="sourceId">g:isa</p>
           </div>
           <p class="revokable">F</p>
         </li>
         <li title="WsGrouperPrivilegeResult">
+          <p class="privilegeName">view</p>
           <div class="wsGroup" title="WsGroup">
             <p class="name">aStem:aGroup</p>
             <p class="displayName">a stem:a group</p>
             <p class="description">a group description</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">aGroup</p>
-            <p class="uuid">bc0af71a-7e54-425b-a1c0-262e7fc19f40</p>
+            <p class="uuid">1b718ac1-743d-4d5c-90e2-80141df45915</p>
             <p class="displayExtension">a group</p>
           </div>
           <div class="wsStem" title="WsStem" />
@@ -103,17 +106,18 @@ Connection: close
             <p class="id">test.subject.0</p>
             <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
+            <p class="identifierLookup" />
             <p class="sourceId">jdbc</p>
           </div>
           <p class="allowed">T</p>
-          <p class="privilegeName">read</p>
           <p class="privilegeType">access</p>
           <div class="ownerSubject" title="WsSubject">
             <p class="name" />
-            <p class="id">test.subject.0</p>
+            <p class="id">GrouperAll</p>
             <p class="resultCode">SUCCESS</p>
             <p class="success">T</p>
-            <p class="sourceId">jdbc</p>
+            <p class="identifierLookup" />
+            <p class="sourceId">g:isa</p>
           </div>
           <p class="revokable">F</p>
         </li>
@@ -308,14 +312,14 @@ public class WsSampleGetGrouperPrivilegesListRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: 
+Server version: v1_4_000, result code: SUCCESS, result message: null
 WsGetGrouperPrivilegesLiteResult[
-  resultMetadata=WsResultMeta[resultCode=SUCCESS,resultMessage=,success=T,httpStatusCode=500],
+  resultMetadata=WsResultMeta[resultCode=SUCCESS,success=T,httpStatusCode=500],
   privilegeResults={WsGrouperPrivilegeResult[allowed=T,
-  ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,sourceId=jdbc],privilegeName=view,privilegeType=access,revokable=F,
-  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=bc0af71a-7e54-425b-a1c0-262e7fc19f40],
+  ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=GrouperAll,sourceId=g:isa],privilegeName=read,privilegeType=access,revokable=F,
+  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=1b718ac1-743d-4d5c-90e2-80141df45915],
   wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,sourceId=jdbc]],WsGrouperPrivilegeResult[allowed=T,
-  ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,sourceId=jdbc],privilegeName=read,privilegeType=access,revokable=F,
-  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=bc0af71a-7e54-425b-a1c0-262e7fc19f40],
+  ownerSubject=WsSubject[resultCode=SUCCESS,success=T,id=GrouperAll,sourceId=g:isa],privilegeName=view,privilegeType=access,revokable=F,
+  wsGroup=WsGroup[extension=aGroup,displayExtension=a group,description=a group description,displayName=a stem:a group,name=aStem:aGroup,uuid=1b718ac1-743d-4d5c-90e2-80141df45915],
   wsSubject=WsSubject[resultCode=SUCCESS,success=T,id=test.subject.0,sourceId=jdbc]]},
-  responseMetadata=WsResponseMeta[resultWarnings=,millis=422,millisStart=0,serverVersion=v1_4_000]]
+  responseMetadata=WsResponseMeta[millis=453,millisStart=0,serverVersion=v1_4_000]]

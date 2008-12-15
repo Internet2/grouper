@@ -11,7 +11,7 @@ Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLit
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members/sources/jdbc/subjectId/test.subject.0 HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 68
@@ -34,12 +34,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=84AA16647C33FCFC94FA6437F09C7843; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_WASNT_IMMEDIATE
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 27 Oct 2008 21:08:30 GMT
+Date: Mon, 15 Dec 2008 09:02:38 GMT
 Connection: close
 
 {
@@ -47,8 +47,7 @@ Connection: close
     "resultMetadata":{
       "resultCode":"SUCCESS_WASNT_IMMEDIATE",
       "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE\n, params: null",
-      "success":"T",
-      "httpStatusCode":"200"
+      "success":"T"
     },
     "wsSubject":{
       "resultCode":"SUCCESS",
@@ -57,9 +56,7 @@ Connection: close
       "sourceId":"jdbc"
     },
     "responseMetadata":{
-      "resultWarnings":"",
-      "millis":"-1",
-      "millisStart":"1225141710333",
+      "millis":"516",
       "serverVersion":"v1_4_000"
     },
     "wsGroup":{
@@ -68,7 +65,7 @@ Connection: close
       "description":"a group description",
       "displayName":"a stem:a group",
       "name":"aStem:aGroup",
-      "uuid":"86cf72d4-8334-43ee-bf0e-ff882cdfa5fe"
+      "uuid":"b78bd3c2-c2b3-4659-8edf-35bc7e1d6b5b"
     }
   }
 }

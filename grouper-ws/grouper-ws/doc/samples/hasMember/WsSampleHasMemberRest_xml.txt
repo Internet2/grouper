@@ -11,7 +11,7 @@ Grouper web service sample of service: hasMember, WsSampleHasMemberRest, manuall
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 291
@@ -42,12 +42,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=AEF52C74BCF3015BE1531B3312BEFDB0; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 21:09:33 GMT
+Date: Mon, 15 Dec 2008 09:03:06 GMT
 Connection: close
 
 <WsHasMemberResults>
@@ -61,9 +61,7 @@ Connection: close
       </wsSubject>
       <resultMetadata>
         <resultCode>IS_MEMBER</resultCode>
-        <resultMessage></resultMessage>
         <success>T</success>
-        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
     </WsHasMemberResult>
     <WsHasMemberResult>
@@ -75,9 +73,7 @@ Connection: close
       </wsSubject>
       <resultMetadata>
         <resultCode>IS_MEMBER</resultCode>
-        <resultMessage></resultMessage>
         <success>T</success>
-        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
     </WsHasMemberResult>
   </results>
@@ -87,7 +83,7 @@ Connection: close
     <description>a group description</description>
     <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>76da0c17-485c-4b0a-8ebb-24ebe2e8b513</uuid>
+    <uuid>85e6d4f0-b0c9-4e5e-9395-b1dc307b2824</uuid>
   </wsGroup>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
@@ -98,12 +94,9 @@ memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], field
 ,params: null
 </resultMessage>
     <success>T</success>
-    <httpStatusCode>200</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1225141773224</millisStart>
+    <millis>438</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
 </WsHasMemberResults>
@@ -279,4 +272,3 @@ Server version: v1_4_000, result code: SUCCESS, result message: Success for: cli
 
  memberFilter: All, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, includeGroupDetail: false, includeSubjectDetail: false, subjectAttributeNames: null
 ,params: null
-

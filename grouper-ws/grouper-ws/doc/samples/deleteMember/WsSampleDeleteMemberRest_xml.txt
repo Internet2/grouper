@@ -11,7 +11,7 @@ Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRest, m
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 297
@@ -42,12 +42,12 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=205CB6F3A30234696450B9A29A11E21D; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 27 Oct 2008 21:08:14 GMT
+Date: Mon, 15 Dec 2008 09:02:17 GMT
 Connection: close
 
 <WsDeleteMemberResults>
@@ -60,10 +60,8 @@ Connection: close
         <sourceId>pennperson</sourceId>
       </wsSubject>
       <resultMetadata>
-        <resultCode>SUCCESS_WASNT_IMMEDIATE</resultCode>
-        <resultMessage></resultMessage>
+        <resultCode>SUCCESS</resultCode>
         <success>T</success>
-        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
     </WsDeleteMemberResult>
     <WsDeleteMemberResult>
@@ -74,10 +72,8 @@ Connection: close
         <sourceId>pennperson</sourceId>
       </wsSubject>
       <resultMetadata>
-        <resultCode>SUCCESS_WASNT_IMMEDIATE</resultCode>
-        <resultMessage></resultMessage>
+        <resultCode>SUCCESS</resultCode>
         <success>T</success>
-        <httpStatusCode>500</httpStatusCode>
       </resultMetadata>
     </WsDeleteMemberResult>
   </results>
@@ -87,7 +83,7 @@ Connection: close
     <description>a group description</description>
     <displayName>a stem:a group</displayName>
     <name>aStem:aGroup</name>
-    <uuid>86cf72d4-8334-43ee-bf0e-ff882cdfa5fe</uuid>
+    <uuid>bfefc63e-d23f-4864-99e3-d153d600d11d</uuid>
   </wsGroup>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
@@ -97,12 +93,9 @@ Connection: close
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE
 , params: null</resultMessage>
     <success>T</success>
-    <httpStatusCode>200</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1225141693942</millisStart>
+    <millis>609</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
 </WsDeleteMemberResults>

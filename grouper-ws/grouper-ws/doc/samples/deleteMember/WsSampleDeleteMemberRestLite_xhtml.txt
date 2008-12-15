@@ -11,7 +11,7 @@ Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLit
 
 DELETE /grouperWs/servicesRest/xhtml/v1_4_000/groups/aStem%3AaGroup/members/10021368 HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 
@@ -26,12 +26,12 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=89DD09C21F4BF7DA375E17AD4EC97C92; Path=/grouperWs
-X-Grouper-resultCode: SUCCESS_WASNT_IMMEDIATE
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:08:16 GMT
+Date: Mon, 15 Dec 2008 09:02:20 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -43,7 +43,7 @@ Connection: close
   <body>
     <div title="WsDeleteMemberLiteResult">
       <div class="resultMetadata" title="WsResultMeta">
-        <p class="resultCode">SUCCESS_WASNT_IMMEDIATE</p>
+        <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
         <p class="resultMessage">Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
@@ -52,7 +52,7 @@ Connection: close
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">422</p>
+        <p class="millis">563</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -62,7 +62,7 @@ Connection: close
         <p class="description">a group description</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
-        <p class="uuid">86cf72d4-8334-43ee-bf0e-ff882cdfa5fe</p>
+        <p class="uuid">7d84c1e8-0d8e-441f-810e-426d0b66ffe1</p>
         <p class="displayExtension">a group</p>
       </div>
       <div class="wsSubject" title="WsSubject">
@@ -70,6 +70,7 @@ Connection: close
         <p class="id">10021368</p>
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
+        <p class="identifierLookup" />
         <p class="sourceId">pennperson</p>
       </div>
     </div>
@@ -207,7 +208,7 @@ public class WsSampleDeleteMemberRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS_WASNT_IMMEDIATE, result message: Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 , actAsSubject: WsSubjectLookup[], fieldName: null, txType: NONE
 , params: null

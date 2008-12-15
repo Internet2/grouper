@@ -11,7 +11,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, m
 
 POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic sdfasdfsadfsdfjsldkfjlkasdf==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 1211
@@ -109,12 +109,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=030F6A07B0D496160B96FB5053F86E9F; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Thu, 06 Nov 2008 21:29:15 GMT
+Date: Mon, 15 Dec 2008 08:57:38 GMT
 Connection: close
 
 {
@@ -128,13 +128,11 @@ Connection: close
             "description":"whateverGroupLeftDesc",
             "displayName":"a stem:whateverGroupLeftDispExt",
             "name":"aStem:whateverGroupLeft",
-            "uuid":"9132269e-cc29-4306-93d0-34d776cee22b"
+            "uuid":"3a58eda2-0694-48da-b185-fdc4e4d707a8"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS",
-            "resultMessage":"",
-            "success":"T",
-            "httpStatusCode":"500"
+            "resultCode":"SUCCESS_INSERTED",
+            "success":"T"
           }
           
         },
@@ -145,13 +143,11 @@ Connection: close
             "description":"whateverGroupRightDesc",
             "displayName":"a stem:whateverGroupRightDispExt",
             "name":"aStem:whateverGroupRight",
-            "uuid":"a19ac0bc-78bc-4d1f-b6fb-1c7da0bddf5b"
+            "uuid":"e7feff7f-c5ab-4482-add3-ea7c10ecb1e4"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS",
-            "resultMessage":"",
-            "success":"T",
-            "httpStatusCode":"500"
+            "resultCode":"SUCCESS_INSERTED",
+            "success":"T"
           }
           
         },
@@ -162,13 +158,11 @@ Connection: close
             "description":"desc1",
             "displayName":"a stem:disp1",
             "name":"aStem:whateverGroup",
-            "uuid":"83e7dc06-0e05-46e4-ad00-04809a4c12ad"
+            "uuid":"745dabeb-1a7f-47c0-aeb2-a50fda37f306"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS",
-            "resultMessage":"",
-            "success":"T",
-            "httpStatusCode":"500"
+            "resultCode":"SUCCESS_INSERTED",
+            "success":"T"
           }
         }
       ]
@@ -177,13 +171,10 @@ Connection: close
     "resultMetadata":{
       "resultCode":"SUCCESS",
       "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 3: [0]: WsGroupToSave[\n  wsGroupLookup=WsGroupLookup[groupName=aStem:whateverGroupLeft],\n  wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDispExt,descript...\n, actAsSubject: null, txType: NONE, paramNames: \n, params: null",
-      "success":"T",
-      "httpStatusCode":"201"
+      "success":"T"
     },
     "responseMetadata":{
-      "resultWarnings":"",
-      "millis":"-1",
-      "millisStart":"1226006954148",
+      "millis":"703",
       "serverVersion":"v1_4_000"
     }
   }

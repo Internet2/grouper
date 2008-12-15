@@ -11,7 +11,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupDetailSaveRest, m
 
 POST /grouperWs/servicesRest/v1_4_000/groups HTTP/1.1
 Connection: close
-Authorization: Basic sdfasdfsadfsdfjsldkfjlkasdf==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 3004
@@ -30,13 +30,13 @@ Content-Type: application/xhtml+xml; charset=UTF-8
         <li title="WsGroupToSave">
           <p class="saveMode" />
           <div class="wsGroup" title="WsGroup">
-            <p class="uuid" />
-            <p class="displayExtension">whateverGroupLeftDispExt</p>
-            <div class="detail" title="WsGroupDetail" />
             <p class="name">aStem:whateverGroupLeft</p>
             <p class="displayName" />
+            <p class="uuid" />
             <p class="description">whateverGroupLeftDesc</p>
+            <p class="displayExtension">whateverGroupLeftDispExt</p>
             <p class="extension">whateverGroupLeft</p>
+            <div class="detail" title="WsGroupDetail" />
           </div>
           <div class="wsGroupLookup" title="WsGroupLookup">
             <p class="uuid" />
@@ -46,13 +46,13 @@ Content-Type: application/xhtml+xml; charset=UTF-8
         <li title="WsGroupToSave">
           <p class="saveMode" />
           <div class="wsGroup" title="WsGroup">
-            <p class="uuid" />
-            <p class="displayExtension">whateverGroupRightDispExt</p>
-            <div class="detail" title="WsGroupDetail" />
             <p class="name">aStem:whateverGroupRight</p>
             <p class="displayName" />
+            <p class="uuid" />
             <p class="description">whateverGroupRightDesc</p>
+            <p class="displayExtension">whateverGroupRightDispExt</p>
             <p class="extension">whateverGroupRight</p>
+            <div class="detail" title="WsGroupDetail" />
           </div>
           <div class="wsGroupLookup" title="WsGroupLookup">
             <p class="uuid" />
@@ -62,9 +62,17 @@ Content-Type: application/xhtml+xml; charset=UTF-8
         <li title="WsGroupToSave">
           <p class="saveMode" />
           <div class="wsGroup" title="WsGroup">
+            <p class="name">aStem:whateverGroup</p>
+            <p class="displayName" />
             <p class="uuid" />
+            <p class="description">desc1</p>
             <p class="displayExtension">disp1</p>
+            <p class="extension">whateverGroup</p>
             <div class="detail" title="WsGroupDetail">
+              <ul class="attributeNames">
+                <li>attr_1</li>
+                <li>attr2_1</li>
+              </ul>
               <p class="createTime" />
               <p class="modifyTime" />
               <ul class="attributeValues">
@@ -72,23 +80,24 @@ Content-Type: application/xhtml+xml; charset=UTF-8
                 <li>val2_1</li>
               </ul>
               <div class="leftGroup" title="WsGroup">
-                <p class="uuid" />
-                <p class="displayExtension">whateverGroupLeftDispExt</p>
-                <div class="detail" title="WsGroupDetail" />
                 <p class="name">aStem:whateverGroupLeft</p>
                 <p class="displayName" />
+                <p class="uuid" />
                 <p class="description">whateverGroupLeftDesc</p>
+                <p class="displayExtension">whateverGroupLeftDispExt</p>
                 <p class="extension">whateverGroupLeft</p>
+                <div class="detail" title="WsGroupDetail" />
               </div>
               <div class="rightGroup" title="WsGroup">
-                <p class="uuid" />
-                <p class="displayExtension">whateverGroupRightDispExt</p>
-                <div class="detail" title="WsGroupDetail" />
                 <p class="name">aStem:whateverGroupRight</p>
                 <p class="displayName" />
+                <p class="uuid" />
                 <p class="description">whateverGroupRightDesc</p>
+                <p class="displayExtension">whateverGroupRightDispExt</p>
                 <p class="extension">whateverGroupRight</p>
+                <div class="detail" title="WsGroupDetail" />
               </div>
+              <p class="compositeType">intersection</p>
               <p class="createSubjectId" />
               <p class="hasComposite">T</p>
               <p class="isCompositeFactor" />
@@ -98,16 +107,7 @@ Content-Type: application/xhtml+xml; charset=UTF-8
                 <li>aType</li>
                 <li>aType2</li>
               </ul>
-              <p class="compositeType">intersection</p>
-              <ul class="attributeNames">
-                <li>attr_1</li>
-                <li>attr2_1</li>
-              </ul>
             </div>
-            <p class="name">aStem:whateverGroup</p>
-            <p class="displayName" />
-            <p class="description">desc1</p>
-            <p class="extension">whateverGroup</p>
           </div>
           <div class="wsGroupLookup" title="WsGroupLookup">
             <p class="uuid" />
@@ -133,12 +133,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=3EECC9D06132CBD2619DE9F1699A3F08; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Thu, 06 Nov 2008 21:29:02 GMT
+Date: Mon, 15 Dec 2008 08:57:30 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -152,7 +152,7 @@ Connection: close
       <ul class="results">
         <li title="WsGroupSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode">SUCCESS</p>
+            <p class="resultCode">SUCCESS_INSERTED</p>
             <p class="success">T</p>
             <p class="resultMessage" />
             <p class="resultCode2" />
@@ -163,13 +163,13 @@ Connection: close
             <p class="description">whateverGroupLeftDesc</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whateverGroupLeft</p>
-            <p class="uuid">c69ec892-b753-4486-9f62-ae52b18a7bbe</p>
+            <p class="uuid">b8c83f77-8f84-4549-85f4-451bb7edef36</p>
             <p class="displayExtension">whateverGroupLeftDispExt</p>
           </div>
         </li>
         <li title="WsGroupSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode">SUCCESS</p>
+            <p class="resultCode">SUCCESS_INSERTED</p>
             <p class="success">T</p>
             <p class="resultMessage" />
             <p class="resultCode2" />
@@ -180,13 +180,13 @@ Connection: close
             <p class="description">whateverGroupRightDesc</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whateverGroupRight</p>
-            <p class="uuid">74959abc-e656-414d-a47f-e65beb6af832</p>
+            <p class="uuid">1f111f9a-4626-4ff8-b9af-2a5ae47b3361</p>
             <p class="displayExtension">whateverGroupRightDispExt</p>
           </div>
         </li>
         <li title="WsGroupSaveResult">
           <div class="resultMetadata" title="WsResultMeta">
-            <p class="resultCode">SUCCESS</p>
+            <p class="resultCode">SUCCESS_INSERTED</p>
             <p class="success">T</p>
             <p class="resultMessage" />
             <p class="resultCode2" />
@@ -197,7 +197,7 @@ Connection: close
             <p class="description">desc1</p>
             <div class="detail" title="WsGroupDetail" />
             <p class="extension">whateverGroup</p>
-            <p class="uuid">8a00daf8-f4e0-4806-be2b-5e2617395f44</p>
+            <p class="uuid">d17b5cca-6aaa-4cb6-a6d6-d954f0a29b4a</p>
             <p class="displayExtension">disp1</p>
           </div>
         </li>
@@ -213,7 +213,7 @@ wsGroup=WsGroup[extension=whateverGroupLeft,displayExtension=whateverGroupLeftDi
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">4860</p>
+        <p class="millis">4375</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>

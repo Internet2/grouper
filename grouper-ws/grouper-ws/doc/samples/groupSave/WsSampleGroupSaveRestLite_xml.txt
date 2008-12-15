@@ -11,7 +11,7 @@ Grouper web service sample of service: groupSave, WsSampleGroupSaveRestLite, man
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroupToSave HTTP/1.1
 Connection: close
-Authorization: Basic sdfasdfsadfsdfjsldkfjlkasdf==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 218
@@ -35,17 +35,17 @@ Content-Type: text/xml; charset=UTF-8
 
 HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=B6B3E4AA8EDE8118EC3763C72191B171; Path=/grouperWs
-X-Grouper-resultCode: SUCCESS
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+X-Grouper-resultCode: SUCCESS_INSERTED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Thu, 06 Nov 2008 21:30:08 GMT
+Date: Mon, 15 Dec 2008 08:58:05 GMT
 Connection: close
 
 <WsGroupSaveLiteResult>
   <resultMetadata>
-    <resultCode>SUCCESS</resultCode>
+    <resultCode>SUCCESS_INSERTED</resultCode>
     <resultMessage>Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
 wsGroupLookup=WsGroupLookup[groupName=aStem:aGroupToSave],
 wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave]]
@@ -53,12 +53,9 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave
 , actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], txType: NONE, paramNames:
 , params: null</resultMessage>
     <success>T</success>
-    <httpStatusCode>201</httpStatusCode>
   </resultMetadata>
   <responseMetadata>
-    <resultWarnings></resultWarnings>
-    <millis>-1</millis>
-    <millisStart>1226007007398</millisStart>
+    <millis>531</millis>
     <serverVersion>v1_4_000</serverVersion>
   </responseMetadata>
   <wsGroup>
@@ -67,7 +64,7 @@ wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave
     <description>desc1</description>
     <displayName>a stem:disp1</displayName>
     <name>aStem:aGroupToSave</name>
-    <uuid>98ef055b-025e-468e-8023-e824e0ec20a1</uuid>
+    <uuid>61717864-66ab-4665-bdcd-b0956edaf927</uuid>
   </wsGroup>
 </WsGroupSaveLiteResult>
 
@@ -229,7 +226,7 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
+Server version: v1_4_000, result code: SUCCESS_INSERTED, result message: Success for: clientVersion: v1_4_000, wsGroupToSaves: Array size: 1: [0]: WsGroupToSave[
   wsGroupLookup=WsGroupLookup[groupName=aStem:aGroupToSave],
   wsGroup=WsGroup[displayExtension=disp1,description=desc1,name=aStem:aGroupToSave]]
 

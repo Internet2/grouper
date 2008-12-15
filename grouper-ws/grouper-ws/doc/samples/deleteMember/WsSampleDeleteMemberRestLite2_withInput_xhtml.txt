@@ -11,7 +11,7 @@ Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRestLit
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members/sources/jdbc/subjectId/test.subject.0 HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 838
@@ -25,23 +25,23 @@ Content-Type: application/xhtml+xml; charset=UTF-8
   </head>
   <body>
     <div title="WsRestDeleteMemberLiteRequest">
-      <p class="fieldName" />
       <p class="subjectSourceId" />
       <p class="subjectId" />
       <p class="groupUuid" />
       <p class="groupName" />
       <p class="clientVersion" />
-      <p class="includeGroupDetail" />
-      <p class="includeSubjectDetail" />
-      <p class="subjectAttributeNames" />
       <p class="subjectIdentifier" />
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
+      <p class="includeSubjectDetail" />
+      <p class="subjectAttributeNames" />
+      <p class="includeGroupDetail" />
       <p class="paramName0" />
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
+      <p class="fieldName" />
     </div>
   </body>
 </html>
@@ -57,12 +57,12 @@ Content-Type: application/xhtml+xml; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=23B6C851240B2CFC69879A3E4FAF0D7C; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_WASNT_IMMEDIATE
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 27 Oct 2008 21:08:25 GMT
+Date: Mon, 15 Dec 2008 09:02:34 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -83,7 +83,7 @@ Connection: close
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">765</p>
+        <p class="millis">875</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_000</p>
       </div>
@@ -93,7 +93,7 @@ Connection: close
         <p class="description">a group description</p>
         <div class="detail" title="WsGroupDetail" />
         <p class="extension">aGroup</p>
-        <p class="uuid">86cf72d4-8334-43ee-bf0e-ff882cdfa5fe</p>
+        <p class="uuid">a6b1325a-8df5-4771-bd06-6ce1606dc5b6</p>
         <p class="displayExtension">a group</p>
       </div>
       <div class="wsSubject" title="WsSubject">
@@ -101,6 +101,7 @@ Connection: close
         <p class="id">test.subject.0</p>
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
+        <p class="identifierLookup" />
         <p class="sourceId">jdbc</p>
       </div>
     </div>

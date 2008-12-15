@@ -11,7 +11,7 @@ Grouper web service sample of service: assignGrouperPrivileges, WsSampleAssignGr
 
 POST /grouperWs/servicesRest/v1_4_000/grouperPrivileges HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 198
@@ -39,37 +39,33 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=B2B651FF7A0267DB45F92FE2C185EC48; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS_ALLOWED
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 27 Oct 2008 20:08:41 GMT
+Date: Mon, 15 Dec 2008 09:00:57 GMT
 Connection: close
 
 {
   "WsAssignGrouperPrivilegesLiteResult":{
     "resultMetadata":{
       "resultCode":"SUCCESS_ALLOWED",
-      "resultMessage":"",
-      "success":"T",
-      "httpStatusCode":"200"
+      "success":"T"
     },
     "responseMetadata":{
-      "resultWarnings":"",
-      "millis":"-1",
-      "millisStart":"1225138121310",
+      "millis":"500",
       "serverVersion":"v1_4_000"
     },
     "privilegeName":"optin",
-    "privilegeType":"ACCESS",
+    "privilegeType":"access",
     "wsGroup":{
       "extension":"aGroup",
       "displayExtension":"a group",
       "description":"a group description",
       "displayName":"a stem:a group",
       "name":"aStem:aGroup",
-      "uuid":"fb9dc11e-0932-4417-aef0-9b97d887de22"
+      "uuid":"8d4a4c15-acbf-478b-8772-3fe8af48997d"
     },
     "wsSubject":{
       "resultCode":"SUCCESS",
@@ -240,4 +236,4 @@ public class WsSampleAssignGrouperPrivilegesRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS_ALLOWED, result message: 
+Server version: v1_4_000, result code: SUCCESS_ALLOWED, result message: null

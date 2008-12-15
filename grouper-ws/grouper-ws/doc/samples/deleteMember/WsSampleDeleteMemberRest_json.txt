@@ -11,7 +11,7 @@ Grouper web service sample of service: deleteMember, WsSampleDeleteMemberRest, m
 
 POST /grouperWs/servicesRest/v1_4_000/groups/aStem%3AaGroup/members HTTP/1.1
 Connection: close
-Authorization: Basic sfsldkfjaslkdfjlskdfjlafjlk==
+Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
 Content-Length: 167
@@ -47,12 +47,12 @@ Content-Type: text/x-json; charset=UTF-8
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Set-Cookie: JSESSIONID=7BFE126D0802D083A152AC935821DFD5; Path=/grouperWs
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Mon, 27 Oct 2008 21:08:12 GMT
+Date: Mon, 15 Dec 2008 09:02:14 GMT
 Connection: close
 
 {
@@ -67,10 +67,8 @@ Connection: close
             "sourceId":"pennperson"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS_WASNT_IMMEDIATE",
-            "resultMessage":"",
-            "success":"T",
-            "httpStatusCode":"500"
+            "resultCode":"SUCCESS",
+            "success":"T"
           }
           
         },
@@ -82,10 +80,8 @@ Connection: close
             "sourceId":"pennperson"
           },
           "resultMetadata":{
-            "resultCode":"SUCCESS_WASNT_IMMEDIATE",
-            "resultMessage":"",
-            "success":"T",
-            "httpStatusCode":"500"
+            "resultCode":"SUCCESS",
+            "success":"T"
           }
         }
       ]
@@ -97,18 +93,15 @@ Connection: close
       "description":"a group description",
       "displayName":"a stem:a group",
       "name":"aStem:aGroup",
-      "uuid":"86cf72d4-8334-43ee-bf0e-ff882cdfa5fe"
+      "uuid":"e85b8d8e-b6ef-4160-9558-c280dafe7702"
     },
     "resultMetadata":{
       "resultCode":"SUCCESS",
       "resultMessage":"Success for: clientVersion: v1_4_000, wsGroupLookup: WsGroupLookup[groupName=aStem:aGroup], subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\n, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem], fieldName: null, txType: NONE\n, params: null",
-      "success":"T",
-      "httpStatusCode":"200"
+      "success":"T"
     },
     "responseMetadata":{
-      "resultWarnings":"",
-      "millis":"-1",
-      "millisStart":"1225141692270",
+      "millis":"578",
       "serverVersion":"v1_4_000"
     }
   }
