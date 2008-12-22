@@ -19,7 +19,7 @@
 	 <target name="db">
 			 <path id="db.class.path">
 				<!-- Make available jar files that Grouper needs -->
-			<fileset dir="grouper/lib/">
+			<fileset dir="grouper/dist/lib">
 				<include name="**/*.jar"/>
 			</fileset>
 			</path>
@@ -31,7 +31,7 @@
 	 	 <target name="dbgui">
 			 <path id="db.class.path">
 				<!-- Make available jar files that Grouper needs -->
-			<fileset dir="grouper/lib">
+			<fileset dir="grouper/dist/lib">
 				<include name="**/*.jar"/>
 			</fileset>
 			</path>

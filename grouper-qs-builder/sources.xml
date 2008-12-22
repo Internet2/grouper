@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.xml,v 1.10 2008-09-02 12:56:32 isgwb Exp $
+$Id: sources.xml,v 1.8 2008-04-11 19:55:14 shilen Exp $
 -->
 
 <sources>

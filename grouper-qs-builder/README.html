@@ -101,13 +101,6 @@
   distribution. If you have tested the QuickStart be sure to remove the <font face="Courier New, Courier, mono">&lt;quickstart.dir&gt;/build</font> 
   directory before you manually create an archive - otherwise the distribution 
   will be larger than necessary due to duplicated files.</p>
-<h2>FAQ</h2>
-<p>If you get this error: "Caused by: java.security.AccessControlException: access denied (java.io.FilePermission /somedir/grouper_ui.log write)
-It might be due to Tomcat's security manager where it doesn't let webapps access the filesystem outside of the webapp.
-So you can either set a setting so that that app can access that dir, or disable the security manager: (for tomcat it is
-TOMCAT5_SECURITY=no).  You can google this issue to get more information, it is a servlet container problem, and not a Grouper
-problem.  Setting the logging in log4j.properties to log to stdout or stderr might work too... </p>
-<p>The build scripts can restart tomcat if configured correctly.  Whenever you do a build/release to tomcat or an app server, it is probably a good idea to make sure the app server (e.g. tomcat) is restarted (either manually or with ant), though refer to your app server's documentation and do restart if there are problems.</p>
 <h2>&nbsp;</h2>
 </body>
 </html>

@@ -139,7 +139,7 @@
       </source>
       <source id='example'
         name='Example JDBC Source Adapter'
-        class='edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter'
+        class='edu.internet2.middleware.subject.provider.JDBCSourceAdapter'
       >
         <subjectType name='person'/>
       </source>

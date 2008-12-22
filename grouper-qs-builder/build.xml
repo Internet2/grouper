@@ -4,8 +4,6 @@
 	
 	<target name="start" description="Depending on whether grouper.folder is set, uses defined folder, or checks out Grouper from CVS">
 		<fail unless="quickstart.dir">quickstart.dir must be set in build.properties</fail>
-		<ant dir="${grouper.folder}" target="dist"/>
-		<delete dir="${grouper.folder}/dist/build"/>
 		<antcall target="-make-quickstart-grouper"/>
 		<antcall target="-export-grouper-from-cvs"/>
 		<antcall target="-make-quickstart-grouper-ui"/>
@@ -52,22 +50,21 @@
 					<include name="grouper.properties"/>
 				</fileset>
 			</copy>
-			<copy tofile="${grouper.folder}/conf/grouper.hibernate.properties" file="${grouper.folder}/conf/grouper.hibernate.example.properties" overwrite="true"/>
-			<replace file="${grouper.folder}/conf/grouper.hibernate.properties" token="hibernate.connection.url = jdbc:hsqldb:dist/run/grouper;create=true" value="hibernate.connection.url              = jdbc:hsqldb:hsql://localhost"/>
-			<copy tofile="${grouper.folder}/conf/sources.xml" file="${grouper.folder}/conf/sources.example.xml" overwrite="true"/>
-			<replace file="${grouper.folder}/conf/sources.xml" token="&lt;id&gt;jdbc&lt;/id&gt;" value="&lt;id&gt;example&lt;/id&gt;"/>
-			<!--<copy todir="${grouper.folder}/src/conf" overwrite="true">
+			<copy todir="${grouper.folder}/conf" overwrite="true">
 				<fileset dir=".">
 					<include name="sources.xml"/>
 					<include name="grouper.hibernate.properties"/>
 					
 				</fileset>
-			</copy>-->
-			<copy tofile="${grouper.folder}/conf/grouper.properties" file="${grouper.folder}/conf/grouper.example.properties"/>
-			<replace file="${grouper.folder}/conf/grouper.properties" token="groups.wheel.use                      = false"
-				value="groups.wheel.use                      = true"/>
-				<replace file="${grouper.folder}/conf/grouper.properties" token="groups.wheel.group                    = etc:sysadmingroup"
-				value="groups.wheel.group                    = etc:wheel"/>
+			</copy>
+			<copy todir="${grouper.folder}/src/conf" overwrite="true">
+				<fileset dir=".">
+					<include name="sources.xml"/>
+					<include name="grouper.hibernate.properties"/>
+					
+				</fileset>
+			</copy>
+			<copy tofile="${grouper.folder}/conf/grouper.properties" file="grouper.app.properties"/>
 		</target>
 
 	 <target name="-make-quickstart-grouper" description="Builds QuickStart. Assumes that database is OK in grouper.folder/dist/run" if="grouper.folder">
@@ -81,10 +78,10 @@
 			 <mkdir dir="${quickstart.dir}/grouper/dist/lib"/>
 			 <mkdir dir="${quickstart.dir}/grouper/dist/run"/>
 			
-			<!--<copy file="${grouper.folder}/dist/lib/grouper.jar" tofile="${quickstart.dir}/grouper/dist/lib/grouper.jar"/>
+			<!--<copy file="${grouper.folder}/dist/lib/grouper.jar" tofile="${quickstart.dir}/grouper/dist/lib/grouper.jar"/>-->
 			 <copy todir="${quickstart.dir}/grouper/dist/lib">
 				 <fileset dir="${grouper.folder}/lib"/>
-			 </copy>-->
+			 </copy>
 			<copy file="${grouper.folder}/dist/run/grouper.script" tofile="${quickstart.dir}/grouper/dist/run/grouper.script"/>
 			<copy file="${grouper.folder}/dist/run/grouper.properties" tofile="${quickstart.dir}/grouper/dist/run/grouper.properties"/>
 			<copy todir="${quickstart.dir}/grouper/conf">
@@ -95,10 +92,7 @@
 				<fileset dir="${grouper.folder}">
 					<include name="contrib/**/*"/>
 					<include name="sql/**/*"/>
-					<include name="libAnt/**/*"/>
-					<include name="bin/**/*"/>
-					<include name="dist/**/*"/>
-					<!--<include name="ext/**/*"/>-->
+					<include name="ext/**/*"/>
 					<include name="LICENSE"/>
 					<include name="README"/>
 					<include name="build.xml"/>
@@ -166,11 +160,6 @@
 			 <fileset dir="${grouper.folder}">
 				 <include name="src/**/*"/>
 				 <include name="lib/**/*"/>
-			 </fileset>
-		 </copy>
-		 <copy todir="${quickstart.dir}/grouper/lib/custom">
-			 <fileset dir="${grouper.folder}/lib/jdbcSamples">
-				 <include name="hsqldb.jar"/>
 			 </fileset>
 		 </copy>
 	 </target>
