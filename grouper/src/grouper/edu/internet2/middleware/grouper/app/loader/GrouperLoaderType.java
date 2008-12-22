@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.12 2008-12-12 07:19:16 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.13 2008-12-22 05:50:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -419,7 +419,19 @@ public enum GrouperLoaderType {
                 hib3GrouploaderLog.setMillis((int)(endTime-groupStartedMillis));
                 hib3GrouploaderLog.setMillisGetData(new Integer((int)millisGetData));
                 hib3GrouploaderLog.setMillisLoadData(new Integer((int)millisSetData));
+                
+                hib3GrouploaderLog.setJobType(hib3GrouploaderLogOverall.getJobType());
+                hib3GrouploaderLog.setJobScheduleType(hib3GrouploaderLogOverall.getJobScheduleType());
+                hib3GrouploaderLog.setJobScheduleIntervalSeconds(hib3GrouploaderLogOverall.getJobScheduleIntervalSeconds());
+                hib3GrouploaderLog.setJobSchedulePriority(hib3GrouploaderLogOverall.getJobSchedulePriority());
+                hib3GrouploaderLog.setJobScheduleQuartzCron(hib3GrouploaderLogOverall.getJobScheduleQuartzCron());
+                
+                
                 hib3GrouploaderLog.store();
+                
+                hib3GrouploaderLogOverall.addDeleteCount(memberCount);
+                hib3GrouploaderLogOverall.store();
+                
               }
             }
             
@@ -458,6 +470,7 @@ public enum GrouperLoaderType {
           
           int count=1;
           
+          long groupStartedMillis = System.currentTimeMillis();
           for (String groupName : groupNames) {
             
             if (LOG.isDebugEnabled()) {
@@ -465,7 +478,6 @@ public enum GrouperLoaderType {
             }
             
             Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-            long groupStartedMillis = System.currentTimeMillis();
             try {
               GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(
                   grouperLoaderResultsetOverall, groupName);
@@ -477,7 +489,13 @@ public enum GrouperLoaderType {
               hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
               hib3GrouploaderLog.setParentJobId(hib3GrouploaderLogOverall.getId());
               hib3GrouploaderLog.setParentJobName(hib3GrouploaderLogOverall.getJobName());
-              
+
+              hib3GrouploaderLog.setJobType(hib3GrouploaderLogOverall.getJobType());
+              hib3GrouploaderLog.setJobScheduleType(hib3GrouploaderLogOverall.getJobScheduleType());
+              hib3GrouploaderLog.setJobScheduleIntervalSeconds(hib3GrouploaderLogOverall.getJobScheduleIntervalSeconds());
+              hib3GrouploaderLog.setJobSchedulePriority(hib3GrouploaderLogOverall.getJobSchedulePriority());
+              hib3GrouploaderLog.setJobScheduleQuartzCron(hib3GrouploaderLogOverall.getJobScheduleQuartzCron());
+
               hib3GrouploaderLog.store();
               
               //based on type, run query from the db and sync members
@@ -485,13 +503,15 @@ public enum GrouperLoaderType {
                   groupNameToDescription.get(groupName), hib3GrouploaderLog, groupStartedMillis,
                   grouperLoaderResultset, true, grouperSession, andGroups, groupTypes);
               
-              long endTime = groupStartedMillis;
+              long endTime = System.currentTimeMillis();
               hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
               hib3GrouploaderLog.setMillis((int)(endTime-groupStartedMillis));
               
             } catch (Exception e) {
               hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
             }
+            //start next one now (so we dont lose time)
+            groupStartedMillis = System.currentTimeMillis();
             hib3GrouploaderLog.store();
             
             //reconcile overall status

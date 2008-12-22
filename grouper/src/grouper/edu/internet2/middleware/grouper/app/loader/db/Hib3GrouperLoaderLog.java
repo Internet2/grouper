@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: Hib3GrouperLoaderLog.java,v 1.3 2008-10-30 20:57:17 mchyzer Exp $
+ * $Id: Hib3GrouperLoaderLog.java,v 1.4 2008-12-22 05:50:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
@@ -19,6 +19,13 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * maps to the grouper ddl table
  */
 public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
+  
+  /**
+   * default constructor
+   */
+  public Hib3GrouperLoaderLog() {
+    //blank
+  }
   
   /** uuid for the row so hib knows insert vs update */
   private String id;

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderJob.java,v 1.6 2008-12-09 08:11:50 mchyzer Exp $
+ * $Id: GrouperLoaderJob.java,v 1.7 2008-12-22 05:50:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -95,6 +95,16 @@ public class GrouperLoaderJob implements Job, StatefulJob {
         }
       }
       
+      //switch the job type?
+      if (!StringUtils.isBlank(grouperLoaderTypeFromGroup)) {
+        GrouperLoaderType grouperLoaderTypeFromGroupEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderTypeFromGroup, true);
+        if (!grouperLoaderTypeFromGroupEnum.equals(grouperLoaderType)) {
+          LOG.debug("Grouper loader type has changed to " + grouperLoaderTypeFromGroupEnum
+              + " from " + grouperLoaderType + ", for job: " + jobName);
+          grouperLoaderType = grouperLoaderTypeFromGroupEnum;
+        }
+      }
+      
       hib3GrouploaderLog.setGroupUuid(grouperLoaderGroupUuid);
 
       Trigger trigger = context.getTrigger();
@@ -145,7 +155,26 @@ public class GrouperLoaderJob implements Job, StatefulJob {
             throw new RuntimeException("Cron cant be blank if cron schedule: " + jobName);
           }
         }
+      }
+      
+      if (grouperLoaderType != null) {
+        hib3GrouploaderLog.setJobType(grouperLoaderType.name());
+      }
+      if (!StringUtils.isBlank(grouperLoaderScheduleTypeFromGroup)) {
+        hib3GrouploaderLog.setJobScheduleType(grouperLoaderScheduleTypeFromGroup);
+      }
+      hib3GrouploaderLog.setJobScheduleIntervalSeconds(grouperLoaderIntervalSecondsFromGroup);
+      
+      if (grouperLoaderPriorityFromGroup != null || trigger != null) {
         
+        hib3GrouploaderLog.setJobSchedulePriority(grouperLoaderPriorityFromGroup != null ? grouperLoaderPriorityFromGroup 
+            : trigger.getPriority());
+      }
+
+      hib3GrouploaderLog.setJobScheduleQuartzCron(!StringUtils.isBlank(grouperLoaderQuartzCronFromGroup) ? 
+          grouperLoaderQuartzCronFromGroup : grouperLoaderQuartzCron );
+      
+      if (scheduleChange) {
         LOG.warn("Detected a grouper loader schedule change in job: " + jobName + ", to: " 
             + grouperLoaderScheduleTypeFromGroup + ", cron: " + grouperLoaderQuartzCronFromGroup
             + ", interval: " + grouperLoaderIntervalSecondsFromGroup);
@@ -191,6 +220,9 @@ public class GrouperLoaderJob implements Job, StatefulJob {
       //find the groups whose membership we "and" with the dynamic group
       String grouperLoaderAndGroupNames = hib3GrouploaderLog.getAndGroupNames();
       if (!StringUtils.isBlank(grouperLoaderAndGroupNames)) {
+        
+        hib3GrouploaderLog.setAndGroupNames(grouperLoaderAndGroupNames);
+        
         //there are groups to and with, get the list
         String[] groupNames = GrouperUtil.splitTrim(grouperLoaderAndGroupNames, ",");
         
@@ -224,6 +256,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
         groupLikeString = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_GROUPS_LIKE);
         groupQuery = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_GROUP_QUERY);
         groupName = jobGroup.getName();
+        hib3GrouploaderLog.setGroupUuid(jobGroup.getUuid());
       }
       
       GrouperLoaderDb grouperLoaderDb = GrouperLoaderConfig.retrieveDbProfile(grouperLoaderDbName);

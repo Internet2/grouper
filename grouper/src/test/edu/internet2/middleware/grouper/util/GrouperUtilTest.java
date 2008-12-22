@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperUtilTest.java,v 1.10 2008-11-14 07:38:03 mchyzer Exp $
+ * $Id: GrouperUtilTest.java,v 1.11 2008-12-22 05:50:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -31,9 +31,20 @@ public class GrouperUtilTest extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testFixHibernateConnectionUrl"));
+    TestRunner.run(new GrouperUtilTest("testConvertMillisToFriendlyString"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
+  }
+  
+  /**
+   * 
+   */
+  public void testConvertMillisToFriendlyString() {
+    assertEquals("30ms", GrouperUtil.convertMillisToFriendlyString(30L));
+    assertEquals("4s, 30ms", GrouperUtil.convertMillisToFriendlyString(4030L));
+    assertEquals("5m, 4s, 30ms", GrouperUtil.convertMillisToFriendlyString(304030L));
+    assertEquals("6h, 5m, 4s, 30ms", GrouperUtil.convertMillisToFriendlyString(21904030L));
+    assertEquals("7d, 6h, 5m, 4s, 30ms", GrouperUtil.convertMillisToFriendlyString(626704030L));
   }
   
   /**

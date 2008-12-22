@@ -87,6 +87,61 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperUtil {
 
   /**
+   * convert millis to friendly string
+   * @param duration
+   * @return the friendly string
+   */
+  public static String convertMillisToFriendlyString(Integer duration) {
+    if (duration == null) {
+      return convertMillisToFriendlyString((Long)null);
+    }
+    return convertMillisToFriendlyString(new Long(duration.intValue()));
+  }
+  
+  /**
+   * convert millis to friendly string
+   * @param duration
+   * @return the friendly string
+   */
+  public static String convertMillisToFriendlyString(Long duration) {
+    
+    if (duration == null) {
+      return "";
+    }
+    
+    if (duration < 1000) {
+      return duration + "ms";
+    }
+    
+    long ms = duration % 1000;
+    duration = duration / 1000;
+    long s = duration % 60;
+    duration = duration / 60;
+    
+    if (duration == 0) {
+      return s + "s, " + ms + "ms";
+    }
+    
+    long m = duration % 60;
+    duration = duration / 60;
+    
+    if (duration == 0) {
+      return m + "m, " + s + "s, " + ms + "ms";
+    }
+    
+    long h = duration % 24;
+    duration = duration / 24;
+
+    if (duration == 0) {
+      return h + "h, " + m + "m, " + s + "s, " + ms + "ms";
+    }
+    
+    long d = duration;
+    
+    return d + "d, " + h + "h, " + m + "m, " + s + "s, " + ms + "ms";
+  }
+  
+  /**
    * return the arg after the argBefore, or null if not there, or exception
    * if argBefore is not found
    * @param args
