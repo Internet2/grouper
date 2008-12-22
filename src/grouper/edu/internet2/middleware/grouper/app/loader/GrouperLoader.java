@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoader.java,v 1.9 2008-12-09 08:11:50 mchyzer Exp $
+ * $Id: GrouperLoader.java,v 1.10 2008-12-22 05:50:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -311,7 +311,7 @@ public class GrouperLoader {
       GrouperLoaderType grouperLoaderType = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderTypeString, true);
       
       hib3GrouperLoaderLog.setJobName(grouperLoaderType.name() + "__" + group.getName() + "__" + group.getUuid());
-  
+      hib3GrouperLoaderLog.setJobType(grouperLoaderTypeString);
   
       GrouperLoaderJob.runJob(hib3GrouperLoaderLog, group, grouperSession);
       
