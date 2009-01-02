@@ -1,11 +1,10 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksImpl2.java,v 1.4 2008-07-23 06:41:30 mchyzer Exp $
+ * $Id: GroupHooksImpl2.java,v 1.5 2009-01-02 06:57:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 
@@ -26,7 +25,7 @@ public class GroupHooksImpl2 extends GroupHooks {
   public void groupPreInsert(HooksContext hooksContext, HooksGroupBean preInsertBean) {
     
     Group group = preInsertBean.getGroup();
-    String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
+    String extension = group.getExtension();
     mostRecentPreInsertGroupExtension = extension;
     
   }

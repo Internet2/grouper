@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_Stem_setExtension.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: Test_Integration_Stem_setExtension.java,v 1.9 2009-01-02 06:57:11 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_Stem_setExtension extends GrouperTest {
@@ -44,7 +44,8 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_Integration_Stem_setExtension("testSetExtensionAndDisplayExtension_ChangeAndPropagateAsNonRoot"));
+    //TestRunner.run(new Test_Integration_Stem_setExtension("testSetExtensionAndDisplayExtension_ChangeAndPropagateAsNonRoot"));
+    TestRunner.run(Test_Integration_Stem_setExtension.class);
   }
   
   // TESTS //  

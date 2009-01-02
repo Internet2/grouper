@@ -20,6 +20,7 @@ import java.util.Map;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -31,9 +32,18 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link SubjectFinder.findById()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiGrSoAdFindById.java,v 1.11 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestSuFiGrSoAdFindById.java,v 1.12 2009-01-02 06:57:11 mchyzer Exp $
  */
 public class TestSuFiGrSoAdFindById extends TestCase {
+
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(TestSuFiGrSoAdFindById.class);
+  }
+  
 
   // Private Class Constants
   private static final Log LOG = GrouperUtil.getLog(TestSuFiGrSoAdFindById.class);
@@ -92,7 +102,7 @@ public class TestSuFiGrSoAdFindById extends TestCase {
     LOG.debug("testFindByIdGoodIdGoodType.2");
     Map attrs = subj.getAttributes();
     LOG.debug("testFindByIdGoodIdGoodType.3");
-    Assert.assertTrue("10 attributes", attrs.size() == 10);
+    Assert.assertEquals("10 attributes", 11, attrs.size());
     LOG.debug("testFindByIdGoodIdGoodType.4");
     // createSubjectId
     String attr = "createSubjectId";

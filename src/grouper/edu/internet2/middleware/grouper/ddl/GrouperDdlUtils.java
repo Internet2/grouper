@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.30 2008-12-12 07:19:16 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.31 2009-01-02 06:57:12 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1240,6 +1240,27 @@ public class GrouperDdlUtils {
   }
   
   /**
+   * backup a table into another table (which should not exist)
+   * @param ddlVersionBean
+   * @param tableName
+   * @param backupTableName 
+   */
+  public static void ddlutilsBackupTable(DdlVersionBean ddlVersionBean, String tableName, 
+      String backupTableName) {
+    
+    boolean backupThere = tableExists(backupTableName);
+    if (backupThere) {
+      throw new RuntimeException("Backup table already exists... something is wrong (if not, manually " +
+      		"delete that table and try again): " + backupTableName);
+    }
+    
+    String script = "\ncreate table " + backupTableName + " as (select * from " + tableName + ");\n";
+    
+    //not sure if this works on all dbs... it does work on mysql, oracle, and postgres
+    ddlVersionBean.appendAdditionalScriptUnique(script);
+  }
+  
+  /**
    * add a view if the DB supports it
    * @param ddlVersionBean
    * @param viewName
@@ -1646,6 +1667,7 @@ public class GrouperDdlUtils {
     //search for the index
     OUTERLOOP:
     for (Index existingIndex : table.getIndices()) {
+
       if (existingIndex.getColumnCount() == columnNames.length) {
         
         //no need to check if unique.  you dont want two of the same index, one unique, the other not
@@ -1653,6 +1675,7 @@ public class GrouperDdlUtils {
         //see if this is not a match
         for (int i=0;i<columnNames.length;i++) {
           if (!StringUtils.equalsIgnoreCase(existingIndex.getColumn(i).getName(), columnNames[i])) {
+            
             continue OUTERLOOP;
           }
         }
@@ -1664,6 +1687,14 @@ public class GrouperDdlUtils {
           return existingIndex;
         }
         
+        table.removeIndex(existingIndex);
+      }
+    }
+    
+    //at this point, there should not be one of the same name in there
+    for (Index existingIndex : table.getIndices()) {
+      //if same name but not same, then get rid of it
+      if (StringUtils.equals(existingIndex.getName(), indexName)) {
         table.removeIndex(existingIndex);
       }
     }
@@ -1916,7 +1947,23 @@ public class GrouperDdlUtils {
       ddlutilsDropColumn(table, columnName, ddlVersionBean);
     }
   }
-  
+
+  /**
+   * find and drop a table if it is there
+   * @param ddlVersionBean 
+   * @param tableName
+   */
+  public static void ddlutilsDropTable(DdlVersionBean ddlVersionBean, String tableName) {
+    if (GrouperDdlUtils.assertTablesThere(false, false, tableName)) {
+      if (ddlVersionBean.isOracle()) {
+        ddlVersionBean.appendAdditionalScriptUnique("\ndrop table " + tableName + " cascade constraints;\n");
+      } else {
+        //this is tested for postgres or mysql, and might work with other db's, who knows
+        ddlVersionBean.appendAdditionalScriptUnique("\ndrop table " + tableName + " cascade;\n");
+      }
+    }
+  }
+
   /**
    * find and drop a column if it is there
    * also drop all related indexes
@@ -1992,6 +2039,22 @@ public class GrouperDdlUtils {
       if (expectTrue) {
         throw e;
       }
+      return false;
+    }
+  
+  }
+  /**
+   * see if tables are there (at least the grouper groups one)
+   * @param tableName 
+   * @return true if everything ok, false if not
+   */
+  public static boolean tableExists(String tableName) {
+    try {
+      //first, see if tables are there
+      HibernateSession.bySqlStatic().select(int.class, 
+          "select count(*) from " + tableName);
+      return true;
+    } catch (RuntimeException e) {
       return false;
     }
   

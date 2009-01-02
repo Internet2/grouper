@@ -3,7 +3,9 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
@@ -62,6 +64,28 @@ public class ByCriteriaStatic {
   public ByCriteriaStatic setCacheable(Boolean cacheable) {
     this.cacheable = cacheable;
     return this;
+  }
+
+  /**
+   * <pre>
+   * call hql list result, and put the results in an ordered set
+   * 
+   * e.g.
+   * 
+   * Set<GroupTypeTupleDTO> groupTypeTupleDTOs = 
+   *  HibernateSession.byHqlStatic()
+   *    .createQuery("from Hib3GroupTypeTupleDAO as gtt where gtt.groupUuid = :group")
+   *    .setCacheable(false).setString("group", uuid).listSet(Hib3GroupTypeTupleDAO.class);
+   * </pre>
+   * @param returnType type of the result (can typecast)
+   * @param <S> is the template
+   * @param theCriterions 
+   * @return the ordered set or the empty set if not found (never null)
+   * @throws GrouperDAOException
+   */
+  public <S> Set<S> listSet(Class<S> returnType, Criterion theCriterions) throws GrouperDAOException {
+    Set<S> result = new LinkedHashSet<S>(this.list(returnType, theCriterions));
+    return result;
   }
 
   /**

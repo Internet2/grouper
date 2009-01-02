@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -34,10 +35,18 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroup.java,v 1.11 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroup.java,v 1.12 2009-01-02 06:57:11 mchyzer Exp $
  */
 public class TestGroup extends GrouperTest {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestGroup("testGetTypes"));
+  }
+  
   // Private Class Constants
   private static final Log LOG = GrouperUtil.getLog(TestGroup.class);
 
@@ -76,8 +85,11 @@ public class TestGroup extends GrouperTest {
     Assert.assertTrue(
       "root has STEM on parent", parent.hasStem(s.getSubject())
     );
-  } // public void testGetParentStem()
+  } 
 
+  /**
+   * 
+   */
   public void testGetTypes() {
     LOG.info("testGetTypes");
     Set types = i2.getTypes();
@@ -89,9 +101,7 @@ public class TestGroup extends GrouperTest {
       Assert.assertTrue("type instanceof GroupType", type instanceof GroupType);
       Assert.assertTrue("type name == base", type.getName().equals("base"));
       Set fields = type.getFields();
-      Assert.assertTrue(
-        "type has 12 fields/" + fields.size(), fields.size() == 12
-      );
+      Assert.assertEquals("type has 7 fields", 7, fields.size());
       Iterator  fIter = fields.iterator();
       FieldHelper.testField( 
         (Field) fIter.next()   , 
@@ -100,33 +110,8 @@ public class TestGroup extends GrouperTest {
       );
       FieldHelper.testField( 
         (Field) fIter.next()   , 
-        "description"         , FieldType.ATTRIBUTE,
-        AccessPrivilege.READ  , AccessPrivilege.ADMIN
-      );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        "displayExtension"    , FieldType.ATTRIBUTE,
-        AccessPrivilege.VIEW  , AccessPrivilege.ADMIN
-      );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        "displayName"         , FieldType.ATTRIBUTE,
-        AccessPrivilege.VIEW  , AccessPrivilege.SYSTEM
-      );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        "extension"           , FieldType.ATTRIBUTE,
-        AccessPrivilege.VIEW, AccessPrivilege.ADMIN
-      );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
         "members"             , FieldType.LIST,
         AccessPrivilege.READ  , AccessPrivilege.UPDATE
-      );
-      FieldHelper.testField( 
-        (Field) fIter.next()   , 
-        "name"                , FieldType.ATTRIBUTE,
-        AccessPrivilege.VIEW  , AccessPrivilege.SYSTEM
       );
       FieldHelper.testField( 
         (Field) fIter.next()   , 
@@ -215,7 +200,7 @@ public class TestGroup extends GrouperTest {
         i2.store();
         Assert.fail("set null extn");
       }
-      catch (GroupModifyException eSA) {
+      catch (RuntimeException eSA) {
         Assert.assertTrue("null extn", true);
       }
       try {
@@ -223,14 +208,14 @@ public class TestGroup extends GrouperTest {
         i2.store();
         Assert.fail("set empty extn");
       }
-      catch (GroupModifyException eSA) {
+      catch (RuntimeException eSA) {
         Assert.assertTrue("empty extn", true);
       }
       try {
         i2.setExtension("a:test");
         Assert.fail("set colon-containing extn");
       }
-      catch (GroupModifyException eSA) {
+      catch (RuntimeException eSA) {
         Assert.assertTrue("colon-containing extn", true);
       }
     }
@@ -247,7 +232,7 @@ public class TestGroup extends GrouperTest {
         i2.store();
         Assert.fail("set null displayExtn");
       }
-      catch (GroupModifyException eSA) {
+      catch (RuntimeException eSA) {
         Assert.assertTrue("null displayExtn", true);
       }
       try {
@@ -255,7 +240,7 @@ public class TestGroup extends GrouperTest {
         i2.store();
         Assert.fail("set empty displayExtn");
       }
-      catch (GroupModifyException eSA) {
+      catch (RuntimeException eSA) {
         Assert.assertTrue("empty displayExtn", true);
       }
       try {
@@ -263,7 +248,7 @@ public class TestGroup extends GrouperTest {
         i2.store();
         Assert.fail("set colon-containing displayExtn");
       }
-      catch (GroupModifyException eSA) {
+      catch (RuntimeException eSA) {
         Assert.assertTrue("colon-containing displayExtn", true);
       }
     }

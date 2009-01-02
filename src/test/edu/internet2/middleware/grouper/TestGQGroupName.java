@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper;
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.filter.GroupNameFilter;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
@@ -28,10 +29,18 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * Test {@link GroupNameFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQGroupName.java,v 1.9 2008-11-04 18:50:52 shilen Exp $
+ * @version $Id: TestGQGroupName.java,v 1.10 2009-01-02 06:57:11 mchyzer Exp $
  */
 public class TestGQGroupName extends TestCase {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestGQGroupName("testGroupNameFilterSomethingNameScoped"));
+  }
+  
   public TestGQGroupName(String name) {
     super(name);
   }

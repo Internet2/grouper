@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -34,10 +35,20 @@ import edu.internet2.middleware.subject.Subject;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestNamingPrivilege.java,v 1.11 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestNamingPrivilege.java,v 1.12 2009-01-02 06:57:11 mchyzer Exp $
  */
 public class TestNamingPrivilege extends GrouperTest {
 
+  /**
+   * Method main.
+   * @param args String[]
+   */
+  public static void main(String[] args) {
+    //TestRunner.run(new TestNamingPrivilege("testPropagateDisplayExtensionChangeAsNonRoot"));
+    TestRunner.run(TestNamingPrivilege.class);
+  }
+
+  
   // Private Class Constants
   private static final Log LOG = GrouperUtil.getLog(TestNamingPrivilege.class);
 

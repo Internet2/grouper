@@ -22,13 +22,14 @@ import junit.framework.TestCase;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup38.java,v 1.5 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroup38.java,v 1.6 2009-01-02 06:57:11 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGroup38 extends TestCase {
@@ -55,12 +56,23 @@ public class TestGroup38 extends TestCase {
       Group     gA      = r.getGroup("a", "a");
       Subject   subjA   = r.getSubject("a");
 
+      GrouperSession grouperSession = GrouperSession.start( SubjectFinder.findRootSubject() );
+
+      GroupType groupType = GroupType.createType(grouperSession, "theGroupType", false); 
+      groupType.addAttribute(grouperSession, "theAttribute1", 
+            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      gA.addType(groupType, false);
+      gA.setAttribute("theAttribute1", "whatever");
+
+      gA.store();
+
+      
       GrouperSession  s = GrouperSession.start(subjA);
       Group           a = GroupFinder.findByName(s, gA.getName());
       try {
-        a.setAttribute("description", "new value");
+        a.setAttribute("theAttribute1", "new value");
         a.store();
-        Assert.fail("FAIL: set description w/out priv");
+        Assert.fail("FAIL: set theAttribute1 w/out priv");
       }
       catch (InsufficientPrivilegeException eIP) {
         Assert.assertTrue("OK: threw right exception type", true);

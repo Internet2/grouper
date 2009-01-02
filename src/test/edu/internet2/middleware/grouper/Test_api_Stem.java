@@ -32,7 +32,7 @@ import junit.textui.TestRunner;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.12 2008-11-12 09:05:53 mchyzer Exp $
+ * @version $Id: Test_api_Stem.java,v 1.13 2009-01-02 06:57:11 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_Stem extends GrouperTest {
@@ -61,7 +61,7 @@ public class Test_api_Stem extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new Test_api_Stem("test_isChildGroup_rootAsPotentialParent"));
+    //TestRunner.run(new Test_api_Stem("test_getChildGroups_PrivilegeArrayAndScope_viewPrivAndOneScope"));
     TestRunner.run(Test_api_Stem.class);
   }
 

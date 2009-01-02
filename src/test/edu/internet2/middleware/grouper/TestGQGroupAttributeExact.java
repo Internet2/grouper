@@ -16,16 +16,37 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Set;
+
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.filter.GroupAttributeExactFilter;
+import edu.internet2.middleware.grouper.filter.GroupAttributeFilter;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 
 
 public class TestGQGroupAttributeExact extends TestCase {
+
+  /**
+   * Method main.
+   * @param args String[]
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    TestRunner.run(new TestGQGroupAttributeExact("testGroupAttributeExactFilterSomethingScoped"));
+    //TestRunner.run(TestGQGroupAttributeExact.class);
+  }
+  /**
+   * 
+   */
+  public TestGQGroupAttributeExact() {
+    super();
+  }
 
   public TestGQGroupAttributeExact(String name) {
     super(name);
@@ -114,6 +135,19 @@ public class TestGQGroupAttributeExact extends TestCase {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
 
+    {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new GroupAttributeExactFilter("extension", "uofc", edu)
+      );
+      Assert.assertEquals("groups",  gq.getGroups().size(), 1);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
+    }
+
+    Set<Group> selectedGroups = GrouperDAOFactory.getFactory().getGroup().findAllByAnyApproximateAttr("uofc");
+    assertEquals(1, selectedGroups.size());
+    
     devclue.addType(custom);
     uofc.addType(custom);
     devclue.setAttribute("customAttribute", "String with i2 within");
@@ -138,7 +172,7 @@ public class TestGQGroupAttributeExact extends TestCase {
       GrouperQuery gq = GrouperQuery.createQuery(
         s, new GroupAttributeExactFilter("customAttribute", "String with i2 within", com)
       );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
+      Assert.assertEquals("groups", 1, gq.getGroups().size());
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
       Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
       Assert.assertTrue("stems",   gq.getStems().size()       == 0);

@@ -1,6 +1,6 @@
 #
 # GrouperShell Composite Tests
-# $Id: groups.gsh,v 1.2 2008-09-22 15:06:40 mchyzer Exp $
+# $Id: groups.gsh,v 1.3 2009-01-02 06:57:12 mchyzer Exp $
 #
 
 #
@@ -8,19 +8,26 @@
 #
 GSH_DEVEL = true
 resetRegistry()
+GrouperCheckConfig.checkGroups();
+
 root      = addRootStem("uchicago", "uchicago")
 ns        = addStem(root.getName(), "nsit", "nsit")
 ns2        = addStem(root.getName(), "nsit2", "nsit2")
 ns3        = addStem(root.getName(), "nsit3", "nsit3")
 ns4        = addStem(root.getName(), "nsit4", "nsit4")
 g         = addGroup(ns.getName(), "nas", "nas")
+grouperSession = GrouperSession.startRootSession();
+groupType = GroupType.createType(grouperSession, "aGroupType", false); 
+groupType.addAttribute(grouperSession, "aGroupAttribute", AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+g.addType(groupType, false);
+
 
 #
 # TEST
 #
-assertTrue( "get: description"        , getGroupAttr(g.getName(), "description").equals("")                 )
-assertTrue( "set: description"        , setGroupAttr(g.getName(), "description" , "WE AIM TO PLEASE")       )
-assertTrue( "get: description (new)"  , getGroupAttr(g.getName(), "description").equals("WE AIM TO PLEASE") )
+assertTrue( "get: description"        , getGroupAttr(g.getName(), "aGroupAttribute").equals("")                 )
+assertTrue( "set: description"        , setGroupAttr(g.getName(), "aGroupAttribute" , "WE AIM TO PLEASE")       )
+assertTrue( "get: description (new)"  , getGroupAttr(g.getName(), "aGroupAttribute").equals("WE AIM TO PLEASE") )
 
 assertTrue( "before tx", transactionStatus() == 0)
 

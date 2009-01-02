@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * this will put the base records that grouper needs to operate (e.g. root stem)
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.8 2008-11-13 20:26:10 mchyzer Exp $    
+ * @version $Id: RegistryInstall.java,v 1.9 2009-01-02 06:57:11 mchyzer Exp $    
  */
 public class RegistryInstall {
 
@@ -109,22 +109,6 @@ public class RegistryInstall {
     boolean changed = false;
     boolean[] changedArray = {false};
     GroupType base    = GroupType.internal_createType(s, "base", false, false, false, changedArray);
-    changed = changed || changedArray[0];
-    // base attributes
-    base.internal_addField( s, "description",      FieldType.ATTRIBUTE, 
-        AccessPrivilege.READ, AccessPrivilege.ADMIN,  false, false, false, changedArray );
-    changed = changed || changedArray[0];
-    base.internal_addField( s, "displayExtension", FieldType.ATTRIBUTE, 
-        AccessPrivilege.VIEW, AccessPrivilege.ADMIN,  true, false, false, changedArray  );
-    changed = changed || changedArray[0];
-    base.internal_addField( s, "displayName",      FieldType.ATTRIBUTE, 
-        AccessPrivilege.VIEW, AccessPrivilege.SYSTEM, true, false, false, changedArray  );
-    changed = changed || changedArray[0];
-    base.internal_addField( s, "extension",        FieldType.ATTRIBUTE, 
-        AccessPrivilege.VIEW, AccessPrivilege.ADMIN,  true, false, false, changedArray  );
-    changed = changed || changedArray[0];
-    base.internal_addField( s, "name",             FieldType.ATTRIBUTE, 
-        AccessPrivilege.VIEW, AccessPrivilege.SYSTEM, true, false, false  , changedArray);
     changed = changed || changedArray[0];
     // base lists
     base.internal_addField( s, "members", FieldType.LIST, AccessPrivilege.READ, 

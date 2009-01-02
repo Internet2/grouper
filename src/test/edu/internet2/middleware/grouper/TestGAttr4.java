@@ -18,12 +18,13 @@
 package edu.internet2.middleware.grouper;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr4.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGAttr4.java,v 1.8 2009-01-02 06:57:11 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGAttr4 extends GrouperTest {
@@ -49,10 +50,17 @@ public class TestGAttr4 extends GrouperTest {
       R     r   = R.populateRegistry(1, 1, 0);
       Group gA  = r.getGroup("a", "a");
 
+      GroupType groupType = GroupType.createType(r.rs, "theGroupType", false); 
+      groupType.addAttribute(r.rs, "theAttribute1", 
+            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      gA.addType(groupType, false);
+      String theAttribute = "theAttribute1";
+      gA.setAttribute(theAttribute, "whatever");
+      
       T.string(
-        "extension",  
-        "a",
-        gA.getAttribute("extension")
+        "theAttribute",  
+        "whatever",
+        gA.getAttribute(theAttribute)
       );
 
       r.rs.stop();

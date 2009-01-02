@@ -20,7 +20,7 @@ package edu.internet2.middleware.grouper.misc;
 /**
  * Grouper Error Messages.
  * @author  blair christensen.
- * @version $Id: E.java,v 1.3 2008-12-15 07:09:36 mchyzer Exp $
+ * @version $Id: E.java,v 1.4 2009-01-02 06:57:12 mchyzer Exp $
  * @since   1.0
  */
 public class E {
@@ -130,7 +130,6 @@ public class E {
   public static final String GROUPTYPE_FIELDNODELMISS  = "type unexpectedly does not have field";
   public static final String GROUPTYPE_FIELDNODELTYPE  = "cannot delete field of type: ";
   public static final String GROUPTYPE_FINDALL         = "unable to find group types: ";
-  public static final String GROUPTYPE_NOADD           = "subject not privileged to add group types";
   public static final String GROUPTYPE_NODEL           = "subject not privileged to delete group types";
   public static final String GROUPTYPE_NODELSYS        = "cannot delete system group type: ";
   public static final String GSA_SEARCH                = "error searching: ";

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdlUtilsTest.java,v 1.11 2008-11-13 20:26:10 mchyzer Exp $
+ * $Id: GrouperDdlUtilsTest.java,v 1.12 2009-01-02 06:57:12 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -30,7 +30,6 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
-import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -55,7 +54,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testIdUpgrade"));
+    TestRunner.run(new GrouperDdlUtilsTest("testGroupAttributeUpgrade"));
   }
 
   /**
@@ -139,7 +138,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
         GrouperDdlUtils.maxVersionMap(GrouperDdl.V4), false);
     //auto-init wheel group
     GrouperCheckConfig.checkGroups();
-
+  
     //make sure uuid is there...
     HibernateSession.bySqlStatic().select(int.class, 
       "select count(*) from grouper_groups where uuid is not null");
@@ -231,6 +230,92 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //at this point, hibernate should not be shut off
     assertTrue("at this point, hibernate should not be shut off", GrouperDdlUtils.okToUseHibernate());
     
+  }
+
+  /**
+   * @throws Exception 
+   * @throws SchemaException 
+   */
+  public void testGroupAttributeUpgrade() throws Exception {
+    
+    if (GrouperDdlUtils.tableExists(GrouperDdl.BAK_GROUPER_ATTRIBUTES)) {
+      GrouperDdlUtils.changeDatabase(GrouperDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, GrouperDdl.BAK_GROUPER_ATTRIBUTES);
+        }
+      });
+    }
+    
+    ApiConfig.testConfig.put("ddlutils.dropAttributeBackupTableFromGroupUpgrade", "false");
+
+    //lets get the first version
+    GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
+        GrouperDdlUtils.maxVersionMap(GrouperDdl.V1), false);
+  
+    GrouperDdlUtils.justTesting = true;
+    
+    //now we should have the ddl table...
+    GrouperDdlUtils.assertTablesThere(true, true, "grouper_ddl");
+    //but no other tables
+    GrouperDdlUtils.assertTablesThere(false, false);
+  
+    //get up to v12...  note if cols are added, they should be added pre-v12 also...
+    GrouperDdl.addGroupNameColumns = false;
+    
+    try {
+      GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
+          GrouperDdlUtils.maxVersionMap(GrouperDdl.V12), false);
+    }finally {
+      GrouperDdl.addGroupNameColumns = true;
+    }
+
+    //make sure grouper_groups.name is not there...
+    try {
+      HibernateSession.bySqlStatic().select(int.class, 
+        "select count(*) from grouper_groups where name is not null");
+      fail("name should not be there");
+    } catch (Exception e) {
+      //good
+    }
+    
+    //now we should have the ddl table of course...
+    GrouperDdlUtils.assertTablesThere(true, true, "grouper_ddl");
+    //and all other tables
+    GrouperDdlUtils.assertTablesThere(false, true);
+  
+    boolean hasBackupTable = GrouperDdlUtils.tableExists(GrouperDdl.BAK_GROUPER_ATTRIBUTES);
+    assertFalse("should have no backup table", hasBackupTable);
+    
+    //do the last step
+    GrouperDdlUtils.bootstrapHelper(false, true, true, false, true, false, true, null, false);
+    
+    hasBackupTable = GrouperDdlUtils.tableExists(GrouperDdl.BAK_GROUPER_ATTRIBUTES);
+    assertTrue("should have backup table", hasBackupTable);
+    
+    
+    //put all data in there
+    //add a group, type, stem, member, etc.
+    super.setUp();
+    
+    RegistryReset.internal_resetRegistryAndAddTestSubjects();
+
+    ApiConfig.testConfig.put("ddlutils.dropAttributeBackupTableFromGroupUpgrade", "true");
+
+    GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, true, null, false);
+
+    hasBackupTable = GrouperDdlUtils.tableExists(GrouperDdl.BAK_GROUPER_ATTRIBUTES);
+    assertFalse("should not have backup table", hasBackupTable);
+
+    GrouperDdlUtils.everythingRightVersion = true;
+    GrouperDdlUtils.justTesting = false;
+  
+    //at this point, hibernate should not be shut off
+    assertTrue("at this point, hibernate should not be shut off", GrouperDdlUtils.okToUseHibernate());
+    
+    //remove the backup table
+    ApiConfig.testConfig.remove("ddlutils.dropAttributeBackupTableFromGroupUpgrade");
+
   }
 
   /**

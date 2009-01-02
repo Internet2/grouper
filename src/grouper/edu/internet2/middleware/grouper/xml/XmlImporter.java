@@ -98,7 +98,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.9 2008-12-15 15:02:09 isgwb Exp $
+ * @version $Id: XmlImporter.java,v 1.10 2009-01-02 06:57:12 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1087,7 +1087,7 @@ public class XmlImporter {
             SchemaException,
             StemNotFoundException
   {
-    String newGroup = U.constructName( stem, e.getAttribute(GrouperConfig.ATTR_EXTENSION) );
+    String newGroup = U.constructName( stem, e.getAttribute(GrouperConfig.ATTRIBUTE_EXTENSION) );
     try {
       this._processGroupUpdate(e, newGroup);  // Try and update
     } 
@@ -1116,11 +1116,11 @@ public class XmlImporter {
     	id=e.getAttribute("id");
     }
     Group child   = parent.internal_addChildGroup(
-      e.getAttribute(GrouperConfig.ATTR_EXTENSION),
-      e.getAttribute(GrouperConfig.ATTR_DISPLAY_EXTENSION),
+      e.getAttribute(GrouperConfig.ATTRIBUTE_EXTENSION),
+      e.getAttribute(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION),
       id
     );
-    String                  desc  = e.getAttribute(GrouperConfig.ATTR_DESCRIPTION);
+    String                  desc  = e.getAttribute(GrouperConfig.ATTRIBUTE_DESCRIPTION);
     NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(desc);
     if (v.isValid()) {
       child.setDescription(desc);
@@ -1140,7 +1140,7 @@ public class XmlImporter {
     if (!"groupRef".equals(tagName)) {
       throw new IllegalStateException("Expected tag: <groupRef> but found <" + tagName + ">");
     }
-    String                  name  = groupE.getAttribute(GrouperConfig.ATTR_NAME);
+    String                  name  = groupE.getAttribute(GrouperConfig.ATTRIBUTE_NAME);
     NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(name);
     if (v.isInvalid()) {
       throw new IllegalStateException("Expected 'name' atribute for <groupRef>");
@@ -1180,13 +1180,13 @@ public class XmlImporter {
     // will trigger the creation of the group.
     Group g = GroupFinder.findByName(this.s, newGroup);
     if (this._isUpdatingAttributes()) {
-      String                  dExtn = e.getAttribute(GrouperConfig.ATTR_DISPLAY_EXTENSION);
+      String                  dExtn = e.getAttribute(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION);
       NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(dExtn);
       if ( v.isValid() && !dExtn.equals( g.getDisplayExtension() ) ) {
         g.setDisplayExtension(dExtn);
         g.store();
       }
-      String desc = e.getAttribute(GrouperConfig.ATTR_DESCRIPTION);
+      String desc = e.getAttribute(GrouperConfig.ATTRIBUTE_DESCRIPTION);
       v           = NotNullOrEmptyValidator.validate(desc);
       if ( v.isValid() && !desc.equals( g.getDisplayExtension() ) ) {
         g.setDisplayExtension(desc);
@@ -1503,7 +1503,7 @@ public class XmlImporter {
             StemModifyException,
             StemNotFoundException
   {
-    String newStem = U.constructName( stem, e.getAttribute(GrouperConfig.ATTR_EXTENSION) );
+    String newStem = U.constructName( stem, e.getAttribute(GrouperConfig.ATTRIBUTE_EXTENSION) );
     try {
       this._processPathUpdate(e, newStem);  // Try and update
     } 
@@ -1537,11 +1537,11 @@ public class XmlImporter {
     	id=e.getAttribute("id");
     }
     Stem child = parent.internal_addChildStem(
-      e.getAttribute(GrouperConfig.ATTR_EXTENSION),
-      e.getAttribute(GrouperConfig.ATTR_DISPLAY_EXTENSION),
+      e.getAttribute(GrouperConfig.ATTRIBUTE_EXTENSION),
+      e.getAttribute(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION),
       id
     );
-    String                  desc  = e.getAttribute(GrouperConfig.ATTR_DESCRIPTION);
+    String                  desc  = e.getAttribute(GrouperConfig.ATTRIBUTE_DESCRIPTION);
     NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(desc);
     if (v.isValid()) {
       child.setDescription(desc);
@@ -1563,13 +1563,13 @@ public class XmlImporter {
     // will trigger the creation of the stem.
     Stem ns = StemFinder.findByName(this.s, newStem);
     if (this._isUpdatingAttributes()) {
-      String                  dExtn = e.getAttribute(GrouperConfig.ATTR_DISPLAY_EXTENSION);
+      String                  dExtn = e.getAttribute(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION);
       NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(dExtn);
       if ( v.isValid() && !dExtn.equals( ns.getDisplayExtension() ) ) {
         ns.setDisplayExtension(dExtn);
         ns.store();
       }
-      String desc = e.getAttribute(GrouperConfig.ATTR_DESCRIPTION);
+      String desc = e.getAttribute(GrouperConfig.ATTRIBUTE_DESCRIPTION);
       v           = NotNullOrEmptyValidator.validate(desc);
       if ( v.isValid() && !desc.equals( ns.getDisplayExtension() ) ) {
         ns.setDisplayExtension(desc);

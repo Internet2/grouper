@@ -17,41 +17,95 @@
 
 package edu.internet2.middleware.grouper;
 
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.subj.GrouperSubject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Test <code>Group.deleteAttribute()</code>.
  * @author  blair christensen.
- * @version $Id: Test_I_API_Group_deleteAttribute.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_I_API_Group_deleteAttribute.java,v 1.5 2009-01-02 06:57:11 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Group_deleteAttribute extends GrouperTest {
 
-  // PRIVATE INSTANCE VARIABLES //
+  /**
+   * 
+   */
+  private static final String GROUP_TYPE1 = "groupType1";
+  /**
+   * 
+   */
+  private static final String ATTRIBUTE1 = "attribute1";
+
+  /**
+   * 
+   */
+  public Test_I_API_Group_deleteAttribute() {
+    super();
+  }
+
+  /**
+   * @param name
+   */
+  public Test_I_API_Group_deleteAttribute(String name) {
+    super(name);
+  }
+
+  /**
+   * Method main.
+   * @param args String[]
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new Test_I_API_Group_deleteAttribute("test_deleteAttribute_description_emptyStringAfterDeletion"));
+    //TestRunner.run(Test_I_API_Group_deleteAttribute.class);
+  }
+  
+  /** */
   private Group           gA;
+  /** */
   private Stem            parent;
+  /** */
   private GrouperSession  s;
+  /** */
+  private GroupType groupType;
+  /** */
+  @SuppressWarnings("unused")
+  private Field field;
 
-
-  // TESTING INFRASTRUCTURE //
-
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperTest#setUp()
+   */
   public void setUp() {
     super.setUp();
     try {
-      // TODO 20070531 this *really* cries out for an object mother     
       s       = GrouperSession.start( SubjectFinder.findRootSubject() );
       parent  = StemFinder.findRootStem(s).addChildStem("parent", "parent");
       gA      = parent.addChildGroup("child group a", "child group a");
+      
+      //make sure a user can change a type
+      this.groupType = GroupType.createType(s, GROUP_TYPE1, false);
+      this.field = this.groupType.addAttribute(s,ATTRIBUTE1, 
+          AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      gA.addType(this.groupType, false);
     }
     catch (Exception eShouldNotHappen) {
       throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperTest#tearDown()
+   */
   public void tearDown() {
     try {
       s.stop();
@@ -67,15 +121,16 @@ public class Test_I_API_Group_deleteAttribute extends GrouperTest {
 
   /**
    * Delete the <i>description</i> attribute.
+   * @throws GroupModifyException 
+   * @throws InsufficientPrivilegeException 
    * @since   1.2.0
    */
   public void test_deleteAttribute_description_ANFwhenNoDesc() 
     throws  GroupModifyException,
             InsufficientPrivilegeException
   {
-    String attr = "description";
     try {
-      gA.deleteAttribute(attr);
+      gA.deleteAttribute(ATTRIBUTE1);
       fail("failed to throw AttributeNotFoundException");
     }
     catch (AttributeNotFoundException eExpected) {
@@ -85,6 +140,9 @@ public class Test_I_API_Group_deleteAttribute extends GrouperTest {
 
   /**
    * Delete the <i>description</i> attribute.
+   * @throws AttributeNotFoundException 
+   * @throws GroupModifyException 
+   * @throws InsufficientPrivilegeException 
    * @since   1.2.0
    */
   public void test_deleteAttribute_description_whenSet()
@@ -93,32 +151,56 @@ public class Test_I_API_Group_deleteAttribute extends GrouperTest {
             InsufficientPrivilegeException
   {
     // SETUP //
-    String attr = "description";
-    gA.setDescription(attr);
+    gA.setAttribute(ATTRIBUTE1, "whatever");
     gA.store();
 
     // TEST //
-    gA.deleteAttribute(attr);
+    gA.deleteAttribute(ATTRIBUTE1);
     assertTrue("deleted attribute without any exceptions", true);
   }
 
   /**
    * Verify <i>description</i> is empty string after being deleted.
+   * @throws AttributeNotFoundException 
+   * @throws SubjectNotFoundException 
+   * @throws SubjectNotUniqueException 
+   * @throws GroupModifyException 
+   * @throws InsufficientPrivilegeException 
    * @since   1.2.0
    */
   public void test_deleteAttribute_description_emptyStringAfterDeletion()
-    throws  AttributeNotFoundException,
+    throws  AttributeNotFoundException, SubjectNotFoundException,
+    SubjectNotUniqueException,
             GroupModifyException,
             InsufficientPrivilegeException
   {
     // SETUP //
-    String attr = "description";
-    gA.setDescription(attr);
+    gA.setAttribute(ATTRIBUTE1, "whatever");
     gA.store();
 
+    //get the subject, make sure the lazy attributes load correctly (not too early, not too late)
+    GrouperSubject groupSubject = (GrouperSubject)SubjectFinder.findById(gA.getUuid());
+    assertFalse(groupSubject.isLoadedGroupAttributes());
+    assertFalse(groupSubject.isLoadedModifyCreateSubjects());
+    assertEquals(gA.getName(), groupSubject.getName());
+    assertFalse(groupSubject.isLoadedGroupAttributes());
+    assertFalse(groupSubject.isLoadedModifyCreateSubjects());
+    assertEquals(gA.getName(), groupSubject.getAttributeValue("name"));
+    assertFalse(groupSubject.isLoadedGroupAttributes());
+    assertFalse(groupSubject.isLoadedModifyCreateSubjects());
+    assertEquals(gA.getName(), groupSubject.getAttributes().get("name"));
+    assertFalse(groupSubject.isLoadedGroupAttributes());
+    assertFalse(groupSubject.isLoadedModifyCreateSubjects());
+    assertEquals("whatever", groupSubject.getAttributes().get(ATTRIBUTE1));
+    assertTrue(groupSubject.isLoadedGroupAttributes());
+    assertTrue(groupSubject.isLoadedModifyCreateSubjects());
+    assertEquals("whatever", groupSubject.getAttributeValue(ATTRIBUTE1));
+    assertTrue(groupSubject.isLoadedGroupAttributes());
+    assertTrue(groupSubject.isLoadedModifyCreateSubjects());
+    
     // TEST //
-    gA.deleteAttribute(attr);
-    assertEquals( "description is empty string after deletion", GrouperConfig.EMPTY_STRING, gA.getDescription() );
+    gA.deleteAttribute(ATTRIBUTE1);
+    assertEquals( "description is empty string after deletion", GrouperConfig.EMPTY_STRING, gA.getAttribute(ATTRIBUTE1) );
   }
 
 } 

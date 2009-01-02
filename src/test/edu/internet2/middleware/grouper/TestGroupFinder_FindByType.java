@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.textui.TestRunner;
+
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -24,10 +26,19 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupFinder_FindByType.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroupFinder_FindByType.java,v 1.7 2009-01-02 06:57:11 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroupFinder_FindByType extends GrouperTest {
+
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    //TestRunner.run(TestGroupFinder_FindByType.class);
+    TestRunner.run(new TestGroupFinder_FindByType("testFindGroupByType"));
+  }
 
   private static final Log LOG = GrouperUtil.getLog(TestGroupFinder_FindByType.class);
 

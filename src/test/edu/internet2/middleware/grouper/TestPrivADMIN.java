@@ -34,7 +34,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.16 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.17 2009-01-02 06:57:11 mchyzer Exp $
  */
 public class TestPrivADMIN extends TestCase {
 
@@ -44,8 +44,8 @@ public class TestPrivADMIN extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new TestPrivADMIN("testGrantedToCreator"));
-    //TestRunner.run(TestPrivADMIN.class);
+    //TestRunner.run(new TestPrivADMIN("testRenameGroupWithoutADMIN"));
+    TestRunner.run(TestPrivADMIN.class);
   }
   
   /**
@@ -533,7 +533,14 @@ public class TestPrivADMIN extends TestCase {
     GroupHelper.setAttrFail(a, "name"             , val );
   } // public void testSetAttrsWithoutADMIN()
 
-  public void testSetAttrsWithADMIN() {
+  /**
+   */
+  private static final String ATTRIBUTE1 = "attribute1";
+  /**
+   */
+  private static final String GROUP_TYPE1 = "groupType1";
+
+  public void testSetAttrsWithADMIN() throws Exception {
     LOG.info("testSetAttrsWithADMIN");
     PrivHelper.grantPriv(s, i2, subj0, AccessPrivilege.ADMIN);
     a = GroupHelper.findByName(nrs, i2.getName());
@@ -543,14 +550,42 @@ public class TestPrivADMIN extends TestCase {
     GroupHelper.setAttrFail(a, null               , null);
     GroupHelper.setAttrFail(a, null               , ""  );
     GroupHelper.setAttrFail(a, "attr"             , val );
-    GroupHelper.setAttr(    a, "description"      , val );
-    GroupHelper.setAttrFail(a, "displayName"      , val );
-    GroupHelper.setAttr(    a, "displayExtension" , val );
-    GroupHelper.setAttr(    a, "extension"        , val );
-    GroupHelper.setAttrFail(a, "name"             , val );
+    a.setDescription( val );
+    try {
+      //fail 
+      a.setDisplayName(val );
+      a.store();
+      
+      fail();
+    } catch (Exception e) {
+      //ok
+    }
+    a.setDisplayExtension(val );
+    a.setExtension( val );
+
+    try {
+      //fail 
+      a.setName( val );
+      a.store();
+      fail();
+    } catch (Exception e) {
+      //ok
+    }
+    
+    a.store();
+    
+    GrouperSession grouperSession = GrouperSession.start( SubjectFinder.findRootSubject() );
+
+    GroupType groupType = GroupType.createType(grouperSession, GROUP_TYPE1, false); 
+    groupType.addAttribute(grouperSession,ATTRIBUTE1, 
+          AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+    a.addType(groupType, false);
+    a.setAttribute(ATTRIBUTE1, "whatever");
+    a.store();
+
   } // public void testSetAttrsWithADMIN()
 
-  public void testSetAttrsWithAllADMIN() {
+  public void testSetAttrsWithAllADMIN() throws Exception {
     LOG.info("testSetAttrsWithAllADMIN");
     PrivHelper.grantPriv(s, i2, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN);
     a = GroupHelper.findByName(nrs, i2.getName());
@@ -560,11 +595,34 @@ public class TestPrivADMIN extends TestCase {
     GroupHelper.setAttrFail(a, null               , null);
     GroupHelper.setAttrFail(a, null               , ""  );
     GroupHelper.setAttrFail(a, "attr"             , val );
-    GroupHelper.setAttr(    a, "description"      , val );
-    GroupHelper.setAttrFail(a, "displayName"      , val );
-    GroupHelper.setAttr(    a, "displayExtension" , val );
-    GroupHelper.setAttr(    a, "extension"        , val );
-    GroupHelper.setAttrFail(a, "name"             , val );
+
+    a.setDescription( val );
+    try {
+      //fail 
+      a.setDisplayName( val );
+      fail();
+    } catch (Exception e) {
+      //ok
+    }
+    a.setDisplayExtension(val );
+    a.setExtension( val );
+    try {
+      //fail 
+      a.setName( val );
+      fail();
+    } catch (Exception e) {
+      //ok
+    }
+    a.store();
+    
+    GrouperSession grouperSession = GrouperSession.start( SubjectFinder.findRootSubject() );
+
+    GroupType groupType = GroupType.createType(grouperSession, GROUP_TYPE1, false); 
+    groupType.addAttribute(grouperSession,ATTRIBUTE1, 
+          AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+    a.addType(groupType, false);
+    a.setAttribute(ATTRIBUTE1, "whatever");
+    a.store();
   } // public void testSetAttrsWithAllADMIN()
 
   public void testDelAttrsWithoutADMIN() {
@@ -591,6 +649,7 @@ public class TestPrivADMIN extends TestCase {
     }
     catch (Exception e) {
       Assert.assertTrue("failed to set extension", true);
+      a = GroupHelper.findByName(nrs, i2.getName());
       Assert.assertTrue("extension", a.getExtension().equals(orig));
     } 
     orig = a.getDisplayExtension();
@@ -601,6 +660,7 @@ public class TestPrivADMIN extends TestCase {
     }
     catch (Exception e) {
       Assert.assertTrue("failed to set displayExtension", true);
+      a = GroupHelper.findByName(nrs, i2.getName());
       Assert.assertTrue("displayExtension", a.getDisplayExtension().equals(orig));
     } 
   } // public void testRenameGroupWithoutADMIN()

@@ -59,7 +59,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.73 2008-11-13 20:26:10 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.74 2009-01-02 06:57:11 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVersioned, Comparable {
 
@@ -549,7 +549,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
   { 
     //note, no need for GrouperSession inverse of control
     if (!PrivilegeHelper.isRoot(s)) {
-      String msg = E.GROUPTYPE_NOADD;
+      String msg = "subject '" + GrouperUtil.subjectToString(s.getSubject()) + "' not privileged to add group types ('" + name + "')";
       LOG.error( msg);
       throw new InsufficientPrivilegeException(msg);
     }

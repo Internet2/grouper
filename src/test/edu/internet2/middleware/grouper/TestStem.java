@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.19 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.20 2009-01-02 06:57:11 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -50,8 +50,8 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testPropagateDisplayExtensionChangeAsNonRoot"));
-    //TestRunner.run(TestStem.class);
+    //TestRunner.run(new TestStem("testPropagateDisplayExtensionChangeAsNonRoot"));
+    TestRunner.run(TestStem.class);
   }
 
   public TestStem(String name) {

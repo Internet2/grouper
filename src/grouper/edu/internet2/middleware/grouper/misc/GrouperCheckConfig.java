@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.16 2008-12-15 07:09:36 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.17 2009-01-02 06:57:12 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -327,8 +327,6 @@ public class GrouperCheckConfig {
     GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "dao.factory", 
         GrouperDAOFactory.class, true);
 
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "grouper.setters.dont.cause.queries", true);
-
     GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.group.class", GroupHooks.class, false);
     GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.lifecycle.class", LifecycleHooks.class, false);
     GrouperUtil.propertyValueClass(GROUPER_PROPERTIES_NAME, "hooks.membership.class", MembershipHooks.class, false);
@@ -345,6 +343,7 @@ public class GrouperCheckConfig {
     GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.failIfNotRightVersion", true);
     GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.dropBackupUuidCols", true);
     GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.dropBackupFieldNameTypeCols", true);
+    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.dropAttributeBackupTableFromGroupUpgrade", true);
     GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.disableComments", true);
     GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.disableViews", true);
     
@@ -559,7 +558,7 @@ public class GrouperCheckConfig {
   /**
    * make sure the grouper.hibernate.properties db settings are correct
    */
-  private static void checkGrouperDb() {
+  public static void checkGrouperDb() {
     Properties grouperHibernateProperties = GrouperUtil.propertiesFromResourceName(
         "grouper.hibernate.properties");
 

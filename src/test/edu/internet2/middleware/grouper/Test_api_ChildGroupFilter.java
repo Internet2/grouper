@@ -27,7 +27,7 @@ import junit.textui.TestRunner;
  * Test {@link ChildGroupFilter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_ChildGroupFilter.java,v 1.7 2008-11-12 09:05:53 mchyzer Exp $
+ * @version $Id: Test_api_ChildGroupFilter.java,v 1.8 2009-01-02 06:57:11 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_ChildGroupFilter extends GrouperTest {
@@ -60,7 +60,7 @@ public class Test_api_ChildGroupFilter extends GrouperTest {
     //TestRunner.run(new TestGroup0("testStaticSaveGroupTransactions"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
-    TestRunner.run(new Test_api_ChildGroupFilter("test_getResults_fromRoot"));
+    TestRunner.run(new Test_api_ChildGroupFilter("test_getResults_fromChild"));
 
     //TestRunner.run(new Test_api_ChildGroupFilter("test_Constructor_nullStem"));
   }

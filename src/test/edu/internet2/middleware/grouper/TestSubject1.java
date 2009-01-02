@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper;
 import java.util.Set;
 
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -27,13 +28,17 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSubject1.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestSubject1.java,v 1.7 2009-01-02 06:57:11 mchyzer Exp $
  */
 public class TestSubject1 extends TestCase {
 
   // Private Static Class Constants
   private static final Log LOG = GrouperUtil.getLog(TestSubject1.class);
 
+  /**
+   * 
+   * @param name
+   */
   public TestSubject1(String name) {
     super(name);
   }
@@ -56,6 +61,14 @@ public class TestSubject1 extends TestCase {
     T.amount("group sources"      , 1, groups.size()      );  
     T.amount("person sources"     , 1, people.size()      );  
   } // public void testGetSourcesWithType()
+
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(TestSubject1.class);
+  }
 
 }
 

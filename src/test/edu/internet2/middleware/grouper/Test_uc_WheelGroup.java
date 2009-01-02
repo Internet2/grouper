@@ -37,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test wheel group use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_WheelGroup.java,v 1.15 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: Test_uc_WheelGroup.java,v 1.16 2009-01-02 06:57:11 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_uc_WheelGroup extends GrouperTest {
@@ -63,8 +63,8 @@ public class Test_uc_WheelGroup extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_uc_WheelGroup("test_addingMemberToWheelGroupShouldElevatePrivilegesWithinSession"));
-    //TestRunner.run(Test_uc_WheelGroup.class);
+    //TestRunner.run(new Test_uc_WheelGroup("test_addingMemberToWheelGroupShouldElevatePrivilegesWithinSession"));
+    TestRunner.run(Test_uc_WheelGroup.class);
   }
 
 

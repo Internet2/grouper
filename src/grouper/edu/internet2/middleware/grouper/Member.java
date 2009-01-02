@@ -34,7 +34,6 @@ import org.hibernate.classic.Lifecycle;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -81,7 +80,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.116 2008-11-11 22:08:33 mchyzer Exp $
+ * @version $Id: Member.java,v 1.117 2009-01-02 06:57:11 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -355,6 +354,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
                   if (StringUtils.equals(Member.this.getUuid(), group.getCreatorUuid())) {
                     if (report == null) {
                       group.setCreatorUuid(newMemberUuid);
+                      group.setDontSetModified(true);
                     } else {
                       report.append("CHANGE group: " + group.getUuid() + ", " + group.getName()
                           + ", creator id FROM: " + group.getCreatorUuid() + ", TO: " + newMemberUuid + "\n");
@@ -363,6 +363,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
                   if (StringUtils.equals(Member.this.getUuid(), group.getModifierUuid())) {
                     if (report == null) {
                       group.setModifierUuid(newMemberUuid);
+                      group.setDontSetModified(true);
                     } else {
                       report.append("CHANGE group: " + group.getUuid() + ", " + group.getName()
                           + ", modifier id FROM: " + group.getCreatorUuid() + ", TO: " + newMemberUuid + "\n");
@@ -1671,9 +1672,6 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
     String    orig  = this.getSubjectId(); // preserve original for logging purposes
     this.subjectID = id;
 
-    if (!GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
-      GrouperDAOFactory.getFactory().getMember().update( this );
-    }
     sw.stop();
     EventLog.info(
       GrouperSession.staticGrouperSession(),
@@ -1686,9 +1684,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * will be implemented soon
    */
   public void store() {
-    if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
-      GrouperDAOFactory.getFactory().getMember().update( this );
-    }
+    GrouperDAOFactory.getFactory().getMember().update( this );
   }
   
   /**
@@ -1733,9 +1729,6 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
     }
     String    orig  = this.getSubjectSourceId();
     this.subjectSourceID = id;
-    if (!GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
-      GrouperDAOFactory.getFactory().getMember().update( this );
-    }
     sw.stop();
     EventLog.info(
       GrouperSession.staticGrouperSession(),
