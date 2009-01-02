@@ -20,12 +20,13 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr9.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGAttr9.java,v 1.7 2009-01-02 06:57:11 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGAttr9 extends TestCase {
@@ -51,15 +52,20 @@ public class TestGAttr9 extends TestCase {
       R     r   = R.populateRegistry(1, 1, 0);
       Group gA  = r.getGroup("a", "a");
 
-      String  k = "description";
+      GroupType groupType = GroupType.createType(r.rs, "theGroupType", false); 
+      groupType.addAttribute(r.rs, "theAttribute1", 
+            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      gA.addType(groupType, false);
+      String theAttribute = "theAttribute1";
+
       String  v = "foo";
-      gA.setAttribute("description", v);
+      gA.setAttribute(theAttribute, v);
       gA.store();
       T.ok("set attr value");
       T.string(
         "updated attr value",
         v,
-        gA.getAttribute(k)
+        gA.getAttribute(theAttribute)
       );
 
       r.rs.stop();

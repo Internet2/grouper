@@ -44,10 +44,12 @@ import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
+import edu.internet2.middleware.grouper.exception.GroupModifyRuntimeException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeRuntimeException;
 import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
@@ -112,7 +114,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.214 2008-12-15 07:09:36 mchyzer Exp $
+ * @version $Id: Group.java,v 1.215 2009-01-02 06:57:11 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -254,6 +256,20 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   /** constant for prefix of field diffs for attributes: attribute__ */
   public static final String ATTRIBUTE_PREFIX = "attribute__";
   
+  /** name of group, e.g. school:community:students */
+  private String name;
+  
+  /** displayName of group, e.g. My School:Community Groups:All Students */
+  private String displayName;
+  
+  /** extension of group, e.g. students */
+  private String extension;
+  
+  /** displayExtension of group, e.g. All Students */
+  private String displayExtension;
+  
+  /** description of group, friendly description, e.g. in sentence form, about what the group is about */
+  private String description;
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -269,11 +285,26 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   /** constant for field name for: dbVersion */
   public static final String FIELD_DB_VERSION = "dbVersion";
 
+  /** constant for field name for: description */
+  public static final String FIELD_DESCRIPTION = "description";
+
+  /** constant for field name for: displayExtension */
+  public static final String FIELD_DISPLAY_EXTENSION = "displayExtension";
+
+  /** constant for field name for: displayName */
+  public static final String FIELD_DISPLAY_NAME = "displayName";
+
+  /** constant for field name for: extension */
+  public static final String FIELD_EXTENSION = "extension";
+
   /** constant for field name for: modifierUUID */
   public static final String FIELD_MODIFIER_UUID = "modifierUUID";
 
   /** constant for field name for: modifyTime */
   public static final String FIELD_MODIFY_TIME = "modifyTime";
+
+  /** constant for field name for: name */
+  public static final String FIELD_NAME = "name";
 
   /** constant for field name for: parentUUID */
   public static final String FIELD_PARENT_UUID = "parentUUID";
@@ -285,26 +316,22 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_ATTRIBUTES, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, 
-      FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, FIELD_PARENT_UUID, 
-      FIELD_UUID);
+      FIELD_ATTRIBUTES, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DESCRIPTION, 
+      FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_MODIFIER_UUID, 
+      FIELD_MODIFY_TIME, FIELD_NAME, FIELD_PARENT_UUID, FIELD_UUID);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_ATTRIBUTES, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, 
-      FIELD_DB_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MODIFIER_UUID, 
-      FIELD_MODIFY_TIME, FIELD_PARENT_UUID, FIELD_UUID);
+      FIELD_ATTRIBUTES, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, 
+      FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, 
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, FIELD_NAME, 
+      FIELD_PARENT_UUID, FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
   
-  /** known built-in attributes */
-  private static final  Set<String> ALLOWED_ATTRS = GrouperUtil.toSet(
-    GrouperConfig.ATTR_DISPLAY_NAME, GrouperConfig.ATTR_DESCRIPTION, GrouperConfig.ATTR_DISPLAY_EXTENSION,
-    GrouperConfig.ATTR_EXTENSION, GrouperConfig.ATTR_NAME);
-
   
   // PUBLIC CLASS METHODS //
   
@@ -706,8 +733,6 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
       Set types = this.getTypesDb();
       types.add( type );
 
-      this.internal_setModified();
-
       GrouperDAOFactory.getFactory().getGroup().addType( this, type);
       sw.stop();
       EventLog.info(
@@ -943,7 +968,6 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
         String val = (String) attrs.get(attr); // for logging
         attrs.remove(attr);
         this.setAttributes(attrs);
-        this.internal_setModified();
         GrouperDAOFactory.getFactory().getGroup().update( this );
         sw.stop();
         EVENT_LOG.groupDelAttr(GrouperSession.staticGrouperSession(), this.getName(), attr, val, sw);
@@ -1482,11 +1506,6 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
       return val;
     }
 
-    // if one of common attributes, allow
-    if (ALLOWED_ATTRS.contains(attr)) {
-      return emptyString;
-    }
-    
     // Group does not have attribute.  If attribute is not valid for Group,
     // throw AttributeNotFoundException.  Otherwise, return an empty string.
     
@@ -1521,6 +1540,44 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
       kv = (Map.Entry) it.next();
       if ( this._canReadField( (String) kv.getKey() ) ) {
         filtered.put( (String) kv.getKey(), (String) kv.getValue() );
+      }
+    }
+    Subject currentSubject = GrouperSession.staticGrouperSession().getSubject();
+    boolean canReadGroup = this.hasRead(currentSubject);
+    boolean canViewGroup = this.hasView(currentSubject);
+    
+    if (canViewGroup) {
+      {
+        String theName = this.getName();
+        if (!StringUtils.isBlank(theName)) {
+          filtered.put("name", theName);
+        }
+      }
+      {
+        String theDisplayName = this.getDisplayName();
+        if (!StringUtils.isBlank(theDisplayName)) {
+          filtered.put("displayName", theDisplayName);
+        }
+      }
+      {
+        String theExtension = this.getExtension();
+        if (!StringUtils.isBlank(theExtension)) {
+          filtered.put("extension", theExtension);
+        }
+      }
+      {
+        String theDisplayExtension = this.getDisplayExtension();
+        if (!StringUtils.isBlank(theDisplayExtension)) {
+          filtered.put("displayExtension", theDisplayExtension);
+        }
+      }
+    }
+    if (canReadGroup) {
+      {
+        String theDescription = this.getDescription();
+        if (!StringUtils.isBlank(theDescription)) {
+          filtered.put("description", theDescription);
+        }
       }
     }
     return filtered;
@@ -1629,14 +1686,47 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * @return  Group's <i>description</i> or an empty string if no value set.
    */
   public String getDescription() {
-    try {
-      return (String) this.getAttribute(GrouperConfig.ATTR_DESCRIPTION);
-    }
-    catch (AttributeNotFoundException eANF) {
-      return GrouperConfig.EMPTY_STRING; // Lack of a description is acceptable
-    }
+    return GrouperUtil.defaultString(this.description);
+  }
+
+  /**
+   * Get group description for hibernate.
+   * @return  Group's <i>description</i> or an empty string if no value set.
+   */
+  public String getDescriptionDb() {
+    return this.description;
   } 
 
+  /**
+   * list of internal field attributes, access with method so it can lazy load
+   */
+  private static Set<String> _internal_fieldAttributes = null;
+  
+  /**
+   * set of internal field attributes
+   * @return the attributes
+   */
+  private static Set<String> _internalFieldAttributes() {
+    if (_internal_fieldAttributes == null) {
+      _internal_fieldAttributes = new HashSet<String>();
+      _internal_fieldAttributes.add(FIELD_DESCRIPTION);
+      _internal_fieldAttributes.add(FIELD_NAME);
+      _internal_fieldAttributes.add(FIELD_EXTENSION);
+      _internal_fieldAttributes.add(FIELD_DISPLAY_EXTENSION);
+      _internal_fieldAttributes.add(FIELD_DISPLAY_NAME);
+    }
+    return _internal_fieldAttributes;
+  }
+  
+  /**
+   * see if field attribute (name, description, extension, displayName, displayExtension)
+   * @param attributeName
+   * @return true if so
+   */
+  public static boolean _internal_fieldAttribute(String attributeName) {
+    return _internalFieldAttributes().contains(attributeName);
+  }
+  
   /**
    * Get group displayExtension.
    * <pre class="eg">
@@ -1645,12 +1735,10 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * @return  Gruop displayExtension.
    * @throws  GrouperRuntimeException
    */
-  public String getDisplayExtension() 
-    throws  GrouperRuntimeException
-  {
+  public String getDisplayExtension() {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = (String) this.getAttributesDb().get(GrouperConfig.ATTR_DISPLAY_EXTENSION);
+    String val = this.displayExtension;
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       LOG.fatal(E.GROUP_NODE);
@@ -1672,7 +1760,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = (String) this.getAttributesDb().get(GrouperConfig.ATTR_DISPLAY_NAME);
+    String val = this.displayName;
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       LOG.fatal(E.GROUP_NODN);
@@ -1813,7 +1901,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   public String getExtension() {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = (String) this.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
+    String val = this.extension;
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       LOG.error( E.GROUP_NOE);
@@ -2092,7 +2180,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   {
     // We don't validate privs here because if one has retrieved a group then one
     // has at least VIEW.
-    String val = (String) this.getAttributesDb().get(GrouperConfig.ATTR_NAME);
+    String val = this.name;
     if ( val == null || GrouperConfig.EMPTY_STRING.equals(val) ) {
       //  A group without this attribute is VERY faulty
       LOG.error( E.GROUP_NON);
@@ -2844,22 +2932,15 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   }
   
   /**
-   * store this object to the DB.  If
-   * grouper.setters.dont.cause.queries is false, then this is a no-op
+   * store this object to the DB.
    */
   public void store() {
-    if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
-      GrouperDAOFactory.getFactory().getGroup().update( this );
+    Subject subject = GrouperSession.staticGrouperSession().getSubject();
+    if (!this.hasAdmin(subject)) {
+      throw new InsufficientPrivilegeRuntimeException(GrouperUtil.subjectToString(subject)
+          + " is not admin on group: " + this.getName());
     }
-  }
-  
-  /**
-   * store this object to the DB
-   */
-  private void storeIfConfiguredToStore() {
-    if (!GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
-      GrouperDAOFactory.getFactory().getGroup().update( this );
-    }
+    GrouperDAOFactory.getFactory().getGroup().update( this );
   }
   
   /**
@@ -2906,32 +2987,13 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
       if (v.isInvalid()) {
         throw new GroupModifyException(E.INVALID_ATTR_VALUE + value);
       }
-      if (
-            attr.equals(GrouperConfig.ATTR_DISPLAY_EXTENSION)
-        ||  attr.equals(GrouperConfig.ATTR_DISPLAY_NAME)
-        ||  attr.equals(GrouperConfig.ATTR_EXTENSION)
-      )
-      {
-        v = NamingValidator.validate(value);
-        if (v.isInvalid()) {
-          throw new GroupModifyException( v.getErrorMessage() );
-        }
-      }
       if ( !this.canWriteField( FieldFinder.find(attr) ) ) {
         throw new InsufficientPrivilegeException();
       }
 
       Map attrs = this.getAttributesDb();
       attrs.put(attr, value);
-      if      ( attr.equals(GrouperConfig.ATTR_EXTENSION) )   {
-        attrs.put( GrouperConfig.ATTR_NAME, U.constructName( this.getParentStem().getName(), value ) );
-      }
-      else if ( attr.equals(GrouperConfig.ATTR_DISPLAY_EXTENSION) )  {
-        attrs.put( GrouperConfig.ATTR_DISPLAY_NAME, U.constructName( this.getParentStem().getDisplayName(), value ) );
-      }
       this.setAttributes(attrs);
-      this.internal_setModified();
-      this.storeIfConfiguredToStore();
       sw.stop();
       EVENT_LOG.groupSetAttr(GrouperSession.staticGrouperSession(), this.getName(), attr, value, sw);
     }
@@ -2962,88 +3024,106 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * }
    * </pre>
    * @param   value   Set description to this value.
-   * @throws  GroupModifyException
-   * @throws  InsufficientPrivilegeException
    */
-  public void setDescription(String value) 
-    throws  GroupModifyException, 
-            InsufficientPrivilegeException
-  {
-    try {
-      this.setAttributeHelper(GrouperConfig.ATTR_DESCRIPTION, value);
-    }
-    catch (AttributeNotFoundException eANF) {
-      throw new GroupModifyException(
-        "unable to set description: " + eANF.getMessage(), eANF
-      );
-    }
-  } // public void setDescription(value)
+  public void setDescription(String value) {
+    this.description = value;
+  }
+
+  /**
+   * Set group description (hibernate method).  
+   * @param   value   Set description to this value.
+   */
+  public void setDescriptionDb(String value) {
+    this.description = value;
+  }
  
   /**
    * Set group <i>extension</i>.
    * Note, you have to call store() at some point to 
    * make the kick off the sql
    * <pre class="eg">
-   * try {
    *   g.setExtension(value);
-   * }
-   * catch (GroupModifyException eGM) {
-   *   // Unable to modify group
-   * }
-   * catch (InsufficientPrivilegeException eIP) {
-   *   // Not privileged to modify group
-   * }
    * </pre>
    * @param   value   Set <i>extension</i> to this value.
-   * @throws  GroupModifyException
-   * @throws  InsufficientPrivilegeException
    */
-  public void setExtension(String value) 
-    throws  GroupModifyException, 
-            InsufficientPrivilegeException
-  {
-    try {
-      this.setAttributeHelper(GrouperConfig.ATTR_EXTENSION, value);
+  public void setExtension(String value) {
+    NamingValidator v = NamingValidator.validate(value);
+    if (v.isInvalid()) {
+      throw new GroupModifyRuntimeException( v.getErrorMessage() );
     }
-    catch (AttributeNotFoundException eANF) {
-      throw new GroupModifyException(
-        "unable to set extension: " + eANF.getMessage(), eANF
-      );
-    }
-  } // public void setExtension(value)
+
+    this.extension = value;
+    this.setNameDb(U.constructName( this.getParentStem().getName(), value ) );
+
+  }
+
+  /**
+   * Set group <i>name</i>.  This should not be called
+   * @param   value   Set <i>extension</i> to this value.
+   */
+  public void setName(String value) {
+    throw new InsufficientPrivilegeRuntimeException("group name is system maintained: " + this.name + ", " + value);
+  }
 
   /**
    * Set group displayExtension.
    * Note, you have to call store() at some point to 
    * make the kick off the sql
    * <pre class="eg">
-   * try {
    *   g.setDisplayExtension(value);
-   * }
-   * catch (GroupModifyException e0) {
-   *   // Unable to modify group
-   * }
-   * catch (InsufficientPrivilegeException e1) {
-   *   // Not privileged to modify displayExtension
-   * }
    * </pre>
    * @param   value   Set displayExtension to this value.
-   * @throws  GroupModifyException
-   * @throws  InsufficientPrivilegeException
    */
-  public void setDisplayExtension(String value) 
-    throws  GroupModifyException, 
-            InsufficientPrivilegeException
-  {
-    try {
-      this.setAttributeHelper(GrouperConfig.ATTR_DISPLAY_EXTENSION, value);
+  public void setDisplayExtension(String value) {
+    NamingValidator v = NamingValidator.validate(value);
+    if (v.isInvalid()) {
+      throw new GroupModifyRuntimeException( v.getErrorMessage() );
     }
-    catch (AttributeNotFoundException eANF) {
-      throw new GroupModifyException(
-        "unable to set displayExtension: " + eANF.getMessage(), eANF
-      );
-    }
-  } // public void setDisplayExtension(value)
+
+    this.displayExtension = value;
+    this.setDisplayNameDb(U.constructName( this.getParentStem().getDisplayName(), value ) );
+
+  }
+
+  /**
+   * hibernate method
+   * @param value
+   */
+  public void setDisplayExtensionDb(String value) {
+    this.displayExtension = value;
+  }
+  
+  /**
+   * hibernate method
+   * @param value
+   */
+  public void setExtensionDb(String value) {
+    this.extension = value;
+  }
+  
+  /**
+   * hibernate method
+   * @return display extension
+   */
+  public String getDisplayExtensionDb() {
+    return this.displayExtension;
+  }
+  
+  /**
+   * hibernate method
+   * @return extension
+   */
+  public String getExtensionDb() {
+    return this.extension;
+  }
+  
+  /**
+   * This is really only for hibernate
+   * @param value new display name
+   */
+  public void setDisplayName(String value) {
+    throw new InsufficientPrivilegeRuntimeException("group display name is system maintained: " + this.name + ", " + value);
+  }
 
   /**
    * Convert this group to a {@link Member} object.
@@ -3120,10 +3200,10 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   public String toString() {
     // Bypass privilege checks.  If the group is loaded it is viewable.
     return new ToStringBuilder(this)
-      .append( GrouperConfig.ATTR_NAME, (String) this.getAttributesDb().get(GrouperConfig.ATTR_NAME) )
+      .append( "name", this.name)
       .append( "uuid", this.getUuid() )
       .toString();
-  } // public String toString()
+  }
 
 
   /**
@@ -3164,15 +3244,27 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
     }
   }
 
-  // @since   1.2.0 
-  // i dislike this method
+  /** if true, then dont set the modified stuff on save */
+  @GrouperIgnoreClone @GrouperIgnoreFieldConstant @GrouperIgnoreDbVersion
+  private boolean dontSetModified = false;
+
+  /**
+   * if we should not set the modified attributes on group save
+   * @param theDontSetModified
+   */
+  public void setDontSetModified(boolean theDontSetModified) {
+    this.dontSetModified = theDontSetModified;
+  }
+  
   /**
    * 
    */
-  public void internal_setModified() {
-    this.setModifierUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
-    this.setModifyTimeLong( new Date().getTime() );
-  } // protected void internal_setModified()
+  private void internal_setModifiedIfNeeded() {
+    if (!dontSetModified) {
+      this.setModifierUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
+      this.setModifyTimeLong( System.currentTimeMillis() );
+    }
+  }
 
 
   // PRIVATE INSTANCE METHODS //
@@ -3481,6 +3573,8 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
     
+    this.internal_setModifiedIfNeeded();
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_PRE_INSERT, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_PRE_INSERT, false, false);
@@ -3653,6 +3747,8 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
     
+    this.internal_setModifiedIfNeeded();
+
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
         GroupHooks.METHOD_GROUP_PRE_UPDATE, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_PRE_UPDATE, false, false);
@@ -3708,5 +3804,43 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
         "from manageIncludesExclude() method in Group class: " + this.getExtension());
   }
 
+  /**
+   * Get group displayName for hibernate.
+   * <pre class="eg">
+   * String displayName = g.getDisplayName();
+   * </pre>
+   * @return  Group displayName.
+   * @throws  GrouperRuntimeException
+   */
+  public String getDisplayNameDb() 
+    throws  GrouperRuntimeException
+  {
+    return this.displayName;
+  } // public String getDisplayName()
+
+  /**
+   * Get group name for hibernate.
+   * @return  Group name db.
+   * @throws  GrouperRuntimeException
+   */
+  public String getNameDb() {
+    return this.name;
+  }
+
+  /**
+   * This is really only for hibernate
+   * @param value new display name
+   */
+  public void setDisplayNameDb(String value) {
+    this.displayName = value;
+  }
+
+  /**
+   * Set group <i>name</i>.  This should not be called
+   * @param   value   Set <i>extension</i> to this value.
+   */
+  public void setNameDb(String value) {
+    this.name = value;
+  }
 } 
 

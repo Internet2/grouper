@@ -17,16 +17,37 @@
 
 package edu.internet2.middleware.grouper;
 
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 
 /**
  * Test {@link Stem.addChildGroup()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStemAddChildGroup.java,v 1.9 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: TestStemAddChildGroup.java,v 1.10 2009-01-02 06:57:11 mchyzer Exp $
  */
 public class TestStemAddChildGroup extends GrouperTest {
 
+  /**
+   * Method main.
+   * @param args String[]
+   */
+  public static void main(String[] args) {
+    //TestRunner.run(new TestStemAddChildGroup("testPropagateDisplayExtensionChangeAsNonRoot"));
+    TestRunner.run(TestStemAddChildGroup.class);
+  }
+
+  /**
+   * 
+   */
+  public TestStemAddChildGroup() {
+    super();
+  }
+
+  /**
+   * 
+   * @param name
+   */
   public TestStemAddChildGroup(String name) {
     super(name);
   }

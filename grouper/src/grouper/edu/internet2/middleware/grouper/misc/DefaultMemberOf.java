@@ -58,7 +58,7 @@ import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.9 2008-11-02 21:14:20 shilen Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.10 2009-01-02 06:57:12 mchyzer Exp $
  * @since   1.2.0
  */
 @GrouperIgnoreDbVersion
@@ -274,6 +274,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
             _g = gDAO.findByUuid(k);
             _g.setModifierUuid(modifierUuid);
             _g.setModifyTimeLong(modifyTime);
+            _g.setDontSetModified(true);
             groups.put(k, _g);
           }
         }

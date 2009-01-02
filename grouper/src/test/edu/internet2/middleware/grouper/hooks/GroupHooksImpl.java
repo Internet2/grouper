@@ -1,13 +1,12 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksImpl.java,v 1.9 2008-07-21 04:43:58 mchyzer Exp $
+ * $Id: GroupHooksImpl.java,v 1.10 2009-01-02 06:57:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
@@ -32,7 +31,7 @@ public class GroupHooksImpl extends GroupHooks {
       HooksGroupBean postInsertCommitBean) {
     
     Group group = postInsertCommitBean.getGroup();
-    String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
+    String extension = group.getExtension();
     mostRecentPostCommitInsertGroupExtension = extension;
     mostRecentPostCommitInsertGroup = group;
   }
@@ -48,7 +47,7 @@ public class GroupHooksImpl extends GroupHooks {
       HooksGroupBean postUpdateCommitBean) {
     
     Group group = postUpdateCommitBean.getGroup();
-    String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
+    String extension = group.getExtension();
     mostRecentPostCommitUpdateGroupExtension = extension;
     
   }
@@ -64,7 +63,7 @@ public class GroupHooksImpl extends GroupHooks {
       HooksGroupBean postDeleteCommitBean) {
     
     Group group = postDeleteCommitBean.getGroup();
-    String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
+    String extension = group.getExtension();
     mostRecentPostCommitDeleteGroupExtension = extension;
     
   }
@@ -80,7 +79,7 @@ public class GroupHooksImpl extends GroupHooks {
   public void groupPreInsert(HooksContext hooksContext, HooksGroupBean preInsertBean) {
     
     Group group = preInsertBean.getGroup();
-    String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
+    String extension = group.getExtension();
     mostRecentPreInsertGroupExtension = extension;
     if (StringUtils.equals("test2", extension)) {
       throw new HookVeto("hook.veto.group.insert.name.not.test2", "name cannot be test2");
@@ -98,7 +97,7 @@ public class GroupHooksImpl extends GroupHooks {
   public void groupPostDelete(HooksContext hooksContext,
       HooksGroupBean postDeleteBean) {
     Group group = postDeleteBean.getGroup();
-    String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
+    String extension = group.getExtension();
     mostRecentPostDeleteGroupExtension = extension;
     if (StringUtils.equals("test3", extension)) {
       throw new HookVeto("hook.veto.group.delete.name.not.test3", "name cannot be test3");
@@ -113,7 +112,7 @@ public class GroupHooksImpl extends GroupHooks {
       HooksGroupBean postInsertBean) {
 
     Group group = postInsertBean.getGroup();
-    String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
+    String extension = group.getExtension();
     mostRecentPostInsertGroupExtension = extension;
     if (StringUtils.equals("test8", extension)) {
       throw new HookVeto("hook.veto.group.insert.name.not.test8", "name cannot be test8");
@@ -131,7 +130,7 @@ public class GroupHooksImpl extends GroupHooks {
   public void groupPostUpdate(HooksContext hooksContext,
       HooksGroupBean postUpdateBean) {
     Group group = postUpdateBean.getGroup();
-    String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
+    String extension = group.getExtension();
     mostRecentPostUpdateGroupExtension = extension;
     if (StringUtils.equals("test12", extension)) {
       throw new HookVeto("hook.veto.group.update.name.not.test12", "name cannot be test12");
@@ -148,7 +147,7 @@ public class GroupHooksImpl extends GroupHooks {
   public void groupPreDelete(HooksContext hooksContext,
       HooksGroupBean preDeleteBean) {
     Group group = preDeleteBean.getGroup();
-    String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
+    String extension = group.getExtension();
     mostRecentPreDeleteGroupExtension = extension;
     if (StringUtils.equals("test6", extension)) {
       throw new HookVeto("hook.veto.group.delete.name.not.test6", "name cannot be test6");
@@ -168,7 +167,7 @@ public class GroupHooksImpl extends GroupHooks {
   public void groupPreUpdate(HooksContext hooksContext,
       HooksGroupBean preUpdateBean) {
     Group group = preUpdateBean.getGroup();
-    String extension = (String)group.getAttributesDb().get(GrouperConfig.ATTR_EXTENSION);
+    String extension = group.getExtension();
     mostRecentPreUpdateGroupExtension = extension;
     if (StringUtils.equals("test10", extension)) {
       throw new HookVeto("hook.veto.group.update.name.not.test10", "name cannot be test10");

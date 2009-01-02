@@ -46,7 +46,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.13 2008-12-15 07:09:36 mchyzer Exp $
+ * @version $Id: GrouperTest.java,v 1.14 2009-01-02 06:57:11 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -528,6 +528,7 @@ public class GrouperTest extends TestCase {
   protected void setUp () {
     LOG.debug("setUp");
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
+
     //remove any settings in testconfig
     ApiConfig.testConfig.clear();
     GrouperLoaderConfig.testConfig.clear();
@@ -572,9 +573,16 @@ public class GrouperTest extends TestCase {
     }
   } // private void _assertPriv(type, who, subj, what, exp, got)
 
-  // @since   1.1.0
+  /**
+   * 
+   * @param type
+   * @param who
+   * @param what
+   * @param exp
+   * @param got
+   */
   private void _assertString(String type, String who, String what, String exp, String got) {
-    if (exp.equals(got)) {
+    if (StringUtils.equals(exp, got)) {
       assertTrue(true);
     }
     else {

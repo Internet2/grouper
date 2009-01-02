@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.14 2008-11-08 04:33:47 mchyzer Exp $
+ * @version $Id: TestGroupTypes.java,v 1.15 2009-01-02 06:57:11 mchyzer Exp $
  */
 public class TestGroupTypes extends GrouperTest {
 
@@ -50,7 +50,7 @@ public class TestGroupTypes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroupTypes("testAddRemoveType"));
+    TestRunner.run(new TestGroupTypes("testGetAttributeReturnTypes"));
   }
 
   public TestGroupTypes(String name) {
@@ -579,8 +579,11 @@ public class TestGroupTypes extends GrouperTest {
     finally {
       SessionHelper.stop(s);
     }
-  } // public void testUseCustomAttributeRequired()
+  }
 
+  /**
+   * 
+   */
   public void testGetAttributeReturnTypes() {
     GrouperSession s = null;
     try {
@@ -599,7 +602,7 @@ public class TestGroupTypes extends GrouperTest {
 
       try {
         Assert.assertTrue(
-          "name", g.getAttribute("name").equals("edu:g")
+          "name", g.getName().equals("edu:g")
         );
       }
       catch (Exception e) {
@@ -608,7 +611,7 @@ public class TestGroupTypes extends GrouperTest {
 
       try {
         Assert.assertTrue(
-          "description", g.getAttribute("description").equals( new String() )
+          "description", g.getDescription().equals( "" )
         );
       }
       catch (Exception e) {
@@ -630,8 +633,11 @@ public class TestGroupTypes extends GrouperTest {
     finally {
       SessionHelper.stop(s);
     }
-  } // public void testGetAttributeReturnTypes() 
+  }
 
+  /**
+   * 
+   */
   public void testDeleteFromBase() {
     GrouperSession  s     = null;
     String          type  = "base";
@@ -653,8 +659,11 @@ public class TestGroupTypes extends GrouperTest {
     finally {
       SessionHelper.stop(s);
     }
-  } // public void testDeleteFromBase() 
+  }
 
+  /**
+   * 
+   */
   public void testDeleteFromNaming() {
     GrouperSession  s     = null;
     String          type  = "naming";
@@ -676,8 +685,11 @@ public class TestGroupTypes extends GrouperTest {
     finally {
       SessionHelper.stop(s);
     }
-  } // public void testDeleteFromNaming() 
+  }
 
+  /**
+   * 
+   */
   public void testDeleteAsNonRoot() {
     GrouperSession  s     = null;
     String          type  = "customType.TDANR";
@@ -708,8 +720,11 @@ public class TestGroupTypes extends GrouperTest {
     finally {
       SessionHelper.stop(s);
     }
-  } // public void testDeleteAsNonRoot()
+  }
 
+  /**
+   * 
+   */
   public void testDeleteUnusedCustomAttribute() {
     GrouperSession  s     = null;
     String          type  = "customType.TDUCA";
@@ -741,8 +756,11 @@ public class TestGroupTypes extends GrouperTest {
     finally {
       SessionHelper.stop(s);
     }
-  } // public void testDeleteUnusedCustomAttribute() 
+  }
 
+  /**
+   * 
+   */
   public void testDeleteUnusedCustomList() {
     GrouperSession  s     = null;
     String          type  = "customType.TDUCL";

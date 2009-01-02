@@ -21,6 +21,7 @@ import java.util.Set;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -29,10 +30,22 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestField.java,v 1.9 2009-01-02 06:57:11 mchyzer Exp $
  */
 public class TestField extends TestCase {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestField("testFields"));
+  }
+  
+  /**
+   * 
+   * @param name
+   */
   public TestField(String name) {
     super(name);
   }
@@ -55,7 +68,7 @@ public class TestField extends TestCase {
 
   public void testFields() {
     Set       fields  = FieldFinder.findAll();
-    Assert.assertTrue("fields: 14", fields.size() == 14);
+    Assert.assertEquals("fields: 9", 9, fields.size());
     Iterator  iter    = fields.iterator();
     FieldHelper.testField( 
       (Field) iter.next()   , 
@@ -69,33 +82,8 @@ public class TestField extends TestCase {
     );
     FieldHelper.testField( 
       (Field) iter.next()   , 
-      "description"         , FieldType.ATTRIBUTE,
-      AccessPrivilege.READ  , AccessPrivilege.ADMIN
-    );
-    FieldHelper.testField( 
-      (Field) iter.next()   , 
-      "displayExtension"    , FieldType.ATTRIBUTE,
-      AccessPrivilege.VIEW  , AccessPrivilege.ADMIN
-    );
-    FieldHelper.testField( 
-      (Field) iter.next()   , 
-      "displayName"         , FieldType.ATTRIBUTE,
-      AccessPrivilege.VIEW  , AccessPrivilege.SYSTEM
-    );
-    FieldHelper.testField( 
-      (Field) iter.next()   , 
-      "extension"           , FieldType.ATTRIBUTE,
-      AccessPrivilege.VIEW, AccessPrivilege.ADMIN
-    );
-    FieldHelper.testField( 
-      (Field) iter.next()   , 
       "members"             , FieldType.LIST,
       AccessPrivilege.READ  , AccessPrivilege.UPDATE
-    );
-    FieldHelper.testField( 
-      (Field) iter.next()   , 
-      "name"                , FieldType.ATTRIBUTE,
-      AccessPrivilege.VIEW  , AccessPrivilege.SYSTEM
     );
     FieldHelper.testField( 
       (Field) iter.next()   , 

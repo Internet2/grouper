@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
+import junit.textui.TestRunner;
+
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
@@ -24,29 +26,59 @@ import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupTypeTupleDAO;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.12 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.13 2009-01-02 06:57:11 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
 
   // PRIVATE CLASS CONSTANTS //
   private static final Log LOG = GrouperUtil.getLog(Test_Integration_HibernateGroupDAO_delete.class);
+  /**
+   */
+  private static final String ATTRIBUTE1 = "attribute1";
+  /**
+   */
+  private static final String GROUP_TYPE1 = "groupType1";
 
 
   // TESTS //  
 
+  /**
+   * 
+   */
+  public Test_Integration_HibernateGroupDAO_delete() {
+    super();
+  }
+
+  /**
+   * @param name
+   */
+  public Test_Integration_HibernateGroupDAO_delete(String name) {
+    super(name);
+  }
+
+  /**
+   * 
+   */
   public void testDelete_AttributesDeletedWhenGroupIsDeleted() {
     try {
-      LOG.info("testDelete_AttributesDeletedWhenGroupIsDeleted");
       R       r     = R.getContext("grouper");
       Group   g     = r.getGroup("i2mi:grouper", "grouper-dev");
       String  uuid  = g.getUuid();
+      GrouperSession grouperSession = GrouperSession.start( SubjectFinder.findRootSubject() );
 
+      GroupType groupType = GroupType.createType(grouperSession, GROUP_TYPE1, false); 
+      groupType.addAttribute(grouperSession,ATTRIBUTE1, 
+            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      g.addType(groupType, false);
+      g.setAttribute(ATTRIBUTE1, "whatever");
+      g.store();
       GroupDAO dao = GrouperDAOFactory.getFactory().getGroup();
       assertTrue( 
         "group has attributes in registry before deletion", 
@@ -69,6 +101,15 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
       R       r     = R.getContext("grouper");
       Group   g     = r.getGroup("i2mi:grouper", "grouper-dev");
       String  uuid  = g.getUuid();
+
+      GrouperSession grouperSession = GrouperSession.start( SubjectFinder.findRootSubject() );
+
+      GroupType groupType = GroupType.createType(grouperSession, GROUP_TYPE1, false); 
+      groupType.addAttribute(grouperSession,ATTRIBUTE1, 
+            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      g.addType(groupType, false);
+      g.setAttribute(ATTRIBUTE1, "whatever");
+      g.store();
 
       GroupDAO dao = GrouperDAOFactory.getFactory().getGroup();
       assertTrue( 
@@ -130,6 +171,15 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
     catch (GrouperDAOException eExpected) {
       assertTrue("group no longer has type tuple after reset", true);
     }
+  }
+
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    //TestRunner.run(new Test_Integration_HibernateGroupDAO_delete("testDelete_AttributesDeletedWhenGroupIsDeleted"));
+    TestRunner.run(Test_Integration_HibernateGroupDAO_delete.class);
   } 
 
 } 

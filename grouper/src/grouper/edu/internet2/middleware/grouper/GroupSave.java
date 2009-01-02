@@ -1,14 +1,12 @@
 /*
  * @author mchyzer
- * $Id: GroupSave.java,v 1.3 2008-12-09 08:11:50 mchyzer Exp $
+ * $Id: GroupSave.java,v 1.4 2009-01-02 06:57:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -363,15 +361,7 @@ public class GroupSave {
                     if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
                       GroupSave.this.saveResultType = SaveResultType.UPDATE;
                     }
-                    if (!StringUtils.isBlank(GroupSave.this.description)) {
-                      theGroup.setDescription(GroupSave.this.description);
-                    } else {
-                      try {
-                        theGroup.deleteAttribute(GrouperConfig.ATTR_DESCRIPTION);
-                      } catch (AttributeNotFoundException anfe) {
-                        throw new RuntimeException(anfe);
-                      }
-                    }
+                    theGroup.setDescription(GroupSave.this.description);
                   }
 
                   //only store once
@@ -387,8 +377,6 @@ public class GroupSave {
                   throw new RuntimeException(ipe);
                 } catch (StemAddException sae) {
                   throw new RuntimeException(sae);
-                } catch (GroupModifyException gme) {
-                  throw new RuntimeException(gme);
                 } catch (GroupAddException gae) {
                   throw new RuntimeException(gae);
                 }

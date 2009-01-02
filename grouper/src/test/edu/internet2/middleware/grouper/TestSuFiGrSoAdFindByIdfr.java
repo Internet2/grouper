@@ -20,6 +20,7 @@ import java.util.Map;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -31,7 +32,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link SubjectFinder.findByIdentifier()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSuFiGrSoAdFindByIdfr.java,v 1.11 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestSuFiGrSoAdFindByIdfr.java,v 1.12 2009-01-02 06:57:11 mchyzer Exp $
  */
 public class TestSuFiGrSoAdFindByIdfr extends TestCase {
 
@@ -44,7 +45,14 @@ public class TestSuFiGrSoAdFindByIdfr extends TestCase {
   private Stem            edu, root;
   private Group           i2;
 
-
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(TestSuFiGrSoAdFindByIdfr.class);
+  }
+  
   public TestSuFiGrSoAdFindByIdfr(String name) {
     super(name);
   }
@@ -87,7 +95,7 @@ public class TestSuFiGrSoAdFindByIdfr extends TestCase {
     Subject subj = SubjectTestHelper.getSubjectByIdentifierType(i2.getName(), "group");
     Assert.assertTrue("found subject", true);
     Map attrs = subj.getAttributes();
-    Assert.assertTrue("10 attributes", attrs.size() == 10);
+    Assert.assertEquals("11 attributes", 11, attrs.size());
     // createSubjectId
     String attr = "createSubjectId";
     String val  = "GrouperSystem";

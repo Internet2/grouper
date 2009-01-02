@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper;
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -30,10 +31,18 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link GrouperSubject} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSubject.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGrouperSubject.java,v 1.8 2009-01-02 06:57:11 mchyzer Exp $
  */
 public class TestGrouperSubject extends TestCase {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(TestGrouperSubject.class);
+  }
+  
   // Private Class Constants
   private static final Log LOG = GrouperUtil.getLog(TestGrouperSubject.class);
 
@@ -60,7 +69,8 @@ public class TestGrouperSubject extends TestCase {
     edu       = StemHelper.addChildStem(root, "edu", "education");
     i2        = StemHelper.addChildGroup(edu, "i2", "internet2");
     uofc      = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    GroupHelper.setAttr(uofc, "description", "a description");
+    uofc.setDescription("a description");
+    uofc.store();
     subjI2    = SubjectTestHelper.getSubjectById(i2.getUuid());
     subjUofc  = SubjectTestHelper.getSubjectById(uofc.getUuid());
     GroupHelper.addMember(i2, subjUofc, "members");
@@ -77,9 +87,8 @@ public class TestGrouperSubject extends TestCase {
     Assert.assertTrue(
       "i2 has empty description", subjI2.getDescription().equals("")
     );
-    Assert.assertTrue(
-      "uofc has set description", subjUofc.getDescription().equals("a description")
-    );
+    Assert.assertEquals(
+      "uofc has set description", "a description", subjUofc.getDescription());
   } // public void testGetDescription()
 
   public void testGetAttributeValues() {

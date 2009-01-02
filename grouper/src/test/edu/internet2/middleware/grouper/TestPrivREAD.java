@@ -31,7 +31,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test use of the READ {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivREAD.java,v 1.10 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestPrivREAD.java,v 1.11 2009-01-02 06:57:11 mchyzer Exp $
  */
 public class TestPrivREAD extends TestCase {
 
@@ -65,7 +65,8 @@ public class TestPrivREAD extends TestCase {
     subj1   = SubjectTestHelper.SUBJ1;
     m     = MemberHelper.getMemberBySubject(nrs, subj1);
     GroupHelper.addMember(i2, subj1, m);
-    GroupHelper.setAttr(i2, "description", "a description");
+    i2.setDescription("a description");
+    i2.store();
   }
 
   protected void tearDown () {

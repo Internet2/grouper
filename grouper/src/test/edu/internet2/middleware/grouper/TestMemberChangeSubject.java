@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: TestMemberChangeSubject.java,v 1.4 2008-11-11 22:08:33 mchyzer Exp $
+ * $Id: TestMemberChangeSubject.java,v 1.5 2009-01-02 06:57:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -37,9 +37,9 @@ public class TestMemberChangeSubject extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMemberChangeSubject("testChangeSubjectDidExist"));
+    //TestRunner.run(new TestMemberChangeSubject("testChangeSubjectDidExist"));
     //TestRunner.run(new TestMemberChangeSubject(""));
-    //TestRunner.run(TestMemberChangeSubject.class);
+    TestRunner.run(TestMemberChangeSubject.class);
   }
   
   /**

@@ -26,7 +26,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr21.java,v 1.10 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGAttr21.java,v 1.11 2009-01-02 06:57:11 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGAttr21 extends GrouperTest {
@@ -51,18 +51,29 @@ public class TestGAttr21 extends GrouperTest {
     try {
       R       r     = R.populateRegistry(1, 1, 1);
       Group   gA    = r.getGroup("a", "a");
+      GrouperSession grouperSession = GrouperSession.start( SubjectFinder.findRootSubject() );
+
+      GroupType groupType = GroupType.createType(grouperSession, "theGroupType", false); 
+      groupType.addAttribute(grouperSession, "theAttribute1", 
+            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      gA.addType(groupType, false);
+      String theAttribute = "theAttribute1";
+      gA.setAttribute(theAttribute, "whatever");
+
+      gA.store();
+
       Subject subjA = r.getSubject("a");
       gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
+      grouperSession.stop();
       r.rs.stop();  
       GrouperSession.start(subjA);
-      String k = "description";
-      gA.setAttribute(k, k);
+      gA.setAttribute(theAttribute, theAttribute);
       gA.store();
-      gA.deleteAttribute(k);
+      gA.deleteAttribute(theAttribute);
       T.string(
         "fetch deleted attribute",
         GrouperConfig.EMPTY_STRING,
-        gA.getAttribute(k)
+        gA.getAttribute(theAttribute)
       );
     }
     catch (Exception e) {

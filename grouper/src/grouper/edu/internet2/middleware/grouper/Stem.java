@@ -91,7 +91,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.172 2008-12-09 08:11:50 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.173 2009-01-02 06:57:11 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -1043,12 +1043,9 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
     try {
       this.setDescriptionDb(value);
       this.internal_setModified();
-      if (!GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
-
-        GrouperDAOFactory.getFactory().getStem().update( this );
-      }
       sw.stop();
-      EL.stemSetAttr(GrouperSession.staticGrouperSession(), this.getName(), GrouperConfig.ATTR_DESCRIPTION, value, sw);
+      EL.stemSetAttr(GrouperSession.staticGrouperSession(), this.getName(), "description", value, sw);
+      
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set description: " + eDAO.getMessage(), eDAO );
@@ -1057,12 +1054,9 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
 
   /**
    * will be implemented soon
-   * @throws StemModifyException if problem
    */
   public void store() {
-    if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
-      GrouperDAOFactory.getFactory().getStem().update( this );
-    }
+    GrouperDAOFactory.getFactory().getStem().update( this );
   }
   
   /**
@@ -1117,10 +1111,6 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
           );
         }
       }
-      if (!GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
-        // Now iterate through all child groups and stems, renaming each.
-        GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this, this._renameChildren(GrouperConfig.ATTR_DISPLAY_EXTENSION) );
-      }
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set displayExtension: " + eDAO.getMessage(), eDAO );
@@ -1130,7 +1120,7 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
     if (value.equals(ROOT_INT)) {
       value = ROOT_NAME;
     }
-    EL.stemSetAttr(GrouperSession.staticGrouperSession(), this.getName(), GrouperConfig.ATTR_DISPLAY_EXTENSION, value, sw);
+    EL.stemSetAttr(GrouperSession.staticGrouperSession(), this.getName(), "displayExtension", value, sw);
   } // public void setDisplayExtension(value)
 
   /**
@@ -1186,11 +1176,6 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
           );
         }
       }
-      if (!GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
-  
-        // Now iterate through all child groups and stems, renaming each.
-        GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( this, this._renameChildren(GrouperConfig.ATTR_EXTENSION) );
-      }
     }
     catch (GrouperDAOException eDAO) {
       throw new StemModifyException( "unable to set extension: " + eDAO.getMessage(), eDAO );
@@ -1200,13 +1185,13 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
     if (value.equals(ROOT_INT)) {
       value = ROOT_NAME;
     }
-    EL.stemSetAttr( GrouperSession.staticGrouperSession(), this.getName(), GrouperConfig.ATTR_EXTENSION, value, sw );
+    EL.stemSetAttr( GrouperSession.staticGrouperSession(), this.getName(), "extension", value, sw );
   } // public void setExtension(value)
 
   public String toString() {
     return new ToStringBuilder(this)
-      .append( GrouperConfig.ATTR_DISPLAY_NAME, this.getDisplayName()  )
-      .append( GrouperConfig.ATTR_NAME,  this.getName()         )
+      .append( "displayName", this.getDisplayName()  )
+      .append( "name",  this.getName()         )
       .append( "uuid",                this.getUuid()         )
       .append( "creator",             this.getCreatorUuid()  )
       .append( "modifier",            this.getModifierUuid() )
@@ -1321,18 +1306,15 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
       throw new GroupAddException( v.getErrorMessage() );
     }
     try {
-      Map<String, String> attrs = new HashMap<String, String>();
-      attrs.put( GrouperConfig.ATTR_DISPLAY_EXTENSION, dExtn );
-      attrs.put( GrouperConfig.ATTR_DISPLAY_NAME, U.constructName( this.getDisplayName(), dExtn ) );
-      attrs.put( GrouperConfig.ATTR_EXTENSION,  extn );
-      attrs.put( GrouperConfig.ATTR_NAME,  U.constructName( this.getName(), extn ) );
+
       Set types = new LinkedHashSet();
       types.add( GroupTypeFinder.find("base") ); 
       Group _g = new Group();
-      _g.setAttributes(attrs);
+      _g.setParentUuid( this.getUuid() );
+      _g.setDisplayExtension(dExtn);
+      _g.setExtension(extn);
       _g.setCreateTimeLong( new Date().getTime() );
       _g.setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
-      _g.setParentUuid( this.getUuid() );
       _g.setTypes(types);
       v = NotNullOrEmptyValidator.validate(uuid);
       if (v.isInvalid()) {
@@ -1569,32 +1551,25 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
    * @return the set of Group's
    */
   private Set _renameChildGroups(String attr, String modifier, long modifyTime) {
-    Map<String, String> attrs;
     Group            _g;
     Set                 groups  = new LinkedHashSet();
     Iterator            it      = GrouperDAOFactory.getFactory().getStem().findAllChildGroups( this, Stem.Scope.ONE ).iterator();
     while (it.hasNext()) {
       _g = (Group) it.next();
-      attrs = _g.getAttributesDb();
-      if      ( attr.equals(GrouperConfig.ATTR_DISPLAY_EXTENSION) )  {
-        attrs.put( 
-          GrouperConfig.ATTR_DISPLAY_NAME, 
-          U.constructName( this.getDisplayName(), (String) attrs.get(GrouperConfig.ATTR_DISPLAY_EXTENSION) ) 
-        );
+      
+      if      ( attr.equals("displayExtension") )  {
+        _g.setDisplayNameDb(U.constructName( this.getDisplayName(), (String) _g.getDisplayExtension()));
+        
       }
-      else if ( attr.equals(GrouperConfig.ATTR_EXTENSION) )   {
-        attrs.put(  
-          GrouperConfig.ATTR_NAME, 
-          U.constructName( this.getName(), (String) attrs.get(GrouperConfig.ATTR_EXTENSION) ) 
-        );
+      else if ( attr.equals("extension") )   {
+        _g.setNameDb(U.constructName( this.getName(), _g.getExtension()));
       }
       else {
         throw new IllegalStateException( "attempt to update invalid naming attribute: " + attr);
       }
       _g.setModifierUuid(modifier);
       _g.setModifyTimeLong(modifyTime);
-      _g.setAttributes(attrs);
-      
+      _g.setDontSetModified(true);
       groups.add(_g);
     }
     return groups;
@@ -1635,12 +1610,12 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
     while (it.hasNext()) {
       child = (Stem) it.next() ;
       
-      if      ( attr.equals(GrouperConfig.ATTR_DISPLAY_EXTENSION) )  {
+      if      ( attr.equals("displayExtension") )  {
         child.setDisplayNameDb(
           U.constructName( this.getDisplayNameDb(), child.getDisplayExtensionDb() ) 
         );
       }
-      else if ( attr.equals(GrouperConfig.ATTR_EXTENSION) )   {
+      else if ( attr.equals("extension") )   {
         child.setNameDb(
           U.constructName( this.getNameDb(), child.getExtensionDb() ) 
         );
@@ -2012,41 +1987,37 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
     super.onPreUpdate(hibernateSession);
     
     //if supposed to not have setters do queries
-    if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
-      Boolean inOnPreUpdateBoolean = inOnPreUpdate.get();
-      try {
-        
-        if (inOnPreUpdateBoolean == null || !inOnPreUpdateBoolean) {
-          inOnPreUpdate.set(true);
-          //check and see what needs to be updated
-          Set<String> dbVersionDifferentFields = Stem.this.dbVersionDifferentFields();
-          if (dbVersionDifferentFields.contains(FIELD_EXTENSION)) {
-            
-            // Now iterate through all child groups and stems, renaming each.
-            GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( Stem.this, 
-                Stem.this._renameChildren(GrouperConfig.ATTR_EXTENSION) );
-          }
-          if (dbVersionDifferentFields.contains(FIELD_DISPLAY_EXTENSION)) {
-            
-            // Now iterate through all child groups and stems, renaming each.
-            GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( Stem.this, 
-                Stem.this._renameChildren(GrouperConfig.ATTR_DISPLAY_EXTENSION) );
-          }
-          //if its description, just store, we are all good
+    Boolean inOnPreUpdateBoolean = inOnPreUpdate.get();
+    try {
+      
+      if (inOnPreUpdateBoolean == null || !inOnPreUpdateBoolean) {
+        inOnPreUpdate.set(true);
+        //check and see what needs to be updated
+        Set<String> dbVersionDifferentFields = Stem.this.dbVersionDifferentFields();
+        if (dbVersionDifferentFields.contains(FIELD_EXTENSION)) {
+          
+          // Now iterate through all child groups and stems, renaming each.
+          GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( Stem.this, 
+              Stem.this._renameChildren("extension") );
         }
-      } catch (StemModifyException ste) {
-        //tunnel checked exceptions
-        throw new RuntimeException(ste);
-      } finally {
-        //if we changed it
-        if (inOnPreUpdateBoolean== null || !inOnPreUpdateBoolean) {
-          //change it back
-          inOnPreUpdate.remove();
+        if (dbVersionDifferentFields.contains(FIELD_DISPLAY_EXTENSION)) {
+          
+          // Now iterate through all child groups and stems, renaming each.
+          GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( Stem.this, 
+              Stem.this._renameChildren("displayExtension") );
         }
+        //if its description, just store, we are all good
+      }
+    } catch (StemModifyException ste) {
+      //tunnel checked exceptions
+      throw new RuntimeException(ste);
+    } finally {
+      //if we changed it
+      if (inOnPreUpdateBoolean== null || !inOnPreUpdateBoolean) {
+        //change it back
+        inOnPreUpdate.remove();
       }
     }
-
-
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_PRE_UPDATE, HooksStemBean.class, 

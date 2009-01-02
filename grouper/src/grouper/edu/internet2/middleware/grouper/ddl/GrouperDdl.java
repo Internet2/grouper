@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.24 2008-12-12 07:19:16 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.25 2009-01-02 06:57:12 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -65,6 +65,106 @@ public enum GrouperDdl implements DdlVersionable {
       if (GrouperDdlUtils.ddlutilsFindColumn(database, Stem.TABLE_GROUPER_STEMS, "MODIFY_SOURCE", false) != null) {
         GrouperDdlUtils.ddlutilsDropColumn(database, Stem.TABLE_GROUPER_STEMS, "MODIFY_SOURCE", ddlVersionBean);
       }
+    }
+  },
+
+  /**
+   * <pre>
+   * if needs upgrade:
+   * backup attribute table, create group cols if not exist, move data to groups,
+   * delete old attribute data, 
+   * 
+   * if configured to drop backup attribute table, and it exists, then drop it
+   * </pre>
+   */
+  V13 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+
+      //we need an upgrade if there is a name attribute field, and if there is no name attribute of the groups table
+      boolean needsUpgrade = true;
+      
+      int count = HibernateSession.bySqlStatic().select(int.class, 
+          "select count(*) from grouper_fields where type='attribute' and name='name'");
+      
+      //if there is not name attribute field, then we dont need an upgrade
+      if (count == 0) {
+        
+        //see how many attributes are there
+        count = HibernateSession.bySqlStatic().select(int.class, 
+          "select count(*) from grouper_fields where type='attribute'");
+        
+        //are there any attributes?
+        if (count > 0) {
+          needsUpgrade = false;
+        }
+      }
+      
+      //if there is a name groups col, then no upgrade
+      if (GrouperDdlUtils.ddlutilsFindColumn(database, Group.TABLE_GROUPER_GROUPS, "NAME", false) != null) {
+        needsUpgrade = false;
+      }
+      
+      boolean dropAttributeBackupTableFromGroupUpgrade = GrouperConfig.getPropertyBoolean(
+          "ddlutils.dropAttributeBackupTableFromGroupUpgrade", false);
+      
+      if (needsUpgrade) {
+        
+        //first order of business, backup
+        if (!dropAttributeBackupTableFromGroupUpgrade) {
+          
+          //make a backup
+          GrouperDdlUtils.ddlutilsBackupTable(ddlVersionBean, "GROUPER_ATTRIBUTES", BAK_GROUPER_ATTRIBUTES);
+          
+        }
+        
+        //create the group cols if not exist
+        addGroupNameColumns(ddlVersionBean, database);
+        
+        //move data to the group cols
+        ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_groups set name = \n" +
+        	 "  (select ga.value from grouper_attributes ga, grouper_fields gf \n" +
+           "    where ga.FIELD_ID = gf.ID and gf.TYPE = 'attribute' \n" +
+           "    and gf.NAME = 'name' and ga.GROUP_ID = grouper_groups.id);\ncommit;\n");
+        
+        ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_groups set display_name = \n" +
+            "  (select ga.value from grouper_attributes ga, grouper_fields gf \n" +
+            "    where ga.FIELD_ID = gf.ID and gf.TYPE = 'attribute' \n" +
+            "    and gf.NAME = 'displayName' and ga.GROUP_ID = grouper_groups.id);\ncommit;\n");
+
+        ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_groups set extension = \n" +
+            "  (select ga.value from grouper_attributes ga, grouper_fields gf \n" +
+            "    where ga.FIELD_ID = gf.ID and gf.TYPE = 'attribute' \n" +
+            "    and gf.NAME = 'extension' and ga.GROUP_ID = grouper_groups.id);\ncommit;\n");
+           
+        ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_groups set display_extension = \n" +
+            "  (select ga.value from grouper_attributes ga, grouper_fields gf \n" +
+            "    where ga.FIELD_ID = gf.ID and gf.TYPE = 'attribute' \n" +
+            "    and gf.NAME = 'displayExtension' and ga.GROUP_ID = grouper_groups.id);\ncommit;\n");
+           
+        ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_groups set description = \n" +
+            "  (select ga.value from grouper_attributes ga, grouper_fields gf \n" +
+            "    where ga.FIELD_ID = gf.ID and gf.TYPE = 'attribute' \n" +
+            "    and gf.NAME = 'description' and ga.GROUP_ID = grouper_groups.id);\ncommit;\n");
+        
+        //delete old cols
+        ddlVersionBean.appendAdditionalScriptUnique("\ndelete from grouper_attributes where  field_id in \n" +
+            "  (select gf.ID from grouper_fields gf where gf.type = 'attribute' \n" +
+            "    and gf.name in ('name', 'displayName', 'extension', 'displayExtension', 'description' ));\ncommit;\n");
+        
+      }
+      
+      //whether or not needs an upgrade, see if we should delete the bak table
+      if (dropAttributeBackupTableFromGroupUpgrade) {
+        GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, BAK_GROUPER_ATTRIBUTES);
+      }
+      
     }
   },
 
@@ -902,9 +1002,6 @@ public enum GrouperDdl implements DdlVersionable {
             Types.BIGINT, "20", false, false);
   
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
-            "group_parent_idx", false, "parent_stem");
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
             "group_creator_idx", false, "creator_id");
         
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
@@ -917,6 +1014,14 @@ public enum GrouperDdl implements DdlVersionable {
             "group_modifytime_idx", false, "modify_time");
         
         versionNumberColumnFindOrCreate(groupsTable);
+        
+        addGroupNameColumns(ddlVersionBean, database);
+
+        //only do this if there is a uuid col
+        if (groupsTable.findColumn("UUID") != null) {
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
+              "group_uuid_idx", true, "uuid");
+        }
         
       }
     
@@ -1263,6 +1368,11 @@ public enum GrouperDdl implements DdlVersionable {
   };
 
   /**
+   * 
+   */
+  public static final String BAK_GROUPER_ATTRIBUTES = "BAK_GROUPER_ATTRIBUTES";
+
+  /**
    * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#getVersion()
    */
   public int getVersion() {
@@ -1487,8 +1597,8 @@ public enum GrouperDdl implements DdlVersionable {
     
     int buildingToVersion = ddlVersionBean.getBuildingToVersion();
     
-    //dont do anything if version is less than 2
-    if (buildingToVersion < V2.getVersion()) {
+    //dont do anything if version is less than 2, or if not putting all cols in there
+    if (buildingToVersion < V2.getVersion() || !addGroupNameColumns) {
       return;
     }
     
@@ -1609,7 +1719,21 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
         COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
 
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "name", 
+      "group name is the fully qualified extension of group and all parent stems.  It shouldnt change much, and can be used to reference group from external systems");
     
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "display_name", 
+      "group display name is the fully qualified display extension of group and all parent stems.  It can change as needed, and can not be used to reference group from external systems");
+  
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "extension", 
+      "group extension is the label for this group inside a stem.  It shouldnt change much, and can be used to reference group from external systems (in conjunction with parent stem id)");
+  
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "display_extension", 
+      "group display extension is the display label for this group inside a stem.  It cant change as needed, and can not be used to reference group from external systems");
+  
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "description", 
+      "group description is an optional text blurb that can be used to describe the group");
+  
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
         "grouper_groups_types", "holds the association between group and type");
 
@@ -1904,6 +2028,7 @@ public enum GrouperDdl implements DdlVersionable {
         "Each group type is related to a set of 0 to many attributes, each attribute is related to one group type." +
         "grouper_fields holds each attribute name under the field type of ^attribute^",
         GrouperUtil.toSet("GROUP_NAME", 
+            "GROUP_DISPLAY_NAME", 
             "ATTRIBUTE_NAME", 
             "ATTRIBUTE_VALUE", 
             "GROUP_TYPE_NAME", 
@@ -1912,6 +2037,7 @@ public enum GrouperDdl implements DdlVersionable {
             "GROUP_ID", 
             "GROUPTYPE_UUID"),
          GrouperUtil.toSet("Group name is full ip path, e.g. school:stem1:groupId",
+             "Group display name is the full friendly name, e.g. My School:Stem 1:The Group",
              "Attribute name is the name of the name/value pair",
              "Attribute value is the value of the name/value pair",
              "Group_type_name is the name of the group type this attribute is related to",
@@ -1920,8 +2046,8 @@ public enum GrouperDdl implements DdlVersionable {
              "Group_id is the uuid that uniquely identifies a group",
              "GroupType_uuid is the uuid that uniquely identifies a group type"),
             "select  "
-            + "(select ga2.value from grouper_attributes ga2 , grouper_fields gf "
-            + "where ga2.group_id = gg.id and gf.name = 'name' and gf.id = ga2.field_id) as group_name, "
+            + "gg.name as group_name, "
+            + "gg.display_name as group_display_name, "
             + "gf.NAME as attribute_name, "
             + "ga.VALUE as attribute_value, "
             + "gt.NAME as group_type_name, "
@@ -1965,28 +2091,29 @@ public enum GrouperDdl implements DdlVersionable {
             "CREATOR_ID: member id of the subject that created the composite relationship", 
             "HIBERNATE_VERSION_NUMBER: increments with each update, starts at 0"
         ),
-        "select "
-        + "(select ga.value from grouper_attributes ga , grouper_fields gf "
-        + "where ga.group_id = gc.owner and gf.name = 'name' and gf.id = ga.field_id) as owner_group_name, "
-        + "gc.TYPE as composite_type, "
-        + "(select ga.value from grouper_attributes ga , grouper_fields gf "
-        + "where ga.group_id = gc.left_factor and gf.name = 'name' and gf.id = ga.field_id) as left_factor_group_name, "
-        + "(select ga.value from grouper_attributes ga , grouper_fields gf "
-        + "where ga.group_id = gc.right_factor and gf.name = 'name' and gf.id = ga.field_id) as right_factor_group_name, "
-        + "(select ga.value from grouper_attributes ga , grouper_fields gf "
-        + "where ga.group_id = gc.owner and gf.name = 'displayName' and gf.id = ga.field_id) as owner_group_displayname, "
-        + "(select ga.value from grouper_attributes ga , grouper_fields gf "
-        + "where ga.group_id = gc.left_factor and gf.name = 'displayName' and gf.id = ga.field_id) as left_factor_group_displayname, "
-        + "(select ga.value from grouper_attributes ga , grouper_fields gf "
-        + "where ga.group_id = gc.right_factor and gf.name = 'displayName' and gf.id = ga.field_id) as right_factor_group_displayname, "
-        + "gc.OWNER as owner_group_id, "
-        + "gc.LEFT_FACTOR as left_factor_group_id, "
-        + "gc.RIGHT_FACTOR as right_factor_group_id, "
-        + "gc.ID as composite_id, "
-        + "gc.CREATE_TIME, "
-        + "gc.CREATOR_ID, "
-        + "gc.HIBERNATE_VERSION_NUMBER "
-        + "from grouper_composites gc ");
+        "select  "
+        + "(select gg.name from grouper_groups gg  "
+        + "where gg.id = gc.owner) as owner_group_name,  "
+        + "gc.TYPE as composite_type,  "
+        + "(select gg.name from grouper_groups gg  "
+        + "where gg.id =  gc.left_factor) as left_factor_group_name,  "
+        + "(select gg.name from grouper_groups gg  "
+        + "where gg.id = gc.right_factor) as right_factor_group_name,  "
+        + "(select gg.display_name from grouper_groups gg  "
+        + "where gg.id = gc.owner) as owner_group_displayname,  "
+        + "(select gg.display_name from grouper_groups gg  "
+        + "where gg.id = gc.left_factor) as left_factor_group_displayname,  "
+        + "(select gg.display_name from grouper_groups gg  "
+        + "where gg.id = gc.right_factor) as right_factor_group_displayname,  "
+        + "gc.OWNER as owner_group_id,  "
+        + "gc.LEFT_FACTOR as left_factor_group_id,  "
+        + "gc.RIGHT_FACTOR as right_factor_group_id,  "
+        + "gc.ID as composite_id,  "
+        + "gc.CREATE_TIME,  "
+        + "gc.CREATOR_ID,  "
+        + "gc.HIBERNATE_VERSION_NUMBER  "
+        + "from grouper_composites gc  "
+      );
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_GROUPS_TYPES_V", 
         "A group can have one or many types associated.  This is a view of those relationships with friendly names",
         GrouperUtil.toSet("GROUP_NAME", 
@@ -2003,18 +2130,18 @@ public enum GrouperDdl implements DdlVersionable {
             "GROUP_TYPE_UUID: uuid unique id of the type related to the group", 
             "GROUPER_GROUPS_TYPES_ID: uuid unique id of the relationship between the group and type", 
             "HIBERNATE_VERSION_NUMBER: increments by one with each update, starts at 0"),
-            "select  "
-            + "(select ga.value from grouper_attributes ga, grouper_fields gf  "
-            + "where ga.group_id = ggt.GROUP_UUID and gf.name = 'name' and ga.field_id = gf.id) as group_name, "
-            + "(select ga.value from grouper_attributes ga, grouper_fields gf  "
-            + "where ga.group_id = ggt.GROUP_UUID and gf.name = 'displayName' and ga.field_id = gf.id) as group_displayname, "
-            + "gt.NAME as group_type_name, "
-            + "ggt.GROUP_UUID as group_id, "
-            + "ggt.TYPE_UUID as group_type_uuid, "
-            + "ggt.ID as grouper_groups_types_id, "
-            + "ggt.HIBERNATE_VERSION_NUMBER "
-            + "from grouper_groups_types ggt, grouper_types gt "
-            + "where ggt.TYPE_UUID = gt.ID ");
+            "select   "
+            + "(select gg.name from grouper_groups gg  "
+            + "where gg.id = ggt.GROUP_UUID) as group_name,  "
+            + "(select gg.display_name from grouper_groups gg  "
+            + "where gg.id = ggt.GROUP_UUID) as group_displayname,  "
+            + "gt.NAME as group_type_name,  "
+            + "ggt.GROUP_UUID as group_id,  "
+            + "ggt.TYPE_UUID as group_type_uuid,  "
+            + "ggt.ID as grouper_groups_types_id,  "
+            + "ggt.HIBERNATE_VERSION_NUMBER  "
+            + "from grouper_groups_types ggt, grouper_types gt  "
+            + "where ggt.TYPE_UUID = gt.ID  ");
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_GROUPS_V", 
         "Contains one record for each group, with friendly names for some attributes and some more information",
         GrouperUtil.toSet("EXTENSION", 
@@ -2056,16 +2183,11 @@ public enum GrouperDdl implements DdlVersionable {
             "MODIFY_TIME: number of millis since 1970 since this group was last changed", 
             "HIBERNATE_VERSION_NUMBER: increments by 1 for each update"),
             "select  "
-            + "(select ga.value from grouper_attributes ga, grouper_fields gf "
-            + "where ga.group_id = gg.id and gf.name = 'extension' and gf.id = ga.field_id) as extension, "
-            + "(select ga.value from grouper_attributes ga , grouper_fields gf "
-            + "where ga.group_id = gg.id and gf.name = 'name' and gf.id = ga.field_id) as name, "
-            + "(select ga.value from grouper_attributes ga , grouper_fields gf "
-            + "where ga.group_id = gg.id and gf.name = 'displayExtension' and gf.id = ga.field_id) as display_extension, "
-            + "    (select ga.value from grouper_attributes ga , grouper_fields gf "
-            + "where ga.group_id = gg.id and gf.name = 'displayName' and gf.id = ga.field_id) as display_name, "
-            + "(select ga.value from grouper_attributes ga, grouper_fields gf "
-            + "where ga.group_id = gg.id and gf.name = 'description' and gf.id = ga.field_id) as description, "
+            + "gg.extension as extension, "
+            + "gg.name as name, "
+            + "gg.display_extension as display_extension, "
+            + "gg.display_name as display_name, "
+            + "gg.description as description, "
             + "gs.NAME as parent_stem_name, "
             + "gg.id as group_id, "
             + "gs.ID as parent_stem_id, "
@@ -2125,34 +2247,34 @@ public enum GrouperDdl implements DdlVersionable {
             "CREATE_TIME: number of millis since 1970 since this membership was created", 
             "CREATOR_ID: member_id of the creator, foreign key into grouper_members", 
             "FIELD_ID: uuid unique id of the field.  foreign key to grouper_fields.  This represents the list_type and list_name"),
-            "select "
-            + "(select ga.value from grouper_attributes ga, grouper_fields gf  "
-            + "where ga.group_id = gms.owner_id and gf.name = 'name' and ga.field_id = gf.id) as group_name, "
-            + "(select ga.value from grouper_attributes ga, grouper_fields gf  "
-            + "where ga.group_id = gms.owner_id and gf.name = 'displayName' and ga.field_id = gf.id) as group_displayname, "
-            + "(select gs.NAME from grouper_stems gs "
-            + "where gs.ID = gms.owner_id) as stem_name, "
-            + "(select gs.display_NAME from grouper_stems gs "
-            + "where gs.ID = gms.owner_id) as stem_displayname, "
-            + "gm.SUBJECT_ID, gm.subject_source, "
-            + "gf.TYPE as list_type, "
-            + "gf.NAME as list_name, "
-            + "gms.MSHIP_TYPE as membership_type, "
-            + "(select ga.value from grouper_attributes ga, grouper_composites gc, grouper_fields gf "
-            + "where gc.id = gms.VIA_ID and ga.group_id = gc.OWNER and gf.name = 'name' and ga.field_id = gf.id) as composite_parent_group_name, "
-            + "depth,  "
-            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gms.creator_ID) as creator_source, "
-            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gms.creator_ID) as creator_subject_id, "
-            + "gms.id as membership_id,  "
-            + "gms.PARENT_MEMBERSHIP as parent_membership_id, "
-            + "(select gs.id from grouper_stems gs where gs.ID = gms.owner_id) as stem_id, "
-            + "(select gg.id from grouper_groups gg where gg.id = gms.owner_id) as group_id, "
-            + "gms.OWNER_ID as group_or_stem_id, "
-            + "gms.CREATE_TIME, "
-            + "gms.CREATOR_ID, "
-            + "gms.FIELD_ID "
-            + " from grouper_memberships gms, grouper_members gm, grouper_fields gf "
-            + " where gms.MEMBER_ID = gm.ID and gms.field_id = gf.id ");
+            "select  "
+            + "(select gg.name from grouper_groups gg  "
+            + "where gg.id = gms.owner_id) as group_name,  "
+            + "(select gg.display_name from grouper_groups gg  "
+            + "where gg.id = gms.owner_id) as group_displayname,  "
+            + "(select gs.NAME from grouper_stems gs  "
+            + "where gs.ID = gms.owner_id) as stem_name,  "
+            + "(select gs.display_NAME from grouper_stems gs  "
+            + "where gs.ID = gms.owner_id) as stem_displayname,  "
+            + "gm.SUBJECT_ID, gm.subject_source,  "
+            + "gf.TYPE as list_type,  "
+            + "gf.NAME as list_name,  "
+            + "gms.MSHIP_TYPE as membership_type,  "
+            + "(select gg.name from grouper_groups gg, grouper_composites gc  "
+            + "where gg.id = gms.VIA_ID and gg.id = gc.OWNER) as composite_parent_group_name,  "
+            + "depth,   "
+            + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gms.creator_ID) as creator_source,  "
+            + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gms.creator_ID) as creator_subject_id,  "
+            + "gms.id as membership_id,   "
+            + "gms.PARENT_MEMBERSHIP as parent_membership_id,  "
+            + "(select gs.id from grouper_stems gs where gs.ID = gms.owner_id) as stem_id,  "
+            + "(select gg.id from grouper_groups gg where gg.id = gms.owner_id) as group_id,  "
+            + "gms.OWNER_ID as group_or_stem_id,  "
+            + "gms.CREATE_TIME,  "
+            + "gms.CREATOR_ID,  "
+            + "gms.FIELD_ID  "
+            + " from grouper_memberships gms, grouper_members gm, grouper_fields gf  "
+            + " where gms.MEMBER_ID = gm.ID and gms.field_id = gf.id  ");
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_STEMS_V",
         "GROUPER_STEMS_V: holds one record for each stem (folder) in grouper, with friendly names",
         GrouperUtil.toSet("EXTENSION", 
@@ -2241,18 +2363,12 @@ public enum GrouperDdl implements DdlVersionable {
             "FIELD_TYPE: membership field type, e.g. list or access", 
             "FIELD_NAME: membership field name, e.g. members, admins, readers", 
             "MEMBER_COUNT: number of unique members in the group/field"),
-        "select ga.value as group_name, ga2.value as group_displayName, "
+        "select gg.name as group_name, gg.display_name as group_displayName, "
         + "gf.type as field_type, gf.name as field_name, count(distinct gms.member_id) as member_count "
-        + "from grouper_memberships gms, grouper_fields gf, grouper_attributes ga, grouper_fields gaf,  "
-        + "grouper_attributes ga2, grouper_fields gaf2 "
+        + "from grouper_memberships gms, grouper_groups gg, grouper_fields gf "
         + "where gms.FIELD_ID = gf.ID "
-        + "and ga.FIELD_ID = gaf.id "
-        + "and gaf.name = 'name' "
-        + "and ga.group_id = gms.OWNER_ID "
-        + "and ga2.group_id = gms.owner_id "
-        + "and ga2.field_id = gaf2.id "
-        + "and gaf2.name = 'displayName' "
-        + "group by ga.value, ga2.value, gf.type, gf.name ");
+        + "and gg.id = gms.OWNER_ID "
+        + "group by gg.name, gg.display_name, gf.type, gf.name ");
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_RPT_GROUPS_V", 
         "GROUPER_RPT_GROUPS_V: report with a line for each group and some counts of immediate and effective members etc",
         GrouperUtil.toSet("GROUP_NAME", 
@@ -2274,10 +2390,8 @@ public enum GrouperDdl implements DdlVersionable {
             "ISA_MEMBER_COUNT: number of groups this group is an immediate or effective member of", 
             "GROUP_ID: uuid unique id of this group"),  
         "select  "
-        + "(select ga.value from grouper_attributes ga , grouper_fields gf "
-        + "where ga.group_id = gg.id and gf.name = 'name' and gf.id = ga.field_id) as group_name, "
-        + "    (select ga.value from grouper_attributes ga , grouper_fields gf "
-        + "where ga.group_id = gg.id and gf.name = 'displayName' and gf.id = ga.field_id) as group_displayname, "
+        + "gg.name as group_name, "
+        + "gg.display_name as group_displayname, "
         + "(select count(distinct gms.MEMBER_ID) from grouper_memberships gms where gms.OWNER_ID = gg.id and gms.MSHIP_TYPE = 'immediate') as immediate_membership_count, "
         + "(select count(distinct gms.MEMBER_ID) from grouper_memberships gms where gms.OWNER_ID = gg.id) as membership_count, "
         + "(select count(*) from grouper_attributes ga where ga.GROUP_ID = gg.id) as attribute_count, "
@@ -2390,4 +2504,58 @@ public enum GrouperDdl implements DdlVersionable {
         "field_id", "depth");
   }
 
+  /** set to false when testing if shouldnt add the group columns e.g. name */
+  static boolean addGroupNameColumns = true;
+  
+  /**
+   * add group name columns if supposed to
+   * @param ddlVersionBean
+   * @param database
+   */
+  private static void addGroupNameColumns(DdlVersionBean ddlVersionBean, Database database) {
+    
+    if (!addGroupNameColumns) {
+      return;
+    }
+
+    Table groupsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+        Group.TABLE_GROUPER_GROUPS);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "name", 
+        Types.VARCHAR, "1024", false, false);
+
+    {
+      String scriptOverrideName = ddlVersionBean.isMysql() ? "\nCREATE unique INDEX group_name_idx " +
+          "ON grouper_groups (name(333));\n" : null;
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, groupsTable.getName(), 
+          "group_name_idx", scriptOverrideName, true, "name");
+      
+      String scriptOverrideDisplayName = ddlVersionBean.isMysql() ? "\nCREATE unique INDEX group_display_name_idx " +
+          "ON grouper_groups (display_name(333));\n" : null;
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, groupsTable.getName(), 
+          "group_display_name_idx", scriptOverrideDisplayName, true, "display_name");
+    }
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "display_name", 
+        Types.VARCHAR, "1024", false, false);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "extension", 
+        Types.VARCHAR, "255", false, false);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
+        "group_parent_idx", true, "parent_stem", "extension");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "display_extension", 
+        Types.VARCHAR, "255", false, false);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
+        "group_parent_display_idx", true, "parent_stem", "display_extension");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "description", 
+        Types.VARCHAR, "1024", false, false);
+
+  }
+  
 }

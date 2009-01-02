@@ -26,7 +26,7 @@ import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConf
  * Grouper configuration information.
  * <p><b>This class is being deprecated by the {@link edu.internet2.middleware.grouper.cfg.Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.4 2008-09-29 03:38:32 mchyzer Exp $
+ * @version $Id: GrouperConfig.java,v 1.5 2009-01-02 06:57:12 mchyzer Exp $
  * @since   ?
  */
 public class GrouperConfig {
@@ -86,11 +86,11 @@ public class GrouperConfig {
   public static final String ALL_NAME           = "EveryEntity";
   public static final String ATTR_C        = "createSubject";
   public static final String ATTR_CT       = "createTime";
-  public static final String ATTR_DESCRIPTION        = "description";
-  public static final String ATTR_DISPLAY_EXTENSION       = "displayExtension";
-  public static final String ATTR_DISPLAY_NAME       = "displayName";
-  public static final String ATTR_EXTENSION        = "extension";
-  public static final String ATTR_NAME        = "name";
+  public static final String ATTRIBUTE_DESCRIPTION        = "description";
+  public static final String ATTRIBUTE_DISPLAY_EXTENSION       = "displayExtension";
+  public static final String ATTRIBUTE_DISPLAY_NAME       = "displayName";
+  public static final String ATTRIBUTE_EXTENSION        = "extension";
+  public static final String ATTRIBUTE_NAME        = "name";
   public static final String BT            = "true";
   public static final String GCGAA         = "groups.create.grant.all.admin";
   public static final String GCGAOI        = "groups.create.grant.all.optin";
@@ -220,8 +220,4 @@ public class GrouperConfig {
     return val;
   }
 
-  /** property setters dont cause queries */
-  public static final String PROP_SETTERS_DONT_CAUSE_QUERIES 
-    = "grouper.setters.dont.cause.queries";
-  
 } 

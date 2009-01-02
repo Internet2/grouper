@@ -21,12 +21,13 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup23.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroup23.java,v 1.7 2009-01-02 06:57:11 mchyzer Exp $
  */
 public class TestGroup23 extends TestCase {
 
@@ -52,9 +53,21 @@ public class TestGroup23 extends TestCase {
     try {
       R       r     = R.populateRegistry(1, 1, 0);
       Group   a     = r.getGroup("a", "a");
+      
+      GrouperSession grouperSession = GrouperSession.start( SubjectFinder.findRootSubject() );
 
+      GroupType groupType = GroupType.createType(grouperSession, "theGroupType", false); 
+      groupType.addAttribute(grouperSession, "theAttribute1", 
+            AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
+      a.addType(groupType, false);
+      a.setAttribute("theAttribute1", "whatever");
+
+      a.store();
+
+      grouperSession.stop();
+      
       try {
-        a.canWriteField(null, FieldFinder.find("name"));
+        a.canWriteField(null, FieldFinder.find("theAttribute1"));
         Assert.fail("IllegalArgumentException not thrown");
       }
       catch (IllegalArgumentException eIA) {

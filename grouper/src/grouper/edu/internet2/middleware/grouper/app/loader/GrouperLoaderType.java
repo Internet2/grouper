@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.13 2008-12-22 05:50:42 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.14 2009-01-02 06:57:12 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -319,7 +319,7 @@ public enum GrouperLoaderType {
             
             //lets see which names are not in that list
             Set<String> groupNamesManaged = HibernateSession.byHqlStatic()
-              .createQuery("select distinct a.value from Attribute a where a.value like :thePattern")
+              .createQuery("select g.nameDb from Group g where g.nameDb like :thePattern")
               .setString("thePattern", groupLikeString).listSet(String.class);
           
             //take out the ones which exist

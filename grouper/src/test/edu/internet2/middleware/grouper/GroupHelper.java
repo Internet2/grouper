@@ -41,7 +41,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.21 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: GroupHelper.java,v 1.22 2009-01-02 06:57:11 mchyzer Exp $
  */
 class GroupHelper {
 
@@ -375,91 +375,62 @@ class GroupHelper {
     }
   } // protected static void setAttr(g, attr, val)
 
+  /**
+   * 
+   * @param exp
+   * @param g
+   */
   protected static void testAttrs(Group exp, Group g) {
+    LOG.debug("testAttrs.0");
+    Map attrs = g.getAttributes();
+    Assert.assertEquals( attrs.size() + " attributes (exp 5)", 5, attrs.size() );
+    LOG.debug("testAttrs.2");
     try {
-      LOG.debug("testAttrs.0");
-      Map attrs = g.getAttributes();
       Assert.assertTrue(
-        attrs.size() + " attributes (exp 5)", attrs.size() == 5
+        "createSubject", g.getCreateSubject() instanceof Subject
       );
-      LOG.debug("testAttrs.2");
-      try {
-        Assert.assertTrue(
-          "createSubject", g.getCreateSubject() instanceof Subject
-        );
-      LOG.debug("testAttrs.3");
-      }
-      catch (SubjectNotFoundException eSNF) {
-        Assert.fail("no create subject: " + eSNF.getMessage());
-      }
-      Assert.assertTrue(
-        "createTime", g.getCreateTime() instanceof Date
-      );
-      LOG.debug("testAttrs.4");
-      try {
-        g.getAttribute("description");
-        LOG.debug("testAttrs.5");
-        Assert.assertTrue(
-          "[i] description", g.getAttribute("description").equals(exp.getDescription())
-        );
-      }
-      catch (AttributeNotFoundException eTODO) {
-        Assert.assertTrue("no description found", true);
-        LOG.debug("testAttrs.6");
-      }
-      Assert.assertTrue(
-        "[d] description", g.getDescription().equals(exp.getDescription())
-      );
-      LOG.debug("testAttrs.7");
-      Assert.assertTrue(
-        "[i] displayName", g.getAttribute("displayName").equals(exp.getDisplayName())
-      );
-      LOG.debug("testAttrs.9");
-      Assert.assertTrue(
-        "[d] displayName", g.getDisplayName().equals(exp.getDisplayName())
-      );
-      LOG.debug("testAttrs.9");
-      Assert.assertTrue(
-        "[i] displayExtension", g.getAttribute("displayExtension").equals(exp.getDisplayExtension())
-      );
-      LOG.debug("testAttrs.10");
-      Assert.assertTrue(
-        "[d] displayExtension", g.getDisplayExtension().equals(exp.getDisplayExtension())
-      );
-      LOG.debug("testAttrs.11");
-      Assert.assertTrue(
-        "[i] extension", g.getAttribute("extension").equals(exp.getExtension())
-      );
-      LOG.debug("testAttrs.12");
-      Assert.assertTrue(
-        "[d] extension", g.getExtension().equals(exp.getExtension())
-      );
-      LOG.debug("testAttrs.14");
-      try {
-        g.getModifySubject();
-        LOG.debug("testAttrs.15");
-        Assert.assertTrue("group modified", true);
-      }
-      catch (SubjectNotFoundException esNF) {
-        Assert.fail("group not modified");
-        LOG.debug("testAttrs.16");
-      }
-      Assert.assertTrue(
-        "modifyTime", g.getModifyTime() instanceof Date
-      );
-      LOG.debug("testAttrs.17");
-      Assert.assertTrue(
-        "[i] name", g.getAttribute("name").equals(exp.getName())
-      );
-      LOG.debug("testAttrs.18");
-      Assert.assertTrue(
-        "[d] name", g.getName().equals(exp.getName())
-      );
-      LOG.debug("testAttrs.19");
+    LOG.debug("testAttrs.3");
     }
-    catch (AttributeNotFoundException eANF) {
-      Assert.fail(eANF.getMessage());
+    catch (SubjectNotFoundException eSNF) {
+      Assert.fail("no create subject: " + eSNF.getMessage());
     }
+    Assert.assertTrue(
+      "createTime", g.getCreateTime() instanceof Date
+    );
+    LOG.debug("testAttrs.4");
+    Assert.assertTrue(
+      "[d] description", g.getDescription().equals(exp.getDescription())
+    );
+    LOG.debug("testAttrs.9");
+    Assert.assertTrue(
+      "[d] displayName", g.getDisplayName().equals(exp.getDisplayName())
+    );
+    LOG.debug("testAttrs.10");
+    Assert.assertTrue(
+      "[d] displayExtension", g.getDisplayExtension().equals(exp.getDisplayExtension())
+    );
+    LOG.debug("testAttrs.12");
+    Assert.assertTrue(
+      "[d] extension", g.getExtension().equals(exp.getExtension())
+    );
+    LOG.debug("testAttrs.14");
+    try {
+      g.getModifySubject();
+      LOG.debug("testAttrs.15");
+      Assert.assertTrue("group modified", true);
+    }
+    catch (SubjectNotFoundException esNF) {
+      Assert.fail("group not modified");
+      LOG.debug("testAttrs.16");
+    }
+    Assert.assertTrue(
+      "modifyTime", g.getModifyTime() instanceof Date
+    );
+    LOG.debug("testAttrs.18");
+    Assert.assertTrue(
+      "[d] name", g.getName().equals(exp.getName())
+    );
+    LOG.debug("testAttrs.19");
   } // protected static void testAttrs(exp, g)
 
   // test converting a Group to a Member
