@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.25 2009-01-02 06:57:12 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.26 2009-01-02 17:32:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -158,6 +158,10 @@ public enum GrouperDdl implements DdlVersionable {
             "  (select gf.ID from grouper_fields gf where gf.type = 'attribute' \n" +
             "    and gf.name in ('name', 'displayName', 'extension', 'displayExtension', 'description' ));\ncommit;\n");
         
+        //delete old fields
+        ddlVersionBean.appendAdditionalScriptUnique("\ndelete from grouper_fields where  type = 'attribute' \n" +
+            " and name in ('name', 'description', 'displayExtension', 'displayName', 'extension');\ncommit;\n");
+
       }
       
       //whether or not needs an upgrade, see if we should delete the bak table
@@ -168,6 +172,39 @@ public enum GrouperDdl implements DdlVersionable {
     }
   },
 
+  /** add indexes on group attribute name cols */
+  V14 {
+    
+    public void updateVersionFromPrevious(Database database, DdlVersionBean ddlVersionBean) {
+
+      Table groupsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          Group.TABLE_GROUPER_GROUPS);
+
+      {
+        String scriptOverrideName = ddlVersionBean.isMysql() ? "\nCREATE unique INDEX group_name_idx " +
+            "ON grouper_groups (name(333));\n" : null;
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, groupsTable.getName(), 
+            "group_name_idx", scriptOverrideName, true, "name");
+        
+        String scriptOverrideDisplayName = ddlVersionBean.isMysql() ? "\nCREATE unique INDEX group_display_name_idx " +
+            "ON grouper_groups (display_name(333));\n" : null;
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, groupsTable.getName(), 
+            "group_display_name_idx", scriptOverrideDisplayName, true, "display_name");
+      }
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
+          "group_parent_idx", true, "parent_stem", "extension");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
+          "group_parent_display_idx", true, "parent_stem", "display_extension");
+      
+      
+    }
+    
+  },
+  
   /**
    * delete backup cols if configured to and if exist
    */
@@ -2524,34 +2561,14 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "name", 
         Types.VARCHAR, "1024", false, false);
 
-    {
-      String scriptOverrideName = ddlVersionBean.isMysql() ? "\nCREATE unique INDEX group_name_idx " +
-          "ON grouper_groups (name(333));\n" : null;
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, groupsTable.getName(), 
-          "group_name_idx", scriptOverrideName, true, "name");
-      
-      String scriptOverrideDisplayName = ddlVersionBean.isMysql() ? "\nCREATE unique INDEX group_display_name_idx " +
-          "ON grouper_groups (display_name(333));\n" : null;
-      
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, groupsTable.getName(), 
-          "group_display_name_idx", scriptOverrideDisplayName, true, "display_name");
-    }
-    
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "display_name", 
         Types.VARCHAR, "1024", false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "extension", 
         Types.VARCHAR, "255", false, false);
     
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
-        "group_parent_idx", true, "parent_stem", "extension");
-    
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "display_extension", 
         Types.VARCHAR, "255", false, false);
-    
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
-        "group_parent_display_idx", true, "parent_stem", "display_extension");
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "description", 
         Types.VARCHAR, "1024", false, false);
