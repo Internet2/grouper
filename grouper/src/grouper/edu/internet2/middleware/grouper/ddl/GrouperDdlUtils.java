@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.31 2009-01-02 06:57:12 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.32 2009-01-02 17:32:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1694,7 +1694,7 @@ public class GrouperDdlUtils {
     //at this point, there should not be one of the same name in there
     for (Index existingIndex : table.getIndices()) {
       //if same name but not same, then get rid of it
-      if (StringUtils.equals(existingIndex.getName(), indexName)) {
+      if (StringUtils.equalsIgnoreCase(existingIndex.getName(), indexName)) {
         table.removeIndex(existingIndex);
       }
     }
