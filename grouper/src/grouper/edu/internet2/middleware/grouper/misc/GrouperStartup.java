@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.17 2008-12-09 08:11:50 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.17.2.1 2009-01-02 17:38:53 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -65,6 +65,17 @@ public class GrouperStartup {
   
       //dont print big classname, dont print nulls
       ToStringBuilder.setDefaultStyle(new GrouperToStringStyle());
+
+      //first check databases
+      
+      if (!ignoreCheckConfig) {
+        GrouperCheckConfig.checkGrouperDb();
+      }
+      
+      if (runDdlBootstrap) {
+        //first make sure the DB ddl is up to date
+        GrouperDdlUtils.bootstrap(false, false, false);
+      }
       
       if (!ignoreCheckConfig) {
         //make sure configuration is ok
@@ -76,11 +87,6 @@ public class GrouperStartup {
   
       //register hib objects
       Hib3DAO.initHibernateIfNotInitted();
-      
-      if (runDdlBootstrap) {
-        //first make sure the DB ddl is up to date
-        GrouperDdlUtils.bootstrap(false, false, false);
-      }
       
       initData(true);
       
