@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.16 2008-12-15 07:09:36 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.16.2.1 2009-01-02 17:38:53 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -559,7 +559,7 @@ public class GrouperCheckConfig {
   /**
    * make sure the grouper.hibernate.properties db settings are correct
    */
-  private static void checkGrouperDb() {
+  public static void checkGrouperDb() {
     Properties grouperHibernateProperties = GrouperUtil.propertiesFromResourceName(
         "grouper.hibernate.properties");
 
