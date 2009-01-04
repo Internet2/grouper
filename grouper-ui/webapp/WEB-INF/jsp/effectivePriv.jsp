@@ -2,7 +2,7 @@
 		  Shows effective privileges for subject over group or stem
 --%><%--
   @author Gary Brown.
-  @version $Id: effectivePriv.jsp,v 1.7 2008-09-09 20:03:40 mchyzer Exp $
+  @version $Id: effectivePriv.jsp,v 1.7.2.1 2009-01-04 08:16:16 mchyzer Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -27,7 +27,7 @@
 		<c:when test="${groupOrStemPrivEntry.key!='GrouperAll'}">
 			<c:set target="${params}" property="asMemberOf" value="${group.id}"/>
 			<%--  Use params to make link title descriptive for accessibility --%>		
-			<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.assign.title">
+			<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.assign.title" tooltipDisable="true">
 						<grouper:param value="${viewObject.desc}"/>
 						<grouper:param value="${group.desc}"/>
 				</grouper:message></c:set>
@@ -65,7 +65,7 @@
 					<c:set var="memberPage" value="/populateStemMember.do"/>
 				</c:if>
 				 <%--  Use params to make link title descriptive for accessibility --%>		
-			<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.assign.title">
+			<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.assign.title" tooltipDisable="true">
 						<grouper:param value="${group.desc}"/>
 						<grouper:param value="${browseParent.displayExtension}"/>
 			</grouper:message></c:set>

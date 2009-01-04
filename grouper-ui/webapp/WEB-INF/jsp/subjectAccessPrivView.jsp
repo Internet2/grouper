@@ -3,7 +3,7 @@
 		  render individual Access privileges for current subject
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectAccessPrivView.jsp,v 1.6 2008-04-03 13:30:21 isgwb Exp $
+  @version $Id: subjectAccessPrivView.jsp,v 1.6.6.1 2009-01-04 08:16:16 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -21,7 +21,7 @@
 <c:set target="${pagerParams}" property="contextSourceId" value="${viewObject.sourceId}"/> 
   
  <%--  Use params to make link title descriptive for accessibility --%>		
-<c:set var="linkTitle"><grouper:message bundle="${nav}" key="groups.access.chain.title">
+<c:set var="linkTitle"><grouper:message bundle="${nav}" key="groups.access.chain.title" tooltipDisable="true">
 		 		<grouper:param value="${SubjectFormBean.map.accessPriv}"/>
 				<grouper:param value="${viewObject.desc}"/>
 				<grouper:param value="${viewObject.memberOfGroup.desc}"/>
