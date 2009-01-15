@@ -37,10 +37,10 @@ import org.apache.directory.server.core.configuration.MutablePartitionConfigurat
 import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
 import edu.internet2.middleware.ldappcTest.AbstractServerTestSetup;
 
-//import edu.internet2.middleware.ldappc.apachedsSchema.EduMemberSchema;
-//import edu.internet2.middleware.ldappc.apachedsSchema.EduPermissionSchema;
-//import edu.internet2.middleware.ldappc.apachedsSchema.EduPersonSchema;
-//import edu.internet2.middleware.ldappc.apachedsSchema.KitnEduPersonSchema;
+import edu.internet2.middleware.ldappc.apachedsSchema.EduMemberSchema;
+import edu.internet2.middleware.ldappc.apachedsSchema.EduPermissionSchema;
+import edu.internet2.middleware.ldappc.apachedsSchema.EduPersonSchema;
+import edu.internet2.middleware.ldappc.apachedsSchema.KitnEduPersonSchema;
 /**
  * Wrap a suite of tests with an embedded instance of Apache Directory Server.
  */
@@ -76,10 +76,10 @@ public class LdapWrapperTestSetup extends AbstractServerTestSetup {
         Set schemas = configuration.getBootstrapSchemas();
         Set newset = new HashSet();
         newset.addAll(schemas);
-//        newset.add(new EduMemberSchema());
-//        newset.add(new EduPermissionSchema());
-//        newset.add(new EduPersonSchema());
-//        newset.add(new KitnEduPersonSchema());
+        newset.add(new EduMemberSchema());
+        newset.add(new EduPermissionSchema());
+        newset.add(new EduPersonSchema());
+        newset.add(new KitnEduPersonSchema());
         configuration.setBootstrapSchemas(newset);
 
         // Add partition 'example'
