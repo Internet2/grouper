@@ -18,16 +18,16 @@
 
 package edu.internet2.middleware.ldappcTest;
 
+import junit.framework.TestSuite;
+import edu.internet2.middleware.grouper.GrouperTest;
 import edu.internet2.middleware.ldappcTest.wrappers.DatabaseWrapperTestSetup;
 import edu.internet2.middleware.ldappcTest.wrappers.LdapWrapperTestSetup;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 /**
  * Base test case class which our tests will extend. Provides a static method to
  * run the tests in the class with an LDAP and database wrapper around them.
  */
-public class BaseTestCase extends TestCase {
+public class BaseTestCase extends GrouperTest {
 
     public BaseTestCase(String name) {
         super(name);

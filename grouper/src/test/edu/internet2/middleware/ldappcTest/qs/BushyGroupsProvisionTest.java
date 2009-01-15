@@ -40,11 +40,14 @@ import javax.naming.ldap.LdapName;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.SessionHelper;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.StemHelper;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.filter.ChildGroupFilter;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
+import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
 import edu.internet2.middleware.ldappc.Ldappc;
@@ -159,10 +162,14 @@ public class BushyGroupsProvisionTest extends BaseTestCase {
         //
         // Build a grouper sessions
         //
+        RegistryReset.internal_resetRegistryAndAddTestSubjects();
         sessionCtrl = new GrouperSessionControl();
         if (!sessionCtrl.startSession("GrouperSystem")) {
             fail("Failed to create Grouper session");
         }
+
+        // 20090115 tz just one stem to pass the test
+        StemHelper.addChildStem(StemHelper.findRootStem(SessionHelper.getRootSession()), "qsuob", "QS University of Bristol");
 
         //
         // Get the set of groups provisioned

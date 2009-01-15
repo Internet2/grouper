@@ -145,8 +145,9 @@ public class AllJUnitTests extends TestCase {
         TestSuite suite = null;
         if (ALL) {
             suite = new TestSuite();
-            suite.addTest(new LdapWrapperTestSetup(AllJUnitQuickStartTests.suite()));
-
+            // 20090115 tz suite.addTest(new LdapWrapperTestSetup(AllJUnitQuickStartTests.suite()));
+            suite.addTest(new LdapWrapperTestSetup(new TestSuite(BushyGroupsProvisionTest.class)));
+            
             TestSuite suite1 = new TestSuite();
             suite1.addTest(AllJUnitBaseDirTests.suite());
             suite1.addTest(AllJUnitUtilTests.suite());

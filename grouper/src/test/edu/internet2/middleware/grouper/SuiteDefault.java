@@ -37,11 +37,12 @@ import edu.internet2.middleware.grouper.misc.AllMiscTests;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
+import edu.internet2.middleware.ldappcTest.AllJUnitTests;
 
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.53 2008-11-13 05:04:04 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.53.4.1 2009-01-15 21:36:22 tzeller Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -71,7 +72,12 @@ public class SuiteDefault extends TestCase {
 	}
 		
 	if(!args[0].equalsIgnoreCase("-all")) {
-		String testName = "edu.internet2.middleware.grouper." + args[0];
+		String testName = null;
+		if (args[0].startsWith("edu.internet2.middleware.")) {
+		  testName = args[0];
+		} else {
+		  testName = "edu.internet2.middleware.grouper." + args[0];
+		}
 		Class claz = null;
 		Exception ex = null;
 		
@@ -184,6 +190,7 @@ public class SuiteDefault extends TestCase {
     suite.addTest(AllRijndaelTests.suite());
     suite.addTest(AllMiscTests.suite());
     suite.addTest(AllLoaderTests.suite());
+    suite.addTest(AllJUnitTests.suite());
 
     return suite;
   }

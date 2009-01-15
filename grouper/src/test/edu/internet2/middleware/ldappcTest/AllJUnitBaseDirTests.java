@@ -52,13 +52,13 @@ public class AllJUnitBaseDirTests extends TestCase
         suite.addTest(new TestSuite(RootProcessorTest.class));
         suite.addTest(new TestSuite(LdapSchemaTest.class));
         suite.addTest(new TestSuite(SimpleLdapSearchTest.class));
-        suite.addTest(new TestSuite(GrouperSubjectRetrieverTest.class));
-        suite.addTest(new TestSuite(HsqlConnectionTest.class));
-        suite.addTest(new TestSuite(SignetSubjectRetrieverTest.class));
+        // 20090115 tz unnecessary suite.addTest(new TestSuite(GrouperSubjectRetrieverTest.class));
+        // 20090115 tz unnecessary suite.addTest(new TestSuite(HsqlConnectionTest.class));
+        // 20090115 tz no more signet suite.addTest(new TestSuite(SignetSubjectRetrieverTest.class));
         suite.addTest(new TestSuite(GrouperSessionControlTest.class));
         suite.addTest(new TestSuite(LdapNewEntryTest.class));
         suite.addTest(new TestSuite(StemProcessorTest.class));
-        suite.addTest(new TestSuite(GroupProcessorTest.class));
+        // 20090115 tz unnecessary suite.addTest(new TestSuite(GroupProcessorTest.class));
         suite.addTest(new TestSuite(GrouperProvisionerTest.class));
         suite.addTest(new TestSuite(GrouperProvisionerLastModifyTest.class));
 

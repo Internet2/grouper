@@ -176,6 +176,7 @@ public class GrouperProvisionerLastModifyTest extends BaseTestCase
             try
             {
                 testGroup31.setDescription(newDesc);
+                testGroup31.store();
             }
             catch (GroupModifyException gme)
             {
