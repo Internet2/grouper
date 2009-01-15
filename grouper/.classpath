@@ -48,11 +48,12 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-discovery.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/jamon.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/ant.jar"/>
-	<classpathentry kind="lib" path="lib/grouper/commons-io.jar"/>
-	<classpathentry kind="lib" path="lib/ldappc/apacheds-core-1.0.2.jar"/>
-	<classpathentry kind="lib" path="lib/ldappc/apacheds-server-jndi-1.0.2.jar"/>
-	<classpathentry kind="lib" path="lib/ldappc/mina-core-1.0.2.jar"/>
-	<classpathentry kind="lib" path="lib/ldappc/shared-ldap-0.9.5.5.jar"/>
-	<classpathentry kind="lib" path="lib/ldappc/apacheds-ldappc-schema-1.0.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-io.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ldappc/apacheds-core-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ldappc/apacheds-core-shared-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ldappc/apacheds-ldappc-schema-1.0.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ldappc/apacheds-server-jndi-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ldappc/mina-core-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ldappc/shared-ldap-0.9.5.5.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
