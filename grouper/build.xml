@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.218 2008-11-26 19:31:57 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.218.4.1 2009-01-15 22:05:53 tzeller Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -261,11 +261,17 @@
         <include name="test/grouper-test.jar"/>
       </fileset>
     </copy>
-    
 
     <mkdir dir="${dist.binary.zip}/lib/jdbcSamples"/>
     <copy todir="${dist.binary.zip}/lib/jdbcSamples">
       <fileset dir="${lib.dir}/jdbcSamples">
+        <include name="*.jar"/>
+      </fileset>
+    </copy>
+  	
+    <mkdir dir="${dist.binary.zip}/lib/ldappc"/>
+    <copy todir="${dist.binary.zip}/lib/ldappc">
+      <fileset dir="${lib.dir}/ldappc">
         <include name="*.jar"/>
       </fileset>
     </copy>
