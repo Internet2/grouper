@@ -18,6 +18,7 @@
 
 package edu.internet2.middleware.ldappcTest;
 
+import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -29,7 +30,6 @@ import edu.internet2.middleware.ldappcTest.qs.BushyGroupsProvisionTest;
 import edu.internet2.middleware.ldappcTest.qs.QuickStartTestU;
 import edu.internet2.middleware.ldappcTest.synchronize.AllJUnitSynchronizerTests;
 import edu.internet2.middleware.ldappcTest.util.AllJUnitUtilTests;
-import edu.internet2.middleware.ldappcTest.wrappers.DatabaseWrapperTestSetup;
 import edu.internet2.middleware.ldappcTest.wrappers.LdapWrapperTestSetup;
 
 /**
@@ -162,6 +162,6 @@ public class AllJUnitTests extends TestCase {
             suite.addTest(new LdapWrapperTestSetup(new TestSuite(BushyGroupsProvisionTest.class)));
             suite.addTest(new LdapWrapperTestSetup(AllJUnitConfigurationTests.suite()));
         }
-        return new DatabaseWrapperTestSetup(suite);
+        return new TestSetup(suite);
     }
 }

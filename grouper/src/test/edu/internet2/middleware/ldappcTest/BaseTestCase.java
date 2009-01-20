@@ -20,7 +20,6 @@ package edu.internet2.middleware.ldappcTest;
 
 import junit.framework.TestSuite;
 import edu.internet2.middleware.grouper.GrouperTest;
-import edu.internet2.middleware.ldappcTest.wrappers.DatabaseWrapperTestSetup;
 import edu.internet2.middleware.ldappcTest.wrappers.LdapWrapperTestSetup;
 
 /**
@@ -40,6 +39,6 @@ public class BaseTestCase extends GrouperTest {
      *            the class to run tests for.
      */
     public static void runTestRunner(Class clazz) {
-        junit.textui.TestRunner.run(new LdapWrapperTestSetup(new DatabaseWrapperTestSetup(new TestSuite(clazz))));
+        junit.textui.TestRunner.run(new LdapWrapperTestSetup(new TestSuite(clazz)));
     }
 }
