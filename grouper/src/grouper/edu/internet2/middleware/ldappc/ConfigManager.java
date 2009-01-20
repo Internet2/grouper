@@ -40,11 +40,11 @@ import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
-import edu.internet2.middleware.subject.SubjectUtils;
 
 /**
  * Class for accessing values from the Auth2Ldap configuration file.
@@ -361,7 +361,9 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
      */
     public static ConfigManager getInstance() throws LdappcConfigurationException
     {
-        loadSingleton(getSystemResourceURL(CONFIG_FILE_RESOURCE, true).toString());
+        if (instance == null) {
+          loadSingleton(getSystemResourceURL(CONFIG_FILE_RESOURCE, true).toString());
+        }
         return instance;
     }
 
@@ -738,7 +740,7 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
     {
         // 20090116 tz doesn't work, strange
         // URL url = ClassLoader.getSystemResource(resource);
-        URL url = SubjectUtils.computeUrl(resource, false);
+        URL url = GrouperUtil.computeUrl(resource, false);
         if (isRequired && url == null)
         {
             //
