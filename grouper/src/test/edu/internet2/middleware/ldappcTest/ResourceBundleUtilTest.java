@@ -65,10 +65,10 @@ public class ResourceBundleUtilTest extends BaseTestCase
     public void testResourceBundleUtil() 
     {
         DisplayTest.showRunTitle("testResourceBundleUtil", "Process Properties File");
-        String dbUrl = ResourceBundleUtil.getString("signetDbUrl");
-        String msg = "Does not contain localhost";
-        String expected = "Contains localhost";
-        if (dbUrl.indexOf("localhost") != -1)
+        String dbUrl = ResourceBundleUtil.getString("testUseEmbeddedLdap");
+        String msg = "Does not contain the letter e";
+        String expected = "e";
+        if (dbUrl.indexOf("e") != -1)
         {
             msg = expected;
         }    
