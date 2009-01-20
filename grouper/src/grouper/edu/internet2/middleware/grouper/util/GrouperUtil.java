@@ -282,7 +282,11 @@ public class GrouperUtil {
         		throw new IllegalStateException("The System property grouper.home is referenced in log4j configuration " +
         				"however, it is not set.");  
         	  }
-        	  fileName=grouperHome+fileName.substring(15);
+        	  if (!grouperHome.endsWith("/") && !grouperHome.endsWith("\\")) {
+        	    fileName = grouperHome + File.separator + fileName.substring(15);
+        	  } else {
+        	    fileName = grouperHome + fileName.substring(15);
+        	  }
           }
           File file = new File(fileName);
           File parent = file.getParentFile();
