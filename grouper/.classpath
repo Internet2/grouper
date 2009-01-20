@@ -49,24 +49,24 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/jamon.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/ant.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-io.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/apacheds-core-1.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/apacheds-core-shared-1.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/apacheds-kerberos-shared-1.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/apacheds-ldappc-schema-1.0.3.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/apacheds-protocol-changepw-1.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/apacheds-protocol-kerberos-1.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/apacheds-protocol-ldap-1.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/apacheds-protocol-ntp-1.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/apacheds-protocol-shared-1.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/apacheds-server-jndi-1.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/apacheds-server-unit-1.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/jdbm-1.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/mina-core-1.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/mina-filter-ssl-1.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/shared-asn1-0.9.5.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/shared-asn1-codec-0.9.5.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/shared-ldap-0.9.5.5.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/slf4j-api-1.5.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/ldappc/slf4j-log4j12-1.5.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-core-1.0.2.jar" sourcepath="/Applications/apacheds-1.0.2"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-core-shared-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-kerberos-shared-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-ldappc-schema-1.0.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-protocol-changepw-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-protocol-kerberos-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-protocol-ldap-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-protocol-ntp-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-protocol-shared-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-server-jndi-1.0.2.jar" sourcepath="/Applications/apacheds-1.0.2"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-server-unit-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/jdbm-1.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/mina-core-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/mina-filter-ssl-1.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/shared-asn1-0.9.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/shared-asn1-codec-0.9.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/shared-ldap-0.9.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/slf4j-api-1.5.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/slf4j-log4j12-1.5.2.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
