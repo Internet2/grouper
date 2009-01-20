@@ -57,6 +57,7 @@ import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappcTest.BaseTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
+import edu.internet2.middleware.ldappcTest.configuration.ConfigManagerTest;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -68,7 +69,8 @@ public class BushyGroupsProvisionTest extends BaseTestCase {
     /**
      * Config file for provisioning bushy groups.
      */
-    private static final String BUSHY_GROUPS_CONFIG = "ldappc-bushyGroups.xml";
+    private static final String BUSHY_GROUPS_CONFIG = ConfigManagerTest.RELATIVE_RESOURCE_PATH
+             + "ldappcBushyGroups.xml";
 
     /**
      * Grouper subject root DN
