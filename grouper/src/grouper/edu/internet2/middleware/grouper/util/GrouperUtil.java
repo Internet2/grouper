@@ -68,6 +68,10 @@ import org.apache.log4j.Appender;
 import org.apache.log4j.Category;
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.FileAppender;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
@@ -697,7 +701,75 @@ public class GrouperUtil {
     
     String url = trim(grouperHibernateProperties.getProperty("hibernate.connection.url"));
     String user = trim(grouperHibernateProperties.getProperty("hibernate.connection.username"));
+    
+    promptUserAboutChanges(reason, checkResponse, "db", url, user);
+  }
+  
+  /** ldap user, cached */
+  private static String ldapUser = null;
 
+  /** ldap url, cached */
+  private static String ldapUrl = null;
+
+  /**
+   * retrieve ldap configs once
+   */
+  private static void retrieveLdapConfigsOnce() {
+
+    if (ldapUrl == null || ldapUser == null) {
+      SAXReader reader = new SAXReader();
+      URL url = GrouperUtil.computeUrl("ldappc.xml", false);
+      Document document = null;
+
+      try {
+        document = reader.read(url);
+      } catch (DocumentException de) {
+        throw new RuntimeException(de);
+      }
+
+      Element rootElement = document.getRootElement();
+      Element ldapElement = rootElement.element("ldap");
+      Element contextElement = ldapElement.element("context");
+      Element parameterList = contextElement.element("parameter-list");
+      List<Element> parameterElements = nonNull(parameterList.elements("parameter"));
+      for (Element parameterElement : parameterElements) {
+        if (StringUtils.equals(parameterElement.attributeValue("name"), "provider_url")) {
+          ldapUrl = parameterElement.attributeValue("value");
+        }
+        if (StringUtils.equals(parameterElement.attributeValue("name"), "security_principal")) {
+          ldapUser = parameterElement.attributeValue("value");
+        }
+      }
+    }
+    
+    if (StringUtils.isBlank(ldapUrl) || StringUtils.isBlank(ldapUser)) {
+      throw new RuntimeException("Cant find ldap url or user in ldappc.xml: '" + ldapUrl + "', '" + ldapUser + "'");
+    }
+    
+  }
+  
+  /**
+   * prompt the user about db changes
+   * @param reason e.g. delete all tables
+   * @param checkResponse true if the response from the user should be checked, or just display the prompt
+   */
+  public static void promptUserAboutLdapChanges(String reason, boolean checkResponse) {
+    
+    retrieveLdapConfigsOnce();
+    
+    promptUserAboutChanges(reason, checkResponse, "ldap", ldapUrl, ldapUser);
+  }
+  
+  /**
+   * prompt the user about db changes
+   * @param reason e.g. delete all tables
+   * @param checkResponse true if the response from the user should be checked, or just display the prompt
+   * @param dbType should be db or ldap
+   * @param url to check for
+   * @param user user for db
+   */
+  private static void promptUserAboutChanges(String reason, boolean checkResponse, String dbType, String url, String user) {
+    
     MultiKey cacheKey = new MultiKey(reason, url, user);
     
     //if already ok'ed this question in the jre instance, then we are all set
@@ -707,7 +779,7 @@ public class GrouperUtil {
 
     //maybe stop due to testing and at least one
     if (dbChangeWhitelist.size() > 0 && stopPromptingUser) {
-      String message = "DB prompting has been disabled (e.g. due to testing), so this user '"
+      String message = dbType + " prompting has been disabled (e.g. due to testing), so this user '"
           + user + "' and url '" + url + "' are allowed for: " + reason;
       if (!stopPromptingUserPrintlns.contains(message)) { 
         System.out.println(message);
@@ -719,7 +791,7 @@ public class GrouperUtil {
     //this might be set from junit ant task
     String allow = System.getProperty("grouper.allow.db.changes");
     if (equals("true", allow)) {
-      System.out.println("System property grouper.allow.db.changes is true which allows db changes to user '" 
+      System.out.println("System property grouper.allow.db.changes is true which allows " + dbType + " changes to user '" 
           + user + "' and url '" + url + "'");
       //all good, add to cache so we dont have to repeatedly tell user
       dbChangeWhitelist.add(cacheKey);
@@ -728,7 +800,7 @@ public class GrouperUtil {
 
     //check blacklist
     if (findGrouperPropertiesDbMatch(false, user, url)) {
-      System.out.println("This DB user '" + user + "' and url '" + url + "' are denied to be " +
+      System.out.println("This " + dbType + " user '" + user + "' and url '" + url + "' are denied to be " +
       		"changed in the grouper.properties");
       System.exit(1);
 
@@ -736,7 +808,7 @@ public class GrouperUtil {
     
     //check whitelist
     if (findGrouperPropertiesDbMatch(true, user, url)) {
-      System.out.println("This DB user '" + user + "' and url '" + url + "' are allowed to be " +
+      System.out.println("This " + dbType + " user '" + user + "' and url '" + url + "' are allowed to be " +
           "changed in the grouper.properties");
       if (!checkResponse) {
         System.out.println("Unfortunately this is checked from ant so you have to type 'y' anyways...");
@@ -761,9 +833,9 @@ public class GrouperUtil {
         
         //ask user if ok
         System.out.println("(note, might need to type in your response multiple times (Java stdin is flaky))");
-        System.out.println("(note, you can whitelist or blacklist db urls and users in the grouper.properties)");
+        System.out.println("(note, you can whitelist or blacklist " + dbType + " urls and users in the grouper.properties)");
         //note the following must be println and not just print so it will show up in ant
-        String prompt = "Are you sure you want to " + reason + " in db user '" + user + "', db url '" + url + "'? (y|n): ";
+        String prompt = "Are you sure you want to " + reason + " in " + dbType + " user '" + user + "', " + dbType + " url '" + url + "'? (y|n): ";
         System.out.println(prompt);
         System.out.flush(); // empties buffer, before you input text
         if (!checkResponse) {

@@ -55,7 +55,7 @@ import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.ldap.OrganizationalUnit;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
-import edu.internet2.middleware.ldappcTest.BaseTestCase;
+import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 import edu.internet2.middleware.ldappcTest.configuration.ConfigManagerTest;
 import edu.internet2.middleware.subject.Source;
@@ -65,7 +65,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 /**
  * Class for testing TODO FINISH
  */
-public class BushyGroupsProvisionTest extends BaseTestCase {
+public class BushyGroupsProvisionTest extends BaseLdappcTestCase {
     /**
      * Config file for provisioning bushy groups.
      */
@@ -205,7 +205,7 @@ public class BushyGroupsProvisionTest extends BaseTestCase {
      * The main method for running the test.
      */
     public static void main(String args[]) {
-        BaseTestCase.runTestRunner(BushyGroupsProvisionTest.class);
+        BaseLdappcTestCase.runTestRunner(BushyGroupsProvisionTest.class);
     }
 
     /**

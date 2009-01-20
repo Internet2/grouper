@@ -37,7 +37,7 @@ import edu.internet2.middleware.ldappc.logging.ErrorLog;
  * Class for doing a simple LDAP search
  * @author Gil Singer 
  */
-public class LdapNewEntryTest extends BaseTestCase
+public class LdapNewEntryTest extends BaseLdappcTestCase
 {
 
     /**
@@ -94,7 +94,7 @@ public class LdapNewEntryTest extends BaseTestCase
      */
     public static void main(String args[]) 
     {
-        BaseTestCase.runTestRunner(LdapNewEntryTest.class);
+        BaseLdappcTestCase.runTestRunner(LdapNewEntryTest.class);
     }
     
 
@@ -105,7 +105,7 @@ public class LdapNewEntryTest extends BaseTestCase
     {
         DisplayTest.showRunTitle("testLdapNewEntry", "Add new LDAP entry.");
 
-        displayBindings(ctx, AllJUnitTests.DN_TEST_BASE); 
+        displayBindings(ctx, AllLdappcJunitTests.DN_TEST_BASE); 
         Hashtable contextParameters = ConfigManager.getInstance().getLdapContextParameters();
         String administrator = (String)contextParameters.get(Context.SECURITY_PRINCIPAL);
         displayBindings(ctx, administrator); 
@@ -116,7 +116,7 @@ public class LdapNewEntryTest extends BaseTestCase
 
         try
         {
-            NamingEnumeration list = ctx.list(AllJUnitTests.DN_TEST_BASE);
+            NamingEnumeration list = ctx.list(AllLdappcJunitTests.DN_TEST_BASE);
 
             while (list.hasMore()) 
             {
@@ -162,8 +162,8 @@ public class LdapNewEntryTest extends BaseTestCase
         {
             //ctx.unbind("ou=testOrgUnit2,dc=my-domain,dc=com");
             //ctx.unbind("cn=testPerson,dc=my-domain,dc=com");
-            ctx.unbind("ou=testOrgUnit2," + AllJUnitTests.DN_TEST_BASE);
-            ctx.unbind("cn=testPerson," + AllJUnitTests.DN_TEST_BASE);
+            ctx.unbind("ou=testOrgUnit2," + AllLdappcJunitTests.DN_TEST_BASE);
+            ctx.unbind("cn=testPerson," + AllLdappcJunitTests.DN_TEST_BASE);
         }
         catch(NamingException ne)
         {
@@ -187,7 +187,7 @@ public class LdapNewEntryTest extends BaseTestCase
         
         try
         {
-            NamingEnumeration listBindings = ctx.listBindings("ou=testOrgUnit2," + AllJUnitTests.DN_TEST_BASE);
+            NamingEnumeration listBindings = ctx.listBindings("ou=testOrgUnit2," + AllLdappcJunitTests.DN_TEST_BASE);
 
             while (listBindings.hasMore()) 
             {
@@ -207,8 +207,8 @@ public class LdapNewEntryTest extends BaseTestCase
             NamingEnumeration list = ctx.list(administrator);
             // Do something with list.
             list.getClass();
-            ctx.unbind("ou=testOrgUnit2," + AllJUnitTests.DN_TEST_BASE);
-            ctx.unbind("cn=testPerson," + AllJUnitTests.DN_TEST_BASE);
+            ctx.unbind("ou=testOrgUnit2," + AllLdappcJunitTests.DN_TEST_BASE);
+            ctx.unbind("cn=testPerson," + AllLdappcJunitTests.DN_TEST_BASE);
         }
         catch(NamingException ne)
         {
@@ -227,7 +227,7 @@ public class LdapNewEntryTest extends BaseTestCase
         matchAttrs.put(new BasicAttribute("description", orgUnit));
         matchAttrs.put(new BasicAttribute("objectclass", "top"));
         matchAttrs.put(new BasicAttribute("objectclass", "organizationalUnit"));
-        String name="ou=" + orgUnit + "," + AllJUnitTests.DN_TEST_BASE;
+        String name="ou=" + orgUnit + "," + AllLdappcJunitTests.DN_TEST_BASE;
 
         try
         {
@@ -257,7 +257,7 @@ public class LdapNewEntryTest extends BaseTestCase
         matchAttrs.put(new BasicAttribute("objectclass", "organizationalPerson"));
         matchAttrs.put(new BasicAttribute("objectclass","inetorgperson"));
         //String name="cn=" + personName + ",dc=my-domain,dc=com";
-        String name="cn=" + personName + "," + AllJUnitTests.DN_TEST_BASE;
+        String name="cn=" + personName + "," + AllLdappcJunitTests.DN_TEST_BASE;
         try
         {
             ctx.bind(name, ctx, matchAttrs);

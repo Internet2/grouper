@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemDeleteException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
-import edu.internet2.middleware.ldappcTest.BaseTestCase;
+import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
@@ -44,7 +44,7 @@ import edu.internet2.middleware.ldappcTest.DisplayTest;
  *
  * @author Gil Singer 
  */
-public class GroupBuilderTest extends BaseTestCase
+public class GroupBuilderTest extends BaseLdappcTestCase
 {
     /**
      * the grouper session
@@ -180,7 +180,7 @@ public class GroupBuilderTest extends BaseTestCase
      */
     public static void main(String args[]) 
     {
-        BaseTestCase.runTestRunner(GroupBuilderTest.class);
+        BaseLdappcTestCase.runTestRunner(GroupBuilderTest.class);
     }
     
     /**

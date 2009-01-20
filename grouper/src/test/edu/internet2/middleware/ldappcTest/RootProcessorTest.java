@@ -31,7 +31,7 @@ import edu.internet2.middleware.ldappc.ConfigManager;
  * Class for testing the RootProcessor class
  * @author Gil Singer 
  */
-public class RootProcessorTest extends BaseTestCase
+public class RootProcessorTest extends BaseLdappcTestCase
 {
 
     /**
@@ -89,7 +89,7 @@ public class RootProcessorTest extends BaseTestCase
      */
     public static void main(String args[]) 
     {
-        BaseTestCase.runTestRunner(RootProcessorTest.class);
+        BaseLdappcTestCase.runTestRunner(RootProcessorTest.class);
     }
 
     /**

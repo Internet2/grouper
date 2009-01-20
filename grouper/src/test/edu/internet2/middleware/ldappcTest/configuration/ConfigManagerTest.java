@@ -29,14 +29,14 @@ import javax.naming.directory.SearchControls;
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
-import edu.internet2.middleware.ldappcTest.BaseTestCase;
+import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
  * This set of tests validates the
  * {@link edu.internet2.middleware.ldappc.ConfigManager}.
  */
-public class ConfigManagerTest extends BaseTestCase
+public class ConfigManagerTest extends BaseLdappcTestCase
 {
     /**
      * Relative configuration resource path
@@ -113,7 +113,7 @@ public class ConfigManagerTest extends BaseTestCase
      */
     public static void main(String args[])
     {
-        BaseTestCase.runTestRunner(ConfigManagerTest.class);
+        BaseLdappcTestCase.runTestRunner(ConfigManagerTest.class);
     }
 
     /**

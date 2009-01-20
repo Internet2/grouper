@@ -30,7 +30,7 @@ import junit.framework.TestCase;
  * A convenience class for starting a set of test cases.   It can also be used as 
  * a template for other test classes.
  */
-public class SkeletonTest extends TestCase 
+public class SkeletonTest extends BaseLdappcTestCase 
 {
     /**
      * Class constructor

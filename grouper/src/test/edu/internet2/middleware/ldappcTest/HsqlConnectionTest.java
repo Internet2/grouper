@@ -30,7 +30,7 @@ import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
  * This does not use any of the non-test classes.
  * @author Gil Singer 
  */
-public class HsqlConnectionTest extends BaseTestCase
+public class HsqlConnectionTest extends BaseLdappcTestCase
 {
     /**
      * database connection
@@ -66,7 +66,7 @@ public class HsqlConnectionTest extends BaseTestCase
      */
     public static void main(String args[]) 
     {
-        BaseTestCase.runTestRunner(HsqlConnectionTest.class);
+        BaseLdappcTestCase.runTestRunner(HsqlConnectionTest.class);
     }
     
     /**
@@ -164,7 +164,7 @@ public class HsqlConnectionTest extends BaseTestCase
             //
 
             String subjectOrIndividual = null;
-            subjectOrIndividual = AllJUnitTests.SUBJECT_QUERY;
+            subjectOrIndividual = AllLdappcJunitTests.SUBJECT_QUERY;
             //
             // Removing this logic to simplify the distribution.
             // This means that the built-in test cases will no longer run with the

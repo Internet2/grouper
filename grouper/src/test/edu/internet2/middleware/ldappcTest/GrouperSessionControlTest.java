@@ -27,7 +27,7 @@ import edu.internet2.middleware.ldappc.GrouperSessionControl;
  * Class for testing the GrouperSessionControl class
  * @author Gil Singer 
  */
-public class GrouperSessionControlTest extends BaseTestCase
+public class GrouperSessionControlTest extends BaseLdappcTestCase
 {
     /**
      * Instance for starting and stopping a GrouperSession
@@ -63,7 +63,7 @@ public class GrouperSessionControlTest extends BaseTestCase
      */
     public static void main(String args[]) 
     {
-        BaseTestCase.runTestRunner(GrouperSessionControlTest.class);
+        BaseLdappcTestCase.runTestRunner(GrouperSessionControlTest.class);
     }
     
 

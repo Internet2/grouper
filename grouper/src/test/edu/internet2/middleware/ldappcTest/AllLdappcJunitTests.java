@@ -37,7 +37,7 @@ import edu.internet2.middleware.ldappcTest.wrappers.LdapWrapperTestSetup;
  * 
  * @author Gil Singer
  */
-public class AllJUnitTests extends TestCase {
+public class AllLdappcJunitTests extends TestCase {
     //
     // Set values for test case dependencies.
     // Currently two sets of test cases are allowed, biofix1 and windows1.
@@ -132,7 +132,7 @@ public class AllJUnitTests extends TestCase {
     /**
      * Constructor
      */
-    public AllJUnitTests(String name) {
+    public AllLdappcJunitTests(String name) {
         super(name);
     }
 

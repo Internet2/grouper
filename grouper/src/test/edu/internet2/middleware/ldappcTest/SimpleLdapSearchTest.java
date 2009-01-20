@@ -35,7 +35,7 @@ import edu.internet2.middleware.ldappc.ConfigManager;
  * Class for doing a simple LDAP search
  * @author Gil Singer 
  */
-public class SimpleLdapSearchTest extends BaseTestCase
+public class SimpleLdapSearchTest extends BaseLdappcTestCase
 {
 
     /**
@@ -101,7 +101,7 @@ public class SimpleLdapSearchTest extends BaseTestCase
      */
     public static void main(String args[]) 
     {
-        BaseTestCase.runTestRunner(SimpleLdapSearchTest.class);
+        BaseLdappcTestCase.runTestRunner(SimpleLdapSearchTest.class);
     }
 
     /**
@@ -139,7 +139,7 @@ public class SimpleLdapSearchTest extends BaseTestCase
             {
                 fail("In SimpleLdapsearchTest, ctx is null.");
             }
-            NamingEnumeration answer = ctx.search(AllJUnitTests.DN_TEST_BASE, matchAttrs);
+            NamingEnumeration answer = ctx.search(AllLdappcJunitTests.DN_TEST_BASE, matchAttrs);
             //e.g.: NamingEnumeration answer = ctx.search("dc=my-domain,dc=com", matchAttrs);
             if (answer != null)
             {

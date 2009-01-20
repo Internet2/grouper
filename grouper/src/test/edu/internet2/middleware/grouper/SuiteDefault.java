@@ -37,12 +37,12 @@ import edu.internet2.middleware.grouper.misc.AllMiscTests;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
-import edu.internet2.middleware.ldappcTest.AllJUnitTests;
+import edu.internet2.middleware.ldappcTest.AllLdappcJunitTests;
 
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.53.4.1 2009-01-15 21:36:22 tzeller Exp $
+ * @version $Id: SuiteDefault.java,v 1.53.4.2 2009-01-20 17:55:40 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -135,9 +135,11 @@ public class SuiteDefault extends TestCase {
 
     TestSuite suite = new TestSuite();
     
-    //do this first so all tests are done on new ddl
-    suite.addTest(AllDdlTests.suite());
-
+    if (GrouperConfig.getPropertyBoolean("junit.test.ddl", true)) {
+      //do this first so all tests are done on new ddl
+      suite.addTest(AllDdlTests.suite());
+    }
+    
     suite.addTestSuite( GrouperVersionTest.class );
     suite.addTestSuite( Test_api_ChildGroupFilter.class );
     suite.addTestSuite( Test_api_ChildStemFilter.class );
@@ -189,9 +191,15 @@ public class SuiteDefault extends TestCase {
     suite.addTest(AllUtilTests.suite());
     suite.addTest(AllRijndaelTests.suite());
     suite.addTest(AllMiscTests.suite());
-    suite.addTest(AllLoaderTests.suite());
-    suite.addTest(AllJUnitTests.suite());
+    
+    if (GrouperConfig.getPropertyBoolean("junit.test.loader", true)) {
+      suite.addTest(AllLoaderTests.suite());
+    }
 
+    if (GrouperConfig.getPropertyBoolean("junit.test.ldappc", false)) {
+      suite.addTest(AllLdappcJunitTests.suite());
+    }
+    
     return suite;
   }
   

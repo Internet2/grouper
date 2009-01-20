@@ -24,7 +24,7 @@ import javax.naming.ldap.LdapContext;
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
-import edu.internet2.middleware.ldappcTest.BaseTestCase;
+import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
@@ -36,7 +36,7 @@ import edu.internet2.middleware.ldappcTest.DisplayTest;
  *
  * @author Gil Singer 
  */
-public class GrouperSubjectProvisionerTest extends BaseTestCase
+public class GrouperSubjectProvisionerTest extends BaseLdappcTestCase
 {
     /**
      * the Grouper subject provisioner
@@ -92,7 +92,7 @@ public class GrouperSubjectProvisionerTest extends BaseTestCase
      */
     public static void main(String args[]) 
     {
-        BaseTestCase.runTestRunner(GrouperSubjectProvisionerTest.class);
+        BaseLdappcTestCase.runTestRunner(GrouperSubjectProvisionerTest.class);
     }
     
     /**

@@ -33,7 +33,7 @@ import edu.internet2.middleware.ldappc.ConfigManager;
  * Class for doing a simple LDAP search
  * @author Gil Singer 
  */
-public class LdapSchemaTest extends BaseTestCase
+public class LdapSchemaTest extends BaseLdappcTestCase
 {
 
     /**

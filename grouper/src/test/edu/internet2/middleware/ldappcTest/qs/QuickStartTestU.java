@@ -47,7 +47,7 @@ import edu.internet2.middleware.ldappc.GrouperSessionControl;
 import edu.internet2.middleware.ldappc.Ldappc;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
-import edu.internet2.middleware.ldappcTest.BaseTestCase;
+import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -55,7 +55,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 /**
  * Class for testing TODO FINISH
  */
-public class QuickStartTestU extends BaseTestCase
+public class QuickStartTestU extends BaseLdappcTestCase
 {
     /**
      * Grouper group root DN
@@ -189,7 +189,7 @@ public class QuickStartTestU extends BaseTestCase
      */
     public static void main(String args[])
     {
-        BaseTestCase.runTestRunner(QuickStartTestU.class);
+        BaseLdappcTestCase.runTestRunner(QuickStartTestU.class);
     }
 
     /**

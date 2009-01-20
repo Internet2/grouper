@@ -34,7 +34,7 @@ import edu.internet2.middleware.ldappc.logging.ErrorLog;
  * @author Gil Singer
  */
 
-public class InputOptionsTest extends BaseTestCase
+public class InputOptionsTest extends BaseLdappcTestCase
 {
     /*
      * An instance of the main class, just to check that it can be created.
@@ -99,7 +99,7 @@ public class InputOptionsTest extends BaseTestCase
      */
     public static void main(String args[]) 
     {
-        BaseTestCase.runTestRunner(InputOptionsTest.class);
+        BaseLdappcTestCase.runTestRunner(InputOptionsTest.class);
     }
     
     /**

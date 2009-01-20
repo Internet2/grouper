@@ -28,14 +28,14 @@ import javax.naming.directory.ModificationItem;
 
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.synchronize.DnAttributeModifier;
-import edu.internet2.middleware.ldappcTest.BaseTestCase;
+import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
  * This set of tests validates the
  * {@link edu.internet2.middleware.ldappc.synchronize.DnAttributeModifier}.
  */
-public class DnAttributeModifierTest extends BaseTestCase
+public class DnAttributeModifierTest extends BaseLdappcTestCase
 {
     /**
      * Name parser to use for testing
@@ -83,7 +83,7 @@ public class DnAttributeModifierTest extends BaseTestCase
      */
     public static void main(String args[])
     {
-        BaseTestCase.runTestRunner(AttributeModifierTest.class);
+        BaseLdappcTestCase.runTestRunner(AttributeModifierTest.class);
     }
 
     /**

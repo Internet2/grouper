@@ -42,7 +42,7 @@ import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
-import edu.internet2.middleware.ldappcTest.AllJUnitTests;
+import edu.internet2.middleware.ldappcTest.AllLdappcJunitTests;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
@@ -223,7 +223,7 @@ public class DatabaseDisplayer
         // Display Contexts
         //
 
-        String DN_TEST_BASE = ResourceBundleUtil.getString(AllJUnitTests.TEST_CONTEXT_BASE);
+        String DN_TEST_BASE = ResourceBundleUtil.getString(AllLdappcJunitTests.TEST_CONTEXT_BASE);
         displayContexts(DN_TEST_BASE);
 
         //
@@ -485,7 +485,7 @@ public class DatabaseDisplayer
         // Get the bindings for base.
         //
         // e.g.: displayBindings("dc=my-domain,dc=com");
-        displayBindings(ResourceBundleUtil.getString(AllJUnitTests.TEST_CONTEXT_BASE));
+        displayBindings(ResourceBundleUtil.getString(AllLdappcJunitTests.TEST_CONTEXT_BASE));
 
         //
         // Get bindings for root OU

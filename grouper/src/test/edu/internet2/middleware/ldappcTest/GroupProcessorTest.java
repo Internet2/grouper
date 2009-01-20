@@ -54,7 +54,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
  * @author Gil Singer 
  */
-public class GroupProcessorTest extends BaseTestCase
+public class GroupProcessorTest extends BaseLdappcTestCase
 {
     /**
      * the grouper session
@@ -126,7 +126,7 @@ public class GroupProcessorTest extends BaseTestCase
      */
     public static void main(String args[]) 
     {
-        BaseTestCase.runTestRunner(GroupProcessorTest.class);
+        BaseLdappcTestCase.runTestRunner(GroupProcessorTest.class);
     }
 
     /**

@@ -50,7 +50,7 @@ import edu.internet2.middleware.ldappc.logging.ErrorLog;
 
  * @author Gil Singer 
  */
-public class GrouperProvisionerLastModifyTest extends BaseTestCase
+public class GrouperProvisionerLastModifyTest extends BaseLdappcTestCase
 {
     /**
      * the grouper session
@@ -100,7 +100,7 @@ public class GrouperProvisionerLastModifyTest extends BaseTestCase
      */
     public static void main(String args[]) 
     {
-        BaseTestCase.runTestRunner(GrouperProvisionerLastModifyTest.class);
+        BaseLdappcTestCase.runTestRunner(GrouperProvisionerLastModifyTest.class);
     }
 
     /**

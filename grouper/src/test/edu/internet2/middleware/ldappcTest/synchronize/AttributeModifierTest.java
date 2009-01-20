@@ -26,14 +26,14 @@ import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.ModificationItem;
 
 import edu.internet2.middleware.ldappc.synchronize.AttributeModifier;
-import edu.internet2.middleware.ldappcTest.BaseTestCase;
+import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
  * This set of tests validates the
  * {@link edu.internet2.middleware.ldappc.synchronize.AttributeModifier}.
  */
-public class AttributeModifierTest extends BaseTestCase
+public class AttributeModifierTest extends BaseLdappcTestCase
 {
     /**
      * Class constructor
@@ -66,7 +66,7 @@ public class AttributeModifierTest extends BaseTestCase
      */
     public static void main(String args[])
     {
-        BaseTestCase.runTestRunner(AttributeModifierTest.class);
+        BaseLdappcTestCase.runTestRunner(AttributeModifierTest.class);
     }
 
     /**

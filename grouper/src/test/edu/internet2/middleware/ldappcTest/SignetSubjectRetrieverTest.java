@@ -27,7 +27,7 @@ import edu.internet2.middleware.ldappc.SignetSubjectRetriever;
  * 
  * @author Gil Singer
  */
-public class SignetSubjectRetrieverTest extends BaseTestCase {
+public class SignetSubjectRetrieverTest extends BaseLdappcTestCase {
 
     /**
      * Constructor
@@ -53,7 +53,7 @@ public class SignetSubjectRetrieverTest extends BaseTestCase {
      * The main method for running the test.
      */
     public static void main(String args[]) {
-        BaseTestCase.runTestRunner(SignetSubjectRetrieverTest.class);
+        BaseLdappcTestCase.runTestRunner(SignetSubjectRetrieverTest.class);
     }
 
     /**

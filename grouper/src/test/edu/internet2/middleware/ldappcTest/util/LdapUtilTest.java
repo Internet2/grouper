@@ -19,13 +19,13 @@
 package edu.internet2.middleware.ldappcTest.util;
 
 import edu.internet2.middleware.ldappc.util.LdapUtil;
-import edu.internet2.middleware.ldappcTest.BaseTestCase;
+import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
 import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
  * Class for testing the LdapUtil class.
  */
-public class LdapUtilTest extends BaseTestCase
+public class LdapUtilTest extends BaseLdappcTestCase
 {
     /**
      * Constructor
@@ -55,7 +55,7 @@ public class LdapUtilTest extends BaseTestCase
      */
     public static void main(String args[]) 
     {
-        BaseTestCase.runTestRunner(LdapUtilTest.class);
+        BaseLdappcTestCase.runTestRunner(LdapUtilTest.class);
     }
     
     /**

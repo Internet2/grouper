@@ -46,7 +46,7 @@ import edu.internet2.middleware.ldappc.logging.ErrorLog;
 
  * @author Gil Singer 
  */
-public class GrouperProvisionerTest extends BaseTestCase
+public class GrouperProvisionerTest extends BaseLdappcTestCase
 {
     /**
      * the grouper session
@@ -96,7 +96,7 @@ public class GrouperProvisionerTest extends BaseTestCase
      */
     public static void main(String args[]) 
     {
-         BaseTestCase.runTestRunner(GrouperProvisionerTest.class);
+         BaseLdappcTestCase.runTestRunner(GrouperProvisionerTest.class);
     }
 
     /**

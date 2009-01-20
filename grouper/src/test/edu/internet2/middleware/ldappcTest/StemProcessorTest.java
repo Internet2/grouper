@@ -47,7 +47,7 @@ import edu.internet2.middleware.ldappc.StemProcessor;
  *
  * @author Gil Singer 
  */
-public class StemProcessorTest extends BaseTestCase
+public class StemProcessorTest extends BaseLdappcTestCase
 {
     /**
      * the grouper session
@@ -150,7 +150,7 @@ public class StemProcessorTest extends BaseTestCase
      */
     public static void main(String args[]) 
     {
-        BaseTestCase.runTestRunner(StemProcessorTest.class);
+        BaseLdappcTestCase.runTestRunner(StemProcessorTest.class);
     }
 
     /**

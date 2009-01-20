@@ -25,7 +25,7 @@ import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
  * This does not use any of the non-test classes.
  * @author Gil Singer 
  */
-public class ResourceBundleUtilTest extends BaseTestCase
+public class ResourceBundleUtilTest extends BaseLdappcTestCase
 {
 
     /**
@@ -56,7 +56,7 @@ public class ResourceBundleUtilTest extends BaseTestCase
      */
     public static void main(String args[]) 
     {
-        BaseTestCase.runTestRunner(ResourceBundleUtilTest.class);
+        BaseLdappcTestCase.runTestRunner(ResourceBundleUtilTest.class);
     }
 
     /**
