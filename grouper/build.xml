@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.218.4.2 2009-01-20 14:30:37 tzeller Exp $ -->
+<!-- $Id: build.xml,v 1.218.4.3 2009-01-21 21:22:47 tzeller Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -381,6 +381,9 @@
         <include name="**"/>
       </fileset>
     </copy>
+
+  	<copy toDir="${dist.binary.zip}/misc/ldap" file="${basedir}/misc/ldap/ldappc.schema" />
+  	<copy toDir="${dist.binary.zip}/misc/ldap" file="${basedir}/misc/ldap/kitneduperson.schema" />
     
      <if>
       <not>
@@ -666,9 +669,9 @@
       <available file="${conf.dir}/server.properties" type="file"/>
     </condition>
     
-    <!-- if morphString.properties is there, copy it to itself, if not, get the example -->
+    <!-- if server.properties is there, copy it to itself, if not, get the example -->
     <copy tofile="${conf.dir}/server.properties" file="${serverConfigfile}" verbose="true" />
-    
+
   </target>
   <!-- target: init.conf -->
 
