@@ -22,6 +22,7 @@ package edu.internet2.middleware.ldappcTest.wrappers;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,6 +35,7 @@ import junit.framework.Test;
 
 import org.apache.directory.server.core.configuration.MutablePartitionConfiguration;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
 import edu.internet2.middleware.ldappcTest.AbstractServerTestSetup;
 
@@ -70,7 +72,7 @@ public class LdapWrapperTestSetup extends AbstractServerTestSetup {
         String baseOrganization = ResourceBundleUtil.getString("testLdapBaseOrganization");
         String baseDomainComponent = ResourceBundleUtil.getString("testLdapBaseDomainComponent");
         String workingDirectory = ResourceBundleUtil.getString("testLdapWorkingDirectory");
-        String importFile = ResourceBundleUtil.getString("testLdapImportFile");
+        String importFile = GrouperUtil.computeUrl(ResourceBundleUtil.getString("testLdapImportFile"), false).getPath();
 
         // Add the "edu" object classes and attributes.
         Set schemas = configuration.getBootstrapSchemas();
