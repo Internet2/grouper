@@ -49,7 +49,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/jamon.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/ant.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-io.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-core-1.0.2.jar" sourcepath="/Applications/apacheds-1.0.2"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-core-1.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-core-shared-1.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-kerberos-shared-1.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-ldappc-schema-1.0.3.jar"/>
@@ -58,7 +58,7 @@
 	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-protocol-ldap-1.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-protocol-ntp-1.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-protocol-shared-1.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-server-jndi-1.0.2.jar" sourcepath="/Applications/apacheds-1.0.2"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-server-jndi-1.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-server-unit-1.0.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/jdbm-1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/mina-core-1.0.2.jar"/>
