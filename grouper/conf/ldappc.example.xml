@@ -486,13 +486,13 @@
             <parameter-list><!-- 0 or 1 allowed -->
 
                 <!-- 1 or more <parameter> elements are required within <parameter-list> -->
-                <parameter name="initial_context_factory" value="" />
+                <parameter name="initial_context_factory" value="com.sun.jndi.ldap.LdapCtxFactory" />
 
-                <parameter name="provider_url" value="" />
+                <parameter name="provider_url" value="ldap://localhost:10389" />
 
-                <parameter name="security_authentication" value="" />
+                <parameter name="security_authentication" value="simple" />
 
-                <parameter name="security_principal" value="" />
+                <parameter name="security_principal" value="uid=admin,ou=system" />
 
                 <parameter name="security_credentials" value="GetFromPropertiesFile" />
 
