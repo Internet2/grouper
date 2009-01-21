@@ -110,7 +110,7 @@ public class BushyGroupsProvisionTest extends BaseLdappcTestCase {
      * Constructor
      */
     public BushyGroupsProvisionTest(String name) {
-        super(name);
+        super(name, BUSHY_GROUPS_CONFIG);
     }
 
     /**

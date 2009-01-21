@@ -705,57 +705,43 @@ public class GrouperUtil {
     promptUserAboutChanges(reason, checkResponse, "db", url, user);
   }
   
-  /** ldap user, cached */
-  private static String ldapUser = null;
-
-  /** ldap url, cached */
-  private static String ldapUrl = null;
-
   /**
-   * retrieve ldap configs once
-   */
-  private static void retrieveLdapConfigsOnce() {
-
-    if (ldapUrl == null || ldapUser == null) {
-      SAXReader reader = new SAXReader();
-      URL url = GrouperUtil.computeUrl("ldappc.xml", false);
-      Document document = null;
-
-      try {
-        document = reader.read(url);
-      } catch (DocumentException de) {
-        throw new RuntimeException(de);
-      }
-
-      Element rootElement = document.getRootElement();
-      Element ldapElement = rootElement.element("ldap");
-      Element contextElement = ldapElement.element("context");
-      Element parameterList = contextElement.element("parameter-list");
-      List<Element> parameterElements = nonNull(parameterList.elements("parameter"));
-      for (Element parameterElement : parameterElements) {
-        if (StringUtils.equals(parameterElement.attributeValue("name"), "provider_url")) {
-          ldapUrl = parameterElement.attributeValue("value");
-        }
-        if (StringUtils.equals(parameterElement.attributeValue("name"), "security_principal")) {
-          ldapUser = parameterElement.attributeValue("value");
-        }
-      }
-    }
-    
-    if (StringUtils.isBlank(ldapUrl) || StringUtils.isBlank(ldapUser)) {
-      throw new RuntimeException("Cant find ldap url or user in ldappc.xml: '" + ldapUrl + "', '" + ldapUser + "'");
-    }
-    
-  }
-  
-  /**
-   * prompt the user about db changes
-   * @param reason e.g. delete all tables
+   * prompt the user about ldap changes
+   * @param reason e.g. testing ldap
    * @param checkResponse true if the response from the user should be checked, or just display the prompt
    */
-  public static void promptUserAboutLdapChanges(String reason, boolean checkResponse) {
+  public static void promptUserAboutLdapChanges(String reason, boolean checkResponse, String ldappcConfigFile) {
+
+    String ldapUrl = null;
+    String ldapUser = null;
     
-    retrieveLdapConfigsOnce();
+    SAXReader reader = new SAXReader();
+    URL url = GrouperUtil.computeUrl(ldappcConfigFile, false);
+    Document document = null;
+
+    try {
+      document = reader.read(url);
+    } catch (DocumentException de) {
+      throw new RuntimeException(de);
+    }
+
+    Element rootElement = document.getRootElement();
+    Element ldapElement = rootElement.element("ldap");
+    Element contextElement = ldapElement.element("context");
+    Element parameterList = contextElement.element("parameter-list");
+    List<Element> parameterElements = nonNull(parameterList.elements("parameter"));
+    for (Element parameterElement : parameterElements) {
+      if (StringUtils.equals(parameterElement.attributeValue("name"), "provider_url")) {
+        ldapUrl = parameterElement.attributeValue("value");
+      }
+      if (StringUtils.equals(parameterElement.attributeValue("name"), "security_principal")) {
+        ldapUser = parameterElement.attributeValue("value");
+      }
+    }
+  
+    if (StringUtils.isBlank(ldapUrl) || StringUtils.isBlank(ldapUser)) {
+      throw new RuntimeException("Cant find ldap url or user in '" + ldappcConfigFile +"' : '" + ldapUrl + "', '" + ldapUser + "'");
+    }
     
     promptUserAboutChanges(reason, checkResponse, "ldap", ldapUrl, ldapUser);
   }

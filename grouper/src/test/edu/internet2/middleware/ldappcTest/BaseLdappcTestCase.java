@@ -34,13 +34,22 @@ public class BaseLdappcTestCase extends GrouperTest {
    * @param name
    */
     public BaseLdappcTestCase(String name) {
-        super(name);
-        
-        //make sure we have confirmed that it is ok
-        GrouperUtil.promptUserAboutLdapChanges("test ldap", true);
-        
+        super(name);       
     }
 
+    /**
+     * Prompt the user before making ldap changes.
+     * 
+     * @param name
+     * @param ldappcConfigFile
+     *  path to ldappc config file
+     */
+    public BaseLdappcTestCase(String name, String ldappcConfigFile) {
+      super(name);
+      
+      GrouperUtil.promptUserAboutLdapChanges("test ldap", true, ldappcConfigFile);      
+  }
+    
     /**
      * Run the class's tests with an LDAP and a database wrapper around them.
      * 
