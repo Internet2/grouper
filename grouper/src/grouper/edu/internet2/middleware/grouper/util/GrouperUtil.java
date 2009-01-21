@@ -770,23 +770,23 @@ public class GrouperUtil {
    */
   private static void promptUserAboutChanges(String reason, boolean checkResponse, String dbType, String url, String user) {
     
-    MultiKey cacheKey = new MultiKey(reason, url, user);
+    MultiKey cacheKey = stopPromptingUser ? new MultiKey(url, user) : new MultiKey(reason, url, user);
     
     //if already ok'ed this question in the jre instance, then we are all set
     if (dbChangeWhitelist.contains(cacheKey)) {
+      //maybe stop due to testing and at least one
+      if (stopPromptingUser) {
+        String message = dbType + " prompting has been disabled (e.g. due to testing), so this user '"
+            + user + "' and url '" + url + "' are allowed for: " + reason;
+        if (!stopPromptingUserPrintlns.contains(message)) { 
+          System.out.println(message);
+        }
+        stopPromptingUserPrintlns.add(message);
+        return;
+      }
       return;
     }
 
-    //maybe stop due to testing and at least one
-    if (dbChangeWhitelist.size() > 0 && stopPromptingUser) {
-      String message = dbType + " prompting has been disabled (e.g. due to testing), so this user '"
-          + user + "' and url '" + url + "' are allowed for: " + reason;
-      if (!stopPromptingUserPrintlns.contains(message)) { 
-        System.out.println(message);
-      }
-      stopPromptingUserPrintlns.add(message);
-      return;
-    }
     
     //this might be set from junit ant task
     String allow = System.getProperty("grouper.allow.db.changes");
