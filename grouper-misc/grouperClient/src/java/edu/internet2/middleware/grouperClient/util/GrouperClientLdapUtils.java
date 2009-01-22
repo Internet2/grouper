@@ -16,6 +16,7 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.SearchResult;
+import javax.net.SocketFactory;
 
 import edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
@@ -35,6 +36,7 @@ public class GrouperClientLdapUtils {
    * retrieve dircontext
    * @return the context
    */
+  @SuppressWarnings("unchecked")
   public static DirContext retrieveContext() {
     String ldapUrl = null;
     String ldapUser = null;
@@ -42,9 +44,21 @@ public class GrouperClientLdapUtils {
     try {
       // Set up the environment for creating the initial context
       Hashtable<String, String> env = new Hashtable<String, String>();
-      env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
       
       ldapUrl = GrouperClientUtils.propertiesValue("grouperClient.ldap.url", true);
+
+      //see if invalid SSL
+      String ldapsSocketFactoryName = GrouperClientUtils.propertiesValue("grouperClient.ldaps.customSocketFactory", false);
+      
+      if (!GrouperClientUtils.isBlank(ldapsSocketFactoryName)) {
+        if (ldapUrl.startsWith("ldaps")) {
+          Class<? extends SocketFactory> ldapsSocketFactoryClass = GrouperClientUtils.forName(ldapsSocketFactoryName);
+          env.put("java.naming.ldap.factory.socket", ldapsSocketFactoryClass.getName());
+        }
+      }
+      
+      env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+      
       
       env.put(Context.PROVIDER_URL, ldapUrl);
 

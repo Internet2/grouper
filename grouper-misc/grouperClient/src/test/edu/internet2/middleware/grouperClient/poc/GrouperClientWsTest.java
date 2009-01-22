@@ -1,8 +1,8 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.17 2008-12-08 05:36:31 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.1.2.1 2009-01-22 14:47:22 mchyzer Exp $
  */
-package edu.internet2.middleware.grouperClient;
+package edu.internet2.middleware.grouperClient.poc;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
+import edu.internet2.middleware.grouperClient.GrouperClient;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GcWebServiceError;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;

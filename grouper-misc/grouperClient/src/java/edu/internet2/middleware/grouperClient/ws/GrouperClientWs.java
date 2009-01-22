@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWs.java,v 1.8 2008-12-08 05:36:31 mchyzer Exp $
+ * $Id: GrouperClientWs.java,v 1.8.2.1 2009-01-22 14:47:22 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws;
 
@@ -32,6 +32,8 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.m
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.StringRequestEntity;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.params.DefaultHttpParams;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.params.HttpMethodParams;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.protocol.Protocol;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
@@ -243,7 +245,21 @@ public class GrouperClientWs {
      * http client
      * @return the http client
      */
+    @SuppressWarnings({ "deprecation", "unchecked" })
     private static HttpClient httpClient() {
+      
+      //see if invalid SSL
+      String httpsSocketFactoryName = GrouperClientUtils.propertiesValue("grouperClient.https.customSocketFactory", false);
+      
+      //is there overhead here?  should only do this once?
+      //perhaps give a custom factory
+      if (!GrouperClientUtils.isBlank(httpsSocketFactoryName)) {
+        Class<? extends SecureProtocolSocketFactory> httpsSocketFactoryClass = GrouperClientUtils.forName(httpsSocketFactoryName);
+        SecureProtocolSocketFactory httpsSocketFactoryInstance = GrouperClientUtils.newInstance(httpsSocketFactoryClass);
+        Protocol easyhttps = new Protocol("https", httpsSocketFactoryInstance, 443);
+        Protocol.registerProtocol("https", easyhttps);
+      }
+      
       HttpClient httpClient = new HttpClient();
 
       DefaultHttpParams.getDefaultParams().setParameter(
