@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.22 2008-12-08 02:55:48 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.22.2.1 2009-01-23 06:32:54 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -215,7 +216,7 @@ public class GrouperServiceLogic {
 
               int resultIndex = 0;
 
-              Set<Subject> newSubjects = new HashSet<Subject>();
+              Set<MultiKey> newSubjects = new HashSet<MultiKey>();
               wsAddMemberResults.setResults(new WsAddMemberResult[subjectLength]);
 
               //get existing members if replacing
@@ -248,7 +249,7 @@ public class GrouperServiceLogic {
 
                   // keep track
                   if (replaceAllExisting) {
-                    newSubjects.add(subject);
+                    newSubjects.add(new MultiKey(subject.getId(), subject.getSource().getId()));
                   }
 
                   try {
@@ -279,7 +280,7 @@ public class GrouperServiceLogic {
                   try {
                     subject = member.getSubject();
 
-                    if (!newSubjects.contains(subject)) {
+                    if (!newSubjects.contains(new MultiKey(subject.getId(), subject.getSource().getId()))) {
                       if (fieldName == null) {
                         group.deleteMember(subject);
                       } else {

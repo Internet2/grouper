@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.1.2.1 2009-01-22 14:47:22 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.1.2.2 2009-01-23 06:32:48 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.poc;
 
@@ -40,7 +40,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testSendFile"));
+    TestRunner.run(new GrouperClientWsTest("testAddMember"));
   }
   
   /**
@@ -487,7 +487,40 @@ public class GrouperClientWsTest extends GrouperTest {
           assertTrue(
               GrouperClientWs.mostRecentRequest.contains("replaceAllExisting"));
           
+          //#######################################################
+          //get members, make sure all there
           
+          baos = new ByteArrayOutputStream();
+          System.setOut(new PrintStream(baos));
+
+          GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=hasMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1", " "));
+          System.out.flush();
+          output = new String(baos.toByteArray());
+          
+          System.setOut(systemOut);
+          
+          outputLines = GrouperClientUtils.splitTrim(output, "\n");
+          
+          pattern = Pattern.compile(
+              "^Index (\\d+): success: T: code: ([A-Z_]+): (.+): (false|true)$");
+          matcher = pattern.matcher(outputLines[0]);
+          
+          assertTrue(outputLines[0], matcher.matches());
+          
+          assertEquals("0", matcher.group(1));
+          assertEquals("IS_MEMBER", matcher.group(2));
+          assertEquals("test.subject.0", matcher.group(3));
+          assertEquals("true", matcher.group(4));
+
+          matcher = pattern.matcher(outputLines[1]);
+          
+          assertTrue(outputLines[1], matcher.matches());
+          
+          assertEquals("1", matcher.group(1));
+          assertEquals("IS_MEMBER", matcher.group(2));
+          assertEquals("test.subject.1", matcher.group(3));
+          assertEquals("true", matcher.group(4));
           
         } finally {
           if (subjectIdsFile.exists()) {
