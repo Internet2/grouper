@@ -98,7 +98,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.9.2.1 2009-01-23 17:09:13 isgwb Exp $
+ * @version $Id: XmlImporter.java,v 1.9.2.2 2009-01-24 15:41:18 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -925,17 +925,28 @@ public class XmlImporter {
   {
     if ( this._isSubjectElementImmediate(el) ) {
       Subject subj = null;
+      String attributeId = el.getAttribute("id");
+      String attributeIdentifier = el.getAttribute("identifier");
+      String attributeType = el.getAttribute("type");
       try {
-	      subj=this._findSubject( 
-        el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
-      );
+        subj=this._findSubject(attributeId, attributeIdentifier, attributeType);
       }catch(Exception e) {
+        String errorMessage = "Could not grant " + p.getName() + " to " + g.getName() + " for subject id=" + attributeId;
     	  if(_isFailOnUnresolvableSubjectEnabled()) {
-    		  throw e;
-    	  }else {
-    		  LOG.error("Could not grant " + p.getName() + " to " + g.getName() + " for subject id=" + el.getAttribute("id"),e);
-    		  return;
+    	    
+    	    if (e instanceof SubjectNotFoundException) {
+    	      throw (SubjectNotFoundException)e;
+    	    }
+          if (e instanceof SubjectNotUniqueException) {
+            throw (SubjectNotUniqueException)e;
+          }
+          if (e instanceof RuntimeException) {
+            throw (RuntimeException)e;
+          }
+    		  throw new RuntimeException(errorMessage, e);
     	  }
+        LOG.error(errorMessage,e);
+  		  return;
       }
       if ( !XmlUtils.internal_hasImmediatePrivilege( subj, g, p.getName() ) ) {
         g.grantPriv(subj, p);
@@ -1285,12 +1296,22 @@ public class XmlImporter {
         el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
       );
       }catch(Exception e) {
-    	  if(_isFailOnUnresolvableSubjectEnabled()) {
-    		  throw e;
-    	  }else {
-    		  LOG.error("Could not add member to field " + f.getName() + " of " + g.getName() + " for subject id=" + el.getAttribute("id"),e);
-    		  return;
-    	  }
+        String errorMessage = "Could not add member to field " + f.getName() + " of " + g.getName() + " for subject id=" + el.getAttribute("id");
+        if(_isFailOnUnresolvableSubjectEnabled()) {
+          
+          if (e instanceof SubjectNotFoundException) {
+            throw (SubjectNotFoundException)e;
+          }
+          if (e instanceof SubjectNotUniqueException) {
+            throw (SubjectNotUniqueException)e;
+          }
+          if (e instanceof RuntimeException) {
+            throw (RuntimeException)e;
+          }
+          throw new RuntimeException(errorMessage, e);
+        }
+        LOG.error(errorMessage,e);
+        return;
       }
      
       if ( !g.hasImmediateMember(subj, f) ) {
@@ -1475,12 +1496,23 @@ public class XmlImporter {
         el.getAttribute("id"), el.getAttribute("identifier"), el.getAttribute("type") 
       );
       }catch(Exception e) {
-    	  if(_isFailOnUnresolvableSubjectEnabled()) {
-    		  throw e;
-    	  }else {
-    		  LOG.error("Could not grant " + p.getName() + " to " + ns.getName() + " for subject id=" + el.getAttribute("id"),e);
-    		  return;
-    	  }
+        String errorMessage = "Could not grant " + p.getName() + " to " + ns.getName() + " for subject id=" + el.getAttribute("id");
+        if(_isFailOnUnresolvableSubjectEnabled()) {
+          
+          if (e instanceof SubjectNotFoundException) {
+            throw (SubjectNotFoundException)e;
+          }
+          if (e instanceof SubjectNotUniqueException) {
+            throw (SubjectNotUniqueException)e;
+          }
+          if (e instanceof RuntimeException) {
+            throw (RuntimeException)e;
+          }
+          throw new RuntimeException(errorMessage, e);
+        }
+        LOG.error(errorMessage,e);
+        return;
+
       }
       
       if ( !XmlUtils.internal_hasImmediatePrivilege( subj, ns, p.getName() ) ) {
