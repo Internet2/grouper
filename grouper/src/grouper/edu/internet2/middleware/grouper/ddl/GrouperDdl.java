@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.24 2008-12-12 07:19:16 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.24.2.1 2009-01-25 13:48:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -37,6 +37,28 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * returns the current version
  */
 public enum GrouperDdl implements DdlVersionable {
+
+  /**
+   * delete create source and modify source cols if they exist
+   */
+  V13 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+
+      Table stemsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          Stem.TABLE_GROUPER_STEMS);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
+          "stem_name_idx", true, "name");
+
+    }
+  },
 
   /**
    * delete create source and modify source cols if they exist
@@ -1178,7 +1200,7 @@ public enum GrouperDdl implements DdlVersionable {
             "stem_modifytime_idx", false, "modify_time");
 
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
-            "stem_name_idx", false, "name");
+            "stem_name_idx", true, "name");
 
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
             "stem_parent_idx", false, "parent_stem");
