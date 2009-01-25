@@ -92,7 +92,7 @@ public class WsSampleAddMemberRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    addMemberLite(WsSampleRestType.xhtml);
+    addMemberLite(WsSampleRestType.xml);
   }
 
   /**

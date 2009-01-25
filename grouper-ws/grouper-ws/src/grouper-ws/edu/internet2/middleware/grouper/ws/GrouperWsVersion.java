@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsVersion.java,v 1.10 2008-12-06 20:39:33 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsVersion.java,v 1.10.2.1 2009-01-25 12:58:49 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.rest.GrouperRestServlet;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -136,6 +137,21 @@ public enum GrouperWsVersion {
    */
   public static void assignCurrentClientVersion(GrouperWsVersion clientVersion) {
     currentClientVersion.set(clientVersion);
+  }
+  
+  /**
+   * put the current client version
+   * @param clientVersion
+   * @param soapOnly true if only doing this for rest
+   */
+  public static void assignCurrentClientVersion(GrouperWsVersion clientVersion, boolean soapOnly) {
+    if (soapOnly) {
+      if (!GrouperRestServlet.isRestRequest()) {
+        assignCurrentClientVersion(clientVersion);
+      }
+    } else {
+      assignCurrentClientVersion(clientVersion);
+    }
   }
   
   /**

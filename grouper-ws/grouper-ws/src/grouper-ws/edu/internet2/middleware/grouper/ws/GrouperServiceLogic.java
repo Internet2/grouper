@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.22.2.1 2009-01-23 06:32:54 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.22.2.2 2009-01-25 12:58:49 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -309,7 +309,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsAddMemberResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
 
@@ -525,7 +525,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsDeleteMemberResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -660,7 +660,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsFindGroupsResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -794,7 +794,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsFindStemsResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -953,7 +953,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsGetGroupsResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -1132,7 +1132,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsGetMembersResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -1469,7 +1469,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsGroupDeleteResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -1637,7 +1637,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsGroupSaveResults.assignResultCodeException(null, theSummary, e, clientVersion);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -1749,7 +1749,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsHasMemberResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -2018,7 +2018,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsMemberChangeSubjectResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -2136,7 +2136,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsStemDeleteResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -2291,7 +2291,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsStemSaveResults.assignResultCodeException(null, theSummary, e, clientVersion);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -2987,7 +2987,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsGetGrouperPrivilegesLiteResult.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -3525,7 +3525,7 @@ public class GrouperServiceLogic {
       } catch (Exception e) {
         wsAssignGrouperPrivilegesLiteResult.assignResultCodeException(null, theSummary, e);
       } finally {
-        GrouperWsVersion.assignCurrentClientVersion(null);
+        GrouperWsVersion.assignCurrentClientVersion(null, true);
         GrouperSession.stopQuietly(session);
       }
     
