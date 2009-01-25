@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.10 2008-11-18 10:05:41 mchyzer Exp $
+ * @version $Id: GrouperShell.java,v 1.10.2.1 2009-01-25 13:11:09 mchyzer Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -61,6 +61,9 @@ public class GrouperShell {
 	  
 	  mainLookups.put("-findbadmemberships",  
 			  "edu.internet2.middleware.grouper.misc.FindBadMemberships");
+
+    mainLookups.put("-ldappc",  
+      "edu.internet2.middleware.ldappc.Ldappc");
 
   }
   
