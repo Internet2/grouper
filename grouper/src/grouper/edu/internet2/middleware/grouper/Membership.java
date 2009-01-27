@@ -78,7 +78,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.112 2008-12-15 08:12:32 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.113 2009-01-27 12:09:24 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -139,8 +139,11 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   /** constant for field name for: memberUUID */
   public static final String FIELD_MEMBER_UUID = "memberUUID";
 
-  /** constant for field name for: ownerUUID */
-  public static final String FIELD_OWNER_UUID = "ownerUUID";
+  /** constant for field name for: ownerGroupId */
+  public static final String FIELD_OWNER_GROUP_ID = "ownerGroupId";
+
+  /** constant for field name for: ownerStemId */
+  public static final String FIELD_OWNER_STEM_ID = "ownerStemId";
 
   /** constant for field name for: parentUUID */
   public static final String FIELD_PARENT_UUID = "parentUUID";
@@ -151,25 +154,28 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   /** constant for field name for: uuid */
   public static final String FIELD_UUID = "uuid";
 
-  /** constant for field name for: viaUUID */
-  public static final String FIELD_VIA_UUID = "viaUUID";
+  /** constant for field name for: viaCompositeId */
+  public static final String FIELD_VIA_COMPOSITE_ID = "viaCompositeId";
+
+  /** constant for field name for: viaGroupId */
+  public static final String FIELD_VIA_GROUP_ID = "viaGroupId";
 
   /**
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DEPTH, FIELD_FIELD_ID, 
-      FIELD_MEMBER_UUID, FIELD_OWNER_UUID, 
-      FIELD_PARENT_UUID, FIELD_TYPE, FIELD_UUID, FIELD_VIA_UUID);
+      FIELD_MEMBER_UUID, FIELD_OWNER_GROUP_ID, FIELD_OWNER_STEM_ID, FIELD_PARENT_UUID, 
+      FIELD_TYPE, FIELD_UUID, FIELD_VIA_COMPOSITE_ID, FIELD_VIA_GROUP_ID);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DB_VERSION, FIELD_DEPTH, 
-      FIELD_FIELD_ID, FIELD_HIBERNATE_VERSION_NUMBER,
-      FIELD_MEMBER_UUID, FIELD_OWNER_UUID, FIELD_PARENT_UUID, FIELD_TYPE, 
-      FIELD_UUID, FIELD_VIA_UUID);
+      FIELD_FIELD_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MEMBER_UUID, FIELD_OWNER_GROUP_ID, 
+      FIELD_OWNER_STEM_ID, FIELD_PARENT_UUID, FIELD_TYPE, FIELD_UUID, 
+      FIELD_VIA_COMPOSITE_ID, FIELD_VIA_GROUP_ID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
@@ -196,22 +202,21 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
    * @return the name
    */
   public String getOwnerName() {
-    if (StringUtils.isBlank(this.ownerUUID)) {
-      return null;
-    }
     try {
-      Group owner = this.getGroup();
-      return owner.getName();
+      if (!StringUtils.isBlank(this.ownerGroupId)) {
+        Group owner = this.getGroup();
+        return owner.getName();
+      }
+      if (!StringUtils.isBlank(this.ownerStemId)) {
+        Stem owner = this.getStem();
+        return owner.getName();
+      }
     } catch (GroupNotFoundException gnfe) {
-      //its ok, hopefully its a stem
-    }
-    try {
-      Stem owner = this.getStem();
-      return owner.getName();
+      throw new RuntimeException(gnfe);
     } catch (StemNotFoundException snfe) {
-      //this is not ok
-      throw new RuntimeException("Cannot find group/stem with uuid: " + this.ownerUUID);
+      throw new RuntimeException(snfe);
     }
+    return null;
   }
   
   /**
@@ -225,30 +230,46 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   public static final String IMMEDIATE = "immediate";
 
 
-  // PRIVATE CLASS CONSTANTS //
+  /** */
   private static final EventLog EL = new EventLog();
   
-  // Cache groups and stems
+  /** */
   public  static final  String            CACHE_GET_GROUP = Membership.class.getName() + ".getGroup";
+  /** */
   private static        EhcacheController cc= new EhcacheController();
+  /** */
   public  static final  String            CACHE_GET_STEM = Membership.class.getName() + ".getStem";
  
   
+  /** */
   private long    createTimeLong  = new Date().getTime();           // reasonable default
 
+  /** */
   private String  creatorUUID;
 
+  /** */
   private int     depth       = 0;                              // reasonable default
 
+  /** */
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private Member  member;
 
+  /** */
   private String  memberUUID;
 
-  private String  ownerUUID;
+  /** 
+   * if group membership, this is the group id 
+   */
+  private String ownerGroupId;
 
+  /** 
+   * if stem membership, this is the stem id 
+   */
+  private String ownerStemId;
+  
+  /** */
   private String  parentUUID  = null;                           // reasonable default
 
   /** either composite, immediate, effective */
@@ -278,14 +299,59 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
     return StringUtils.equals(this.type, Membership.EFFECTIVE);
   }
   
+  /** */
   private String  uuid        = GrouperUuid.getUuid(); // reasonable default
 
-  private String  viaUUID     = null;                           // reasonable default
+  /** */
+  private String  viaGroupId     = null; 
+
+  /** */
+  private String  viaCompositeId     = null; 
 
   /**
    * id of the field which is the list name and type
    */
   private String fieldId;
+
+  /**
+   * 
+   */
+  public static final String COLUMN_VIA_ID_BAK = "via_id_bak";
+
+  /**
+   * 
+   */
+  public static final String COLUMN_OWNER_ID_BAK = "owner_id_bak";
+
+  /**
+   * 
+   */
+  public static final String COLUMN_VIA_COMPOSITE_ID = "via_composite_id";
+
+  /**
+   * 
+   */
+  public static final String COLUMN_VIA_GROUP_ID = "via_group_id";
+
+  /**
+   * 
+   */
+  public static final String COLUMN_OWNER_STEM_ID = "owner_stem_id";
+
+  /**
+   * 
+   */
+  public static final String COLUMN_OWNER_GROUP_ID = "owner_group_id";
+
+  /**
+   * 
+   */
+  public static final String COLUMN_OWNER_ID = "owner_id";
+
+  /**
+   * 
+   */
+  public static final String COLUMN_VIA_ID = "via_id";
 
   /** 
    * Get child memberships of this membership. 
@@ -309,6 +375,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   } // public Set getChildMemberships()
 
   /**
+   * @return create time
    * @since   1.2.0
    */
   public Date getCreateTime() {
@@ -316,6 +383,8 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   } // public Date getCreateTime()
 
   /**
+   * @return creator
+   * @throws MemberNotFoundException 
    * @since   1.2.0
    */
   public Member getCreator() 
@@ -331,10 +400,12 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   } // public Member getCreator()
 
   /**
+   * number of hops between this membership and direct membership
+   * @return depth
    */
   public int getDepth() {
     return this.depth;
-  } // public int getDepth()
+  }
    
   /**
    * Get this membership's group.
@@ -342,21 +413,21 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
    * Group g = ms.getGroup();
    * </pre>
    * @return  A {@link Group}
+   * @throws GroupNotFoundException if group not found
    */
-  public Group getGroup() 
-    throws  GroupNotFoundException
-  {
-    String uuid = this.getOwnerUuid();
+  public Group getGroup() throws GroupNotFoundException {
+    String uuid = this.getOwnerGroupId();
     if (uuid == null) {
       throw new GroupNotFoundException();
     }
-	Group g = getGroupFromCache(uuid);
-	if(g !=null) return g;
-    
-    g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) ;
+    Group g = getGroupFromCache(uuid);
+    if (g != null)
+      return g;
+
+    g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid);
     putGroupInCache(g);
     return g;
-  } // public Group getGroup()
+  }
 
   /**
    * Get this membership's list.
@@ -431,12 +502,14 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   } // public Membership getParentMembership()
 
   /** 
+   * @return stem
+   * @throws StemNotFoundException 
    * @since   1.2.0
    */
   public Stem getStem() 
     throws StemNotFoundException
   {
-    String uuid = this.getOwnerUuid();
+    String uuid = this.getOwnerStemId();
     if (uuid == null) {
       throw new StemNotFoundException("membership stem not found");
     }
@@ -449,6 +522,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   } // public Stem getStem()
 
   /**
+   * @return type effective, immediate, composite
    * @since   1.2.0
    */
   public String getType() {
@@ -456,6 +530,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   } 
 
   /**
+   * @return uuid
    */
   public String getUuid() {
     return this.uuid;
@@ -467,13 +542,15 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
    * (stored in grouper_composites table)
    * (e.g. union, intersection, etc).  A composite group has no immediate members.
    * All subjects in a composite group are effective members.
+   * @return composite
+   * @throws CompositeNotFoundException 
    * 
    * @since   1.2.0
    */
   public Composite getViaComposite() 
     throws  CompositeNotFoundException
   {
-    String uuid = this.getViaUuid();
+    String uuid = this.getViaCompositeId();
     if (uuid == null) {
       throw new CompositeNotFoundException();
     }
@@ -499,7 +576,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   public Group getViaGroup() 
     throws GroupNotFoundException
   {
-    String uuid = this.getViaUuid();
+    String uuid = this.getViaGroupId();
     if (uuid == null) {
       throw new GroupNotFoundException();
     }
@@ -578,14 +655,19 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
     catch (MemberNotFoundException eMNF)        {
       throw new MemberAddException( eMNF.getMessage() + ", " + errorString, eMNF );
     }
-  } // public static void internal_addImmediateMembership(s, g, subj, f)
+  } 
 
-  // @since   1.2.0
+  /**
+   * 
+   * @param s
+   * @param ns
+   * @param subj
+   * @param f
+   * @throws MemberAddException
+   */
   public static void internal_addImmediateMembership(
-    GrouperSession s, Stem ns, Subject subj, Field f
-  )
-    throws  MemberAddException
-  {
+    GrouperSession s, Stem ns, Subject subj, Field f)
+    throws  MemberAddException  {
     try {
       GrouperSession.validate(s);
       Member    m   = MemberFinder.internal_findReadableMemberBySubject(s, subj);
@@ -604,19 +686,26 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
     catch (MemberNotFoundException eMNF)        {
       throw new MemberAddException( eMNF.getMessage(), eMNF );
     }
-  } // public static void internal_addImmediateMembership(s, ns, subj, f)
+  }
 
-  // @since   1.2.0
+  /**
+   * 
+   * @param s
+   * @param g
+   * @param subj
+   * @param f
+   * @return default member of
+   * @throws MemberDeleteException
+   */
   public static DefaultMemberOf internal_delImmediateMembership(GrouperSession s, Group g, Subject subj, Field f)
-    throws  MemberDeleteException
-  {
+    throws  MemberDeleteException {
     try {
       GrouperSession.validate(s); 
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
       DefaultMemberOf  mof = new DefaultMemberOf();
       mof.deleteImmediate(
         s, g, 
-        GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType( 
+        GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
           g.getUuid(), m.getUuid(), f, IMMEDIATE
         ), 
         m
@@ -632,9 +721,17 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
     catch (MembershipNotFoundException eMSNF)   {
       throw new MemberDeleteAlreadyDeletedException(eMSNF.getMessage(), eMSNF);
     }
-  } // public static void internal_delImmediateMembership(s, g, subj, f)
+  }
 
-  // @since   1.2.0
+  /**
+   * 
+   * @param s
+   * @param ns
+   * @param subj
+   * @param f
+   * @return default member of
+   * @throws MemberDeleteException
+   */
   public static DefaultMemberOf internal_delImmediateMembership(GrouperSession s, Stem ns, Subject subj, Field f)
     throws  MemberDeleteException
   {
@@ -646,7 +743,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
       DefaultMemberOf  mof = new DefaultMemberOf();
       mof.deleteImmediate(
         s, ns,
-        GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType( 
+        GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType( 
           ns.getUuid(), m.getUuid(), f, IMMEDIATE 
         ), 
         m
@@ -673,7 +770,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
    * @throws MemberDeleteException
    * @throws SchemaException
    */
-  public static Set internal_deleteAllField(GrouperSession s, final Group g, final Field f)
+  public static Set<GrouperAPI> internal_deleteAllField(GrouperSession s, final Group g, final Field f)
     throws  MemberDeleteException,
             SchemaException
   {
@@ -697,7 +794,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
               mof  = new DefaultMemberOf();
               mof.deleteImmediate(
                 grouperSession, ms.getGroup(),
-                dao.findByOwnerAndMemberAndFieldAndType( 
+                dao.findByGroupOwnerAndMemberAndFieldAndType( 
                   ms.getGroup().getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
                 ),
                  ms.getMember()
@@ -706,13 +803,13 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
             }
   
             // Deal with group's members
-            Iterator itHas = dao.findAllByOwnerAndFieldAndType( g.getUuid(), f, IMMEDIATE ).iterator();
+            Iterator itHas = dao.findAllByGroupOwnerAndFieldAndType( g.getUuid(), f, IMMEDIATE ).iterator();
             while (itHas.hasNext()) {
               ms = (Membership)itHas.next() ;
               mof = new DefaultMemberOf();
               mof.deleteImmediate(
                 grouperSession, g,
-                dao.findByOwnerAndMemberAndFieldAndType(
+                dao.findByGroupOwnerAndMemberAndFieldAndType(
                   g.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
                 ), ms.getMember()
               );
@@ -751,7 +848,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
    * @return the set
    * @throws MemberDeleteException
    */
-  public static Set internal_deleteAllField(GrouperSession s, final Stem ns, final Field f)
+  public static Set<GrouperAPI>  internal_deleteAllField(GrouperSession s, final Stem ns, final Field f)
     throws  MemberDeleteException
   {
     GrouperSession.validate(s);
@@ -761,19 +858,19 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
           throws GrouperSessionException {
         try {
 
-          Set           deletes = new LinkedHashSet();
+          Set<GrouperAPI>            deletes = new LinkedHashSet<GrouperAPI> ();
           DefaultMemberOf      mof;
           Membership    ms;
           MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
 
           // Deal with stem's members
-          Iterator itHas = dao.findAllByOwnerAndFieldAndType( ns.getUuid(), f, IMMEDIATE ).iterator();
+          Iterator itHas = dao.findAllByStemOwnerAndFieldAndType( ns.getUuid(), f, IMMEDIATE ).iterator();
           while (itHas.hasNext()) {
             ms = (Membership) itHas.next() ;
             mof = new DefaultMemberOf();
             mof.deleteImmediate(
               grouperSession, ns,
-              dao.findByOwnerAndMemberAndFieldAndType(
+              dao.findByStemOwnerAndMemberAndFieldAndType(
                 ns.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
               ), ms.getMember());
             deletes.addAll( mof.getDeletes() );
@@ -790,15 +887,22 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
       }
       
     });
-  } // public static Set internal_deleteAllField(s, ns, f)
+  }
 
-  // @since   1.2.0
-  public static Set internal_deleteAllFieldType(GrouperSession s, Group g, FieldType type) 
+  /**
+   * 
+   * @param s
+   * @param g
+   * @param type
+   * @return set
+   * @throws MemberDeleteException
+   * @throws SchemaException
+   */
+  public static Set<GrouperAPI>  internal_deleteAllFieldType(GrouperSession s, Group g, FieldType type) 
     throws  MemberDeleteException,
-            SchemaException
-  {
+            SchemaException  {
     GrouperSession.validate(s);
-    Set       deletes = new LinkedHashSet();
+    Set<GrouperAPI>       deletes = new LinkedHashSet<GrouperAPI> ();
     Field     f;
     Iterator  it      = FieldFinder.findAllByType(type).iterator();
     while (it.hasNext()) {
@@ -806,13 +910,20 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
       deletes.addAll( internal_deleteAllField(s, g, f) );
     }
     return deletes;
-  } // public static Set internal_deleteAllFieldType(s, g, f)
+  }
 
-  // @since   1.2.0
-  public static Set internal_deleteAllFieldType(GrouperSession s, Stem ns, FieldType type) 
+  /**
+   * 
+   * @param s
+   * @param ns
+   * @param type
+   * @return set of grouper api
+   * @throws MemberDeleteException
+   * @throws SchemaException
+   */
+  public static Set<GrouperAPI>  internal_deleteAllFieldType(GrouperSession s, Stem ns, FieldType type) 
     throws  MemberDeleteException,
-            SchemaException
-  {
+            SchemaException {
     GrouperSession.validate(s);
     Set       deletes = new LinkedHashSet();
     Field     f;
@@ -822,9 +933,13 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
       deletes.addAll( internal_deleteAllField(s, ns, f) );
     }
     return deletes;
-  } // public static Set internal_deleteAllFieldType(s, ns, f)
+  }
 
-  //@since   1.3.0
+  /**
+   * 
+   * @param uuid
+   * @return group
+   */
   private Group getGroupFromCache(String uuid) {
 	  Element el = cc.getCache(CACHE_GET_GROUP).get(uuid);
 	    if (el != null) {
@@ -832,8 +947,12 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 	    }
 	    return null;
   } 
-  
-  //@since   1.3.0
+
+  /**
+   * 
+   * @param uuid
+   * @return stem
+   */
   private Stem getStemFromCache(String uuid) {
 	  Element el = cc.getCache(CACHE_GET_STEM).get(uuid);
 	    if (el != null) {
@@ -841,22 +960,28 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
 	    }
 	    return null;
   } 
-  
-  //@since   1.3.0
+
+  /**
+   * 
+   * @param g
+   */
   private void putGroupInCache(Group g) {
 	  cc.getCache(CACHE_GET_GROUP).put( new Element( g.getUuid(),g) );
   }
-  
-  //@since   1.3.0
+
+  /**
+   * 
+   * @param stem
+   */
   private void putStemInCache(Stem stem) {
 	  cc.getCache(CACHE_GET_STEM).put( new Element( stem.getUuid(),stem) );
   }
 
-  // PUBLIC INSTANCE METHODS //
-  
+
   /**
-   * @since   1.2.0
-   */  
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
   public boolean equals(Object other) {
     if (this == other) {
       return true;
@@ -868,28 +993,33 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
     return new EqualsBuilder()
       .append( this.fieldId,   that.fieldId   )
       .append( this.memberUUID, that.memberUUID )
-      .append( this.ownerUUID,  that.ownerUUID  )
-      .append( this.viaUUID,    that.viaUUID    )
+      .append( this.ownerGroupId,  that.ownerGroupId  )
+      .append( this.ownerStemId,  that.ownerStemId  )
+      .append( this.viaGroupId,    that.viaGroupId    )
+      .append( this.viaCompositeId,    that.viaCompositeId    )
       .append( this.parentUUID,    that.parentUUID    )
       .isEquals();
-  } // public boolean equals(other)
+  } 
 
   /**
-   * @since   1.2.0
+   * 
+   * @return create time
    */
   public long getCreateTimeLong() {
     return this.createTimeLong;
   }
 
   /**
-   * @since   1.2.0
+   * 
+   * @return creator uuid
    */
   public String getCreatorUuid() {
     return this.creatorUUID;
   }
 
   /**
-   * @since   1.2.0
+   * 
+   * @return list name
    */
   public String getListName() {
     Field field = this.getField();
@@ -909,7 +1039,8 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
-   * @since   1.2.0
+   * 
+   * @return list type
    */
   public String getListType() {
     Field field = this.getField();
@@ -917,6 +1048,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @return member uuid
    * @since   1.2.0
    */
   public String getMemberUuid() {
@@ -924,14 +1056,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
-   * @since   1.2.0
-   */
-  
-  public String getOwnerUuid() {
-    return this.ownerUUID;
-  }
-
-  /**
+   * @return parent uuid
    * @since   1.2.0
    */
   public String getParentUuid() {
@@ -940,21 +1065,17 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
-   * @since   1.2.0
-   */
-  public String getViaUuid() {
-    return this.viaUUID;
-  }
-
-  /**
+   * @return hash code
    * @since   1.2.0
    */
   public int hashCode() {
     return new HashCodeBuilder()
       .append( this.fieldId   )
       .append( this.memberUUID )
-      .append( this.ownerUUID  )
-      .append( this.viaUUID    )
+      .append( this.ownerGroupId  )
+      .append( this.ownerStemId  )
+      .append( this.viaGroupId    )
+      .append( this.viaCompositeId    )
       .append( this.parentUUID    )
       .toHashCode();
   } // public int hashCode()
@@ -975,6 +1096,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param createTime 
    * @since   1.2.0
    */
   public void setCreateTimeLong(long createTime) {
@@ -983,6 +1105,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param creatorUUID 
    * @since   1.2.0
    */
   public void setCreatorUuid(String creatorUUID) {
@@ -991,6 +1114,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param depth 
    * @since   1.2.0
    */
   public void setDepth(int depth) {
@@ -999,6 +1123,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   }
   
   /**
+   * @param member 
    * @since   1.3.0
    */
   
@@ -1007,20 +1132,16 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   
   }
 
+  /**
+   * @param memberUUID
+   */
   public void setMemberUuid(String memberUUID) {
     this.memberUUID = memberUUID;
   
   }
 
   /**
-   * @since   1.2.0
-   */
-  public void setOwnerUuid(String ownerUUID) {
-    this.ownerUUID = ownerUUID;
-  
-  }
-
-  /**
+   * @param parentUUID 
    * @since   1.2.0
    */
   public void setParentUuid(String parentUUID) {
@@ -1029,6 +1150,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param type 
    * @since   1.2.0
    */
   public void setType(String type) {
@@ -1037,6 +1159,7 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param uuid 
    * @since   1.2.0
    */
   public void setUuid(String uuid) {
@@ -1045,14 +1168,39 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
-   * @since   1.2.0
+   * if effective, this is group it is in
+   * @return group id
    */
-  public void setViaUuid(String viaUUID) {
-    this.viaUUID = viaUUID;
-  
+  public String getViaGroupId() {
+    return this.viaGroupId;
   }
 
   /**
+   * if effective, this is group it is in
+   * @param viaGroupId
+   */
+  public void setViaGroupId(String viaGroupId) {
+    this.viaGroupId = viaGroupId;
+  }
+
+  /**
+   * if composite, this is composite id
+   * @return composite id
+   */
+  public String getViaCompositeId() {
+    return this.viaCompositeId;
+  }
+
+  /**
+   * if composite, this is composite id
+   * @param viaCompositeId
+   */
+  public void setViaCompositeId(String viaCompositeId) {
+    this.viaCompositeId = viaCompositeId;
+  }
+
+  /**
+   * @return string
    * @since   1.2.0
    */
   public String toString() {
@@ -1063,11 +1211,13 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
       .append( "listName",    this.getListName()    )
       .append( "listType",    this.getListType()    )
       .append( "memberUuid",  this.getMemberUuid()  )
-      .append( "ownerUuid",   this.getOwnerUuid()   )
+      .append( "groupId",   this.getOwnerGroupId()   )
+      .append( "stemId",   this.getOwnerStemId()   )
       .append( "parentUuid",  this.getParentUuid()  )
       .append( "type",        this.getType()        )
       .append( "uuid",        this.getUuid()        )
-      .append( "viaUuid",     this.getViaUuid()     )
+      .append( "viaGroupId",     this.getViaGroupId()     )
+      .append( "viaCompositeId",     this.getViaCompositeId()     )
       .toString();
   } // public String toString()
 
@@ -1203,6 +1353,40 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public void setFieldId(String fieldId1) {
     this.fieldId = fieldId1;
+  }
+
+  /**
+   * if group membership, this is the group id
+   * @return the group id
+   */
+  public String getOwnerGroupId() {
+    return this.ownerGroupId;
+  }
+
+
+  /**
+   * if this is a group membership, this is the group id
+   * @param groupId1
+   */
+  public void setOwnerGroupId(String groupId1) {
+    this.ownerGroupId = groupId1;
+  }
+
+
+  /**
+   * if this is a stem membership, this is the stem id
+   * @return stem id
+   */
+  public String getOwnerStemId() {
+    return this.ownerStemId;
+  }
+
+  /**
+   * if this is a stem membership, this is the stem id
+   * @param stemId1
+   */
+  public void setOwnerStemId(String stemId1) {
+    this.ownerStemId = stemId1;
   }
 
   

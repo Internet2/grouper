@@ -25,7 +25,7 @@ import edu.internet2.middleware.grouper.validator.NotNullValidator;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Unit_API_EffectiveMembershipValidator_validate.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: Test_Unit_API_EffectiveMembershipValidator_validate.java,v 1.8 2009-01-27 12:09:23 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Unit_API_EffectiveMembershipValidator_validate extends GrouperTest {
@@ -83,7 +83,6 @@ public class Test_Unit_API_EffectiveMembershipValidator_validate extends Grouper
       Membership _ms = new Membership();
       _ms.setType(Membership.EFFECTIVE);
       _ms.setDepth(1);
-      _ms.setViaUuid(null);
       GrouperValidator v = EffectiveMembershipValidator.validate(_ms);
       assertTrue( "v is invalid", v.isInvalid() );
       assertEquals( "v error msg", EffectiveMembershipValidator.INVALID_VIAUUID, v.getErrorMessage() );
@@ -99,7 +98,7 @@ public class Test_Unit_API_EffectiveMembershipValidator_validate extends Grouper
       Membership _ms = new Membership();
       _ms.setType(Membership.EFFECTIVE);
       _ms.setDepth(1);
-      _ms.setViaUuid("viaUuid");
+      _ms.setViaGroupId("viaUuid");
       _ms.setParentUuid(null);
       GrouperValidator v = EffectiveMembershipValidator.validate(_ms);
       assertTrue( "v is invalid", v.isInvalid() );
@@ -116,7 +115,7 @@ public class Test_Unit_API_EffectiveMembershipValidator_validate extends Grouper
       Membership _ms = new Membership();
       _ms.setType(Membership.EFFECTIVE);
       _ms.setDepth(1);
-      _ms.setViaUuid("viaUuid");
+      _ms.setViaGroupId("viaUuid");
       _ms.setParentUuid("parentUuid");
       GrouperValidator v = EffectiveMembershipValidator.validate(_ms);
       assertTrue( "v is invalid", v.isInvalid() );

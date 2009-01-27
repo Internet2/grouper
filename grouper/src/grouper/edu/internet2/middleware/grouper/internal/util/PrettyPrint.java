@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  * Utility class for pretty printing objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrettyPrint.java,v 1.4 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: PrettyPrint.java,v 1.5 2009-01-27 12:09:24 mchyzer Exp $
  * @since   1.2.0
  */
 public class PrettyPrint {
@@ -86,12 +86,12 @@ public class PrettyPrint {
   }
 
   /**
-   * Return a pretty printed <i>Membership</i>.
+   * Return a pretty printed group <i>Membership</i>.
    * @since   1.2.0
    */
   private static String _pp(Membership _ms) {
     try {
-      Group  _g  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() );
+      Group  _g  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerGroupId() );
       Member _m  = GrouperDAOFactory.getFactory().getMember().findByUuid( _ms.getMemberUuid() );
       return _ms.getClass().getName()
         + OPEN 
@@ -105,7 +105,9 @@ public class PrettyPrint {
         + DELIM
         + "type="     + _ms.getType()
         + DELIM
-        + "via="      + _ms.getViaUuid()
+        + "viaGroupId="      + _ms.getViaGroupId()
+        + DELIM
+        + "viaCompositeId="      + _ms.getViaCompositeId()
         + DELIM
         + "uuid="     + _ms.getUuid()
         + CLOSE

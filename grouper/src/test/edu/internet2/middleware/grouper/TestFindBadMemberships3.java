@@ -22,6 +22,7 @@ import java.util.Set;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -40,6 +41,14 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestFindBadMemberships3 extends TestCase {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestFindBadMemberships3("testFindBadMemberships3"));
+  }
+  
   private static final Log LOG = GrouperUtil.getLog(TestFindBadMemberships3.class);
 
   public TestFindBadMemberships3(String name) {
@@ -115,7 +124,7 @@ public class TestFindBadMemberships3 extends TestCase {
       Membership invalid = MembershipTestHelper.findEffectiveMembership(r.rs, gG, gD.toSubject(), gE, 1, 
             FieldFinder.find("updaters"));
       invalid.setHibernateVersionNumber(-1L);
-      invalid.setOwnerUuid("invalid1");
+      invalid.setOwnerGroupId("invalid1");
       invalid.setUuid("invalid1");
       DefaultMemberOf mof = new DefaultMemberOf();
       mof.addSave(invalid);
@@ -124,7 +133,7 @@ public class TestFindBadMemberships3 extends TestCase {
 
       // create another membership with an invalid owner
       invalid.setHibernateVersionNumber(-1L);
-      invalid.setOwnerUuid("invalid2");
+      invalid.setOwnerStemId("invalid2");
       invalid.setUuid("invalid2");
       mof = new DefaultMemberOf();
       mof.addSave(invalid);

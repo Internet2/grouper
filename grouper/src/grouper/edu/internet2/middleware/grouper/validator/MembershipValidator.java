@@ -17,6 +17,8 @@
 
 package edu.internet2.middleware.grouper.validator;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Membership;
@@ -27,14 +29,16 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: MembershipValidator.java,v 1.2 2009-01-27 12:09:24 mchyzer Exp $
  * @since   1.0
  */
 public class MembershipValidator extends GrouperValidator {
 
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
+  /**
+   * 
+   * @param _ms
+   * @return validator
+   */
   public static MembershipValidator validate(Membership _ms) {
     MembershipValidator v = new MembershipValidator();
     if ( _ms.getCreateTimeLong() == GrouperConfig.EPOCH ) {
@@ -43,7 +47,7 @@ public class MembershipValidator extends GrouperValidator {
     else if ( _ms.getCreatorUuid() == null ) {
       v.setErrorMessage("null creator");
     }
-    else if ( !v._doesOwnerExist( _ms.getOwnerUuid() ) ) {
+    else if ( !v._doesOwnerExist( _ms.getOwnerGroupId(), _ms.getOwnerStemId() ) ) {
       v.setErrorMessage("unable to find membership owner");
     }
     else if ( !GrouperDAOFactory.getFactory().getMember().exists( _ms.getMemberUuid() ) ) {
@@ -62,11 +66,12 @@ public class MembershipValidator extends GrouperValidator {
   } // protected static MembershipValidator validate(_ms)
 
 
-  // PRIVATE INSTANCE METHODS //
-
-  // @since   1.2.0
-  // TODO 20070531 should i go straight to the dao?  or would i be burned by
-  //               bypassing any caching done in "FieldFinder"?
+  /**
+   * TODO 20070531 should i go straight to the dao?  or would i be burned by
+   * bypassing any caching done in "FieldFinder"?
+   * @param name
+   * @return if exist
+   */
   private boolean _doesFieldExist(String name) {
     try {
       FieldFinder.find(name);
@@ -75,17 +80,28 @@ public class MembershipValidator extends GrouperValidator {
     catch (SchemaException eS) {
       return false;
     }
-  } // private boolean _doesFieldExist(name)
+  }
 
-  // @since   1.2.0
-  private boolean _doesOwnerExist(String ownerUUID) {
-    if ( GrouperDAOFactory.getFactory().getGroup().exists(ownerUUID) ) {
+  /**
+   * 
+   * @param ownerGroupId 
+   * @param ownerStemId 
+   * @return if owner id exists
+   */
+  private boolean _doesOwnerExist(String ownerGroupId, String ownerStemId) {
+    if ( !StringUtils.isBlank(ownerGroupId) 
+        && GrouperDAOFactory.getFactory().getGroup().exists(ownerGroupId) ) {
       return true;
     }
-    return GrouperDAOFactory.getFactory().getStem().exists(ownerUUID);
-  } // private boolean _doesOwnerExist(ownerUUID)
+    return !StringUtils.isBlank(ownerStemId) 
+      && GrouperDAOFactory.getFactory().getStem().exists(ownerStemId);
+  } 
 
-  // @since   1.2.0
+  /**
+   * 
+   * @param type
+   * @return if is valid type
+   */
   private boolean _isFieldValidType(String type) {
     if (
           FieldType.ACCESS.toString().equals(type)
@@ -96,6 +112,6 @@ public class MembershipValidator extends GrouperValidator {
       return true;
     }
     return false;
-  } // private boolean _isFieldValidType(type)
-} // class MembershipValidator extends GrouperValidator
+  } 
+} 
 

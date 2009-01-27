@@ -17,6 +17,8 @@
 
 package edu.internet2.middleware.grouper.validator;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
@@ -34,23 +36,30 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  * memberships
  * 
  * @author  blair christensen.
- * @version $Id: ImmediateMembershipValidator.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: ImmediateMembershipValidator.java,v 1.2 2009-01-27 12:09:24 mchyzer Exp $
  * @since   1.2.0
  */
 public class ImmediateMembershipValidator extends MembershipValidator {
 
-  // PROTECTED CLASS CONSTANTS // 
+  /** */
   public static final String INVALID_CIRCULAR    = "membership cannot be circular";
+  /** */
   public static final String INVALID_DEPTH       = "membership depth != 0";
+  /** */
   public static final String INVALID_EXISTS      = "membership already exists";
+  /** */
   public static final String INVALID_PARENTUUID  = "membership cannot have parentUuid";
+  /** */
   public static final String INVALID_TYPE        = "membership type is not IMMEDIATE";
+  /** */
   public static final String INVALID_VIAUUID     = "membership cannot have viaUuid";
 
 
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
+  /**
+   * 
+   * @param _ms
+   * @return membership validator
+   */
   public static MembershipValidator validate(Membership _ms) {
     ImmediateMembershipValidator  v     = new ImmediateMembershipValidator();
     NotNullValidator              vNull = NotNullValidator.validate(_ms);
@@ -64,7 +73,10 @@ public class ImmediateMembershipValidator extends MembershipValidator {
     else if ( _ms.getDepth() != 0 )                           { // must have depth == 0
       v.setErrorMessage(INVALID_DEPTH);
     }
-    else if ( _ms.getViaUuid() != null )                      { // must not have a via
+    else if ( _ms.getViaGroupId() != null )                      { // must not have a via
+      v.setErrorMessage(INVALID_VIAUUID);
+    }
+    else if ( _ms.getViaCompositeId() != null )                      { // must not have a via
       v.setErrorMessage(INVALID_VIAUUID);
     }
     else if ( _ms.getParentUuid() != null )                   { // must not have a parent
@@ -73,12 +85,16 @@ public class ImmediateMembershipValidator extends MembershipValidator {
     else if ( v._isCircular(_ms) )                            { // cannot be a direct member of oneself
       v.setErrorMessage(INVALID_CIRCULAR);
     }
-    else if ( 
-      GrouperDAOFactory.getFactory().getMembership().exists(    // cannot already exist
-        _ms.getOwnerUuid(), _ms.getMemberUuid(), _ms.getListName(), Membership.IMMEDIATE 
-      )
-    )
-    {
+    else if ( !StringUtils.isBlank(_ms.getOwnerGroupId())
+        && GrouperDAOFactory.getFactory().getMembership().existsByGroupOwner(   // cannot already exist
+        _ms.getOwnerGroupId(), _ms.getMemberUuid(), _ms.getListName(), Membership.IMMEDIATE 
+      ) ) {
+      v.setErrorMessage(INVALID_EXISTS);
+    }
+    else if ( !StringUtils.isBlank(_ms.getOwnerStemId())
+        && GrouperDAOFactory.getFactory().getMembership().existsByStemOwner(   // cannot already exist
+        _ms.getOwnerStemId(), _ms.getMemberUuid(), _ms.getListName(), Membership.IMMEDIATE 
+      ) ) {
       v.setErrorMessage(INVALID_EXISTS);
     }
     else {
@@ -94,17 +110,17 @@ public class ImmediateMembershipValidator extends MembershipValidator {
     return v;
   }
 
-
-  // PRIVATE INSTANCE METHODS //
-
-  // @since   1.2.0
-  // TODO 20070531 it would be nice if i could avoid exceptions here
+  /**
+   * TODO 20070531 it would be nice if i could avoid exceptions here
+   * @param _ms
+   * @return if circular
+   * @throws IllegalStateException
+   */
   private boolean _isCircular(Membership _ms) 
-    throws  IllegalStateException
-  {
+    throws  IllegalStateException  {
     if ( GrouperConfig.LIST.equals( _ms.getListName() ) ) {
       try {
-        Group  _g  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() );
+        Group  _g  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerGroupId() );
         Member _m  = GrouperDAOFactory.getFactory().getMember().findByUuid( _ms.getMemberUuid() );
         if ( _g.getUuid().equals( _m.getSubjectId() ) ) {
           return true;

@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 
@@ -50,7 +51,7 @@ import edu.internet2.middleware.subject.Subject;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.5 2008-10-27 19:26:15 shilen Exp $
+ * @version $Id: EventLog.java,v 1.6 2009-01-27 12:09:24 mchyzer Exp $
  */
 public class EventLog {
 
@@ -419,30 +420,29 @@ public class EventLog {
   // TODO 20070531 i need to make this all go away
   private String _getEffOwnerMsg(Membership _eff) {
     String  msg   = GrouperConfig.EMPTY_STRING;
-    String  uuid  = _eff.getOwnerUuid();
+    String  groupId  = _eff.getOwnerGroupId();
+    String  stemId  = _eff.getOwnerStemId();
 
     Group   g     = null;
     Stem    ns    = null;
-    if      ( this.groupCache.containsKey(uuid) )   {
-      g = this.groupCache.get(uuid);
+    if      ( this.groupCache.containsKey(groupId) )   {
+      g = this.groupCache.get(groupId);
     }
-    else if ( this.stemCache.containsKey(uuid) )  {
-      ns = this.stemCache.get(uuid);
+    else if ( this.stemCache.containsKey(stemId) )  {
+      ns = this.stemCache.get(stemId);
     }
     else {
       try {
-        g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid);
-        this.groupCache.put(uuid, g);
+        if (!StringUtils.isBlank(groupId)) {
+          g = _eff.getGroup();
+          this.groupCache.put(groupId, g);
+        } else if (!StringUtils.isBlank(stemId)) {
+          ns = _eff.getStem();
+          this.stemCache.put(stemId, ns);
+        }
+      } catch (Exception e) {
+        LOG.error(E.EVENT_EFFOWNER + e.getMessage());
       }
-      catch (GroupNotFoundException eGNF) {
-        try {
-          ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid);
-          this.stemCache.put(uuid, ns);
-        }
-        catch (StemNotFoundException eSNF) {
-          LOG.error(E.EVENT_EFFOWNER + eSNF.getMessage());
-        }
-      }   
     }
     if (g != null) {
       msg += g.getName();
@@ -454,7 +454,7 @@ public class EventLog {
       msg += "???";
     }
     return msg;
-  } // private String _getEffOwnerMsg(_eff)
+  }
 
   // @since   1.2.0
   private String _getEffSubjectMsg(Membership _eff) {

@@ -25,7 +25,7 @@ import  edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_deleteImmediate.java,v 1.6 2008-10-23 20:52:05 shilen Exp $
+ * @version $Id: Test_I_API_MemberOf_deleteImmediate.java,v 1.7 2009-01-27 12:09:23 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
@@ -81,7 +81,7 @@ public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
   public void test_deleteImmediate_addSubjectToIsolatedGroup() {
     try {
       gA.addMember(subjX);
-      _ms = GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType(
+      _ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         gA.getUuid(), mX.getUuid(), Group.getDefaultList(), Membership.IMMEDIATE
       );
     }
@@ -114,7 +114,7 @@ public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
       gC.addMember(subjY);
       gA.addCompositeMember( CompositeType.UNION, gB, gC );
       gD.addMember( gA.toSubject() );
-      _ms = GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType(
+      _ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         gB.getUuid(), mX.getUuid(), Group.getDefaultList(), Membership.IMMEDIATE
       );
     }

@@ -24,7 +24,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 
 /** 
  * @author  blair christensen.
- * @version $Id: ModifyGroupTypeValidator.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: ModifyGroupTypeValidator.java,v 1.2 2009-01-27 12:09:24 mchyzer Exp $
  * @since   1.2.0
  */
 public class ModifyGroupTypeValidator extends GrouperValidator {
@@ -36,10 +36,10 @@ public class ModifyGroupTypeValidator extends GrouperValidator {
     //note, no need for GrouperSession inverse of control
     ModifyGroupTypeValidator v = new ModifyGroupTypeValidator();
     if      ( !PrivilegeHelper.isRoot(s) )  {
-      v.setErrorMessage(E.GROUPTYPE_CANNOT_MODIFY_TYPE);
+      v.setErrorMessage(E.GROUPTYPE_CANNOT_MODIFY_TYPE + ": " + (type == null ? null : type.getName()));
     }
     else if ( type.isSystemType() )     {
-      v.setErrorMessage(E.GROUPTYPE_CANNOT_MODIFY_SYSTEM_TYPES);
+      v.setErrorMessage(E.GROUPTYPE_CANNOT_MODIFY_SYSTEM_TYPES + ": " + (type == null ? null : type.getName()));
     }
     else {
       v.setIsValid(true);

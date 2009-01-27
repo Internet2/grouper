@@ -31,7 +31,6 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -40,15 +39,12 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksCompositeBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
-import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.Quote;
-import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
@@ -61,9 +57,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.63 2008-10-27 19:26:15 shilen Exp $
+ * @version $Id: Composite.java,v 1.64 2009-01-27 12:09:24 mchyzer Exp $
  * @since   1.0
  */
+@SuppressWarnings("serial")
 public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
 
   /** table for composites */
@@ -124,14 +121,20 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
       FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
-  
-  // PRIVATE INSTANCE VARIABLES //
+
+  /** */
   private long    createTime;
+  /** */
   private String  creatorUUID;
+  /** */
   private String  factorOwnerUUID;
+  /** */
   private String  leftFactorUUID;
+  /** */
   private String  rightFactorUUID;
+  /** */
   private String  type;
+  /** */
   private String  uuid;
 
   /**
@@ -208,13 +211,14 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
 
   /**
    * simple getter for type for db
-   * @return
+   * @return type db
    */
   public String getTypeDb() {
     return this.type;
   }
   
   /**
+   * @return string
    * @since   1.0
    */
   public String toString() {
@@ -231,6 +235,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
 
   /**
    * Identify memberships (composites and not) where updated need to be performed.
+   * @param g 
    * @since   1.2.0
    */
   protected static void internal_update(Group g) {
@@ -256,88 +261,46 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
 
   // PROTECTED INSTANCE METHODS //
 
-  // @since   1.1.0
+  /**
+   * @return name
+   * 
+   */
   public String getName() {
     return this.getClass().getName();
-  } // protected String getName()
+  } 
 
-  // @since   1.2.0
+  /**
+   * left name
+   * @return left name
+   */
   public String internal_getLeftName() {
     return this._getName( this.getLeftFactorUuid(), E.COMP_NULL_LEFT_GROUP );
   } 
 
-  // @since   1.2.0
+  /**
+   * owner name
+   * @return the owner name
+   */
   public String internal_getOwnerName() {
     return this._getName( this.getFactorOwnerUuid(), E.COMP_NULL_OWNER_GROUP );
   }
 
-  // @since   1.2.0
+  /**
+   * right name
+   * @return right name
+   */
   public String internal_getRightName() {
     return this._getName( this.getRightFactorUuid(), E.COMP_NULL_RIGHT_GROUP );
   }
-
-  // @since   1.2.0
-  public void internal_setModified() {
-    // As composites can only be created and deleted at this time,
-    // marking as modified is irrelevant. 
-  } // protected void internal_setModified()
-
-
-  // PRIVATE CLASS METHODS //
-
-  /**
-   * Given a set of memberships, extract the owner group and locate where each is the
-   * member of a factor so that all factors can be updated as appropriate.
-   * @since   1.2.0
-   */
-  private static void _updateComposites(GrouperSession s, final Set mships) {
-    try {
-      GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
-
-        public Object callback(GrouperSession grouperSession)
-            throws GrouperSessionException {
-          Set groupsToUpdate  = new LinkedHashSet();
-          // first find the owning group uuid for each membership
-          Membership _ms;
-          Iterator      it  = mships.iterator();
-          while (it.hasNext()) {
-            _ms = (Membership) it.next();
-            try {
-              groupsToUpdate.add( GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() ) );
-            } catch (GroupNotFoundException gnfe) {
-              throw new GrouperSessionException(gnfe);
-            }
-          }
-          // and then find where each group is a factor and update 
-          CompositeDAO     compositeDAO = GrouperDAOFactory.getFactory().getComposite();
-          Iterator      itFactor;
-          Composite composite = null;
-          it = groupsToUpdate.iterator();
-          while (it.hasNext()) {
-            itFactor = compositeDAO.findAsFactor( (Group) it.next() ).iterator();
-            while (itFactor.hasNext()) {
-              composite = (Composite) itFactor.next() ;
-              composite._update();
-            }
-          }
-          return null;
-        }
-        
-      });
-    }
-    catch (GrouperSessionException gse) {
-      if (gse.getCause() instanceof GroupNotFoundException) {
-        throw new IllegalStateException( gse.getCause().getMessage(), gse.getCause() );
-      }
-      throw new IllegalStateException( gse.getMessage(), gse );
-    }
-  } 
 
   /**
    * Update effective memberships where a) the modified group b) is a factor and c) the factor owner
    * is an immediate member elsewhere.
    * @param   g     The original modified group.
+   * @param factorOwners 
    * @throws  GroupNotFoundException
+   * @throws SchemaException 
+   * @throws StemNotFoundException 
    * @since   1.2.0
    */
   private static void _updateWhereFactorOwnersAreImmediateMembers(Group g, Set factorOwners) 
@@ -356,7 +319,10 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
 
   /**
    * Update effective memberships where the factor owner is an immediate member.
+   * @param factorOwner 
    * @throws  GroupNotFoundException
+   * @throws SchemaException 
+   * @throws StemNotFoundException 
    * @since   1.2.0
    */
   private static void _updateWhereFactorOwnerIsImmediateMember(Group factorOwner)
@@ -374,7 +340,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
       _ms     = (Membership) it.next();
       Field f = FieldFinder.find(_ms.getListName());
       if (!FieldType.NAMING.equals(f.getType())) {
-        Group msOwner =  GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerUuid() ) ;
+        Group msOwner =  _ms.getGroup() ;
 
         // TODO 20070524 ideally i wouldn't delete and then re-add the membership.  bad programmer.  
         //               i *should* identify where there have been changes and then only
@@ -393,7 +359,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
         // 20080813 - Looks like we do need to call this actually....
         Composite.internal_update(msOwner);
       } else {
-        Stem msOwner = GrouperDAOFactory.getFactory().getStem().findByUuid(_ms.getOwnerUuid());
+        Stem msOwner = _ms.getStem();
 
         mof = new DefaultMemberOf();
         mof.deleteImmediate(GrouperSession.staticGrouperSession(), msOwner, _ms, _m);
@@ -408,6 +374,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
 
   /**
    * Update composites where modified group is a factor.
+   * @param g 
    * @return  <i>Set</i> of factor owner UUIDs for use by {@link #_updateWhereFactorOwnersAreImmediateMembers(Group, Set)}.
    * @since   1.2.0
    */
@@ -424,18 +391,25 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
 
-  // PRIVATE INSTANCE METHODS //
-
-  // @since   1.2.0
+  /**
+   * 
+   * @param uuid
+   * @return group
+   * @throws GroupNotFoundException
+   */
   private Group _getGroup(String uuid) 
-    throws  GroupNotFoundException
-  {
+    throws  GroupNotFoundException {
     Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) ;
     GrouperSession.staticGrouperSession().getMember().canView(g);
     return g;
   } 
 
-  // @since   1.2.0
+  /**
+   * 
+   * @param uuid
+   * @param msg
+   * @return name
+   */
   private String _getName(String uuid, String msg) {
     try {
       Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) ;
@@ -447,7 +421,9 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
     }
   } 
 
-  // @since   1.2.0
+  /**
+   * 
+   */
   private void _update() {
     //  TODO  20070321 Assuming this is actually correct I am sure it can be
     //        improved upon.  At least it isn't as bad as the first
@@ -461,7 +437,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
       DefaultMemberOf  mof = new DefaultMemberOf();
       mof.addComposite( GrouperSession.staticGrouperSession(), g, this );
   
-      Set cur       = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( 
+      Set cur       = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndField( 
         g.getUuid(), Group.getDefaultList()  // current mships
       );
       Set shouldBeforeFilter = mof.getEffectiveSaves();    // What mships should be before filtering
@@ -472,7 +448,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
       Iterator<Membership> shouldIterator = shouldBeforeFilter.iterator();
       while (shouldIterator.hasNext()) {
         Membership shouldMembership = shouldIterator.next();
-        if (shouldMembership.getOwnerUuid().equals(this.getFactorOwnerUuid()) &&
+        if (shouldMembership.getOwnerGroupId().equals(this.getFactorOwnerUuid()) &&
           shouldMembership.getType().equals(Membership.COMPOSITE)) {
           should.add(shouldMembership);
         }
@@ -508,9 +484,9 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
     }
   }
 
-  // PUBLIC INSTANCE METHODS //
-  
   /**
+   * @param other 
+   * @return if one equals the other
    * @since   1.2.0
    */  
   public boolean equals(Object other) {
@@ -527,9 +503,10 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
       .append( this.rightFactorUUID, otherComposite.rightFactorUUID )
       .append( this.type, otherComposite.type )
       .isEquals();
-  } // public boolean equals(other)
+  }
 
   /**
+   * @return create time
    * @since   1.2.0
    */
   public long getCreateTime() {
@@ -537,6 +514,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @return creator uuid
    * @since   1.2.0
    */
   public String getCreatorUuid() {
@@ -544,6 +522,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @return factor owner uuid
    * @since   1.2.0
    */
   public String getFactorOwnerUuid() {
@@ -551,6 +530,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @return left factor uuid
    * @since   1.2.0
    */
   public String getLeftFactorUuid() {
@@ -558,6 +538,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @return right factor uuid
    * @since   1.2.0
    */
   public String getRightFactorUuid() {
@@ -565,6 +546,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @return uuid
    * @since   1.2.0
    */
   public String getUuid() {
@@ -572,6 +554,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @return hashcode
    * @since   1.2.0
    */
   public int hashCode() {
@@ -584,6 +567,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   } // public int hashCode()
 
   /**
+   * @param createTime 
    * @since   1.2.0
    */
   public void setCreateTime(long createTime) {
@@ -591,6 +575,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param creatorUUID 
    * @since   1.2.0
    */
   public void setCreatorUuid(String creatorUUID) {
@@ -598,6 +583,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param factorOwnerUUID 
    * @since   1.2.0
    */
   public void setFactorOwnerUuid(String factorOwnerUUID) {
@@ -605,6 +591,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param leftFactorUUID 
    * @since   1.2.0
    */
   public void setLeftFactorUuid(String leftFactorUUID) {
@@ -612,6 +599,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param rightFactorUUID 
    * @since   1.2.0
    */
   public void setRightFactorUuid(String rightFactorUUID) {
@@ -619,6 +607,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param type 
    * @since   1.2.0
    */
   public void setTypeDb(String type) {
@@ -626,6 +615,7 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * @param uuid 
    * @since   1.2.0
    */
   public void setUuid(String uuid) {

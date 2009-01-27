@@ -114,7 +114,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.215 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: Group.java,v 1.216 2009-01-27 12:09:24 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -122,8 +122,11 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   /** name of the groups table in the db */
   public static final String TABLE_GROUPER_GROUPS = "grouper_groups";
   
-  /** uuid col in db */
+  /** uuid col in db (not used anymore) */
   public static final String COLUMN_UUID = "uuid";
+  
+  /** id col in db */
+  public static final String COLUMN_ID = "id";
   
   /** old id col for id conversion */
   public static final String COLUMN_OLD_ID = "old_id";
@@ -1622,7 +1625,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * @since   1.0
    */
   public Set getCompositeMemberships() {
-    return MembershipFinder.internal_findAllByOwnerAndFieldAndType(
+    return MembershipFinder.internal_findAllByGroupOwnerAndFieldAndType(
       GrouperSession.staticGrouperSession(), this, Group.getDefaultList(), Membership.COMPOSITE
     );
   } // public Set getCompositeMemberships()
@@ -1885,7 +1888,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   public Set getEffectiveMemberships(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.internal_findAllByOwnerAndFieldAndType(
+    return MembershipFinder.internal_findAllByGroupOwnerAndFieldAndType(
       GrouperSession.staticGrouperSession(), this, f, Membership.EFFECTIVE
     );
   } // public Set getEffectiveMemberships(f)
@@ -2022,7 +2025,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
     throws  SchemaException
   {
     GrouperSession.validate(GrouperSession.staticGrouperSession());
-    return MembershipFinder.internal_findAllByOwnerAndFieldAndType(
+    return MembershipFinder.internal_findAllByGroupOwnerAndFieldAndType(
       GrouperSession.staticGrouperSession(), this, f, Membership.IMMEDIATE
     );
   } // public Set getImmediateMemberships(f)
@@ -2110,7 +2113,8 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   {
     return new LinkedHashSet<Membership>( 
       PrivilegeHelper.canViewMemberships( 
-        GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( this.getUuid(), f )
+        GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory()
+          .getMembership().findAllByGroupOwnerAndField( this.getUuid(), f )
       )
     );
   } // public Set getMemberships(f)
@@ -3673,7 +3677,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
       .append( "creatorUuid",  this.getCreatorUuid()  )
       .append( "modifierUuid", this.getModifierUuid() )
       .append( "modifyTime",   this.getModifyTime()   )
-      .append( "ownerUuid",    this.getUuid()         )
+      .append( "uuid",    this.getUuid()         )
       .append( "parentUuid",   this.getParentUuid()   )
       .append( "types",        this.getTypesDb()        )
       .toString();

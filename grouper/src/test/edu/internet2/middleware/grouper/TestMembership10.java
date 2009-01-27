@@ -22,6 +22,7 @@ import java.util.Set;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -38,6 +39,14 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestMembership10 extends TestCase {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestMembership10("testComplementComposite"));
+  }
+  
   private static final Log LOG = GrouperUtil.getLog(TestMembership10.class);
 
   Date before;

@@ -129,7 +129,7 @@ public class TestFindBadMemberships0 extends TestCase {
       GrouperDAOFactory.getFactory().getMembership().update(mof);
       gEgI.setHibernateVersionNumber(-1L);
       gEgI.setParentUuid(gEgIParent);
-      gEgI.setViaUuid(gC.getUuid());
+      gEgI.setViaGroupId(gC.getUuid());
       mof = new DefaultMemberOf();
       mof.addSave(gEgI);
       GrouperDAOFactory.getFactory().getMembership().update(mof);
@@ -142,7 +142,7 @@ public class TestFindBadMemberships0 extends TestCase {
       mof.addDelete(gEgI);
       GrouperDAOFactory.getFactory().getMembership().update(mof);
       gEgI.setHibernateVersionNumber(-1L);
-      gEgI.setViaUuid(gD.getUuid());
+      gEgI.setViaGroupId(gD.getUuid());
       gEgI.setMemberUuid(gD.toMember().getUuid());
       mof = new DefaultMemberOf();
       mof.addSave(gEgI);

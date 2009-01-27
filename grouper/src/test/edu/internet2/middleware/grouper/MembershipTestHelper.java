@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipTestHelper.java,v 1.12 2008-10-23 20:52:05 shilen Exp $
+ * @version $Id: MembershipTestHelper.java,v 1.13 2009-01-27 12:09:23 mchyzer Exp $
  */
 public class MembershipTestHelper {
 
@@ -449,7 +449,7 @@ public class MembershipTestHelper {
     
     try {
       Member m = MemberFinder.findBySubject(s, subj);
-      mship = GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType(
+      mship = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
           stem.getUuid(), m.getUuid(), f, Membership.IMMEDIATE
         );
     } catch (Exception e) {
@@ -508,13 +508,23 @@ public class MembershipTestHelper {
     return null;
   } 
 
+  /**
+   * 
+   * @param s
+   * @param stem
+   * @param subj
+   * @param via
+   * @param depth
+   * @param f
+   * @return membership
+   */
   protected static Membership findEffectiveMembership(GrouperSession s, Stem stem, Subject subj, Group via, int depth, Field f) {
   
     Membership mship = null;
     
     try {
       Member m = MemberFinder.findBySubject(s, subj);
-      Iterator<Membership> it = GrouperDAOFactory.getFactory().getMembership().findAllEffective(
+      Iterator<Membership> it = GrouperDAOFactory.getFactory().getMembership().findAllEffectiveByStemOwner(
         stem.getUuid(), m.getUuid(), f, via.getUuid(), depth).iterator();
         
       if (it.hasNext()) {
@@ -527,6 +537,15 @@ public class MembershipTestHelper {
     return mship;
   } 
   
+  /**
+   * 
+   * @param s
+   * @param comment
+   * @param childGroup
+   * @param childSubject
+   * @param f
+   * @return membership
+   */
   protected static Membership verifyImmediateMembership(GrouperSession s, String comment, Group childGroup, Subject childSubject, Field f) {
   
     // first verify that the membership exists
@@ -716,6 +735,7 @@ public class MembershipTestHelper {
       try {
         Assert.assertTrue(curComment, FindBadMemberships.checkGroup(g));
       } catch (Exception e) {
+        e.printStackTrace();
         Assert.fail(curComment + " - got exception: " + e.getMessage());
       }
     }

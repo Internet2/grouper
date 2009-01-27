@@ -41,7 +41,7 @@ import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.53 2008-11-13 05:04:04 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.54 2009-01-27 12:09:23 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -130,7 +130,7 @@ public class SuiteDefault extends TestCase {
     TestSuite suite = new TestSuite();
     
     //do this first so all tests are done on new ddl
-    suite.addTest(AllDdlTests.suite());
+    //suite.addTest(AllDdlTests.suite());
 
     suite.addTestSuite( GrouperVersionTest.class );
     suite.addTestSuite( Test_api_ChildGroupFilter.class );

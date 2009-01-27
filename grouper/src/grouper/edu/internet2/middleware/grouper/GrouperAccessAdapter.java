@@ -57,7 +57,7 @@ import edu.internet2.middleware.subject.Subject;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.72 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.73 2009-01-27 12:09:24 mchyzer Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -99,7 +99,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    return MembershipFinder.internal_findSubjects(
+    return MembershipFinder.internal_findGroupSubjects(
       s, g, FieldFinder.find( (String) priv2list.get(priv) )
     );
   } // public Set getSubjectsWithpriv(s, g, priv)
@@ -178,7 +178,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
 	   //Avoid doing 6 queries - get everything at once
 	   //Also don't add GropuperAll privs - do that in 
 	   //GrouperAllAccessResolver
-        it  = dao.findAllByOwnerAndMember( g.getUuid(), m.getUuid()).iterator(); 
+        it  = dao.findAllByGroupOwnerAndMember( g.getUuid(), m.getUuid()).iterator(); 
         privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, g,subj, m, null, it) );
         /*
          * Done through GrouperAllAccessAdapter
