@@ -31,24 +31,38 @@ import edu.internet2.middleware.grouper.Stem;
 /** 
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseMemberOf.java,v 1.3 2008-11-11 22:08:33 mchyzer Exp $
+ * @version $Id: BaseMemberOf.java,v 1.4 2009-01-27 12:09:24 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class BaseMemberOf implements MemberOf {
 
-  // PRIVATE INSTANCE VARIABLES //
+  /** */
   private Composite       c;
+  /** */
   private Set<GrouperAPI> deletes         = new LinkedHashSet<GrouperAPI>();
+  /** */
   private Set<GrouperAPI> effDeletes      = new LinkedHashSet<GrouperAPI>();
+  /** */
   private Set<GrouperAPI> effSaves        = new LinkedHashSet<GrouperAPI>();
+  /** */
   private Field           f               = Group.getDefaultList();
+  /** */
   private Group           g;
+  /** */
   private Member       _m;
+  /** */
   private Membership   _ms;
+  /** */
   private Set<Group>             modifiedGroups  = new LinkedHashSet();
+  /** */
   private Set<Stem>             modifiedStems   = new LinkedHashSet();
+  /** */
   private Stem            ns;
-  private String          ownerUUID;  
+  /** */
+  private String          ownerGroupId;  
+  /** */
+  private String          ownerStemId;  
+  /** */
   private Set<GrouperAPI> saves           = new LinkedHashSet<GrouperAPI>();
 
 
@@ -151,9 +165,18 @@ public abstract class BaseMemberOf implements MemberOf {
   public Membership getMembership() {
     return this._ms;
   }
-  // @since   1.2.0
-  protected String getOwnerUuid() {
-    return this.ownerUUID;
+
+  /**
+   * @return owner group id
+   */
+  protected String getOwnerGroupId() {
+    return this.ownerGroupId;
+  }
+  /**
+   * @return owner group id
+   */
+  protected String getOwnerStemId() {
+    return this.ownerStemId;
   }
   // @since   1.2.0
   public Stem getStem() {
@@ -172,7 +195,7 @@ public abstract class BaseMemberOf implements MemberOf {
   // @since   1.2.0
   protected MemberOf setGroup(Group g) {
     this.g = g;
-    this.setOwnerUuid( g.getUuid() );
+    this.setOwnerGroupId( g.getUuid() );
     return this;
   }
   // @since   1.2.0
@@ -195,15 +218,26 @@ public abstract class BaseMemberOf implements MemberOf {
     this.modifiedStems = modifiedStems;
     return this;
   }
-  // @since   1.2.0
-  protected MemberOf setOwnerUuid(String ownerUUID) {
-    this.ownerUUID = ownerUUID;
+  /**
+   * @param ownerGroupId1
+   * @return self for chaining
+   */
+  protected MemberOf setOwnerGroupId(String ownerGroupId1) {
+    this.ownerGroupId = ownerGroupId1;
+    return this;
+  }
+  /**
+   * @param ownerStemId1
+   * @return self for chaining
+   */
+  protected MemberOf setOwnerStemId(String ownerStemId1) {
+    this.ownerStemId = ownerStemId1;
     return this;
   }
   // @since   1.2.0
   protected MemberOf setStem(Stem ns) {
     this.ns = ns;
-    this.setOwnerUuid( ns.getUuid() );
+    this.setOwnerStemId( ns.getUuid() );
     return this;
   }
 

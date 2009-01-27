@@ -13,7 +13,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * @version $Id: ByObject.java,v 1.7 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: ByObject.java,v 1.8 2009-01-27 12:09:24 mchyzer Exp $
  * @author harveycg
  */
 public class ByObject extends HibernateDelegate {
@@ -238,7 +238,11 @@ public class ByObject extends HibernateDelegate {
       }
       
       session.saveOrUpdate(object);
-
+      try {
+        session.flush(); //TODO remove
+      } catch (RuntimeException re) {
+        throw re;
+      }
       if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
         if (isInsert) {
           ((HibGrouperLifecycle)object).onPostSave(hibernateSession);

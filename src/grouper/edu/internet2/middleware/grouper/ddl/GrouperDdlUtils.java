@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.32 2009-01-02 17:32:08 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.33 2009-01-27 12:09:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -2010,21 +2010,25 @@ public class GrouperDdlUtils {
       }
     }
   }
+  
   /**
    * see if tables are there (at least the grouper groups one)
    * @param expectRecords 
    * @param expectTrue pritn exception if expecting true
-   * @return true if everything ok, false if not
+   * @return true if expect records, and records there.  false if records not there.  exception
+   * if exception is thrown and expect true.false if exception and not expect true
    */
   public static boolean assertTablesThere(boolean expectRecords, boolean expectTrue) {
     return assertTablesThere(expectRecords, expectTrue, "grouper_stems");
   }
+
   /**
    * see if tables are there (at least the grouper groups one)
    * @param expectRecords 
    * @param expectTrue pritn exception if expecting true
    * @param tableName 
-   * @return true if everything ok, false if not
+   * @return true if expect records, and records there.  false if records not there.  exception
+   * if exception is thrown and expect true.false if exception and not expect true
    */
   public static boolean assertTablesThere(boolean expectRecords, boolean expectTrue, String tableName) {
     try {
@@ -2043,6 +2047,32 @@ public class GrouperDdlUtils {
     }
   
   }
+
+  /**
+   * see if tables are there (at least the grouper groups one)
+   * @param expectTrue throw exception if expecting true and not there or vice versa
+   * @param tableName 
+   * @param columnName 
+   * @return true if everything ok, false if not
+   */
+  public static boolean assertColumnThere(boolean expectTrue, String tableName, String columnName) {
+    try {
+      //first, see if column are there
+      HibernateSession.bySqlStatic().select(int.class, 
+          "select count(*) from " + tableName + " where " + columnName + " is null");
+      if (expectTrue) {
+        return true;
+      }
+      return false;
+    } catch (RuntimeException e) {
+      if (expectTrue) {
+        return false;
+      }
+      return true;
+    }
+  
+  }
+
   /**
    * see if tables are there (at least the grouper groups one)
    * @param tableName 

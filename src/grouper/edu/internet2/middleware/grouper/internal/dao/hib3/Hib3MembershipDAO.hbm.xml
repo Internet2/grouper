@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.10 2008-10-16 05:45:47 mchyzer Exp $ -->
+<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.11 2009-01-27 12:09:24 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
   <!-- TODO 20070124 revisit the batch-size setting now that i've completely altered this mapping -->
@@ -47,20 +47,9 @@
               not-null="true"
       />
 
-    <!-- ownerUuid -->
-    <!-- [@since 1.2.0] Refers to owner's UUID, not ID -->
-    <property name="ownerUuid"
-              type="string"
-              update="false"
-    >
-      <column name="owner_id"
-              not-null="true"
-              length="128"
-              unique-key="members_idx"
-              index="membership_owner_list_type_idx"
-      />
-    </property>
-    <!-- ownerUuid -->
+    <property name="ownerGroupId" type="string" column="owner_group_id" />
+
+    <property name="ownerStemId" type="string" column="owner_stem_id" />
 
     <!-- memberUuid -->
     <!-- [@since 1.2.0] Refers to member's UUID, not ID -->
@@ -95,19 +84,11 @@
     </property>
     <!-- type -->
 
-    <!-- viaUuid -->
-    <!-- [@since 1.2.0] Refers to parent's UUID, not ID -->
-    <property name="viaUuid"
-              type="string"
-              update="false"
-    >
-      <column name="via_id"
-              index="membership_member_via_idx"
-              length="128"
-              not-null="false"
-      />
-    </property>
-    <!-- viaUuid -->
+    <property name="viaGroupId"
+              type="string" column="via_group_id"    />
+
+    <property name="viaCompositeId"
+              type="string" column="via_composite_id"    />
 
     <!-- depth -->
     <property name="depth"

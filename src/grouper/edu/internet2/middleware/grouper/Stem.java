@@ -91,7 +91,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.173 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.174 2009-01-27 12:09:24 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -99,9 +99,12 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
   /** table for stems table in the db */
   public static final String TABLE_GROUPER_STEMS = "grouper_stems";
 
-  /** uuid col in db */
+  /** uuid col in db (not used anymore) */
   public static final String COLUMN_UUID = "uuid";
   
+  /** id col in db */
+  public static final String COLUMN_ID = "id";
+
   /** old id col for id conversion */
   public static final String COLUMN_OLD_ID = "old_id";
   

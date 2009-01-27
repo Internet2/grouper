@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -33,7 +34,6 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -43,7 +43,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Reference to members list is: Group.getDefaultList()
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.38 2008-11-11 07:27:32 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.39 2009-01-27 12:09:24 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -149,11 +149,28 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   } 
 
   /**
+   * see if this is a list of members field for stems
+   * @return true if stem list field
+   */
+  public boolean isStemListField() {
+    return StringUtils.equals("naming", this.type);
+  }
+  
+  /**
+   * see if this is a list of members field for groups
+   * @return true if group list field
+   */
+  public boolean isGroupListField() {
+    return StringUtils.equals("list", this.type)
+      || StringUtils.equals("access", this.type);
+  }
+  
+  /**
    * @return field type
    */
   public FieldType getType() {
     return FieldType.getInstance( this.getTypeString() );
-  } // public FieldType getType()
+  }
 
   /**
    * @return privilege

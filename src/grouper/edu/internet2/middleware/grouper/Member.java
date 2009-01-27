@@ -80,7 +80,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.117 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: Member.java,v 1.118 2009-01-27 12:09:24 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -1482,13 +1482,12 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
   {
     MembershipDAO dao = GrouperDAOFactory.getFactory().getMembership();    
     boolean       rv  = false;
-    if ( dao.findAllEffectiveByOwnerAndMemberAndField( g.getUuid(), this.getUuid(), f ).size() > 0 ) {
+    if ( dao.findAllEffectiveByGroupOwnerAndMemberAndField( g.getUuid(), this.getUuid(), f ).size() > 0 ) {
       rv = true;
     }
     else if (
-      dao.findAllEffectiveByOwnerAndMemberAndField( g.getUuid(), MemberFinder.internal_findAllMember().getUuid(), f ).size() > 0
-    ) 
-    {
+      dao.findAllEffectiveByGroupOwnerAndMemberAndField( g.getUuid(), MemberFinder.internal_findAllMember().getUuid(), f ).size() > 0
+    ) {
       rv = true;
     }
     return rv;
@@ -1560,7 +1559,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
       }
       catch (MembershipNotFoundException eMNF) {
         try {
-          GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType(
+          GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
             g.getUuid(), MemberFinder.internal_findAllMember().getUuid(), f, Membership.IMMEDIATE
           );
           rv = true;
@@ -1574,7 +1573,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
       LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
     }
     return rv;
-  } // public boolean isImmediateMember(g, f)
+  }
 
   /**
    * Test whether a member belongs to a group.   
@@ -1779,14 +1778,23 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
   public boolean isMember(String ownerUUID, Field f) {
     boolean       rv      = false;
     MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
-    Set           mships  = dao.findAllByOwnerAndMemberAndField(ownerUUID, this.getUuid(), f);
+    Set<Membership> mships  = null;
+    if (f.isGroupListField()) {
+      mships = dao.findAllByGroupOwnerAndMemberAndField(ownerUUID, this.getUuid(), f);
+    } else if (f.isStemListField()) {
+      mships = dao.findAllByStemOwnerAndMemberAndField(ownerUUID, this.getUuid(), f);
+    }
     if (mships.size() > 0) {
       rv = true;
     }
     else {
       Member all = MemberFinder.internal_findAllMember();
       if ( !this.equals(all) ) {
-        mships = dao.findAllByOwnerAndMemberAndField( ownerUUID, all.getUuid(), f);
+        if (f.isGroupListField()) {
+          mships = dao.findAllByGroupOwnerAndMemberAndField(ownerUUID, all.getUuid(), f);
+        } else if (f.isStemListField()) {
+          mships = dao.findAllByStemOwnerAndMemberAndField(ownerUUID, all.getUuid(), f);
+        }
         if (mships.size() > 0) {
           rv = true;
         }

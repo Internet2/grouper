@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.4 2008-10-23 04:48:57 mchyzer Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.5 2009-01-27 12:09:24 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperPrivilegeAdapter {
@@ -121,7 +121,7 @@ public class GrouperPrivilegeAdapter {
           catch (SubjectNotFoundException eSNF) {
             LOG.error(eSNF.getMessage());
           }
-          if ( ms.getViaUuid() != null ) {
+          if ( ms.getViaGroupId() != null ) {
             try {
               owner   = ms.getViaGroup().toSubject();
               revoke  = false;

@@ -32,6 +32,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
@@ -98,7 +99,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.10 2009-01-02 06:57:12 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.11 2009-01-27 12:09:24 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -251,7 +252,7 @@ public class XmlImporter {
       LOG.debug("Finished import of [" + rc.getProperty(XmlArgs.RC_IFILE) + "]");
     }
     catch (Exception e) {
-      LOG.fatal("unable to import from xml: " + e.getMessage());
+      LOG.fatal("unable to import from xml: " + e.getMessage(), e);
       //System.exit(1);
       return;
     }
@@ -1369,6 +1370,19 @@ public class XmlImporter {
     if (isNew || this._isMetadataGroupTypeAttributeImportEnabled()) {
       // if a new group type or we have enabled group type attr importing // continue
       String    fName = el.getAttribute("name");
+
+      //these were moved from attributes to other things
+      if (StringUtils.equals(gt.getName(), "base") &&
+          (
+          StringUtils.equals("name", fName)
+          || StringUtils.equals("description", fName)
+          || StringUtils.equals("extension", fName)
+          || StringUtils.equals("displayExtension", fName)
+          || StringUtils.equals("displayName", fName)
+          )) {
+        return;
+      }
+      
       String    fType = el.getAttribute("type");
       Privilege read  = Privilege.getInstance( el.getAttribute("readPriv")  );
       Privilege write = Privilege.getInstance( el.getAttribute("writePriv") );

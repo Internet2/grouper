@@ -36,7 +36,9 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -58,15 +60,21 @@ import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.10 2009-01-02 06:57:12 mchyzer Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.11 2009-01-27 12:09:24 mchyzer Exp $
  * @since   1.2.0
  */
 @GrouperIgnoreDbVersion
 public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
 
+  /** */
   private boolean validateImmediateMembership = true;
 
+  /** */
+  @GrouperIgnoreFieldConstant @GrouperIgnoreClone @GrouperIgnoreDbVersion
   private Map<MultiKey, Set> groupsAndMembersSaves = new HashMap<MultiKey, Set>();
+
+  /** */
+  @GrouperIgnoreFieldConstant @GrouperIgnoreClone @GrouperIgnoreDbVersion
   private Map<MultiKey, Set> groupsAndMembersDeletes = new HashMap<MultiKey, Set>();
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
@@ -104,11 +112,17 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   /** constant for field name for: ns */
   public static final String FIELD_NS = "ns";
 
-  /** constant for field name for: ownerUUID */
-  public static final String FIELD_OWNER_UUID = "ownerUUID";
+  /** constant for field name for: ownerGroupId */
+  public static final String FIELD_OWNER_GROUP_ID = "ownerGroupId";
+
+  /** constant for field name for: ownerStemId */
+  public static final String FIELD_OWNER_STEM_ID = "ownerStemId";
 
   /** constant for field name for: saves */
   public static final String FIELD_SAVES = "saves";
+
+  /** constant for field name for: validateImmediateMembership */
+  public static final String FIELD_VALIDATE_IMMEDIATE_MEMBERSHIP = "validateImmediateMembership";
 
   /**
    * fields which are included in clone method
@@ -116,8 +130,8 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD__M, FIELD__MS, FIELD_C, FIELD_DELETES, 
       FIELD_EFF_DELETES, FIELD_EFF_SAVES, FIELD_F, FIELD_G, 
-      FIELD_MODIFIED_GROUPS, FIELD_MODIFIED_STEMS, FIELD_NS, FIELD_OWNER_UUID, 
-      FIELD_SAVES);
+      FIELD_MODIFIED_GROUPS, FIELD_MODIFIED_STEMS, FIELD_NS, FIELD_OWNER_GROUP_ID, 
+      FIELD_OWNER_STEM_ID, FIELD_SAVES, FIELD_VALIDATE_IMMEDIATE_MEMBERSHIP);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -132,6 +146,10 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   // PUBLIC INSTANCE METHODS //
  
   /**
+   * @param s 
+   * @param g 
+   * @param c 
+   * @throws IllegalStateException 
    * @since   1.2.0
    */
   public void addComposite(GrouperSession s, final Group g, final Composite c)
@@ -143,8 +161,8 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
           throws GrouperSessionException {
         DefaultMemberOf.this.setComposite(c);
         DefaultMemberOf.this.setGroup(g);
-        DefaultMemberOf.this._evaluateAddCompositeMembership();
         DefaultMemberOf.this.addSave( c );
+        DefaultMemberOf.this._evaluateAddCompositeMembership();
         return null;
       }
       
@@ -152,6 +170,10 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   } 
 
   /**
+   * @param s 
+   * @param g 
+   * @param c 
+   * @throws IllegalStateException 
    * @since   1.2.0
    */
   public void deleteComposite(GrouperSession s, final Group g, final Composite c)
@@ -172,6 +194,11 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   }
 
   /**
+   * @param s 
+   * @param g 
+   * @param f 
+   * @param _m 
+   * @throws IllegalStateException 
    * @since   1.2.0
    */
   public void addImmediate(GrouperSession s, Group g, Field f, Member _m)
@@ -183,6 +210,11 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   } 
 
   /**
+   * @param s 
+   * @param g 
+   * @param f 
+   * @param _m 
+   * @throws IllegalStateException 
    * @since   1.3.1
    */
   public void addImmediateWithoutValidation(GrouperSession s, Group g, Field f, Member _m)
@@ -193,6 +225,11 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   } 
 
   /**
+   * @param s 
+   * @param ns 
+   * @param f 
+   * @param _m 
+   * @throws IllegalStateException 
    * @since   1.2.0
    */
   public void addImmediate(GrouperSession s, Stem ns, Field f, Member _m)
@@ -204,6 +241,11 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   }
 
   /**
+   * @param s 
+   * @param ns 
+   * @param f 
+   * @param _m 
+   * @throws IllegalStateException 
    * @since   1.3.1
    */
   public void addImmediateWithoutValidation(GrouperSession s, Stem ns, Field f, Member _m)
@@ -214,6 +256,11 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   } 
 
   /**
+   * @param s 
+   * @param g 
+   * @param _ms 
+   * @param _m 
+   * @throws IllegalStateException 
    * @since   1.2.0
    */
   public void deleteImmediate(GrouperSession s, Group g, Membership _ms, Member _m)
@@ -225,6 +272,11 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   }
 
   /**
+   * @param s 
+   * @param ns 
+   * @param _ms 
+   * @param _m 
+   * @throws IllegalStateException 
    * @since   1.2.0
    */
   public void deleteImmediate(GrouperSession s, Stem ns, Membership _ms, Member _m)
@@ -235,11 +287,15 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     this._evaluateDeleteImmediateMembership(s, _ms, _m);
   } 
 
-
-  // PROTECTED INSTANCE METHODS //
-
-  // m->{ "group" | "stem" } = { group or stem uuid = group or stem object }
-  // @since   1.2.0 
+  /**
+   * m->{ "group" | "stems" } = { group or stem uuid = group or stem object }
+   * @since   1.2.0 
+   * @param m 
+   * @param it 
+   * @return  map
+   * @throws IllegalStateException 
+   * 
+   */
   public Map identifyGroupsAndStemsToMarkAsModified(Map m, Iterator it) 
     throws  IllegalStateException
   {
@@ -260,7 +316,8 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     }
     
     Membership _ms;
-    String        k;
+    String        ownerGroupId;
+    String        ownerStemId;
     Group      _g;
     Stem       _ns;
     try {
@@ -268,22 +325,23 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
       StemDAO   nsDAO = GrouperDAOFactory.getFactory().getStem();
       while (it.hasNext()) {
         _ms = (Membership) it.next();
-        k   = _ms.getOwnerUuid();
+        ownerGroupId   = _ms.getOwnerGroupId();
+        ownerStemId   = _ms.getOwnerStemId();
         if      ( _ms.getListType().equals(FieldType.LIST.toString()) || _ms.getListType().equals(FieldType.ACCESS.toString()) ) {
-          if ( !groups.containsKey(k) ) {
-            _g = gDAO.findByUuid(k);
+          if ( !groups.containsKey(ownerGroupId) ) {
+            _g = gDAO.findByUuid(ownerGroupId);
             _g.setModifierUuid(modifierUuid);
             _g.setModifyTimeLong(modifyTime);
             _g.setDontSetModified(true);
-            groups.put(k, _g);
+            groups.put(ownerGroupId, _g);
           }
         }
         else if ( _ms.getListType().equals(FieldType.NAMING.toString()) ) {
-          if ( !stems.containsKey(k) ) {
-            _ns = nsDAO.findByUuid(k);
+          if ( !stems.containsKey(ownerStemId) ) {
+            _ns = nsDAO.findByUuid(ownerStemId);
             _ns.setModifierUuid(modifierUuid);
             _ns.setModifyTimeLong(modifyTime);
-            stems.put(k, _ns);
+            stems.put(ownerStemId, _ns);
           }
         }
         else {
@@ -319,11 +377,13 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     return m;
   }
 
-
-  // PRIVATE INSTANCE METHODS //
-
-  // Add m's hasMembers to o
-  // @since   1.2.0
+  /**
+   * Add m's hasMembers to o
+   * @since   1.2.0
+   * @param hasMembers
+   * @return set
+   * @throws IllegalStateException
+   */
   private Set _addHasMembersToOwner(Set<Membership> hasMembers) 
     throws  IllegalStateException
   {
@@ -332,7 +392,8 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     Iterator<Membership> it = hasMembers.iterator();
 
     // cache values outside of iterator
-    String ownerUUID = this.getMembership().getOwnerUuid();
+    String ownerGroupId = this.getMembership().getOwnerGroupId();
+    String ownerStemId = this.getMembership().getOwnerStemId();
     String creatorUUID = GrouperSession.staticGrouperSession().getMember().getUuid();
     String fieldId = this.getMembership().getFieldId();
 
@@ -342,16 +403,20 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
       hasMS = it.next();
       if (hasMS.getDepth() == 0) {
         Set<Membership> newAdditions = _addHasMembersRecursively(this.getMembership(), hasMS, 
-          this.getMembership(), parentToChildrenMap, ownerUUID, creatorUUID, fieldId);
+          this.getMembership(), parentToChildrenMap, ownerGroupId, ownerStemId, creatorUUID, fieldId);
         mships.addAll(newAdditions);
       }
     }
 
     return mships;
-  } // private Set _addHasMembersToOwner(hasMembers)
+  }
 
-  // Given a set of memberships, return a map that will allow retrieval of 
-  // the children of a parent membership.
+  /**
+   * Given a set of memberships, return a map that will allow retrieval of 
+   * the children of a parent membership.
+   * @param members
+   * @return the map
+   */
   private Map<String, Set> _getParentToChildrenMap(Set<Membership> members) {
     Map<String, Set> parentToChildrenMap = new HashMap<String, Set>();
 
@@ -378,12 +443,12 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
    * Check if the given memberUUID is the memberUUID for the group with a UUID of ownerUUID.
    *
    * @param memberUUID
-   * @param ownerUUID
-   * @return
+   * @param ownerGroupId
+   * @return if equal
    */
-  private boolean checkEquality(String memberUUID, String ownerUUID) {
+  private boolean checkEquality(String memberUUID, String ownerGroupId) {
     try {
-      String memberUUID2 = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerUUID).toMember().getUuid();
+      String memberUUID2 = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerGroupId).toMember().getUuid();
       if (memberUUID.equals(memberUUID2)) {
         return true;
       }
@@ -400,13 +465,14 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
    * @param newMembership membership being added
    * @param startMembership membership that's a parent of newMembership which will be used
    *                        as a starting point to check if we're forming a circular membership
+   * @return if circular
    * @returns true if the new membership will cause a circular membership.
    */
   private boolean isCircular(Membership newMembership, Membership startMembership) {
     // for the default list, a group should not be an indirect member of itself ....
 
     if (newMembership.getFieldId().equals(Group.getDefaultList().getUuid()) && 
-      checkEquality(newMembership.getMemberUuid(), newMembership.getOwnerUuid())) {
+      checkEquality(newMembership.getMemberUuid(), newMembership.getOwnerGroupId())) {
       return true;
     }
 
@@ -436,23 +502,37 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     return false;
   }
 
+  /**
+   * 
+   * @param startMembership
+   * @param currentMembership
+   * @param parentMembership
+   * @param parentToChildrenMap
+   * @param ownerGroupId 
+   * @param ownerStemId 
+   * @param creatorUUID
+   * @param fieldId
+   * @return set of memberships
+   */
   private Set<Membership> _addHasMembersRecursively(Membership startMembership, 
     Membership currentMembership, Membership parentMembership, Map<String, Set> parentToChildrenMap, 
-    String ownerUUID, String creatorUUID, String fieldId) {
+    String ownerGroupId, String ownerStemId, String creatorUUID, String fieldId) {
 
     Membership _newMembership = new Membership();
     _newMembership.setCreatorUuid(creatorUUID);
     _newMembership.setFieldId(fieldId);
-    _newMembership.setOwnerUuid(ownerUUID);
+    _newMembership.setOwnerGroupId(ownerGroupId);
+    _newMembership.setOwnerStemId(ownerStemId);
     _newMembership.setType(Membership.EFFECTIVE);
     _newMembership.setMemberUuid(currentMembership.getMemberUuid());
     _newMembership.setDepth(parentMembership.getDepth() + 1);
     _newMembership.setParentUuid(parentMembership.getUuid());
 
     if (currentMembership.getDepth() == 0) {
-      _newMembership.setViaUuid(currentMembership.getOwnerUuid());
+      _newMembership.setViaGroupId(currentMembership.getOwnerGroupId());
     } else {
-      _newMembership.setViaUuid(currentMembership.getViaUuid());
+      _newMembership.setViaGroupId(currentMembership.getViaGroupId());
+      _newMembership.setViaCompositeId(currentMembership.getViaCompositeId());
     }
 
     // if we're forming a circular path, return an empty Set.
@@ -475,7 +555,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
       while (it.hasNext()) {
         Membership hasMS = it.next();
         Set<Membership> newAdditions = _addHasMembersRecursively(startMembership, hasMS, _newMembership, 
-          parentToChildrenMap, ownerUUID, creatorUUID, fieldId);
+          parentToChildrenMap, ownerGroupId, ownerStemId, creatorUUID, fieldId);
         newMemberships.addAll(newAdditions);
       }
     }
@@ -486,8 +566,10 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   /**
    * Add members of <i>member</i> to where <i>group</i> is a member.
    * @param   isMember    <i>Set</i> of <i>Membership</i> objects.
-   * @param   hasMember   <i>Set</i> of <i>Membership</i> objects.
+   * @param   hasMembers   <i>Set</i> of <i>Membership</i> objects.
    * @param   isComposite <i>boolean</i> true if adding a composite membership
+   * @return  set
+   * @throws IllegalStateException 
    * @since   1.2.0
    */
   private Set _addHasMembersToWhereGroupIsMember(Set<Membership> isMember, Set<Membership> hasMembers, boolean isComposite) 
@@ -516,7 +598,8 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
       isMS = itIM.next();
       boolean isViaGroupComposite = isViaGroupComposite(isMS);
 
-      String ownerUUID = isMS.getOwnerUuid();
+      String ownerGroupId = isMS.getOwnerGroupId();
+      String ownerStemId = isMS.getOwnerStemId();
       String fieldId = isMS.getFieldId();
       String type = isMS.getType();
       String uuid = isMS.getUuid();
@@ -524,7 +607,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
 
       // If the isMember's owner is the same as the immediate member's owner and this is for a default member, 
       // then we can skip this isMember.
-      if (fieldId.equals(Group.getDefaultList().getUuid()) && isMS.getOwnerUuid().equals(this.getGroup().getUuid())) {
+      if (fieldId.equals(Group.getDefaultList().getUuid()) && StringUtils.equals(isMS.getOwnerGroupId(),this.getGroup().getUuid())) {
         continue;
       }
 
@@ -536,11 +619,12 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         _ms = new Membership();
         _ms.setCreatorUuid( creatorUUID );
         _ms.setDepth( depth + 1 );
-        _ms.setViaUuid( this.getMembership().getOwnerUuid() );
+        _ms.setViaGroupId( this.getMembership().getOwnerGroupId() );
         _ms.setParentUuid( uuid );
         _ms.setFieldId( fieldId );
         _ms.setMemberUuid( this.getMembership().getMemberUuid() );
-        _ms.setOwnerUuid( ownerUUID );
+        _ms.setOwnerGroupId( ownerGroupId );
+        _ms.setOwnerStemId( ownerStemId );
         _ms.setType(Membership.EFFECTIVE);
 
         GrouperValidator v = EffectiveMembershipValidator.validate(_ms);
@@ -561,11 +645,11 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         hasMS = itHM.next();
         if (isComposite) {
           Set<Membership> newAdditions = _addHasMembersRecursively(isMS, hasMS, isMS, parentToChildrenMap,
-              ownerUUID, creatorUUID, fieldId);
+              ownerGroupId, ownerStemId, creatorUUID, fieldId);
           mships.addAll(newAdditions);
         } else {
           Set<Membership> newAdditions = _addHasMembersRecursively(isMS, hasMS, _ms, parentToChildrenMap,
-              ownerUUID, creatorUUID, fieldId);
+              ownerGroupId, ownerStemId, creatorUUID, fieldId);
           mships.addAll(newAdditions);
         }
       }
@@ -579,14 +663,14 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
    * Checks if the membership is via a composite group.
    *
    * @param membership the membership to check
-   * @returns true if the membership is via a composite group.
+   * @return true if the membership is via a composite group.
    * @throws IllegalStateException
    */
   private boolean isViaGroupComposite(Membership membership) 
     throws IllegalStateException {
 
     // return false if there's no via uuid.
-    String uuid = membership.getViaUuid();
+    String uuid = membership.getViaGroupId();
     if (uuid == null) {
       return false;
     }
@@ -608,21 +692,32 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     }
   }
 
-  // @since   1.2.0
+  /**
+   * 
+   * @param memberUUIDs
+   * @return set
+   * @throws IllegalStateException
+   */
   private Set _createNewCompositeMembershipObjects(Set memberUUIDs) 
-    throws  IllegalStateException
-  {
+    throws  IllegalStateException {
     Set               mships  = new LinkedHashSet();
     Iterator          it      = memberUUIDs.iterator();
     while (it.hasNext()) {
-      Membership _ms = _createNewCompositeMembershipObject(this.getOwnerUuid(), (String)it.next(), this.getComposite().getUuid());
+      Membership _ms = _createNewCompositeMembershipObject(this.getOwnerGroupId(), (String)it.next(), this.getComposite().getUuid());
       mships.add(_ms);
     }
     return mships;
-  } // private Set _createNewCompositeMembershipObjects(memberUUIDs)
+  }
 
-  // @since   1.4.0
-  private Membership _createNewCompositeMembershipObject(String ownerUuid, String memberUuid, String viaUuid)
+  /**
+   * 
+   * @param ownerGroupId
+   * @param memberUuid
+   * @param viaCompositeId
+   * @return membership
+   * @throws IllegalStateException
+   */
+  private Membership _createNewCompositeMembershipObject(String ownerGroupId, String memberUuid, String viaCompositeId)
     throws  IllegalStateException
   {
     GrouperValidator  v;
@@ -633,10 +728,10 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     _ms.setFieldId(FieldFinder.findFieldId(this.getField().getName(),
       this.getField().getType().toString()));
     _ms.setMemberUuid(memberUuid);
-    _ms.setOwnerUuid(ownerUuid);
+    _ms.setOwnerGroupId(ownerGroupId);
     _ms.setParentUuid(null);
     _ms.setType(Membership.COMPOSITE);
-    _ms.setViaUuid(viaUuid);
+    _ms.setViaCompositeId(viaCompositeId);
 
     v = CompositeMembershipValidator.validate(_ms);
     if (v.isInvalid()) {
@@ -648,6 +743,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
 
   /**
    * Evaluate the addition of a new composite membership.
+   * @throws IllegalStateException 
    * @since   1.2.0
    */
   private void _evaluateAddCompositeMembership()
@@ -682,10 +778,13 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     this._identifyGroupsAndStemsToMarkAsModified();
   } 
 
-  // @since   1.2.0
+  /**
+   * 
+   * @return set
+   * @throws IllegalStateException
+   */
   private Set _evaluateAddCompositeMembershipComplement() 
-    throws  IllegalStateException
-  {
+    throws  IllegalStateException {
     Set memberUUIDs = new LinkedHashSet();
     String compositeGroupUuid = this.getGroup().toMember().getUuid();
     Set<String> leftMembers = this._findMemberUUIDs(this.getComposite().getLeftFactorUuid());
@@ -700,8 +799,13 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
 
     return this._createNewCompositeMembershipObjects(memberUUIDs);
   } 
-  
-  // @since   1.2.0
+
+  /**
+   * 
+   * @return set
+   * 
+   * @throws IllegalStateException
+   */
   private Set _evaluateAddCompositeMembershipIntersection() 
     throws  IllegalStateException
   {
@@ -720,7 +824,11 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     return this._createNewCompositeMembershipObjects(memberUUIDs);
   } 
 
-  // @since   1.2.0
+  /**
+   * 
+   * @return set
+   * @throws IllegalStateException
+   */
   private Set _evaluateAddCompositeMembershipUnion() 
     throws  IllegalStateException
   {
@@ -739,8 +847,13 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     return this._createNewCompositeMembershipObjects(memberUUIDs);
   } 
 
-  // @since   1.2.0
-  // TODO 20070531 split; this method has gotten too large
+  /**
+   * TODO 20070531 split; this method has gotten too large
+   * @param s
+   * @param f
+   * @param _m
+   * @throws IllegalStateException
+   */
   private void _evaluateAddImmediateMembership(GrouperSession s, final Field f, final Member _m) 
     throws  IllegalStateException
   {
@@ -753,7 +866,8 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         _ms.setFieldId(FieldFinder.findFieldId(f.getName(), 
             f.getType().toString()));
         _ms.setMemberUuid( _m.getUuid() );
-        _ms.setOwnerUuid( DefaultMemberOf.this.getOwnerUuid() );
+        _ms.setOwnerGroupId( DefaultMemberOf.this.getOwnerGroupId() );
+        _ms.setOwnerStemId( DefaultMemberOf.this.getOwnerStemId() );
 
     if (DefaultMemberOf.this.validateImmediateMembership == true) {
         GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
@@ -830,12 +944,12 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         Membership m = (Membership)next;
         if (m.getFieldId().equals(Group.getDefaultList().getUuid())) {
           existingUpdates.add(m);
-          Set<Membership> mships = groupsAndMembersSaves.get(new MultiKey(m.getOwnerUuid(), m.getMemberUuid()));
+          Set<Membership> mships = groupsAndMembersSaves.get(new MultiKey(m.getOwnerGroupId(), m.getMemberUuid()));
           if (mships == null) {
             mships = new LinkedHashSet<Membership>();
           }
           mships.add(m);
-          groupsAndMembersSaves.put(new MultiKey(m.getOwnerUuid(), m.getMemberUuid()), mships);
+          groupsAndMembersSaves.put(new MultiKey(m.getOwnerGroupId(), m.getMemberUuid()), mships);
         }
       }
     }
@@ -847,12 +961,12 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         Membership m = (Membership)next;
         if (m.getFieldId().equals(Group.getDefaultList().getUuid())) {
           existingUpdates.add(m);
-          Set<Membership> mships = groupsAndMembersDeletes.get(new MultiKey(m.getOwnerUuid(), m.getMemberUuid()));
+          Set<Membership> mships = groupsAndMembersDeletes.get(new MultiKey(m.getOwnerGroupId(), m.getMemberUuid()));
           if (mships == null) {
             mships = new LinkedHashSet<Membership>();
           }
           mships.add(m);
-          groupsAndMembersDeletes.put(new MultiKey(m.getOwnerUuid(), m.getMemberUuid()), mships);
+          groupsAndMembersDeletes.put(new MultiKey(m.getOwnerGroupId(), m.getMemberUuid()), mships);
         }
       }
     }
@@ -873,18 +987,18 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
       Membership existingMembership = existingUpdatesIterator.next();
 
       String memberUuid = existingMembership.getMemberUuid();
-      String ownerUuid = existingMembership.getOwnerUuid();
+      String ownerGroupId = existingMembership.getOwnerGroupId();
 
       try {
         Iterator<Composite> factorsIterator;
 
-        if (factorsToComposites.containsKey(ownerUuid)) {
-          factorsIterator = factorsToComposites.get(ownerUuid).iterator();
+        if (factorsToComposites.containsKey(ownerGroupId)) {
+          factorsIterator = factorsToComposites.get(ownerGroupId).iterator();
         } else {
-          Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerUuid);
+          Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerGroupId);
           Set<Composite> factorsSet = GrouperDAOFactory.getFactory().getComposite().findAsFactor(g);
           factorsIterator = factorsSet.iterator();
-          factorsToComposites.put(ownerUuid, factorsSet);
+          factorsToComposites.put(ownerGroupId, factorsSet);
         }
 
         while (factorsIterator.hasNext()) {
@@ -923,7 +1037,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
             hasMember.add(ms);
             newSaves.addAll(_addHasMembersToWhereGroupIsMember(isMember, hasMember, true));
           } else if (!compositeShouldHaveMember && ownerHasMember) {
-            Membership ms = GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType(
+            Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
               owner.getUuid(), memberUuid, Group.getDefaultList(), Membership.COMPOSITE);
             newDeletes.add(ms);
 
@@ -958,9 +1072,10 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
    *
    * @param g The group
    * @param memberUuid The member UUID.
+   * @return if has member
    */
   private boolean hasMember(Group g, String memberUuid) {
-    Set mships = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndMemberAndField(
+    Set mships = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndMemberAndField(
       g.getUuid(), memberUuid, Group.getDefaultList());
 
     Set<Membership> saves = groupsAndMembersSaves.get(new MultiKey(g.getUuid(), memberUuid));
@@ -988,13 +1103,16 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     return false;
   }
 
-  // @since   1.2.0
+  /**
+   * 
+   * @throws IllegalStateException
+   */
   private void _evaluateDeleteCompositeMembership() 
     throws  IllegalStateException
   {
     Membership _ms;
     DefaultMemberOf      mof;
-    Iterator      it  = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField( 
+    Iterator      it  = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndField( 
       this.getGroup().getUuid(), Group.getDefaultList() 
     ).iterator();
     try {
@@ -1017,6 +1135,10 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   } // private void _evalulateDeleteCompositeMembership()
 
   /**
+   * @param s 
+   * @param _ms 
+   * @param _m 
+   * @throws IllegalStateException 
    * @since   1.2.0
    */
   private void _evaluateDeleteImmediateMembership(GrouperSession s, final Membership _ms, final Member _m) 
@@ -1068,26 +1190,32 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     });
   } // private void _evaluateDeleteImmediateMembership(s, _ms, _m)
 
-  // Find m's hasMembers
+  /**
+   * Find m's hasMembers
+   * @return set of memberships
+   */
   private Set<Membership> _findMembersOfMember() {
     Set<Membership> hasMembers = new LinkedHashSet();
     if (this.getMember().getSubjectTypeId().equals("group")) {
-      hasMembers = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField(
+      hasMembers = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndField(
         this.getMember().getSubjectId(), Group.getDefaultList()
       );
     }
     return hasMembers;
-  } // private Set _findMembersOfMember()
+  } 
 
-  // Given a group uuid, find the uuids of all of its members
-  // @since   1.2.0
+  /**
+   * Given a group uuid, find the uuids of all of its members
+   * @param groupUUID
+   * @return set
+   * @throws IllegalStateException
+   */
   private Set _findMemberUUIDs(String groupUUID) 
-    throws  IllegalStateException
-  {
+    throws  IllegalStateException {
     try {
       Set       memberUUIDs = new LinkedHashSet();
       Group  _g          = GrouperDAOFactory.getFactory().getGroup().findByUuid(groupUUID);
-      Iterator  it          = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAndField(
+      Iterator  it          = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndField(
          _g.getUuid(), Group.getDefaultList() 
       ).iterator();
       while (it.hasNext()) {
@@ -1098,9 +1226,11 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     catch (GroupNotFoundException eGNF) {
       throw new IllegalStateException( eGNF.getMessage(), eGNF );
     }
-  } // private Set _findMemberUUIDs(groupUUID)
+  } 
 
-  // @since   1.2.0
+  /**
+   * 
+   */
   private void _identifyGroupsAndStemsToMarkAsModified() {
     Map modified  = new HashMap();
     modified      = this.identifyGroupsAndStemsToMarkAsModified( modified, this.getEffectiveSaves().iterator() );
@@ -1109,7 +1239,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     Map stems     = (Map) modified.get("stems");
     this.setModifiedGroups( new LinkedHashSet( groups.values() ) );
     this.setModifiedStems( new LinkedHashSet( stems.values() ) );
-  } // private void _identifyGroupsAndStemsToMarkAsModified()
+  } 
 
 } 
 

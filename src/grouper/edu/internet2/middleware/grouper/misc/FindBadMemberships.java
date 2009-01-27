@@ -38,8 +38,8 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.collections.map.MultiKeyMap;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Composite;
@@ -83,17 +83,18 @@ public class FindBadMemberships {
   @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(FindBadMemberships.class);
 
-  // GSH script to fix membership data
+  /** GSH script to fix membership data */
   public static StringWriter gshScript = null;
 
-  // File name for GSH script
+  /** File name for GSH script */
   private static final String gshScriptFilename = "findbadmemberships.gsh";
 
-  // Whether to print memberships errors to standard out.
+  /** Whether to print memberships errors to standard out. */
   private static boolean printErrorsToSTOUT = false;
 
-  // map list names to corresponding privileges, a better way probably exists
+  /** map list names to corresponding privileges, a better way probably exists */
   private static Map<String, String> list2priv = new HashMap<String, String>();
+  
   static {
     list2priv.put("admins", "AccessPrivilege.ADMIN");
     list2priv.put("optins", "AccessPrivilege.OPTIN");
@@ -113,6 +114,7 @@ public class FindBadMemberships {
   }
   
   /**
+   * @param args 
    * @since   1.3.1
    */
   public static void main(String[] args) {
@@ -201,6 +203,7 @@ public class FindBadMemberships {
 
   /**
    * Set whether to print errors to STDOUT.
+   * @param v 
    */
   public static void printErrorsToSTOUT(boolean v) {
     printErrorsToSTOUT = v;
@@ -231,7 +234,7 @@ public class FindBadMemberships {
    */
   private static int checkStems() throws SessionException {
     out.println("Querying all stems");
-    GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
+    GrouperSession.start(SubjectFinder.findRootSubject());
     Set<Stem> allStems = GrouperDAOFactory.getFactory().getStem().getAllStems();
     out.println("Found " + allStems.size() + " stems.  Verifying stems now....");
     Iterator<Stem> stemIterator = allStems.iterator();
@@ -271,7 +274,7 @@ public class FindBadMemberships {
    */
   protected static boolean checkStem(String stemName) throws SessionException, StemNotFoundException, 
     MemberNotFoundException, SchemaException {
-    GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
+    GrouperSession.start(SubjectFinder.findRootSubject());
     Stem stem = GrouperDAOFactory.getFactory().getStem().findByName(stemName);
 
     out.println("Checking stem: " + stem.getName());
@@ -288,10 +291,10 @@ public class FindBadMemberships {
    */
   public static boolean checkStem(Stem stem) throws MemberNotFoundException, SchemaException {
     //out.println("Checking stem: " + stem.getName() + " - " + stem.getUuid());
-    String ownerUUID = stem.getUuid();
+    String stemId = stem.getUuid();
 
     // get all memberships for this stem.
-    List<Membership> current = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAsList(ownerUUID);
+    List<Membership> current = GrouperDAOFactory.getFactory().getMembership().findAllByStemOwnerAsList(stemId);
 
     // we'll store all the effective memberships for the stem here.
     Set<Membership> currentEffective = new LinkedHashSet<Membership>();
@@ -334,10 +337,10 @@ public class FindBadMemberships {
       Iterator<GrouperAPI> shouldBeforeFilterIterator = shouldBeforeFilter.iterator();
       while (shouldBeforeFilterIterator.hasNext()) {
         Membership shouldMembership = (Membership)shouldBeforeFilterIterator.next();
-        if (shouldMembership.getOwnerUuid().equals(ownerUUID) && shouldMembership.getType().equals(Membership.EFFECTIVE)) {
+        if (shouldMembership.getOwnerStemId().equals(stemId) && shouldMembership.getType().equals(Membership.EFFECTIVE)) {
           should.add(shouldMembership);
         }
-        if (shouldMembership.getOwnerUuid().equals(ownerUUID) && shouldMembership.getType().equals(Membership.IMMEDIATE)) {
+        if (shouldMembership.getOwnerStemId().equals(stemId) && shouldMembership.getType().equals(Membership.IMMEDIATE)) {
           uuidMap.put(shouldMembership.getUuid(), currentMembership.getUuid());
         }
       }
@@ -375,7 +378,7 @@ public class FindBadMemberships {
    */
   private static int checkGroups() throws SessionException {
     out.println("Querying all groups");
-    GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
+    GrouperSession.start(SubjectFinder.findRootSubject());
     Set<Group> allGroups = GrouperDAOFactory.getFactory().getGroup().getAllGroups();
     out.println("Found " + allGroups.size() + " groups.  Verifying groups now....");
     Iterator<Group> groupIterator = allGroups.iterator();
@@ -413,8 +416,8 @@ public class FindBadMemberships {
    * @param current composite memberships that exist for this group.
    * @return true if the memberships are good.
    */
-  private static boolean checkCompositeMemberships(Group group, Composite c, Set<Membership> current) {
-    String ownerUUID = group.getUuid();
+  private static boolean checkCompositeMemberships(Group group, Composite composite, Set<Membership> current) {
+    String groupId = group.getUuid();
 
     Set<Membership> should = new LinkedHashSet<Membership>();
 
@@ -422,7 +425,7 @@ public class FindBadMemberships {
 
     try {
       // if this throws a HibernateException, we might have bad data in the database.
-      mof.addComposite(GrouperSession.staticGrouperSession(), group, c);
+      mof.addComposite(GrouperSession.staticGrouperSession(), group, composite);
     } catch (HibernateException e) {
       return false;
     }
@@ -431,7 +434,7 @@ public class FindBadMemberships {
     Iterator<GrouperAPI> shouldBeforeFilterIterator = shouldBeforeFilter.iterator();
     while (shouldBeforeFilterIterator.hasNext()) {
       Membership shouldMembership = (Membership)shouldBeforeFilterIterator.next();
-      if (shouldMembership.getOwnerUuid().equals(ownerUUID) && 
+      if (StringUtils.equals(shouldMembership.getOwnerGroupId(),groupId) && 
         shouldMembership.getType().equals(Membership.COMPOSITE)) {
         should.add(shouldMembership);
       }
@@ -461,7 +464,7 @@ public class FindBadMemberships {
    */
   protected static boolean checkGroup(String groupName) throws SessionException, GroupNotFoundException,
     MemberNotFoundException, SchemaException {
-    GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
+    GrouperSession.start(SubjectFinder.findRootSubject());
     Group group = GrouperDAOFactory.getFactory().getGroup().findByName(groupName);
 
     out.println("Checking group: " + group.getName());
@@ -479,10 +482,10 @@ public class FindBadMemberships {
    */
   public static boolean checkGroup(Group group) throws MemberNotFoundException, GroupNotFoundException, SchemaException {
     //out.println("Checking group: " + group.getName() + " - " + group.getUuid());
-    String ownerUUID = group.getUuid();
+    String groupId = group.getUuid();
 
     // get all memberships for this group.
-    List<Membership> current = GrouperDAOFactory.getFactory().getMembership().findAllByOwnerAsList(ownerUUID);
+    List<Membership> current = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAsList(groupId);
 
     // we'll store all the effective memberships for the group here.
     Set<Membership> currentEffective = new LinkedHashSet<Membership>();
@@ -542,11 +545,11 @@ public class FindBadMemberships {
       Iterator<GrouperAPI> shouldBeforeFilterIterator = shouldBeforeFilter.iterator();
       while (shouldBeforeFilterIterator.hasNext()) {
         Membership shouldMembership = (Membership)shouldBeforeFilterIterator.next();
-        if (shouldMembership.getOwnerUuid().equals(ownerUUID) && shouldMembership.getType().equals(Membership.EFFECTIVE) &&
+        if (shouldMembership.getOwnerGroupId().equals(groupId) && shouldMembership.getType().equals(Membership.EFFECTIVE) &&
           shouldMembership.getListName().equals(currentMembership.getListName())) {
           should.add(shouldMembership);
         }
-        if (shouldMembership.getOwnerUuid().equals(ownerUUID) && shouldMembership.getType().equals(Membership.IMMEDIATE)) {
+        if (shouldMembership.getOwnerGroupId().equals(groupId) && shouldMembership.getType().equals(Membership.IMMEDIATE)) {
           uuidMap.put(shouldMembership.getUuid(), currentMembership.getUuid());
         }
       } 
@@ -689,6 +692,7 @@ public class FindBadMemberships {
 
   /**
    * Print usage.
+   * @param options 
    */
   private static void printUsage(Options options) {
 
@@ -728,7 +732,7 @@ public class FindBadMemberships {
    * @param current memberships for the group
    * @throws GroupNotFoundException
    */
-  private static void foundError(Group group, Composite c, List<Membership> current) throws GroupNotFoundException {
+  private static void foundError(Group group, Composite composite, List<Membership> current) throws GroupNotFoundException {
     if (printErrorsToSTOUT) {
       out.println("FOUND BAD MEMBERSHIP: Bad membership in group with uuid=" + group.getUuid() + " and name=" + group.getName() + ".");
     }
@@ -765,15 +769,15 @@ public class FindBadMemberships {
       }
     }
 
-    if (c != null) {
-      String leftGroupName = c.getLeftGroup().getName();
-      String rightGroupName = c.getRightGroup().getName();
+    if (composite != null) {
+      String leftGroupName = composite.getLeftGroup().getName();
+      String rightGroupName = composite.getRightGroup().getName();
       String compositeType = "";
-      if (c.getType().equals(CompositeType.UNION)) {
+      if (composite.getType().equals(CompositeType.UNION)) {
         compositeType = "CompositeType.UNION";
-      } else if (c.getType().equals(CompositeType.COMPLEMENT)) {
+      } else if (composite.getType().equals(CompositeType.COMPLEMENT)) {
         compositeType = "CompositeType.COMPLEMENT";
-      } else if (c.getType().equals(CompositeType.INTERSECTION)) {
+      } else if (composite.getType().equals(CompositeType.INTERSECTION)) {
         compositeType = "CompositeType.INTERSECTION";
       }
 
@@ -834,7 +838,8 @@ public class FindBadMemberships {
    */
   private static void foundError(Membership ms) {
     if (printErrorsToSTOUT) {
-      out.println("FOUND BAD MEMBERSHIP: Membership with uuid=" + ms.getUuid() + " has invalid owner with uuid=" + ms.getOwnerUuid() + ".");
+      out.println("FOUND BAD MEMBERSHIP: Membership with uuid=" + ms.getUuid() + " has invalid owner with uuid=" + 
+          (StringUtils.isNotBlank(ms.getOwnerGroupId()) ? ms.getOwnerGroupId() : ms.getOwnerStemId()) + ".");
     }
     logGshScript("sqlRun(\"delete from grouper_memberships where id='" + ms.getUuid() + "'\")\n");
   }

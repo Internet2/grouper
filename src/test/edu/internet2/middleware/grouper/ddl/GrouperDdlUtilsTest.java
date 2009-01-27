@@ -1,9 +1,10 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdlUtilsTest.java,v 1.12 2009-01-02 06:57:12 mchyzer Exp $
+ * $Id: GrouperDdlUtilsTest.java,v 1.13 2009-01-27 12:09:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
+import java.sql.Types;
 import java.util.List;
 
 import junit.textui.TestRunner;
@@ -48,13 +49,12 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   }
 
   /**
-   * 
    * @param args
    */
   public static void main(String[] args) {
     GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testGroupAttributeUpgrade"));
+    TestRunner.run(new GrouperDdlUtilsTest("testMembershipOwnerViaUpgrade"));
   }
 
   /**
@@ -240,7 +240,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     if (GrouperDdlUtils.tableExists(GrouperDdl.BAK_GROUPER_ATTRIBUTES)) {
       GrouperDdlUtils.changeDatabase(GrouperDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
-
+  
         public void changeDatabase(DdlVersionBean ddlVersionBean) {
           GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, GrouperDdl.BAK_GROUPER_ATTRIBUTES);
         }
@@ -248,7 +248,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     }
     
     ApiConfig.testConfig.put("ddlutils.dropAttributeBackupTableFromGroupUpgrade", "false");
-
+  
     //lets get the first version
     GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
         GrouperDdlUtils.maxVersionMap(GrouperDdl.V1), false);
@@ -265,11 +265,11 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     try {
       GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
-          GrouperDdlUtils.maxVersionMap(GrouperDdl.V12), false);
+          GrouperDdlUtils.maxVersionMap(GrouperDdl.V13), false);
     }finally {
       GrouperDdl.addGroupNameColumns = true;
     }
-
+  
     //make sure grouper_groups.name is not there...
     try {
       HibernateSession.bySqlStatic().select(int.class, 
@@ -299,14 +299,14 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     super.setUp();
     
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
-
+  
     ApiConfig.testConfig.put("ddlutils.dropAttributeBackupTableFromGroupUpgrade", "true");
-
+  
     GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, true, null, false);
-
+  
     hasBackupTable = GrouperDdlUtils.tableExists(GrouperDdl.BAK_GROUPER_ATTRIBUTES);
     assertFalse("should not have backup table", hasBackupTable);
-
+  
     GrouperDdlUtils.everythingRightVersion = true;
     GrouperDdlUtils.justTesting = false;
   
@@ -315,6 +315,111 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     //remove the backup table
     ApiConfig.testConfig.remove("ddlutils.dropAttributeBackupTableFromGroupUpgrade");
+  
+  }
+
+  /**
+   * @throws Exception 
+   * @throws SchemaException 
+   */
+  public void testMembershipOwnerViaUpgrade() throws Exception {
+    
+    if (GrouperDdlUtils.tableExists(GrouperDdl.BAK_GROUPER_ATTRIBUTES)) {
+      GrouperDdlUtils.changeDatabase(GrouperDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          GrouperDdlUtils.ddlutilsDropTable(ddlVersionBean, GrouperDdl.BAK_GROUPER_ATTRIBUTES);
+        }
+      });
+    }
+    
+    ApiConfig.testConfig.put("ddlutils.dropMembershipBackupColsFromOwnerViaUpgrade", "false");
+
+    //lets get the first version
+    GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
+        GrouperDdlUtils.maxVersionMap(GrouperDdl.V1), false);
+  
+    GrouperDdlUtils.justTesting = true;
+    
+    //now we should have the ddl table...
+    GrouperDdlUtils.assertTablesThere(true, true, "grouper_ddl");
+    //but no other tables
+    GrouperDdlUtils.assertTablesThere(false, false);
+  
+    //get up to v12...  note if cols are added, they should be added pre-v12 also...
+    GrouperDdl.addMembershipOwnerViaColumns = false;
+    
+    try {
+      GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
+          GrouperDdlUtils.maxVersionMap(GrouperDdl.V15), false);
+    }finally {
+      GrouperDdl.addMembershipOwnerViaColumns = true;
+    }
+
+    //add owner id and via id
+    GrouperDdlUtils.changeDatabase(GrouperDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+
+      public void changeDatabase(DdlVersionBean ddlVersionBean) {
+
+        Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(ddlVersionBean.getDatabase(), 
+            Membership.TABLE_GROUPER_MEMBERSHIPS);
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "owner_id", 
+            Types.VARCHAR, "128", false, false);
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, "via_id", 
+            Types.VARCHAR, "128", false, false);
+
+      }
+    });
+    
+    //make sure grouper_memberships.owner_group_id is not there...
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_memberships", "owner_group_id"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_memberships", "owner_stem_id"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_memberships", "via_group_id"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_memberships", "via_composite_id"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_memberships", "owner_id_bak"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_memberships", "via_id_bak"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_memberships", "owner_id"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_memberships", "via_id"));
+    
+    //now we should have the ddl table of course...
+    GrouperDdlUtils.assertTablesThere(true, true, "grouper_ddl");
+    //and all other tables
+    GrouperDdlUtils.assertTablesThere(false, true);
+  
+    //do the last step
+    GrouperDdlUtils.bootstrapHelper(false, true, true, false, true, false, true, null, false);
+    
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_memberships", "owner_group_id"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_memberships", "owner_stem_id"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_memberships", "via_group_id"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_memberships", "via_composite_id"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_memberships", "owner_id_bak"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_memberships", "via_id_bak"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_memberships", "owner_id"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_memberships", "via_id"));
+    
+    //put all data in there
+    //add a group, type, stem, member, etc.
+    super.setUp();
+    
+    RegistryReset.internal_resetRegistryAndAddTestSubjects();
+
+    ApiConfig.testConfig.put("ddlutils.dropMembershipBackupColsFromOwnerViaUpgrade", "true");
+
+    GrouperDdlUtils.bootstrapHelper(false, true, false, false, true, false, true, null, false);
+
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_memberships", "owner_id_bak"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_memberships", "via_id_bak"));
+
+    GrouperDdlUtils.everythingRightVersion = true;
+    GrouperDdlUtils.justTesting = false;
+  
+    //at this point, hibernate should not be shut off
+    assertTrue("at this point, hibernate should not be shut off", GrouperDdlUtils.okToUseHibernate());
+    
+    //remove the backup table
+    ApiConfig.testConfig.remove("ddlutils.dropMembershipBackupColsFromOwnerViaUpgrade");
 
   }
 

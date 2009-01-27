@@ -109,7 +109,7 @@ public class TestMembershipDeletes5 extends TestCase {
 
       // Remove gB -> gA
       MemberOf mof = new DefaultMemberOf();
-      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType(
+      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         gA.getUuid(), gB.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE);
       mof.deleteImmediate(r.rs, gA, ms, gB.toMember());
       assertEquals("mof deletes", 12, mof.getDeletes().size());
@@ -117,7 +117,7 @@ public class TestMembershipDeletes5 extends TestCase {
 
       // Remove gA -> gA (update priv)
       mof = new DefaultMemberOf();
-      ms = GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType(
+      ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         gA.getUuid(), gA.toMember().getUuid(), fieldUpdaters, Membership.IMMEDIATE);
       mof.deleteImmediate(r.rs, gA, ms, gA.toMember());
       assertEquals("mof deletes", 6, mof.getDeletes().size());
@@ -125,7 +125,7 @@ public class TestMembershipDeletes5 extends TestCase {
 
       // Remove gB -> gB (custom field 1)
       mof = new DefaultMemberOf();
-      ms = GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType(
+      ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         gB.getUuid(), gB.toMember().getUuid(), fieldCustom1, Membership.IMMEDIATE);
       mof.deleteImmediate(r.rs, gB, ms, gB.toMember());
       assertEquals("mof deletes", 6, mof.getDeletes().size());
@@ -133,7 +133,7 @@ public class TestMembershipDeletes5 extends TestCase {
 
       // Remove gA -> gB (custom field 2)
       mof = new DefaultMemberOf();
-      ms = GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType(
+      ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         gB.getUuid(), gA.toMember().getUuid(), fieldCustom2, Membership.IMMEDIATE);
       mof.deleteImmediate(r.rs, gB, ms, gA.toMember());
       assertEquals("mof deletes", 6, mof.getDeletes().size());
@@ -141,7 +141,7 @@ public class TestMembershipDeletes5 extends TestCase {
 
       // Remove gB -> gD
       mof = new DefaultMemberOf();
-      ms = GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType(
+      ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         gD.getUuid(), gB.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE);
       mof.deleteImmediate(r.rs, gD, ms, gB.toMember());
       assertEquals("mof deletes", 6, mof.getDeletes().size());
@@ -149,7 +149,7 @@ public class TestMembershipDeletes5 extends TestCase {
 
       // Remove SA -> gB
       mof = new DefaultMemberOf();
-      ms = GrouperDAOFactory.getFactory().getMembership().findByOwnerAndMemberAndFieldAndType(
+      ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         gB.getUuid(), memberA.getUuid(), Group.getDefaultList(), Membership.IMMEDIATE);
       mof.deleteImmediate(r.rs, gB, ms, memberA);
       assertEquals("mof deletes", 7, mof.getDeletes().size());

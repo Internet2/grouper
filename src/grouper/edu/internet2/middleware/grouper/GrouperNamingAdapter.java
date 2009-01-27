@@ -31,7 +31,6 @@ import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsExceptio
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
-import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -58,11 +57,11 @@ import edu.internet2.middleware.subject.Subject;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.72 2008-11-11 22:08:33 mchyzer Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.73 2009-01-27 12:09:24 mchyzer Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
-  
+  /** */
   private static Map<Privilege, String> priv2list = new HashMap<Privilege, String>();
 
 
@@ -96,7 +95,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
   {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    return MembershipFinder.internal_findSubjectsNoPriv(
+    return MembershipFinder.internal_findSubjectsStemPriv(
       s, ns, GrouperPrivilegeAdapter.internal_getField(priv2list, priv)
     );
   } // public Set getSubjectsWithPriv(s, ns, priv)
@@ -176,10 +175,10 @@ public class GrouperNamingAdapter implements NamingAdapter {
       while (iterP.hasNext()) {
         p   = (Privilege) iterP.next();
         f   = GrouperPrivilegeAdapter.internal_getField(priv2list, p);   
-        it  = dao.findAllByOwnerAndMemberAndField( ns.getUuid(), m.getUuid(), f ).iterator();
+        it  = dao.findAllByStemOwnerAndMemberAndField( ns.getUuid(), m.getUuid(), f ).iterator();
         privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, ns,subj, m, p, it) );
         if (!m.equals(all)) {
-          it = dao.findAllByOwnerAndMemberAndField( ns.getUuid(), all.getUuid(), f ).iterator();
+          it = dao.findAllByStemOwnerAndMemberAndField( ns.getUuid(), all.getUuid(), f ).iterator();
           privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, ns,subj, all, p, it) );
         }
       }
@@ -273,6 +272,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
    * @param   ns    Check privilege on this stem.
    * @param   subj  Check privilege for this subject.
    * @param   priv  Check this privilege.   
+   * @return if has priv
    * @throws  SchemaException
    */
   public boolean hasPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)
