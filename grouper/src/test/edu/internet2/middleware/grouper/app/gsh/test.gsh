@@ -1,6 +1,6 @@
 #
 # GrouperShell Tests
-# $Id: test.gsh,v 1.4 2008-11-09 22:13:58 shilen Exp $
+# $Id: test.gsh,v 1.5 2009-01-28 15:27:00 shilen Exp $
 #
 
 #
@@ -77,6 +77,7 @@ assertTrue( "deleted root stem"         , delStem(rootName)                     
 assertTrue( "there are now 0 stems"     , getStems("").size() == 0                )
 root      = addRootStem(rootExtn, rootExtn)
 assertTrue( "there is now 1 stem"       , getStems("").size() == 1                )
+assertTrue( "run sqlRun() to delete memberships", sqlRun("delete from grouper_memberships") == 1 )
 assertTrue( "run sqlRun() to delete stems", sqlRun("delete from grouper_stems where name not like ':'") == 1 )
 assertTrue( "there are now 0 stems"     , getStems("").size() == 0                )
 # TODO assertTrue( "history()"                 , history()                               )

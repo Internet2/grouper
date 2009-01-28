@@ -120,30 +120,10 @@ public class TestFindBadMemberships3 extends TestCase {
       MembershipTestHelper.checkBadStemMemberships("All should be good", goodStems, badStems);
       Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
 
-      // create a membership with an invalid owner
-      Membership invalid = MembershipTestHelper.findEffectiveMembership(r.rs, gG, gD.toSubject(), gE, 1, 
-            FieldFinder.find("updaters"));
-      invalid.setHibernateVersionNumber(-1L);
-      invalid.setOwnerGroupId("invalid1");
-      invalid.setUuid("invalid1");
-      DefaultMemberOf mof = new DefaultMemberOf();
-      mof.addSave(invalid);
-      GrouperDAOFactory.getFactory().getMembership().update(mof);
-      Assert.assertEquals("There should be 1 invalid membership", 1, FindBadMemberships.checkMembershipsWithInvalidOwners());
-
-      // create another membership with an invalid owner
-      invalid.setHibernateVersionNumber(-1L);
-      invalid.setOwnerStemId("invalid2");
-      invalid.setUuid("invalid2");
-      mof = new DefaultMemberOf();
-      mof.addSave(invalid);
-      GrouperDAOFactory.getFactory().getMembership().update(mof);
-      Assert.assertEquals("There should be 2 invalid memberships", 2, FindBadMemberships.checkMembershipsWithInvalidOwners());
-
       // gD -> gH gets deleted
       Membership gDgH = MembershipTestHelper.findEffectiveMembership(r.rs, gH, 
           gD.toSubject(), gA, 2, FieldFinder.find("updaters"));
-      mof = new DefaultMemberOf();
+      DefaultMemberOf mof = new DefaultMemberOf();
       mof.addDelete(gDgH);
       GrouperDAOFactory.getFactory().getMembership().update(mof);
       goodGroups.remove(gH);
