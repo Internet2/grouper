@@ -17,14 +17,17 @@
 
 package edu.internet2.middleware.grouper;
 
+import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
+import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
 
@@ -32,7 +35,7 @@ import junit.textui.TestRunner;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.13 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: Test_api_Stem.java,v 1.14 2009-01-28 20:33:09 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Stem extends GrouperTest {
@@ -40,7 +43,7 @@ public class Test_api_Stem extends GrouperTest {
 
   private Group           child_group, top_group;
   private GrouperSession  s;
-  private Stem            child, root, top;
+  private Stem            child, root, top, top_new;
 
   /**
    * 
@@ -123,10 +126,10 @@ public class Test_api_Stem extends GrouperTest {
       this.originalRootCreateAndViewSub =  this.root.getChildStems( 
           new Privilege[]{NamingPrivilege.CREATE, AccessPrivilege.VIEW}, Stem.Scope.SUB ).size();
       
-      this.top          = this.root.addChildStem("top", "top");
-      this.top_group    = this.top.addChildGroup("top group", "top group");
-      this.child        = this.top.addChildStem("child", "child");
-      this.child_group  = this.child.addChildGroup("child group", "child group");
+      this.top          = this.root.addChildStem("top", "top display name");
+      this.top_group    = this.top.addChildGroup("top group", "top group display name");
+      this.child        = this.top.addChildStem("child", "child display name");
+      this.child_group  = this.child.addChildGroup("child group", "child group display name");
     }
     catch (Exception e) {
       throw new GrouperRuntimeException( "test setUp() error: " + e.getMessage(), e );
@@ -430,6 +433,144 @@ public class Test_api_Stem extends GrouperTest {
       assertTrue(true);
     }
   }
+  
+  
+  /**
+   * @throws InsufficientPrivilegeException 
+   */
+  public void test_move_rootStem() throws InsufficientPrivilegeException {
+    try {
+      root.move(top);
+      fail("failed to throw StemModifyException");
+    } catch (StemModifyException e) {
+      assertTrue(true);
+    }
+  }
+  
+  /**
+   * @throws InsufficientPrivilegeException 
+   */
+  public void test_move_toSubStem() throws InsufficientPrivilegeException {
+    try {
+      top.move(child);
+      fail("failed to throw StemModifyException");
+    } catch (StemModifyException e) {
+      assertTrue(true);
+    }
+  }
 
+
+  /**
+   * @throws Exception
+   */
+  public void test_move_insufficientPrivileges() throws Exception {
+    GrouperSession nrs;
+    R r = R.populateRegistry(0, 0, 3);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+    Subject c = r.getSubject("c");
+    
+    this.top_new = this.root.addChildStem("top new", "top new display name");
+    
+    top.grantPriv(a, NamingPrivilege.STEM);
+    top_new.grantPriv(a, NamingPrivilege.CREATE);
+    top.grantPriv(b, NamingPrivilege.CREATE);
+    top_new.grantPriv(b, NamingPrivilege.STEM);
+    top.grantPriv(c, NamingPrivilege.STEM);
+    top_new.grantPriv(c, NamingPrivilege.STEM);
+    
+    nrs = GrouperSession.start(a);
+    try {
+      top.move(top_new);
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException ex) {
+      assertTrue(true);
+    }
+    nrs.stop();
+    
+    nrs = GrouperSession.start(b);
+    try {
+      top.move(top_new);
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException ex) {
+      assertTrue(true);
+    }
+    nrs.stop();
+        
+    nrs = GrouperSession.start(c);
+    top.move(top_new);
+    assertTrue(true);
+    nrs.stop();
+            
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_move() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+
+    this.top_new = this.root.addChildStem("top new", "top new display name");
+
+    child_group.addMember(a);
+    child_group.grantPriv(a, AccessPrivilege.UPDATE);
+    child.grantPriv(b, NamingPrivilege.CREATE);
+    top.grantPriv(b, NamingPrivilege.CREATE);
+
+    // first move to a non-root stem
+    top.move(top_new);
+
+    top = StemFinder.findByName(s, "top new:top");
+    child = StemFinder.findByName(s, "top new:top:child");
+    child_group = GroupFinder.findByName(s, "top new:top:child:child group");
+    assertStemName(top, "top new:top");
+    assertStemDisplayName(top, "top new display name:top display name");
+    assertStemName(child, "top new:top:child");
+    assertStemDisplayName(child,
+        "top new display name:top display name:child display name");
+    assertGroupName(child_group, "top new:top:child:child group");
+    assertGroupDisplayName(
+        child_group,
+        "top new display name:top display name:child display name:child group display name");
+    assertGroupHasMember(child_group, a, true);
+    assertGroupHasMember(child_group, b, false);
+    assertGroupHasUpdate(child_group, a, true);
+    assertStemHasCreate(child, a, false);
+    assertStemHasCreate(child, b, true);
+    assertStemHasCreate(top, b, true);
+    assertTrue(child_group.getParentStem().getUuid().equals(child.getUuid()));
+    assertTrue(child.getParentStem().getUuid().equals(top.getUuid()));
+    assertTrue(top.getParentStem().getUuid().equals(top_new.getUuid()));
+    assertTrue(top_new.getChildStems().size() == 1);
+
+    // second move to a root stem
+    top.move(root);
+
+    top = StemFinder.findByName(s, "top");
+    child = StemFinder.findByName(s, "top:child");
+    child_group = GroupFinder.findByName(s, "top:child:child group");
+    assertStemName(top, "top");
+    assertStemDisplayName(top, "top display name");
+    assertStemName(child, "top:child");
+    assertStemDisplayName(child, "top display name:child display name");
+    assertGroupName(child_group, "top:child:child group");
+    assertGroupDisplayName(child_group,
+        "top display name:child display name:child group display name");
+    assertGroupHasMember(child_group, a, true);
+    assertGroupHasMember(child_group, b, false);
+    assertGroupHasUpdate(child_group, a, true);
+    assertStemHasCreate(child, a, false);
+    assertStemHasCreate(child, b, true);
+    assertStemHasCreate(top, b, true);
+    assertTrue(child_group.getParentStem().getUuid().equals(child.getUuid()));
+    assertTrue(child.getParentStem().getUuid().equals(top.getUuid()));
+    assertTrue(top.getParentStem().getUuid().equals(root.getUuid()));
+    assertTrue(top_new.getChildStems().size() == 0);
+    
+    r.rs.stop();
+  }
 }
 
