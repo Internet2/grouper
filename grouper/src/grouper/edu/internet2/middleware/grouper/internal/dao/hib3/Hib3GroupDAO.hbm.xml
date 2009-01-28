@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3GroupDAO.hbm.xml,v 1.9 2009-01-02 06:57:12 mchyzer Exp $ -->
+<!-- $Id: Hib3GroupDAO.hbm.xml,v 1.10 2009-01-28 20:33:09 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
   <class name="Group" table="grouper_groups">
@@ -49,7 +49,7 @@
     <!-- [@since 1.2.0] Refers to parent stem's UUID, not ID -->
     <property name="parentUuid"
               type="string"
-              update="false"
+              update="true"
     >
       <column name="parent_stem"
               not-null="true"

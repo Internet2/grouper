@@ -91,7 +91,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.174 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.175 2009-01-28 20:33:09 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -1560,11 +1560,11 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
     while (it.hasNext()) {
       _g = (Group) it.next();
       
-      if      ( attr.equals("displayExtension") )  {
+      if      ( attr.equals("displayName") )  {
         _g.setDisplayNameDb(U.constructName( this.getDisplayName(), (String) _g.getDisplayExtension()));
         
       }
-      else if ( attr.equals("extension") )   {
+      else if ( attr.equals("name") )   {
         _g.setNameDb(U.constructName( this.getName(), _g.getExtension()));
       }
       else {
@@ -1613,12 +1613,12 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
     while (it.hasNext()) {
       child = (Stem) it.next() ;
       
-      if      ( attr.equals("displayExtension") )  {
+      if      ( attr.equals("displayName") )  {
         child.setDisplayNameDb(
           U.constructName( this.getDisplayNameDb(), child.getDisplayExtensionDb() ) 
         );
       }
-      else if ( attr.equals("extension") )   {
+      else if ( attr.equals("name") )   {
         child.setNameDb(
           U.constructName( this.getNameDb(), child.getExtensionDb() ) 
         );
@@ -1997,17 +1997,19 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
         inOnPreUpdate.set(true);
         //check and see what needs to be updated
         Set<String> dbVersionDifferentFields = Stem.this.dbVersionDifferentFields();
-        if (dbVersionDifferentFields.contains(FIELD_EXTENSION)) {
+        if (dbVersionDifferentFields.contains(FIELD_EXTENSION) || 
+            dbVersionDifferentFields.contains(FIELD_NAME)) {
           
           // Now iterate through all child groups and stems, renaming each.
           GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( Stem.this, 
-              Stem.this._renameChildren("extension") );
+              Stem.this._renameChildren("name") );
         }
-        if (dbVersionDifferentFields.contains(FIELD_DISPLAY_EXTENSION)) {
+        if (dbVersionDifferentFields.contains(FIELD_DISPLAY_EXTENSION) ||
+            dbVersionDifferentFields.contains(FIELD_DISPLAY_NAME)) {
           
           // Now iterate through all child groups and stems, renaming each.
           GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( Stem.this, 
-              Stem.this._renameChildren("displayExtension") );
+              Stem.this._renameChildren("displayName") );
         }
         //if its description, just store, we are all good
       }
@@ -2170,5 +2172,57 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
 
   }
 
+  /**
+   * Move this stem to another Stem.
+   * @param stem 
+   * @throws StemModifyException 
+   * @throws InsufficientPrivilegeException 
+   */
+  public void move(Stem stem) throws StemModifyException,
+      InsufficientPrivilegeException {
+
+    GrouperSession.validate(GrouperSession.staticGrouperSession());
+    
+    // cannot move the root stem
+    if (this.isRootStem()) {
+      throw new StemModifyException("Cannot move the root stem.");
+    }
+    
+    // the new stem should not be a child of the current stem
+    if (this.isChildStem(stem)) {
+      throw new StemModifyException("Cannot move stem. " + stem.getName()
+          + " is a child of " + this.getName() + ".");
+    }
+
+    // verify that the subject has stem privileges to the stem
+    if (!PrivilegeHelper.canStem(this, GrouperSession.staticGrouperSession()
+        .getSubject())) {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    }
+
+    // verify that the subject can create stems in the stem where this stem will be moved to.
+    if (!PrivilegeHelper.canStem(stem, GrouperSession.staticGrouperSession()
+        .getSubject())) {
+      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
+    }
+
+    this.setParentUuid(stem.getUuid());
+    
+    if (stem.isRootStem()) {
+      this.setNameDb(this.getExtension());
+      this.setDisplayNameDb(this.getDisplayExtension());
+    } else {
+      this.setNameDb(stem.getName() + Stem.DELIM + this.getExtension());
+      this.setDisplayNameDb(stem.getDisplayName() + Stem.DELIM
+          + this.getDisplayExtension());
+    }
+    
+    GrouperDAOFactory.getFactory().getStem().update(this);
+
+    // TODO populate name history
+    // TODO add alias support
+
+  }
+  
 } // public class Stem extends GrouperAPI implements Owner
 

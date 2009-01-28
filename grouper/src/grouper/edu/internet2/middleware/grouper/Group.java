@@ -114,7 +114,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.216 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: Group.java,v 1.217 2009-01-28 20:33:09 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -3845,6 +3845,47 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    */
   public void setNameDb(String value) {
     this.name = value;
+  }
+
+  /**
+   * Move this group to another Stem.
+   * @param stem 
+   * @throws GroupModifyException 
+   * @throws InsufficientPrivilegeException 
+   */
+  public void move(Stem stem) throws GroupModifyException,
+      InsufficientPrivilegeException {
+    
+    GrouperSession.validate(GrouperSession.staticGrouperSession());
+    
+    // cannot move to the root stem
+    if (stem.isRootStem()) {
+      throw new GroupModifyException("Cannot move group to the root stem.");
+    }
+    
+    // verify that the subject has admin privileges to the group
+    if (!PrivilegeHelper.canAdmin(GrouperSession.staticGrouperSession(), this,
+        GrouperSession.staticGrouperSession().getSubject())) {
+      throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
+    }
+    
+    // verify that the subject can create groups in the stem where the group will be moved to.
+    if (!PrivilegeHelper.canCreate(GrouperSession.staticGrouperSession(), stem,
+        GrouperSession.staticGrouperSession().getSubject())
+        && !PrivilegeHelper.canStem(stem, GrouperSession.staticGrouperSession()
+            .getSubject())) {
+      throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
+    }
+    
+    this.setParentUuid(stem.getUuid());
+    this.setNameDb(stem.getName() + Stem.DELIM + this.getExtension());
+    this.setDisplayNameDb(stem.getDisplayName() + Stem.DELIM 
+        + this.getDisplayExtension());
+    
+    GrouperDAOFactory.getFactory().getGroup().update(this);
+
+    // TODO populate name history
+    // TODO add alias support
   }
 } 
 
