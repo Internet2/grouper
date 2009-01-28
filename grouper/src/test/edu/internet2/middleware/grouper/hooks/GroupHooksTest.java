@@ -1,8 +1,10 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksTest.java,v 1.8 2008-07-21 04:43:58 mchyzer Exp $
+ * $Id: GroupHooksTest.java,v 1.9 2009-01-28 22:02:33 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
+
+import java.sql.Timestamp;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
@@ -18,6 +20,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
@@ -38,7 +41,8 @@ public class GroupHooksTest extends GrouperTest {
   public static void main(String[] args) {
     //TestRunner.run(new GroupHooksTest("testGroupPostCommitInsert"));
     //TestRunner.run(new GroupHooksTest("testGroupPostUpdate"));
-    TestRunner.run(GroupHooksTest.class);
+    //TestRunner.run(GroupHooksTest.class);
+    TestRunner.run(new GroupHooksTest("testPoc"));
   }
   
   /**
@@ -46,6 +50,15 @@ public class GroupHooksTest extends GrouperTest {
    */
   public GroupHooksTest(String name) {
     super(name);
+  }
+  
+  /**
+   * 
+   */
+  public void testPoc() {
+    HibernateSession.bySqlStatic().executeSql(
+        "update grouper_stems set last_membership_change = ? where id = ?", 
+        GrouperUtil.toList((Object)new Timestamp(System.currentTimeMillis()), "94edceeb-95d3-4047-9b3d-fb2b42412556"));
   }
 
   /**
