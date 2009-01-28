@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.27 2009-01-27 12:09:24 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.28 2009-01-28 21:53:20 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -315,6 +315,39 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsDropColumn(database, Membership.TABLE_GROUPER_MEMBERSHIPS, 
           Membership.COLUMN_OWNER_ID, ddlVersionBean);
       
+    }
+  },
+
+  /**
+   * <pre>
+   * add last membership change
+   * </pre>
+   */
+  V18 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+
+      Table groupsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          Group.TABLE_GROUPER_GROUPS);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_LAST_MEMBERSHIP_CHANGE, Types.TIMESTAMP, null, false, false); 
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
+          "group_last_membership_idx", false, Group.COLUMN_LAST_MEMBERSHIP_CHANGE);
+
+      Table stemsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          Stem.TABLE_GROUPER_STEMS);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_LAST_MEMBERSHIP_CHANGE, Types.TIMESTAMP, null, false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Stem.TABLE_GROUPER_STEMS,
+          "stem_last_membership_idx", false, Stem.COLUMN_LAST_MEMBERSHIP_CHANGE);
     }
   },
 
@@ -1151,6 +1184,12 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "modify_time", 
             Types.BIGINT, "20", false, false);
   
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_LAST_MEMBERSHIP_CHANGE, 
+            Types.TIMESTAMP, null, false, false); 
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
+            "group_last_membership_idx", false, Group.COLUMN_LAST_MEMBERSHIP_CHANGE);
+
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupsTable.getName(), 
             "group_creator_idx", false, "creator_id");
         
@@ -1404,6 +1443,12 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, "description", 
             Types.VARCHAR, "1024", false, false);
   
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, Stem.COLUMN_LAST_MEMBERSHIP_CHANGE, 
+            Types.TIMESTAMP, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Stem.TABLE_GROUPER_STEMS,
+            "stem_last_membership_idx", false, Stem.COLUMN_LAST_MEMBERSHIP_CHANGE);
+
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
             "stem_createtime_idx", false, "create_time");
 
