@@ -114,7 +114,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.217 2009-01-28 20:33:09 shilen Exp $
+ * @version $Id: Group.java,v 1.218 2009-01-28 21:53:20 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -133,6 +133,9 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   
   /** old uuid id col for id conversion */
   public static final String COLUMN_OLD_UUID = "old_uuid";
+  
+  /** timestamp of the last membership change for this group */
+  public static final String COLUMN_LAST_MEMBERSHIP_CHANGE = "last_membership_change";
   
   /**
    * if this is a composite group, get the composite object for this group
