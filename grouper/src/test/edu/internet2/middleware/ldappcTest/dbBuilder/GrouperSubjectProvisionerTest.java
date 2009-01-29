@@ -21,6 +21,8 @@ package edu.internet2.middleware.ldappcTest.dbBuilder;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 
+import junit.textui.TestRunner;
+
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.GrouperSessionControl;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
@@ -89,10 +91,11 @@ public class GrouperSubjectProvisionerTest extends BaseLdappcTestCase
 
     /**
      * The main method for running the test.
+     * @param args 
      */
-    public static void main(String args[]) 
-    {
-        BaseLdappcTestCase.runTestRunner(GrouperSubjectProvisionerTest.class);
+    public static void main(String args[]) {
+        //TestRunner.run(GrouperSubjectProvisionerTest.class);
+        TestRunner.run(new GrouperSubjectProvisionerTest("testGrouperSubjectProvisioning"));
     }
     
     /**
