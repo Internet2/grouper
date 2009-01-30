@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdlUtilsTest.java,v 1.11 2008-11-13 20:26:10 mchyzer Exp $
+ * $Id: GrouperDdlUtilsTest.java,v 1.11.2.1 2009-01-30 12:25:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -30,7 +30,6 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
-import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -115,6 +114,17 @@ public class GrouperDdlUtilsTest extends GrouperTest {
    */
   @Override
   protected void setUp() {
+    //dont print annoying messages to user
+    GrouperDdlUtils.internal_printDdlUpdateMessage = false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperTest#setUp()
+   */
+  @Override
+  protected void tearDown() {
+    //yes print annoying messages to user again
+    GrouperDdlUtils.internal_printDdlUpdateMessage = true;
   }
 
   /**

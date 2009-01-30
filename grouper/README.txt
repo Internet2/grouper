@@ -111,19 +111,30 @@ written.
 This will compile the Grouper API source, generate several configuration
 files, and create "GROUPER_HOME/dist/lib/grouper.jar"
 
+## 4.a Starting The Database
 
-## 4. Initializing The Database
+If you are using the built-in hsqldb database to get started, you need to
+start the hsqldb server (since hsqldb in file mode does not work well).
+
+Run from the GROUPER_HOME directory:
+
+    % java -cp lib\jdbcSamples\hsqldb.jar org.hsqldb.Server -database.0 file:grouper -dbname.0 grouper
+
+Note, you either need to run that command in the background, or use a terminal window that will wait for the server to exit.
+
+## 4.b Initializing The Database
 
     % bin/gsh.sh -registry -runscript
 
 This generates a DDL appropriate for the database configured in
 "GROUPER_HOME/conf/grouper.hibernate.properties" and applies it to the
-database.
+database.  It also initializes default data in some tables (e.g. the root stem in grouper_stems)
 
-    % bin/gsh.sh -registry -reset -runscript
+To make sure it ran completely, run:
 
-This initializes the Groups Registry with Grouper's default data e.g. the root stem
+    % bin/gsh.sh -registry -check
 
+You will see output: NOTE: database table/object structure (ddl) is up to date
 
 ## 5. Testing Grouper
 

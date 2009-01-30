@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.30 2008-12-12 07:19:16 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.30.2.1 2009-01-30 12:25:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -236,6 +236,9 @@ public class GrouperDdlUtils {
     return result;
   }
   
+  /** set this to false for testing */
+  public static boolean internal_printDdlUpdateMessage = true;
+  
   /**
    * helper method which is more easily testable
    * @param callFromCommandLine
@@ -353,12 +356,14 @@ public class GrouperDdlUtils {
           boolean versionMismatch = javaVersion != realDbVersion;
   
           if (versionMismatch) {
-            System.err.println(versionStatus);
-            LOG.error(versionStatus);
+            if (internal_printDdlUpdateMessage) {
+              System.err.println(versionStatus);
+              LOG.error(versionStatus);
+            }
           } else {
             LOG.info(versionStatus);
           }
-  
+
           //one originally in the DB
           @SuppressWarnings("unused")
           int originalDbVersion = realDbVersion;
@@ -602,8 +607,10 @@ public class GrouperDdlUtils {
         GrouperUtil.saveStringIntoFile(scriptFile, resultString);
   
         String logMessage = "Grouper database schema DDL requires updates\n(should run script manually and carefully, in sections, verify data before drop statements, backup/export important data before starting, follow change log on confluence, dont run exact same script in multiple envs - generate a new one for each env),\nscript file is:\n" + GrouperUtil.fileCanonicalPath(scriptFile);
-        LOG.error(logMessage);
-        System.err.println(logMessage);
+        if (internal_printDdlUpdateMessage) {
+          LOG.error(logMessage);
+          System.err.println(logMessage);
+        }
         logMessage = "";
         if (theWriteAndRunScript) {
           sqlRun(scriptFile, grouperDb.getDriver(), grouperDb.getUrl(), 
@@ -751,7 +758,9 @@ public class GrouperDdlUtils {
     if (LOG.isErrorEnabled() && !printErrorToStdOut) {
       LOG.error(logMessage);
     } else {
-      System.out.println(logMessage);
+      if (internal_printDdlUpdateMessage) {
+        System.out.println(logMessage);
+      }
     }
     return logMessage;
   } 
