@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderTest.java,v 1.6 2009-01-02 06:57:11 mchyzer Exp $
+ * $Id: GrouperLoaderTest.java,v 1.7 2009-01-31 16:46:40 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -384,6 +384,7 @@ public class GrouperLoaderTest extends GrouperTest {
     super.setUp();
     
     try {
+      GrouperDdlUtils.internal_printDdlUpdateMessage = false;
       this.grouperSession = GrouperSession.startRootSession();
       
       ensureTestgrouperLoaderTables();
@@ -522,6 +523,8 @@ public class GrouperLoaderTest extends GrouperTest {
     super.tearDown();
     dropTestgrouperLoaderTables();
     GrouperSession.stopQuietly(this.grouperSession);
+    GrouperDdlUtils.internal_printDdlUpdateMessage = true;
+
   }
   
 }

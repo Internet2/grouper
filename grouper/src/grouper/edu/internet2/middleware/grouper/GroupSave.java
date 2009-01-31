@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupSave.java,v 1.4 2009-01-02 06:57:11 mchyzer Exp $
+ * $Id: GroupSave.java,v 1.5 2009-01-31 16:46:41 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -217,7 +217,7 @@ public class GroupSave {
     //validate
     //get the stem name
     if (!StringUtils.contains(name, ":")) {
-      throw new RuntimeException("Group name must exist and must contain at least one stem name (separated by colons)");
+      throw new RuntimeException("Group name must exist and must contain at least one stem name (separated by colons): '" + name + "'" );
     }
 
     //default to insert or update

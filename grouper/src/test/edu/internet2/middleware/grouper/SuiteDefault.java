@@ -37,11 +37,12 @@ import edu.internet2.middleware.grouper.misc.AllMiscTests;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
+import edu.internet2.middleware.ldappcTest.AllLdappcJunitTests;
 
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.54 2009-01-27 12:09:23 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.55 2009-01-31 16:46:41 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -71,7 +72,12 @@ public class SuiteDefault extends TestCase {
 	}
 		
 	if(!args[0].equalsIgnoreCase("-all")) {
-		String testName = "edu.internet2.middleware.grouper." + args[0];
+		String testName = null;
+		if (args[0].startsWith("edu.internet2.middleware.")) {
+		  testName = args[0];
+		} else {
+		  testName = "edu.internet2.middleware.grouper." + args[0];
+		}
 		Class claz = null;
 		Exception ex = null;
 		
@@ -129,8 +135,10 @@ public class SuiteDefault extends TestCase {
 
     TestSuite suite = new TestSuite();
     
+    if (GrouperConfig.getPropertyBoolean("junit.test.ddl", true)) {
     //do this first so all tests are done on new ddl
-    //suite.addTest(AllDdlTests.suite());
+      suite.addTest(AllDdlTests.suite());
+    }
 
     suite.addTestSuite( GrouperVersionTest.class );
     suite.addTestSuite( Test_api_ChildGroupFilter.class );
@@ -183,7 +191,14 @@ public class SuiteDefault extends TestCase {
     suite.addTest(AllUtilTests.suite());
     suite.addTest(AllRijndaelTests.suite());
     suite.addTest(AllMiscTests.suite());
+    
+    if (GrouperConfig.getPropertyBoolean("junit.test.loader", true)) {
     suite.addTest(AllLoaderTests.suite());
+    }
+
+    if (GrouperConfig.getPropertyBoolean("junit.test.ldappc", false)) {
+      suite.addTest(AllLdappcJunitTests.suite());
+    }
 
     return suite;
   }
