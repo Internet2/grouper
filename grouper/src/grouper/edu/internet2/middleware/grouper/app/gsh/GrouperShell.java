@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.10.2.2 2009-01-29 20:23:56 mchyzer Exp $
+ * @version $Id: GrouperShell.java,v 1.10.2.3 2009-01-31 14:35:16 mchyzer Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -168,9 +168,8 @@ private static boolean handleSpecialCase(String[] args) {
 	  }catch(Exception e) {
 		  if(e instanceof RuntimeException) {
 			  throw (RuntimeException)e;
-		  }else{
-			  throw new RuntimeException(e);
 		  }
+		  throw new RuntimeException(e);
 	  }
 	  
 	  return true;

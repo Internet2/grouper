@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.30.2.1 2009-01-30 12:25:15 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.30.2.2 2009-01-31 14:35:16 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1244,6 +1244,14 @@ public class GrouperDdlUtils {
     boolean exists = assertTablesThere(false, false, viewName);
     if (exists) {
       ddlVersionBean.getFullScript().append("\nDROP VIEW " + viewName + ";\n");
+    } else {
+      //MCH 20090131 mysql can be case sensitive, and we moved to lower case view names,
+      //so see if the upper case one if there...
+      //at some point (grouper 1.6 or 1.7?) we can remove this
+      exists = assertTablesThere(false, false, viewName.toUpperCase());
+      if (exists) {
+        ddlVersionBean.getFullScript().append("\nDROP VIEW " + viewName.toUpperCase() + ";\n");
+      }
     }
     LOG.debug("View " + viewName + " exists? " + exists + ", will " + (exists ? "" : "not ") + "be dropped");
   }
@@ -2092,7 +2100,7 @@ public class GrouperDdlUtils {
           for (String theDefaultTablePattern : defaultTablePatterns) {
             for (String theSchema : schemas) {
               boolean hsqlSchemaOk = theSchema == null && isHsqldb;
-              if (StringUtils.isBlank(theDefaultTablePattern) || (!hsqlSchemaOk && StringUtils.isBlank(theSchema))) {
+              if (StringUtils.isBlank(theDefaultTablePattern) || (isHsqldb && !hsqlSchemaOk)) {
                 continue;
               }
               Connection connection = hibernateSession.getSession().connection();

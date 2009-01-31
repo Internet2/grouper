@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SubjectDdl.java,v 1.11 2008-11-13 05:04:03 mchyzer Exp $
+ * $Id: SubjectDdl.java,v 1.11.2.1 2009-01-31 14:35:16 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -178,7 +178,7 @@ public enum SubjectDdl implements DdlVersionable {
    * @return the table name
    */
   public String[] getSampleTablenames() {
-    return new String[]{"SUBJECT","SUBJECTATTRIBUTE"};
+    return new String[]{"subject","subjectattribute"};
   }
 
 
