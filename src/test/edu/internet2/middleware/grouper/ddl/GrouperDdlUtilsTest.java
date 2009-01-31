@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdlUtilsTest.java,v 1.13 2009-01-27 12:09:24 mchyzer Exp $
+ * $Id: GrouperDdlUtilsTest.java,v 1.14 2009-01-31 16:46:40 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -114,6 +114,17 @@ public class GrouperDdlUtilsTest extends GrouperTest {
    */
   @Override
   protected void setUp() {
+    //dont print annoying messages to user
+    GrouperDdlUtils.internal_printDdlUpdateMessage = false;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperTest#setUp()
+   */
+  @Override
+  protected void tearDown() {
+    //yes print annoying messages to user again
+    GrouperDdlUtils.internal_printDdlUpdateMessage = true;
   }
 
   /**
