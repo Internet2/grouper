@@ -20,10 +20,10 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3RegistrySubjectDAO.hbm.xml,v 1.5 2008-06-25 05:46:05 mchyzer Exp $ -->
+<!-- $Id: Hib3RegistrySubjectDAO.hbm.xml,v 1.5.2.1 2009-01-31 12:24:40 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
-  <class name="RegistrySubject" table="Subject">
+  <class name="RegistrySubject" table="subject">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>
