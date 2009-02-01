@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.29 2009-01-31 16:46:41 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.30 2009-02-01 22:38:49 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -21,9 +21,12 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
+import edu.internet2.middleware.grouper.AuditEntry;
+import edu.internet2.middleware.grouper.AuditType;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -348,6 +351,207 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Stem.TABLE_GROUPER_STEMS,
           "stem_last_membership_idx", false, Stem.COLUMN_LAST_MEMBERSHIP_CHANGE);
+    }
+  },
+
+  /**
+   * <pre>
+   * add user auditing and context ids
+   * </pre>
+   */
+  V19 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+
+      
+      addContextIdColsLoader(database);
+      
+      addContextIdCols(database);
+      
+      {
+        Table grouperAuditTypeTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+            AuditType.TABLE_GROUPER_AUDIT_TYPE);
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "action_name", 
+            Types.VARCHAR, "50", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "audit_category", 
+            Types.VARCHAR, "50", false, false); 
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "context_id", 
+            Types.VARCHAR, "128", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "created_on", 
+            Types.TIMESTAMP, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "hibernate_version_number", 
+            Types.INTEGER, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "id", 
+            Types.VARCHAR, "128", true, true); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int01", 
+            Types.VARCHAR, "50", false, false); 
+      
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int02", 
+            Types.VARCHAR, "50", false, false); 
+      
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int03", 
+            Types.VARCHAR, "50", false, false); 
+      
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int04", 
+            Types.VARCHAR, "50", false, false); 
+      
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int05", 
+            Types.VARCHAR, "50", false, false); 
+      
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string01", 
+            Types.VARCHAR, "50", false, false); 
+      
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string02", 
+            Types.VARCHAR, "50", false, false); 
+      
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string03", 
+            Types.VARCHAR, "50", false, false); 
+      
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string04", 
+            Types.VARCHAR, "50", false, false); 
+      
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string05", 
+            Types.VARCHAR, "50", false, false); 
+      
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string06", 
+            Types.VARCHAR, "50", false, false); 
+      
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string07", 
+            Types.VARCHAR, "50", false, false); 
+      
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string08", 
+            Types.VARCHAR, "50", false, false); 
+      
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "last_updated", 
+            Types.TIMESTAMP, null, false, false); 
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditTypeTable.getName(), 
+            "audit_type_category_type_idx", true, "audit_category", "action_name");
+
+      }
+      
+      {
+        Table grouperAuditEntryTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+            AuditEntry.TABLE_GROUPER_AUDIT_ENTRY);
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "act_as_member_id", Types.VARCHAR, "128", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "audit_type_id", Types.VARCHAR, "128", false, true); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "context_id", Types.VARCHAR, "128", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "created_on", Types.TIMESTAMP, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "description", Types.VARCHAR, "4000", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "env_label", Types.VARCHAR, "50", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "grouper_engine", Types.VARCHAR, "50", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "grouper_version", Types.VARCHAR, "20", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "hibernate_version_number", Types.INTEGER, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "id", Types.VARCHAR, "128", true, true); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "int01", Types.INTEGER, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "int02", Types.INTEGER, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "int03", Types.INTEGER, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "int04", Types.INTEGER, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "int05", Types.INTEGER, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "last_updated", Types.TIMESTAMP, null, false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "logged_in_member_id", Types.VARCHAR, "128", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "server_host", Types.VARCHAR, "50", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "string01", Types.VARCHAR, "4000", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "string02", Types.VARCHAR, "4000", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "string03", Types.VARCHAR, "4000", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "string04", Types.VARCHAR, "4000", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "string05", Types.VARCHAR, "4000", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "string06", Types.VARCHAR, "4000", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "string07", Types.VARCHAR, "4000", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "string08", Types.VARCHAR, "4000", false, false); 
+
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "user_ip_address", Types.VARCHAR, "50", false, false); 
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
+            "audit_entry_act_as_idx", false, "act_as_member_id");
+
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
+            "audit_entry_type_idx", false, "audit_type_id");
+
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
+            "audit_entry_context_idx", false, "context_id");
+
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
+            "audit_entry_logged_in_idx", false, "logged_in_member_id");
+        
+        //do 5 string indexes, probably dont need them on the other string cols
+        for (int i=1;i<=5;i++) {
+          //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
+          String scriptOverride = ddlVersionBean.isMysql() ? "\nCREATE INDEX audit_entry_string0" + i + "_idx " +
+              "ON grouper_audit_entry (string0" + i + "(333));\n" : null;
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperAuditEntryTable.getName(), 
+              "audit_entry_string0" + i + "_idx", scriptOverride, false, "string0" + i);
+          
+        }
+        
+      }
     }
   },
 
@@ -979,6 +1183,7 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, "grouper_loader_log",
           "grouper_loader_job_name_idx", false, "job_name");
 
+      addContextIdColsLoader(database);
     }
     
     
@@ -1517,6 +1722,9 @@ public enum GrouperDdl implements DdlVersionable {
 
         versionNumberColumnFindOrCreate(typesTable);
       }
+      
+      addContextIdCols(database);
+      
     }
 
   }, 
@@ -1554,6 +1762,11 @@ public enum GrouperDdl implements DdlVersionable {
       
     }
   };
+
+  /**
+   * context id column name
+   */
+  public static final String COLUMN_CONTEXT_ID = "context_id";
 
   /**
    * 
@@ -2189,6 +2402,9 @@ public enum GrouperDdl implements DdlVersionable {
     
     String typeIdCol = "id";
     
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY, 
+        "fk_audit_entry_type_id", AuditType.TABLE_GROUPER_AUDIT_TYPE, "audit_type_id", "id");
+
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Attribute.TABLE_GROUPER_ATTRIBUTES, 
         "fk_attributes_group_id", Group.TABLE_GROUPER_GROUPS, "group_id", groupIdCol);
     
@@ -2702,6 +2918,113 @@ public enum GrouperDdl implements DdlVersionable {
         "grouper_stems", "grouper_types"};
   }
   
+  /**
+   * @param database
+   */
+  private static void addContextIdColsLoader(Database database) {
+    Table loaderLogTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+        Hib3GrouperLoaderLog.TABLE_GROUPER_LOADER_LOG);
+ 
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderLogTable, COLUMN_CONTEXT_ID, 
+        Types.VARCHAR, "128", false, false);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Hib3GrouperLoaderLog.TABLE_GROUPER_LOADER_LOG,
+        "loader_context_idx", false, COLUMN_CONTEXT_ID);
+  }
+
+  /**
+   * @param database
+   */
+  private static void addContextIdCols(Database database) {
+    {
+      Table attributeTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          Attribute.TABLE_GROUPER_ATTRIBUTES);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeTable, COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Attribute.TABLE_GROUPER_ATTRIBUTES,
+          "attribute_context_idx", false, COLUMN_CONTEXT_ID);
+    }
+    
+    {
+      Table compositeTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          Composite.TABLE_GROUPER_COMPOSITES);
+ 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(compositeTable, COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "128", false, false);
+ 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Composite.TABLE_GROUPER_COMPOSITES,
+          "composite_context_idx", false, COLUMN_CONTEXT_ID);
+    }
+    
+    {
+      Table fieldsTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          Field.TABLE_GROUPER_FIELDS);
+ 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(fieldsTable, COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "128", false, false);
+ 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Field.TABLE_GROUPER_FIELDS,
+          "fields_context_idx", false, COLUMN_CONTEXT_ID);
+    }
+    
+    {
+      Table groupsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          Group.TABLE_GROUPER_GROUPS);
+ 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "128", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
+          "attribute_context_idx", false, COLUMN_CONTEXT_ID);
+    }
+    
+    {
+      Table groupsTypesTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          GroupTypeTuple.TABLE_GROUPER_GROUPS_TYPES);
+ 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTypesTable, COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "128", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, GroupTypeTuple.TABLE_GROUPER_GROUPS_TYPES,
+          "grouptypetuple_context_idx", false, COLUMN_CONTEXT_ID);
+    }
+
+    {
+      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          Member.TABLE_GROUPER_MEMBERS);
+ 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "128", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Member.TABLE_GROUPER_MEMBERS,
+          "member_context_idx", false, COLUMN_CONTEXT_ID);
+    }
+    
+    {
+      Table membershipsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          Membership.TABLE_GROUPER_MEMBERSHIPS);
+ 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "128", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Membership.TABLE_GROUPER_MEMBERSHIPS,
+          "membership_context_idx", false, COLUMN_CONTEXT_ID);
+    }
+    
+    {
+      Table stemsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          Stem.TABLE_GROUPER_STEMS);
+ 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(stemsTable, COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "128", false, false); 
+ 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Stem.TABLE_GROUPER_STEMS,
+          "attribute_context_idx", false, COLUMN_CONTEXT_ID);
+    }
+  }
+
   /** set to false when testing if shouldnt add the group columns e.g. name */
   static boolean addMembershipOwnerViaColumns = true;
   

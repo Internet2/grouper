@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: Hib3GrouperLoaderLog.java,v 1.4 2008-12-22 05:50:42 mchyzer Exp $
+ * $Id: Hib3GrouperLoaderLog.java,v 1.5 2009-02-01 22:38:49 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
@@ -20,6 +20,12 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
   
+  /**
+   * 
+   */
+  public static final String TABLE_GROUPER_LOADER_LOG = "grouper_loader_log";
+
+
   /**
    * default constructor
    */

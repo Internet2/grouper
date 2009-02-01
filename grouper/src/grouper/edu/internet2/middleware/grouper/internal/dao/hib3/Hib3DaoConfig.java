@@ -23,12 +23,14 @@ import  edu.internet2.middleware.grouper.cfg.PropertiesConfiguration;
  * Hibernate DAO configuration.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Hib3DaoConfig.java,v 1.2 2008-06-29 17:42:41 mchyzer Exp $
+ * @version $Id: Hib3DaoConfig.java,v 1.3 2009-02-01 22:38:48 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3DaoConfig implements Configuration {
 
-  
+  /**
+   * 
+   */
   private PropertiesConfiguration cfg;
 
 
