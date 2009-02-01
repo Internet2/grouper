@@ -21,16 +21,22 @@ package edu.internet2.middleware.grouper.misc;
  * An object that can have memberships assigned to it.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Owner.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: Owner.java,v 1.2 2009-02-01 22:38:49 mchyzer Exp $
  * @since   1.2.0
  */
 public interface Owner {
 
-  // @since   1.2.0
+  /**
+   * 
+   * @return name
+   */
   public String getName();
 
-  // @since   1.2.0
+  /**
+   * 
+   * @return uuid
+   */
   public String getUuid();
 
-} // public interface Owner 
+} 
 

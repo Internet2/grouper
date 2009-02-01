@@ -44,23 +44,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Registry</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3RegistryDAO.java,v 1.12 2008-11-06 21:51:22 mchyzer Exp $
+ * @version $Id: Hib3RegistryDAO.java,v 1.13 2009-02-01 22:38:48 mchyzer Exp $
  * @since   @HEAD@
  */
 class Hib3RegistryDAO implements RegistryDAO {
 
-  // PRIVATE CLASS CONSTANTS //
+  /** */
   private static final boolean PRINT_DDL_TO_CONSOLE = false;
+  /** */
   private static final boolean EXPORT_DDL_TO_DB     = true;
   
-  // PUBLIC INSTANCE METHODS //
-
   /**
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public void initializeSchema() 
-    throws  GrouperDAOException
-  {
+  public void initializeSchema() throws  GrouperDAOException {
     String outputFile = GrouperUtil.fileCanonicalPath(new File("schemaexport.out"));
 
     System.out.println("Schemaexport output file: " + outputFile);
@@ -125,6 +123,8 @@ class Hib3RegistryDAO implements RegistryDAO {
 
           public Object callback(HibernateSession hibernateSession) {
 
+            Hib3AuditEntryDAO.reset(hibernateSession);
+            Hib3AuditTypeDAO.reset(hibernateSession);
             Hib3MembershipDAO.reset(hibernateSession);
             Hib3CompositeDAO.reset(hibernateSession);
             Hib3GroupDAO.reset(hibernateSession);
@@ -144,8 +144,10 @@ class Hib3RegistryDAO implements RegistryDAO {
     
   } 
 
-  public void addForeignKeys(Writer writer)
-    throws GrouperDAOException {
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.RegistryDAO#addForeignKeys(java.io.Writer)
+   */
+  public void addForeignKeys(Writer writer) throws GrouperDAOException {
 
     try {
       Hib3DaoConfig config = new Hib3DaoConfig();
@@ -176,6 +178,9 @@ class Hib3RegistryDAO implements RegistryDAO {
     }
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.RegistryDAO#dropForeignKeys(java.io.Writer)
+   */
   public void dropForeignKeys(Writer writer)
     throws GrouperDAOException {
 
@@ -185,6 +190,8 @@ class Hib3RegistryDAO implements RegistryDAO {
       Platform platform = PlatformFactory.createNewPlatformInstance(config.getProperty("hibernate.connection.driver_class"), 
           config.getProperty("hibernate.connection.url"));
       platform.setUsername(config.getProperty("hibernate.connection.username"));
+      
+      //TODO MCH 20090102: decrypt this password if encrypted... though is this even used anymore???
       platform.setPassword(config.getProperty("hibernate.connection.password"));
 
       if (Hib3DAO.class.getResource("Hib3ForeignKeys.xml") == null) {
@@ -206,6 +213,7 @@ class Hib3RegistryDAO implements RegistryDAO {
         writer.write(stringWriter.toString());
       }
 
+      @SuppressWarnings("unused")
       int ret = platform.evaluateBatch(stringWriter.toString(), true);
     }
     catch (IOException e) {

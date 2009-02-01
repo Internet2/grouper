@@ -19,6 +19,8 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
 
+import edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO;
+import edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
@@ -34,54 +36,96 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAOFactory.java,v 1.6 2008-08-14 06:35:47 mchyzer Exp $
+ * @version $Id: Hib3DAOFactory.java,v 1.7 2009-02-01 22:38:48 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3DAOFactory extends GrouperDAOFactory {
 
-  // PROTECTED INSTANCE METHODS //
 
-  // @since   @HEAD@
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getAuditEntry()
+   */
+  public AuditEntryDAO getAuditEntry() {
+    return new Hib3AuditEntryDAO();
+  } 
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getAuditType()
+   */
+  public AuditTypeDAO getAuditType() {
+    return new Hib3AuditTypeDAO();
+  } 
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getComposite()
+   */
   public CompositeDAO getComposite() {
     return new Hib3CompositeDAO();
   } 
 
-  // @since   @HEAD@
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getField()
+   */
   public FieldDAO getField() {
     return new Hib3FieldDAO();
   }
 
-  // @since   @HEAD@
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getGroup()
+   */
   public GroupDAO getGroup() {
     return new Hib3GroupDAO();
   }
 
-  // @since   @HEAD@
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getGroupType()
+   */
   public GroupTypeDAO getGroupType() {
     return new Hib3GroupTypeDAO();
   } 
 
-  // @since   @HEAD@
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getMember()
+   */
   public MemberDAO getMember() {
     return new Hib3MemberDAO();
   } 
 
-  // @since   @HEAD@
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getMembership()
+   */
   public MembershipDAO getMembership() {
     return new Hib3MembershipDAO();
   } 
 
-  // @since   @HEAD@
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getRegistry()
+   */
   public RegistryDAO getRegistry() {
     return new Hib3RegistryDAO();
   }
 
-  // @since   @HEAD@
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getRegistrySubject()
+   */
   public RegistrySubjectDAO getRegistrySubject() {
     return new Hib3RegistrySubjectDAO();
   } 
 
-  // @since   @HEAD@
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getStem()
+   */
   public StemDAO getStem() {
     return new Hib3StemDAO();
   }
