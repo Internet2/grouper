@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.30 2009-02-01 22:38:49 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.31 2009-02-02 07:02:40 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -279,7 +279,7 @@ public enum GrouperDdl implements DdlVersionable {
               + "set owner_group_id = (select gg.id from grouper_groups gg where gg.id = owner_id), \n"
               + "owner_stem_id = (select gs.id from grouper_stems gs where gs.id = owner_id), \n"
               + "owner_id_bak = owner_id, \n"
-              + "owner_id = null, \n"
+              + "owner_id = ' ', \n"
               + "via_group_id = (select gg.id from grouper_groups gg where gg.id = via_id), \n"
               + "via_composite_id = (select gc.id from grouper_composites gc where gc.id = via_id), \n"
               + "via_id_bak = via_id, \n"
@@ -463,7 +463,7 @@ public enum GrouperDdl implements DdlVersionable {
             "description", Types.VARCHAR, "4000", false, false); 
 
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "env_label", Types.VARCHAR, "50", false, false); 
+            "env_name", Types.VARCHAR, "50", false, false); 
 
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
             "grouper_engine", Types.VARCHAR, "50", false, false); 
@@ -2073,6 +2073,160 @@ public enum GrouperDdl implements DdlVersionable {
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Attribute.TABLE_GROUPER_ATTRIBUTES, 
         COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Attribute.TABLE_GROUPER_ATTRIBUTES, 
+        COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
+    
+    
+    
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,AuditEntry.TABLE_GROUPER_AUDIT_ENTRY, 
+      "holds one record for each audit entry record which is a high level action that ties together lower level actions");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "act_as_member_id", "Member id (foreign key) of the user who is being acted as");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "audit_type_id", "");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "context_id", "Context id links together multiple operations into one high level action");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "created_on", "When this audit entry record was created");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "description", "Description is a sentence form expression of what is being audited");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "env_name", "environment label of the system running, from grouper.properties");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "grouper_engine", "Grouper engine is e.g. UI, WS, GSH, loader, etc");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "grouper_version", "Grouper version of the API executing");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "hibernate_version_number", "hibernate version number keeps track of if multiple sessions step on toes");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "id", "db id of this audit entry record");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "int01", "The int 01 value");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "int02", "The int 02 value");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "int03", "The int 03 value");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "int04", "The int 04 value");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "int05", "The int 05 value");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "last_updated", "When this audit entry was last updated");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "logged_in_member_id", "Member id (foreign key) of the user logged in");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "server_host", "Host of the system running the grouper API");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "string01", "The string 01 value");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "string02", "The string 02 value");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "string03", "The string 03 value");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "string04", "The string 04 value");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "string05", "The string 05 value");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "string06", "The string 06 value");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "string07", "The string 07 value");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "string08", "The string 08 value");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "user_ip_address", "IP address of the user connecting to the system (e.g. from UI or WS)");
+
+    
+    
+    GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,AuditType.TABLE_GROUPER_AUDIT_TYPE, 
+      "audit type is a category and an action that organizes audits.  Also holds labels for all the misc string and int fields");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "action_name", "The action in this audit category to differentiate from others");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "audit_category", "The category of this audit in logical grouping");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "context_id", "Context id links together multiple operations into one high level action");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "created_on", "When this audit type was created");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "hibernate_version_number", "Hibernate version number makes sure multiple sessions do not step on toes");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "id", "Unique id of this audit entry");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "label_int01", "The int 01 value");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "label_int02", "The int 02 value");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "label_int03", "The int 03 value");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "label_int04", "The int 04 value");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "label_int05", "The int 05 value");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "label_string01", "The label of the string field 01 from grouper_audit_type");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "label_string02", "The label of the string field 02 from grouper_audit_type");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "label_string03", "The label of the string field 03 from grouper_audit_type");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "label_string04", "The label of the string field 04 from grouper_audit_type");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "label_string05", "The label of the string field 05 from grouper_audit_type");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "label_string06", "The label of the string field 06 from grouper_audit_type");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "label_string07", "The label of the string field 07 from grouper_audit_type");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "label_string08", "The label of the string field 08 from grouper_audit_type");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditType.TABLE_GROUPER_AUDIT_TYPE,  
+        "last_updated", "When this audit type was last updated");
 
     
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
@@ -2103,6 +2257,9 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Composite.TABLE_GROUPER_COMPOSITES, 
         COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
 
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Composite.TABLE_GROUPER_COMPOSITES, 
+        COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
+
     
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS, "describes fields related to types");
 
@@ -2127,6 +2284,10 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS, "write_privilege", 
           "which privilege is required to write this attribute");
 
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Field.TABLE_GROUPER_FIELDS, 
+        COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
+
+    
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
           Group.TABLE_GROUPER_GROUPS, "holds the groups in the grouper system");
 
@@ -2165,7 +2326,14 @@ public enum GrouperDdl implements DdlVersionable {
   
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS,   "description", 
       "group description is an optional text blurb that can be used to describe the group");
-  
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
+        Group.COLUMN_LAST_MEMBERSHIP_CHANGE, "If configured to keep track, this is the last membership change for this group");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
+        COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
+    
+    
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
         "grouper_groups_types", "holds the association between group and type");
 
@@ -2180,6 +2348,9 @@ public enum GrouperDdl implements DdlVersionable {
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_groups_types", 
         COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_groups_types", 
+        COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
 
     
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
@@ -2199,6 +2370,9 @@ public enum GrouperDdl implements DdlVersionable {
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS, 
         COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Member.TABLE_GROUPER_MEMBERS, 
+        COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
 
     
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
@@ -2245,6 +2419,9 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, 
         COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
 
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Membership.TABLE_GROUPER_MEMBERSHIPS, 
+        COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
+
     
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
         Stem.TABLE_GROUPER_STEMS, "entries for stems and their attributes");
@@ -2285,6 +2462,12 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS, 
         COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
 
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS, 
+        Stem.COLUMN_LAST_MEMBERSHIP_CHANGE, "If configured to keep track, this is the last membership change for this stem");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Stem.TABLE_GROUPER_STEMS, 
+        COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
+
     
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean,
           "grouper_types", "the various types which can be assigned to groups");
@@ -2309,6 +2492,9 @@ public enum GrouperDdl implements DdlVersionable {
     
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_types", 
         COLUMN_HIBERNATE_VERSION_NUMBER, "hibernate uses this to version rows");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_types", 
+        COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
 
     
     //see if the grouper_ext_loader_log table is there
@@ -2471,6 +2657,91 @@ public enum GrouperDdl implements DdlVersionable {
         "fk_types_creator_uuid", Member.TABLE_GROUPER_MEMBERS, "creator_uuid", memberIdCol);
   
     //now lets add views
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_audit_entry_v",
+        "Join of audit entry and audit type, and converts member ids to subject ids",
+        GrouperUtil.toSet("created_on", "audit_category", "action_name", 
+            "logged_in_subject_id",
+            "act_as_subject_id",
+            "label_string01", "string01",
+            "label_string02", "string02",
+            "label_string03", "string03",
+            "label_string04", "string04",
+            "label_string05", "string05",
+            "label_string06", "string06",
+            "label_string07", "string07",
+            "label_string08", "string08",
+            "label_int01", "int01",
+            "label_int02", "int02",
+            "label_int03", "int03",
+            "label_int04", "int04",
+            "label_int05", "int05",
+            "context_id", "grouper_engine",
+            "description", "logged_in_source_id", "act_as_source_id", 
+            "logged_in_member_id", "act_as_member_id",
+            "audit_type_id",
+            "user_ip_address", "server_host",
+            "audit_entry_last_updated", "audit_entry_id", "grouper_version", "env_name"),
+         GrouperUtil.toSet("When this audit entry record was created",
+             "The category of this audit from grouper_audit_type",
+             "The action in this audit category from grouper_audit_type",
+             "The subject id of the logged in subject, e.g. from WS or UI",
+             "The subject id of the user using the system if they are acting as another user, e.g. from WS",
+             "The label of the string field 01 from grouper_audit_type", "The string 01 value",
+             "The label of the string field 02 from grouper_audit_type", "The string 02 value",
+             "The label of the string field 03 from grouper_audit_type", "The string 03 value",
+             "The label of the string field 04 from grouper_audit_type", "The string 04 value",
+             "The label of the string field 05 from grouper_audit_type", "The string 05 value",
+             "The label of the string field 06 from grouper_audit_type", "The string 06 value",
+             "The label of the string field 07 from grouper_audit_type", "The string 07 value",
+             "The label of the string field 08 from grouper_audit_type", "The string 08 value",
+             "The label of the int field 01 from grouper_audit_type", "The int 01 value",
+             "The label of the int field 02 from grouper_audit_type", "The int 02 value",
+             "The label of the int field 03 from grouper_audit_type", "The int 03 value",
+             "The label of the int field 04 from grouper_audit_type", "The int 04 value",
+             "The label of the int field 05 from grouper_audit_type", "The int 05 value",
+             "Context id links together multiple operations into one high level action",
+             "Grouper engine is e.g. UI, WS, GSH, loader, etc",
+             "Description is a sentence form expression of what is being audited",
+             "Source id of the user who is logged in",
+             "Source id of the user who is being acted as (e.g. in WS)",
+             "Member id (foreign key) of the user logged in",
+             "Member id (foreign key) of the user who is being acted as",
+             "ID of the audit type row",
+             "IP address of the user connecting to the system (e.g. from UI or WS)",
+             "Host of the system running the grouper API",
+             "When this audit entry was last updated", "ID of this audit entry", "Grouper version of the API executing", 
+             "environment label of the system running, from grouper.properties"),
+             "select gae.created_on, gat.audit_category, gat.action_name, "
+             + "(select gm.subject_id from grouper_members gm where gm.id = gae.logged_in_member_id) as logged_in_subject_id, "
+             + "(select gm.subject_id from grouper_members gm where gm.id = gae.act_as_member_id) as act_as_subject_id, "
+             + "gat.label_string01, gae.string01, "
+             + "gat.label_string02, gae.string02, "
+             + "gat.label_string03, gae.string03, "
+             + "gat.label_string04, gae.string04, "
+             + "gat.label_string05, gae.string05, "
+             + "gat.label_string06, gae.string06, "
+             + "gat.label_string07, gae.string07, "
+             + "gat.label_string08, gae.string08, "
+             + "gat.label_int01, gae.int01, "
+             + "gat.label_int02, gae.int02, "
+             + "gat.label_int03, gae.int03, "
+             + "gat.label_int04, gae.int04, "
+             + "gat.label_int05, gae.int05, "
+             + "gae.context_id, "
+             + "gae.grouper_engine, "
+             + "gae.description, "
+             + "(select gm.subject_source from grouper_members gm where gm.id = gae.logged_in_member_id) as logged_in_source_id, "
+             + "(select gm.subject_source from grouper_members gm where gm.id = gae.act_as_member_id) as act_as_source_id, "
+             + "gae.logged_in_member_id, gae.act_as_member_id, "
+             + "gat.id audit_type_id, "
+             + "gae.user_ip_address, gae.server_host, "
+             + "gae.last_updated, gae.id audit_entry_id, gae.grouper_version, gae.env_name "
+             + "from grouper_audit_type gat, grouper_audit_entry gae "
+             + "where gat.id = gae.audit_type_id ");
+
+    
+    
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attributes_v",
         "Join of groups and attributes with friendly names.  Attributes are name/value pairs for groups.  " +
         "Each group type is related to a set of 0 to many attributes, each attribute is related to one group type." +
@@ -2483,7 +2754,8 @@ public enum GrouperDdl implements DdlVersionable {
             "FIELD_ID", 
             "ATTRIBUTE_ID", 
             "GROUP_ID", 
-            "GROUPTYPE_UUID"),
+            "GROUPTYPE_UUID",
+            "CONTEXT_ID"),
          GrouperUtil.toSet("Group name is full ip path, e.g. school:stem1:groupId",
              "Group display name is the full friendly name, e.g. My School:Stem 1:The Group",
              "Attribute name is the name of the name/value pair",
@@ -2492,7 +2764,8 @@ public enum GrouperDdl implements DdlVersionable {
              "Field_id is the uuid that uniquely identifies a the field",
              "Attribute_id is the uuid that uniquely identifies the pairing of group and attribute",
              "Group_id is the uuid that uniquely identifies a group",
-             "GroupType_uuid is the uuid that uniquely identifies a group type"),
+             "GroupType_uuid is the uuid that uniquely identifies a group type",
+             "Context id links together multiple operations into one high level action"),
             "select  "
             + "gg.name as group_name, "
             + "gg.display_name as group_display_name, "
@@ -2502,7 +2775,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "ga.FIELD_ID, "
             + "ga.ID as attribute_id, "
             + "gg.ID as group_id, "
-            + "gf.grouptype_uuid "
+            + "gf.grouptype_uuid, ga.context_id "
             + "from grouper_attributes ga, grouper_groups gg, grouper_fields gf, grouper_types gt "
             + "where ga.FIELD_ID = gf.ID "
             + "and ga.GROUP_ID = gg.ID and gf.GROUPTYPE_UUID = gt.ID ");
@@ -2523,7 +2796,8 @@ public enum GrouperDdl implements DdlVersionable {
             "COMPOSITE_ID", 
             "CREATE_TIME", 
             "CREATOR_ID", 
-            "HIBERNATE_VERSION_NUMBER"),
+            "HIBERNATE_VERSION_NUMBER",
+            "CONTEXT_ID"),
         GrouperUtil.toSet("OWNER_GROUP_NAME: Name of the group which is the result of the composite operation, e.g. school:stem1:allPeople",
             "COMPOSITE_TYPE: union (all members), intersection (only members in both), or complement (in first, not in second)", 
             "LEFT_FACTOR_GROUP_NAME: Name of group which is the first of two groups in the composite operation, e.g. school:stem1:part1", 
@@ -2537,7 +2811,8 @@ public enum GrouperDdl implements DdlVersionable {
             "COMPOSITE_ID: UUID of the composite relationship among the three groups", 
             "CREATE_TIME: number of millis since 1970 that the composite was created", 
             "CREATOR_ID: member id of the subject that created the composite relationship", 
-            "HIBERNATE_VERSION_NUMBER: increments with each update, starts at 0"
+            "HIBERNATE_VERSION_NUMBER: increments with each update, starts at 0",
+            "CONTEXT_ID: Context id links together multiple operations into one high level action"
         ),
         "select  "
         + "(select gg.name from grouper_groups gg  "
@@ -2559,7 +2834,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "gc.ID as composite_id,  "
         + "gc.CREATE_TIME,  "
         + "gc.CREATOR_ID,  "
-        + "gc.HIBERNATE_VERSION_NUMBER  "
+        + "gc.HIBERNATE_VERSION_NUMBER, gc.context_id "
         + "from grouper_composites gc  "
       );
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_groups_types_v", 
@@ -2570,14 +2845,16 @@ public enum GrouperDdl implements DdlVersionable {
             "GROUP_ID", 
             "GROUP_TYPE_UUID", 
             "GROUPER_GROUPS_TYPES_ID", 
-            "HIBERNATE_VERSION_NUMBER"),
+            "HIBERNATE_VERSION_NUMBER",
+            "CONTEXT_ID"),
         GrouperUtil.toSet("GROUP_NAME: name of group which has the type, e.g. school:stem1:theGroup", 
             "GROUP_DISPLAYNAME: display name of the group which has the type, e.g. My school, the stem 1, The group", 
             "GROUP_TYPE_NAME: friendly name of the type, e.g. grouperLoader", 
             "GROUP_ID: uuid unique id of the group which has the type", 
             "GROUP_TYPE_UUID: uuid unique id of the type related to the group", 
             "GROUPER_GROUPS_TYPES_ID: uuid unique id of the relationship between the group and type", 
-            "HIBERNATE_VERSION_NUMBER: increments by one with each update, starts at 0"),
+            "HIBERNATE_VERSION_NUMBER: increments by one with each update, starts at 0",
+            "Context id links together multiple operations into one high level action"),
             "select   "
             + "(select gg.name from grouper_groups gg  "
             + "where gg.id = ggt.GROUP_UUID) as group_name,  "
@@ -2587,7 +2864,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "ggt.GROUP_UUID as group_id,  "
             + "ggt.TYPE_UUID as group_type_uuid,  "
             + "ggt.ID as grouper_groups_types_id,  "
-            + "ggt.HIBERNATE_VERSION_NUMBER  "
+            + "ggt.HIBERNATE_VERSION_NUMBER, ggt.context_id  "
             + "from grouper_groups_types ggt, grouper_types gt  "
             + "where ggt.TYPE_UUID = gt.ID  ");
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_groups_v", 
@@ -2610,7 +2887,7 @@ public enum GrouperDdl implements DdlVersionable {
             "CREATE_TIME", 
             "MODIFIER_ID", 
             "MODIFY_TIME", 
-            "HIBERNATE_VERSION_NUMBER"),
+            "HIBERNATE_VERSION_NUMBER", "CONTEXT_ID"),
         GrouperUtil.toSet("EXTENSION: part of group name not including path information, e.g. theGroup", 
             "NAME: name of the group, e.g. school:stem1:theGroup", 
             "DISPLAY_EXTENSION: name for display of the group, e.g. My school:The stem 1:The group", 
@@ -2629,7 +2906,8 @@ public enum GrouperDdl implements DdlVersionable {
             "CREATE_TIME: number of millis since 1970 since this group was created", 
             "MODIFIER_ID: member id of the subject who last modified this group, foreign key to grouper_members", 
             "MODIFY_TIME: number of millis since 1970 since this group was last changed", 
-            "HIBERNATE_VERSION_NUMBER: increments by 1 for each update"),
+            "HIBERNATE_VERSION_NUMBER: increments by 1 for each update",
+            "Context id links together multiple operations into one high level action"),
             "select  "
             + "gg.extension as extension, "
             + "gg.name as name, "
@@ -2649,7 +2927,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "gg.CREATE_TIME, "
             + "gg.MODIFIER_ID, "
             + "gg.MODIFY_TIME, "
-            + "gg.HIBERNATE_VERSION_NUMBER  "
+            + "gg.HIBERNATE_VERSION_NUMBER, gg.context_id  "
             + " from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID ");
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_v", 
         "Grouper_memberships_v holds one record for each membership or privilege in the system for members to groups or stems (for privileges).  This is denormalized so there are records for the actual immediate relationships, and the cascaded effective relationships.  This has friendly names.",
@@ -2672,7 +2950,7 @@ public enum GrouperDdl implements DdlVersionable {
             "GROUP_ID", 
             "CREATE_TIME", 
             "CREATOR_ID", 
-            "FIELD_ID"),
+            "FIELD_ID", "CONTEXT_ID"),
         GrouperUtil.toSet("GROUP_NAME: name of the group if this is a group membership, e.g. school:stem1:theGroup", 
             "GROUP_DISPLAYNAME: display name of the group if this is a group membership, e.g. My school:The stem1:The group", 
             "STEM_NAME: name of the stem if this is a stem privilege, e.g. school:stem1", 
@@ -2692,7 +2970,8 @@ public enum GrouperDdl implements DdlVersionable {
             "GROUP_ID: if this is a group list or privilege, this is the group uuid unique id", 
             "CREATE_TIME: number of millis since 1970 since this membership was created", 
             "CREATOR_ID: member_id of the creator, foreign key into grouper_members", 
-            "FIELD_ID: uuid unique id of the field.  foreign key to grouper_fields.  This represents the list_type and list_name"),
+            "FIELD_ID: uuid unique id of the field.  foreign key to grouper_fields.  This represents the list_type and list_name",
+            "CONTEXT_ID: Context id links together multiple operations into one high level action"),
             "select  "
             + "(select gg.name from grouper_groups gg  "
             + "where gg.id = gms.owner_group_id) as group_name,  "
@@ -2717,7 +2996,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "(select gg.id from grouper_groups gg where gg.id = gms.owner_group_id) as group_id,  "
             + "gms.CREATE_TIME,  "
             + "gms.CREATOR_ID,  "
-            + "gms.FIELD_ID  "
+            + "gms.FIELD_ID, gms.context_id  "
             + " from grouper_memberships gms, grouper_members gm, grouper_fields gf  "
             + " where gms.MEMBER_ID = gm.ID and gms.field_id = gf.id  ");
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_stems_v",
@@ -2739,7 +3018,7 @@ public enum GrouperDdl implements DdlVersionable {
             "MODIFIER_ID",
             "MODIFY_TIME", 
             "PARENT_STEM", 
-            "HIBERNATE_VERSION_NUMBER"),
+            "HIBERNATE_VERSION_NUMBER", "CONTEXT_ID"),
         GrouperUtil.toSet("EXTENSION: name of the stem without the parent stem names, e.g. stem1", 
             "NAME: name of the stem including parent stem names, e.g. school:stem1", 
             "DISPLAY_EXTENSION: display name of the stem without parent stem names, e.g. The stem 1", 
@@ -2757,7 +3036,8 @@ public enum GrouperDdl implements DdlVersionable {
             "MODIFIER_ID: member id of the subject who last modified this stem, foreign key to grouper_members",
             "MODIFY_TIME: number of millis since 1970 since this stem was last modified", 
             "PARENT_STEM: stem_id uuid unique id of the stem (folder) that this stem is in", 
-            "HIBERNATE_VERSION_NUMBER: increments by one for each update from hibernate"),
+            "HIBERNATE_VERSION_NUMBER: increments by one for each update from hibernate",
+            "CONTEXT_ID: Context id links together multiple operations into one high level action"),
          "select gs.extension, gs.NAME, "
             + "gs.DISPLAY_EXTENSION, gs.DISPLAY_NAME, gs.DESCRIPTION, "
             + "(select gs_parent.NAME from grouper_stems gs_parent where gs_parent.id = gs.PARENT_STEM) as parent_stem_name, "
@@ -2767,7 +3047,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gs.MODIFIER_ID) as modifier_source, "
             + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gs.MODIFIER_ID) as modifier_subject_id, "
             + "gs.CREATE_TIME, gs.CREATOR_ID,  "
-            + "gs.ID as stem_id, gs.MODIFIER_ID, gs.MODIFY_TIME, gs.PARENT_STEM, gs.HIBERNATE_VERSION_NUMBER "
+            + "gs.ID as stem_id, gs.MODIFIER_ID, gs.MODIFY_TIME, gs.PARENT_STEM, gs.HIBERNATE_VERSION_NUMBER, gs.context_id "
             + "from grouper_stems gs ");
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_rpt_attributes_v", 
         "GROUPER_RPT_ATTRIBUTES_V: report on attributes, how many groups use each attribute",
@@ -2977,7 +3257,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "128", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
-          "attribute_context_idx", false, COLUMN_CONTEXT_ID);
+          "group_context_idx", false, COLUMN_CONTEXT_ID);
     }
     
     {
@@ -3021,7 +3301,18 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "128", false, false); 
  
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Stem.TABLE_GROUPER_STEMS,
-          "attribute_context_idx", false, COLUMN_CONTEXT_ID);
+          "stem_context_idx", false, COLUMN_CONTEXT_ID);
+    }
+
+    {
+      Table typesTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          GroupType.TABLE_GROUPER_TYPES);
+ 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(typesTable, COLUMN_CONTEXT_ID, 
+          Types.VARCHAR, "128", false, false); 
+ 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, GroupType.TABLE_GROUPER_TYPES,
+          "type_context_idx", false, COLUMN_CONTEXT_ID);
     }
   }
 

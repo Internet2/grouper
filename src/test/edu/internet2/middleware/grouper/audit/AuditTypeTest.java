@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTypeTest.java,v 1.1 2009-02-01 22:38:48 mchyzer Exp $
+ * $Id: AuditTypeTest.java,v 1.2 2009-02-02 07:02:40 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -61,7 +61,7 @@ public class AuditTypeTest extends GrouperTest {
     auditEntryDao.saveOrUpdate(auditEntry);
     
     //edit and save again
-    auditEntry.setEnvLabel("hey");
+    auditEntry.setEnvName("hey");
     auditEntryDao.saveOrUpdate(auditEntry);
     
     

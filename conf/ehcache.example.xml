@@ -157,6 +157,14 @@
           overflowToDisk="false"
   />
 
+  <cache  name="edu.internet2.middleware.grouper.AuditType"
+          maxElementsInMemory="500"
+          eternal="false"
+          timeToIdleSeconds="1"
+          timeToLiveSeconds="1"
+          overflowToDisk="false"
+  />
+
   <cache  name="edu.internet2.middleware.grouper.Attribute"
           maxElementsInMemory="1000"
           eternal="false"
