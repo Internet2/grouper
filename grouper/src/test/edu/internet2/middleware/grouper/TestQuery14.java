@@ -20,6 +20,7 @@ import java.util.Date;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -30,10 +31,19 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestQuery14.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestQuery14.java,v 1.7.2.1 2009-01-23 06:32:51 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestQuery14 extends TestCase {
+
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    //TestRunner.run(TestQuery14.class);
+    TestRunner.run(new TestQuery14("testGroupModifiedAfterFilterFindSomethingScoped"));
+  }
 
   private static final Log LOG = GrouperUtil.getLog(TestQuery14.class);
 

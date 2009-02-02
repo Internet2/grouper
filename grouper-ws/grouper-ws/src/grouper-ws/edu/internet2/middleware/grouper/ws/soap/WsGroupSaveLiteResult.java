@@ -276,8 +276,21 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
         .firstInArrayOfOne(wsGroupSaveResults.getResults());
     if (wsGroupSaveResult != null) {
       this.getResultMetadata().copyFields(wsGroupSaveResult.getResultMetadata());
-      this.getResultMetadata().assignResultCode(
-          wsGroupSaveResult.resultCode().convertToLiteCode());
+
+      try {
+        this.getResultMetadata().assignResultCode(
+            wsGroupSaveResult.resultCode().convertToLiteCode());
+      } catch (RuntimeException re) {
+        GrouperWsVersion clientVersion = GrouperWsVersion.retrieveCurrentClientVersion();
+        //before 1.4 we had SUCCESS and nothing more descriptive, which isnt a real enum anymore
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+          this.getResultMetadata().setResultCode(wsGroupSaveResult.getResultMetadata().getResultCode());
+        } else {
+          throw re;
+        }
+        
+      }
+
       this.setWsGroup(wsGroupSaveResult.getWsGroup());
     }
   }

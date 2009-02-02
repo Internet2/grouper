@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.30 2008-12-12 07:19:16 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.30.2.3 2009-02-02 19:21:49 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -72,6 +72,38 @@ import edu.internet2.middleware.morphString.Morph;
  */
 public class GrouperDdlUtils {
 
+  /**
+   * see if the config file seems to be hsql
+   * @return see if hsql
+   */
+  public static boolean isHsql() {
+    return GrouperConfig.getHibernateProperty("hibernate.connection.url").toLowerCase().contains(":hsqldb:");
+  }
+  
+  /**
+   * see if the config file seems to be postgres
+   * @return see if postgres
+   */
+  public static boolean isPostgres() {
+    return GrouperConfig.getHibernateProperty("hibernate.connection.url").toLowerCase().contains(":postgresql:");
+  }
+  
+  /**
+   * see if the config file seems to be oracle
+   * @return see if oracle
+   */
+  public static boolean isOracle() {
+    return GrouperConfig.getHibernateProperty("hibernate.connection.url").toLowerCase().contains(":oracle:");
+  }
+  
+  /**
+   * see if the config file seems to be mysql
+   * @return see if mysql
+   */
+  public static boolean isMysql() {
+    return GrouperConfig.getHibernateProperty("hibernate.connection.url").toLowerCase().contains(":mysql:");
+  }
+  
   /**
    * bean 
    */
@@ -236,6 +268,9 @@ public class GrouperDdlUtils {
     return result;
   }
   
+  /** set this to false for testing */
+  public static boolean internal_printDdlUpdateMessage = true;
+  
   /**
    * helper method which is more easily testable
    * @param callFromCommandLine
@@ -353,12 +388,14 @@ public class GrouperDdlUtils {
           boolean versionMismatch = javaVersion != realDbVersion;
   
           if (versionMismatch) {
-            System.err.println(versionStatus);
-            LOG.error(versionStatus);
+            if (internal_printDdlUpdateMessage) {
+              System.err.println(versionStatus);
+              LOG.error(versionStatus);
+            }
           } else {
             LOG.info(versionStatus);
           }
-  
+
           //one originally in the DB
           @SuppressWarnings("unused")
           int originalDbVersion = realDbVersion;
@@ -602,8 +639,10 @@ public class GrouperDdlUtils {
         GrouperUtil.saveStringIntoFile(scriptFile, resultString);
   
         String logMessage = "Grouper database schema DDL requires updates\n(should run script manually and carefully, in sections, verify data before drop statements, backup/export important data before starting, follow change log on confluence, dont run exact same script in multiple envs - generate a new one for each env),\nscript file is:\n" + GrouperUtil.fileCanonicalPath(scriptFile);
-        LOG.error(logMessage);
-        System.err.println(logMessage);
+        if (internal_printDdlUpdateMessage) {
+          LOG.error(logMessage);
+          System.err.println(logMessage);
+        }
         logMessage = "";
         if (theWriteAndRunScript) {
           sqlRun(scriptFile, grouperDb.getDriver(), grouperDb.getUrl(), 
@@ -751,7 +790,9 @@ public class GrouperDdlUtils {
     if (LOG.isErrorEnabled() && !printErrorToStdOut) {
       LOG.error(logMessage);
     } else {
-      System.out.println(logMessage);
+      if (internal_printDdlUpdateMessage) {
+        System.out.println(logMessage);
+      }
     }
     return logMessage;
   } 
@@ -1235,6 +1276,14 @@ public class GrouperDdlUtils {
     boolean exists = assertTablesThere(false, false, viewName);
     if (exists) {
       ddlVersionBean.getFullScript().append("\nDROP VIEW " + viewName + ";\n");
+    } else {
+      //MCH 20090131 mysql can be case sensitive, and we moved to lower case view names,
+      //so see if the upper case one if there...
+      //at some point (grouper 1.6 or 1.7?) we can remove this
+      exists = assertTablesThere(false, false, viewName.toUpperCase());
+      if (exists) {
+        ddlVersionBean.getFullScript().append("\nDROP VIEW " + viewName.toUpperCase() + ";\n");
+      }
     }
     LOG.debug("View " + viewName + " exists? " + exists + ", will " + (exists ? "" : "not ") + "be dropped");
   }
@@ -2083,7 +2132,7 @@ public class GrouperDdlUtils {
           for (String theDefaultTablePattern : defaultTablePatterns) {
             for (String theSchema : schemas) {
               boolean hsqlSchemaOk = theSchema == null && isHsqldb;
-              if (StringUtils.isBlank(theDefaultTablePattern) || (!hsqlSchemaOk && StringUtils.isBlank(theSchema))) {
+              if (StringUtils.isBlank(theDefaultTablePattern) || (isHsqldb && !hsqlSchemaOk)) {
                 continue;
               }
               Connection connection = hibernateSession.getSession().connection();

@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -46,7 +47,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.13 2008-12-15 07:09:36 mchyzer Exp $
+ * @version $Id: GrouperTest.java,v 1.13.2.1 2009-01-30 12:25:15 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -654,7 +655,9 @@ public class GrouperTest extends TestCase {
   public static void setupTests() {
     //dont keep prompting user about DB
     GrouperUtil.stopPromptingUser = true;
+    GrouperDdlUtils.internal_printDdlUpdateMessage = false;
     RegistryInitializeSchema.initializeSchemaForTests();
+    GrouperDdlUtils.internal_printDdlUpdateMessage = true;
   }
 
   /**

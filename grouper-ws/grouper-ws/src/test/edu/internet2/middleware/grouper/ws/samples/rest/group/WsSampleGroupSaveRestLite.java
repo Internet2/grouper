@@ -41,7 +41,7 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/groups/aStem%3AaGroupToSave");
+            + "/groups/aStem%3AaGroup");
       
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
@@ -60,7 +60,7 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
 
       // set the act as id
       groupSaveLite.setActAsSubjectId("GrouperSystem");
-      groupSaveLite.setGroupName("aStem:aGroupToSave");
+      groupSaveLite.setGroupName("aStem:aGroup");
       groupSaveLite.setDescription("desc1");
       groupSaveLite.setDisplayExtension("disp1");
 
@@ -118,7 +118,7 @@ public class WsSampleGroupSaveRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    groupSaveLite(WsSampleRestType.xhtml);
+    groupSaveLite(WsSampleRestType.xml);
   }
 
   /**

@@ -12,7 +12,9 @@ https://wiki.internet2.edu/confluence/display/GrouperWG/v1.4.0+Getting+Started
 - Generally:
 
 1. configure the non-example files in the conf dir
-2. init your registry: bin/gsh -registry -check -runscript
+2a. If you are using hsqldb, start your database: 
+  java -cp lib\jdbcSamples\hsqldb.jar org.hsqldb.Server -database.0 file:grouper -dbname.0 grouper
+2b. init your registry: bin/gsh -registry -check -runscript
 3. start gsh: bin/gsh
 
 https://wiki.internet2.edu/confluence/display/GrouperWG/GrouperShell+(gsh)

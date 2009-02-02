@@ -1,11 +1,13 @@
 /*
  * @author mchyzer
- * $Id: AllGcTests.java,v 1.2 2008-12-04 07:51:39 mchyzer Exp $
+ * $Id: AllGcTests.java,v 1.2.2.1 2009-01-22 14:47:22 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import edu.internet2.middleware.grouperClient.poc.GrouperClientLdapTest;
+import edu.internet2.middleware.grouperClient.poc.GrouperClientWsTest;
 import edu.internet2.middleware.grouperClient.util.AllGcUtilTests;
 
 

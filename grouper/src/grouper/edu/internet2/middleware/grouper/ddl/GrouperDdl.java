@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.24 2008-12-12 07:19:16 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.24.2.2 2009-01-31 14:35:16 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -37,6 +37,28 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * returns the current version
  */
 public enum GrouperDdl implements DdlVersionable {
+
+  /**
+   * delete create source and modify source cols if they exist
+   */
+  V13 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+
+      Table stemsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          Stem.TABLE_GROUPER_STEMS);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
+          "stem_name_idx", true, "name");
+
+    }
+  },
 
   /**
    * delete create source and modify source cols if they exist
@@ -1178,7 +1200,7 @@ public enum GrouperDdl implements DdlVersionable {
             "stem_modifytime_idx", false, "modify_time");
 
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
-            "stem_name_idx", false, "name");
+            "stem_name_idx", true, "name");
 
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, stemsTable.getName(), 
             "stem_parent_idx", false, "parent_stem");
@@ -1461,20 +1483,19 @@ public enum GrouperDdl implements DdlVersionable {
    * @param ddlVersionBean 
    */
   public void dropAllViews(DdlVersionBean ddlVersionBean) {
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_ATTRIBUTES_V");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_COMPOSITES_V");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_GROUPS_TYPES_V");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_GROUPS_V");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_MEMBERSHIPS_V");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_RPT_ATTRIBUTES_V");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_RPT_COMPOSITES_V");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_RPT_GROUP_FIELD_V");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_RPT_GROUPS_V");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_RPT_MEMBERS_V");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_RPT_STEMS_V");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_RPT_TYPES_V");
-    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "GROUPER_STEMS_V");
-    
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attributes_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_composites_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_types_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_attributes_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_composites_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_group_field_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_groups_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_members_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_stems_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_types_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stems_v");
   }
   
   /**
@@ -1899,7 +1920,7 @@ public enum GrouperDdl implements DdlVersionable {
         "fk_types_creator_uuid", Member.TABLE_GROUPER_MEMBERS, "creator_uuid", memberIdCol);
   
     //now lets add views
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_ATTRIBUTES_V",
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attributes_v",
         "Join of groups and attributes with friendly names.  Attributes are name/value pairs for groups.  " +
         "Each group type is related to a set of 0 to many attributes, each attribute is related to one group type." +
         "grouper_fields holds each attribute name under the field type of ^attribute^",
@@ -1933,7 +1954,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "where ga.FIELD_ID = gf.ID "
             + "and ga.GROUP_ID = gg.ID and gf.GROUPTYPE_UUID = gt.ID ");
 
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_COMPOSITES_V", 
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_composites_v", 
         "Grouper_composites_v is a view of composite relationships with friendly names.  A composite" +
         " is a joining of two groups with a group math operator of: union, intersection, or complement.",
         GrouperUtil.toSet("OWNER_GROUP_NAME", 
@@ -1987,7 +2008,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "gc.CREATOR_ID, "
         + "gc.HIBERNATE_VERSION_NUMBER "
         + "from grouper_composites gc ");
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_GROUPS_TYPES_V", 
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_groups_types_v", 
         "A group can have one or many types associated.  This is a view of those relationships with friendly names",
         GrouperUtil.toSet("GROUP_NAME", 
             "GROUP_DISPLAYNAME", 
@@ -2015,7 +2036,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "ggt.HIBERNATE_VERSION_NUMBER "
             + "from grouper_groups_types ggt, grouper_types gt "
             + "where ggt.TYPE_UUID = gt.ID ");
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_GROUPS_V", 
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_groups_v", 
         "Contains one record for each group, with friendly names for some attributes and some more information",
         GrouperUtil.toSet("EXTENSION", 
             "NAME", 
@@ -2081,7 +2102,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "gg.MODIFY_TIME, "
             + "gg.HIBERNATE_VERSION_NUMBER  "
             + " from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID ");
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_MEMBERSHIPS_V", 
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_v", 
         "Grouper_memberships_v holds one record for each membership or privilege in the system for members to groups or stems (for privileges).  This is denormalized so there are records for the actual immediate relationships, and the cascaded effective relationships.  This has friendly names.",
         GrouperUtil.toSet("GROUP_NAME", 
             "GROUP_DISPLAYNAME", 
@@ -2153,7 +2174,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "gms.FIELD_ID "
             + " from grouper_memberships gms, grouper_members gm, grouper_fields gf "
             + " where gms.MEMBER_ID = gm.ID and gms.field_id = gf.id ");
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_STEMS_V",
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_stems_v",
         "GROUPER_STEMS_V: holds one record for each stem (folder) in grouper, with friendly names",
         GrouperUtil.toSet("EXTENSION", 
             "NAME", 
@@ -2202,7 +2223,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "gs.CREATE_TIME, gs.CREATOR_ID,  "
             + "gs.ID as stem_id, gs.MODIFIER_ID, gs.MODIFY_TIME, gs.PARENT_STEM, gs.HIBERNATE_VERSION_NUMBER "
             + "from grouper_stems gs ");
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_RPT_ATTRIBUTES_V", 
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_rpt_attributes_v", 
         "GROUPER_RPT_ATTRIBUTES_V: report on attributes, how many groups use each attribute",
         GrouperUtil.toSet("ATTRIBUTE_NAME", 
             "GROUP_COUNT", 
@@ -2221,7 +2242,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "gt.ID as group_type_id "
         + "from grouper_fields gf, grouper_types gt "
         + "where gf.TYPE = 'attribute' and gf.GROUPTYPE_UUID = gt.ID ");
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_RPT_COMPOSITES_V", 
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_rpt_composites_v", 
         "GROUPER_RPT_COMPOSITES_V: report on the three composite types: union, intersection, complement and how many of each exist",
         GrouperUtil.toSet("COMPOSITE_TYPE", 
             "THE_COUNT"),
@@ -2229,7 +2250,7 @@ public enum GrouperDdl implements DdlVersionable {
             "THE_COUNT: nubmer of composites of this type in the system"),
         "select gc.TYPE as composite_type, count(*) as the_count " 
         + "from grouper_composites gc group by gc.type ");
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_RPT_GROUP_FIELD_V", 
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_rpt_group_field_v", 
         "GROUPER_RPT_GROUP_FIELD_V: report on how many unique members are in each group based on field (or list) name and type",
         GrouperUtil.toSet("GROUP_NAME", 
             "GROUP_DISPLAYNAME", 
@@ -2253,7 +2274,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "and ga2.field_id = gaf2.id "
         + "and gaf2.name = 'displayName' "
         + "group by ga.value, ga2.value, gf.type, gf.name ");
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_RPT_GROUPS_V", 
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_rpt_groups_v", 
         "GROUPER_RPT_GROUPS_V: report with a line for each group and some counts of immediate and effective members etc",
         GrouperUtil.toSet("GROUP_NAME", 
             "GROUP_DISPLAYNAME", 
@@ -2286,7 +2307,7 @@ public enum GrouperDdl implements DdlVersionable {
         + "(select count(distinct gms.OWNER_ID) from grouper_memberships gms, grouper_members gm where gm.SUBJECT_ID = gg.ID and gms.MEMBER_ID = gm.ID ) as isa_member_count, "
         + "gg.ID as group_id "
         + "from grouper_groups gg ");
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_RPT_MEMBERS_V", 
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_rpt_members_v", 
         "GROUPER_RPT_MEMBERS_V: report for each member in grouper_members and some stats like how many groups they are in",
         GrouperUtil.toSet("SUBJECT_ID", 
             "SUBJECT_SOURCE", 
@@ -2300,7 +2321,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "(select count(distinct gms.owner_id) from grouper_memberships gms where gms.MEMBER_ID = gm.ID) as membership_count, "
             + "gm.ID as member_id "
             + "from grouper_members gm ");
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_RPT_STEMS_V", 
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_rpt_stems_v", 
         "GROUPER_RPT_STEMS_V: report with a row for each stem and stats on many groups or members are inside",
         GrouperUtil.toSet("STEM_NAME", 
             "STEM_DISPLAYNAME", 
@@ -2332,7 +2353,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "(select count(distinct gm.member_id) from grouper_memberships gm, grouper_attributes ga, grouper_fields gf where gm.owner_id = ga.group_id and ga.FIELD_ID = gf.ID and gf.NAME = 'name' and ga.value like gs.NAME || '%') as group_membership_count, "
             + "gs.ID as stem_id "
             + "from grouper_stems gs ");
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "GROUPER_RPT_TYPES_V", 
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_rpt_types_v", 
         "GROUPER_RPT_TYPES_V: report on group types and how many groups have that type",
         GrouperUtil.toSet("GROUP_TYPE_NAME", 
             "GROUP_COUNT", 
@@ -2354,9 +2375,9 @@ public enum GrouperDdl implements DdlVersionable {
    * @return the table name
    */
   public String[] getSampleTablenames() {
-    return new String[]{"GROUPER_GROUPS", "GROUPER_DDL", "GROUPER_ATTRIBUTES", "GROUPER_COMPOSITES",
-        "GROUPER_FIELDS", "GROUPER_GROUPS_TYPES", "GROUPER_LOADER_LOG", "GROUPER_MEMBERS", "GROUPER_MEMBERSHIPS", 
-        "GROUPER_STEMS", "GROUPER_TYPES"};
+    return new String[]{"grouper_groups", "grouper_ddl", "grouper_attributes", "grouper_composites",
+        "grouper_fields", "grouper_groups_types", "grouper_loader_log", "grouper_members", "grouper_memberships", 
+        "grouper_stems", "grouper_types"};
   }
   
   /**

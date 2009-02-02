@@ -3,12 +3,12 @@
 		  render individual group members
 --%><%--
   @author Gary Brown.
-  @version $Id: memberLinkView.jsp,v 1.9 2008-03-25 16:30:18 mchyzer Exp $
+  @version $Id: memberLinkView.jsp,v 1.9.6.1 2009-01-04 08:16:16 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 
-<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.assign.title">
+<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.assign.title" tooltipDisable="true">
 				<grouper:param value="${viewObject.subject.desc}"/>
 				<grouper:param value="${viewObject.group.desc}"/>
 </grouper:message></c:set>

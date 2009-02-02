@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication;
@@ -229,11 +230,19 @@ public class GrouperServiceJ2ee implements Filter {
    */
   private static GrouperCache<MultiKey, Boolean> actAsCache() {
     if (actAsCache == null) {
-      int actAsTimeoutMinutes = GrouperWsConfig.getPropertyInt(
-          GrouperWsConfig.WS_ACT_AS_CACHE_MINUTES, 30);
+      int actAsTimeoutMinutes = actAsCacheMinutes();
       actAsCache = new GrouperCache<MultiKey, Boolean>(GrouperServiceJ2ee.class.getName() + "grouperWsActAsCache", 10000, false, 60*60*24, actAsTimeoutMinutes*60, false);
     }
     return actAsCache;
+  }
+
+  /**
+   * @return
+   */
+  private static int actAsCacheMinutes() {
+    int actAsTimeoutMinutes = GrouperWsConfig.getPropertyInt(
+        GrouperWsConfig.WS_ACT_AS_CACHE_MINUTES, 30);
+    return actAsTimeoutMinutes;
   }
 
   /**
@@ -328,19 +337,40 @@ public class GrouperServiceJ2ee implements Filter {
 
     Subject actAsSubject = actAsLookup.retrieveSubject("actAsSubject");
 
+    //see if same:
+    if (StringUtils.equals(loggedInSubjectId, actAsSubject.getId())
+        && StringUtils.equals(loggedInSubject.getSource().getId(), actAsSubject.getSource().getId())) {
+      return loggedInSubject;
+    }
+    
     //lets see if in cache    
 
     //cache key to get or set if a user can act as another
     MultiKey cacheKey = new MultiKey(loggedInSubjectId, loggedInSubject.getSource()
         .getId(), actAsSubject.getId(), actAsSubject.getSource().getId());
 
-    Boolean inCache = actAsCache().get(cacheKey);
+    Boolean inCache = actAsCacheMinutes() > 0 ? actAsCache().get(cacheKey) : false;
 
     if (inCache != null && Boolean.TRUE.equals(inCache)) {
-      //if in cache, then allow
+      //if in cache and true, then allow
       return actAsSubject;
     }
-
+    
+    //see if root or wheel group
+    GrouperSession session = null;
+    try {
+      session = GrouperSession.start(loggedInSubject);
+      if (PrivilegeHelper.isRoot(session)) {
+        actAsCache().put(cacheKey, Boolean.TRUE);
+        return actAsSubject;
+      }
+    } catch (SessionException se) {
+      throw new RuntimeException(se);
+    } finally {
+      GrouperSession.stopQuietly(session);
+    }
+    
+      
     // so there is an actAs specified, lets see if we are allowed to use it
     // first lets get the group you have to be in if you are going to
     String actAsGroupName = GrouperWsConfig
@@ -356,7 +386,7 @@ public class GrouperServiceJ2ee implements Filter {
               + "' specified in the grouper-ws.properties");
     }
 
-    GrouperSession session = null;
+    session = null;
     // get the all powerful user
     Subject rootSubject = SubjectFinder.findRootSubject();
 

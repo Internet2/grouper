@@ -4,7 +4,7 @@
 	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="lib/grouper/grouper.jar" sourcepath="/grouper"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper/grouper.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ws-non-webapp/servlet.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/asm.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/asm-attrs.jar"/>
