@@ -20,12 +20,10 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3AuditEntryDAO.hbm.xml,v 1.1 2009-02-01 22:38:48 mchyzer Exp $ -->
+<!-- $Id: Hib3AuditEntryDAO.hbm.xml,v 1.2 2009-02-02 07:02:40 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper">
   <class name="AuditEntry" table="grouper_audit_entry">
-
-    <cache usage="read-write"/>
 
     <!-- id -->
     <id name="id" unsaved-value="none" column="id" type="string" length="128">
@@ -41,7 +39,7 @@
     <property name="contextId" column="context_id"/>
     <property name="createdOn" column="created_on"/>
     <property name="description" column="description"/>
-    <property name="envLabel" column="env_label"/>
+    <property name="envName" column="env_name"/>
     <property name="grouperEngine" column="grouper_engine"/>
     <property name="grouperVersion" column="grouper_version"/>
     <property name="int01" column="int01"/>

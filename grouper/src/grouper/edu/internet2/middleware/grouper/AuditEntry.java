@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditEntry.java,v 1.1 2009-02-01 22:38:49 mchyzer Exp $
+ * $Id: AuditEntry.java,v 1.2 2009-02-02 07:02:40 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -27,7 +27,7 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
   private String auditTypeId;
 
   /** env label from grouper.properties */
-  private String envLabel;
+  private String envName;
   
   /** WS, UI, loader, GSH, etc */
   private String grouperEngine;
@@ -256,16 +256,16 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
    * env label from grouper.properties
    * @return env label
    */
-  public String getEnvLabel() {
-    return this.envLabel;
+  public String getEnvName() {
+    return this.envName;
   }
 
   /**
    * env label from grouper.properties
    * @param envLabel1
    */
-  public void setEnvLabel(String envLabel1) {
-    this.envLabel = envLabel1;
+  public void setEnvName(String envLabel1) {
+    this.envName = envLabel1;
   }
 
   /**
@@ -548,7 +548,7 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
     this.auditTypeId = GrouperUtil.truncateAscii(this.auditTypeId, 128);
     this.contextId = GrouperUtil.truncateAscii(this.contextId, 128);
     this.description = GrouperUtil.truncateAscii(this.description, 4000);
-    this.envLabel = GrouperUtil.truncateAscii(this.envLabel, 50);
+    this.envName = GrouperUtil.truncateAscii(this.envName, 50);
     this.grouperEngine = GrouperUtil.truncateAscii(this.grouperEngine, 50);
     this.grouperVersion = GrouperUtil.truncateAscii(this.grouperVersion, 20);
     this.id = GrouperUtil.truncateAscii(this.id, 128);
