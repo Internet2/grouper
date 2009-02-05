@@ -45,18 +45,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.16 2008-11-06 19:34:28 shilen Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.16.2.1 2009-02-05 21:03:52 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
-  // PRIVATE CLASS CONSTANTS //
   /** */
   private static final String KLASS = Hib3StemDAO.class.getName();
 
 
   /**
-   * @since   @HEAD@
+   * @param _stem 
+   * @param _group 
+   * @param _member 
+   * @throws GrouperDAOException 
+   * @since   
    */
   public void createChildGroup(final Stem _stem, final Group _group, final Member _member)
     throws  GrouperDAOException {
@@ -69,16 +72,25 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
             public Object callback(HibernateSession hibernateSession) {
               ByObject byObject = hibernateSession.byObject();
               byObject.save(_group);
+              hibernateSession.misc().flush();
 
               // add group-type tuples
               GroupTypeTuple  tuple = new GroupTypeTuple();
               Iterator                    it    = _group.getTypesDb().iterator();
               while (it.hasNext()) {
-                tuple.setGroupUuid( _group.getUuid() );
-                tuple.setTypeUuid( ( (GroupType) it.next() ).getUuid() );
-                byObject.save(tuple); // new group-type tuple
+
+                GroupType groupType = (GroupType) it.next();
+
+                //see if that record exists
+                if (null == Hib3GroupTypeTupleDAO.findByGroupAndType(_group, groupType, false)) {
+                  tuple.setGroupUuid( _group.getUuid() );
+                  tuple.setTypeUuid( groupType.getUuid() );
+                  byObject.saveOrUpdate(tuple); // new group-type tuple
+                }
               }
+              //TODO remove this call
               hibernateSession.byObject().update( _stem );
+              hibernateSession.misc().flush();
               if ( !GrouperDAOFactory.getFactory().getMember().exists( _member.getUuid() ) ) {
                 byObject.save( _member );
               }

@@ -28,20 +28,38 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeTupleDAO.java,v 1.4 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeTupleDAO.java,v 1.4.2.1 2009-02-05 21:03:52 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupTypeTupleDAO extends Hib3DAO {
 
-  // PRIVATE CLASS CONSTANTS //
+  /**
+   * 
+   */
   private static final String KLASS = Hib3GroupTypeTupleDAO.class.getName();
 
-
-  // @since   @HEAD@
-  // TODO 20070418 public until i refactor "Test_Integration_Hib3GroupDAO_delete#testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset()"
+  /**
+   * 
+   * @param g
+   * @param type
+   * @return the group type tuple
+   * @throws GrouperDAOException
+   */
   public static GroupTypeTuple findByGroupAndType(Group g, GroupType type)
-    throws  GrouperDAOException
-  {
+    throws  GrouperDAOException {
+    return findByGroupAndType(g, type, true);
+  }
+
+  /**
+   * 
+   * @param g
+   * @param type
+   * @param exceptionIfNotExist should this throw an exception if not exist?
+   * @return the group type tuple
+   * @throws GrouperDAOException
+   */
+  public static GroupTypeTuple findByGroupAndType(Group g, GroupType type, boolean exceptionIfNotExist)
+    throws  GrouperDAOException {
     GroupTypeTuple dto = HibernateSession.byHqlStatic()
       .createQuery(
         "from GroupTypeTuple as gtt where"
@@ -52,21 +70,21 @@ public class Hib3GroupTypeTupleDAO extends Hib3DAO {
         .setString( "group", g.getUuid()        )
         .setString( "type",  type.getUuid() )
         .uniqueResult(GroupTypeTuple.class);
-    if (dto == null) {
+    if (dto == null && exceptionIfNotExist) {
       throw new GrouperDAOException("GroupTypeTuple not found");       
     }
     return dto;
   }
 
 
-  // PUBLIC INSTANCE METHODS //
-
-  // @since   @HEAD@
-  protected static void reset(Session hs) 
-    throws  HibernateException
-  {
+  /**
+   * 
+   * @param hs
+   * @throws HibernateException
+   */
+  protected static void reset(Session hs) throws  HibernateException {
     hs.delete("from GroupTypeTuple");
-  } // protected static void reset(hs)
+  }
 
 } 
 

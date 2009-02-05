@@ -52,6 +52,8 @@ import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsEx
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksStemBean;
@@ -91,7 +93,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.172 2008-12-09 08:11:50 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.172.2.1 2009-02-05 21:03:52 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -1306,80 +1308,98 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
    * @throws InsufficientPrivilegeException if problem 
    * @since   1.2.0
    */
-  public Group internal_addChildGroup(String extn, String dExtn, String uuid) 
-    throws  GroupAddException,
-            InsufficientPrivilegeException
-  {
-    StopWatch sw = new StopWatch();
-    sw.start();
-    if ( !PrivilegeHelper.canCreate( GrouperSession.staticGrouperSession(), 
-        this, GrouperSession.staticGrouperSession().getSubject() ) ) {
-      throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
-    } 
-    GrouperValidator v = AddGroupValidator.validate(this, extn, dExtn);
-    if (v.isInvalid()) {
-      throw new GroupAddException( v.getErrorMessage() );
-    }
+  public Group internal_addChildGroup(final String extn, final String dExtn, final String uuid) 
+    throws  GroupAddException, InsufficientPrivilegeException {
+    
+    //this must be in one transaction
     try {
-      Map<String, String> attrs = new HashMap<String, String>();
-      attrs.put( GrouperConfig.ATTR_DISPLAY_EXTENSION, dExtn );
-      attrs.put( GrouperConfig.ATTR_DISPLAY_NAME, U.constructName( this.getDisplayName(), dExtn ) );
-      attrs.put( GrouperConfig.ATTR_EXTENSION,  extn );
-      attrs.put( GrouperConfig.ATTR_NAME,  U.constructName( this.getName(), extn ) );
-      Set types = new LinkedHashSet();
-      types.add( GroupTypeFinder.find("base") ); 
-      Group _g = new Group();
-      _g.setAttributes(attrs);
-      _g.setCreateTimeLong( new Date().getTime() );
-      _g.setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
-      _g.setParentUuid( this.getUuid() );
-      _g.setTypes(types);
-      v = NotNullOrEmptyValidator.validate(uuid);
-      if (v.isInvalid()) {
-        _g.setUuid( GrouperUuid.getUuid() );
-      }
-      else {
-        _g.setUuid(uuid);
-      }
-
-      GrouperSubject  subj  = new GrouperSubject(_g);
-      Member _m = new Member();
-      _m.setSubjectIdDb( subj.getId() );
-      _m.setSubjectSourceIdDb( subj.getSource().getId() );
-      _m.setSubjectTypeId( subj.getType().getName() );
-      // TODO 20070328 this is incredibly ugly.  making it even worse is that i am also checking
-      //               for existence in the dao as well.
-      if (uuid == null) {
-        _m.setUuid( GrouperUuid.getUuid() ); // assign a new uuid
-      }
-      else {
-        try {
-          // member already exists.  use existing uuid.
-          _m.setUuid( GrouperDAOFactory.getFactory().getMember().findBySubject(subj).getUuid() );
+      return (Group)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
+  
+        public Object callback(HibernateSession hibernateSession)
+            throws GrouperDAOException {
+          StopWatch sw = new StopWatch();
+          sw.start();
+          if ( !PrivilegeHelper.canCreate( GrouperSession.staticGrouperSession(), 
+              Stem.this, GrouperSession.staticGrouperSession().getSubject() ) ) {
+            throw new GrouperDAOException(null, new InsufficientPrivilegeException(E.CANNOT_CREATE));
+          } 
+          GrouperValidator v = AddGroupValidator.validate(Stem.this, extn, dExtn);
+          if (v.isInvalid()) {
+            throw new GrouperDAOException(null, new GroupAddException( v.getErrorMessage() ));
+          }
+          try {
+            Map<String, String> attrs = new HashMap<String, String>();
+            attrs.put( GrouperConfig.ATTR_DISPLAY_EXTENSION, dExtn );
+            attrs.put( GrouperConfig.ATTR_DISPLAY_NAME, U.constructName( Stem.this.getDisplayName(), dExtn ) );
+            attrs.put( GrouperConfig.ATTR_EXTENSION,  extn );
+            attrs.put( GrouperConfig.ATTR_NAME,  U.constructName( Stem.this.getName(), extn ) );
+            Set types = new LinkedHashSet();
+            types.add( GroupTypeFinder.find("base") ); 
+            Group group = new Group();
+            group.setAttributes(attrs);
+            group.setCreateTimeLong( new Date().getTime() );
+            group.setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
+            group.setParentUuid( Stem.this.getUuid() );
+            group.setTypes(types);
+            v = NotNullOrEmptyValidator.validate(uuid);
+            if (v.isInvalid()) {
+              group.setUuid( GrouperUuid.getUuid() );
+            }
+            else {
+              group.setUuid(uuid);
+            }
+  
+            GrouperSubject  subj  = new GrouperSubject(group);
+            Member _m = new Member();
+            _m.setSubjectIdDb( subj.getId() );
+            _m.setSubjectSourceIdDb( subj.getSource().getId() );
+            _m.setSubjectTypeId( subj.getType().getName() );
+            // TODO 20070328 this is incredibly ugly.  making it even worse is that i am also checking
+            //               for existence in the dao as well.
+            if (uuid == null) {
+              _m.setUuid( GrouperUuid.getUuid() ); // assign a new uuid
+            }
+            else {
+              try {
+                // member already exists.  use existing uuid.
+                _m.setUuid( GrouperDAOFactory.getFactory().getMember().findBySubject(subj).getUuid() );
+              }
+              catch (MemberNotFoundException eMNF) {
+                // couldn't find member.  assign new uuid.
+                _m.setUuid( GrouperUuid.getUuid() ); 
+              }
+            }
+  
+            //CH 20080220: this will start saving the stem
+            GrouperDAOFactory.getFactory().getStem().createChildGroup( Stem.this, group, _m );
+              
+            sw.stop();
+            EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_ADD + Quote.single(group.getName()), sw);
+            _grantDefaultPrivsUponCreate(group);
+            return group;
+          } catch (GroupAddException gae)        {
+            throw new GrouperDAOException(null, gae );
+          }
+          catch (SchemaException eS)              {
+            throw new GrouperDAOException(null, new GroupAddException(E.CANNOT_CREATE_GROUP + eS.getMessage(), eS));
+          }
+          catch (SourceUnavailableException eSU)  {
+            throw new GrouperDAOException(new GroupAddException(E.CANNOT_CREATE_GROUP + eSU.getMessage(), eSU));
+          }
         }
-        catch (MemberNotFoundException eMNF) {
-          // couldn't find member.  assign new uuid.
-          _m.setUuid( GrouperUuid.getUuid() ); 
-        }
-      }
-
-      //CH 20080220: this will start saving the stem
-      GrouperDAOFactory.getFactory().getStem().createChildGroup( this, _g, _m );
         
-      sw.stop();
-      EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_ADD + Quote.single(_g.getName()), sw);
-      _grantDefaultPrivsUponCreate(_g);
-      return _g;
+      });
+    } catch (GrouperDAOException gde) {
+      Throwable cause = gde.getCause();
+      if (cause instanceof GroupAddException) {
+        throw (GroupAddException)cause;
+      }
+      if (cause instanceof InsufficientPrivilegeException) {
+        throw (InsufficientPrivilegeException)cause;
+      }
+      throw new GroupAddException( E.CANNOT_CREATE_GROUP + gde.getMessage(), gde );
     }
-    catch (GrouperDAOException eDAO)        {
-      throw new GroupAddException( E.CANNOT_CREATE_GROUP + eDAO.getMessage(), eDAO );
-    }
-    catch (SchemaException eS)              {
-      throw new GroupAddException(E.CANNOT_CREATE_GROUP + eS.getMessage(), eS);
-    }
-    catch (SourceUnavailableException eSU)  {
-      throw new GroupAddException(E.CANNOT_CREATE_GROUP + eSU.getMessage(), eSU);
-    }
+
   } 
 
   /**

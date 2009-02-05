@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHooksUtils.java,v 1.17 2008-11-11 07:27:32 mchyzer Exp $
+ * $Id: GrouperHooksUtils.java,v 1.17.2.1 2009-02-05 21:03:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -15,6 +15,7 @@ import org.apache.commons.logging.Log;
 import org.hibernate.Transaction;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -389,10 +390,23 @@ public class GrouperHooksUtils {
 
                     //only do this if committed
                     if (status == Status.STATUS_COMMITTED) {
+                      
+                      //we need another tx since it needs to be committed...
+                      HibernateSession.callbackHibernateSession(
+                          GrouperTransactionType.READ_WRITE_NEW, new HibernateHandler() {
 
-                      executeHook(method, hook, finalHooksBean, hooksContext, null,
-                          asychronous);
+                            public Object callback(
+                                HibernateSession hibernateSession)
+                                throws GrouperDAOException {
 
+                                executeHook(method, hook, finalHooksBean, hooksContext, null,
+                                    asychronous);
+                                //for some reason there is a tx, but it doesnt commit...
+                                hibernateSession.commit(GrouperCommitType.COMMIT_NOW);
+                                return null;
+                            }
+                            
+                          });
                     }
                   }
 
