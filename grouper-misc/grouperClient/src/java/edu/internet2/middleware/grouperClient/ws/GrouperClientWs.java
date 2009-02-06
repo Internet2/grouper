@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWs.java,v 1.8.2.2 2009-01-23 06:32:48 mchyzer Exp $
+ * $Id: GrouperClientWs.java,v 1.8.2.3 2009-02-06 19:24:02 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws;
 
@@ -409,7 +409,7 @@ public class GrouperClientWs {
       StringBuilder headers = new StringBuilder();
 //      POST /grouperWs/servicesRest/v1_4_000/subjects HTTP/1.1
 //      Connection: close
-//      Authorization: Basic bWNoeXplcjpEaTlyZWRwbw==
+//      Authorization: Basic bWNoeXplcjpEaxxxxxxxxxx==
 //      User-Agent: Jakarta Commons-HttpClient/3.1
 //      Host: localhost:8090
 //      Content-Length: 226
