@@ -1,11 +1,15 @@
 /*
  * @author mchyzer
- * $Id: AuditType.java,v 1.1 2009-02-01 22:38:49 mchyzer Exp $
+ * $Id: AuditType.java,v 1.1 2009-02-06 16:33:18 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper;
+package edu.internet2.middleware.grouper.audit;
 
 import java.sql.Timestamp;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -22,7 +26,54 @@ public class AuditType extends GrouperAPI implements Hib3GrouperVersioned {
   public AuditType() {
     
   }
-
+  
+  /**
+   * see if one audit type is the same as another (not looking at last update, id, etc)
+   * @param auditType
+   * @return true if equals, false if not
+   */
+  public boolean equalsDeep(AuditType auditType) {
+    
+    return new EqualsBuilder().append(this.actionName, auditType.actionName)
+      .append(this.auditCategory, auditType.auditCategory)
+      .append(this.labelInt01, auditType.labelInt01)
+      .append(this.labelInt02, auditType.labelInt02)
+      .append(this.labelInt03, auditType.labelInt03)
+      .append(this.labelInt04, auditType.labelInt04)
+      .append(this.labelInt05, auditType.labelInt05)
+      .append(this.labelString01, auditType.labelString01)
+      .append(this.labelString02, auditType.labelString02)
+      .append(this.labelString03, auditType.labelString03)
+      .append(this.labelString04, auditType.labelString04)
+      .append(this.labelString05, auditType.labelString05)
+      .append(this.labelString06, auditType.labelString06)
+      .append(this.labelString07, auditType.labelString07)
+      .append(this.labelString08, auditType.labelString08).isEquals();
+      
+  }
+  
+  /**
+   * copy the argument into this
+   * @param auditType
+   */
+  public void copyArgFieldIntoThis(AuditType auditType) {
+    this.actionName = auditType.actionName;
+    this.auditCategory = auditType.auditCategory;
+    this.labelInt01 = auditType.labelInt01;
+    this.labelInt02 = auditType.labelInt02;
+    this.labelInt03 = auditType.labelInt03;
+    this.labelInt04 = auditType.labelInt04;
+    this.labelInt05 = auditType.labelInt05;
+    this.labelString01 = auditType.labelString01;
+    this.labelString02 = auditType.labelString02;
+    this.labelString03 = auditType.labelString03;
+    this.labelString04 = auditType.labelString04;
+    this.labelString05 = auditType.labelString05;
+    this.labelString06 = auditType.labelString06;
+    this.labelString07 = auditType.labelString07;
+    this.labelString08 = auditType.labelString08;
+  }
+  
   /**
    * construct with more params
    * @param auditCategory1
@@ -38,13 +89,41 @@ public class AuditType extends GrouperAPI implements Hib3GrouperVersioned {
     int index=1;
     for (String labelString : GrouperUtil.nonNull(labelStrings, String.class)) {
       GrouperUtil.assignField(this, "labelString" + (index<10 ? "0" : "") + index, labelString);
-      index++;
       if (index > 8) {
         throw new RuntimeException("Cant send more than 8 labelStrings: " + labelStrings.length);
       }
+      index++;
     }
   }
   
+  
+  /**
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (!(obj instanceof AuditType)) {
+      return false;
+    }
+    AuditType otherAuditType = (AuditType)obj;
+    return new EqualsBuilder().append(this.auditCategory, otherAuditType.auditCategory)
+      .append(this.actionName, otherAuditType.actionName).isEquals();
+  }
+
+  /**
+   * 
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(this.auditCategory)
+      .append(this.actionName).hashCode();
+  }
+
   /** name of the grouper audit type table in the db */
   public static final String TABLE_GROUPER_AUDIT_TYPE = "grouper_audit_type";
   

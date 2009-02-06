@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHooksUtils.java,v 1.17 2008-11-11 07:27:32 mchyzer Exp $
+ * $Id: GrouperHooksUtils.java,v 1.18 2009-02-06 16:33:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -17,6 +17,7 @@ import org.hibernate.Transaction;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksBean;
@@ -349,10 +350,11 @@ public class GrouperHooksUtils {
     if (hooks != null && hooks.size() > 0) {
 
       HibernateSession.callbackHibernateSession(
-          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false, new HibernateHandler() {
 
-            public Object callback(HibernateSession hibernateSession)
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
                 throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               if (hibernateSession.isNewHibernateSession()) {
                 throw new RuntimeException(

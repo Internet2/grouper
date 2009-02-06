@@ -1,12 +1,17 @@
 /*
  * @author mchyzer
- * $Id: AuditEntry.java,v 1.2 2009-02-02 07:02:40 mchyzer Exp $
+ * $Id: AuditEntry.java,v 1.1 2009-02-06 16:33:18 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper;
+package edu.internet2.middleware.grouper.audit;
 
 import java.sql.Timestamp;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -16,6 +21,77 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 @SuppressWarnings("serial")
 public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
+  
+  /**
+   * construct
+   */
+  public AuditEntry() {
+    
+  }
+
+  /**
+   * save or update this object
+   */
+  public void saveOrUpdate() {
+    GrouperDAOFactory.getFactory().getAuditEntry().saveOrUpdate(this);
+  }
+  
+  /**
+   * construct, assign an id
+   * @param auditTypeIdentifier points to audit type
+   * @param labelNamesAndValues alternate label name and value
+   */
+  public AuditEntry(AuditTypeIdentifier auditTypeIdentifier, 
+      String... labelNamesAndValues) {
+    
+    this.id = GrouperUuid.getUuid();
+    
+    this.auditTypeId = auditTypeIdentifier.getId();
+    
+    int labelNamesAndValuesLength = GrouperUtil.length(labelNamesAndValues);
+    
+    if (labelNamesAndValuesLength % 2 != 0) {
+      throw new RuntimeException("labelNamesAndValuesLength must be divisible by 2: " 
+          + labelNamesAndValuesLength);
+    }
+    
+    AuditType auditType = AuditTypeFinder.find(this.auditTypeId, true);
+    
+    for (int i=0;i<labelNamesAndValuesLength;i+=2) {
+      String label = labelNamesAndValues[i];
+      String value = labelNamesAndValues[i+1];
+
+      assignStringValue(auditType, label, value);
+    }
+  }
+
+  /**
+   * @param auditType
+   * @param label
+   * @param value
+   */
+  public void assignStringValue(AuditType auditType, String label, String value) {
+    if (StringUtils.equals(label, auditType.getLabelString01())) {
+      this.string01 = value;
+    } else if (StringUtils.equals(label, auditType.getLabelString02())) {
+      this.string02 = value;
+    } else if (StringUtils.equals(label, auditType.getLabelString03())) {
+      this.string03 = value;
+    } else if (StringUtils.equals(label, auditType.getLabelString04())) {
+      this.string04 = value;
+    } else if (StringUtils.equals(label, auditType.getLabelString05())) {
+      this.string05 = value;
+    } else if (StringUtils.equals(label, auditType.getLabelString06())) {
+      this.string06 = value;
+    } else if (StringUtils.equals(label, auditType.getLabelString07())) {
+      this.string07 = value;
+    } else if (StringUtils.equals(label, auditType.getLabelString08())) {
+      this.string08 = value;
+    } else {
+      throw new RuntimeException("Cant find string label: " + label 
+          + " in audit type: " + auditType.getAuditCategory() + " - " + auditType.getActionName());
+    }
+  }
   
   /** name of the grouper audit entry table in the db */
   public static final String TABLE_GROUPER_AUDIT_ENTRY = "grouper_audit_entry";
@@ -60,6 +136,11 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
    */
   private String userIpAddress;
 
+  /**
+   * number of nanos that the duration of the context took
+   */
+  private int durationNanos;
+  
   /**
    * description of what happened in paragraph form
    */
@@ -587,6 +668,22 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
   @Override
   public GrouperAPI clone() {
     throw new RuntimeException("not implemented");
+  }
+
+  /**
+   * number of nanos that the duration of the context took
+   * @return duration nanos
+   */
+  public int getDurationNanos() {
+    return this.durationNanos;
+  }
+
+  /**
+   * number of nanos that the duration of the context took
+   * @param durationNanos1
+   */
+  public void setDurationNanos(int durationNanos1) {
+    this.durationNanos = durationNanos1;
   }
 
 }

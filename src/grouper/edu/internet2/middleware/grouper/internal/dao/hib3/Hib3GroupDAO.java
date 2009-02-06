@@ -51,6 +51,7 @@ import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
@@ -63,7 +64,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.25 2009-01-02 06:57:12 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.26 2009-02-06 16:33:17 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -104,10 +105,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public void addType(final Group _g, final GroupType _gt) 
     throws  GrouperDAOException {
     
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             hibernateSession.byObject().save(  // new group-type tuple
                 new GroupTypeTuple()
                   .setGroupUuid( _g.getUuid() )
@@ -141,10 +144,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     throws  GrouperDAOException {
 
     
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             ByObject byObject = hibernateSession.byObject();
             // delete memberships
             byObject.delete(mships);
@@ -181,10 +186,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public void deleteType(final Group group, final GroupType groupType) 
     throws  GrouperDAOException {
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             
             hibernateSession.byObject().delete( Hib3GroupTypeTupleDAO.findByGroupAndType(group, groupType) );
             
@@ -276,10 +283,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     throws  GrouperDAOException,
             IllegalStateException {
 
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             
             String valLowerForQuery = "%" + val.toLowerCase() + "%";
             Set<Group> groups = hibernateSession.byHql().createQuery(
@@ -313,10 +322,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     throws  GrouperDAOException,
             IllegalStateException {
 
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             
             Set<Group> groups = hibernateSession.byHql().createQuery(
                 "select g from Group as g where "
@@ -352,10 +363,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     throws  GrouperDAOException,
             IllegalStateException
   {
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             
             String attributeHql = null;
             
@@ -396,10 +409,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     throws  GrouperDAOException,
             IllegalStateException
   {
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             String attributeHql = null;
             
@@ -445,10 +460,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     throws  GrouperDAOException,
             IllegalStateException
   {
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             Set<Group> groups = hibernateSession.byHql().createQuery(
                 "select g from Group as g where lower(g.nameDb) like  :value " +
                   "or lower(g.displayNameDb) like :value " +
@@ -477,10 +494,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     throws  GrouperDAOException,
             IllegalStateException
   {
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             Set<Group> groups = hibernateSession.byHql().createQuery(
                 "select g from Group as g where (lower(g.nameDb) like  :value " +
                 "or lower(g.displayNameDb) like :value " +
@@ -520,10 +539,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   private Set<Group> _internal_findAllByDateHelper(final Date d, final boolean includeScope, final String scope, 
       final boolean findAllAfter, final String dateField)  
     throws  GrouperDAOException {
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             List<Criterion> criterionList = new ArrayList<Criterion>();
             
@@ -644,10 +665,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> findAllByType(final GroupType _gt) 
     throws  GrouperDAOException {
     Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READONLY_OR_USE_EXISTING,
+        GrouperTransactionType.READONLY_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Set<Group> groups = hibernateSession.byHql().createQuery(
                 "select g from Group as g, GroupTypeTuple as gtt " +
@@ -672,10 +695,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> findAllByType(final GroupType _gt, final String scope)
     throws  GrouperDAOException {
     Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READONLY_OR_USE_EXISTING,
+        GrouperTransactionType.READONLY_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Set<Group> groups = hibernateSession.byHql().createQuery(
                 "select g from Group as g, GroupTypeTuple as gtt " +
@@ -784,10 +809,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Set<Group> getAllGroups()
     throws  GrouperDAOException {
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Set<Group> groups = hibernateSession.byHql().createQuery(
                 "select g from Group as g")
@@ -810,10 +837,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Set<Group> getAllGroups(final String scope)
     throws  GrouperDAOException {
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Set<Group> groups = hibernateSession.byHql().createQuery(
                 "select g from Group as g where g.nameDb like :scope")
@@ -837,10 +866,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Set<Group> getImmediateChildren(final Stem stem)
     throws  GrouperDAOException {
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Set<Group> groups = hibernateSession.byHql().createQuery(
                 "select g from Group as g where g.parentUuid = :parent")
@@ -864,10 +895,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public void revokePriv(final Group _g, final DefaultMemberOf mof)
     throws  GrouperDAOException {
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             
             ByObject byObject = hibernateSession.byObject();
             byObject.delete(mof.getDeletes());
@@ -890,10 +923,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public void revokePriv(final Group _g, final Set toDelete)
     throws  GrouperDAOException {
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             ByObject byObject = hibernateSession.byObject();
             byObject.delete(toDelete);
             byObject.update( _g );
@@ -1049,10 +1084,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Set<Group> findAllByAttr(final String attr, final String val) throws GrouperDAOException,
       IllegalStateException {
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             String attributeHql = null;
             ByHql byHql = hibernateSession.byHql();
@@ -1088,10 +1125,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Set<Group> findAllByAttr(final String attr, final String val, final String scope) throws GrouperDAOException,
       IllegalStateException {
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING,
+    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             String attributeHql = null;
             ByHql byHql = hibernateSession.byHql();

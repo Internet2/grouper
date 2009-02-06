@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -59,9 +60,9 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.75 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.76 2009-02-06 16:33:18 mchyzer Exp $
  */
-public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVersioned, Comparable {
+public class GroupType extends GrouperAPI implements GrouperHasContext, Serializable, Hib3GrouperVersioned, Comparable {
 
   /** name of table for grouper_types */
   public static final String TABLE_GROUPER_TYPES = "grouper_types";
@@ -219,8 +220,24 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
   /** */
   private String  uuid; 
 
+  /** context id of the transaction */
+  private String contextId;
 
-  // PUBLIC INSTANCE METHODS //
+  /**
+   * context id of the transaction
+   * @return context id
+   */
+  public String getContextId() {
+    return this.contextId;
+  }
+
+  /**
+   * context id of the transaction
+   * @param contextId1
+   */
+  public void setContextId(String contextId1) {
+    this.contextId = contextId1;
+  }
 
   /**
    * Add a custom attribute {@link Field} to a custom {@link GroupType}.
@@ -579,7 +596,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
       _gt.setUuid( GrouperUuid.getUuid() );
       
     try {
-      dao.create(_gt) ;
+      dao.createOrUpdate(_gt) ;
     }
     catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_ADD + name + ": " + eDAO.getMessage();

@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: Hib3GrouperLoaderLog.java,v 1.5 2009-02-01 22:38:49 mchyzer Exp $
+ * $Id: Hib3GrouperLoaderLog.java,v 1.6 2009-02-06 16:33:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -678,10 +679,11 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
     this.truncate();
     
     //do this in autonomous transaction
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, new HibernateHandler() {
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, false, new HibernateHandler() {
 
-      public Object callback(HibernateSession hibernateSession)
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
+        HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
         hibernateSession.byObject().saveOrUpdate(Hib3GrouperLoaderLog.this);
         return null;
       }

@@ -1,12 +1,17 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
-import edu.internet2.middleware.grouper.AuditType;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 
 /**
  * Data Access Object for audit type
  * @author  mchyzer
- * @version $Id: Hib3AuditTypeDAO.java,v 1.1 2009-02-01 22:38:48 mchyzer Exp $
+ * @version $Id: Hib3AuditTypeDAO.java,v 1.2 2009-02-06 16:33:18 mchyzer Exp $
  */
 public class Hib3AuditTypeDAO extends Hib3DAO implements AuditTypeDAO {
   
@@ -17,9 +22,15 @@ public class Hib3AuditTypeDAO extends Hib3DAO implements AuditTypeDAO {
   private static final String KLASS = Hib3AuditTypeDAO.class.getName();
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO#saveOrUpdate(edu.internet2.middleware.grouper.AuditType)
+   * @see edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO#saveOrUpdate(edu.internet2.middleware.grouper.audit.AuditType)
    */
   public void saveOrUpdate(AuditType auditType) {
+    
+    //assign id if not there
+    if (StringUtils.isBlank(auditType.getId())) {
+      auditType.setId(GrouperUuid.getUuid());
+    }
+
     auditType.truncate();
     HibernateSession.byObjectStatic().saveOrUpdate(auditType);
   }
@@ -29,7 +40,10 @@ public class Hib3AuditTypeDAO extends Hib3DAO implements AuditTypeDAO {
    * @param hibernateSession
    */
   static void reset(HibernateSession hibernateSession) {
-    hibernateSession.byHql().createQuery("delete from AuditType").executeUpdate();
+    //i think we dont want to delete these in a reset...
+    //hibernateSession.byHql().createQuery("delete from AuditType").executeUpdate();
+    //tell the cache it is empty...
+    
   }
 
   /**
@@ -49,8 +63,14 @@ public class Hib3AuditTypeDAO extends Hib3DAO implements AuditTypeDAO {
       .createQuery("delete from AuditType where auditCategory = :theAuditCategory and actionName = :theActionName")
       .setString("theAuditCategory", category).setString("theActionName", action).executeUpdate();
     
-    
-    
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO#findAll()
+   */
+  public Set<AuditType> findAll() {
+    return HibernateSession.byHqlStatic().createQuery("from AuditType").listSet(AuditType.class);
   }
   
 } 

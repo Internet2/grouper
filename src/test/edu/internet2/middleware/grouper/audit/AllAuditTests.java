@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AllAuditTests.java,v 1.1 2009-02-01 22:38:48 mchyzer Exp $
+ * $Id: AllAuditTests.java,v 1.2 2009-02-06 16:33:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -19,6 +19,7 @@ public class AllAuditTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.audit");
     //$JUnit-BEGIN$
+    suite.addTestSuite(AuditTest.class);
     suite.addTestSuite(AuditTypeTest.class);
     suite.addTestSuite(AuditEntryTest.class);
     //$JUnit-END$

@@ -26,7 +26,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 /** 
  * Basic <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupTypeDAO.java,v 1.8 2008-11-04 07:17:56 mchyzer Exp $
+ * @version $Id: GroupTypeDAO.java,v 1.9 2009-02-06 16:33:18 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupTypeDAO extends GrouperDAO {
@@ -34,16 +34,9 @@ public interface GroupTypeDAO extends GrouperDAO {
   /**
    * 
    * @param _gt
-   */
-  public void createOrUpdate(GroupType _gt);
-
-  /**
-   * @param _gt 
    * @throws GrouperDAOException 
-   * @since   1.2.0
    */
-  void create(GroupType _gt)
-    throws  GrouperDAOException;
+  public void createOrUpdate(GroupType _gt) throws GrouperDAOException;
 
   /**
    * @param _f 

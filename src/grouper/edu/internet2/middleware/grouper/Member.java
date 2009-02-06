@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean;
@@ -80,7 +81,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.118 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: Member.java,v 1.119 2009-02-06 16:33:18 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -290,11 +291,12 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
     final Member newMember = theNewMember;
     
     //this needs to run in a transaction
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-      public Object callback(HibernateSession hibernateSession)
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
+        HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
         try {
           //hooks bean
           HooksMemberChangeSubjectBean hooksMemberChangeSubjectBean = new HooksMemberChangeSubjectBean(

@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
@@ -43,7 +44,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.25 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.26 2009-02-06 16:33:17 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -859,10 +860,12 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public void update(final DefaultMemberOf mof) 
     throws  GrouperDAOException {
     // TODO 20070404 this is incredibly ugly
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             
             ByObject byObject = hibernateSession.byObject();
             byObject.delete(mof.getDeletes());
