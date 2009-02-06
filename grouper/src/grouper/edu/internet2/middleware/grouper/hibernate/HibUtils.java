@@ -235,10 +235,11 @@ public class HibUtils {
   @SuppressWarnings("deprecation")
   public static int executeSql(final String sql, final List<Object> params) {
 
-    int result = (Integer)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
+    int result = (Integer)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false, new HibernateHandler() {
 
-      public Object callback(HibernateSession hibernateSession)
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
+        HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
         
         //we dont close this connection or anything since could be pooled
         Connection connection = hibernateSession.getSession().connection();

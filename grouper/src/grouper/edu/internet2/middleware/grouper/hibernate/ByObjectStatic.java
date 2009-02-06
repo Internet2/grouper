@@ -109,10 +109,12 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
           new HibernateHandler() {
   
-            public Object callback(HibernateSession hibernateSession) {
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
@@ -152,10 +154,12 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
           new HibernateHandler() {
   
-            public Object callback(HibernateSession hibernateSession) {
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, 
                   "Cant set cacheable here");
@@ -198,10 +202,12 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      T result = (T)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      T result = (T)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
           new HibernateHandler() {
   
-            public Object callback(HibernateSession hibernateSession) {
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               ByObject byObject = hibernateSession.byObject();
               ByObjectStatic.this.copyFieldsTo(byObject);
@@ -243,10 +249,12 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
           new HibernateHandler() {
   
-            public Object callback(HibernateSession hibernateSession) {
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
@@ -286,10 +294,12 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
           new HibernateHandler() {
   
-            public Object callback(HibernateSession hibernateSession) {
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
@@ -334,10 +344,12 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
           new HibernateHandler() {
   
-            public Object callback(HibernateSession hibernateSession) {
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
@@ -384,10 +396,12 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      Serializable result = (Serializable)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      Serializable result = (Serializable)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
           new HibernateHandler() {
   
-            public Object callback(HibernateSession hibernateSession) {
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
@@ -431,10 +445,12 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
           new HibernateHandler() {
   
-            public Object callback(HibernateSession hibernateSession) {
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");
@@ -479,10 +495,12 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
           new HibernateHandler() {
   
-            public Object callback(HibernateSession hibernateSession) {
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
               GrouperUtil.assertion(ByObjectStatic.this.cacheable == null, "Cant set cacheable here");
               GrouperUtil.assertion(ByObjectStatic.this.cacheRegion == null, "Cant set cacheRegion here");

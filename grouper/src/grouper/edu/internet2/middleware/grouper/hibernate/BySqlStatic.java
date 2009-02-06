@@ -61,10 +61,11 @@ public class BySqlStatic {
   @SuppressWarnings("deprecation")
   public int executeSql(final String sql, final List<Object> params) {
   
-    int result = (Integer)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
+    int result = (Integer)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false, new HibernateHandler() {
 
-      public Object callback(HibernateSession hibernateSession)
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
+        HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
         PreparedStatement preparedStatement = null;
         try {
           
@@ -113,10 +114,11 @@ public class BySqlStatic {
   @SuppressWarnings("deprecation")
   public <T> T select(final Class<T> returnClassType, final String sql, final List<Object> params) {
   
-    T theResult = (T)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
+    T theResult = (T)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false, new HibernateHandler() {
 
-      public Object callback(HibernateSession hibernateSession)
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
+        HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         try {

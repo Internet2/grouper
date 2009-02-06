@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
@@ -35,7 +36,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  mchyzer
- * @version $Id: TestGroupTypeIncludeExclude.java,v 1.4 2008-11-12 09:05:53 mchyzer Exp $
+ * @version $Id: TestGroupTypeIncludeExclude.java,v 1.5 2009-02-06 16:33:18 mchyzer Exp $
  */
 public class TestGroupTypeIncludeExclude extends GrouperTest {
 
@@ -185,10 +186,11 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     
     final Group GROUP1 = aGroup;
 
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, new HibernateHandler() {
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, false, new HibernateHandler() {
 
-      public Object callback(HibernateSession hibernateSession)
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
+        HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
         try {
           GROUP1.addType(TestGroupTypeIncludeExclude.this.includeExcludeType);
         } catch (Exception e) {
@@ -207,9 +209,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     aGroup = GroupFinder.findByName(this.grouperSession, overallName, false);
     
     final Group GROUP2 = aGroup;
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, new HibernateHandler() {
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, false, new HibernateHandler() {
 
-      public Object callback(HibernateSession hibernateSession)
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
         try {
           GROUP2.addType(includeExcludeType);

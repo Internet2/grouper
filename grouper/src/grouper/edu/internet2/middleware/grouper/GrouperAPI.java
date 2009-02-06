@@ -25,9 +25,11 @@ import org.hibernate.classic.Lifecycle;
 
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
+import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -35,7 +37,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.16 2008-07-30 21:02:04 mchyzer Exp $
+ * @version $Id: GrouperAPI.java,v 1.17 2009-02-06 16:33:18 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class GrouperAPI implements Serializable, HibGrouperLifecycle, Lifecycle, GrouperCloneable {
@@ -141,6 +143,11 @@ public abstract class GrouperAPI implements Serializable, HibGrouperLifecycle, L
    * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
   public void onPreDelete(HibernateSession hibernateSession) {
+    
+    //TODO set the context id before deleting, or after deleting... (after)
+    if (this instanceof GrouperHasContext) {
+      ((GrouperHasContext)this).setContextId(GrouperContext.retrieveContextId(true));
+    }
   }
 
 
@@ -148,7 +155,9 @@ public abstract class GrouperAPI implements Serializable, HibGrouperLifecycle, L
    * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
   public void onPreSave(HibernateSession hibernateSession) {
-    
+    if (this instanceof GrouperHasContext) {
+      ((GrouperHasContext)this).setContextId(GrouperContext.retrieveContextId(true));
+    }
   }
 
 
@@ -156,6 +165,9 @@ public abstract class GrouperAPI implements Serializable, HibGrouperLifecycle, L
    * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
   public void onPreUpdate(HibernateSession hibernateSession) {
+    if (this instanceof GrouperHasContext) {
+      ((GrouperHasContext)this).setContextId(GrouperContext.retrieveContextId(true));
+    }
   }
 
 

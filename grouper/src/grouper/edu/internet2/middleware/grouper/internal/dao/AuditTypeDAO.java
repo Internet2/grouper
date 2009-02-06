@@ -1,16 +1,24 @@
 /*
  * @author mchyzer
- * $Id: AuditTypeDAO.java,v 1.1 2009-02-01 22:38:49 mchyzer Exp $
+ * $Id: AuditTypeDAO.java,v 1.2 2009-02-06 16:33:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
-import edu.internet2.middleware.grouper.AuditType;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.audit.AuditType;
 
 
 /**
  * audit type data access methods
  */
 public interface AuditTypeDAO extends GrouperDAO {
+  
+  /**
+   * find all audit types
+   * @return all audit types
+   */
+  public Set<AuditType> findAll();
   
   /** 
    * insert or update an audit entry object 

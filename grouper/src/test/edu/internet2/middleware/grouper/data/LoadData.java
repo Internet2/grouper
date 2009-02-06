@@ -18,6 +18,7 @@ import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
@@ -197,11 +198,12 @@ public class LoadData {
     } catch (SubjectNotFoundException snfe) {
       //create;
       
-      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, new HibernateHandler() {
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, false, new HibernateHandler() {
 
         @SuppressWarnings("deprecation")
-        public Object callback(HibernateSession hibernateSession)
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
             throws GrouperDAOException {
+          HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
           Session session = hibernateSession.getSession();
           Connection connection = session.connection();
           PreparedStatement preparedStatement = null;

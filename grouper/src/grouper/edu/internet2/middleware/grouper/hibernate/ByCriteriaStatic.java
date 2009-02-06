@@ -154,10 +154,12 @@ public class ByCriteriaStatic {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READONLY_OR_USE_EXISTING);
       
-      T result = (T)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      T result = (T)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
           new HibernateHandler() {
   
-            public Object callback(HibernateSession hibernateSession) {
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               Session session  = hibernateSession.getSession();
               Criteria criteria = ByCriteriaStatic.this.attachCriteriaInfo(session);
@@ -204,10 +206,12 @@ public class ByCriteriaStatic {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READONLY_OR_USE_EXISTING);
       
-      List<T> result = (List<T>)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      List<T> result = (List<T>)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
           new HibernateHandler() {
   
-            public Object callback(HibernateSession hibernateSession) {
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               Session session  = hibernateSession.getSession();
               Criteria criteria = ByCriteriaStatic.this.attachCriteriaInfo(session);

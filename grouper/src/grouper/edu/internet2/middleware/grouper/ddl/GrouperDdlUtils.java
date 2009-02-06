@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.34 2009-01-31 16:46:41 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.35 2009-02-06 16:33:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleDdlInitBean;
@@ -2184,11 +2185,12 @@ public class GrouperDdlUtils {
       
       final String sampleTableNameExistsFinal = sampleTableNameExists;
       
-      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, new HibernateHandler() {
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, false, new HibernateHandler() {
   
         @SuppressWarnings("deprecation")
-        public Object callback(HibernateSession hibernateSession)
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
             throws GrouperDAOException {
+          HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
           //try all combinations
           for (String theDefaultTablePattern : defaultTablePatterns) {
             for (String theSchema : schemas) {

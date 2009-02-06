@@ -27,8 +27,13 @@ import org.hibernate.HibernateException;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -38,7 +43,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeDAO.java,v 1.10 2008-11-04 07:17:56 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeDAO.java,v 1.11 2009-02-06 16:33:18 mchyzer Exp $
  */
 public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
 
@@ -47,22 +52,29 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
 
   /**
    * insert or update
-   * @param _gt
+   * @param groupType
+   * @throws GrouperDAOException 
    */
-  public void createOrUpdate(GroupType _gt) {
-    HibernateSession.byObjectStatic().saveOrUpdate(_gt);    
+  public void createOrUpdate(final GroupType groupType) throws GrouperDAOException {
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, true, new HibernateHandler() {
+
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+        
+        HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+        hibernateSession.byObject().saveOrUpdate(groupType); 
+        
+        AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_ADD, "id", 
+            groupType.getUuid(), "name", groupType.getName());
+        auditEntry.saveOrUpdate();
+        
+        return null;
+      }
+      
+    });
+       
   }
   
-  /**
-   * @param _gt 
-   * @throws GrouperDAOException 
-   * @since   @HEAD@
-   */
-  public void create(GroupType _gt)
-    throws  GrouperDAOException {
-    HibernateSession.byObjectStatic().save(_gt);
-  } 
-
   /**
    * @param _f 
    * @throws GrouperDAOException 

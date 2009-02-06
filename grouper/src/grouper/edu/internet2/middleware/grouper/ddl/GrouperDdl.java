@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.31 2009-02-02 07:02:40 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.32 2009-02-06 16:33:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -21,15 +21,16 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
-import edu.internet2.middleware.grouper.AuditEntry;
-import edu.internet2.middleware.grouper.AuditType;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -528,6 +529,9 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
             "user_ip_address", Types.VARCHAR, "50", false, false); 
         
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "duration_nanos", Types.INTEGER, null, false, false); 
+        
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
             "audit_entry_act_as_idx", false, "act_as_member_id");
 
@@ -539,7 +543,7 @@ public enum GrouperDdl implements DdlVersionable {
 
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
             "audit_entry_logged_in_idx", false, "logged_in_member_id");
-        
+
         //do 5 string indexes, probably dont need them on the other string cols
         for (int i=1;i<=5;i++) {
           //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
@@ -678,11 +682,12 @@ public enum GrouperDdl implements DdlVersionable {
       //also we need to need the conversion in attributes or memberships
       if (isDestinationVersion && (needsAttributeFieldIdConversion || needsMembershipFieldIdConversion)) {
         
-        HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, new HibernateHandler() {
+        HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, false, new HibernateHandler() {
 
           @SuppressWarnings("deprecation")
-          public Object callback(HibernateSession hibernateSession)
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             
             Connection connection = hibernateSession.getSession().connection();
             PreparedStatement statement = null;

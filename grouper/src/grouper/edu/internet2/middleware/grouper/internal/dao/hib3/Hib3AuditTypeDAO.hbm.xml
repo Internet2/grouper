@@ -20,9 +20,9 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3AuditTypeDAO.hbm.xml,v 1.1 2009-02-01 22:38:48 mchyzer Exp $ -->
+<!-- $Id: Hib3AuditTypeDAO.hbm.xml,v 1.2 2009-02-06 16:33:18 mchyzer Exp $ -->
 
-<hibernate-mapping package="edu.internet2.middleware.grouper">
+<hibernate-mapping package="edu.internet2.middleware.grouper.audit">
   <class name="AuditType" table="grouper_audit_type">
 
     <cache usage="read-write"/>

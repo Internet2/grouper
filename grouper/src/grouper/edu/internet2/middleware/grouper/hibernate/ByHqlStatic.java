@@ -206,10 +206,12 @@ public class ByHqlStatic {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READONLY_OR_USE_EXISTING);
       
-      Q result = (Q)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      Q result = (Q)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
           new HibernateHandler() {
   
-            public Object callback(HibernateSession hibernateSession) {
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               ByHql byHql = ByHqlStatic.this.byHql(hibernateSession);
               return byHql.uniqueResult(returnType);
@@ -250,10 +252,12 @@ public class ByHqlStatic {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READONLY_OR_USE_EXISTING);
       
-      List<R> result = (List<R>)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      List<R> result = (List<R>)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
           new HibernateHandler() {
   
-            public Object callback(HibernateSession hibernateSession) {
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               ByHql byHql = ByHqlStatic.this.byHql(hibernateSession);
               List<R> list = byHql.list(returnType);
@@ -307,10 +311,12 @@ public class ByHqlStatic {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse,
+      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
           new HibernateHandler() {
   
-            public Object callback(HibernateSession hibernateSession) {
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               
               ByHql byHql = ByHqlStatic.this.byHql(hibernateSession);
               byHql.executeUpdate();

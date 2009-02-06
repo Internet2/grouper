@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateMisc;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
@@ -36,7 +37,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Basic Hibernate <code>Composite</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3CompositeDAO.java,v 1.8 2008-10-16 05:45:47 mchyzer Exp $
+ * @version $Id: Hib3CompositeDAO.java,v 1.9 2009-02-06 16:33:18 mchyzer Exp $
  */
 public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
 
@@ -121,10 +122,12 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
   public void update(final Set toAdd, final Set toDelete, final Set modGroups, final Set modStems) 
     throws  GrouperDAOException {
     
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             
             ByObject byObject = hibernateSession.byObject();
             HibernateMisc misc = hibernateSession.misc();

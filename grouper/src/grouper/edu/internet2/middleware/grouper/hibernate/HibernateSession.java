@@ -364,6 +364,7 @@ public class HibernateSession {
    * 
    * @param grouperTransactionType
    *          is enum of how the transaction should work.
+   * @param willCreateAudit true if caller will create an audit record, false if not
    * @param hibernateHandler
    *          will get the callback
    * @return the object returned from the callback
@@ -373,7 +374,7 @@ public class HibernateSession {
    */
   @SuppressWarnings("deprecation")
   public static Object callbackHibernateSession(
-      GrouperTransactionType grouperTransactionType, HibernateHandler hibernateHandler)
+      GrouperTransactionType grouperTransactionType, boolean willCreateAudit, HibernateHandler hibernateHandler)
       throws GrouperDAOException {
     Object ret = null;
     HibernateSession hibernateSession = null;
@@ -382,8 +383,30 @@ public class HibernateSession {
       
       hibernateSession = _internal_hibernateSession(grouperTransactionType);
       
-      ret = hibernateHandler.callback(hibernateSession);
+      HibernateHandlerBean hibernateHandlerBean = new HibernateHandlerBean();
+      hibernateHandlerBean.setCallerWillCreateAudit(willCreateAudit);
 
+      //create a new context
+      boolean createdContext = GrouperContext.createNewPrivateContextIfNotExist();
+      
+      try {
+        //see if the caller will audit
+        boolean callerWillAudit = GrouperContext.contextIsAudited();
+        if (!callerWillAudit) {
+          GrouperContext.setContextAudited(willCreateAudit);
+        }
+        hibernateHandlerBean.setCallerWillCreateAudit(callerWillAudit);
+        hibernateHandlerBean.setNewContext(createdContext);
+        
+        hibernateHandlerBean.setHibernateSession(hibernateSession);
+        
+        ret = hibernateHandler.callback(hibernateHandlerBean);
+      } finally {
+        //if we created a context, then remove it
+        if (createdContext) {
+          GrouperContext.deletePrivateContext();
+        }
+      }
       _internal_hibernateSessionEnd(hibernateSession);
 
     } catch (Throwable e) {

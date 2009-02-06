@@ -36,6 +36,7 @@ import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
@@ -44,7 +45,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Registry</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3RegistryDAO.java,v 1.13 2009-02-01 22:38:48 mchyzer Exp $
+ * @version $Id: Hib3RegistryDAO.java,v 1.14 2009-02-06 16:33:18 mchyzer Exp $
  * @since   @HEAD@
  */
 class Hib3RegistryDAO implements RegistryDAO {
@@ -118,10 +119,12 @@ class Hib3RegistryDAO implements RegistryDAO {
    */
   public void reset(final boolean includeTypesAndFields) 
     throws  GrouperDAOException {
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING,
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false,
         new HibernateHandler() {
 
-          public Object callback(HibernateSession hibernateSession) {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             Hib3AuditEntryDAO.reset(hibernateSession);
             Hib3AuditTypeDAO.reset(hibernateSession);

@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3GroupTypeDAO.hbm.xml,v 1.7 2008-10-16 05:45:47 mchyzer Exp $ -->
+<!-- $Id: Hib3GroupTypeDAO.hbm.xml,v 1.8 2009-02-06 16:33:18 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
   <class name="GroupType" table="grouper_types" >
@@ -92,6 +92,9 @@
       <column name="is_internal"/>
     </property>
     <!-- isInternal -->
+
+    <!-- context id of the transaction -->
+    <property name="contextId" column="context_id" />
 
   </class>
 </hibernate-mapping>

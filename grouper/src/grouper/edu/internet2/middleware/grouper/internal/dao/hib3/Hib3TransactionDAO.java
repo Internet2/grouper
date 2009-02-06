@@ -9,6 +9,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.TransactionDAO;
@@ -36,9 +37,11 @@ public class Hib3TransactionDAO implements TransactionDAO {
       final GrouperTransactionHandler grouperTransactionHandler,
       final GrouperTransaction grouperTransaction) throws GrouperDAOException {
     
-    Object result = HibernateSession.callbackHibernateSession(grouperTransactionType, new HibernateHandler() {
+    Object result = HibernateSession.callbackHibernateSession(grouperTransactionType, false, new HibernateHandler() {
 
-      public Object callback(HibernateSession hibernateSession) throws GrouperDAOException {
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+        HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
         
         //set the session object
         grouperTransaction._internal_setPayload(hibernateSession);

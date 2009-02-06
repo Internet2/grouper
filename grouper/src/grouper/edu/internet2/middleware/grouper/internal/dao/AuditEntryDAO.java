@@ -1,10 +1,10 @@
 /*
  * @author mchyzer
- * $Id: AuditEntryDAO.java,v 1.1 2009-02-01 22:38:49 mchyzer Exp $
+ * $Id: AuditEntryDAO.java,v 1.2 2009-02-06 16:33:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
-import edu.internet2.middleware.grouper.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
 
 
 /**
