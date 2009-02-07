@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.32 2009-02-06 16:33:18 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.33 2009-02-07 17:11:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -531,6 +531,9 @@ public enum GrouperDdl implements DdlVersionable {
         
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
             "duration_nanos", Types.INTEGER, null, false, false); 
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "query_count", Types.INTEGER, null, false, false); 
         
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
             "audit_entry_act_as_idx", false, "act_as_member_id");
