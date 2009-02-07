@@ -31,8 +31,14 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.exception.GrouperInverseOfControlException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupTypeHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeBean;
@@ -60,7 +66,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.76 2009-02-06 16:33:18 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.77 2009-02-07 20:16:08 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements GrouperHasContext, Serializable, Hib3GrouperVersioned, Comparable {
 
@@ -560,51 +566,77 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * @throws SchemaException
    */
   public static GroupType internal_createType(
-    GrouperSession s, String name, boolean isAssignable, boolean isInternal, boolean exceptionIfExists, boolean[] changed)
+    final GrouperSession s, final String name, final boolean isAssignable, 
+    final boolean isInternal, final boolean exceptionIfExists, final boolean[] changed)
       throws  InsufficientPrivilegeException,
-              SchemaException
-  { 
-    //note, no need for GrouperSession inverse of control
-    if (!PrivilegeHelper.isRoot(s)) {
-      String msg = "subject '" + GrouperUtil.subjectToString(s.getSubject()) + "' not privileged to add group types ('" + name + "')";
-      LOG.error( msg);
-      throw new InsufficientPrivilegeException(msg);
-    }
-    GroupTypeDAO dao = GrouperDAOFactory.getFactory().getGroupType();
-    if (GrouperUtil.length(changed) >= 1) {
-      changed[0] = true;
-    }
-    if ( dao.existsByName(name) ) {
-      if (GrouperUtil.length(changed) >= 1) {
-        changed[0] = false;
-      }
-      if (exceptionIfExists) {
-        String msg = E.GROUPTYPE_EXISTS + name;
-        LOG.error( msg);
-        throw new SchemaException(msg);
-      }
-      
-      return GroupTypeFinder.find(name);
-    }
-    GroupType _gt = new GroupType();
-    _gt.setCreateTime( new Date().getTime() );
-      _gt.setCreatorUuid( s.getMember().getUuid() );
-      _gt.setFields( new LinkedHashSet() );
-      _gt.setIsAssignable(isAssignable);
-      _gt.setIsInternal(isInternal);
-      _gt.setName(name);
-      _gt.setUuid( GrouperUuid.getUuid() );
-      
+              SchemaException { 
+    
     try {
-      dao.createOrUpdate(_gt) ;
-    }
-    catch (GrouperDAOException eDAO) {
+      return (GroupType)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, true, new HibernateHandler() {
+  
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          
+          //note, no need for GrouperSession inverse of control
+          if (!PrivilegeHelper.isRoot(s)) {
+            String msg = "subject '" + GrouperUtil.subjectToString(s.getSubject()) + "' not privileged to add group types ('" + name + "')";
+            LOG.error( msg);
+            throw new GrouperInverseOfControlException(new InsufficientPrivilegeException(msg));
+          }
+          GroupTypeDAO dao = GrouperDAOFactory.getFactory().getGroupType();
+          if (GrouperUtil.length(changed) >= 1) {
+            changed[0] = true;
+          }
+          if ( dao.existsByName(name) ) {
+            if (GrouperUtil.length(changed) >= 1) {
+              changed[0] = false;
+            }
+            if (exceptionIfExists) {
+              String msg = E.GROUPTYPE_EXISTS + name;
+              LOG.error( msg);
+              throw new GrouperInverseOfControlException(new SchemaException(msg));
+            }
+            try {
+              return GroupTypeFinder.find(name);
+            } catch (SchemaException se) {
+              throw new GrouperInverseOfControlException(se);
+            }
+          }
+          GroupType _gt = new GroupType();
+          _gt.setCreateTime( new Date().getTime() );
+            _gt.setCreatorUuid( s.getMember().getUuid() );
+            _gt.setFields( new LinkedHashSet() );
+            _gt.setIsAssignable(isAssignable);
+            _gt.setIsInternal(isInternal);
+            _gt.setName(name);
+            _gt.setUuid( GrouperUuid.getUuid() );
+            
+          dao.createOrUpdate(_gt) ;
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_ADD, "id", 
+              _gt.getUuid(), "name", _gt.getName());
+          auditEntry.saveOrUpdate(true);
+          
+          return _gt;
+        }
+        
+      });
+    } catch (GrouperInverseOfControlException gioc) {
+      Throwable cause = gioc.getCause();
+      if (cause instanceof InsufficientPrivilegeException) {
+        throw (InsufficientPrivilegeException)cause;
+      }
+      if (cause instanceof SchemaException) {
+        throw (SchemaException)cause;
+      }
+      LOG.error("Cant find cause: " + cause + ", " + GrouperUtil.getFullStackTrace(gioc));
+      throw new RuntimeException(cause);
+    } catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_ADD + name + ": " + eDAO.getMessage();
       LOG.error( msg);
       throw new SchemaException(msg, eDAO);
     }
-    return _gt;
-  } // protected static GroupType internal_createType(s, name, isAssignable, isInternal)
+
+  }
 
 
   /**

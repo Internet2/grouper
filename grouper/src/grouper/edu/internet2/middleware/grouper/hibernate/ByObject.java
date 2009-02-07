@@ -13,7 +13,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * @version $Id: ByObject.java,v 1.8 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: ByObject.java,v 1.9 2009-02-07 20:16:08 mchyzer Exp $
  * @author harveycg
  */
 public class ByObject extends HibernateDelegate {
@@ -81,6 +81,7 @@ public class ByObject extends HibernateDelegate {
       if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
         ((HibGrouperLifecycle)object).onPreDelete(hibernateSession);
       }
+      GrouperContext.incrementQueryCount();
 
       session.delete(object);
       
@@ -157,6 +158,7 @@ public class ByObject extends HibernateDelegate {
         ((HibGrouperLifecycle)object).onPreSave(hibernateSession);
       }
 
+      GrouperContext.incrementQueryCount();
       Serializable id = session.save(object);
       
       if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
@@ -236,7 +238,9 @@ public class ByObject extends HibernateDelegate {
           ((HibGrouperLifecycle)object).onPreUpdate(hibernateSession);
         }
       }
-      
+
+      GrouperContext.incrementQueryCount();
+
       session.saveOrUpdate(object);
       try {
         session.flush(); //TODO remove
@@ -279,6 +283,7 @@ public class ByObject extends HibernateDelegate {
       HibernateSession hibernateSession = this.getHibernateSession();
       Session session  = hibernateSession.getSession();
 
+      GrouperContext.incrementQueryCount();
       T result = (T)session.load(theClass, id);
       
       return result;
@@ -340,6 +345,7 @@ public class ByObject extends HibernateDelegate {
         ((HibGrouperLifecycle)object).onPreUpdate(hibernateSession);
       }
 
+      GrouperContext.incrementQueryCount();
       session.update(object);
       
       if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {

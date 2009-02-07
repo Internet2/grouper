@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTypeFinder.java,v 1.1 2009-02-06 16:33:18 mchyzer Exp $
+ * $Id: AuditTypeFinder.java,v 1.2 2009-02-07 20:16:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -30,6 +30,15 @@ public class AuditTypeFinder {
    */
   private static Map<String, AuditType> typesById = null;
 
+  /**
+   * clear this out, so it will begin again
+   */
+  public static void clearCache() {
+    types = null;
+    typesById = null;
+    updatedBuiltinTypes = false;
+  }
+  
   /** 
    * Find an {@link AuditType}.
    * <p/>

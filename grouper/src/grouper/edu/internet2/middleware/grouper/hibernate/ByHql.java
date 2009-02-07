@@ -205,6 +205,7 @@ public class ByHql extends HibernateDelegate {
    */
   public <T> T uniqueResult(Class<T> returnType) throws GrouperDAOException {
 
+    GrouperContext.incrementQueryCount();
     HibernateSession hibernateSession = this.getHibernateSession();
     Session session  = hibernateSession.getSession();
     Query query = ByHql.this.attachQueryInfo(session);
@@ -222,6 +223,7 @@ public class ByHql extends HibernateDelegate {
    * @throws GrouperDAOException 
    */
   public void executeUpdate() throws GrouperDAOException {
+    GrouperContext.incrementQueryCount();
     HibernateSession hibernateSession = this.getHibernateSession();
     Session session  = hibernateSession.getSession();
     Query query = ByHql.this.attachQueryInfo(session);
@@ -245,7 +247,8 @@ public class ByHql extends HibernateDelegate {
    * @throws GrouperDAOException
    */
   public <T> List<T> list(Class<T> returnType) {
-      
+    GrouperContext.incrementQueryCount();
+
     HibernateSession hibernateSession = this.getHibernateSession();
     Session session  = hibernateSession.getSession();
     Query query = ByHql.this.attachQueryInfo(session);

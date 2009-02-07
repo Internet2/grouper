@@ -75,6 +75,7 @@ public class BySqlStatic {
       
           attachParams(preparedStatement, params);
           
+          GrouperContext.incrementQueryCount();
           int result = preparedStatement.executeUpdate();
           
           return result;
@@ -129,6 +130,7 @@ public class BySqlStatic {
       
           attachParams(preparedStatement, params);
           
+          GrouperContext.incrementQueryCount();
           resultSet = preparedStatement.executeQuery();
           
           boolean hasResults = resultSet.next();
