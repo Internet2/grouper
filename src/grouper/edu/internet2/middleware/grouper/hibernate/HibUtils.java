@@ -23,7 +23,6 @@ import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.Type;
 
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -217,55 +216,6 @@ public class HibUtils {
     
   }
   
-  /**
-   * execute some sql
-   * @param sql can be insert, update, delete, or ddl
-   * @return the number of rows affected or 0 for ddl
-   */
-  public static int executeSql(final String sql) {
-    return executeSql(sql, null);
-  }
-
-  /**
-   * execute some sql
-   * @param sql can be insert, update, delete, or ddl
-   * @param params prepared statement params
-   * @return the number of rows affected or 0 for ddl
-   */
-  @SuppressWarnings("deprecation")
-  public static int executeSql(final String sql, final List<Object> params) {
-
-    int result = (Integer)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false, new HibernateHandler() {
-
-      public Object callback(HibernateHandlerBean hibernateHandlerBean)
-          throws GrouperDAOException {
-        HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-        
-        //we dont close this connection or anything since could be pooled
-        Connection connection = hibernateSession.getSession().connection();
-        PreparedStatement preparedStatement = null;
-
-        try {
-          preparedStatement = connection.prepareStatement(sql);
-  
-          attachParams(preparedStatement, params);
-          
-          int result = preparedStatement.executeUpdate();
-          
-          hibernateSession.commit(GrouperCommitType.COMMIT_IF_NEW_TRANSACTION);
-          return result;
-        } catch (Exception e) {
-          throw new  RuntimeException ("Problem with sql: " + sql, e);
-        } finally {
-          closeQuietly(preparedStatement);
-        }
-      }
-      
-    });
-    return result;
-     
-  }
-
   /**
    * close a connection null safe and dont throw exception
    * @param connection

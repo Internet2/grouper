@@ -1,123 +1,152 @@
 /*
  * @author mchyzer
- * $Id: GrouperContext.java,v 1.1 2009-02-06 16:33:18 mchyzer Exp $
+ * $Id: GrouperContext.java,v 1.2 2009-02-07 20:16:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
+import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 
 
 /**
- * holds threadlocal information about the current context of the database transactions
+ * <pre>
+ * holds threadlocal information about the current context of the database transactions.
+ * 
+ * The inner context is for operations like addGroup.
+ * The outer context is for e.g. web requests like UI or WS
+ * </pre>
  */
 public class GrouperContext {
   
-  /** ip address of caller */
-  private String callerIpAddress;
-  
   /**
-   * private data in context
+   * see if there is an inner context
+   * @return true if inner context
    */
-  private static class GrouperContextPrivate {
-
-    /** context is audited */
-    private boolean contextAudited;
-
-    /** id of the current context, this is lazy loaded */
-    private String contextId;
-    
-    /**
-     * if context is audited
-     * @return true if context is audited
-     */
-    public boolean isContextAudited() {
-      return this.contextAudited;
-    }
-    
-    /**
-     * if context is audited
-     * @param contextIsAudited
-     */
-    public void setContextAudited(boolean contextIsAudited) {
-      this.contextAudited = contextIsAudited;
-    }
-
-    /**
-     * context id
-     * @return context id
-     */
-    public String getContextId() {
-      if (this.contextId == null) {
-        this.contextId = GrouperUuid.getUuid();
-      }
-      return this.contextId;
-    }
-
+  public static boolean contextExistsInner() {
+    return currentInnerContext.get() != null;
   }
   
-  
+  /** ip address of caller */
+  private String callerIpAddress;
+
+  /**
+   * id of the current context, this is lazy loaded 
+   */
+  private String contextId;
+
+  /**
+   * count the number of queries that an audit requires 
+   */
+  private int queryCount;
+
+  /**
+   * this is not a timestamp, but rather is the nanos of when it started 
+   */
+  private long startedNanos = System.nanoTime();
   
   /**
-   * 
+   * assign fields in audit entry from outer audit (note, this might not exist)
+   * @param auditEntry
    */
-  private static ThreadLocal<GrouperContext> currentContext = 
+  public static void assignAuditEntryFieldsOuter(AuditEntry auditEntry) {
+    
+    GrouperContext grouperOuterContext = currentOuterContext.get();
+    if (grouperOuterContext != null) {
+      
+      auditEntry.setUserIpAddress(grouperOuterContext.callerIpAddress);
+      
+    }
+  }
+  
+  /**
+   * assign fields in audit entry
+   * @param auditEntry
+   */
+  public static void assignAuditEntryFields(AuditEntry auditEntry) {
+
+    assignAuditEntryFieldsOuter(auditEntry);
+    
+    GrouperContext grouperInnerContext = currentInnerContext.get();
+    if (grouperInnerContext == null) {
+      throw new NullPointerException("grouperInnerContext is null, was it not started?");
+    }
+    auditEntry.setContextId(grouperInnerContext.getContextId());
+    //divide nanos by 1000 to get micros
+    auditEntry.setDurationMicroseconds((System.nanoTime() - grouperInnerContext.startedNanos)/1000);
+    auditEntry.setQueryCount(grouperInnerContext.queryCount);
+  }
+  
+  /**
+   * context around a web request (e.g. UI or WS)
+   */
+  private static ThreadLocal<GrouperContext> currentOuterContext = 
     new ThreadLocal<GrouperContext>();
   
   /**
    * 
    */
-  private static ThreadLocal<GrouperContextPrivate> currentPrivateContext = 
-    new ThreadLocal<GrouperContextPrivate>();
+  private static ThreadLocal<GrouperContext> currentInnerContext = 
+    new ThreadLocal<GrouperContext>();
   
-  /**
-   * 
-   * @param contextAudited1
-   */
-  static void setContextAudited(boolean contextAudited1) {
-    currentPrivateContext.get().setContextAudited(contextAudited1);
-  }
-  
-  /**
-   * 
-   * @return contextIsAudited1
-   */
-  public static boolean contextIsAudited() {
-    return currentPrivateContext.get().isContextAudited();
-  }
-
   /**
    * retrieve current context id
    * @param requireContext true to require context (if required in grouper.properties)
    * @return context id
    */
   public static String retrieveContextId(boolean requireContext) {
-    GrouperContextPrivate grouperContextPrivate = currentPrivateContext.get();
-    if (grouperContextPrivate == null) {
+    GrouperContext grouperContextInner = currentInnerContext.get();
+    if (grouperContextInner == null) {
       if (requireContext) {
-        //TODO throw exception if configured in grouper.properties
+        throw new RuntimeException("No context found");
       }
       return null;
     }
-    return grouperContextPrivate.getContextId();
+    return grouperContextInner.getContextId();
   }
   
   /**
    * create a new context if one doesnt already exist
    * @return true if created one, false if already existed
    */
-  static boolean createNewPrivateContextIfNotExist() {
-    if (currentPrivateContext.get() != null) {
+  static boolean createNewInnerContextIfNotExist() {
+    if (currentInnerContext.get() != null) {
       return false;
     }
-    GrouperContextPrivate grouperContextPrivate = new GrouperContextPrivate();
-    currentPrivateContext.set(grouperContextPrivate);
+    GrouperContext grouperContextPrivate = new GrouperContext();
+    currentInnerContext.set(grouperContextPrivate);
     return true;
+  }
+  
+  /**
+   * tell the context another query occurred
+   */
+  public static void incrementQueryCount() {
+    GrouperContext grouperContextInner = currentInnerContext.get();
+    if (grouperContextInner != null) {
+      grouperContextInner.queryCount++;
+    }
+    
+    GrouperContext grouperContextOuter = currentOuterContext.get();
+    if (grouperContextOuter != null) {
+      grouperContextOuter.queryCount++;
+    }
   }
 
   /**
    * delete the private context if just created
    */
-  static void deletePrivateContext() {
-    currentPrivateContext.remove();
+  static void deleteInnerContext() {
+    currentInnerContext.remove();
+  }
+
+  /**
+   * context id
+   * @return context id
+   */
+  public String getContextId() {
+    if (this.contextId == null) {
+      this.contextId = GrouperUuid.getUuid();
+    }
+    return this.contextId;
   }
 }

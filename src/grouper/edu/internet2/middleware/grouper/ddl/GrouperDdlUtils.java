@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.35 2009-02-06 16:33:18 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.36 2009-02-07 20:16:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
+import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -616,7 +617,8 @@ public class GrouperDdlUtils {
         if (theWriteAndRunScript) {
           sqlRun(scriptFile, grouperDb.getDriver(), grouperDb.getUrl(), 
               grouperDb.getUser(), grouperDb.getPass(), fromUnitTest, callFromCommandLine);
-          
+          //lets clear the type cache
+          AuditTypeFinder.clearCache();
         } else {
           if (callFromCommandLine || GrouperShell.runFromGsh) {
             System.err.println("Note: this script was not executed due to option passed in");

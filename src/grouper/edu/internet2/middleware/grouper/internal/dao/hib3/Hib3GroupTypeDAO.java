@@ -43,7 +43,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeDAO.java,v 1.11 2009-02-06 16:33:18 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeDAO.java,v 1.12 2009-02-07 20:16:08 mchyzer Exp $
  */
 public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
 
@@ -56,23 +56,9 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
    * @throws GrouperDAOException 
    */
   public void createOrUpdate(final GroupType groupType) throws GrouperDAOException {
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, true, new HibernateHandler() {
 
-      public Object callback(HibernateHandlerBean hibernateHandlerBean)
-          throws GrouperDAOException {
+    HibernateSession.byObjectStatic().saveOrUpdate(groupType); 
         
-        HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-        hibernateSession.byObject().saveOrUpdate(groupType); 
-        
-        AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_ADD, "id", 
-            groupType.getUuid(), "name", groupType.getName());
-        auditEntry.saveOrUpdate();
-        
-        return null;
-      }
-      
-    });
-       
   }
   
   /**

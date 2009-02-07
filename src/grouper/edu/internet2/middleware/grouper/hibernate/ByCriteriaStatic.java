@@ -163,6 +163,7 @@ public class ByCriteriaStatic {
               
               Session session  = hibernateSession.getSession();
               Criteria criteria = ByCriteriaStatic.this.attachCriteriaInfo(session);
+              GrouperContext.incrementQueryCount();
               Object object = criteria.uniqueResult();
               HibUtils.evict(hibernateSession, object, true);
               return object;
@@ -215,6 +216,7 @@ public class ByCriteriaStatic {
               
               Session session  = hibernateSession.getSession();
               Criteria criteria = ByCriteriaStatic.this.attachCriteriaInfo(session);
+              GrouperContext.incrementQueryCount();
               //not sure this can ever be null, but make sure not to make iterating results easier
               List<Object> list = GrouperUtil.nonNull(criteria.list());
               HibUtils.evict(hibernateSession, list, true);

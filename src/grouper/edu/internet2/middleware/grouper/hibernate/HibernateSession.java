@@ -386,15 +386,13 @@ public class HibernateSession {
       HibernateHandlerBean hibernateHandlerBean = new HibernateHandlerBean();
       hibernateHandlerBean.setCallerWillCreateAudit(willCreateAudit);
 
+      //see if the caller will audit.  if not, then it is up to this call
+      boolean callerWillAudit = GrouperContext.contextExistsInner();
+
       //create a new context
-      boolean createdContext = GrouperContext.createNewPrivateContextIfNotExist();
+      boolean createdContext = willCreateAudit ? GrouperContext.createNewInnerContextIfNotExist() : false;
       
       try {
-        //see if the caller will audit
-        boolean callerWillAudit = GrouperContext.contextIsAudited();
-        if (!callerWillAudit) {
-          GrouperContext.setContextAudited(willCreateAudit);
-        }
         hibernateHandlerBean.setCallerWillCreateAudit(callerWillAudit);
         hibernateHandlerBean.setNewContext(createdContext);
         
@@ -404,7 +402,7 @@ public class HibernateSession {
       } finally {
         //if we created a context, then remove it
         if (createdContext) {
-          GrouperContext.deletePrivateContext();
+          GrouperContext.deleteInnerContext();
         }
       }
       _internal_hibernateSessionEnd(hibernateSession);

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditEntry.java,v 1.2 2009-02-07 17:11:01 mchyzer Exp $
+ * $Id: AuditEntry.java,v 1.3 2009-02-07 20:16:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -31,8 +32,12 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
 
   /**
    * save or update this object
+   * @param copyContextData 
    */
-  public void saveOrUpdate() {
+  public void saveOrUpdate(boolean copyContextData) {
+    if (copyContextData) {
+      GrouperContext.assignAuditEntryFields(this);
+    }
     GrouperDAOFactory.getFactory().getAuditEntry().saveOrUpdate(this);
   }
   
@@ -137,9 +142,9 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
   private String userIpAddress;
 
   /**
-   * number of nanos that the duration of the context took
+   * number of microseconds that the duration of the context took
    */
-  private int durationNanos;
+  private long durationMicroseconds;
   
   /**
    * number of queries (count be db or otherwise)
@@ -679,16 +684,16 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
    * number of nanos that the duration of the context took
    * @return duration nanos
    */
-  public int getDurationNanos() {
-    return this.durationNanos;
+  public long getDurationMicroseconds() {
+    return this.durationMicroseconds;
   }
 
   /**
    * number of nanos that the duration of the context took
-   * @param durationNanos1
+   * @param durationMicroseconds1
    */
-  public void setDurationNanos(int durationNanos1) {
-    this.durationNanos = durationNanos1;
+  public void setDurationMicroseconds(long durationMicroseconds1) {
+    this.durationMicroseconds = durationMicroseconds1;
   }
 
   /**
