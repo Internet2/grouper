@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditEntry.java,v 1.1 2009-02-06 16:33:18 mchyzer Exp $
+ * $Id: AuditEntry.java,v 1.2 2009-02-07 17:11:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -140,6 +140,11 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
    * number of nanos that the duration of the context took
    */
   private int durationNanos;
+  
+  /**
+   * number of queries (count be db or otherwise)
+   */
+  private int queryCount;
   
   /**
    * description of what happened in paragraph form
@@ -684,6 +689,22 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public void setDurationNanos(int durationNanos1) {
     this.durationNanos = durationNanos1;
+  }
+
+  /**
+   * number of queries (count be db or otherwise)
+   * @return query count
+   */
+  public int getQueryCount() {
+    return this.queryCount;
+  }
+
+  /**
+   * number of queries (count be db or otherwise)
+   * @param queryCount
+   */
+  public void setQueryCount(int queryCount) {
+    this.queryCount = queryCount;
   }
 
 }
