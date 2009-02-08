@@ -66,7 +66,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.77 2009-02-07 20:16:08 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.78 2009-02-08 21:30:19 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements GrouperHasContext, Serializable, Hib3GrouperVersioned, Comparable {
 
@@ -614,6 +614,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
           dao.createOrUpdate(_gt) ;
           AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_ADD, "id", 
               _gt.getUuid(), "name", _gt.getName());
+          auditEntry.setDescription("Added group type: " + _gt.getName());
           auditEntry.saveOrUpdate(true);
           
           return _gt;

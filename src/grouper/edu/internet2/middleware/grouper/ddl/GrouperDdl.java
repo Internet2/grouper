@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.34 2009-02-07 20:16:08 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.35 2009-02-08 21:30:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -535,6 +535,9 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
             "query_count", Types.INTEGER, null, false, false); 
         
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+            "server_user_name", Types.VARCHAR, "50", false, false); 
+
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
             "audit_entry_act_as_idx", false, "act_as_member_id");
 
@@ -2176,6 +2179,9 @@ public enum GrouperDdl implements DdlVersionable {
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
         "query_count", "Number of database queries required for this context");
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
+        "server_user_name", "Username of the OS user running the API.  This might identify who ran a GSH call");
 
     
     

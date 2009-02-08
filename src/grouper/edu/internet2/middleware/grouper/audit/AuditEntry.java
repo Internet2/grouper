@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditEntry.java,v 1.3 2009-02-07 20:16:08 mchyzer Exp $
+ * $Id: AuditEntry.java,v 1.4 2009-02-08 21:30:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -141,6 +142,11 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
    */
   private String userIpAddress;
 
+  /**
+   * Username of the OS user running the API.  This might identify who ran a GSH call
+   */
+  private String serverUserName;
+  
   /**
    * number of microseconds that the duration of the context took
    */
@@ -645,6 +651,7 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
     this.id = GrouperUtil.truncateAscii(this.id, 128);
     this.loggedInMemberId = GrouperUtil.truncateAscii(this.loggedInMemberId, 128);
     this.serverHost = GrouperUtil.truncateAscii(this.serverHost, 50);
+    this.serverUserName = GrouperUtil.truncateAscii(this.serverUserName, 50);
     this.string01 = GrouperUtil.truncateAscii(this.string01, 4000);
     this.string02 = GrouperUtil.truncateAscii(this.string02, 4000);
     this.string03 = GrouperUtil.truncateAscii(this.string03, 4000);
@@ -697,6 +704,26 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreSave(HibernateSession hibernateSession) {
+    super.onPreSave(hibernateSession);
+    this.setLastUpdated(new Timestamp(System.currentTimeMillis()));
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreUpdate(HibernateSession hibernateSession) {
+    super.onPreUpdate(hibernateSession);
+    this.setLastUpdated(new Timestamp(System.currentTimeMillis()));
+  }
+
+  /**
    * number of queries (count be db or otherwise)
    * @return query count
    */
@@ -710,6 +737,22 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public void setQueryCount(int queryCount) {
     this.queryCount = queryCount;
+  }
+
+  /**
+   * Username of the OS user running the API.  This might identify who ran a GSH call
+   * @return server user name
+   */
+  public String getServerUserName() {
+    return this.serverUserName;
+  }
+
+  /**
+   * Username of the OS user running the API.  This might identify who ran a GSH call
+   * @param serverUserName1
+   */
+  public void setServerUserName(String serverUserName1) {
+    this.serverUserName = serverUserName1;
   }
 
 }
