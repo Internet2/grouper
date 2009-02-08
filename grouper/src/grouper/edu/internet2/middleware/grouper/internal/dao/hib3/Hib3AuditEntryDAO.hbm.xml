@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3AuditEntryDAO.hbm.xml,v 1.5 2009-02-07 20:16:08 mchyzer Exp $ -->
+<!-- $Id: Hib3AuditEntryDAO.hbm.xml,v 1.6 2009-02-08 21:30:19 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.audit">
   <class name="AuditEntry" table="grouper_audit_entry">
@@ -60,6 +60,7 @@
     <property name="string08" column="string08"/>
     <property name="durationMicroseconds" column="duration_microseconds"/>
     <property name="queryCount" column="query_count"/>
+    <property name="serverUserName" column="server_user_name"/>
   </class>
 </hibernate-mapping>
 

@@ -26,6 +26,8 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.audit.GrouperEngineIdentifier;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -33,6 +35,7 @@ import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -47,7 +50,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.15 2009-01-31 16:46:41 mchyzer Exp $
+ * @version $Id: GrouperTest.java,v 1.16 2009-02-08 21:30:19 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -528,6 +531,10 @@ public class GrouperTest extends TestCase {
   // @since   1.2.0
   protected void setUp () {
     LOG.debug("setUp");
+    
+    //set this and leave it...
+    GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.JUNIT, true);
+    
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
 
     //remove any settings in testconfig
@@ -545,6 +552,7 @@ public class GrouperTest extends TestCase {
 
   // @since   1.2.0
   protected void tearDown () {
+    GrouperContext.deleteDefaultContext();
     LOG.debug("tearDown");
   } 
 

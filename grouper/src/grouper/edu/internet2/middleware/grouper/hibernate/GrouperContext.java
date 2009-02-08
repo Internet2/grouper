@@ -1,11 +1,21 @@
 /*
  * @author mchyzer
- * $Id: GrouperContext.java,v 1.2 2009-02-07 20:16:08 mchyzer Exp $
+ * $Id: GrouperContext.java,v 1.3 2009-02-08 21:30:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
+import java.net.InetAddress;
+import java.sql.Timestamp;
+
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.GrouperEngineIdentifier;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -17,6 +27,11 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
  * </pre>
  */
 public class GrouperContext {
+  
+  /**
+   * grouper engine, e.g. grouperUI
+   */
+  private String grouperEngine;
   
   /**
    * see if there is an inner context
@@ -44,12 +59,34 @@ public class GrouperContext {
    */
   private long startedNanos = System.nanoTime();
   
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperContext.class);
+
   /**
    * assign fields in audit entry from outer audit (note, this might not exist)
    * @param auditEntry
    */
   public static void assignAuditEntryFieldsOuter(AuditEntry auditEntry) {
-    
+
+    auditEntry.setCreatedOn(new Timestamp(System.currentTimeMillis()));
+    auditEntry.setEnvName(GrouperConfig.getProperty("grouper.env.name"));
+    auditEntry.setGrouperVersion(GrouperVersion.GROUPER_VERSION);
+    auditEntry.setServerUserName(System.getProperty("user.name"));
+    String serverHost = null;
+    try {
+      serverHost = InetAddress.getLocalHost().getHostName();
+    } catch (Exception e) {
+      //dont worry about it
+      LOG.info(e);
+    }
+    auditEntry.setServerHost(serverHost);
+    GrouperContext grouperDefaultContext = defaultContext.get();
+    if (grouperDefaultContext != null) {
+      
+      auditEntry.setGrouperEngine(grouperDefaultContext.grouperEngine);
+      
+    }
+
     GrouperContext grouperOuterContext = currentOuterContext.get();
     if (grouperOuterContext != null) {
       
@@ -80,6 +117,12 @@ public class GrouperContext {
    * context around a web request (e.g. UI or WS)
    */
   private static ThreadLocal<GrouperContext> currentOuterContext = 
+    new ThreadLocal<GrouperContext>();
+  
+  /**
+   * default settings if not another set
+   */
+  private static ThreadLocal<GrouperContext> defaultContext = 
     new ThreadLocal<GrouperContext>();
   
   /**
@@ -115,6 +158,30 @@ public class GrouperContext {
     GrouperContext grouperContextPrivate = new GrouperContext();
     currentInnerContext.set(grouperContextPrivate);
     return true;
+  }
+  
+  /**
+   * drop the current default context
+   */
+  public static void deleteDefaultContext() {
+    defaultContext.remove();
+  }
+  
+  /**
+   * @param exceptionIfDefaultAlreadyExists
+   * @param grouperEngineIdentifier
+   */
+  public static void createNewDefaultContext(GrouperEngineIdentifier grouperEngineIdentifier, 
+      boolean exceptionIfDefaultAlreadyExists) {
+    
+    if (exceptionIfDefaultAlreadyExists && defaultContext.get() != null) {
+      throw new RuntimeException("Default context is already set: " 
+          + defaultContext.get() + ", " + grouperEngineIdentifier);
+    }
+    
+    GrouperContext grouperContext = new GrouperContext();
+    grouperContext.grouperEngine = grouperEngineIdentifier.getGrouperEngine();
+    defaultContext.set(grouperContext);
   }
   
   /**
