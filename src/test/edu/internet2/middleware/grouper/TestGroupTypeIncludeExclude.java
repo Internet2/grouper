@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -36,7 +37,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  mchyzer
- * @version $Id: TestGroupTypeIncludeExclude.java,v 1.5 2009-02-06 16:33:18 mchyzer Exp $
+ * @version $Id: TestGroupTypeIncludeExclude.java,v 1.6 2009-02-09 05:33:30 mchyzer Exp $
  */
 public class TestGroupTypeIncludeExclude extends GrouperTest {
 
@@ -186,7 +187,8 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     
     final Group GROUP1 = aGroup;
 
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, false, new HibernateHandler() {
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
@@ -209,7 +211,8 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     aGroup = GroupFinder.findByName(this.grouperSession, overallName, false);
     
     final Group GROUP2 = aGroup;
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, false, new HibernateHandler() {
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {

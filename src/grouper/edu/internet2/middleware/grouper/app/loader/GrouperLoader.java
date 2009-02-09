@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoader.java,v 1.10 2008-12-22 05:50:42 mchyzer Exp $
+ * $Id: GrouperLoader.java,v 1.11 2009-02-09 05:33:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -22,6 +22,8 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -43,6 +45,9 @@ public class GrouperLoader {
    */
   public static void main(String[] args) {
     
+    //set this and leave it...
+    GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+
     //printAllSupportDdlUtilsPlatforms();
     GrouperStartup.startup();
     

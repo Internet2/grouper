@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -45,7 +46,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.17 2009-02-06 16:33:17 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.18 2009-02-09 05:33:30 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -63,7 +64,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     
     try {
       HibernateSession.callbackHibernateSession(
-          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false,
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
 
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -102,7 +103,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public void createChildStem(final Stem _parent, final Stem _child)
     throws  GrouperDAOException {
     try {
-      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false,
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
 
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -610,7 +612,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public void revokePriv(final Stem _ns, final DefaultMemberOf mof)
     throws  GrouperDAOException {
     try {
-      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false,
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
 
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -644,7 +647,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public void renameStemAndChildren(final Stem _ns, final Set children)
     throws  GrouperDAOException {
     try {
-      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false,
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
 
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -672,7 +676,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     throws  GrouperDAOException
   {
     try {
-      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false,
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
 
             public Object callback(HibernateHandlerBean hibernateHandlerBean)

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.35 2009-02-08 21:30:19 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.36 2009-02-09 05:33:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
@@ -688,7 +689,8 @@ public enum GrouperDdl implements DdlVersionable {
       //also we need to need the conversion in attributes or memberships
       if (isDestinationVersion && (needsAttributeFieldIdConversion || needsMembershipFieldIdConversion)) {
         
-        HibernateSession.callbackHibernateSession(GrouperTransactionType.READONLY_OR_USE_EXISTING, false, new HibernateHandler() {
+        HibernateSession.callbackHibernateSession(
+            GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
           @SuppressWarnings("deprecation")
           public Object callback(HibernateHandlerBean hibernateHandlerBean)

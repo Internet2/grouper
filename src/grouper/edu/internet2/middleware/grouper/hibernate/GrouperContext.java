@@ -1,15 +1,16 @@
 /*
  * @author mchyzer
- * $Id: GrouperContext.java,v 1.3 2009-02-08 21:30:19 mchyzer Exp $
+ * $Id: GrouperContext.java,v 1.4 2009-02-09 05:33:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.sql.Timestamp;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.GrouperEngineIdentifier;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -41,7 +42,7 @@ public class GrouperContext {
     return currentInnerContext.get() != null;
   }
   
-  /** ip address of caller */
+  /** ip address of caller, or of gsh host */
   private String callerIpAddress;
 
   /**
@@ -84,13 +85,15 @@ public class GrouperContext {
     if (grouperDefaultContext != null) {
       
       auditEntry.setGrouperEngine(grouperDefaultContext.grouperEngine);
-      
+      auditEntry.setUserIpAddress(grouperDefaultContext.callerIpAddress);
     }
 
     GrouperContext grouperOuterContext = currentOuterContext.get();
     if (grouperOuterContext != null) {
       
-      auditEntry.setUserIpAddress(grouperOuterContext.callerIpAddress);
+      if (!StringUtils.isBlank(grouperOuterContext.callerIpAddress)) {
+        auditEntry.setUserIpAddress(grouperOuterContext.callerIpAddress);
+      }
       
     }
   }
@@ -139,7 +142,7 @@ public class GrouperContext {
   public static String retrieveContextId(boolean requireContext) {
     GrouperContext grouperContextInner = currentInnerContext.get();
     if (grouperContextInner == null) {
-      if (requireContext) {
+      if (requireContext && GrouperConfig.getPropertyBoolean("audit.requireAuditsForAllActions", false)) {
         throw new RuntimeException("No context found");
       }
       return null;
@@ -170,9 +173,11 @@ public class GrouperContext {
   /**
    * @param exceptionIfDefaultAlreadyExists
    * @param grouperEngineIdentifier
+   * @param useServerIpAddressAsUserIpAddress if the users use this server, use that for user ip address
+   * @return the context
    */
-  public static void createNewDefaultContext(GrouperEngineIdentifier grouperEngineIdentifier, 
-      boolean exceptionIfDefaultAlreadyExists) {
+  public static GrouperContext createNewDefaultContext(GrouperEngineIdentifier grouperEngineIdentifier, 
+      boolean exceptionIfDefaultAlreadyExists, boolean useServerIpAddressAsUserIpAddress) {
     
     if (exceptionIfDefaultAlreadyExists && defaultContext.get() != null) {
       throw new RuntimeException("Default context is already set: " 
@@ -182,6 +187,17 @@ public class GrouperContext {
     GrouperContext grouperContext = new GrouperContext();
     grouperContext.grouperEngine = grouperEngineIdentifier.getGrouperEngine();
     defaultContext.set(grouperContext);
+    
+    if (useServerIpAddressAsUserIpAddress) {
+      try {
+        grouperContext.setCallerIpAddress(InetAddress.getLocalHost().getHostAddress());
+      } catch (UnknownHostException uhe) {
+        //not the end of the world
+        LOG.info(uhe);
+      }
+    }
+    
+    return grouperContext;
   }
   
   /**
@@ -215,5 +231,21 @@ public class GrouperContext {
       this.contextId = GrouperUuid.getUuid();
     }
     return this.contextId;
+  }
+
+  /**
+   * ip address of caller, or of gsh host
+   * @return the ip address
+   */
+  public String getCallerIpAddress() {
+    return this.callerIpAddress;
+  }
+
+  /**
+   * ip address of caller, or of gsh host
+   * @param callerIpAddress1
+   */
+  public void setCallerIpAddress(String callerIpAddress1) {
+    this.callerIpAddress = callerIpAddress1;
   }
 }

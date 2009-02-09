@@ -50,7 +50,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.16 2009-02-08 21:30:19 mchyzer Exp $
+ * @version $Id: GrouperTest.java,v 1.17 2009-02-09 05:33:30 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -533,7 +533,7 @@ public class GrouperTest extends TestCase {
     LOG.debug("setUp");
     
     //set this and leave it...
-    GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.JUNIT, true);
+    GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.JUNIT, false, true);
     
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
 
@@ -552,7 +552,6 @@ public class GrouperTest extends TestCase {
 
   // @since   1.2.0
   protected void tearDown () {
-    GrouperContext.deleteDefaultContext();
     LOG.debug("tearDown");
   } 
 

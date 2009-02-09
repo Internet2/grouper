@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeRuntimeEx
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
@@ -81,7 +82,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.119 2009-02-06 16:33:18 mchyzer Exp $
+ * @version $Id: Member.java,v 1.120 2009-02-09 05:33:30 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -291,7 +292,8 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
     final Member newMember = theNewMember;
     
     //this needs to run in a transaction
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false,
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
         new HibernateHandler() {
 
       public Object callback(HibernateHandlerBean hibernateHandlerBean)

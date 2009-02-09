@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrouperInverseOfControlException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
@@ -66,7 +67,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.78 2009-02-08 21:30:19 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.79 2009-02-09 05:33:30 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements GrouperHasContext, Serializable, Hib3GrouperVersioned, Comparable {
 
@@ -428,42 +429,67 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * @throws  SchemaException
    * @since   1.0
    */
-  public void delete(GrouperSession s) 
+  public void delete(final GrouperSession s) 
     throws  InsufficientPrivilegeException,
-            SchemaException
-  {
-    //note, no need for GrouperSession inverse of control
-    StopWatch sw = new StopWatch();
-    sw.start();
-    if ( this.isSystemType() ) {
-      String msg = E.GROUPTYPE_NODELSYS + this.getName();
-      LOG.error( msg);
-      throw new SchemaException(msg);
-    } 
-    if (!PrivilegeHelper.isRoot(s)) {
-      String msg = E.GROUPTYPE_NODEL;
-      LOG.error( msg);
-      throw new InsufficientPrivilegeException(msg);
-    }
+            SchemaException {
+    
     try {
-      if ( GrouperDAOFactory.getFactory().getGroup().findAllByType( this ).size() > 0 ) {
-        String msg = E.GROUPTYPE_DELINUSE;
-        LOG.error( msg);
-        throw new SchemaException(msg);
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          
+          //note, no need for GrouperSession inverse of control
+          StopWatch sw = new StopWatch();
+          sw.start();
+          if ( GroupType.this.isSystemType() ) {
+            String msg = E.GROUPTYPE_NODELSYS + GroupType.this.getName();
+            LOG.error( msg);
+            throw new GrouperInverseOfControlException(new SchemaException(msg));
+          } 
+          if (!PrivilegeHelper.isRoot(s)) {
+            String msg = E.GROUPTYPE_NODEL;
+            LOG.error( msg);
+            throw new GrouperInverseOfControlException(new InsufficientPrivilegeException(msg));
+          }
+          try {
+            if ( GrouperDAOFactory.getFactory().getGroup().findAllByType( GroupType.this ).size() > 0 ) {
+              String msg = E.GROUPTYPE_DELINUSE;
+              LOG.error( msg);
+              throw new GrouperInverseOfControlException(new SchemaException(msg));
+            }
+            // Now delete the type
+            String typeName = GroupType.this.getName(); // For logging purposes
+            GrouperDAOFactory.getFactory().getGroupType().delete( GroupType.this, GroupType.this.getFields() );
+            sw.stop();
+            EventLog.info(s, M.GROUPTYPE_DEL + Quote.single(typeName), sw);
+            // Now update the cached types + fields
+            GroupTypeFinder.internal_updateKnownTypes();
+            FieldFinder.internal_updateKnownFields();
+
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_DELETE, "id", 
+                GroupType.this.getUuid(), "name", GroupType.this.getName());
+            auditEntry.setDescription("Deleted group type: " + GroupType.this.getName());
+            auditEntry.saveOrUpdate(true);
+          }
+          catch (GrouperDAOException eDAO) {
+            String msg = E.GROUPTYPE_DEL + eDAO.getMessage();
+            LOG.error(msg);
+            throw new GrouperInverseOfControlException(new SchemaException(msg, eDAO));
+          }
+          return null;
+        }});
+    } catch (GrouperInverseOfControlException gioce) {
+      Throwable cause = gioce.getCause();
+      if (cause instanceof InsufficientPrivilegeException) {
+        throw (InsufficientPrivilegeException)cause;
       }
-      // Now delete the type
-      String typeName = this.getName(); // For logging purposes
-      GrouperDAOFactory.getFactory().getGroupType().delete( this, this.getFields() );
-      sw.stop();
-      EventLog.info(s, M.GROUPTYPE_DEL + Quote.single(typeName), sw);
-      // Now update the cached types + fields
-      GroupTypeFinder.internal_updateKnownTypes();
-      FieldFinder.internal_updateKnownFields();
-    }
-    catch (GrouperDAOException eDAO) {
-      String msg = E.GROUPTYPE_DEL + eDAO.getMessage();
-      LOG.error(msg);
-      throw new SchemaException(msg, eDAO);
+      if (cause instanceof SchemaException) {
+        throw (SchemaException)cause;
+      }
+      LOG.warn("Cant find handler for cause: " + cause + ", " + GrouperUtil.getFullStackTrace(gioce));
+      throw new RuntimeException(gioce);
     }
   } // public void delete(s)
 
@@ -572,7 +598,8 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
               SchemaException { 
     
     try {
-      return (GroupType)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, true, new HibernateHandler() {
+      return (GroupType)HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
   
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
             throws GrouperDAOException {

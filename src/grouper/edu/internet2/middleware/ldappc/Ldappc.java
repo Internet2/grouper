@@ -20,6 +20,8 @@ package edu.internet2.middleware.ldappc;
 
 import java.util.Timer;
 
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 
@@ -69,7 +71,9 @@ public final class Ldappc
      */
     public static void main(String[] args)
     {
-        DebugLog.info(Ldappc.class, "Starting the Ldappc Program");
+      GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LDAPPC, false, true);
+
+      DebugLog.info(Ldappc.class, "Starting the Ldappc Program");
 
         // 
         // Process the user arguments.

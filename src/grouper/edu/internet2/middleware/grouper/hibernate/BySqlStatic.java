@@ -61,7 +61,8 @@ public class BySqlStatic {
   @SuppressWarnings("deprecation")
   public int executeSql(final String sql, final List<Object> params) {
   
-    int result = (Integer)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false, new HibernateHandler() {
+    int result = (Integer)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
@@ -115,7 +116,8 @@ public class BySqlStatic {
   @SuppressWarnings("deprecation")
   public <T> T select(final Class<T> returnClassType, final String sql, final List<Object> params) {
   
-    T theResult = (T)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, false, new HibernateHandler() {
+    T theResult = (T)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {

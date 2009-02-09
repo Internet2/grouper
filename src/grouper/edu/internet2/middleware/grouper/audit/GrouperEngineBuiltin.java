@@ -1,8 +1,9 @@
 /*
  * @author mchyzer
- * $Id: GrouperEngineBuiltin.java,v 1.1 2009-02-08 21:30:19 mchyzer Exp $
+ * $Id: GrouperEngineBuiltin.java,v 1.2 2009-02-09 05:33:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
+
 
 
 /**
@@ -25,6 +26,12 @@ public enum GrouperEngineBuiltin implements GrouperEngineIdentifier {
 
   /** ldappc engine */
   LDAPPC("grouperLdappc"),
+
+  /** ldappc engine */
+  IMPORT("grouperImport"),
+
+  /** usdu engine engine */
+  USDU("grouperUsdu"),
 
   /** junit engine */
   JUNIT("grouperJunit");

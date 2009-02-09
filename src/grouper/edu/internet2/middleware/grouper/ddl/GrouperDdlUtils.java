@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.36 2009-02-07 20:16:08 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.37 2009-02-09 05:33:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -52,6 +52,7 @@ import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -2187,7 +2188,8 @@ public class GrouperDdlUtils {
       
       final String sampleTableNameExistsFinal = sampleTableNameExists;
       
-      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, false, new HibernateHandler() {
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
   
         @SuppressWarnings("deprecation")
         public Object callback(HibernateHandlerBean hibernateHandlerBean)

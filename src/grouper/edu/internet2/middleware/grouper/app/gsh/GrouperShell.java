@@ -8,6 +8,8 @@
 package edu.internet2.middleware.grouper.app.gsh;
 import java.io.InputStream;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +21,9 @@ import org.apache.commons.logging.LogFactory;
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -29,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.11 2009-01-31 16:46:41 mchyzer Exp $
+ * @version $Id: GrouperShell.java,v 1.12 2009-02-09 05:33:31 mchyzer Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -105,6 +109,12 @@ public class GrouperShell {
    * @since 0.0.1
    */
   public static void main(String args[]) {
+
+    //set this and leave it...
+    @SuppressWarnings("unused")
+    GrouperContext grouperContext = GrouperContext.createNewDefaultContext(
+        GrouperEngineBuiltin.GSH, false, true);
+    
     boolean wasSpecialCase = handleSpecialCase(args);
     if(wasSpecialCase) {
     	return;
