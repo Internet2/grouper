@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTypeBuiltin.java,v 1.1 2009-02-06 16:33:18 mchyzer Exp $
+ * $Id: AuditTypeBuiltin.java,v 1.2 2009-02-09 21:36:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -34,7 +34,8 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   /**
    * update group field
    */
-  GROUP_FIELD_UPDATE(new AuditType("groupField", "updateGroupField", null, "id", "name", "groupTypeId", "groupTypeName", "type")),
+  GROUP_FIELD_UPDATE(new AuditType("groupField", "updateGroupField", null, "id", "name", 
+      "groupTypeId", "groupTypeName", "type")),
   
   /**
    * delete group field
@@ -162,10 +163,27 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.audit.AuditTypeIdentifier#getId()
+   * @see edu.internet2.middleware.grouper.audit.AuditTypeIdentifier#getAuditCategory()
    */
-  public String getId() {
-    return this.getAuditType().getId();
+  public String getAuditCategory() {
+    return this.getAuditType().getAuditCategory();
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.audit.AuditTypeIdentifier#getActionName()
+   */
+  public String getActionName() {
+    return this.getAuditType().getActionName();
+  }
+  
+  /**
+   * 
+   */
+  public static void internal_clearCache() {
+    
+    //set this to -1 so it will be an insert next time
+    for (AuditTypeBuiltin auditTypeBuiltin : AuditTypeBuiltin.values()) {
+      auditTypeBuiltin.internalAuditTypeDefault.setHibernateVersionNumber(-1l);
+    }
+  }
 }

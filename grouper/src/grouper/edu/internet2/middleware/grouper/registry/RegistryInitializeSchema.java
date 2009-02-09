@@ -23,6 +23,8 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlVersionable;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -34,7 +36,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Install the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInitializeSchema.java,v 1.15 2008-11-22 08:28:14 mchyzer Exp $    
+ * @version $Id: RegistryInitializeSchema.java,v 1.16 2009-02-09 21:36:44 mchyzer Exp $    
  * @since   1.2.0
  */
 public class RegistryInitializeSchema {
@@ -232,9 +234,9 @@ public class RegistryInitializeSchema {
       } catch (Exception e) {
         LOG.error(e);
       }
-
+      
       GrouperDdlUtils.bootstrapHelper(true, false, true, true, true, false, true, null, true);
-
+      
       //everything right version
       GrouperDdlUtils.everythingRightVersion = true;
       

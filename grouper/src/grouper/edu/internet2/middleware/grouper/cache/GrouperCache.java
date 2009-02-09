@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCache.java,v 1.3 2008-10-25 18:53:16 shilen Exp $
+ * $Id: GrouperCache.java,v 1.4 2009-02-09 21:36:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.cache;
 
@@ -79,6 +79,7 @@ public class GrouperCache<K,V> {
       boolean defaultEternal, int defaultTimeToIdleSeconds, 
       int defaultTimeToLiveSeconds, boolean defaultOverflowToDisk) {
     this(EhcacheController.ehcacheController().getCache(cacheName, true, defaultMaxElementsInMemory, defaultEternal, defaultTimeToIdleSeconds, defaultTimeToLiveSeconds, defaultOverflowToDisk));
+    this.clear();
   }
   
   

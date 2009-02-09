@@ -67,7 +67,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.79 2009-02-09 05:33:30 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.80 2009-02-09 21:36:43 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements GrouperHasContext, Serializable, Hib3GrouperVersioned, Comparable {
 
@@ -306,7 +306,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
   )
     throws  InsufficientPrivilegeException,
             SchemaException {
-    return addAttributeHelper(s, name, read, write, required, exceptionIfExists, false);
+    return internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required, exceptionIfExists, false, null);
   } // public Field addAttribute(s, name, read, write, required)
 
   /**
@@ -335,38 +335,8 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
   public Field addOrUpdateAttribute(
     GrouperSession s, String name, Privilege read, Privilege write, boolean required
   ) throws  InsufficientPrivilegeException, SchemaException {
-    return addAttributeHelper(s, name, read, write, required, false, true);
+    return internal_addField(s, name, FieldType.ATTRIBUTE, read, write, required, false, true, null);
   } // public Field addAttribute(s, name, read, write, required)
-
-  /**
-   * @param s
-   * @param name
-   * @param read
-   * @param write
-   * @param required
-   * @param exceptionIfExists 
-   * @param updateIfExists 
-   * @return the field
-   * @throws InsufficientPrivilegeException
-   * @throws SchemaException
-   */
-  private Field addAttributeHelper(GrouperSession s, String name, Privilege read,
-      Privilege write, boolean required, boolean exceptionIfExists, boolean updateIfExists) throws InsufficientPrivilegeException,
-      SchemaException {
-    //note, no need for GrouperSession inverse of control
-    ModifyGroupTypeValidator v = ModifyGroupTypeValidator.validate(s, this);
-    if (v.isInvalid()) {
-      throw new InsufficientPrivilegeException( v.getErrorMessage() + ", attribute: '" + name + "'" );
-    }
-    if (!Privilege.isAccess(read)) {
-      throw new SchemaException(E.FIELD_READ_PRIV_NOT_ACCESS + read);
-    }
-    if (!Privilege.isAccess(write)) {
-      throw new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write);
-    }
-    return this.internal_addField(s, name, FieldType.ATTRIBUTE, read, write, 
-        required, exceptionIfExists, updateIfExists, null);
-  }
 
   /**
    * Add a custom list {@link Field} to a custom {@link GroupType}.
@@ -520,51 +490,80 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * @throws  InsufficientPrivilegeException
    * @throws  SchemaException
    */
-  public void deleteField(GrouperSession s, String name)
-    throws  InsufficientPrivilegeException,
-            SchemaException
-  {
-    //note, no need for GrouperSession inverse of control
-    StopWatch sw  = new StopWatch();
-    sw.start();
-    Field     f   = FieldFinder.find(name);  
-    ModifyGroupTypeValidator          vModify = ModifyGroupTypeValidator.validate(s, this);
-    if (vModify.isInvalid()) {
-      throw new InsufficientPrivilegeException( vModify.getErrorMessage() );
-    }
-    DeleteFieldFromGroupTypeValidator vDelete = DeleteFieldFromGroupTypeValidator.validate(this, f);
-    if (vDelete.isInvalid()) {
-      throw new SchemaException( vDelete.getErrorMessage() );
-    }
-    if ( GrouperDAOFactory.getFactory().getField().isInUse(f) ) {
-      String msg = E.GROUPTYPE_FIELDNODELINUSE + name;
-      LOG.error( msg);
-      throw new SchemaException(msg);
-    }
-    // With validation complete, delete the field
+  public void deleteField(final GrouperSession s, final String name)
+      throws  InsufficientPrivilegeException, SchemaException {
+
     try {
-      Set fields = this.getFields();
-      if ( fields.remove( f ) ) {
-        this.setFields(fields);
-        GrouperDAOFactory.getFactory().getGroupType().deleteField( f);
-        sw.stop();
-        EventLog.info(
-          s,
-          M.GROUPTYPE_DELFIELD + Quote.single(f.getName()) + " type=" + Quote.single( this.getName() ),
-          sw
-        );
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          
+          try {
+            //note, no need for GrouperSession inverse of control
+            StopWatch sw  = new StopWatch();
+            sw.start();
+            Field     field   = FieldFinder.find(name);  
+            ModifyGroupTypeValidator          vModify = ModifyGroupTypeValidator.validate(s, GroupType.this);
+            if (vModify.isInvalid()) {
+              throw new GrouperInverseOfControlException(new InsufficientPrivilegeException( vModify.getErrorMessage() ));
+            }
+            DeleteFieldFromGroupTypeValidator vDelete = DeleteFieldFromGroupTypeValidator.validate(GroupType.this, field);
+            if (vDelete.isInvalid()) {
+              throw new GrouperInverseOfControlException(new SchemaException( vDelete.getErrorMessage() ));
+            }
+            if ( GrouperDAOFactory.getFactory().getField().isInUse(field) ) {
+              String msg = E.GROUPTYPE_FIELDNODELINUSE + name;
+              LOG.error( msg);
+              throw new SchemaException(msg);
+            }
+            Set fields = GroupType.this.getFields();
+            if ( fields.remove( field ) ) {
+              GroupType.this.setFields(fields);
+              String typeString = field.getTypeString();
+              GrouperDAOFactory.getFactory().getGroupType().deleteField( field);
+              
+              //only audit if actually changed the type
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_FIELD_DELETE, "id", 
+                  field.getUuid(), "name", field.getName(), "groupTypeId", GroupType.this.getUuid(), "groupTypeName", GroupType.this.getName(), "type", typeString);
+              auditEntry.setDescription("Deleted group field: " + name + ", id: " + field.getUuid() + ", type: " + typeString + ", groupType: " + GroupType.this.getName());
+              auditEntry.saveOrUpdate(true);
+
+              sw.stop();
+              EventLog.info(
+                s,
+                M.GROUPTYPE_DELFIELD + Quote.single(field.getName()) + " type=" + Quote.single( GroupType.this.getName() ),
+                sw
+              );
+            }
+            else {
+              String msg = E.GROUPTYPE_FIELDNODELMISS;
+              LOG.error( msg);
+              throw new SchemaException(msg);
+            }
+          } catch (SchemaException se) {
+            throw new GrouperInverseOfControlException(se);
+          }
+          return null;
+        }        
+      });
+    } catch (GrouperInverseOfControlException gioc) {
+      Throwable cause = gioc.getCause();
+      if (cause instanceof InsufficientPrivilegeException) {
+        throw (InsufficientPrivilegeException)cause;
       }
-      else {
-        String msg = E.GROUPTYPE_FIELDNODELMISS;
-        LOG.error( msg);
-        throw new SchemaException(msg);
+      if (cause instanceof SchemaException) {
+        throw (SchemaException)cause;
       }
-    }
-    catch (GrouperDAOException eDAO) {
-      String msg = E.GROUPTYPE_FIELDDEL + eDAO.getMessage();
+      LOG.error("Cant find cause: " + cause + ", " + GrouperUtil.getFullStackTrace(gioc));
+      throw new RuntimeException(cause);
+    } catch (GrouperDAOException eDAO) {
+      String msg = E.GROUPTYPE_FIELDDEL + name + ": " + eDAO.getMessage();
       LOG.error( msg);
       throw new SchemaException(msg, eDAO);
     }
+    
   } // public void deleteField(s, name)
 
   /**
@@ -639,6 +638,8 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
             _gt.setUuid( GrouperUuid.getUuid() );
             
           dao.createOrUpdate(_gt) ;
+          
+          //only audit if actually changed the type
           AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_ADD, "id", 
               _gt.getUuid(), "name", _gt.getName());
           auditEntry.setDescription("Added group type: " + _gt.getName());
@@ -683,112 +684,177 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    * @throws SchemaException
    */
   public Field internal_addField(
-    GrouperSession s, String name, FieldType type, Privilege read, 
-    Privilege write, boolean required, boolean exceptionIfExists, boolean updateIfExists,
-    boolean[] changedArray
-  )
-    throws  InsufficientPrivilegeException,
-            SchemaException
-  {
-    //note, no need for GrouperSession inverse of control
-    StopWatch sw  = new StopWatch();
-    sw.start();
-    AddFieldToGroupTypeValidator v = AddFieldToGroupTypeValidator.validate(name, !exceptionIfExists);
-    if (v.isInvalid()) {
-      throw new SchemaException( v.getErrorMessage() );
-    }
-    Field field = null;
+    final GrouperSession s, final String name, final FieldType type, final Privilege read, 
+    final Privilege write, final boolean required, final boolean exceptionIfExists, final boolean updateIfExists,
+    final boolean[] changedArray) throws  InsufficientPrivilegeException, SchemaException {
+
     try {
-      field = FieldFinder.find(name);
-    } catch (SchemaException e) {
-      //ignore, it probably doesnt exist
-    }
-    if (field != null) {
-      boolean changed = false;
-      if (!type.equals(field.getType())) {
-        //dont want to change types, that could be bad!
-        throw new SchemaException("field '" + name + "' does not have type: " + type + ", it has: " + field.getType());
-      }
-      if (field.getRequired() != required) {
-        if (exceptionIfExists) {
-          throw new SchemaException("field '" + name + "' does not match required flag: " + required);
+      return (Field)HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          
+  
+          if (FieldType.ATTRIBUTE.equals(type)) {
+            //note, no need for GrouperSession inverse of control
+            ModifyGroupTypeValidator v = ModifyGroupTypeValidator.validate(s, GroupType.this);
+            if (v.isInvalid()) {
+              throw new GrouperInverseOfControlException(new InsufficientPrivilegeException( v.getErrorMessage() + ", attribute: '" + name + "'" ));
+            }
+            if (!Privilege.isAccess(read)) {
+              throw new GrouperInverseOfControlException(new SchemaException(E.FIELD_READ_PRIV_NOT_ACCESS + read));
+            }
+            if (!Privilege.isAccess(write)) {
+              throw new GrouperInverseOfControlException(new SchemaException(E.FIELD_WRITE_PRIV_NOT_ACCESS + write));
+            }
+          }
+          
+          //note, no need for GrouperSession inverse of control
+          StopWatch sw  = new StopWatch();
+          sw.start();
+          AddFieldToGroupTypeValidator v = AddFieldToGroupTypeValidator.validate(name, !exceptionIfExists);
+          if (v.isInvalid()) {
+            throw new GrouperInverseOfControlException(new SchemaException( v.getErrorMessage() ));
+          }
+          Field field = null;
+          try {
+            field = FieldFinder.find(name);
+          } catch (SchemaException e) {
+            //ignore, it probably doesnt exist
+          }
+          if (field != null) {
+            boolean changed = false;
+            if (!type.equals(field.getType())) {
+              //dont want to change types, that could be bad!
+              throw new GrouperInverseOfControlException(new SchemaException("field '" + name + "' does not have type: " + type + ", it has: " + field.getType()));
+            }
+            if (field.getRequired() != required) {
+              if (exceptionIfExists) {
+                throw new GrouperInverseOfControlException(new SchemaException("field '" + name + "' does not match required flag: " + required));
+              }
+              if (updateIfExists) {
+                changed = true;
+                field.setIsNullable(!required);
+              }
+            }
+            if (!read.equals(field.getReadPriv())) {
+              if (exceptionIfExists) {
+                throw new GrouperInverseOfControlException(new SchemaException("field '" + name + "' does not have read privilege: " + read + ", it has: " + field.getReadPrivilege()));
+              }
+              if (updateIfExists) {
+                changed = true;
+                field.setReadPrivilege(read);
+              }
+            }
+            if (!write.equals(field.getWritePriv())) {
+              if (exceptionIfExists) {
+                throw new GrouperInverseOfControlException(new SchemaException("field '" + name + "' does not have write privilege: " + write + ", it has: " + field.getWritePrivilege()));
+              }
+              if (updateIfExists) {
+                changed = true;
+                field.setWritePrivilege(write);
+              }
+            }
+            if (exceptionIfExists) {
+              throw new GrouperInverseOfControlException(new SchemaException("field exists: '" + name + "'"));
+            }
+            //store minor changes to db
+            if (changed && updateIfExists) {
+              changed = true;
+              
+              String differences = GrouperUtil.dbVersionDescribeDifferences(field.dbVersion(), 
+                  field, field.dbVersionDifferentFields());
+              
+              GrouperDAOFactory.getFactory().getField().createOrUpdate(field);
+
+              //audit the update
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_FIELD_UPDATE, "id", 
+                  field.getUuid(), "name", field.getName(), "groupTypeId", GroupType.this.getUuid(), 
+                  "groupTypeName", GroupType.this.getName(), "type", type.getType());
+              
+              String description = "Updated group field: " + name + ", id: " + field.getUuid() 
+                  + ", type: " + type + ", groupType: " + GroupType.this.getName() + ".\n" + differences;
+              auditEntry.setDescription(description);
+              
+              auditEntry.saveOrUpdate(true);
+              if (GrouperUtil.length(changedArray) > 0) {
+                changedArray[0] = true;
+              }
+            } else {
+              if (GrouperUtil.length(changedArray) > 0) {
+                changedArray[0] = false;
+              }
+            }
+
+            return field;
+          }
+          if (GrouperUtil.length(changedArray) > 0) {
+            changedArray[0] = true;
+          }
+          try {
+            boolean nullable = true;
+            if (required == true) {
+              nullable = false;
+            }
+            field = new Field();
+            field.setGroupTypeUuid( GroupType.this.getUuid() );
+            field.setIsNullable(nullable);
+            field.setName(name);
+            field.setReadPrivilege(read);
+            field.setType(type);
+            field.setUuid( GrouperUuid.getUuid() );
+            field.setWritePrivilege(write);
+              
+            GrouperDAOFactory.getFactory().getGroupType().createField(field);
+  
+            Set fields = GroupType.this.getFields();
+            fields.add( field );
+  
+            sw.stop();
+            EventLog.info(
+              s, 
+              M.GROUPTYPE_ADDFIELD + Quote.single(field.getName()) + " ftype=" + Quote.single(type.toString()) 
+              + " gtype=" + Quote.single( GroupType.this.getName() ),
+              sw
+            );
+          }
+          catch (GrouperDAOException eDAO) {
+            String msg = E.GROUPTYPE_FIELDADD + name + ": " + eDAO.getMessage();
+            LOG.error( msg);
+            throw new GrouperInverseOfControlException(new SchemaException(msg, eDAO));
+          }
+          
+          
+          //only audit if actually changed the type
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_FIELD_ADD, "id", 
+              field.getUuid(), "name", field.getName(), "groupTypeId", GroupType.this.getUuid(), "groupTypeName", GroupType.this.getName(), "type", type.getType());
+          auditEntry.setDescription("Added group field: " + name + ", id: " + field.getUuid() + ", type: " + type + ", groupType: " + GroupType.this.getName());
+          auditEntry.saveOrUpdate(true);
+          
+          return field;
         }
-        if (updateIfExists) {
-          changed = true;
-          field.setIsNullable(!required);
-        }
-      }
-      if (!read.equals(field.getReadPriv())) {
-        if (exceptionIfExists) {
-          throw new SchemaException("field '" + name + "' does not have read privilege: " + read + ", it has: " + field.getReadPrivilege());
-        }
-        if (updateIfExists) {
-          changed = true;
-          field.setReadPrivilege(read);
-        }
-      }
-      if (!write.equals(field.getWritePriv())) {
-        if (exceptionIfExists) {
-          throw new SchemaException("field '" + name + "' does not have write privilege: " + write + ", it has: " + field.getWritePrivilege());
-        }
-        if (updateIfExists) {
-          changed = true;
-          field.setWritePrivilege(write);
-        }
-      }
-      if (exceptionIfExists) {
-        throw new SchemaException("field exists: '" + name + "'");
-      }
-      //store minor changes to db
-      if (changed && updateIfExists) {
-        changed = true;
-        GrouperDAOFactory.getFactory().getField().createOrUpdate(field);
-        if (GrouperUtil.length(changedArray) > 0) {
-          changedArray[0] = true;
-        }
-      } else {
-        if (GrouperUtil.length(changedArray) > 0) {
-          changedArray[0] = false;
-        }
-      }
-      return field;
-    }
-    if (GrouperUtil.length(changedArray) > 0) {
-      changedArray[0] = true;
-    }
-    try {
-      boolean nullable = true;
-      if (required == true) {
-        nullable = false;
-      }
-      field = new Field();
-      field.setGroupTypeUuid( this.getUuid() );
-      field.setIsNullable(nullable);
-      field.setName(name);
-      field.setReadPrivilege(read);
-      field.setType(type);
-      field.setUuid( GrouperUuid.getUuid() );
-      field.setWritePrivilege(write);
         
-      GrouperDAOFactory.getFactory().getGroupType().createField(field);
-
-      Set fields = this.getFields();
-      fields.add( field );
-
-      sw.stop();
-      EventLog.info(
-        s, 
-        M.GROUPTYPE_ADDFIELD + Quote.single(field.getName()) + " ftype=" + Quote.single(type.toString()) 
-        + " gtype=" + Quote.single( this.getName() ),
-        sw
-      );
-      return field;
-    }
-    catch (GrouperDAOException eDAO) {
+      });
+    } catch (GrouperInverseOfControlException gioc) {
+      Throwable cause = gioc.getCause();
+      if (cause instanceof InsufficientPrivilegeException) {
+        throw (InsufficientPrivilegeException)cause;
+      }
+      if (cause instanceof SchemaException) {
+        throw (SchemaException)cause;
+      }
+      LOG.error("Cant find cause: " + cause + ", " + GrouperUtil.getFullStackTrace(gioc));
+      throw new RuntimeException(cause);
+    } catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_FIELDADD + name + ": " + eDAO.getMessage();
       LOG.error( msg);
       throw new SchemaException(msg, eDAO);
     }
+    
+    
+    
+    
   } // protected Field internal_addField(s, name, type, read, write, required)
 
 

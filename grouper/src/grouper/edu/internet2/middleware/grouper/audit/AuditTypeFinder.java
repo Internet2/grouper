@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTypeFinder.java,v 1.2 2009-02-07 20:16:08 mchyzer Exp $
+ * $Id: AuditTypeFinder.java,v 1.3 2009-02-09 21:36:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -37,6 +37,7 @@ public class AuditTypeFinder {
     types = null;
     typesById = null;
     updatedBuiltinTypes = false;
+    AuditTypeBuiltin.internal_clearCache();
   }
   
   /** 
@@ -126,7 +127,7 @@ public class AuditTypeFinder {
    */
   private static void internal_updateBuiltinTypesOnce(GrouperCache<MultiKey, AuditType> newTypes,
       Map<String, AuditType> newTypesById) {
-    if (updatedBuiltinTypes) {
+    if (updatedBuiltinTypes && newTypes.getCache().getSize() != 0) {
       return;
     }
     
@@ -144,7 +145,7 @@ public class AuditTypeFinder {
   private static void internal_findOrReplaceAuditType(GrouperCache<MultiKey, AuditType> newTypes, 
       Map<String, AuditType> newTypesById, AuditType auditType) {
     MultiKey auditKey = new MultiKey(auditType.getAuditCategory(), auditType.getActionName());
-    
+
     //if new
     if (!newTypes.containsKey(auditKey)) {
       GrouperDAOFactory.getFactory().getAuditType().saveOrUpdate(auditType);

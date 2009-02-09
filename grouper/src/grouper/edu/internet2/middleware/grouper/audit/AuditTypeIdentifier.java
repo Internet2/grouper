@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTypeIdentifier.java,v 1.2 2009-02-08 21:30:19 mchyzer Exp $
+ * $Id: AuditTypeIdentifier.java,v 1.3 2009-02-09 21:36:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -12,9 +12,15 @@ package edu.internet2.middleware.grouper.audit;
 public interface AuditTypeIdentifier {
 
   /**
-   * get the id of the group type
+   * get the audit category
    * @return the id
    */
-  public String getId();
+  public String getAuditCategory();
+
+  /**
+   * get the action name of the audit type
+   * @return the name
+   */
+  public String getActionName();
   
 }

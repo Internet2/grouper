@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperContext.java,v 1.4 2009-02-09 05:33:31 mchyzer Exp $
+ * $Id: GrouperContext.java,v 1.5 2009-02-09 21:36:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
@@ -142,8 +142,14 @@ public class GrouperContext {
   public static String retrieveContextId(boolean requireContext) {
     GrouperContext grouperContextInner = currentInnerContext.get();
     if (grouperContextInner == null) {
-      if (requireContext && GrouperConfig.getPropertyBoolean("audit.requireAuditsForAllActions", false)) {
-        throw new RuntimeException("No context found");
+      //TODO make these default to true before 1.5
+      if (requireContext) {
+        if (GrouperConfig.getPropertyBoolean("audit.requireAuditsForAllActions", false)) {
+          throw new RuntimeException("No context found");
+        }
+        if (GrouperConfig.getPropertyBoolean("audit.logAuditsForMissingActions", false)) {
+          LOG.warn("No context found here is the stack", new RuntimeException("Not an exception, just need the stack"));
+        }
       }
       return null;
     }
