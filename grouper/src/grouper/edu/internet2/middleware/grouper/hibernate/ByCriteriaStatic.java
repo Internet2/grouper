@@ -154,7 +154,8 @@ public class ByCriteriaStatic {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READONLY_OR_USE_EXISTING);
       
-      T result = (T)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
+      T result = (T)HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -207,7 +208,8 @@ public class ByCriteriaStatic {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READONLY_OR_USE_EXISTING);
       
-      List<T> result = (List<T>)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
+      List<T> result = (List<T>)HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
             public Object callback(HibernateHandlerBean hibernateHandlerBean)

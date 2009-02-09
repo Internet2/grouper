@@ -109,7 +109,8 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
+      HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -154,7 +155,8 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
+      HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -202,7 +204,8 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      T result = (T)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
+      T result = (T)HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -249,7 +252,8 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
+      HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -294,7 +298,8 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
+      HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -344,7 +349,8 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
+      HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -396,7 +402,8 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      Serializable result = (Serializable)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
+      Serializable result = (Serializable)HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -445,7 +452,8 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
+      HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -495,7 +503,8 @@ public class ByObjectStatic extends ByQueryBase {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
+      HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
             public Object callback(HibernateHandlerBean hibernateHandlerBean)

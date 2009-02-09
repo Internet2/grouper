@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
@@ -37,7 +38,8 @@ public class Hib3TransactionDAO implements TransactionDAO {
       final GrouperTransactionHandler grouperTransactionHandler,
       final GrouperTransaction grouperTransaction) throws GrouperDAOException {
     
-    Object result = HibernateSession.callbackHibernateSession(grouperTransactionType, false, new HibernateHandler() {
+    Object result = HibernateSession.callbackHibernateSession(
+        grouperTransactionType, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {

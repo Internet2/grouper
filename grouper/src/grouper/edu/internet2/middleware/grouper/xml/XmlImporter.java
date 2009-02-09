@@ -55,6 +55,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
@@ -73,6 +74,7 @@ import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.internal.util.U;
@@ -99,7 +101,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.12 2009-01-31 16:46:41 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.13 2009-02-09 05:33:31 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -219,6 +221,9 @@ public class XmlImporter {
    */
   public static void main(String[] args) {
     
+    //set this and leave it...
+    GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.IMPORT, false, true);
+
     if (XmlArgs.internal_wantsHelp(args)) {
       System.out.println( _getUsage() );
       //System.exit(0);

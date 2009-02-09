@@ -206,7 +206,8 @@ public class ByHqlStatic {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READONLY_OR_USE_EXISTING);
       
-      Q result = (Q)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
+      Q result = (Q)HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -252,7 +253,8 @@ public class ByHqlStatic {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READONLY_OR_USE_EXISTING);
       
-      List<R> result = (List<R>)HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
+      List<R> result = (List<R>)HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -311,7 +313,8 @@ public class ByHqlStatic {
         (GrouperTransactionType)ObjectUtils.defaultIfNull(this.grouperTransactionType, 
             GrouperTransactionType.READ_WRITE_OR_USE_EXISTING);
       
-      HibernateSession.callbackHibernateSession(grouperTransactionTypeToUse, false,
+      HibernateSession.callbackHibernateSession(
+          grouperTransactionTypeToUse, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
   
             public Object callback(HibernateHandlerBean hibernateHandlerBean)

@@ -364,7 +364,7 @@ public class HibernateSession {
    * 
    * @param grouperTransactionType
    *          is enum of how the transaction should work.
-   * @param willCreateAudit true if caller will create an audit record, false if not
+   * @param auditControl WILL_AUDIT if caller will create an audit record, WILL_NOT_AUDIT if not
    * @param hibernateHandler
    *          will get the callback
    * @return the object returned from the callback
@@ -374,7 +374,7 @@ public class HibernateSession {
    */
   @SuppressWarnings("deprecation")
   public static Object callbackHibernateSession(
-      GrouperTransactionType grouperTransactionType, boolean willCreateAudit, HibernateHandler hibernateHandler)
+      GrouperTransactionType grouperTransactionType, AuditControl auditControl, HibernateHandler hibernateHandler)
       throws GrouperDAOException {
     Object ret = null;
     HibernateSession hibernateSession = null;
@@ -384,6 +384,7 @@ public class HibernateSession {
       hibernateSession = _internal_hibernateSession(grouperTransactionType);
       
       HibernateHandlerBean hibernateHandlerBean = new HibernateHandlerBean();
+      boolean willCreateAudit = AuditControl.WILL_AUDIT.equals(auditControl);
       hibernateHandlerBean.setCallerWillCreateAudit(willCreateAudit);
 
       //see if the caller will audit.  if not, then it is up to this call

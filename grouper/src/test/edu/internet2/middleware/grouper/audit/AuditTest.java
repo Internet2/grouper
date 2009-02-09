@@ -1,8 +1,10 @@
 /*
  * @author mchyzer
- * $Id: AuditTest.java,v 1.3 2009-02-08 21:30:19 mchyzer Exp $
+ * $Id: AuditTest.java,v 1.4 2009-02-09 05:33:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
+
+import java.util.List;
 
 import junit.textui.TestRunner;
 
@@ -78,7 +80,7 @@ public class AuditTest extends GrouperTest {
     
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
     assertTrue("durationNanos should exist", auditEntry.getDurationMicroseconds() > 0);
-    assertEquals("query count should exist, and be 2, one for select, one for insert", 2, auditEntry.getQueryCount());
+    assertTrue("query count should exist, and be at least 2, one for select, one for insert: " + auditEntry.getQueryCount(), 2 <= auditEntry.getQueryCount());
 
     assertEquals("Context id's should match", auditEntry.getContextId(), groupType.getContextId());
     
@@ -98,5 +100,28 @@ public class AuditTest extends GrouperTest {
 
     assertTrue("server user name is blank", StringUtils.isNotBlank(auditEntry.getServerUserName()));
 
+    groupType.delete(grouperSession);
+
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+  
+    assertEquals("Should have added exactly two audit", auditCount+2, newAuditCount);
+  
+    List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+    AuditEntry auditEntry2 = auditEntries.get(1);
+
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry2.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry2.getContextId()));
+    
+    assertTrue("durationNanos should exist", auditEntry2.getDurationMicroseconds() > 0);
+    assertTrue("query count should exist, and be at least 1, one for delete: " + auditEntry2.getQueryCount(), 2 <= auditEntry2.getQueryCount());
+  
+    assertEquals("Context id's shouldnt match", auditEntry2.getContextId(), groupType.getContextId());
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry2.getDescription()));
+    
+    
   }
 }

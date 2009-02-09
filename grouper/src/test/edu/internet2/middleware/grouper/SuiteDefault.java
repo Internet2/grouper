@@ -31,8 +31,10 @@ import edu.internet2.middleware.grouper.app.loader.AllLoaderTests;
 import edu.internet2.middleware.grouper.app.loader.db.AllLoaderDbTests;
 import edu.internet2.middleware.grouper.app.usdu.AllUsduTests;
 import edu.internet2.middleware.grouper.audit.AllAuditTests;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.AllDdlTests;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.AllHooksTests;
 import edu.internet2.middleware.grouper.misc.AllMiscTests;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
@@ -43,7 +45,7 @@ import edu.internet2.middleware.ldappcTest.AllLdappcJunitTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.56 2009-02-01 22:38:48 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.57 2009-02-09 05:33:30 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -132,6 +134,10 @@ public class SuiteDefault extends TestCase {
    * @return the suite
    */
   static public Test suite() {
+    
+    //set this and leave it...
+    GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.JUNIT, false, true);
+
     GrouperTest.setupTests();
 
     TestSuite suite = new TestSuite();
