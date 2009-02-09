@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -43,9 +44,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Reference to members list is: Group.getDefaultList()
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.39 2009-01-27 12:09:24 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.40 2009-02-09 21:36:43 mchyzer Exp $    
  */
-public class Field extends GrouperAPI implements Hib3GrouperVersioned {
+public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
   /** table name for fields */
   public static final String TABLE_GROUPER_FIELDS = "grouper_fields";
@@ -108,6 +109,26 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private GroupType cachedGroupType   = null;
+
+
+  /** context id of the transaction */
+  private String contextId;
+
+  /**
+   * context id of the transaction
+   * @return context id
+   */
+  public String getContextId() {
+    return this.contextId;
+  }
+
+  /**
+   * context id of the transaction
+   * @param contextId1
+   */
+  public void setContextId(String contextId1) {
+    this.contextId = contextId1;
+  }
 
   /** */
   private String    groupTypeUUID;

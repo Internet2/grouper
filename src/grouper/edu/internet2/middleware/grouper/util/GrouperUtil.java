@@ -2117,6 +2117,49 @@ public class GrouperUtil {
     return fieldNamesHelper(theClass, theClass, fieldType, true, true,
         includeStaticFields, null, true);
   }
+  
+  /**
+   * put in english how an object changed
+   * @param theOld
+   * @param theNew
+   * @param differentFieldNames
+   * @return the differences
+   */
+  public static String dbVersionDescribeDifferences(Object theOld, Object theNew, Set<String> differentFieldNames) {
+
+    StringBuilder result = new StringBuilder("Fields changed: ");
+    
+    int length = length(differentFieldNames);
+    
+    if (length == 0) {
+      result.append("none");
+      return result.toString();
+    }
+    int i=0;
+    for (String fieldName : nonNull(differentFieldNames)) {
+      result.append(fieldName);
+      if (i < length-1) {
+        result.append(", ");
+      } else {
+        result.append(".\n");
+      }
+      i++;
+    }
+    //do each field
+    i=0;
+    for (String fieldName : nonNull(differentFieldNames)) {
+      String oldString = stringValue(fieldValue(theOld, fieldName));
+      oldString = StringUtils.abbreviate(oldString, 200);
+      String newString = stringValue(fieldValue(theNew, fieldName));
+      newString = StringUtils.abbreviate(newString, 200);
+      result.append(fieldName).append(": FROM: '").append(oldString).append("', TO: '").append(newString).append("'");
+      if (i < length-1) {
+        result.append("\n");
+      }
+      i++;
+    }
+    return result.toString();
+  }
 
   /**
    * get all field names from a class, including superclasses (if specified)

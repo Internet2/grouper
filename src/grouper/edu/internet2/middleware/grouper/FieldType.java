@@ -17,8 +17,6 @@
 
 package edu.internet2.middleware.grouper;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -26,73 +24,60 @@ import org.apache.commons.lang.StringUtils;
  * Field Type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldType.java,v 1.13 2008-09-29 03:38:28 mchyzer Exp $    
+ * @version $Id: FieldType.java,v 1.14 2009-02-09 21:36:44 mchyzer Exp $    
  */
-public class FieldType implements Serializable {
+public enum FieldType implements Serializable {
 
-  // PUBLIC CLASS CONSTANTS //
-  public static final FieldType ACCESS            = new FieldType("access");
-  public static final FieldType ATTRIBUTE         = new FieldType("attribute");
-  public static final FieldType LIST              = new FieldType("list");
-  public static final FieldType NAMING            = new FieldType("naming");
-  public static final long      serialVersionUID  = -2133978355688724546L;
+  /** */
+  ACCESS("access"),
+  
+  /** */
+  ATTRIBUTE("attribute"),
+  
+  /** */
+  LIST("list"),
 
+  /** */
+  NAMING("naming");
+  
+  /**
+   * 
+   * @param type
+   * @return the type
+   */
+  public static FieldType getInstance(String type) {
+    for (FieldType fieldType : FieldType.values()) {
+      if (StringUtils.equalsIgnoreCase(type, fieldType.getType())) {
+        return fieldType;
+      }
+    }
+    throw new RuntimeException("Cant find field type: " + type);
+  }
 
-  // PRIVATE CLASS CONSTANTS //
-  private static final Map      TYPES     = new HashMap();
-
-
-  // PRIVATE INSTANCE VARIABLES //
+  /**
+   * 
+   * @param theType
+   */
+  private FieldType(String theType) {
+    this.type = theType;
+  }
+  
+  /** */
   private String type;
 
 
-  // STATIC //
-  static {
-    TYPES.put(ACCESS.toString(),    ACCESS);
-    TYPES.put(ATTRIBUTE.toString(), ATTRIBUTE);
-    TYPES.put(LIST.toString(),      LIST);
-    TYPES.put(NAMING.toString(),    NAMING);
-  } // static
-
-
-  // CONSTRUCTORS //
-  private FieldType(String type) {
-    this.type = type;
-  } // private FieldType(type)
-
-
   /**
-   * @see java.lang.Object#equals(java.lang.Object)
+   * 
+   * @see java.lang.Enum#toString()
    */
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
-    if (obj instanceof FieldType) {
-      return StringUtils.equals(this.type, ((FieldType)obj).type);
-    }
-    return false;
-  }
-
-
-  // PUBLIC CLASS METHODS //
-  public static FieldType getInstance(String type) {
-    return (FieldType) TYPES.get(type);
-  } // public static FieldType getInstance(type)
-
-
-  // PUBLIC INSTANCE METHODS //
   public String toString() {
     return this.type;
   } // public String toString()
 
-
-  Object readResolve() {
-    return getInstance(type);
-  } // Object readResolve()
-
-
+  /**
+   * 
+   * @return type
+   */
   public String getType() {
     return type;
   }

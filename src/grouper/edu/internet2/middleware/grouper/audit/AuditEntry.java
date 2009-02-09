@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditEntry.java,v 1.4 2009-02-08 21:30:19 mchyzer Exp $
+ * $Id: AuditEntry.java,v 1.5 2009-02-09 21:36:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -52,7 +52,10 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
     
     this.id = GrouperUuid.getUuid();
     
-    this.auditTypeId = auditTypeIdentifier.getId();
+    AuditType auditType = AuditTypeFinder.find(auditTypeIdentifier.getAuditCategory(),
+        auditTypeIdentifier.getActionName(), true);
+    
+    this.auditTypeId = auditType.getId();
     
     int labelNamesAndValuesLength = GrouperUtil.length(labelNamesAndValues);
     
@@ -60,8 +63,6 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
       throw new RuntimeException("labelNamesAndValuesLength must be divisible by 2: " 
           + labelNamesAndValuesLength);
     }
-    
-    AuditType auditType = AuditTypeFinder.find(this.auditTypeId, true);
     
     for (int i=0;i<labelNamesAndValuesLength;i+=2) {
       String label = labelNamesAndValues[i];

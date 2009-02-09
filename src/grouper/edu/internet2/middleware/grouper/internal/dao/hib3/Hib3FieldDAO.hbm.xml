@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3FieldDAO.hbm.xml,v 1.6 2008-07-28 20:12:27 mchyzer Exp $ -->
+<!-- $Id: Hib3FieldDAO.hbm.xml,v 1.7 2009-02-09 21:36:44 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
   <class name="Field" table="grouper_fields">
@@ -111,6 +111,8 @@
       />
     </property>
     <!-- writePrivilege -->
+
+    <property name="contextId" column="context_id" />
 
   </class>
 </hibernate-mapping>

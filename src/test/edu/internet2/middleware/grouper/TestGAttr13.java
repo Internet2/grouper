@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -27,11 +28,15 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr13.java,v 1.7 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: TestGAttr13.java,v 1.8 2009-02-09 21:36:43 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGAttr13 extends TestCase {
 
+  public static void main(String[] args) {
+    TestRunner.run(TestGAttr13.class);
+  }
+  
   private static final Log LOG = GrouperUtil.getLog(TestGAttr13.class);
 
   public TestGAttr13(String name) {
