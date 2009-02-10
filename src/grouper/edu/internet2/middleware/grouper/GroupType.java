@@ -67,7 +67,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.80 2009-02-09 21:36:43 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.81 2009-02-10 05:23:45 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements GrouperHasContext, Serializable, Hib3GrouperVersioned, Comparable {
 
@@ -458,7 +458,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
       if (cause instanceof SchemaException) {
         throw (SchemaException)cause;
       }
-      LOG.warn("Cant find handler for cause: " + cause + ", " + GrouperUtil.getFullStackTrace(gioce));
+      LOG.warn("Cant find handler for cause: " + cause, gioce);
       throw new RuntimeException(gioce);
     }
   } // public void delete(s)
@@ -556,7 +556,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
       if (cause instanceof SchemaException) {
         throw (SchemaException)cause;
       }
-      LOG.error("Cant find cause: " + cause + ", " + GrouperUtil.getFullStackTrace(gioc));
+      LOG.error("Cant find cause: " + cause, gioc);
       throw new RuntimeException(cause);
     } catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_FIELDDEL + name + ": " + eDAO.getMessage();
@@ -564,7 +564,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
       throw new SchemaException(msg, eDAO);
     }
     
-  } // public void deleteField(s, name)
+  }
 
   /**
    * 
@@ -575,7 +575,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
       return true;
     }
     return false;
-  } // public boolean isSystemType()
+  } 
   
 
   /**
@@ -657,7 +657,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
       if (cause instanceof SchemaException) {
         throw (SchemaException)cause;
       }
-      LOG.error("Cant find cause: " + cause + ", " + GrouperUtil.getFullStackTrace(gioc));
+      LOG.error("Cant find cause: " + cause, gioc);
       throw new RuntimeException(cause);
     } catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_ADD + name + ": " + eDAO.getMessage();
@@ -844,7 +844,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
       if (cause instanceof SchemaException) {
         throw (SchemaException)cause;
       }
-      LOG.error("Cant find cause: " + cause + ", " + GrouperUtil.getFullStackTrace(gioc));
+      LOG.error("Cant find cause: " + cause, gioc);
       throw new RuntimeException(cause);
     } catch (GrouperDAOException eDAO) {
       String msg = E.GROUPTYPE_FIELDADD + name + ": " + eDAO.getMessage();

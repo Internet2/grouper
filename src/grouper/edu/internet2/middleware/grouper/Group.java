@@ -37,6 +37,8 @@ import org.hibernate.classic.Lifecycle;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
@@ -46,6 +48,7 @@ import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GroupModifyRuntimeException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperInverseOfControlException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -62,9 +65,12 @@ import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
@@ -114,7 +120,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.218 2009-01-28 21:53:20 mchyzer Exp $
+ * @version $Id: Group.java,v 1.219 2009-02-10 05:23:45 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -716,43 +722,72 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * @throws  SchemaException if attempting to add a system group type.
    * @return if it was added or not
    */
-  public boolean addType(GroupType type, boolean exceptionIfAlreadyHasType) 
-    throws  GroupModifyException,
-            InsufficientPrivilegeException,
-            SchemaException {
-    StopWatch sw = new StopWatch();
-    sw.start();
-    if ( this.hasType(type ) ) {
-      if (exceptionIfAlreadyHasType) {
-        throw new GroupModifyException(E.GROUP_HAS_TYPE);
-      }
-      return false;
-    }
-    if ( type.isSystemType() ) {
-      throw new SchemaException("cannot edit system group types");
-    }
-    if ( !PrivilegeHelper.canAdmin( GrouperSession.staticGrouperSession(), this, 
-        GrouperSession.staticGrouperSession().getSubject() ) ) {
-      throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
-    }
-    try {
-      Set types = this.getTypesDb();
-      types.add( type );
+  public boolean addType(final GroupType type, final boolean exceptionIfAlreadyHasType) 
+    throws  GroupModifyException, InsufficientPrivilegeException, SchemaException {
 
-      GrouperDAOFactory.getFactory().getGroup().addType( this, type);
-      sw.stop();
-      EventLog.info(
-          GrouperSession.staticGrouperSession(),
-        M.GROUP_ADDTYPE + Quote.single(this.getName()) + " type=" + Quote.single( type.getName() ),
-        sw
-      );
-    }
-    catch (GrouperDAOException eDAO) {
+    try {
+      return (Boolean)HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          
+    
+          StopWatch sw = new StopWatch();
+          sw.start();
+          if ( Group.this.hasType(type ) ) {
+            if (exceptionIfAlreadyHasType) {
+              throw new GrouperInverseOfControlException(new GroupModifyException(E.GROUP_HAS_TYPE));
+            }
+            return false;
+          }
+          if ( type.isSystemType() ) {
+            throw new GrouperInverseOfControlException(new SchemaException("cannot edit system group types"));
+          }
+          if ( !PrivilegeHelper.canAdmin( GrouperSession.staticGrouperSession(), Group.this, 
+              GrouperSession.staticGrouperSession().getSubject() ) ) {
+            throw new GrouperInverseOfControlException(new InsufficientPrivilegeException(E.CANNOT_ADMIN));
+          }
+          Set types = Group.this.getTypesDb();
+          types.add( type );
+    
+          GroupTypeTuple groupTypeTuple = GrouperDAOFactory.getFactory().getGroup().addType( Group.this, type);
+
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_ASSIGN, "id", 
+              groupTypeTuple.getId(), "groupId", Group.this.getUuid(), 
+              "groupName", Group.this.getName(), "typeId", type.getUuid(), "typeName", type.getName());
+          auditEntry.setDescription("Assigned group type: " + name + ", typeId: " + type.getUuid() 
+              + ", to group: " + Group.this.getName() + ", groupId: " + Group.this.getUuid());
+          auditEntry.saveOrUpdate(true);
+
+          sw.stop();
+          EventLog.info(
+              GrouperSession.staticGrouperSession(),
+            M.GROUP_ADDTYPE + Quote.single(Group.this.getName()) + " type=" + Quote.single( type.getName() ),
+            sw
+          );
+          return true;
+        }
+      });
+    } catch (GrouperDAOException eDAO) {
       String msg = E.GROUP_TYPEADD + type + ": " + eDAO.getMessage();
       LOG.error(msg);
       throw new GroupModifyException(msg, eDAO); 
+    } catch (GrouperInverseOfControlException gioc) {
+      Throwable cause = gioc.getCause();
+      if (cause instanceof InsufficientPrivilegeException) {
+        throw (InsufficientPrivilegeException)cause;
+      }
+      if (cause instanceof SchemaException) {
+        throw (SchemaException)cause;
+      }
+      if (cause instanceof GroupModifyException) {
+        throw (GroupModifyException)cause;
+      }
+      LOG.error("Cant find cause: " + cause, gioc);
+      throw new RuntimeException(cause);
+
     }
-    return true;
   } 
 
   /**
@@ -1422,37 +1457,69 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * @throws  InsufficientPrivilegeException if subject not root-like.
    * @throws  SchemaException if attempting to delete a system group type.
    */
-  public void deleteType(GroupType type) 
+  public void deleteType(final GroupType type) 
     throws  GroupModifyException,
             InsufficientPrivilegeException,
             SchemaException {
-    String typeString = type == null ? null : type.getName();
-    StopWatch sw = new StopWatch();
-    sw.start();
-    String msg = E.GROUP_TYPEDEL + type + ": "; 
+    
     try {
-      if ( !this.hasType(type) ) {
-        throw new GroupModifyException("does not have type: " + typeString);
-      }
-      if ( type.isSystemType() ) {
-        throw new SchemaException("cannot edit system group types: " + typeString);
-      }
-      if ( !PrivilegeHelper.canAdmin( GrouperSession.staticGrouperSession(), this, GrouperSession.staticGrouperSession().getSubject() ) ) {
-        throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
-      }
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          
+    
+          String typeString = type == null ? null : type.getName();
+          StopWatch sw = new StopWatch();
+          sw.start();
+          if ( !Group.this.hasType(type) ) {
+            throw new GrouperInverseOfControlException(new GroupModifyException("does not have type: " + typeString));
+          }
+          if ( type.isSystemType() ) {
+            throw new GrouperInverseOfControlException(new SchemaException("cannot edit system group types: " + typeString));
+          }
+          if ( !PrivilegeHelper.canAdmin( GrouperSession.staticGrouperSession(), Group.this, GrouperSession.staticGrouperSession().getSubject() ) ) {
+            throw new GrouperInverseOfControlException(new InsufficientPrivilegeException(E.CANNOT_ADMIN));
+          }
 
-      GrouperDAOFactory.getFactory().getGroup().deleteType( this, type );
-      sw.stop();
-      EventLog.info(
-        GrouperSession.staticGrouperSession(),
-        M.GROUP_DELTYPE + Quote.single(this.getName()) + " type=" + Quote.single( type.getName() ),
-        sw
-      );
-    }
-    catch (GrouperDAOException eDAO) {
+          GroupTypeTuple groupTypeTuple = GrouperDAOFactory.getFactory().getGroup().deleteType( Group.this, type );
+          
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_UNASSIGN, "id", 
+              groupTypeTuple.getId(), "groupId", Group.this.getUuid(), 
+              "groupName", Group.this.getName(), "typeId", type.getUuid(), "typeName", type.getName());
+          auditEntry.setDescription("Unasssigned group type: " + name + ", typeId: " + type.getUuid() 
+              + ", to group: " + Group.this.getName() + ", groupId: " + Group.this.getUuid());
+          auditEntry.saveOrUpdate(true);
+          
+          sw.stop();
+          EventLog.info(
+            GrouperSession.staticGrouperSession(),
+            M.GROUP_DELTYPE + Quote.single(Group.this.getName()) + " type=" + Quote.single( type.getName() ),
+            sw
+          );
+          return null;
+        }
+      });
+    } catch (GrouperDAOException eDAO) {
+      String msg = E.GROUP_TYPEDEL + type + ": "; 
       msg += eDAO.getMessage();
       LOG.error(msg);
       throw new GroupModifyException(msg, eDAO);
+    } catch (GrouperInverseOfControlException gioc) {
+      Throwable cause = gioc.getCause();
+      if (cause instanceof InsufficientPrivilegeException) {
+        throw (InsufficientPrivilegeException)cause;
+      }
+      if (cause instanceof SchemaException) {
+        throw (SchemaException)cause;
+      }
+      if (cause instanceof GroupModifyException) {
+        throw (GroupModifyException)cause;
+      }
+      LOG.error("Cant find cause: " + cause, gioc);
+      throw new RuntimeException(cause);
+
     }
   } 
 

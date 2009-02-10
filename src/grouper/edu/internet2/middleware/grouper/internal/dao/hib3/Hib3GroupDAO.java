@@ -65,7 +65,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.27 2009-02-09 05:33:30 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.28 2009-02-10 05:23:45 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -99,25 +99,23 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   }
 
   /**
-   * @param _g 
-   * @param _gt 
-   * @throws GrouperDAOException 
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#addType(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.GroupType)
    */
-  public void addType(final Group _g, final GroupType _gt) 
+  public GroupTypeTuple addType(final Group _g, final GroupType _gt) 
     throws  GrouperDAOException {
     
-    HibernateSession.callbackHibernateSession(
+    return (GroupTypeTuple)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
         new HibernateHandler() {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-            hibernateSession.byObject().save(  // new group-type tuple
-                new GroupTypeTuple()
-                  .setGroupUuid( _g.getUuid() )
-                  .setTypeUuid( _gt.getUuid() )
-              );
+            GroupTypeTuple groupTypeTuple = new GroupTypeTuple();
+            groupTypeTuple.setGroupUuid( _g.getUuid() );
+            groupTypeTuple.setTypeUuid( _gt.getUuid() );
+            hibernateSession.byObject().save(groupTypeTuple);
  
             //get it again in case it was changed in the hook
             Group g2 = null;
@@ -131,7 +129,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             hibernateSession.byObject().update( g2 ); // modified group
  
             //let HibernateSession commit or rollback depending on if problem or enclosing transaction
-            return null;
+            return groupTypeTuple;
           }
     });
   } 
@@ -182,14 +180,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   private static final Log LOG = GrouperUtil.getLog(Hib3GroupDAO.class);
 
   /**
-   * @param group 
-   * @param groupType 
-   * @throws GrouperDAOException 
-   * @since   @HEAD@
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#deleteType(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.GroupType)
    */
-  public void deleteType(final Group group, final GroupType groupType) 
+  public GroupTypeTuple deleteType(final Group group, final GroupType groupType) 
     throws  GrouperDAOException {
-    HibernateSession.callbackHibernateSession(
+    return (GroupTypeTuple)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
         new HibernateHandler() {
 
@@ -197,7 +193,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               throws GrouperDAOException {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             
-            hibernateSession.byObject().delete( Hib3GroupTypeTupleDAO.findByGroupAndType(group, groupType) );
+            GroupTypeTuple groupTypeTuple = Hib3GroupTypeTupleDAO.findByGroupAndType(group, groupType);
+            hibernateSession.byObject().delete( groupTypeTuple );
             
             //delete all attributes used by the group of this type
             Set<Field> fields = GrouperUtil.nonNull(groupType.getFields());
@@ -224,7 +221,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             //NOTE: used to be saveOrUpdate
             hibernateSession.byObject().update( group ); 
             
-            return null;
+            return groupTypeTuple;
           }
     });
   } 
@@ -375,7 +372,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             
             String attributeHql = null;
             
@@ -422,7 +418,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             String attributeHql = null;
             
@@ -555,7 +550,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
             List<Criterion> criterionList = new ArrayList<Criterion>();
             
