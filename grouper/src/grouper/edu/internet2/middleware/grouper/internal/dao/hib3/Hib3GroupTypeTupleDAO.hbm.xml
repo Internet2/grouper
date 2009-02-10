@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3GroupTypeTupleDAO.hbm.xml,v 1.6 2008-07-29 20:34:24 mchyzer Exp $ -->
+<!-- $Id: Hib3GroupTypeTupleDAO.hbm.xml,v 1.7 2009-02-10 05:23:45 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
   <class name="GroupTypeTuple" table="grouper_groups_types">
@@ -72,6 +72,8 @@
       />
     </property>
     <!-- typeUuid -->
+
+    <property name="contextId" column="context_id" />
 
   </class>
 </hibernate-mapping>

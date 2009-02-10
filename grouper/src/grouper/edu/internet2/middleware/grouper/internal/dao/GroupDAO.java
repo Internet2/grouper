@@ -22,16 +22,17 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
-import edu.internet2.middleware.grouper.Stem;
 
 /** 
  * Basic <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.15 2008-11-06 19:34:28 shilen Exp $
+ * @version $Id: GroupDAO.java,v 1.16 2009-02-10 05:23:45 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -60,7 +61,7 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  void addType(Group _g, GroupType _gt) 
+  GroupTypeTuple addType(Group _g, GroupType _gt) 
     throws  GrouperDAOException;
 
   /**
@@ -72,7 +73,7 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  void deleteType(Group _g, GroupType _gt) 
+  GroupTypeTuple deleteType(Group _g, GroupType _gt) 
     throws  GrouperDAOException;
 
   /**

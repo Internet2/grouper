@@ -29,15 +29,17 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DTO implementation.
  * @author  blair christensen.
- * @version $Id: GroupTypeTuple.java,v 1.7 2008-10-17 12:06:37 mchyzer Exp $
+ * @version $Id: GroupTypeTuple.java,v 1.8 2009-02-10 05:23:45 mchyzer Exp $
  * @since   @HEAD@
  */
-public class GroupTypeTuple extends GrouperAPI implements Hib3GrouperVersioned {
+@SuppressWarnings("serial")
+public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
   /**
    * 
@@ -72,15 +74,41 @@ public class GroupTypeTuple extends GrouperAPI implements Hib3GrouperVersioned {
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
-  // PRIVATE INSTANCE VARIABLES //
+  /** */
   private String  groupUUID;
+  
+  /** */
   private String  id;
+
+  /** */
   private String  typeUUID;
+
+  /** context id of the transaction */
+  private String contextId;
+
+  /**
+   * context id of the transaction
+   * @return context id
+   */
+  public String getContextId() {
+    return this.contextId;
+  }
+
+  /**
+   * context id of the transaction
+   * @param contextId1
+   */
+  public void setContextId(String contextId1) {
+    this.contextId = contextId1;
+  }
+
 
 
   // PUBLIC CLASS METHODS //
 
   /**
+   * @param other 
+   * @return if equals
    * @since   @HEAD@
    */
   public boolean equals(Object other) {
@@ -96,9 +124,10 @@ public class GroupTypeTuple extends GrouperAPI implements Hib3GrouperVersioned {
       .append( this.typeUUID,  that.typeUUID  )
       .isEquals();
   }
-  
+
   /**
-   * @since   @HEAD@
+   * 
+   * @see java.lang.Object#hashCode()
    */
   public int hashCode() {
     return new HashCodeBuilder()
@@ -106,9 +135,10 @@ public class GroupTypeTuple extends GrouperAPI implements Hib3GrouperVersioned {
       .append( this.typeUUID  )
       .toHashCode();
   }
-  
+
   /**
-   * @since   @HEAD@
+   * 
+   * @see java.lang.Object#toString()
    */
   public String toString() {
     return new ToStringBuilder(this)
@@ -118,31 +148,54 @@ public class GroupTypeTuple extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
 
-  // PROTECTED CLASS METHODS //
-
+  /**
+   * 
+   * @return uuid
+   */
   public String getGroupUuid() {
     return this.groupUUID;
   }
+  
+  /**
+   * 
+   * @return id
+   */
   public String getId() {
     return this.id;
   }
+  
+  /**
+   * type uuid
+   * @return uuid
+   */
   public String getTypeUuid() {
     return this.typeUUID;
   }
 
 
-  // SETTERS //
+  /**
+   * 
+   * @param groupUUID1
+   */
+  public void setGroupUuid(String groupUUID1) {
+    this.groupUUID = groupUUID1;
+  }
 
-  public GroupTypeTuple setGroupUuid(String groupUUID) {
-    this.groupUUID = groupUUID;
-    return this;
+  /**
+   * 
+   * @param id1
+   */
+  public void setId(String id1) {
+    this.id = id1;
   }
-  public GroupTypeTuple setId(String id) {
-    this.id = id;
-    return this;
-  }
-  public GroupTypeTuple setTypeUuid(String typeUUID) {
-    this.typeUUID = typeUUID;
+  
+  /**
+   * 
+   * @param typeUUID1
+   * @return tuple
+   */
+  public GroupTypeTuple setTypeUuid(String typeUUID1) {
+    this.typeUUID = typeUUID1;
     return this;
   }
 

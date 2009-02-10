@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTest.java,v 1.5 2009-02-09 21:36:44 mchyzer Exp $
+ * $Id: AuditTest.java,v 1.6 2009-02-10 05:23:45 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -11,12 +11,17 @@ import junit.textui.TestRunner;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperTest;
 import edu.internet2.middleware.grouper.SessionHelper;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemHelper;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupTypeTupleDAO;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -37,7 +42,7 @@ public class AuditTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AuditTest("testFields"));
+    TestRunner.run(new AuditTest("testTypeTuples"));
   }
   
   /**
@@ -48,6 +53,9 @@ public class AuditTest extends GrouperTest {
   protected void setUp() {
     super.setUp();
     ApiConfig.testConfig.put("grouper.env.name", "testEnv");
+    grouperSession     = SessionHelper.getRootSession();
+    root  = StemHelper.findRootStem(grouperSession);
+    edu   = StemHelper.addChildStem(root, "edu", "education");
   }
 
   /**
@@ -66,6 +74,10 @@ public class AuditTest extends GrouperTest {
    * 
    */
   public void testTypes() throws Exception {
+    
+    //delete all audit records
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+
     int auditCount = HibernateSession.bySqlStatic().select(int.class, 
         "select count(1) from grouper_audit_entry");
     
@@ -132,6 +144,76 @@ public class AuditTest extends GrouperTest {
     assertTrue("query count should exist, and be at least 1, one for delete: " + auditEntry2.getQueryCount(), 2 <= auditEntry2.getQueryCount());
   
     assertEquals("Context id's should match", auditEntry2.getContextId(), groupType.getContextId());
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry2.getDescription()));
+    
+    
+  }
+
+  /** top level stem */
+  private Stem edu;
+
+  /** root session */
+  private GrouperSession grouperSession = SessionHelper.getRootSession();
+  
+  /** root stem */
+  private Stem root;
+
+  /**
+   * @throws Exception 
+   */
+  public void testTypeTuples() throws Exception {
+    GroupType groupType = GroupType.createType(grouperSession, "test1");
+
+    Group group = StemHelper.addChildGroup(this.edu, "test1", "the test1");
+    
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+    
+    group.addType(groupType);
+    
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+    
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+
+    GroupTypeTuple groupTypeTuple = Hib3GroupTypeTupleDAO.findByGroupAndType(group, groupType);
+    
+    assertEquals("Context id's should match", auditEntry.getContextId(), groupTypeTuple.getContextId());
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry.getDescription()));
+    
+    group.addType(groupType, false);
+    
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+
+    assertEquals("Shouldnt have changed since type didnt change", auditCount+1, newAuditCount);
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+    
+    group.deleteType(groupType);
+
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+  
+    assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
+  
+    List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+    AuditEntry auditEntry2 = auditEntries.get(1);
+
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry2.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry2.getContextId()));
     
     assertTrue("description is blank", StringUtils.isNotBlank(auditEntry2.getDescription()));
     
