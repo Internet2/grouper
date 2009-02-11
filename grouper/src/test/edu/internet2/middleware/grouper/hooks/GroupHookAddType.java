@@ -1,14 +1,10 @@
 package edu.internet2.middleware.grouper.hooks;
 
-import java.util.List;
-
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * add a type after a group insert
