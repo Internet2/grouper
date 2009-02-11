@@ -17,13 +17,10 @@
 
 package edu.internet2.middleware.grouper;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -34,9 +31,12 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.GrouperInverseOfControlException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -50,8 +50,10 @@ import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksStemBean;
@@ -67,6 +69,7 @@ import edu.internet2.middleware.grouper.internal.util.U;
 import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.misc.Owner;
@@ -91,10 +94,10 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.176 2009-01-28 21:53:20 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.177 2009-02-11 07:22:34 mchyzer Exp $
  */
 @SuppressWarnings("serial")
-public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
+public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
 
   /** table for stems table in the db */
   public static final String TABLE_GROUPER_STEMS = "grouper_stems";
@@ -251,6 +254,25 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
   private String  parentUUID;
   private String  uuid;
 
+  /** context id of the transaction */
+  private String contextId;
+
+  /**
+   * context id of the transaction
+   * @return context id
+   */
+  public String getContextId() {
+    return this.contextId;
+  }
+
+  /**
+   * context id of the transaction
+   * @param contextId1
+   */
+  public void setContextId(String contextId1) {
+    this.contextId = contextId1;
+  }
+
 
   // PUBLIC INSTANCE METHODS //
 
@@ -300,10 +322,9 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
    */
   public Stem addChildStem(String extension, String displayExtension) 
     throws  InsufficientPrivilegeException,
-            StemAddException 
-  {
+            StemAddException {
     return internal_addChildStem(extension, displayExtension, null);
-  } // public Stem addChildStem(extension, displayExtension)
+  } 
   
   /**
    * Delete this stem from the Groups Registry.
@@ -321,37 +342,73 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
    * @throws  InsufficientPrivilegeException
    * @throws  StemDeleteException
    */
-  public void delete() 
-    throws  InsufficientPrivilegeException,
-            StemDeleteException
-  {
-    StopWatch sw = new StopWatch();
-    sw.start();
-    GrouperSession.validate(GrouperSession.staticGrouperSession());
-    if ( !PrivilegeHelper.canStem( this, GrouperSession.staticGrouperSession().getSubject() ) ) {
-      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
-    }
-    DeleteStemValidator v = DeleteStemValidator.validate(this);
-    if (v.isInvalid()) {
-      throw new StemDeleteException( v.getErrorMessage() );
-    }
+  public void delete() throws InsufficientPrivilegeException, StemDeleteException {
+    
     try {
-      String name = this.getName(); // Preserve name for logging
-      this._revokeAllNamingPrivs();
-      GrouperDAOFactory.getFactory().getStem().delete( this );
-      sw.stop();
-      EventLog.info(GrouperSession.staticGrouperSession(), M.STEM_DEL + Quote.single(name), sw);
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+          new HibernateHandler() {
+
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+
+              try {
+                StopWatch sw = new StopWatch();
+                sw.start();
+                GrouperSession.validate(GrouperSession.staticGrouperSession());
+                if ( !PrivilegeHelper.canStem( Stem.this, GrouperSession.staticGrouperSession().getSubject() ) ) {
+                  throw new InsufficientPrivilegeException(E.CANNOT_STEM + ", " + Stem.this.getName());
+                }
+                DeleteStemValidator v = DeleteStemValidator.validate(Stem.this);
+                if (v.isInvalid()) {
+                  throw new StemDeleteException( v.getErrorMessage() );
+                }
+                try {
+                  String name = Stem.this.getName(); // Preserve name for logging
+                  Stem.this._revokeAllNamingPrivs();
+                  GrouperDAOFactory.getFactory().getStem().delete( Stem.this );
+                  
+                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_DELETE, "id", 
+                      Stem.this.getUuid(), "name", Stem.this.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
+                      Stem.this.getDisplayName(), "description", Stem.this.getDescription());
+                  auditEntry.setDescription("Deleted stem: " +Stem.this.getName());
+                  auditEntry.saveOrUpdate(true);
+
+                  
+                  sw.stop();
+                  EventLog.info(GrouperSession.staticGrouperSession(), M.STEM_DEL + Quote.single(name), sw);
+                }
+                catch (GrouperDAOException eDAO)      {
+                  throw new StemDeleteException( eDAO.getMessage() + ", " + Stem.this.getName(), eDAO );
+                }
+                catch (RevokePrivilegeException eRP)  {
+                  throw new StemDeleteException(eRP.getMessage() + ", " + Stem.this.getName(), eRP);
+                }
+                catch (SchemaException eS)            {
+                  throw new StemDeleteException(eS.getMessage() + ", " + Stem.this.getName(), eS);
+                }
+                return null;
+              } catch (InsufficientPrivilegeException ipe) {
+                throw new GrouperInverseOfControlException(ipe);
+              } catch (StemDeleteException sde) {
+                throw new GrouperInverseOfControlException(sde);
+              }
+           }
+      });
+    } catch (GrouperInverseOfControlException gioc) {
+      Throwable cause = gioc.getCause();
+      if (cause instanceof InsufficientPrivilegeException) {
+        throw (InsufficientPrivilegeException)cause;
+      }
+      if (cause instanceof StemDeleteException) {
+        throw (StemDeleteException)cause;
+      }
+      LOG.error("Cant find cause: " + cause, gioc);
+      throw new RuntimeException(cause);
     }
-    catch (GrouperDAOException eDAO)      {
-      throw new StemDeleteException( eDAO.getMessage(), eDAO );
-    }
-    catch (RevokePrivilegeException eRP)  {
-      throw new StemDeleteException(eRP.getMessage(), eRP);
-    }
-    catch (SchemaException eS)            {
-      throw new StemDeleteException(eS.getMessage(), eS);
-    }
-  } // public void delete()
+
+    
+  }
 
   /**
    * Get groups that are immediate children of this stem.
@@ -1062,7 +1119,38 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
    * will be implemented soon
    */
   public void store() {
-    GrouperDAOFactory.getFactory().getStem().update( this );
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            String differences = GrouperUtil.dbVersionDescribeDifferences(Stem.this.dbVersion(), 
+                Stem.this, Stem.this.dbVersionDifferentFields());
+
+            try {
+              GrouperDAOFactory.getFactory().getStem().update( Stem.this );
+            }
+            catch (GrouperDAOException e) {
+              String error = "Problem with hib update: " + GrouperUtil.toStringSafe(this)
+               + ",\n" + e.getMessage();
+              GrouperUtil.injectInException(e, error);
+              throw e;
+            }
+          
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_UPDATE, "id", 
+                Stem.this.getUuid(), "name", Stem.this.getName(), "parentStemId", Stem.this.getParentUuid(), "displayName", 
+                Stem.this.getDisplayName(), "description", Stem.this.getDescription());
+            auditEntry.setDescription("Updated stem: " + Stem.this.getName() + ", " + differences);
+            auditEntry.saveOrUpdate(true);
+            return null;
+          }
+        });
+          
+
+    
   }
   
   /**
@@ -1380,45 +1468,88 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
    * @throws StemAddException if problem
    * @throws InsufficientPrivilegeException if problem
    */
-  public Stem internal_addChildStem(String extn, String dExtn, String uuid) 
+  public Stem internal_addChildStem(final String extn, final String dExtn, final String uuid) 
     throws  StemAddException,
-            InsufficientPrivilegeException
-  {
-    StopWatch sw = new StopWatch();
-    sw.start();
-    if ( !PrivilegeHelper.canStem( this, GrouperSession.staticGrouperSession().getSubject() ) ) {
-      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
-    } 
-    GrouperValidator v = AddStemValidator.validate(this, extn, dExtn);
-    if (v.isInvalid()) {
-      throw new StemAddException( "Problem with stem extension: '" + extn 
-          + "', displayExtension: '" + dExtn + "', " + v.getErrorMessage() );
-    }
+            InsufficientPrivilegeException {
+    
     try {
-      Stem _ns = new Stem();
-      _ns.setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
-      _ns.setCreateTimeLong( new Date().getTime() );
-      _ns.setDisplayExtensionDb(dExtn);
-      _ns.setDisplayNameDb( U.constructName( this.getDisplayName(), dExtn ) );
-      _ns.setExtensionDb(extn);
-      _ns.setNameDb( U.constructName( this.getName(), extn ) );
-      _ns.setParentUuid( this.getUuid() );
-      
-      v = NotNullOrEmptyValidator.validate(uuid);
-      if (v.isInvalid()) {
-        _ns.setUuid( GrouperUuid.getUuid() );
-      }
-      else {
-        _ns.setUuid(uuid);
-      }
-      GrouperDAOFactory.getFactory().getStem().createChildStem( this, _ns ) ;
+      return (Stem)HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+          new HibernateHandler() {
 
-      sw.stop();
-      EventLog.info(GrouperSession.staticGrouperSession(), M.STEM_ADD + Quote.single( _ns.getName() ), sw);
-      _grantDefaultPrivsUponCreate(_ns);
-      return _ns;
-    }
-    catch (GrouperDAOException eDAO) {
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+
+              StopWatch sw = new StopWatch();
+              sw.start();
+              if ( !PrivilegeHelper.canStem( Stem.this, GrouperSession.staticGrouperSession().getSubject() ) ) {
+                throw new GrouperInverseOfControlException(new InsufficientPrivilegeException(E.CANNOT_STEM + ", "
+                    + GrouperUtil.toStringSafe(Stem.this) + ", extn: " + extn + ", dExtn: " 
+                    + dExtn + ", uuid: " + uuid));
+              } 
+              GrouperValidator v = AddStemValidator.validate(Stem.this, extn, dExtn);
+              if (v.isInvalid()) {
+                throw new GrouperInverseOfControlException(new StemAddException( "Problem with stem extension: '" 
+                    + extn 
+                    + "', displayExtension: '" + dExtn + "', child of: " + GrouperUtil.toStringSafe(Stem.this) 
+                    + v.getErrorMessage() ));
+              }
+              try {
+                Stem _ns = new Stem();
+                _ns.setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
+                _ns.setCreateTimeLong( new Date().getTime() );
+                _ns.setDisplayExtensionDb(dExtn);
+                _ns.setDisplayNameDb( U.constructName( Stem.this.getDisplayName(), dExtn ) );
+                _ns.setExtensionDb(extn);
+                _ns.setNameDb( U.constructName( Stem.this.getName(), extn ) );
+                _ns.setParentUuid( Stem.this.getUuid() );
+                
+                v = NotNullOrEmptyValidator.validate(uuid);
+                if (v.isInvalid()) {
+                  _ns.setUuid( GrouperUuid.getUuid() );
+                }
+                else {
+                  _ns.setUuid(uuid);
+                }
+                GrouperDAOFactory.getFactory().getStem().createChildStem( _ns ) ;
+
+
+                _grantDefaultPrivsUponCreate(_ns);
+
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ADD, "id", 
+                    _ns.getUuid(), "name", _ns.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
+                    _ns.getDisplayName(), "description", _ns.getDescription());
+                auditEntry.setDescription("Added stem: " + _ns.getName());
+                auditEntry.saveOrUpdate(true);
+
+                sw.stop();
+                EventLog.info(GrouperSession.staticGrouperSession(), M.STEM_ADD + Quote.single( _ns.getName() ), sw);
+
+                return _ns;
+              } catch (StemAddException e) {
+                String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(this)
+                  + ", extn: " + extn + ", dExtn: " + dExtn + ", uuid: " + uuid + ", " + e.getMessage();
+                GrouperUtil.injectInException(e, error);
+                throw new GrouperInverseOfControlException(e);
+              } catch (GrouperDAOException e) {
+                String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(this)
+                  + ", extn: " + extn + ", dExtn: " + dExtn + ", uuid: " + uuid + ", " + e.getMessage();
+                GrouperUtil.injectInException(e, error);
+                throw e;
+              }
+            }
+      });
+    } catch (GrouperInverseOfControlException gioc) {
+      Throwable cause = gioc.getCause();
+      if (cause instanceof InsufficientPrivilegeException) {
+        throw (InsufficientPrivilegeException)cause;
+      }
+      if (cause instanceof StemAddException) {
+        throw (StemAddException)cause;
+      }
+      LOG.error("Cant find cause: " + cause, gioc);
+      throw new RuntimeException(cause);
+    } catch (GrouperDAOException eDAO) {
       throw new StemAddException( E.CANNOT_CREATE_STEM + eDAO.getMessage(), eDAO );
     }
   }
@@ -2220,8 +2351,8 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
           + this.getDisplayExtension());
     }
     
-    GrouperDAOFactory.getFactory().getStem().update(this);
-
+    this.store();
+    
     // TODO populate name history
     // TODO add alias support
 

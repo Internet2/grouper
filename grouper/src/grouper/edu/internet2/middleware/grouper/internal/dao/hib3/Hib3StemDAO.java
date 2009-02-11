@@ -30,6 +30,10 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.exception.GrouperInverseOfControlException;
+import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
@@ -46,7 +50,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.18 2009-02-09 05:33:30 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.19 2009-02-11 07:22:34 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -100,29 +104,11 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   /**
    * @since   @HEAD@
    */
-  public void createChildStem(final Stem _parent, final Stem _child)
+  public void createChildStem(final Stem _child)
     throws  GrouperDAOException {
-    try {
-      HibernateSession.callbackHibernateSession(
-          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-          new HibernateHandler() {
 
-            public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                throws GrouperDAOException {
-              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+    HibernateSession.byObjectStatic().save(_child);
 
-              hibernateSession.byObject().save(_child);
-              hibernateSession.byObject().update( _parent );
-              return null;
-            }
-        
-      });
-    }
-    catch (GrouperDAOException e) {
-      String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(_parent)
-        + ", privs: " + GrouperUtil.toStringSafe(_child) + ", " + e.getMessage();
-      throw new GrouperDAOException( error, e );
-    }
   } 
 
 
@@ -700,10 +686,11 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   } 
 
   /**
+   * @param _ns 
+   * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public void update(Stem _ns)
-    throws  GrouperDAOException {
+  public void update(final Stem _ns) throws  GrouperDAOException {
 
     try {
       HibernateSession.byObjectStatic().update(_ns);
@@ -711,9 +698,11 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     catch (GrouperDAOException e) {
       String error = "Problem with hib update: " + GrouperUtil.toStringSafe(_ns)
        + ",\n" + e.getMessage();
-      throw new GrouperDAOException( error, e );
+      GrouperUtil.injectInException(e, error);
+      throw e;
     }
-  } 
+          
+   }
 
 
   // PROTECTED CLASS METHODS //
