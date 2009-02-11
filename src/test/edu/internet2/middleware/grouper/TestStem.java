@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.20 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.21 2009-02-11 07:22:34 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -258,7 +258,7 @@ public class TestStem extends GrouperTest {
     // hack! hack! hack!
     root.setDisplayExtensionDb(Stem.ROOT_INT);
     root.setDisplayNameDb(Stem.ROOT_INT);
-    GrouperDAOFactory.getFactory().getStem().update(root);
+    root.store();
   } // public void testPropagateExtensionChangeRootAsRoot()
 
   public void testPropagateDisplayExtensionChangeAsRoot() {
