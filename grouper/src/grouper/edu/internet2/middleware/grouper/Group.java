@@ -90,6 +90,7 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.misc.Owner;
@@ -120,10 +121,10 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.219 2009-02-10 05:23:45 mchyzer Exp $
+ * @version $Id: Group.java,v 1.220 2009-02-12 07:16:29 mchyzer Exp $
  */
 @SuppressWarnings("serial")
-public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
+public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
 
   /** name of the groups table in the db */
   public static final String TABLE_GROUPER_GROUPS = "grouper_groups";
@@ -282,6 +283,27 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   
   /** description of group, friendly description, e.g. in sentence form, about what the group is about */
   private String description;
+  
+  /** context id of the transaction */
+  private String contextId;
+
+  /**
+   * context id of the transaction
+   * @return context id
+   */
+  public String getContextId() {
+    return this.contextId;
+  }
+
+  /**
+   * context id of the transaction
+   * @param contextId1
+   */
+  public void setContextId(String contextId1) {
+    this.contextId = contextId1;
+  }
+
+
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -753,13 +775,15 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
     
           GroupTypeTuple groupTypeTuple = GrouperDAOFactory.getFactory().getGroup().addType( Group.this, type);
 
-          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_ASSIGN, "id", 
-              groupTypeTuple.getId(), "groupId", Group.this.getUuid(), 
-              "groupName", Group.this.getName(), "typeId", type.getUuid(), "typeName", type.getName());
-          auditEntry.setDescription("Assigned group type: " + name + ", typeId: " + type.getUuid() 
-              + ", to group: " + Group.this.getName() + ", groupId: " + Group.this.getUuid());
-          auditEntry.saveOrUpdate(true);
-
+          if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_ASSIGN, "id", 
+                groupTypeTuple.getId(), "groupId", Group.this.getUuid(), 
+                "groupName", Group.this.getName(), "typeId", type.getUuid(), "typeName", type.getName());
+            auditEntry.setDescription("Assigned group type: " + name + ", typeId: " + type.getUuid() 
+                + ", to group: " + Group.this.getName() + ", groupId: " + Group.this.getUuid());
+            auditEntry.saveOrUpdate(true);
+          }
+          
           sw.stop();
           EventLog.info(
               GrouperSession.staticGrouperSession(),
@@ -923,48 +947,88 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * @throws  GroupDeleteException
    * @throws  InsufficientPrivilegeException
    */
-  public void delete() 
-    throws  GroupDeleteException,
-            InsufficientPrivilegeException
-  {
-    StopWatch sw = new StopWatch();
-    sw.start();
-    GrouperSession.validate( GrouperSession.staticGrouperSession() );
-    if ( !PrivilegeHelper.canAdmin( GrouperSession.staticGrouperSession(), this, 
-        GrouperSession.staticGrouperSession().getSubject() ) )
-    {
-      throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
-    }
+  public void delete() throws GroupDeleteException, InsufficientPrivilegeException {
+    final String errorMessageSuffix = ", stem name: " + this.name + ", group extension: " + this.extension
+      + ", group dExtension: " + this.displayExtension + ", uuid: " + this.uuid + ", ";
+
     try {
-      // Revoke all access privs
-      this._revokeAllAccessPrivs();
-      // ... And delete composite mship if it exists
-      if (this.hasComposite()) {
-        this.deleteCompositeMember();
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+          new HibernateHandler() {
+
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+
+              StopWatch sw = new StopWatch();
+              sw.start();
+              GrouperSession.validate( GrouperSession.staticGrouperSession() );
+              if ( !PrivilegeHelper.canAdmin( GrouperSession.staticGrouperSession(), Group.this, 
+                  GrouperSession.staticGrouperSession().getSubject() ) ) {
+                throw new GrouperInverseOfControlException(new InsufficientPrivilegeException(
+                    E.CANNOT_ADMIN + errorMessageSuffix));
+              }
+              try {
+                
+                // Revoke all access privs
+                Group.this._revokeAllAccessPrivs();
+                
+                // ... And delete composite mship if it exists
+                if (Group.this.hasComposite()) {
+                  Group.this.deleteCompositeMember();
+                }
+                
+                // ... And delete all memberships - as root
+                Set deletes = new LinkedHashSet(
+                  Membership.internal_deleteAllFieldType( 
+                      GrouperSession.staticGrouperSession().internal_getRootSession(), Group.this, FieldType.LIST )
+                );
+                //deletes.add(this);            // ... And add the group last for good luck    
+                String name = Group.this.getName(); // Preserve name for logging
+                GrouperDAOFactory.getFactory().getGroup().delete( Group.this, deletes );
+
+                if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_DELETE, "id", 
+                      Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
+                      "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
+                  auditEntry.setDescription("Deleted group: " + Group.this.getName());
+                  auditEntry.saveOrUpdate(true);
+                }
+                
+                sw.stop();
+                EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_DEL + Quote.single(name), sw);
+              }
+              catch (InsufficientPrivilegeException ipe) {
+                GrouperUtil.injectInException(ipe, errorMessageSuffix);
+                throw new GrouperInverseOfControlException(ipe);
+              }
+              catch (GrouperDAOException eDAO) {
+                throw new GrouperInverseOfControlException(new GroupDeleteException( eDAO.getMessage() + errorMessageSuffix, eDAO ));
+              }
+              catch (MemberDeleteException eMD) {
+                throw new GrouperInverseOfControlException(new GroupDeleteException(eMD.getMessage() + errorMessageSuffix, eMD));
+              }
+              catch (RevokePrivilegeException eRP) {
+                throw new GrouperInverseOfControlException(new GroupDeleteException(eRP.getMessage() + errorMessageSuffix, eRP));
+              }
+              catch (SchemaException eS) {
+                throw new GrouperInverseOfControlException(new GroupDeleteException(eS.getMessage() + errorMessageSuffix, eS));
+              }
+              return null;
+            }
+          });
+    } catch (GrouperInverseOfControlException gioc) {
+      Throwable cause = gioc.getCause();
+      if (cause instanceof InsufficientPrivilegeException) {
+        throw (InsufficientPrivilegeException)cause;
       }
-      // ... And delete all memberships - as root
-      Set deletes = new LinkedHashSet(
-        Membership.internal_deleteAllFieldType( GrouperSession.staticGrouperSession().internal_getRootSession(), this, FieldType.LIST )
-      );
-      //deletes.add(this);            // ... And add the group last for good luck    
-      String name = this.getName(); // Preserve name for logging
-      GrouperDAOFactory.getFactory().getGroup().delete( this, deletes );
-      sw.stop();
-      EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_DEL + Quote.single(name), sw);
+      if (cause instanceof GroupDeleteException) {
+        throw (GroupDeleteException)cause;
+      }
+      LOG.error("Cant find cause: " + cause, gioc);
+      throw new RuntimeException(errorMessageSuffix, cause);
+      
     }
-    catch (GrouperDAOException eDAO) {
-      throw new GroupDeleteException( eDAO.getMessage(), eDAO );
-    }
-    catch (MemberDeleteException eMD) {
-      throw new GroupDeleteException(eMD.getMessage(), eMD);
-    }
-    catch (RevokePrivilegeException eRP) {
-      throw new GroupDeleteException(eRP.getMessage(), eRP);
-    }
-    catch (SchemaException eS) {
-      throw new GroupDeleteException(eS.getMessage(), eS);
-    }
-  } // public void delete()
+  }
 
   /**
    * Delete a group attribute.
@@ -1485,12 +1549,14 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
 
           GroupTypeTuple groupTypeTuple = GrouperDAOFactory.getFactory().getGroup().deleteType( Group.this, type );
           
-          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_UNASSIGN, "id", 
-              groupTypeTuple.getId(), "groupId", Group.this.getUuid(), 
-              "groupName", Group.this.getName(), "typeId", type.getUuid(), "typeName", type.getName());
-          auditEntry.setDescription("Unasssigned group type: " + name + ", typeId: " + type.getUuid() 
-              + ", to group: " + Group.this.getName() + ", groupId: " + Group.this.getUuid());
-          auditEntry.saveOrUpdate(true);
+          if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_UNASSIGN, "id", 
+                groupTypeTuple.getId(), "groupId", Group.this.getUuid(), 
+                "groupName", Group.this.getName(), "typeId", type.getUuid(), "typeName", type.getName());
+            auditEntry.setDescription("Unasssigned group type: " + name + ", typeId: " + type.getUuid() 
+                + ", to group: " + Group.this.getName() + ", groupId: " + Group.this.getUuid());
+            auditEntry.saveOrUpdate(true);
+          }
           
           sw.stop();
           EventLog.info(
@@ -3009,12 +3075,38 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * store this object to the DB.
    */
   public void store() {
-    Subject subject = GrouperSession.staticGrouperSession().getSubject();
-    if (!this.hasAdmin(subject)) {
-      throw new InsufficientPrivilegeRuntimeException(GrouperUtil.subjectToString(subject)
-          + " is not admin on group: " + this.getName());
-    }
-    GrouperDAOFactory.getFactory().getGroup().update( this );
+    
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+          new HibernateHandler() {
+
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+
+    
+              Subject subject = GrouperSession.staticGrouperSession().getSubject();
+              if (!Group.this.hasAdmin(subject)) {
+                throw new InsufficientPrivilegeRuntimeException(GrouperUtil.subjectToString(subject)
+                    + " is not admin on group: " + Group.this.getName());
+              }
+              String differences = GrouperUtil.dbVersionDescribeDifferences(Group.this.dbVersion(), 
+                  Group.this, Group.this.dbVersionDifferentFields());
+
+              GrouperDAOFactory.getFactory().getGroup().update( Group.this );
+              
+              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_UPDATE, "id", 
+                    Group.this.getUuid(), "name", Group.this.getName(), "parentStemId", Group.this.getParentUuid(), 
+                    "displayName", Group.this.getDisplayName(), "description", Group.this.getDescription());
+                
+                auditEntry.setDescription("Updated group: " + Group.this.getName() + ", " + differences);
+                auditEntry.saveOrUpdate(true);
+              }
+              
+              return null;
+            }
+          });
+      
   }
   
   /**
