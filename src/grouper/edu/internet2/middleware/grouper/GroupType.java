@@ -67,7 +67,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.81 2009-02-10 05:23:45 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.82 2009-02-12 07:16:29 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements GrouperHasContext, Serializable, Hib3GrouperVersioned, Comparable {
 
@@ -438,10 +438,12 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
             GroupTypeFinder.internal_updateKnownTypes();
             FieldFinder.internal_updateKnownFields();
 
-            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_DELETE, "id", 
-                GroupType.this.getUuid(), "name", GroupType.this.getName());
-            auditEntry.setDescription("Deleted group type: " + GroupType.this.getName());
-            auditEntry.saveOrUpdate(true);
+            if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_DELETE, "id", 
+                  GroupType.this.getUuid(), "name", GroupType.this.getName());
+              auditEntry.setDescription("Deleted group type: " + GroupType.this.getName());
+              auditEntry.saveOrUpdate(true);
+            }
           }
           catch (GrouperDAOException eDAO) {
             String msg = E.GROUPTYPE_DEL + eDAO.getMessage();
@@ -524,12 +526,14 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
               String typeString = field.getTypeString();
               GrouperDAOFactory.getFactory().getGroupType().deleteField( field);
               
-              //only audit if actually changed the type
-              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_FIELD_DELETE, "id", 
-                  field.getUuid(), "name", field.getName(), "groupTypeId", GroupType.this.getUuid(), "groupTypeName", GroupType.this.getName(), "type", typeString);
-              auditEntry.setDescription("Deleted group field: " + name + ", id: " + field.getUuid() + ", type: " + typeString + ", groupType: " + GroupType.this.getName());
-              auditEntry.saveOrUpdate(true);
-
+              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                //only audit if actually changed the type
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_FIELD_DELETE, "id", 
+                    field.getUuid(), "name", field.getName(), "groupTypeId", GroupType.this.getUuid(), "groupTypeName", GroupType.this.getName(), "type", typeString);
+                auditEntry.setDescription("Deleted group field: " + name + ", id: " + field.getUuid() + ", type: " + typeString + ", groupType: " + GroupType.this.getName());
+                auditEntry.saveOrUpdate(true);
+              }
+              
               sw.stop();
               EventLog.info(
                 s,
@@ -639,11 +643,13 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
             
           dao.createOrUpdate(_gt) ;
           
-          //only audit if actually changed the type
-          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_ADD, "id", 
-              _gt.getUuid(), "name", _gt.getName());
-          auditEntry.setDescription("Added group type: " + _gt.getName());
-          auditEntry.saveOrUpdate(true);
+          if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+            //only audit if actually changed the type
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_TYPE_ADD, "id", 
+                _gt.getUuid(), "name", _gt.getName());
+            auditEntry.setDescription("Added group type: " + _gt.getName());
+            auditEntry.saveOrUpdate(true);
+          }
           
           return _gt;
         }
@@ -768,16 +774,19 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
               
               GrouperDAOFactory.getFactory().getField().createOrUpdate(field);
 
-              //audit the update
-              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_FIELD_UPDATE, "id", 
-                  field.getUuid(), "name", field.getName(), "groupTypeId", GroupType.this.getUuid(), 
-                  "groupTypeName", GroupType.this.getName(), "type", type.getType());
+              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                //audit the update
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_FIELD_UPDATE, "id", 
+                    field.getUuid(), "name", field.getName(), "groupTypeId", GroupType.this.getUuid(), 
+                    "groupTypeName", GroupType.this.getName(), "type", type.getType());
+                
+                String description = "Updated group field: " + name + ", id: " + field.getUuid() 
+                    + ", type: " + type + ", groupType: " + GroupType.this.getName() + ".\n" + differences;
+                auditEntry.setDescription(description);
+                
+                auditEntry.saveOrUpdate(true);
+              }
               
-              String description = "Updated group field: " + name + ", id: " + field.getUuid() 
-                  + ", type: " + type + ", groupType: " + GroupType.this.getName() + ".\n" + differences;
-              auditEntry.setDescription(description);
-              
-              auditEntry.saveOrUpdate(true);
               if (GrouperUtil.length(changedArray) > 0) {
                 changedArray[0] = true;
               }

@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3GroupDAO.hbm.xml,v 1.10 2009-01-28 20:33:09 shilen Exp $ -->
+<!-- $Id: Hib3GroupDAO.hbm.xml,v 1.11 2009-02-12 07:16:29 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
   <class name="Group" table="grouper_groups">
@@ -112,6 +112,7 @@
     <property name="extensionDb" column="extension"/>
     <property name="displayExtensionDb" column="display_extension"/>
     <property name="descriptionDb" column="description"/>
+    <property name="contextId" column="context_id"/>
   </class>
 </hibernate-mapping>
 

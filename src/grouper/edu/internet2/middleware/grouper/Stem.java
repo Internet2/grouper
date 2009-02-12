@@ -94,7 +94,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.177 2009-02-11 07:22:34 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.178 2009-02-12 07:16:29 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -368,12 +368,13 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
                   Stem.this._revokeAllNamingPrivs();
                   GrouperDAOFactory.getFactory().getStem().delete( Stem.this );
                   
-                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_DELETE, "id", 
-                      Stem.this.getUuid(), "name", Stem.this.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
-                      Stem.this.getDisplayName(), "description", Stem.this.getDescription());
-                  auditEntry.setDescription("Deleted stem: " +Stem.this.getName());
-                  auditEntry.saveOrUpdate(true);
-
+                  if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                    AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_DELETE, "id", 
+                        Stem.this.getUuid(), "name", Stem.this.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
+                        Stem.this.getDisplayName(), "description", Stem.this.getDescription());
+                    auditEntry.setDescription("Deleted stem: " +Stem.this.getName());
+                    auditEntry.saveOrUpdate(true);
+                  }
                   
                   sw.stop();
                   EventLog.info(GrouperSession.staticGrouperSession(), M.STEM_DEL + Quote.single(name), sw);
@@ -1140,11 +1141,13 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
               throw e;
             }
           
-            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_UPDATE, "id", 
-                Stem.this.getUuid(), "name", Stem.this.getName(), "parentStemId", Stem.this.getParentUuid(), "displayName", 
-                Stem.this.getDisplayName(), "description", Stem.this.getDescription());
-            auditEntry.setDescription("Updated stem: " + Stem.this.getName() + ", " + differences);
-            auditEntry.saveOrUpdate(true);
+            if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_UPDATE, "id", 
+                  Stem.this.getUuid(), "name", Stem.this.getName(), "parentStemId", Stem.this.getParentUuid(), "displayName", 
+                  Stem.this.getDisplayName(), "description", Stem.this.getDescription());
+              auditEntry.setDescription("Updated stem: " + Stem.this.getName() + ", " + differences);
+              auditEntry.saveOrUpdate(true);
+            }
             return null;
           }
         });
@@ -1385,76 +1388,110 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    * @throws InsufficientPrivilegeException if problem 
    * @since   1.2.0
    */
-  public Group internal_addChildGroup(String extn, String dExtn, String uuid) 
-    throws  GroupAddException,
-            InsufficientPrivilegeException
-  {
-    StopWatch sw = new StopWatch();
-    sw.start();
-    if ( !PrivilegeHelper.canCreate( GrouperSession.staticGrouperSession(), 
-        this, GrouperSession.staticGrouperSession().getSubject() ) ) {
-      throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
-    } 
-    GrouperValidator v = AddGroupValidator.validate(this, extn, dExtn);
-    if (v.isInvalid()) {
-      throw new GroupAddException( v.getErrorMessage() );
-    }
+  public Group internal_addChildGroup(final String extn, final String dExtn, final String uuid) 
+    throws GroupAddException, InsufficientPrivilegeException {
+    
+    final String errorMessageSuffix = ", stem name: " + this.name + ", group extension: " + extn
+      + ", group dExtension: " + dExtn + ", uuid: " + uuid + ", ";
+    
     try {
+      return (Group)HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+          new HibernateHandler() {
 
-      Set types = new LinkedHashSet();
-      types.add( GroupTypeFinder.find("base") ); 
-      Group _g = new Group();
-      _g.setParentUuid( this.getUuid() );
-      _g.setDisplayExtension(dExtn);
-      _g.setExtension(extn);
-      _g.setCreateTimeLong( new Date().getTime() );
-      _g.setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
-      _g.setTypes(types);
-      v = NotNullOrEmptyValidator.validate(uuid);
-      if (v.isInvalid()) {
-        _g.setUuid( GrouperUuid.getUuid() );
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              StopWatch sw = new StopWatch();
+              sw.start();
+              if ( !PrivilegeHelper.canCreate( GrouperSession.staticGrouperSession(), 
+                  Stem.this, GrouperSession.staticGrouperSession().getSubject() ) ) {
+                throw new GrouperInverseOfControlException(
+                    new InsufficientPrivilegeException(E.CANNOT_CREATE + errorMessageSuffix));
+              } 
+              GrouperValidator v = AddGroupValidator.validate(Stem.this, extn, dExtn);
+              if (v.isInvalid()) {
+                throw new GrouperInverseOfControlException(new GroupAddException( v.getErrorMessage() 
+                    + errorMessageSuffix ));
+              }
+              try {
+          
+                Set types = new LinkedHashSet();
+                types.add( GroupTypeFinder.find("base") ); 
+                Group _g = new Group();
+                _g.setParentUuid( Stem.this.getUuid() );
+                _g.setDisplayExtension(dExtn);
+                _g.setExtension(extn);
+                _g.setCreateTimeLong( new Date().getTime() );
+                _g.setCreatorUuid( GrouperSession.staticGrouperSession().getMember().getUuid() );
+                _g.setTypes(types);
+                v = NotNullOrEmptyValidator.validate(uuid);
+                if (v.isInvalid()) {
+                  _g.setUuid( GrouperUuid.getUuid() );
+                }
+                else {
+                  _g.setUuid(uuid);
+                }
+          
+                GrouperSubject  subj  = new GrouperSubject(_g);
+                Member _m = new Member();
+                _m.setSubjectIdDb( subj.getId() );
+                _m.setSubjectSourceIdDb( subj.getSource().getId() );
+                _m.setSubjectTypeId( subj.getType().getName() );
+                // TODO 20070328 this is incredibly ugly.  making it even worse is that i am also checking
+                //               for existence in the dao as well.
+                if (uuid == null) {
+                  _m.setUuid( GrouperUuid.getUuid() ); // assign a new uuid
+                }
+                else {
+                  try {
+                    // member already exists.  use existing uuid.
+                    _m.setUuid( GrouperDAOFactory.getFactory().getMember().findBySubject(subj).getUuid() );
+                  }
+                  catch (MemberNotFoundException eMNF) {
+                    // couldn't find member.  assign new uuid.
+                    _m.setUuid( GrouperUuid.getUuid() ); 
+                  }
+                }
+          
+                //CH 20080220: this will start saving the stem
+                GrouperDAOFactory.getFactory().getStem().createChildGroup( Stem.this, _g, _m );
+                  
+                if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ADD, "id", 
+                      _g.getUuid(), "name", _g.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
+                      _g.getDisplayName(), "description", _g.getDescription());
+                  auditEntry.setDescription("Added group: " + _g.getName());
+                  auditEntry.saveOrUpdate(true);
+                }
+                
+                sw.stop();
+                EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_ADD + Quote.single(_g.getName()), sw);
+                _grantDefaultPrivsUponCreate(_g);
+                return _g;
+              } catch (GroupAddException gae) {
+                throw new GrouperInverseOfControlException(gae);
+              } catch (SchemaException eS) {
+                throw new GrouperInverseOfControlException(new GroupAddException(E.CANNOT_CREATE_GROUP 
+                    + errorMessageSuffix + eS.getMessage(), eS));
+              }
+              catch (SourceUnavailableException eSU)  {
+                throw new GrouperInverseOfControlException(new GroupAddException(E.CANNOT_CREATE_GROUP
+                    + errorMessageSuffix + eSU.getMessage(), eSU));
+              }
+            }
+          });
+    } catch (GrouperDAOException eDAO) {
+      throw new GroupAddException( E.CANNOT_CREATE_GROUP + errorMessageSuffix + eDAO.getMessage(), eDAO );
+    } catch (GrouperInverseOfControlException gioc) {
+      Throwable cause = gioc.getCause();
+      if (cause instanceof InsufficientPrivilegeException) {
+        throw (InsufficientPrivilegeException)cause;
       }
-      else {
-        _g.setUuid(uuid);
+      if (cause instanceof GroupAddException) {
+        throw (GroupAddException)cause;
       }
-
-      GrouperSubject  subj  = new GrouperSubject(_g);
-      Member _m = new Member();
-      _m.setSubjectIdDb( subj.getId() );
-      _m.setSubjectSourceIdDb( subj.getSource().getId() );
-      _m.setSubjectTypeId( subj.getType().getName() );
-      // TODO 20070328 this is incredibly ugly.  making it even worse is that i am also checking
-      //               for existence in the dao as well.
-      if (uuid == null) {
-        _m.setUuid( GrouperUuid.getUuid() ); // assign a new uuid
-      }
-      else {
-        try {
-          // member already exists.  use existing uuid.
-          _m.setUuid( GrouperDAOFactory.getFactory().getMember().findBySubject(subj).getUuid() );
-        }
-        catch (MemberNotFoundException eMNF) {
-          // couldn't find member.  assign new uuid.
-          _m.setUuid( GrouperUuid.getUuid() ); 
-        }
-      }
-
-      //CH 20080220: this will start saving the stem
-      GrouperDAOFactory.getFactory().getStem().createChildGroup( this, _g, _m );
-        
-      sw.stop();
-      EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_ADD + Quote.single(_g.getName()), sw);
-      _grantDefaultPrivsUponCreate(_g);
-      return _g;
-    }
-    catch (GrouperDAOException eDAO)        {
-      throw new GroupAddException( E.CANNOT_CREATE_GROUP + eDAO.getMessage(), eDAO );
-    }
-    catch (SchemaException eS)              {
-      throw new GroupAddException(E.CANNOT_CREATE_GROUP + eS.getMessage(), eS);
-    }
-    catch (SourceUnavailableException eSU)  {
-      throw new GroupAddException(E.CANNOT_CREATE_GROUP + eSU.getMessage(), eSU);
+      LOG.error("Cant find cause: " + cause, gioc);
+      throw new RuntimeException(cause);
     }
   } 
 
@@ -1516,12 +1553,14 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
 
                 _grantDefaultPrivsUponCreate(_ns);
 
-                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ADD, "id", 
-                    _ns.getUuid(), "name", _ns.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
-                    _ns.getDisplayName(), "description", _ns.getDescription());
-                auditEntry.setDescription("Added stem: " + _ns.getName());
-                auditEntry.saveOrUpdate(true);
-
+                if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ADD, "id", 
+                      _ns.getUuid(), "name", _ns.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
+                      _ns.getDisplayName(), "description", _ns.getDescription());
+                  auditEntry.setDescription("Added stem: " + _ns.getName());
+                  auditEntry.saveOrUpdate(true);
+                }
+                
                 sw.stop();
                 EventLog.info(GrouperSession.staticGrouperSession(), M.STEM_ADD + Quote.single( _ns.getName() ), sw);
 
