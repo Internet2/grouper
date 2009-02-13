@@ -169,9 +169,10 @@
 	<target name="wsdl2java" description="convert the wsdl to a java client">
 		<delete>
 			<fileset dir="${generated.client.project.dir}">
-				<include name="src/edu/internet2/middleware/grouper/webservicesClient/GrouperServiceCallbackHandler.java" />
+			  <include name="src/edu/internet2/middleware/grouper/webservicesClient/GrouperServiceCallbackHandler.java" />
 				<include name="src/edu/internet2/middleware/grouper/webservicesClient/GrouperServiceStub.java" />
 				<include name="test/edu/internet2/middleware/grouper/webservicesClient/GrouperServiceTest.java" />
+        <include name="test/edu/internet2/middleware/grouper/ws/soap/xsd/*.java" />
 			</fileset>
 		</delete>
 		<java classname="org.apache.axis2.wsdl.WSDL2Java" fork="true">
