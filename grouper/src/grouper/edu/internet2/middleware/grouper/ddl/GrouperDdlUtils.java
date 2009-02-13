@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.37 2009-02-09 05:33:31 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.38 2009-02-13 13:51:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -75,6 +75,38 @@ import edu.internet2.middleware.morphString.Morph;
  */
 public class GrouperDdlUtils {
 
+  /**
+   * see if the config file seems to be hsql
+   * @return see if hsql
+   */
+  public static boolean isHsql() {
+    return GrouperConfig.getHibernateProperty("hibernate.connection.url").toLowerCase().contains(":hsqldb:");
+  }
+  
+  /**
+   * see if the config file seems to be postgres
+   * @return see if postgres
+   */
+  public static boolean isPostgres() {
+    return GrouperConfig.getHibernateProperty("hibernate.connection.url").toLowerCase().contains(":postgresql:");
+  }
+  
+  /**
+   * see if the config file seems to be oracle
+   * @return see if oracle
+   */
+  public static boolean isOracle() {
+    return GrouperConfig.getHibernateProperty("hibernate.connection.url").toLowerCase().contains(":oracle:");
+  }
+  
+  /**
+   * see if the config file seems to be mysql
+   * @return see if mysql
+   */
+  public static boolean isMysql() {
+    return GrouperConfig.getHibernateProperty("hibernate.connection.url").toLowerCase().contains(":mysql:");
+  }
+  
   /**
    * bean 
    */

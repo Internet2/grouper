@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.42 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: FieldFinder.java,v 1.43 2009-02-13 13:51:58 mchyzer Exp $
  */
 public class FieldFinder {
 
@@ -105,7 +105,8 @@ public class FieldFinder {
     if ( fieldCache.containsKey(name) ) {
       return fieldCache.get(name);
     }
-    throw new SchemaException("field not found: " + name);
+    throw new SchemaException("field not found: " + name + ", expecting one of: "
+        + GrouperUtil.stringValue(fieldCache.keySet()));
   } 
 
   /**
@@ -206,6 +207,14 @@ public class FieldFinder {
    */
   public static void clearCache() {
     fieldCache.clear();
+  }
+  
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) throws Exception {
+    System.out.println(FieldFinder.find("update"));
   }
   
 }
