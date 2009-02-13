@@ -31,16 +31,17 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.GrouperUtil.FieldValuable;
 
 
 /** 
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.17 2009-02-06 16:33:18 mchyzer Exp $
+ * @version $Id: GrouperAPI.java,v 1.18 2009-02-13 14:37:34 mchyzer Exp $
  * @since   1.2.0
  */
-public abstract class GrouperAPI implements Serializable, HibGrouperLifecycle, Lifecycle, GrouperCloneable {
+public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrouperLifecycle, Lifecycle, GrouperCloneable {
 
   /** save the state when retrieving from DB */
   @GrouperIgnoreDbVersion
@@ -56,7 +57,8 @@ public abstract class GrouperAPI implements Serializable, HibGrouperLifecycle, L
    * @return the value
    */
   public Object fieldValue(String fieldName) {
-    return GrouperUtil.fieldValue(this, fieldName);
+    //dont consider field value since we are already in fieldValue
+    return GrouperUtil.fieldValue(null, this, fieldName, true, true, false);
   }
   
   /**

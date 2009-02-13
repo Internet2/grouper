@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdlUtilsTest.java,v 1.15 2009-02-13 13:51:58 mchyzer Exp $
+ * $Id: GrouperDdlUtilsTest.java,v 1.16 2009-02-13 14:37:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -54,7 +54,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testMembershipOwnerViaUpgrade"));
+    TestRunner.run(new GrouperDdlUtilsTest("testGroupAttributeUpgrade"));
   }
 
   /**
@@ -255,6 +255,10 @@ public class GrouperDdlUtilsTest extends GrouperTest {
    */
   public void testGroupAttributeUpgrade() throws Exception {
     
+    if (GrouperDdlUtils.isHsql()) {
+      return;
+    }
+
     if (GrouperDdlUtils.tableExists(GrouperDdl.BAK_GROUPER_ATTRIBUTES)) {
       GrouperDdlUtils.changeDatabase(GrouperDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
   

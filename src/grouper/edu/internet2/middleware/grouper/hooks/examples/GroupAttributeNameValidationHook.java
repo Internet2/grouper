@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupAttributeNameValidationHook.java,v 1.2 2008-10-15 03:57:06 mchyzer Exp $
+ * $Id: GroupAttributeNameValidationHook.java,v 1.3 2009-02-13 14:37:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -149,7 +149,7 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
 
       //if attribute then process
       if (fieldName.startsWith(Group.ATTRIBUTE_PREFIX)) {
-        String value = (String)group.fieldValue(fieldName, false);
+        String value = (String)group.fieldValue(fieldName);
         String attributeName = fieldName.substring(Group.ATTRIBUTE_PREFIX.length(), fieldName.length());
         groupPreChangeAttribute(attributeName, value);
       }
@@ -198,6 +198,6 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
   @Override
   public void groupPreUpdate(HooksContext hooksContext, HooksGroupBean preUpdateBean) {
     Group group = preUpdateBean.getGroup();
-    groupPreChangeAttribute(group, group.dbVersionDifferentFields(false));
+    groupPreChangeAttribute(group, group.dbVersionDifferentFields());
   }
 }
