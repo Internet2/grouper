@@ -2805,10 +2805,17 @@ public class GrouperUtil {
    *            if static and method not exists, try on supers
    * @param overrideSecurity
    *            true to call on protected or private etc methods
+   * @param considerFieldValuable if the FieldValueable interface should be considered
    * @return the current value
    */
   public static Object fieldValue(Class theClass, Object invokeOn,
-      String fieldName, boolean callOnSupers, boolean overrideSecurity) {
+      String fieldName, boolean callOnSupers, boolean overrideSecurity, boolean considerFieldValuable) {
+
+    //if it has the interface to customize
+    if (considerFieldValuable && (invokeOn instanceof FieldValuable)) {
+      return ((FieldValuable)invokeOn).fieldValue(fieldName);
+    }
+    
     Field field = null;
 
     // only if the method exists, try to execute
@@ -2825,6 +2832,20 @@ public class GrouperUtil {
     }
   }
 
+  /**
+   * has fieldValue method
+   */
+  public static interface FieldValuable {
+    /**
+     * call this method to get the field value (e.g. from dbVersionDifferentFields).
+     * some objects have different interpretations (e.g. Group will process attribute__whatever)
+     * @param fieldName
+     * @return the value
+     */
+    public Object fieldValue(String fieldName);
+
+  }
+  
   /**
    * get the value of a field, override security if needbe
    * 
@@ -2846,6 +2867,7 @@ public class GrouperUtil {
    */
   public static Object fieldValue(Field field, Object invokeOn,
       boolean overrideSecurity) {
+    
     if (overrideSecurity) {
       field.setAccessible(true);
     }
@@ -2869,7 +2891,7 @@ public class GrouperUtil {
    * @return the current value
    */
   public static Object fieldValue(Object invokeOn, String fieldName) {
-    return fieldValue(null, invokeOn, fieldName, true, true);
+    return fieldValue(null, invokeOn, fieldName, true, true, true);
   }
 
   /**

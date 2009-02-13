@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditEntryTest.java,v 1.1 2009-02-01 22:38:48 mchyzer Exp $
+ * $Id: AuditEntryTest.java,v 1.2 2009-02-13 14:37:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -20,4 +20,10 @@ public class AuditEntryTest extends GrouperTest {
     
   }
 
+  /**
+   * 
+   */
+  public void testWhatever() {
+    
+  }
 }

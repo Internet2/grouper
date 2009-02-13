@@ -121,7 +121,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.220 2009-02-12 07:16:29 mchyzer Exp $
+ * @version $Id: Group.java,v 1.221 2009-02-13 14:37:34 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -3507,50 +3507,16 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
 
   
   /**
-   * note, these are massaged so that name, extension, etc look like normal fields.
-   * access with fieldValue()
-   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
-   */
-  @Override
-  public Set<String> dbVersionDifferentFields() {
-    return this.dbVersionDifferentFields(true);
-  }
-
-  /**
-   * @param renameCommonAttributes is true if these are massaged so that name, extension, etc look like normal fields.
-   * access with fieldValue()
    * @return the set of different fields
    * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
    */
-  public Set<String> dbVersionDifferentFields(boolean renameCommonAttributes) {
+  public Set<String> dbVersionDifferentFields() {
     if (this.dbVersion == null) {
       throw new RuntimeException("State was never stored from db");
     }
     //easier to unit test if everything is ordered
     Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
         DB_VERSION_FIELDS, ATTRIBUTE_PREFIX);
-    if (renameCommonAttributes) {
-      if (result.contains("attribute__name")) {
-        result.remove("attribute__name");
-        result.add("name");
-      }
-      if (result.contains("attribute__displayName")) {
-        result.remove("attribute__displayName");
-        result.add("displayName");
-      }
-      if (result.contains("attribute__extension")) {
-        result.remove("attribute__extension");
-        result.add("extension");
-      }
-      if (result.contains("attribute__displayExtension")) {
-        result.remove("attribute__displayExtension");
-        result.add("displayExtension");
-      }
-      if (result.contains("attribute__description")) {
-        result.remove("attribute__description");
-        result.add("description");
-      }
-    }
     return result;
   }
 
@@ -3856,45 +3822,13 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
         GroupHooks.METHOD_GROUP_PRE_DELETE, HooksGroupBean.class, 
         this, Group.class, VetoTypeGrouper.GROUP_PRE_DELETE, false, false);
   }
-
-  /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#fieldValue(java.lang.String)
-   */
-  @Override
-  public Object fieldValue(String fieldName) {
-    return this.fieldValue(fieldName, true);
-  }
   
   /**
    * @param fieldName 
-   * @param renameCommonAttributes 
    * @return  the value
    * @see edu.internet2.middleware.grouper.GrouperAPI#fieldValue(java.lang.String)
    */
-  public Object fieldValue(String fieldName, boolean renameCommonAttributes) {
-    if (renameCommonAttributes) {
-      //make the commons ones a little more friendly
-      if (StringUtils.equals("attribute__name", fieldName) 
-          || StringUtils.equals("name", fieldName)) {
-        return this.attributes.get("name");
-      }
-      if (StringUtils.equals("attribute__extension", fieldName) 
-          || StringUtils.equals("extension", fieldName)) {
-        return this.attributes.get("extension");
-      }
-      if (StringUtils.equals("attribute__displayName", fieldName) 
-          || StringUtils.equals("displayName", fieldName)) {
-        return this.attributes.get("displayName");
-      }
-      if (StringUtils.equals("attribute__displayExtension", fieldName) 
-          || StringUtils.equals("displayExtension", fieldName)) {
-        return this.attributes.get("displayExtension");
-      }
-      if (StringUtils.equals("attribute__description", fieldName) 
-          || StringUtils.equals("description", fieldName)) {
-        return this.attributes.get("description");
-      }
-    }
+  public Object fieldValue(String fieldName) {
     
     if (fieldName.startsWith(Group.ATTRIBUTE_PREFIX)) {
       fieldName = fieldName.substring(Group.ATTRIBUTE_PREFIX.length(), fieldName.length());
