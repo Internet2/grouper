@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AllHooksTests.java,v 1.9.2.1 2009-02-05 21:03:52 mchyzer Exp $
+ * $Id: AllHooksTests.java,v 1.9.2.2 2009-02-13 20:54:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -37,10 +37,11 @@ public class AllHooksTests {
     suite.addTestSuite(AttributeHooksTest.class);
     suite.addTestSuite(FieldHooksTest.class);
     suite.addTestSuite(CompositeHooksTest.class);
-    suite.addTestSuite(GroupHooksAddTypePostCommitTest.class);
     suite.addTestSuite(GroupTypeHooksTest.class);
+    suite.addTestSuite(GroupHooksAddTypePostCommitTest.class);
     suite.addTestSuite(GroupTypeTupleHooksTest.class);
     suite.addTestSuite(GroupHooksAddTypeTest.class);
+    suite.addTestSuite(GroupHooksDbVersionTest.class);
     suite.addTestSuite(StemHooksTest.class);
     suite.addTestSuite(GroupHooksTest.class);
     suite.addTestSuite(LifecycleHooksTest.class);
