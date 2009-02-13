@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AllHooksTests.java,v 1.9 2008-08-14 06:35:47 mchyzer Exp $
+ * $Id: AllHooksTests.java,v 1.10 2009-02-13 13:51:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -29,17 +29,21 @@ public class AllHooksTests {
    * @return the test
    */
   public static Test suite() {
-    TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.hooks");
+    TestSuite suite = new TestSuite(
+        "Test for edu.internet2.middleware.grouper.hooks");
     //$JUnit-BEGIN$
-    suite.addTestSuite(FieldHooksTest.class);
-    suite.addTestSuite(GroupHooksTest.class);
-    suite.addTestSuite(CompositeHooksTest.class);
-    suite.addTestSuite(StemHooksTest.class);
-    suite.addTestSuite(GroupTypeHooksTest.class);
-    suite.addTestSuite(MembershipHooksTest.class);
     suite.addTestSuite(MemberHooksTest.class);
-    suite.addTestSuite(LifecycleHooksTest.class);
+    suite.addTestSuite(MembershipHooksTest.class);
+    suite.addTestSuite(AttributeHooksTest.class);
+    suite.addTestSuite(FieldHooksTest.class);
+    suite.addTestSuite(CompositeHooksTest.class);
+    suite.addTestSuite(GroupHooksAddTypePostCommitTest.class);
+    suite.addTestSuite(GroupTypeHooksTest.class);
     suite.addTestSuite(GroupTypeTupleHooksTest.class);
+    suite.addTestSuite(GroupHooksAddTypeTest.class);
+    suite.addTestSuite(StemHooksTest.class);
+    suite.addTestSuite(GroupHooksTest.class);
+    suite.addTestSuite(LifecycleHooksTest.class);
     //$JUnit-END$
     return suite;
   }

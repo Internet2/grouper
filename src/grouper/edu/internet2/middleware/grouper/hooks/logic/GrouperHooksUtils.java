@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHooksUtils.java,v 1.19 2009-02-09 05:33:31 mchyzer Exp $
+ * $Id: GrouperHooksUtils.java,v 1.20 2009-02-13 13:51:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -16,6 +16,7 @@ import org.hibernate.Transaction;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
@@ -393,9 +394,24 @@ public class GrouperHooksUtils {
                     //only do this if committed
                     if (status == Status.STATUS_COMMITTED) {
 
-                      executeHook(method, hook, finalHooksBean, hooksContext, null,
-                          asychronous);
+                      //we need another tx since it needs to be committed...
+                      HibernateSession.callbackHibernateSession(
+                          GrouperTransactionType.READ_WRITE_NEW,
+                          AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
+                            public Object callback(
+                                HibernateHandlerBean hibernateHandlerBean)
+                                throws GrouperDAOException {
+                              HibernateSession hibernateSession = hibernateHandlerBean
+                                  .getHibernateSession();
+                              executeHook(method, hook, finalHooksBean, hooksContext,
+                                  null, asychronous);
+                              //for some reason there is a tx, but it doesnt commit...
+                              hibernateSession.commit(GrouperCommitType.COMMIT_NOW);
+                              return null;
+                            }
+
+                          });
                     }
                   }
 

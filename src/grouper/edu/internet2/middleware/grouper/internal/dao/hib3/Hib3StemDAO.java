@@ -50,7 +50,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.19 2009-02-11 07:22:34 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.20 2009-02-13 13:51:58 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -61,7 +61,11 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
 
   /**
-   * @since   @HEAD@
+   * @param _stem 
+   * @param _group 
+   * @param _member 
+   * @throws GrouperDAOException 
+   * @since   
    */
   public void createChildGroup(final Stem _stem, final Group _group, final Member _member)
     throws  GrouperDAOException {
@@ -76,16 +80,25 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               ByObject byObject = hibernateSession.byObject();
               byObject.save(_group);
+              hibernateSession.misc().flush();
 
               // add group-type tuples
               GroupTypeTuple  tuple = new GroupTypeTuple();
               Iterator                    it    = _group.getTypesDb().iterator();
               while (it.hasNext()) {
+
+                GroupType groupType = (GroupType) it.next();
+
+                //see if that record exists
+                if (null == Hib3GroupTypeTupleDAO.findByGroupAndType(_group, groupType, false)) {
                 tuple.setGroupUuid( _group.getUuid() );
-                tuple.setTypeUuid( ( (GroupType) it.next() ).getUuid() );
-                byObject.save(tuple); // new group-type tuple
+                  tuple.setTypeUuid( groupType.getUuid() );
+                  byObject.saveOrUpdate(tuple); // new group-type tuple
+                }
               }
+              //TODO remove this call
               hibernateSession.byObject().update( _stem );
+              hibernateSession.misc().flush();
               if ( !GrouperDAOFactory.getFactory().getMember().exists( _member.getUuid() ) ) {
                 byObject.save( _member );
               }

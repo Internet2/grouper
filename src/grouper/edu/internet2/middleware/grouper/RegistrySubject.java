@@ -22,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -45,7 +46,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * <p/>
  * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubject.java,v 1.15 2008-10-21 03:51:03 mchyzer Exp $
+ * @version $Id: RegistrySubject.java,v 1.16 2009-02-13 13:51:58 mchyzer Exp $
  * @since   1.2.0
  */
 public class RegistrySubject extends GrouperAPI implements Subject {
@@ -193,6 +194,11 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    * @since   1.2.0
    */
   public String getDescription() {
+    //if theres a description, use it
+//    String attributeDescription = this.getAttributeValue("description");
+//    if (!StringUtils.isBlank(attributeDescription)) {
+//      return attributeDescription;
+//    }
     return GrouperConfig.EMPTY_STRING;
   } // public String getDescription()
 
