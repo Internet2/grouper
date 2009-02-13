@@ -112,7 +112,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.214.2.1 2009-02-13 20:54:18 mchyzer Exp $
+ * @version $Id: Group.java,v 1.214.2.2 2009-02-13 21:06:50 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -3366,7 +3366,10 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   }
 
   /**
-   * save the state when retrieving from DB
+   * save the state when retrieving from DB.
+   * note, if you are checking attributes from the dbVersion, you should get the attributes
+   * from the original Group object first, this will lazy load them, and set the dbVersion
+   * attribute to the correct values...
    * @return the dbVersion
    */
   @Override
