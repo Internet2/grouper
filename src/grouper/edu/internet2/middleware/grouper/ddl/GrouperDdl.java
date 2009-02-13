@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.36 2009-02-09 05:33:31 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.37 2009-02-13 13:10:39 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -2177,7 +2177,7 @@ public enum GrouperDdl implements DdlVersionable {
         "user_ip_address", "IP address of the user connecting to the system (e.g. from UI or WS)");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
-        "durection_microseconds", "Duration of the context, in microseconds (millionths of a second)");
+        "duration_microseconds", "Duration of the context, in microseconds (millionths of a second)");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY,  
         "query_count", "Number of database queries required for this context");
