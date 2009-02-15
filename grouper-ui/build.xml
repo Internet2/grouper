@@ -8,7 +8,7 @@
 	<!-- ant contrib allows conditionals in ant scripts -->
   <taskdef resource="net/sf/antcontrib/antcontrib.properties">
     <classpath>
-      <pathelement location="${grouper.folder}/lib/ant/ant-contrib.jar" />
+      <pathelement location="java/libAnt/ant-contrib.jar" />
     </classpath>
   </taskdef>
 
