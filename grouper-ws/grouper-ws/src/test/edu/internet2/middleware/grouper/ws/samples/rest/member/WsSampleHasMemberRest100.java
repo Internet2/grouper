@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
+import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResults;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
@@ -23,14 +24,14 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 /**
  * @author mchyzer
  */
-public class WsSampleHasMemberRest implements WsSampleRest {
+public class WsSampleHasMemberRest100 implements WsSampleRest {
 
   /**
    * has member lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
   @SuppressWarnings("deprecation")
-  public static void hasMember(WsSampleRestType wsSampleRestType) {
+  public static void hasMember(WsSampleRestType wsSampleRestType, int batchSize) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -59,15 +60,13 @@ public class WsSampleHasMemberRest implements WsSampleRest {
       //your request document in whatever language or way you want
       WsRestHasMemberRequest hasMember = new WsRestHasMemberRequest();
 
-      // set the act as id
-      WsSubjectLookup actAsSubject = new WsSubjectLookup("GrouperSystem", null, null);
-      hasMember.setActAsSubjectLookup(actAsSubject);
-
+      WsGroupLookup wsGroupLookup = new WsGroupLookup("aStem:aGroup", null);
+      hasMember.setWsGroupLookup(wsGroupLookup);
+      
       // seeif two subjects are in the group
-      WsSubjectLookup[] subjectLookups = new WsSubjectLookup[2];
-      subjectLookups[0] = new WsSubjectLookup("10021368", null, null);
-
-      subjectLookups[1] = new WsSubjectLookup("10039438", null, null);
+      WsSubjectLookup[] subjectLookups = new WsSubjectLookup[batchSize];
+      subjectLookups[0] = new WsSubjectLookup("mchyzer", null, null);
+      
 
       hasMember.setSubjectLookups(subjectLookups);
       
@@ -126,14 +125,12 @@ public class WsSampleHasMemberRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    hasMember(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    hasMember(wsSampleRestType);
   }
 
   /**
