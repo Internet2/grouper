@@ -25,7 +25,7 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 /**
  * @author mchyzer
  */
-public class WsSampleGroupSaveRest implements WsSampleRest {
+public class WsSampleGroupSaveRest100 implements WsSampleRest {
 
   /**
    * group save lite web service with REST
@@ -60,25 +60,23 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
       //your request document in whatever language or way you want
       WsRestGroupSaveRequest groupSave = new WsRestGroupSaveRequest();
       
-      WsGroupToSave wsGroupToSave = new WsGroupToSave();
-      wsGroupToSave.setWsGroupLookup(new WsGroupLookup("aStem:whateverGroup", null));
-      WsGroup wsGroup = new WsGroup();
-      wsGroup.setDescription("desc1");
-      wsGroup.setDisplayExtension("disp1");
-      wsGroup.setExtension("whateverGroup");
-      wsGroup.setName("aStem:whateverGroup");
-      wsGroupToSave.setWsGroup(wsGroup);
-      
-      WsGroupToSave wsGroupToSave2 = new WsGroupToSave();
-      wsGroupToSave2.setWsGroupLookup(new WsGroupLookup("aStem:whateverGroup2", null));
-      WsGroup wsGroups = new WsGroup();
-      wsGroups.setDescription("descs");
-      wsGroups.setDisplayExtension("disp2");
-      wsGroups.setExtension("whateverGroup2");
-      wsGroups.setName("aStem:whateverGroup2");
-      wsGroupToSave2.setWsGroup(wsGroups);
+      long nanos = System.nanoTime();
 
-      WsGroupToSave[] wsGroupToSaves = new WsGroupToSave[] {wsGroupToSave, wsGroupToSave2};
+      WsGroupToSave[] wsGroupToSaves = new WsGroupToSave[10];
+      for (int i=0;i<10;i++) {
+        WsGroupToSave wsGroupToSave = new WsGroupToSave();
+        wsGroupToSave.setWsGroupLookup(new WsGroupLookup("aStem:whateverGroup_" + i + "_" + nanos, null));
+        WsGroup wsGroup = new WsGroup();
+        
+        
+        wsGroup.setDescription("desc_" + i + "_" + nanos);
+        wsGroup.setDisplayExtension("disp" + i + "_" + nanos);
+        wsGroup.setExtension("whateverGroup_" + i + "_" + nanos);
+        wsGroup.setName("aStem:whateverGroup_" + i + "_" + nanos);
+        wsGroupToSave.setWsGroup(wsGroup);
+        wsGroupToSaves[i] = wsGroupToSave;
+      }
+      
       
       groupSave.setWsGroupToSaves(wsGroupToSaves);
       
@@ -138,9 +136,21 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    groupSave(WsSampleRestType.xml);
+    save100();
+    long nanoTime = System.nanoTime();
+    save100();
+    System.out.println("Took: " + (System.nanoTime() - nanoTime));
   }
 
+  /**
+   * save 100 groups
+   */
+  public static void save100() {
+    for (int i=0;i<10;i++) {
+      groupSave(WsSampleRestType.xml);
+    }
+  }
+  
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
