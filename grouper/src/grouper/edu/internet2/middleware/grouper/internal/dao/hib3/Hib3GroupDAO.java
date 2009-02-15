@@ -59,7 +59,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.24 2008-11-18 08:04:53 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.24.2.1 2009-02-15 13:36:57 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -825,7 +825,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       .setCacheRegion(KLASS + ".FindByUuid")
       .setString("uuid", uuid).uniqueResult(Group.class);
     if (dto == null) {
-       throw new GroupNotFoundException();
+       throw new GroupNotFoundException("Cant find group by id: " + uuid);
     }
     return dto;
   } 

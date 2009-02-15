@@ -138,7 +138,7 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    groupSaveLite(WsSampleRestType.xhtml);
+    groupSaveLite(WsSampleRestType.xml);
   }
 
   /**

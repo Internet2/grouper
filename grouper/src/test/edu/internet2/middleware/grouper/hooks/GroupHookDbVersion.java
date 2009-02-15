@@ -1,14 +1,21 @@
 /*
  * @author mchyzer
- * $Id: GroupHookDbVersion.java,v 1.1.2.1 2009-02-13 20:54:18 mchyzer Exp $
+ * $Id: GroupHookDbVersion.java,v 1.1.2.2 2009-02-15 13:36:57 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -87,6 +94,33 @@ public class GroupHookDbVersion extends GroupHooks {
     LOGGER.debug("Current extension: " + group.getAttributeOrNull(EXTENSION));
     LOGGER.debug("Previous extension: "
         + group.dbVersion().getAttributeOrNull(EXTENSION));
+    
+    Group dbGroup = (Group)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READONLY_NEW, 
+        new GrouperTransactionHandler() {
+
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        GrouperSession grouperSession = null;
+        try {
+          grouperSession = GrouperSession.startRootSession(false);
+          Group dbGroup = GroupFinder.findByUuid(grouperSession, group.getUuid());
+          //load from db
+          dbGroup.getExtension();
+          return dbGroup;
+        } catch (GroupNotFoundException gnfe) {
+          return null;
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        } finally {
+          GrouperSession.stopQuietly(grouperSession);
+        }
+      }
+    
+    });
+    if (dbGroup != null) {
+      LOGGER.debug("From db group extension: " + dbGroup.getExtension());
+    }
   }
 
   /**
