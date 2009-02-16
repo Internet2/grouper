@@ -1,7 +1,6 @@
 <project name="local" default="auto" basedir=".">
 	<!--<import file="tomcat-tasks.xml"/>-->
 	<property environment="env"/>
-	<property file="build.properties"/>
 	<property name="contrib.dir" value="${basedir}/contrib"/>
 	<property name="temp.dir" value="${basedir}/temp"/>
 	<property name="overwriteLib" value="false"/>
@@ -16,7 +15,10 @@
     <then><copy file="build.properties.template" 
       tofile="build.properties" /></then>
   </if> 
-  <if><not><available file="tomcat-context.xml" /></not>
+
+	<property file="build.properties"/>
+
+	<if><not><available file="tomcat-context.xml" /></not>
     <then><copy file="template-tomcat-context.xml" 
       tofile="tomcat-context.xml" /></then>
   </if> 
