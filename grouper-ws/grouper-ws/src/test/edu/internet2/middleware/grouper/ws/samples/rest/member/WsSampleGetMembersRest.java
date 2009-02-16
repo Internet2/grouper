@@ -18,7 +18,6 @@ import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsGetMembersResults;
 import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
@@ -60,15 +59,13 @@ public class WsSampleGetMembersRest implements WsSampleRest {
       //your request document in whatever language or way you want
       WsRestGetMembersRequest getMembers = new WsRestGetMembersRequest();
 
-      // set the act as id
-      WsSubjectLookup actAsSubject = new WsSubjectLookup("GrouperSystem", null, null);
-      getMembers.setActAsSubjectLookup(actAsSubject);
-
       // seeif two subjects are in the group
       WsGroupLookup[] groupLookups = new WsGroupLookup[1];
       groupLookups[0] = new WsGroupLookup("aStem:aGroup", null);
 
       getMembers.setWsGroupLookups(groupLookups);
+
+      getMembers.setSubjectAttributeNames(new String[]{"description", "loginid", "name"});
       
       //get the xml / json / xhtml / paramString
       String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getMembers);
@@ -125,7 +122,7 @@ public class WsSampleGetMembersRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    getMembersLite(WsSampleRestType.xhtml);
+    getMembersLite(WsSampleRestType.xml);
   }
 
   /**

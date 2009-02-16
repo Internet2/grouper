@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.ws.samples.rest.member;
+package edu.internet2.middleware.grouper.ws.samples.rest.group;
 
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -13,26 +13,23 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
-import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGroupLookup;
-import edu.internet2.middleware.grouper.ws.soap.WsHasMemberResults;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap.WsGroupSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
  * @author mchyzer
  */
-public class WsSampleHasMemberRest100 implements WsSampleRest {
+public class WsSampleGroupSaveRestLite100 implements WsSampleRest {
 
   /**
-   * has member lite web service with REST
+   * group save lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
-   * @param batchSize 
    */
   @SuppressWarnings("deprecation")
-  public static void hasMember(WsSampleRestType wsSampleRestType, int batchSize) {
+  public static void groupSaveLite(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -44,12 +41,12 @@ public class WsSampleHasMemberRest100 implements WsSampleRest {
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/groups/aStem%3AaGroup/members");
-
+            + "/groups/aStem%3AaGroup");
+      
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
           RestClientSettings.PASS);
-
+      
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
@@ -59,23 +56,18 @@ public class WsSampleHasMemberRest100 implements WsSampleRest {
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestHasMemberRequest hasMember = new WsRestHasMemberRequest();
+      WsRestGroupSaveLiteRequest groupSaveLite = new WsRestGroupSaveLiteRequest();
 
-      WsGroupLookup wsGroupLookup = new WsGroupLookup("aStem:aGroup", null);
-      hasMember.setWsGroupLookup(wsGroupLookup);
-      
-      // seeif two subjects are in the group
-      WsSubjectLookup[] subjectLookups = new WsSubjectLookup[batchSize];
-      
-      for (int i=0;i<batchSize;i++) {
-        subjectLookups[i] = new WsSubjectLookup("10021368", null, null);
-      }
-      
+      long nanos = System.nanoTime();
 
-      hasMember.setSubjectLookups(subjectLookups);
+      // set the act as id
+      groupSaveLite.setGroupName("aStem:aGroup_" + nanos);
+      groupSaveLite.setDescription("desc1_" + nanos);
+      groupSaveLite.setDisplayExtension("disp1_" + nanos);
+
       
       //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(hasMember);
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(groupSaveLite);
       
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
@@ -95,26 +87,25 @@ public class WsSampleHasMemberRest100 implements WsSampleRest {
       
       String response = RestClientSettings.responseBodyAsString(method);
 
-      Object result = wsSampleRestType
-        .getWsLiteResponseContentType().parseString(response);
-      
+      Object resultObject = wsSampleRestType.getWsLiteResponseContentType().parseString(response);
+    
       //see if problem
-      if (result instanceof WsRestResultProblem) {
-        throw new RuntimeException(((WsRestResultProblem)result).getResultMetadata().getResultMessage());
+      if (resultObject instanceof WsRestResultProblem) {
+        throw new RuntimeException(((WsRestResultProblem)resultObject).getResultMetadata().getResultMessage());
       }
-      
+
       //convert to object (from xhtml, xml, json, etc)
-      WsHasMemberResults wsHasMemberResults = (WsHasMemberResults)result;
+      WsGroupSaveLiteResult wsGroupSaveLiteResult = (WsGroupSaveLiteResult)resultObject;
       
-      String resultMessage = wsHasMemberResults.getResultMetadata().getResultMessage();
+      String resultMessage = wsGroupSaveLiteResult.getResultMetadata().getResultMessage();
 
       // see if request worked or not
       if (!success) {
-        throw new RuntimeException("Bad response from web service: successString: " + successString + ", resultCode: " + resultCode
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
             + ", " + resultMessage);
       }
       
-      System.out.println("Server version: " + wsHasMemberResults.getResponseMetadata().getServerVersion()
+      System.out.println("Server version: " + wsGroupSaveLiteResult.getResponseMetadata().getServerVersion()
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
 
@@ -129,36 +120,38 @@ public class WsSampleHasMemberRest100 implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    has100(1, 5);
+    //groupSaveLite(WsSampleRestType.xml);
+    save100lite(5);
     long nanoTime = System.nanoTime();
-    has100(10, 10);
-    //took 1.6 seconds against local mysql
+    save100lite(100);
+    //took 26.4ms seconds against local mysql
     System.out.println("Took: " + ((System.nanoTime() - nanoTime)/1000000) + "ms");
+
   }
 
   /**
-   * save 100 groups
-   * @param loopSize 
-   * @param batchSize 
+   * @param loop 
+   * 
    */
-  public static void has100(int loopSize, int batchSize) {
-    for (int i=0;i<loopSize;i++) {
-      hasMember(WsSampleRestType.xml, batchSize);
+  public static void save100lite(int loop) {
+    for (int i=0;i<loop;i++) {
+      System.out.println(i);
+      groupSaveLite(WsSampleRestType.xml);
     }
   }
-
+  
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    hasMember(WsSampleRestType.xml, 1);
+    groupSaveLite(wsSampleRestType);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
-    //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    //allow all
+    return true;
   }
 }

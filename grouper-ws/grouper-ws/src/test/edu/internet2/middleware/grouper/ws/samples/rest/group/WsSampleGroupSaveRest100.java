@@ -30,9 +30,10 @@ public class WsSampleGroupSaveRest100 implements WsSampleRest {
   /**
    * group save lite web service with REST
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
+   * @param batchSize 
    */
   @SuppressWarnings("deprecation")
-  public static void groupSave(WsSampleRestType wsSampleRestType) {
+  public static void groupSave(WsSampleRestType wsSampleRestType, int batchSize) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -62,8 +63,8 @@ public class WsSampleGroupSaveRest100 implements WsSampleRest {
       
       long nanos = System.nanoTime();
 
-      WsGroupToSave[] wsGroupToSaves = new WsGroupToSave[10];
-      for (int i=0;i<10;i++) {
+      WsGroupToSave[] wsGroupToSaves = new WsGroupToSave[batchSize];
+      for (int i=0;i<batchSize;i++) {
         WsGroupToSave wsGroupToSave = new WsGroupToSave();
         wsGroupToSave.setWsGroupLookup(new WsGroupLookup("aStem:whateverGroup_" + i + "_" + nanos, null));
         WsGroup wsGroup = new WsGroup();
@@ -136,18 +137,21 @@ public class WsSampleGroupSaveRest100 implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    save100();
+    save100(5, 1);
     long nanoTime = System.nanoTime();
-    save100();
-    System.out.println("Took: " + (System.nanoTime() - nanoTime));
+    save100(5, 20);
+    //took 17.1 seconds against local mysql
+    System.out.println("Took: " + ((System.nanoTime() - nanoTime)/1000000) + "ms");
   }
 
   /**
    * save 100 groups
+   * @param loopSize 
+   * @param batchSize 
    */
-  public static void save100() {
-    for (int i=0;i<10;i++) {
-      groupSave(WsSampleRestType.xml);
+  public static void save100(int loopSize, int batchSize) {
+    for (int i=0;i<loopSize;i++) {
+      groupSave(WsSampleRestType.xml, batchSize);
     }
   }
   
@@ -155,7 +159,7 @@ public class WsSampleGroupSaveRest100 implements WsSampleRest {
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    groupSave(wsSampleRestType);
+    groupSave(wsSampleRestType, 1);
   }
 
   /**
