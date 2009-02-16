@@ -349,7 +349,13 @@ public class GrouperServiceJ2ee implements Filter {
     MultiKey cacheKey = new MultiKey(loggedInSubjectId, loggedInSubject.getSource()
         .getId(), actAsSubject.getId(), actAsSubject.getSource().getId());
 
-    Boolean inCache = actAsCacheMinutes() > 0 ? actAsCache().get(cacheKey) : false;
+    Boolean inCache = null;
+    
+    if (actAsCacheMinutes() > 0) {
+      inCache = actAsCache().get(cacheKey);
+    } else {
+      inCache = false;
+    }
 
     if (inCache != null && Boolean.TRUE.equals(inCache)) {
       //if in cache and true, then allow
