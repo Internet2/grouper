@@ -5696,7 +5696,7 @@ public class GrouperClientCommonUtils  {
     }
     
     //see if it is a file reference
-    if (theIn.indexOf(File.separatorChar) != -1 && disableExternalFileLookup) {
+    if (theIn.indexOf(File.separatorChar) != -1 && !disableExternalFileLookup) {
       //read the contents of the file into a string
       theIn = readFileIntoString(new File(theIn));
       return theIn;
