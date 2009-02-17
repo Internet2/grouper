@@ -1,5 +1,5 @@
 
-<project name="morphString" default="build" basedir=".">
+<project name="grouperClient" default="build" basedir=".">
 
   <!-- ant contrib allows conditionals in ant scripts -->
   <taskdef resource="net/sf/antcontrib/antcontrib.properties">
