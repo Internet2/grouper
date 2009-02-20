@@ -131,11 +131,15 @@ public class WsGroupToSave {
     try {
       SaveMode theSaveMode = SaveMode.valueOfIgnoreCase(this.saveMode);
   
-      if (this.getWsGroupLookup() == null) {
+      if (SaveMode.INSERT != theSaveMode && this.getWsGroupLookup() == null) {
         throw new WsInvalidQueryException(
             "wsGroupLookup is required to save a group (probably just put the name in it)");
       }
        
+      if (this.getWsGroupLookup() == null) {
+        this.setWsGroupLookup(new WsGroupLookup());
+      }
+      
       this.getWsGroupLookup().retrieveGroupIfNeeded(grouperSession);
   
       Group groupLookedup = this.getWsGroupLookup().retrieveGroup();

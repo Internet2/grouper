@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.22.2.3 2009-02-16 16:28:11 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.22.2.4 2009-02-20 07:23:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -924,7 +924,7 @@ public class GrouperServiceLogic {
         .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
 
       wsGetGroupsResults.setSubjectAttributeNames(subjectAttributeNames);
-      
+       
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   

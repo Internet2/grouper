@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupSave.java,v 1.3.2.1 2009-01-23 06:32:51 mchyzer Exp $
+ * $Id: GroupSave.java,v 1.3.2.2 2009-02-20 07:23:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -298,7 +298,7 @@ public class GroupSave {
                   
                   Group theGroup = null;
                   //see if update
-                  boolean isUpdate = SAVE_MODE.isUpdate(GroupSave.this.groupNameToEdit);
+                  boolean isUpdate = SAVE_MODE.isUpdate(GroupSave.this.groupNameToEdit, GroupSave.this.name);
           
                   if (isUpdate) {
                     String parentStemNameLookup = GrouperUtil.parentStemNameFromName(GroupSave.this.groupNameToEdit);

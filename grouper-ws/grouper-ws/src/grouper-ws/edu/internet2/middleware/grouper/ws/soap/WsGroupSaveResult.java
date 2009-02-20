@@ -7,6 +7,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.exception.GroupAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
@@ -181,6 +182,20 @@ public class WsGroupSaveResult implements ResultMetadataHolder {
 
     },
 
+    /** problem with saving (success: F) */
+    GROUP_ALREADY_EXISTS {
+      
+      /** 
+       * if there is one result, convert to the results code
+       * @return WsGroupSaveLiteResultCode
+       */
+      @Override
+      public WsGroupSaveLiteResultCode convertToLiteCode() {
+        return WsGroupSaveLiteResultCode.GROUP_ALREADY_EXISTS;
+      }
+
+    },
+
     /** user not allowed (success: F) */
     INSUFFICIENT_PRIVILEGES {
       
@@ -308,6 +323,10 @@ public class WsGroupSaveResult implements ResultMetadataHolder {
     } else if (e  instanceof WsInvalidQueryException) {
       this.getResultMetadata().setResultMessage(mainThrowable.getMessage());
       this.assignResultCode(WsGroupSaveResultCode.INVALID_QUERY, clientVersion);
+    } else if (mainThrowable!= null && (mainThrowable instanceof GroupAddAlreadyExistsException
+        || mainThrowable.getCause() instanceof GroupAddAlreadyExistsException)) {
+      this.getResultMetadata().setResultMessage(mainThrowable.getMessage());
+      this.assignResultCode(WsGroupSaveResultCode.GROUP_ALREADY_EXISTS, clientVersion);
     } else {
       this.getResultMetadata().setResultMessage(ExceptionUtils.getFullStackTrace(e));
       this.assignResultCode(WsGroupSaveResultCode.EXCEPTION, clientVersion);

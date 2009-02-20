@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcGroupSave.java,v 1.3 2008-12-08 02:55:52 mchyzer Exp $
+ * $Id: GcGroupSave.java,v 1.3.2.1 2009-02-20 07:22:57 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -9,7 +9,10 @@ import java.util.List;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GcTransactionType;
+import edu.internet2.middleware.grouperClient.ws.GcWebServiceError;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupSaveResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupToSave;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
@@ -174,6 +177,31 @@ public class GcGroupSave {
   public GcGroupSave assignTxType(GcTransactionType gcTransactionType) {
     this.txType = gcTransactionType;
     return this;
+  }
+  
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    WsGroupToSave wsGroupToSave = new WsGroupToSave();
+    wsGroupToSave.setSaveMode("INSERT");
+    //wsGroupToSave.setWsGroupLookup(new WsGroupLookup("aStem:aGroup5", null));
+    WsGroup wsGroup = new WsGroup();
+    wsGroup.setDisplayExtension("a group5");
+    wsGroup.setExtension("aGroup5");
+    wsGroup.setName("aStem:aGroup5");
+    wsGroupToSave.setWsGroup(wsGroup);
+    try {
+      WsGroupSaveResults wsGroupSaveResults = new GcGroupSave().addGroupToSave(wsGroupToSave).execute();
+      //prints SUCCESS_INSERTED when it works
+      System.out.println(wsGroupSaveResults.getResults()[0].getResultMetadata().getResultCode());
+    } catch (GcWebServiceError gwse) {
+      WsGroupSaveResults wsGroupSaveResults = (WsGroupSaveResults)gwse.getContainerResponseObject();
+      System.out.println(wsGroupSaveResults.getResults()[0].getResultMetadata().getResultCode());
+      
+      gwse.printStackTrace();
+    }
   }
   
 }

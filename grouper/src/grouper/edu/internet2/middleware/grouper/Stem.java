@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
+import edu.internet2.middleware.grouper.exception.GroupAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -93,7 +94,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.172.2.1 2009-02-05 21:03:52 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.172.2.2 2009-02-20 07:23:00 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -1325,7 +1326,11 @@ public class Stem extends GrouperAPI implements Owner, Hib3GrouperVersioned, Com
           } 
           GrouperValidator v = AddGroupValidator.validate(Stem.this, extn, dExtn);
           if (v.isInvalid()) {
-            throw new GrouperDAOException(null, new GroupAddException( v.getErrorMessage() ));
+            String errorMessage = StringUtils.defaultString(v.getErrorMessage());
+            if (errorMessage.startsWith(AddGroupValidator.GROUP_ALREADY_EXISTS_WITH_NAME_PREFIX)) {
+              throw new GrouperDAOException(null, new GroupAddAlreadyExistsException(errorMessage));
+            }
+            throw new GrouperDAOException(null, new GroupAddException( errorMessage ));
           }
           try {
             Map<String, String> attrs = new HashMap<String, String>();

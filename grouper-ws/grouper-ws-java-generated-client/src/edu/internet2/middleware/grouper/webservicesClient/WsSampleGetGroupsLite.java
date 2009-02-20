@@ -60,7 +60,7 @@ public class WsSampleGetGroupsLite implements WsSampleGenerated {
             //version, e.g. v1_3_000
             getGroupsLite.setClientVersion(GeneratedClientSettings.VERSION);
 
-            getGroupsLite.setActAsSubjectId("GrouperSystem");
+            getGroupsLite.setActAsSubjectId("");
             getGroupsLite.setActAsSubjectIdentifier("");
             getGroupsLite.setActAsSubjectSourceId("");
 
@@ -70,7 +70,10 @@ public class WsSampleGetGroupsLite implements WsSampleGenerated {
             getGroupsLite.setSubjectId("GrouperSystem");
             getGroupsLite.setSubjectIdentifier("");
             getGroupsLite.setSubjectSourceId("");
-
+            getGroupsLite.setIncludeGroupDetail("F");
+            getGroupsLite.setIncludeSubjectDetail("F");
+            getGroupsLite.setSubjectAttributeNames("description");
+            
             WsGetGroupsLiteResult wsGetGroupsLiteResult = stub.getGroupsLite(getGroupsLite)
                                                               .get_return();
 

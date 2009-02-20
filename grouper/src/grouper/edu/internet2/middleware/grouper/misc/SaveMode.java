@@ -50,11 +50,12 @@ public enum SaveMode {
     }
     /**
      * if there is a uuid, validate it for this
-     * @param name
+     * @param nameToEdit
      */
     @Override
-    public void validateNameToEdit(String name) {
-      GrouperUtil.assertion(StringUtils.isBlank(name), "Must not pass in a name for an insert");
+    public void validateNameToEdit(String nameToEdit, String name) {
+      GrouperUtil.assertion((StringUtils.equals(nameToEdit, name)) 
+          || StringUtils.isBlank(nameToEdit), "Must not pass in a lookup name for an insert");
     }
     
     /**
@@ -63,8 +64,8 @@ public enum SaveMode {
      * @return true if this is an update
      */
     @Override
-    public boolean isUpdate(String nameToEdit) {
-      this.validateNameToEdit(nameToEdit);
+    public boolean isUpdate(String nameToEdit, String name) {
+      this.validateNameToEdit(nameToEdit, name);
       return false;
     }
 
@@ -92,11 +93,11 @@ public enum SaveMode {
     }
     /**
      * if there is a uuid, validate it for this
-     * @param name
+     * @param nameToEdit
      */
     @Override
-    public void validateNameToEdit(String name) {
-      GrouperUtil.assertion(!StringUtils.isBlank(name), "Must pass in a name for an update");
+    public void validateNameToEdit(String nameToEdit, String name) {
+      GrouperUtil.assertion(!StringUtils.isBlank(nameToEdit), "Must pass in a lookup name for an update");
     }
     
     /**
@@ -105,8 +106,8 @@ public enum SaveMode {
      * @return true if this is an update
      */
     @Override
-    public boolean isUpdate(String nameToEdit) {
-      this.validateNameToEdit(nameToEdit);
+    public boolean isUpdate(String nameToEdit, String name) {
+      this.validateNameToEdit(nameToEdit, name);
       return true;
     }
 
@@ -135,10 +136,11 @@ public enum SaveMode {
     
     /**
      * if there is a uuid, validate it for this
+     * @param nameToEdit
      * @param name
      */
     @Override
-    public void validateNameToEdit(String name) {
+    public void validateNameToEdit(String nameToEdit, String name) {
       //nothing to do, anything is fine
     }
 
@@ -148,8 +150,8 @@ public enum SaveMode {
      * @return true if this is an update
      */
     @Override
-    public boolean isUpdate(String nameToEdit) {
-      this.validateNameToEdit(nameToEdit);
+    public boolean isUpdate(String nameToEdit, String name) {
+      this.validateNameToEdit(nameToEdit, name);
       return !StringUtils.isBlank(nameToEdit);
     }
 
@@ -166,7 +168,7 @@ public enum SaveMode {
    * @param nameToEdit 
    * @return true if this is an update
    */
-  public abstract boolean isUpdate(String nameToEdit);
+  public abstract boolean isUpdate(String nameToEdit, String name);
   
   /**
    * if allowed to insert
@@ -176,9 +178,10 @@ public enum SaveMode {
   
   /**
    * if there is a uuid, validate it for this
+   * @param nameToEdit
    * @param name
    */
-  public abstract void validateNameToEdit(String name);
+  public abstract void validateNameToEdit(String nameToEdit, String name);
   
   /**
    * do a case-insensitive matching
