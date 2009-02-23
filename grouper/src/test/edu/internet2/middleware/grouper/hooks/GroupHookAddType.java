@@ -22,6 +22,7 @@ public class GroupHookAddType extends
       HooksGroupBean postInsertBean) {
 
     super.groupPostInsert(hooksContext, postInsertBean);
+    
     try {
       Group group = postInsertBean.getGroup();
       GroupType fubGroup = GroupTypeFinder.find("fubGroup");

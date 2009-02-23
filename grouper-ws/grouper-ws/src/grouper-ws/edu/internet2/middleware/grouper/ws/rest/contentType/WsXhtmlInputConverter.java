@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsXhtmlInputConverter.java,v 1.1 2008-03-25 05:15:11 mchyzer Exp $
+ * @author mchyzer $Id: WsXhtmlInputConverter.java,v 1.1.4.1 2009-02-23 18:39:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest.contentType;
 
@@ -34,10 +34,18 @@ public class WsXhtmlInputConverter {
   /**
    * map of unqualified (or qualified) classname to a class 
    */
-  @SuppressWarnings("unused")
-  private static Map<String, Class<?>> classLookup = Collections
+  private Map<String, Class<?>> classLookup = Collections
       .synchronizedMap(new HashMap<String, Class<?>>());
 
+  /**
+   * add an alias for demarshaling
+   * @param key
+   * @param theClass
+   */
+  public void addAlias(String key, Class<?> theClass) {
+    this.classLookup.put(key, theClass);
+  }
+  
   /** if extra elements are there, give warnings */
   private StringBuilder warnings = new StringBuilder();
 
@@ -451,6 +459,11 @@ public class WsXhtmlInputConverter {
    * @return the class
    */
   public Class<?> retrieveClass(String className, boolean errorIfProblem) {
+    
+    if (this.classLookup.containsKey(className)) {
+      return this.classLookup.get(className);
+    }
+    
     if (errorIfProblem) {
       return WsRestClassLookup.retrieveClassBySimpleName(className);
     }

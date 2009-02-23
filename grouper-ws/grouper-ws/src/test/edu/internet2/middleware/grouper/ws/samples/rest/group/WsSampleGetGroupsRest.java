@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResults;
+import edu.internet2.middleware.grouper.ws.soap.WsParam;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
@@ -60,7 +61,7 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
       WsRestGetGroupsRequest getGroups = new WsRestGetGroupsRequest();
 
       getGroups.setSubjectAttributeNames(new String[]{"description"});
-      
+
       // seeif two subjects are in the group
       WsSubjectLookup[] subjectLookups = new WsSubjectLookup[2];
       subjectLookups[0] = new WsSubjectLookup("10021368", null, null);
@@ -68,6 +69,8 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
       subjectLookups[1] = new WsSubjectLookup("10039438", null, null);
 
       getGroups.setSubjectLookups(subjectLookups);
+      
+      getGroups.setParams(new WsParam[] {new WsParam("fieldName", "admins")});
       
       //get the xml / json / xhtml / paramString
       String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getGroups);

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.22.2.4 2009-02-20 07:23:15 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.22.2.5 2009-02-23 18:39:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -440,7 +440,7 @@ public class GrouperServiceLogic {
   
       final String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
         .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
-      
+  
       wsDeleteMemberResults.setSubjectAttributeNames(subjectAttributeNamesToRetrieve);
 
       //start session based on logged in user or the actAs passed in
@@ -936,10 +936,15 @@ public class GrouperServiceLogic {
       wsGetGroupsResults.setResults(new WsGetGroupsResult[subjectLength]);
 
       //convert the options to a map for easy access, and validate them
-      @SuppressWarnings("unused")
       Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
           params);
-  
+      String fieldName = paramMap.get("fieldName");
+      Field field = null;
+      if (!StringUtils.isBlank(fieldName)) {
+        field = GrouperServiceUtils.retrieveField(fieldName);
+        theSummary += ", field: " + field.getName();
+      }
+      
       for (WsSubjectLookup wsSubjectLookup : subjectLookups) {
         WsGetGroupsResult wsGetGroupsResult = new WsGetGroupsResult();
         wsGetGroupsResults.getResults()[resultIndex++] = wsGetGroupsResult;
@@ -950,7 +955,16 @@ public class GrouperServiceLogic {
           Subject subject = wsSubjectLookup.retrieveSubject("subjectLookup");
           wsGetGroupsResult.setWsSubject(new WsSubject(subject, subjectAttributeNames, wsSubjectLookup));
           Member member = MemberFinder.internal_findBySubject(subject, false);
-          Set<Group> groups = member == null ? new HashSet<Group>() : memberFilter.getGroups(member);
+          Set<Group> groups = null;
+          if (member == null) {
+            groups = new HashSet<Group>();
+          } else {
+            if (field == null) {
+              groups = memberFilter.getGroups(member);
+            } else {
+              groups = memberFilter.getGroups(member, field);
+            }
+          }
           wsGetGroupsResult.assignGroupResult(groups, includeGroupDetail);
         } catch (Exception e) {
           wsGetGroupsResult.assignResultCodeException(null, null,wsSubjectLookup,  e);
@@ -1100,7 +1114,7 @@ public class GrouperServiceLogic {
       String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
         .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
       wsGetMembersResults.setSubjectAttributeNames(subjectAttributeNamesToRetrieve);
-
+      
       int groupLookupsLength = GrouperUtil.length(wsGroupLookups);
       wsGetMembersResults.setResults(new WsGetMembersResult[groupLookupsLength]);
       
@@ -1725,7 +1739,7 @@ public class GrouperServiceLogic {
           .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
   
       wsHasMemberResults.setSubjectAttributeNames(subjectAttributeNamesToRetrieve);
-      
+  
       int subjectLength = GrouperServiceUtils.arrayLengthAtLeastOne(subjectLookups,
           GrouperWsConfig.WS_HAS_MEMBER_SUBJECTS_MAX, 1000000, "subjectLookups");
   
@@ -1970,7 +1984,7 @@ public class GrouperServiceLogic {
         .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
       wsMemberChangeSubjectResults.setSubjectAttributeNames(subjectAttributeNamesToRetrieve);
 
-      
+  
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
@@ -2857,7 +2871,7 @@ public class GrouperServiceLogic {
 
     WsGetGrouperPrivilegesLiteResult wsGetGrouperPrivilegesLiteResult = 
       new WsGetGrouperPrivilegesLiteResult();
-
+      
     GrouperSession session = null;
     String theSummary = null;
     
@@ -2870,7 +2884,7 @@ public class GrouperServiceLogic {
           + ", actAsSubject: "
           + actAsSubjectLookup 
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
-
+        
       subjectAttributeArray = GrouperServiceUtils
         .calculateSubjectAttributes(subjectAttributeArray, includeSubjectDetail);
 
@@ -3442,7 +3456,7 @@ public class GrouperServiceLogic {
           .calculateSubjectAttributes(subjectAttributeArray, includeSubjectDetail);
 
         wsAssignGrouperPrivilegesLiteResult.setSubjectAttributeNames(subjectAttributeArray);
-
+          
         //start session based on logged in user or the actAs passed in
         session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   

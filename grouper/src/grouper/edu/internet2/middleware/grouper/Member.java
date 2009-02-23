@@ -81,7 +81,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.116 2008-11-11 22:08:33 mchyzer Exp $
+ * @version $Id: Member.java,v 1.116.2.1 2009-02-23 18:39:52 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -752,6 +752,39 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
   } // public Set getEffectiveGroups()
 
   /**
+   * Get groups where this member has an effective membership.
+   * 
+   * An effective member has an indirect membership to a group
+   * (e.g. in a group within a group).  All subjects in a
+   * composite group are effective members (since the composite
+   * group has two groups and a set operator and no other immediate
+   * members).  Note that a member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * 'group within a group' can be nested to any level so long as it does 
+   * not become circular.  A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * // Get groups where this member is an effective member.
+   * Set effectives = m.getEffectiveGroups();
+   * </pre>
+   * @param field
+   * @return  Set of {@link Group} objects.
+   */
+  public Set<Group> getEffectiveGroups(Field field) {
+    try {
+      return this._getGroups( this.getEffectiveMemberships(field).iterator() );
+    } catch (SchemaException eS) {
+      // If we don't have "members" we have serious issues
+      String msg = "problem retrieving effective groups for member: " + this.subjectID + ", " + this.subjectSourceID + ", " 
+        + GrouperUtil.toStringSafe(field);
+      LOG.fatal( msg);
+      throw new GrouperRuntimeException(msg, eS);
+    }
+
+  }
+  
+  /**
    * Get effective memberships.
    * 
    * An effective member has an indirect membership to a group
@@ -836,6 +869,28 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
   } // public Set getGroups()
 
   /**
+   * Get groups where this member is a member.
+   * <pre class="eg">
+   * // Get groups where this member is a member.
+   * Set groups = m.getGroups();
+   * </pre>
+   * @param field to check, doesnt have to be list field
+   * @return  Set of {@link Group} objects.
+   */
+  public Set<Group> getGroups(Field field) {
+    try {
+      return this._getGroups( this.getMemberships(field, false).iterator() );
+    } catch (SchemaException eS) {
+      // If we don't have "members" we have serious issues
+      String msg = "problem retrieving groups for member: " + this.subjectID + ", " + this.subjectSourceID + ", " 
+        + GrouperUtil.toStringSafe(field);
+      LOG.fatal( msg);
+      throw new GrouperRuntimeException(msg, eS);
+    }
+      
+  } // public Set getGroups()
+
+  /**
    * Get groups where this member has an immediate membership.
    * 
    * An immediate member is directly assigned to a group.
@@ -854,6 +909,37 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
   public Set<Group> getImmediateGroups() {
     return this._getGroups( this.getImmediateMemberships().iterator() );
   } // public Set getImmediateGroups()
+
+  /**
+   * Get groups where this member has an immediate membership.
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   *
+   * <pre class="eg">
+   * // Get groups where this member is an immediate member.
+   * Set immediates = m.getImmediateGroups();
+   * </pre>
+   * @param field 
+   * @return  Set of {@link Group} objects.
+   */
+  public Set<Group> getImmediateGroups(Field field) {
+    
+    try {
+      return this._getGroups( this.getImmediateMemberships(field).iterator() );
+    } catch (SchemaException eS) {
+      // If we don't have "members" we have serious issues
+      String msg = "problem retrieving immediate groups for member: " + this.subjectID + ", " + this.subjectSourceID + ", " 
+        + GrouperUtil.toStringSafe(field);
+      LOG.fatal( msg);
+      throw new GrouperRuntimeException(msg, eS);
+    }
+
+  }
 
   /**
    * Get immediate memberships.  
@@ -962,7 +1048,29 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
   public Set<Membership> getMemberships(Field f) 
     throws  SchemaException
   {
-    if (!f.getType().equals(FieldType.LIST)) {
+    return getMemberships(f, true);
+  }
+
+  /**
+   * Get memberships.   A member of a group (aka composite member) has either or both of
+   * an immediate (direct) membership, or an effective (indirect) membership
+   * 
+   * A membership is the object which represents a join of member
+   * and group.  Has metadata like type and creator,
+   * and, if an effective membership, the parent membership
+   * 
+   * <pre class="eg">
+   * Set groups = m.getMemberships(f);
+   * </pre>
+   * @param   f   Get memberships in this list field.
+   * @param requireListField if list field must be a list field, and not privilege
+   * @return  Set of {@link Membership} objects.
+   * @throws  SchemaException
+   */
+  public Set<Membership> getMemberships(Field f, boolean requireListField) 
+    throws  SchemaException
+  {
+    if (requireListField && !f.getType().equals(FieldType.LIST)) {
       throw new SchemaException(f + " is not type " + FieldType.LIST);
     }
     return MembershipFinder.internal_findMemberships( GrouperSession.staticGrouperSession(), this, f );
