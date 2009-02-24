@@ -141,7 +141,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.18 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: SaveGroupAction.java,v 1.18.2.1 2009-02-24 20:16:08 mchyzer Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -206,12 +206,17 @@ public class SaveGroupAction extends GrouperCapableAction {
 		//TODO: should be transactional - so add map or List of attributes
 		Map assignedPrivs=null;
 		Subject grouperAll = SubjectFinder.findById("GrouperAll");
+		
 		if (groupExists) {
 			group = GroupFinder.findByUuid(grouperSession, curNode);
-			doTypes(group,request);
+      Set<GroupType> removableTypes = group.getRemovableTypes();
 			group.setDisplayExtension(displayExtension);
 			group.setExtension(extension);
 			group.store();
+
+			//do this after the store, in case there were types added in the hook...
+			doTypes(group,request, removableTypes);
+
 			Map selectedPrivs = GrouperHelper.getImmediateHas(grouperSession,GroupOrStem.findByGroup(grouperSession,group),MemberFinder.findBySubject(grouperSession,grouperAll));
 			assignedPrivs=new HashMap();
 			Map.Entry entry;
@@ -245,7 +250,7 @@ public class SaveGroupAction extends GrouperCapableAction {
 							"groups.message.error.add-problem",new String[] {e.getMessage()}, true));
 				return mapping.findForward(FORWARD_CreateAgain);
 			}
-			doTypes(group,request);
+			doTypes(group,request, new HashSet<GroupType>());
 			groupForm.set("groupId", group.getUuid());
 			assignedPrivs = GrouperHelper.getDefaultAccessPrivsForGrouperAPI();
 		}
@@ -310,8 +315,8 @@ public class SaveGroupAction extends GrouperCapableAction {
 
 	}
 	
-	private void doTypes(Group group,HttpServletRequest request) throws Exception {
-		Set curGroupTypes = group.getRemovableTypes();
+	private void doTypes(Group group,HttpServletRequest request, Set<GroupType> curGroupTypes) throws Exception {
+		
 		String[] selectedGroupTypes = request.getParameterValues("groupTypes");
 		Set selected = new HashSet();
 		GroupType type;
@@ -319,7 +324,7 @@ public class SaveGroupAction extends GrouperCapableAction {
 			for(int i=0;i<selectedGroupTypes.length;i++) {
 				type = GroupTypeFinder.find(selectedGroupTypes[i]);
 				selected.add(type);
-				if(!curGroupTypes.contains(type)) group.addType(type);
+				group.addType(type, false);
 			}
 		}
 		Iterator it = curGroupTypes.iterator();
