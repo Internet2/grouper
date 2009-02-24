@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHooksUtils.java,v 1.17.2.1 2009-02-05 21:03:52 mchyzer Exp $
+ * $Id: GrouperHooksUtils.java,v 1.17.2.2 2009-02-24 18:30:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -76,9 +76,13 @@ public class GrouperHooksUtils {
       //see if we should register test hook:
       try {
         Class testLifecycle = Class.forName("edu.internet2.middleware.grouper.hooks.LifecycleHooksImpl");
-        addHookManual(GrouperHookType.LIFECYCLE.getPropertyFileKey(), testLifecycle);
+        Class grouperTestClass = Class.forName("edu.internet2.middleware.grouper.GrouperTest");
+        boolean testing = (Boolean)GrouperUtil.fieldValue(grouperTestClass, null, "testing", false, true);
+        if (testing) {
+          addHookManual(GrouperHookType.LIFECYCLE.getPropertyFileKey(), testLifecycle);
+          GroupAttributeNameValidationHook.registerHookIfNecessary(true);
+        }
         
-        GroupAttributeNameValidationHook.registerHookIfNecessary(true);
         
       } catch (ClassNotFoundException cnfe) {
         //just ignore, probably not running unit tests

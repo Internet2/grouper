@@ -112,7 +112,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.214.2.2 2009-02-13 21:06:50 mchyzer Exp $
+ * @version $Id: Group.java,v 1.214.2.3 2009-02-24 18:30:17 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -3265,8 +3265,39 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
    */
   public Set<String> dbVersionDifferentFields(boolean renameCommonAttributes) {
+    return dbVersionDifferentFields(renameCommonAttributes, true);
+    
+  }
+  
+  /** common attributes */
+  private static Set<String> commonAttributes = GrouperUtil.toSet(
+      "name", "displayName", "extension", "displayExtension", "description");
+  
+  /**
+   * @param renameCommonAttributes is true if these are massaged so that name, extension, etc look like normal fields.
+   * access with fieldValue()
+   * @param failIfNull 
+   * @return the set of different fields
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
+   */
+  public Set<String> dbVersionDifferentFields(boolean renameCommonAttributes, boolean failIfNull) {
     if (this.dbVersion == null) {
-      throw new RuntimeException("State was never stored from db");
+      if (failIfNull) {
+        throw new RuntimeException("State was never stored from db");
+      }
+      //just return all attributes, but put them in the right format
+      Set<String> attributes = this.getAttributesDb().keySet();
+      Set<String> realAttributes = new LinkedHashSet<String>();
+      for (String attribute : attributes) {
+        if (commonAttributes.contains(attribute)) {
+          if (renameCommonAttributes) {
+            realAttributes.add(attribute);
+          } else {
+            realAttributes.add("attribute__" + attribute);
+          }
+        }
+      }
+      return realAttributes;
     }
     //easier to unit test if everything is ordered
     Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,

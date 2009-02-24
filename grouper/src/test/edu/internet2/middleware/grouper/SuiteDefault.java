@@ -42,7 +42,7 @@ import edu.internet2.middleware.ldappcTest.AllLdappcJunitTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.53.2.1 2009-01-25 13:11:09 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.53.2.2 2009-02-24 18:30:17 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -131,6 +131,8 @@ public class SuiteDefault extends TestCase {
    * @return the suite
    */
   static public Test suite() {
+    GrouperTest.testing = true;
+    
     GrouperTest.setupTests();
 
     TestSuite suite = new TestSuite();

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupAttributeNameValidationHook.java,v 1.2 2008-10-15 03:57:06 mchyzer Exp $
+ * $Id: GroupAttributeNameValidationHook.java,v 1.2.2.1 2009-02-24 18:30:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -198,6 +198,7 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
   @Override
   public void groupPreUpdate(HooksContext hooksContext, HooksGroupBean preUpdateBean) {
     Group group = preUpdateBean.getGroup();
-    groupPreChangeAttribute(group, group.dbVersionDifferentFields(false));
+    Set<String> fieldNames = group.dbVersionDifferentFields(false, false);
+    groupPreChangeAttribute(group, fieldNames);
   }
 }
