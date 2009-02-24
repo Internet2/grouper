@@ -64,8 +64,8 @@ ui.folder=${basedir}
 webapp.name=grouper
 
 #Where to build
-dist.home=${basedir}/../dist
-default.webapp.folder=${basedir}/../build/${webapp.name}
+dist.home=${basedir}/dist
+default.webapp.folder=${basedir}/build/${webapp.name}
 default.webapp.folder.cleanable=true
 
 #You could insr=tead build in situ - see comments in build.xml
@@ -74,7 +74,7 @@ default.webapp.folder.cleanable=true
 
 
 #add an additonal build file to incorporate site specific changes
-#additional.build=${basedir}/../custom-grouper-ui/additional-build.xml
+#additional.build=${basedir}/custom-grouper-ui/additional-build.xml
 
 #For development keep these if you want to be able to debug the UI Java source
 debug.level=lines,vars,source
