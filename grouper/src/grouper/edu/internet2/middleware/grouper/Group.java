@@ -112,7 +112,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.214.2.3 2009-02-24 18:30:17 mchyzer Exp $
+ * @version $Id: Group.java,v 1.214.2.4 2009-02-24 20:16:11 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -2191,8 +2191,8 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * @return  Set of removable group types.
    * @since   1.0
    */
-  public Set getRemovableTypes() {
-    Set types = new LinkedHashSet();
+  public Set<GroupType> getRemovableTypes() {
+    Set<GroupType> types = new LinkedHashSet<GroupType>();
     // Must have ADMIN to remove types.
     if (PrivilegeHelper.canAdmin(GrouperSession.staticGrouperSession(), this, GrouperSession.staticGrouperSession().getSubject())) {
       GroupType t;
