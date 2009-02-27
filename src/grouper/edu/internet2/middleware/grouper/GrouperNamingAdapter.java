@@ -25,6 +25,8 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
+import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
@@ -57,7 +59,7 @@ import edu.internet2.middleware.subject.Subject;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.73 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.74 2009-02-27 20:51:46 shilen Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -372,6 +374,67 @@ public class GrouperNamingAdapter implements NamingAdapter {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );
     }
   } // public void revokePriv(s, ns, subj, priv)
+  
+  /**
+   * Copies privileges for subjects that have the specified privilege on stem1 to stem2.
+   * @param s 
+   * @param stem1
+   * @param stem2
+   * @param priv 
+   * @throws InsufficientPrivilegeException 
+   * @throws GrantPrivilegeException 
+   * @throws SchemaException 
+   */
+  public void privilegeCopy(GrouperSession s, Stem stem1, Stem stem2, Privilege priv)
+      throws InsufficientPrivilegeException, GrantPrivilegeException, SchemaException {
+    
+    Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+    Set<Subject> subjs = MembershipFinder.internal_findStemSubjectsImmediateOnly(s, stem1, f);
+    
+    Iterator<Subject> subjectIter = subjs.iterator();
+    while (subjectIter.hasNext()) {
+      Subject subj = subjectIter.next();
+      this.grantPriv(s, stem2, subj, priv);
+    }
+  }
+  
+  /**
+   * Copies privileges of type priv on any subject for the given Subject subj1 to the given Subject subj2.
+   * For instance, if subj1 has STEM privilege to Stem x, this method will result with subj2
+   * having STEM privilege to Stem x.
+   * @param s 
+   * @param subj1
+   * @param subj2
+   * @param priv 
+   * @throws InsufficientPrivilegeException 
+   * @throws GrantPrivilegeException 
+   * @throws SchemaException 
+   */
+  public void privilegeCopy(GrouperSession s, Subject subj1, Subject subj2, Privilege priv)
+      throws InsufficientPrivilegeException, GrantPrivilegeException, SchemaException {
+    GrouperSession.validate(s);
+    
+    Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+    Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+        .findAllImmediateByMemberAndField(MemberFinder.findBySubject(s, subj1).getUuid(), f);
+
+    Iterator<Membership> membershipsIter = memberships.iterator();
+    while (membershipsIter.hasNext()) {
+      Stem stem;
+      try {
+        stem = membershipsIter.next().getStem();
+      } catch (StemNotFoundException e1) {
+        throw new GrouperRuntimeException(e1.getMessage(), e1);
+      }
+      PrivilegeHelper.dispatch(s, stem, s.getSubject(), f.getReadPriv());
+      PrivilegeHelper.dispatch(s, stem, s.getSubject(), f.getWritePriv());
+      try {
+        Membership.internal_addImmediateMembership(s, stem, subj2, f);
+      } catch (MemberAddException e) {
+        throw new GrantPrivilegeException(e.getMessage(), e);
+      }
+    }    
+  }
 
 } // public class GrouperNamingAdapter
 

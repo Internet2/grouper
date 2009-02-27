@@ -29,7 +29,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Mock {@link NamingResolver}.
  * @author  blair christensen.
- * @version $Id: MockNamingResolver.java,v 1.6 2008-10-23 04:48:58 mchyzer Exp $
+ * @version $Id: MockNamingResolver.java,v 1.7 2009-02-27 20:51:46 shilen Exp $
  * @since   1.2.1
  */
 public class MockNamingResolver implements NamingResolver {
@@ -138,6 +138,24 @@ public class MockNamingResolver implements NamingResolver {
     throws  IllegalArgumentException,
             UnableToPerformException
   {
+    throw E;
+  }
+
+
+  /**
+   * Not implemented.
+   */
+  public void privilegeCopy(Stem stem1, Stem stem2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+    throw E;
+  }
+
+
+  /**
+   * Not implemented.
+   */
+  public void privilegeCopy(Subject subj1, Subject subj2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
     throw E;
   }            
 

@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.5 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.6 2009-02-27 20:51:46 shilen Exp $
  * @since   1.1.0
  */
 public class GrouperPrivilegeAdapter {
@@ -68,8 +68,10 @@ public class GrouperPrivilegeAdapter {
 	    list2priv.put( "viewers",AccessPrivilege.VIEW      );
 	  } // static
 
+
   // public CLASS METHODS //
 
+	  
   // @since   1.2.0
   public static Field internal_getField(Map priv2list, Privilege p)
     throws  SchemaException

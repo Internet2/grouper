@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: StemDAO.java,v 1.15 2009-02-11 07:22:34 mchyzer Exp $
+ * @version $Id: StemDAO.java,v 1.16 2009-02-27 20:51:46 shilen Exp $
  * @since   1.2.0
  */
 public interface StemDAO extends GrouperDAO {
@@ -159,6 +159,17 @@ public interface StemDAO extends GrouperDAO {
    * @since   1.2.1
    */
   Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope)
+    throws  GrouperDAOException;
+  
+  /**
+   * Find all child stems within specified scope.
+   * @param ns 
+   * @param scope 
+   * @param orderByName 
+   * @return set of stems
+   * @throws GrouperDAOException 
+   */
+  Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope, boolean orderByName)
     throws  GrouperDAOException;
 
   /**

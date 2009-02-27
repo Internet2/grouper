@@ -41,7 +41,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.18 2008-11-04 07:17:55 mchyzer Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.19 2009-02-27 20:51:46 shilen Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -278,6 +278,26 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   public void flushCache() {
     this.cc.flushCache();
     super.getDecoratedResolver().flushCache();
+  }
+
+
+  /*
+   * (non-Javadoc)
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#privilegeCopy(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public void privilegeCopy(Group g1, Group g2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+    super.getDecoratedResolver().privilegeCopy(g1, g2, priv);
+  }
+
+
+  /*
+   * (non-Javadoc)
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#privilegeCopy(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public void privilegeCopy(Subject subj1, Subject subj2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+    super.getDecoratedResolver().privilegeCopy(subj1, subj2, priv);
   }            
 }
 

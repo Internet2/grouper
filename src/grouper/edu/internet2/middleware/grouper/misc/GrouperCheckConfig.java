@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.18 2009-01-31 16:46:41 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.19 2009-02-27 20:51:46 shilen Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -497,6 +497,30 @@ public class GrouperCheckConfig {
           checkGroup(grouperSession, wheelName, wasInCheckConfig, null, wasInCheckConfig, null, "system administrators with all privileges", 
               "wheel group from grouper.properties key: groups.wheel.group", null);
         }
+      }
+      
+      // security.stem.groupAllowedToMoveStem
+      String allowedGroupName = "security.stem.groupAllowedToMoveStem";
+      String groupAllowedToMoveStem = GrouperUtil.propertiesValue(properties, allowedGroupName);
+      if (StringUtils.isNotBlank(groupAllowedToMoveStem)) {
+        checkGroup(grouperSession, groupAllowedToMoveStem, wasInCheckConfig, null, wasInCheckConfig, null, 
+            null, "grouper.properties key: " + allowedGroupName, null);        
+      }
+      
+      // security.stem.groupAllowedToRenameStem
+      allowedGroupName = "security.stem.groupAllowedToRenameStem";
+      String groupAllowedToRenameStem = GrouperUtil.propertiesValue(properties, allowedGroupName);
+      if (StringUtils.isNotBlank(groupAllowedToRenameStem)) {
+        checkGroup(grouperSession, groupAllowedToRenameStem, wasInCheckConfig, null, wasInCheckConfig, null, 
+            null, "grouper.properties key: " + allowedGroupName, null);        
+      }
+      
+      // security.stem.groupAllowedToMoveStem
+      allowedGroupName = "security.stem.groupAllowedToCopyStem";
+      String groupAllowedToCopyStem = GrouperUtil.propertiesValue(properties, allowedGroupName);
+      if (StringUtils.isNotBlank(groupAllowedToCopyStem)) {
+        checkGroup(grouperSession, groupAllowedToCopyStem, wasInCheckConfig, null, wasInCheckConfig, null, 
+            null, "grouper.properties key: " + allowedGroupName, null);        
       }
       
       //groups in requireGroups

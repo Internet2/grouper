@@ -28,6 +28,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
@@ -45,7 +46,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.27 2009-02-09 05:33:30 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.28 2009-02-27 20:51:46 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -397,6 +398,64 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .setString( "ftype",  f.getType().toString() )
       .listSet(Object[].class);
        return _getMembershipsFromMembershipAndMemberQuery(mships);
+  } 
+  
+  /**
+   * @param ownerGroupId 
+   * @param f 
+   * @param type 
+   * @return set
+   * @throws GrouperDAOException 
+   * @since   @HEAD@
+   */
+  public Set<Member> findAllMembersByGroupOwnerAndFieldAndType(String ownerGroupId, Field f, String type) 
+    throws  GrouperDAOException {
+    return HibernateSession.byHqlStatic()
+    .createQuery(
+        "select m "
+      + "from Member m, Membership ms, Field as field where "
+      + "ms.ownerGroupId = :owner "
+      + "and field.name = :fname "
+      + "and field.typeString = :ftype "
+      + "and ms.type = :type "
+      + "and ms.memberUuid = m.uuid "
+      + "and ms.fieldId = field.uuid ")
+    .setCacheable(false)
+    .setCacheRegion(KLASS + ".FindAllMembersByGroupOwnerAndFieldTypeAndType")
+    .setString("owner", ownerGroupId)
+    .setString("fname", f.getName())
+    .setString("ftype", f.getType().toString())
+    .setString("type", type)
+    .listSet(Member.class);
+  } 
+  
+  /**
+   * @param ownerStemId 
+   * @param f 
+   * @param type 
+   * @return set
+   * @throws GrouperDAOException 
+   * @since   @HEAD@
+   */
+  public Set<Member> findAllMembersByStemOwnerAndFieldAndType(String ownerStemId, Field f, String type) 
+    throws  GrouperDAOException {
+    return HibernateSession.byHqlStatic()
+    .createQuery(
+        "select m "
+      + "from Member m, Membership ms, Field as field where "
+      + "ms.ownerStemId = :owner "
+      + "and field.name = :fname "
+      + "and field.typeString = :ftype "
+      + "and ms.type = :type "
+      + "and ms.memberUuid = m.uuid "
+      + "and ms.fieldId = field.uuid ")
+    .setCacheable(false)
+    .setCacheRegion(KLASS + ".FindAllMembersByStemOwnerAndFieldTypeAndType")
+    .setString("owner", ownerStemId)
+    .setString("fname", f.getName())
+    .setString("ftype", f.getType().toString())
+    .setString("type", type)
+    .listSet(Member.class);
   } 
 
   /**

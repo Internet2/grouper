@@ -33,7 +33,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides caching for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingNamingResolver.java,v 1.6 2008-10-23 04:48:57 mchyzer Exp $
+ * @version $Id: CachingNamingResolver.java,v 1.7 2009-02-27 20:51:46 shilen Exp $
  * @since   1.2.1
  */
 public class CachingNamingResolver extends NamingResolverDecorator {
@@ -182,6 +182,28 @@ public class CachingNamingResolver extends NamingResolverDecorator {
   {
     // TODO 20070816 add caching
     super.getDecoratedResolver().revokePrivilege(stem, subject, privilege);
+    this.cc.flushCache();
+  }
+
+
+  /*
+   * (non-Javadoc)
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#privilegeCopy(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public void privilegeCopy(Stem stem1, Stem stem2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+    super.getDecoratedResolver().privilegeCopy(stem1, stem2, priv);
+    this.cc.flushCache();
+  }
+
+
+  /*
+   * (non-Javadoc)
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#privilegeCopy(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public void privilegeCopy(Subject subj1, Subject subj2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+    super.getDecoratedResolver().privilegeCopy(subj1, subj2, priv);
     this.cc.flushCache();
   }            
 
