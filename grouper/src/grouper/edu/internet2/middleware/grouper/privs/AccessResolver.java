@@ -18,6 +18,9 @@
 package edu.internet2.middleware.grouper.privs;
 import  edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Set;
@@ -27,7 +30,7 @@ import  java.util.Set;
  * Facade for the {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessResolver.java,v 1.6 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: AccessResolver.java,v 1.7 2009-02-27 20:51:46 shilen Exp $
  * @since   1.2.1
  */
 public interface AccessResolver {
@@ -144,5 +147,28 @@ public interface AccessResolver {
             UnableToPerformException
             ;
 
+  /**
+   * Copies privileges for subjects that have the specified privilege on g1 to g2.
+   * @param g1 
+   * @param g2 
+   * @param priv 
+   * @throws IllegalArgumentException
+   * @throws UnableToPerformException 
+   */
+   void privilegeCopy(Group g1, Group g2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException;
+  
+  /**
+   * Copies privileges of type priv on any subject for the given Subject subj1 to the given Subject subj2.
+   * For instance, if subj1 has ADMIN privilege to Group x, this method will result with subj2
+   * having ADMIN privilege to Group x.
+   * @param subj1
+   * @param subj2
+   * @param priv 
+   * @throws IllegalArgumentException
+   * @throws UnableToPerformException 
+   */
+   void privilegeCopy(Subject subj1, Subject subj2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException;
 }
 

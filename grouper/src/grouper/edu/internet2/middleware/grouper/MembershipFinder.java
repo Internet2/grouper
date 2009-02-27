@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * and, if an effective membership, the parent membership
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.99 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: MembershipFinder.java,v 1.100 2009-02-27 20:51:46 shilen Exp $
  */
 public class MembershipFinder {
   
@@ -335,6 +335,107 @@ public class MembershipFinder {
     }
     return subjs;
   } // public static Set internal_findSubjects(s, o, f)
+
+  /**
+   * 
+   * @param s
+   * @param group
+   * @param f
+   * @return set of subjects
+   * @throws GrouperRuntimeException
+   */
+  public static Set<Subject> internal_findGroupSubjectsImmediateOnly(GrouperSession s,
+      Group group, Field f) throws GrouperRuntimeException {
+    GrouperSession.validate(s);
+    Set<Subject> subjs = new LinkedHashSet();
+    try {
+      PrivilegeHelper.dispatch(s, group, s.getSubject(), f.getReadPriv());
+      Iterator<Member> it = GrouperDAOFactory.getFactory().getMembership()
+          .findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(), f,
+              Membership.IMMEDIATE).iterator();
+
+      while (it.hasNext()) {
+        try {
+          subjs.add(new LazySubject(it.next()));
+        } catch (GrouperRuntimeException gre) {
+          if (gre.getCause() instanceof MemberNotFoundException) {
+            throw (MemberNotFoundException) gre.getCause();
+          }
+          if (gre.getCause() instanceof SubjectNotFoundException) {
+            throw (SubjectNotFoundException) gre.getCause();
+          }
+        }
+      }
+    } catch (MemberNotFoundException eMNF) {
+      String msg = "internal_findGroupSubjectsImmediateOnly: " + eMNF.getMessage();
+      LOG.fatal(msg);
+      throw new GrouperRuntimeException(msg, eMNF);
+    } catch (SubjectNotFoundException eSNF) {
+      String msg = "internal_findGroupSubjectsImmediateOnly: " + eSNF.getMessage();
+      LOG.fatal(msg);
+      throw new GrouperRuntimeException(msg, eSNF);
+    } catch (InsufficientPrivilegeException e) {
+      String msg = "internal_findGroupSubjectsImmediateOnly: " + e.getMessage();
+      LOG.fatal(msg);
+      throw new GrouperRuntimeException(msg, e);
+    } catch (SchemaException e) {
+      String msg = "internal_findGroupSubjectsImmediateOnly: " + e.getMessage();
+      LOG.fatal(msg);
+      throw new GrouperRuntimeException(msg, e);
+    }
+    return subjs;
+  } 
+  
+  /**
+   * 
+   * @param s
+   * @param stem
+   * @param f
+   * @return set of subjects
+   * @throws GrouperRuntimeException
+   */
+  public static Set<Subject> internal_findStemSubjectsImmediateOnly(GrouperSession s,
+      Stem stem, Field f) throws GrouperRuntimeException {
+    GrouperSession.validate(s);
+    Set<Subject> subjs = new LinkedHashSet();
+    try {
+      PrivilegeHelper.dispatch(s, stem, s.getSubject(), f.getReadPriv());
+      Iterator<Member> it = GrouperDAOFactory.getFactory().getMembership()
+          .findAllMembersByStemOwnerAndFieldAndType(stem.getUuid(), f,
+              Membership.IMMEDIATE).iterator();
+
+      while (it.hasNext()) {
+        try {
+          subjs.add(new LazySubject(it.next()));
+        } catch (GrouperRuntimeException gre) {
+          if (gre.getCause() instanceof MemberNotFoundException) {
+            throw (MemberNotFoundException) gre.getCause();
+          }
+          if (gre.getCause() instanceof SubjectNotFoundException) {
+            throw (SubjectNotFoundException) gre.getCause();
+          }
+        }
+      }
+    } catch (MemberNotFoundException eMNF) {
+      String msg = "internal_findStemSubjectsImmediateOnly: " + eMNF.getMessage();
+      LOG.fatal(msg);
+      throw new GrouperRuntimeException(msg, eMNF);
+    } catch (SubjectNotFoundException eSNF) {
+      String msg = "internal_findStemSubjectsImmediateOnly: " + eSNF.getMessage();
+      LOG.fatal(msg);
+      throw new GrouperRuntimeException(msg, eSNF);
+    } catch (InsufficientPrivilegeException e) {
+      String msg = "internal_findStemSubjectsImmediateOnly: " + e.getMessage();
+      LOG.fatal(msg);
+      throw new GrouperRuntimeException(msg, e);
+    } catch (SchemaException e) {
+      String msg = "internal_findStemSubjectsImmediateOnly: " + e.getMessage();
+      LOG.fatal(msg);
+      throw new GrouperRuntimeException(msg, e);
+    }
+    return subjs;
+  } 
+  
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(MemberFinder.class);

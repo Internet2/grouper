@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -35,15 +36,15 @@ import junit.textui.TestRunner;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.14 2009-01-28 20:33:09 shilen Exp $
+ * @version $Id: Test_api_Stem.java,v 1.15 2009-02-27 20:51:46 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Stem extends GrouperTest {
 
 
-  private Group           child_group, top_group;
+  private Group           child_group, top_group, admin, wheel;
   private GrouperSession  s;
-  private Stem            child, root, top, top_new;
+  private Stem            child, root, top, top_new, etc;
 
   /**
    * 
@@ -463,7 +464,7 @@ public class Test_api_Stem extends GrouperTest {
   /**
    * @throws Exception
    */
-  public void test_move_insufficientPrivileges() throws Exception {
+  public void test_move_insufficientPrivileges_without_admin_or_wheel_group() throws Exception {
     GrouperSession nrs;
     R r = R.populateRegistry(0, 0, 3);
     Subject a = r.getSubject("a");
@@ -498,6 +499,170 @@ public class Test_api_Stem extends GrouperTest {
     nrs.stop();
         
     nrs = GrouperSession.start(c);
+    top.move(top_new);
+    assertTrue(true);
+    nrs.stop();
+            
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_rename_insufficientPrivileges_with_admin_group() throws Exception {
+    this.etc          = this.root.addChildStem("etc", "etc");
+    this.admin        = this.etc.addChildGroup("admin", "admin");
+    this.wheel        = this.etc.addChildGroup("wheel","wheel");
+    
+    ApiConfig.testConfig.put("security.stem.groupAllowedToRenameStem", admin.getName());
+    ApiConfig.testConfig.put("groups.wheel.use", "true");
+    ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
+
+    GrouperSession nrs;
+    R r = R.populateRegistry(0, 0, 2);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+    
+    top.grantPriv(a, NamingPrivilege.STEM);
+    top.grantPriv(b, NamingPrivilege.STEM);
+    
+    admin.addMember(b);
+    
+    nrs = GrouperSession.start(a);
+    try {
+      top.setExtension("top_new");
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException ex) {
+      assertTrue(true);
+    }
+    nrs.stop();
+         
+    nrs = GrouperSession.start(b);
+    top.setExtension("top_new");
+    assertTrue(true);
+    nrs.stop();
+            
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_rename_insufficientPrivileges_with_wheel_group() throws Exception {
+    this.etc          = this.root.addChildStem("etc", "etc");
+    this.admin        = this.etc.addChildGroup("admin", "admin");
+    this.wheel        = this.etc.addChildGroup("wheel","wheel");
+    
+    ApiConfig.testConfig.put("security.stem.groupAllowedToRenameStem", admin.getName());
+    ApiConfig.testConfig.put("groups.wheel.use", "true");
+    ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
+
+    GrouperSession nrs;
+    R r = R.populateRegistry(0, 0, 2);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+    
+    top.grantPriv(a, NamingPrivilege.STEM);
+    top.grantPriv(b, NamingPrivilege.STEM);
+    
+    wheel.addMember(b);
+    
+    nrs = GrouperSession.start(a);
+    try {
+      top.setExtension("top_new");
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException ex) {
+      assertTrue(true);
+    }
+    nrs.stop();
+         
+    nrs = GrouperSession.start(b);
+    top.setExtension("top_new");
+    assertTrue(true);
+    nrs.stop();
+            
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_move_insufficientPrivileges_with_admin_group() throws Exception {
+    this.etc          = this.root.addChildStem("etc", "etc");
+    this.admin        = this.etc.addChildGroup("admin", "admin");
+    this.wheel        = this.etc.addChildGroup("wheel","wheel");
+    
+    ApiConfig.testConfig.put("security.stem.groupAllowedToMoveStem", admin.getName());
+    ApiConfig.testConfig.put("groups.wheel.use", "true");
+    ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
+
+    GrouperSession nrs;
+    R r = R.populateRegistry(0, 0, 2);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+    
+    this.top_new = this.root.addChildStem("top new", "top new display name");
+    
+    top.grantPriv(a, NamingPrivilege.STEM);
+    top_new.grantPriv(a, NamingPrivilege.STEM);
+    top.grantPriv(b, NamingPrivilege.STEM);
+    top_new.grantPriv(b, NamingPrivilege.STEM);
+    
+    admin.addMember(b);
+    
+    nrs = GrouperSession.start(a);
+    try {
+      top.move(top_new);
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException ex) {
+      assertTrue(true);
+    }
+    nrs.stop();
+         
+    nrs = GrouperSession.start(b);
+    top.move(top_new);
+    assertTrue(true);
+    nrs.stop();
+            
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_move_insufficientPrivileges_with_wheel_group() throws Exception {
+    this.etc          = this.root.addChildStem("etc", "etc");
+    this.admin        = this.etc.addChildGroup("admin", "admin");
+    this.wheel        = this.etc.addChildGroup("wheel","wheel");
+    
+    ApiConfig.testConfig.put("security.stem.groupAllowedToMoveStem", admin.getName());
+    ApiConfig.testConfig.put("groups.wheel.use", "true");
+    ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
+
+    GrouperSession nrs;
+    R r = R.populateRegistry(0, 0, 2);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+    
+    this.top_new = this.root.addChildStem("top new", "top new display name");
+    
+    top.grantPriv(a, NamingPrivilege.STEM);
+    top_new.grantPriv(a, NamingPrivilege.STEM);
+    top.grantPriv(b, NamingPrivilege.STEM);
+    top_new.grantPriv(b, NamingPrivilege.STEM);
+    
+    wheel.addMember(b);
+    
+    nrs = GrouperSession.start(a);
+    try {
+      top.move(top_new);
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException ex) {
+      assertTrue(true);
+    }
+    nrs.stop();
+         
+    nrs = GrouperSession.start(b);
     top.move(top_new);
     assertTrue(true);
     nrs.stop();

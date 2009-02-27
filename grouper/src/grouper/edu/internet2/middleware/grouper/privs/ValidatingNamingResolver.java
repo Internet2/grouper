@@ -27,7 +27,7 @@ import  java.util.Set;
  * Decorator that provides parameter validation for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingNamingResolver.java,v 1.5 2008-10-23 04:48:57 mchyzer Exp $
+ * @version $Id: ValidatingNamingResolver.java,v 1.6 2009-02-27 20:51:46 shilen Exp $
  * @since   1.2.1
  */
 public class ValidatingNamingResolver extends NamingResolverDecorator {
@@ -137,6 +137,28 @@ public class ValidatingNamingResolver extends NamingResolverDecorator {
   {
     this.param.notNullStem(stem).notNullSubject(subject).notNullPrivilege(privilege);
     super.getDecoratedResolver().revokePrivilege(stem, subject, privilege);
+  }
+
+
+  /*
+   * (non-Javadoc)
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#privilegeCopy(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public void privilegeCopy(Stem stem1, Stem stem2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+    this.param.notNullStem(stem1).notNullStem(stem2).notNullPrivilege(priv);
+    super.getDecoratedResolver().privilegeCopy(stem1, stem2, priv);
+  }
+
+
+  /*
+   * (non-Javadoc)
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#privilegeCopy(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public void privilegeCopy(Subject subj1, Subject subj2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+    this.param.notNullSubject(subj1).notNullSubject(subj2).notNullPrivilege(priv);
+    super.getDecoratedResolver().privilegeCopy(subj1, subj2, priv);
   }            
 
 }

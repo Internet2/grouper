@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
  * wrapped by methods in the {@link Stem} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: NamingAdapter.java,v 1.3 2008-10-23 04:48:57 mchyzer Exp $
+ * @version $Id: NamingAdapter.java,v 1.4 2009-02-27 20:51:46 shilen Exp $
  */
 public interface NamingAdapter {
 
@@ -190,5 +190,32 @@ public interface NamingAdapter {
             SchemaException
             ;
 
+  /**
+   * Copies privileges for subjects that have the specified privilege on stem1 to stem2.
+   * @param s 
+   * @param stem1
+   * @param stem2
+   * @param priv 
+   * @throws InsufficientPrivilegeException 
+   * @throws GrantPrivilegeException 
+   * @throws SchemaException 
+   */
+  void privilegeCopy(GrouperSession s, Stem stem1, Stem stem2, Privilege priv)
+      throws InsufficientPrivilegeException, GrantPrivilegeException, SchemaException;
+  
+  /**
+   * Copies privileges of type priv on any subject for the given Subject subj1 to the given Subject subj2.
+   * For instance, if subj1 has STEM privilege to Stem x, this method will result with subj2
+   * having STEM privilege to Stem x.
+   * @param s 
+   * @param subj1
+   * @param subj2
+   * @param priv 
+   * @throws InsufficientPrivilegeException 
+   * @throws GrantPrivilegeException 
+   * @throws SchemaException 
+   */
+  void privilegeCopy(GrouperSession s, Subject subj1, Subject subj2, Privilege priv)
+      throws InsufficientPrivilegeException, GrantPrivilegeException, SchemaException;
 }
 

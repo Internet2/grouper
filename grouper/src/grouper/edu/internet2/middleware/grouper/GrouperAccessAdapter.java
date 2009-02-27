@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
@@ -45,9 +46,11 @@ import edu.internet2.middleware.grouper.privs.AccessAdapter;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.GrouperPrivilegeAdapter;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** 
  * Grouper Access Privilege interface.
@@ -57,7 +60,7 @@ import edu.internet2.middleware.subject.Subject;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.73 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.74 2009-02-27 20:51:46 shilen Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -374,6 +377,77 @@ public class GrouperAccessAdapter implements AccessAdapter {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );
     }
   } // public void revokePriv(s, g, subj, priv)
+  
+  /**
+   * Copies privileges for subjects that have the specified privilege on g1 to g2.
+   * @param s 
+   * @param g1 
+   * @param g2 
+   * @param priv 
+   * @throws InsufficientPrivilegeException 
+   * @throws GrantPrivilegeException 
+   * @throws SchemaException 
+   */
+  public void privilegeCopy(GrouperSession s, Group g1, Group g2, Privilege priv)
+      throws InsufficientPrivilegeException, GrantPrivilegeException, SchemaException {
+    GrouperSession.validate(s);
+    
+    Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+    Set<Subject> subjs = MembershipFinder.internal_findGroupSubjectsImmediateOnly(s, g1, f);
+    
+    Iterator<Subject> subjectIter = subjs.iterator();
+    while (subjectIter.hasNext()) {
+      Subject subj = subjectIter.next();
+      try {
+        this.grantPriv(s, g2, subj, priv);
+      } catch (GrantPrivilegeException e) {
+        if (e.getCause() instanceof MemberAddAlreadyExistsException) {
+          // this is okay
+        } else {
+          throw e;
+        }
+      }
+    }
+  }
+  
+  /**
+   * Copies privileges of type priv on any subject for the given Subject subj1 to the given Subject subj2.
+   * For instance, if subj1 has ADMIN privilege to Group x, this method will result with subj2
+   * having ADMIN privilege to Group x.
+   * @param s 
+   * @param subj1
+   * @param subj2
+   * @param priv 
+   * @throws InsufficientPrivilegeException 
+   * @throws GrantPrivilegeException 
+   * @throws SchemaException 
+   */
+  public void privilegeCopy(GrouperSession s, Subject subj1, Subject subj2, Privilege priv)
+      throws InsufficientPrivilegeException, GrantPrivilegeException, SchemaException {
+    GrouperSession.validate(s);
+    
+    Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+    Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+        .findAllImmediateByMemberAndField(MemberFinder.findBySubject(s, subj1).getUuid(), f);
+
+    Iterator<Membership> membershipsIter = memberships.iterator();
+    while (membershipsIter.hasNext()) {
+      Group g;
+      try {
+        g = membershipsIter.next().getGroup();
+      } catch (GroupNotFoundException e1) {
+        throw new GrouperRuntimeException(e1.getMessage(), e1);
+      }
+      PrivilegeHelper.dispatch(s, g, s.getSubject(), f.getReadPriv());
+      PrivilegeHelper.dispatch(s, g, s.getSubject(), f.getWritePriv());
+      try {
+        Membership.internal_addImmediateMembership(s, g, subj2, f);
+      } catch (MemberAddException e) {
+        throw new GrantPrivilegeException(e.getMessage(), e);
+      }
+    }
+    
+  }
 
 } // public class GrouperAccessAdapter 
 

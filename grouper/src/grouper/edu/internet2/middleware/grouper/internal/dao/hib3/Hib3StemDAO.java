@@ -50,7 +50,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.20 2009-02-13 13:51:58 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.21 2009-02-27 20:51:46 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -83,7 +83,6 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               hibernateSession.misc().flush();
 
               // add group-type tuples
-              GroupTypeTuple  tuple = new GroupTypeTuple();
               Iterator                    it    = _group.getTypesDb().iterator();
               while (it.hasNext()) {
 
@@ -91,7 +90,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
 
                 //see if that record exists
                 if (null == Hib3GroupTypeTupleDAO.findByGroupAndType(_group, groupType, false)) {
-                tuple.setGroupUuid( _group.getUuid() );
+                  GroupTypeTuple tuple = new GroupTypeTuple();
+                  tuple.setGroupUuid( _group.getUuid() );
                   tuple.setTypeUuid( groupType.getUuid() );
                   byObject.saveOrUpdate(tuple); // new group-type tuple
                 }
@@ -500,25 +500,48 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   public Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope)
     throws  GrouperDAOException,
             IllegalStateException {
+    return findAllChildStems(ns, scope, false);
+  }
+  
+  /**
+   * @see     StemDAO#findAllChildStems(Stem, Stem.Scope)
+   * @throws  IllegalStateException if unknown scope.
+   * @since   @HEAD@
+   */
+  public Set<Stem> findAllChildStems(Stem ns, Stem.Scope scope, boolean orderByName)
+    throws  GrouperDAOException,
+            IllegalStateException {
     Set<Stem> stemsSet;
     try {
       if (Stem.Scope.ONE == scope) {
+        String sql = "from Stem as ns where ns.parentUuid = :parent";
+        if (orderByName) {
+          sql += " order by ns.nameDb";
+        }
         stemsSet = HibernateSession.byHqlStatic()
-          .createQuery("from Stem as ns where ns.parentUuid = :parent")
+          .createQuery(sql)
           .setCacheable(false)
           .setCacheRegion(KLASS + ".FindChildStems")
           .setString("parent", ns.getUuid())
           .listSet(Stem.class);
       } else if (Stem.Scope.SUB == scope && ns.isRootStem()) {
+        String sql = "from Stem as ns where ns.nameDb not like :stem";
+        if (orderByName) {
+          sql += " order by ns.nameDb";
+        }
         stemsSet = HibernateSession.byHqlStatic()
-          .createQuery("from Stem as ns where ns.nameDb not like :stem")
+          .createQuery(sql)
           .setCacheable(false)
           .setCacheRegion(KLASS + ".FindChildStems")
           .setString("stem", Stem.DELIM)
           .listSet(Stem.class);
       } else if (Stem.Scope.SUB == scope) {
+        String sql = "from Stem as ns where ns.nameDb like :scope";
+        if (orderByName) {
+          sql += " order by ns.nameDb";
+        }
         stemsSet = HibernateSession.byHqlStatic()
-          .createQuery("from Stem as ns where ns.nameDb like :scope")
+          .createQuery(sql)
           .setCacheable(false)
           .setCacheRegion(KLASS + ".FindChildStems")
           .setString("scope", ns.getNameDb() + Stem.DELIM + "%")

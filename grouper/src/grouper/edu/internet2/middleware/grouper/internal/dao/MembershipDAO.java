@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
@@ -29,7 +30,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.16 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: MembershipDAO.java,v 1.17 2009-02-27 20:51:46 shilen Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
@@ -159,6 +160,27 @@ public interface MembershipDAO extends GrouperDAO {
    */
   Set<Membership> findAllByGroupOwnerAndMemberAndField(String ownerGroupId, String memberUUID, Field f) 
     throws  GrouperDAOException;
+  
+  /**
+   * @param ownerGroupId
+   * @param f
+   * @param type
+   * @return set
+   * @throws GrouperDAOException
+   */
+  public Set<Member> findAllMembersByGroupOwnerAndFieldAndType(String ownerGroupId,
+      Field f, String type) throws GrouperDAOException;
+  
+  /**
+   * @param ownerStemId
+   * @param f
+   * @param type
+   * @return set
+   * @throws GrouperDAOException
+   */
+  public Set<Member> findAllMembersByStemOwnerAndFieldAndType(String ownerStemId,
+      Field f, String type) throws GrouperDAOException;
+
 
   /**
    * @param ownerStemId 

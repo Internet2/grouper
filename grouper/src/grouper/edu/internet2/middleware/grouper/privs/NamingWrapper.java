@@ -36,7 +36,7 @@ import  java.util.Set;
  * Class implementing wrapper around {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingWrapper.java,v 1.8 2008-10-27 10:03:36 mchyzer Exp $
+ * @version $Id: NamingWrapper.java,v 1.9 2009-02-27 20:51:46 shilen Exp $
  * @since   1.2.1
  */
 public class NamingWrapper implements NamingResolver {
@@ -204,7 +204,46 @@ public class NamingWrapper implements NamingResolver {
     } catch (SchemaException eSchema) {
       throw new GrouperRuntimeException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
     }
-  }            
+  }     
+  
+  /**
+   * @see   NamingResolver#privilegeCopy(Stem, Stem, Privilege)
+   * @see   NamingAdapter#privilegeCopy(GrouperSession, Stem, Stem, Privilege)
+   */
+  public void privilegeCopy(Stem stem1, Stem stem2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+    try {
+      this.naming.privilegeCopy(this.s, stem1, stem2, priv);
+    } catch (GrantPrivilegeAlreadyExistsException e) {
+      throw new UnableToPerformAlreadyExistsException(e.getMessage(), e);
+    } catch (GrantPrivilegeException e) {
+      throw new UnableToPerformException(e.getMessage(), e);
+    } catch (InsufficientPrivilegeException e) {
+      throw new UnableToPerformException(e.getMessage(), e);
+    } catch (SchemaException e) {
+      throw new GrouperRuntimeException("unexpected condition", e);
+    }
+  }
+
+  /**
+   * @see   NamingResolver#privilegeCopy(Subject, Subject, Privilege)
+   * @see   NamingAdapter#privilegeCopy(GrouperSession, Subject, Subject, Privilege)
+   */
+  public void privilegeCopy(Subject subj1, Subject subj2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+    try {
+      this.naming.privilegeCopy(this.s, subj1, subj2, priv);
+    } catch (GrantPrivilegeAlreadyExistsException e) {
+      throw new UnableToPerformAlreadyExistsException(e.getMessage(), e);
+    } catch (GrantPrivilegeException e) {
+      throw new UnableToPerformException(e.getMessage(), e);
+    } catch (InsufficientPrivilegeException e) {
+      throw new UnableToPerformException(e.getMessage(), e);
+    } catch (SchemaException e) {
+      throw new GrouperRuntimeException("unexpected condition", e);
+    }
+  }
+
 
 }
 

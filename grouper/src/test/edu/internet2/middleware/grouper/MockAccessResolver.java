@@ -29,7 +29,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Mock {@link AccessResolver}.
  * @author  blair christensen.
- * @version $Id: MockAccessResolver.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: MockAccessResolver.java,v 1.8 2009-02-27 20:51:46 shilen Exp $
  * @since   1.2.1
  */
 public class MockAccessResolver implements AccessResolver {
@@ -147,6 +147,24 @@ public class MockAccessResolver implements AccessResolver {
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
    */
   public void flushCache() {
+    throw E;
+  }
+
+
+  /**
+   * Not implemented.
+   */
+  public void privilegeCopy(Group g1, Group g2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+    throw E;
+  }
+
+
+  /**
+   * Not implemented.
+   */
+  public void privilegeCopy(Subject subj1, Subject subj2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
     throw E;
   }            
 

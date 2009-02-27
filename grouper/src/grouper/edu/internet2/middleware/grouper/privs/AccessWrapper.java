@@ -36,7 +36,7 @@ import  java.util.Set;
  * Class implementing wrapper around {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessWrapper.java,v 1.8 2008-10-27 10:03:36 mchyzer Exp $
+ * @version $Id: AccessWrapper.java,v 1.9 2009-02-27 20:51:46 shilen Exp $
  * @since   1.2.1
  */
 public class AccessWrapper implements AccessResolver {
@@ -207,7 +207,43 @@ public class AccessWrapper implements AccessResolver {
     }
   }
 
-
+  /**
+   * @see   AccessResolver#privilegeCopy(Group, Group, Privilege)
+   * @see   AccessAdapter#privilegeCopy(GrouperSession, Group, Group, Privilege)
+   */
+  public void privilegeCopy(Group g1, Group g2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+    try {
+      this.access.privilegeCopy(this.s, g1, g2, priv);
+    } catch (InsufficientPrivilegeException e) {
+      throw new UnableToPerformException(e.getMessage(), e);
+    } catch (GrantPrivilegeAlreadyExistsException e) {
+      throw new UnableToPerformAlreadyExistsException(e.getMessage(), e);
+    } catch (GrantPrivilegeException e) {
+      throw new UnableToPerformException(e.getMessage(), e);
+    } catch (SchemaException e) {
+      throw new GrouperRuntimeException("unexpected condition");
+    }
+  }
+  
+  /**
+   * @see   AccessResolver#privilegeCopy(Subject, Subject, Privilege)
+   * @see   AccessAdapter#privilegeCopy(GrouperSession, Subject, Subject, Privilege)
+   */
+   public void privilegeCopy(Subject subj1, Subject subj2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+     try {
+       this.access.privilegeCopy(this.s, subj1, subj2, priv);
+     } catch (InsufficientPrivilegeException e) {
+       throw new UnableToPerformException(e.getMessage(), e);
+     } catch (GrantPrivilegeAlreadyExistsException e) {
+       throw new UnableToPerformAlreadyExistsException(e.getMessage(), e);
+     } catch (GrantPrivilegeException e) {
+       throw new UnableToPerformException(e.getMessage(), e);
+     } catch (SchemaException e) {
+       throw new GrouperRuntimeException("unexpected condition");
+     } 
+   }
 
   /**
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()

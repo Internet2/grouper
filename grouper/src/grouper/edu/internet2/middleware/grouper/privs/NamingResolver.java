@@ -20,6 +20,9 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.subject.Subject;
 
@@ -28,7 +31,7 @@ import edu.internet2.middleware.subject.Subject;
  * Facade for the {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingResolver.java,v 1.6 2008-10-23 04:48:57 mchyzer Exp $
+ * @version $Id: NamingResolver.java,v 1.7 2009-02-27 20:51:46 shilen Exp $
  * @since   1.2.1
  */
 public interface NamingResolver {
@@ -120,6 +123,30 @@ public interface NamingResolver {
     throws  IllegalArgumentException,
             UnableToPerformException
             ;
+
+  /**
+   * Copies privileges for subjects that have the specified privilege on stem1 to stem2.
+   * @param stem1
+   * @param stem2
+   * @param priv 
+   * @throws IllegalArgumentException 
+   * @throws UnableToPerformException 
+   */
+   void privilegeCopy(Stem stem1, Stem stem2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException;
+  
+  /**
+   * Copies privileges of type priv on any subject for the given Subject subj1 to the given Subject subj2.
+   * For instance, if subj1 has STEM privilege to Stem x, this method will result with subj2
+   * having STEM privilege to Stem x.
+   * @param subj1
+   * @param subj2
+   * @param priv  
+   * @throws IllegalArgumentException 
+   * @throws UnableToPerformException 
+   */
+   void privilegeCopy(Subject subj1, Subject subj2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException;
 
 }
 

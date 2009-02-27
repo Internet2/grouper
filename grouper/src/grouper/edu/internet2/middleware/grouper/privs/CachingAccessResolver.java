@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides caching for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingAccessResolver.java,v 1.9 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: CachingAccessResolver.java,v 1.10 2009-02-27 20:51:46 shilen Exp $
  * @since   1.2.1
  */
 public class CachingAccessResolver extends AccessResolverDecorator {
@@ -230,12 +230,38 @@ public class CachingAccessResolver extends AccessResolverDecorator {
     grouperSession.getAccessResolver().flushCache();
   }            
 
+
+  /*
+   * (non-Javadoc)
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#privilegeCopy(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public void privilegeCopy(Group g1, Group g2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+    super.getDecoratedResolver().privilegeCopy(g1, g2, priv);
+    this.cc.flushCache();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    grouperSession.getAccessResolver().flushCache();
+  }
+
+
+  /*
+   * (non-Javadoc)
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#privilegeCopy(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public void privilegeCopy(Subject subj1, Subject subj2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+    super.getDecoratedResolver().privilegeCopy(subj1, subj2, priv);
+    this.cc.flushCache();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    grouperSession.getAccessResolver().flushCache();    
+  }     
+  
   /**
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
    */
   public void flushCache() {
     this.cc.flushCache();
-  }            
+  }       
 
 }
 
