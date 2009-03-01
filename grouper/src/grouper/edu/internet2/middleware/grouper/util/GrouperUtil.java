@@ -939,14 +939,37 @@ public class GrouperUtil {
 
   /**
    * make sure a array is non null.  If null, then return an empty array.
-   * Note: this will probably not work for primitive arrays (e.g. int[])
    * @param <T>
    * @param array
    * @param theClass to make array from
    * @return the list or empty list if null
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "cast" })
   public static <T> T[] nonNull(T[] array, Class<?> theClass) {
+    if (int.class.equals(theClass)) {
+      return (T[])(Object)new int[0];
+    }
+    if (float.class.equals(theClass)) {
+      return (T[])(Object)new float[0];
+    }
+    if (double.class.equals(theClass)) {
+      return (T[])(Object)new double[0];
+    }
+    if (short.class.equals(theClass)) {
+      return (T[])(Object)new short[0];
+    }
+    if (long.class.equals(theClass)) {
+      return (T[])(Object)new long[0];
+    }
+    if (byte.class.equals(theClass)) {
+      return (T[])(Object)new byte[0];
+    }
+    if (boolean.class.equals(theClass)) {
+      return (T[])(Object)new boolean[0];
+    }
+    if (char.class.equals(theClass)) {
+      return (T[])(Object)new char[0];
+    }
     return array == null ? ((T[])Array.newInstance(theClass, 0)) : array;
   }
   
