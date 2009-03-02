@@ -101,7 +101,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.14 2009-02-11 07:22:34 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.15 2009-03-02 07:33:25 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1085,7 +1085,7 @@ public class XmlImporter {
       throw new IllegalStateException("Expected tag: <compositeType> but found <" + tag + ">");
     }
     String name = XmlImporter._getText(typeE);
-    CompositeType ctype = CompositeType.getInstance(name);
+    CompositeType ctype = CompositeType.valueOfIgnoreCase(name);
     if (ctype == null) {
       throw new IllegalStateException("could not resolve composite type: " + Quote.single(name));
     }

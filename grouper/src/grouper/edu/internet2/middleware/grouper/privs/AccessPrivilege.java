@@ -16,7 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import org.apache.commons.lang.StringUtils;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -31,10 +33,9 @@ import edu.internet2.middleware.subject.Subject;
  * An instance of a granted access privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.5 2008-12-06 20:39:36 mchyzer Exp $
+ * @version $Id: AccessPrivilege.java,v 1.6 2009-03-02 07:33:25 mchyzer Exp $
  */
 public class AccessPrivilege implements GrouperPrivilege, Comparable {
-
 
   // Public Class Constants
   public static final Privilege ADMIN   = Privilege.getInstance("admin");
@@ -44,6 +45,50 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
   public static final Privilege SYSTEM  = Privilege.getInstance("system");
   public static final Privilege UPDATE  = Privilege.getInstance("update");
   public static final Privilege VIEW    = Privilege.getInstance("view");
+
+  /** convert a list to priv */
+  private static Map<String,Privilege> list2priv = new HashMap<String, Privilege>();
+
+  static {
+    list2priv.put( "admins",  AccessPrivilege.ADMIN);
+    list2priv.put( "optins",  AccessPrivilege.OPTIN);
+    list2priv.put( "optouts", AccessPrivilege.OPTOUT);
+    list2priv.put( "readers", AccessPrivilege.READ);
+    list2priv.put( "updaters", AccessPrivilege.UPDATE);
+    list2priv.put( "viewers", AccessPrivilege.VIEW);
+  }
+
+  /** convert a list to a priv */
+  private static Map<Privilege, String> priv2list = new HashMap<Privilege, String>();
+
+  static {
+    priv2list.put(  AccessPrivilege.ADMIN , "admins"    );
+    priv2list.put(  AccessPrivilege.OPTIN , "optins"    );
+    priv2list.put(  AccessPrivilege.OPTOUT, "optouts"   );
+    priv2list.put(  AccessPrivilege.READ  , "readers"   );
+    priv2list.put(  AccessPrivilege.UPDATE, "updaters"  );
+    priv2list.put(  AccessPrivilege.VIEW  , "viewers"   );
+  }
+  
+  /**
+   * convert a list to a privilege
+   * @param list
+   * @return the privilege
+   */
+  static Privilege listToPriv(String list) {
+    return list2priv.get(list);
+  }
+
+  /**
+   * convert a privilege to a list
+   * @param privilege
+   * @return the list name
+   */
+  static String privToList(Privilege privilege) {
+    String listName = priv2list.get(privilege);
+    return listName;
+  }
+
 
 
   // Private Instance Variables

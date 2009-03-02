@@ -16,16 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -47,40 +44,10 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.6 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.7 2009-03-02 07:33:25 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperPrivilegeAdapter {
-	
-	// PRIVATE CLASS VARIABLES //
-	  private static Map<String,Privilege> list2priv = new HashMap();
-
-
-	  // STATIC //
-	  //2007-11-02 Gary Brown
-	  //Not ideal but need to lookup privilege for list
-	  static {
-	    list2priv.put( "admins",  AccessPrivilege.ADMIN      );
-	    list2priv.put( "optins",  AccessPrivilege.OPTIN    );
-	    list2priv.put( "optouts", AccessPrivilege.OPTOUT   );
-	    list2priv.put( "readers", AccessPrivilege.READ   );
-	    list2priv.put( "updaters",AccessPrivilege.UPDATE   );
-	    list2priv.put( "viewers",AccessPrivilege.VIEW      );
-	  } // static
-
-
-  // public CLASS METHODS //
-
-	  
-  // @since   1.2.0
-  public static Field internal_getField(Map priv2list, Privilege p)
-    throws  SchemaException
-  {
-    if (priv2list.containsKey(p)) {
-      return FieldFinder.find( (String) priv2list.get(p) );
-    }
-    throw new SchemaException("invalid privilege");
-  } // public static Field internal_getField(priv2list, p)
 
   // @since   1.2.0
   //2007-11-02 Gary Brown
@@ -109,7 +76,7 @@ public class GrouperPrivilegeAdapter {
           if(p!=null) {
             localP=p;
           }else{
-            localP=list2priv.get(ms.getList().getName());
+            localP=AccessPrivilege.listToPriv(ms.getList().getName());
           }
           
           //Since we are getting everything, could get members or custom lists which do not correspond to privileges

@@ -24,13 +24,17 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.exception.SchemaException;
+
 
 /** 
  * Privilege schema specification.  Access the constants for Groups from AccessPrivilege
  * and Stems from NamingPrivilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.5 2008-10-22 16:30:10 mchyzer Exp $
+ * @version $Id: Privilege.java,v 1.6 2009-03-02 07:33:25 mchyzer Exp $
  */
 public class Privilege implements Serializable {
 
@@ -38,21 +42,39 @@ public class Privilege implements Serializable {
   public static final long serialVersionUID = 931658631999330719L;
 
   /**
-   * @see java.lang.Object#equals(java.lang.Object)
+   * generate hash code
+   */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((name == null) ? 0 : name.hashCode());
+    return result;
+  }
+
+  /**
+   * string equals
+   * @return if equal
    */
   @Override
   public boolean equals(Object obj) {
-    if (obj == null) {
+    if (this == obj)
+      return true;
+    if (obj == null)
       return false;
-    }
-    if (obj instanceof Privilege) {
-      if (StringUtils.equals(this.name, ((Privilege)obj).name)) {
-        return true;
-      }
-    }
-    return false;
+    if (getClass() != obj.getClass())
+      return false;
+    final Privilege other = (Privilege) obj;
+    if (name == null) {
+      if (other.name != null)
+        return false;
+    } else if (!name.equals(other.name))
+      return false;
+    return true;
   }
 
+  
+  
   //get references to these from other classes, e.g. AccessPrivilege.READ, or NamingPrivilege
   // PRIVATE CLASS CONSTANTS //
   private static final Set<Privilege>         ACCESS  = new LinkedHashSet<Privilege>();
@@ -95,6 +117,32 @@ public class Privilege implements Serializable {
   } // static
 
 
+  /**
+   * return the list name
+   * @return the list name
+   */
+  public String getListName() {
+    if (isAccess(this)) {
+      return AccessPrivilege.privToList(this);
+    }
+    if (isNaming(this)) {
+      return NamingPrivilege.privToList(this);
+    }
+    throw new RuntimeException("Invalid list: " + this);
+  }
+  
+  /**
+   * return the list name
+   * @return the list name
+   */
+  public Field getField() throws SchemaException {
+    String listName = this.getListName();
+    if (!StringUtils.isBlank(listName)) {
+      return FieldFinder.find(listName);
+    }
+    throw new SchemaException("invalid privilege: " + this);
+  }
+  
   // CONSTRUCTORS //
   private Privilege(String name) {
     this.name = name;

@@ -16,6 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -29,13 +32,47 @@ import edu.internet2.middleware.subject.Subject;
  * An instance of a granted naming privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingPrivilege.java,v 1.4 2008-12-06 20:39:36 mchyzer Exp $
+ * @version $Id: NamingPrivilege.java,v 1.5 2009-03-02 07:33:25 mchyzer Exp $
  */
 public class NamingPrivilege implements GrouperPrivilege, Comparable {
 
   // Public Class Constants
   public static final Privilege CREATE  = Privilege.getInstance("create");
   public static final Privilege STEM    = Privilege.getInstance("stem");
+
+  /** convert a list to priv */
+  private static Map<String,Privilege> list2priv = new HashMap<String, Privilege>();
+
+  static {
+    list2priv.put( "create",  NamingPrivilege.CREATE);
+    list2priv.put( "stem",  NamingPrivilege.STEM);
+  }
+
+  /** convert a list to a priv */
+  private static Map<Privilege, String> priv2list = new HashMap<Privilege, String>();
+
+  static {
+    priv2list.put(  NamingPrivilege.CREATE , "creators"    );
+    priv2list.put(  NamingPrivilege.STEM , "stemmers"    );
+  }
+ 
+  /**
+   * convert a privilege to a list
+   * @param privilege
+   * @return the list name
+   */
+  static String privToList(Privilege privilege) {
+    return priv2list.get(privilege);
+  }
+
+  /**
+   * convert a list to a privilege
+   * @param list
+   * @return the privilege
+   */
+  static Privilege listToPriv(String list) {
+    return list2priv.get(list);
+  }
 
   /**
    * 

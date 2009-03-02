@@ -17,120 +17,59 @@
 
 package edu.internet2.middleware.grouper.misc;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-
-import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
  * Composite Type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CompositeType.java,v 1.3 2008-11-04 07:17:56 mchyzer Exp $    
+ * @version $Id: CompositeType.java,v 1.4 2009-03-02 07:33:25 mchyzer Exp $    
  * @since   1.0
  */
-public class CompositeType implements Serializable {
+public enum CompositeType implements Serializable {
 
-  // PUBLIC CLASS CONSTANTS //
+  /** the members in the left, which are not in the right (e.g. the right is an excludes list) */
+  COMPLEMENT("complement"),
+
+  /** the members in the left, or in the right (right is an includes list) */
+  UNION("union"),
+
+  /** the members who are in the left, who are also in the right (right is a required list) */
+  INTERSECTION("intersection");
 
   /**
-   * Complement Membership.
+   * find the value of a string and ignore case
+   * @param theName
    */
-  public static final CompositeType COMPLEMENT        = new CompositeType("complement");
+  public static CompositeType valueOfIgnoreCase(String theName) {
+    return GrouperUtil.enumValueOfIgnoreCase(CompositeType.class,theName, false );
+  }
+  
   /**
-   * Intersection Membership.
+   * construct with name
    */
-  public static final CompositeType INTERSECTION      = new CompositeType("intersection");
-  /**
-   * Union Memberhsip.
-   */
-  public static final CompositeType UNION             = new CompositeType("union");
-  public static final long          serialVersionUID  = 8723086294472152215L;
-
-
-  // PRIVATE CLASS CONSTANTS //
-  private static final Map<String, CompositeType> TYPES = new HashMap<String, CompositeType>();
-
-
-  // PRIVATE INSTANCE VARIABLES //
-  private String type;
-
+  private CompositeType(String theName) {
+    this.name = theName;
+  }
+  
+  /** friendly name of composite */
+  private String name;
+  
   /**
    * get name of composite type, e.g. complement, union, intersection
    * @return name
    */
   public String getName() {
-    return this.type;
+    return this.name;
   }
 
-  // STATIC //
-  static {
-    TYPES.put(  COMPLEMENT.toString()   , COMPLEMENT    );
-    TYPES.put(  INTERSECTION.toString() , INTERSECTION  );
-    TYPES.put(  UNION.toString()        , UNION         );
-  } // static
-
-
-  // CONSTRUCTORS //
-  // @since 1.0
-  private CompositeType(String type) {
-    this.type = type;
-  } // private CompositeType(type)
-
-
-  // PUBLIC CLASS METHODS //
-
   /**
-   * @since 1.0
-   */
-  public static CompositeType getInstance(String type) {
-    return (CompositeType) TYPES.get(type);
-  } // public static CompositeType getInstance(type)
-  
-  /**
-   * 
-   * @see java.lang.Object#equals(java.lang.Object)
+   * @see java.lang.Object#toString()
    */
   @Override
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof CompositeType)) {
-      return false;
-    }
-    return StringUtils.equals(this.type, ((CompositeType)other).type);
-  }
-
-  /**
-   * 
-   * @see java.lang.Object#hashCode()
-   */
-  @Override
-  public int hashCode() {
-    if (this.type == null) {
-      return 1;
-    }
-    return this.type.hashCode();
-  }
-
-
-  /**
-   * @since 1.0
-   */
   public String toString() {
-    return this.type;
-  } // public String toString()
-
-
-  /**
-   * @since 1.0
-   */
-  Object readResolve() {
-    return getInstance(type);
-  } // Object readResolve()
-
+    return this.name;
+  }
 }
 

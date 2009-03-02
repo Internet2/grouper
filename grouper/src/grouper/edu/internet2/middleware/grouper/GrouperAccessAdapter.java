@@ -16,10 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -33,7 +31,6 @@ import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsExceptio
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
-import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -43,14 +40,12 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessAdapter;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.GrouperPrivilegeAdapter;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** 
  * Grouper Access Privilege interface.
@@ -60,26 +55,9 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.74 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.75 2009-03-02 07:33:25 mchyzer Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
-
-  // PRIVATE CLASS VARIABLES //
-  private static Map priv2list = new HashMap();
-
-
-  // STATIC //
-  static {
-    priv2list.put(  AccessPrivilege.ADMIN , "admins"    );
-    priv2list.put(  AccessPrivilege.OPTIN , "optins"    );
-    priv2list.put(  AccessPrivilege.OPTOUT, "optouts"   );
-    priv2list.put(  AccessPrivilege.READ  , "readers"   );
-    priv2list.put(  AccessPrivilege.UPDATE, "updaters"  );
-    priv2list.put(  AccessPrivilege.VIEW  , "viewers"   );
-  } // static
-
-
-  // PUBLIC INSTANCE METHODS //
 
   /**
    * Get all subjects with this privilege on this group.
@@ -103,7 +81,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     return MembershipFinder.internal_findGroupSubjects(
-      s, g, FieldFinder.find( (String) priv2list.get(priv) )
+      s, g, FieldFinder.find( priv.getListName() )
     );
   } // public Set getSubjectsWithpriv(s, g, priv)
 
@@ -134,7 +112,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     GrouperSession.validate(s);
     Set groups = new LinkedHashSet();
     try {
-      Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+      Field f = priv.getField();
       // This subject
       groups.addAll( 
         GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectHasPriv( s, MemberFinder.findBySubject(s, subj), f ) 
@@ -172,7 +150,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     Set privs = new LinkedHashSet();
     try {
       Member        m     = MemberFinder.findBySubject(s, subj);
-      Member        all   = MemberFinder.internal_findAllMember();     
+      //Member        all   = MemberFinder.internal_findAllMember();     
       MembershipDAO dao   = GrouperDAOFactory.getFactory().getMembership();
       Iterator      it;
 
@@ -228,7 +206,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
             throws GrouperSessionException {
           try {
             GrouperSession.validate(grouperSession);
-            Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+            Field f = priv.getField();
             if ( !FieldType.ACCESS.equals( f.getType() ) ) {
               throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
             }
@@ -285,7 +263,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     GrouperSession.validate(s);
     boolean rv = false;
     Member m = MemberFinder.findBySubject(s, subj);
-    rv = m.isMember(g, GrouperPrivilegeAdapter.internal_getField(priv2list, priv) );
+    rv = m.isMember(g, priv.getField() );
     return rv;
   } // public boolean hasPriv(s, g, subj, priv)
 
@@ -316,7 +294,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+    Field f = priv.getField();
     if ( !FieldType.ACCESS.equals( f.getType() ) ) {
       throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
     }
@@ -361,7 +339,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
   {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+    Field f = priv.getField();
     if ( !FieldType.ACCESS.equals( f.getType() ) ) {
       throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
     }
@@ -392,7 +370,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
       throws InsufficientPrivilegeException, GrantPrivilegeException, SchemaException {
     GrouperSession.validate(s);
     
-    Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+    Field f = priv.getField();
     Set<Subject> subjs = MembershipFinder.internal_findGroupSubjectsImmediateOnly(s, g1, f);
     
     Iterator<Subject> subjectIter = subjs.iterator();
@@ -426,7 +404,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
       throws InsufficientPrivilegeException, GrantPrivilegeException, SchemaException {
     GrouperSession.validate(s);
     
-    Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+    Field f = priv.getField();
     Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
         .findAllImmediateByMemberAndField(MemberFinder.findBySubject(s, subj1).getUuid(), f);
 

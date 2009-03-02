@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.37 2009-02-13 13:10:39 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.38 2009-03-02 07:33:25 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -40,7 +40,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * ddl versions and stuff for grouper.  All ddl classes must have a currentVersion method that
- * returns the current version
+ * returns the current version.  
  */
 public enum GrouperDdl implements DdlVersionable {
 
@@ -376,193 +376,8 @@ public enum GrouperDdl implements DdlVersionable {
       
       addContextIdCols(database);
       
-      {
-        Table grouperAuditTypeTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-            AuditType.TABLE_GROUPER_AUDIT_TYPE);
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "action_name", 
-            Types.VARCHAR, "50", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "audit_category", 
-            Types.VARCHAR, "50", false, false); 
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "context_id", 
-            Types.VARCHAR, "128", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "created_on", 
-            Types.TIMESTAMP, null, false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "hibernate_version_number", 
-            Types.INTEGER, null, false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "id", 
-            Types.VARCHAR, "128", true, true); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int01", 
-            Types.VARCHAR, "50", false, false); 
+      addAuditTables(ddlVersionBean, database);
       
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int02", 
-            Types.VARCHAR, "50", false, false); 
-      
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int03", 
-            Types.VARCHAR, "50", false, false); 
-      
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int04", 
-            Types.VARCHAR, "50", false, false); 
-      
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int05", 
-            Types.VARCHAR, "50", false, false); 
-      
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string01", 
-            Types.VARCHAR, "50", false, false); 
-      
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string02", 
-            Types.VARCHAR, "50", false, false); 
-      
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string03", 
-            Types.VARCHAR, "50", false, false); 
-      
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string04", 
-            Types.VARCHAR, "50", false, false); 
-      
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string05", 
-            Types.VARCHAR, "50", false, false); 
-      
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string06", 
-            Types.VARCHAR, "50", false, false); 
-      
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string07", 
-            Types.VARCHAR, "50", false, false); 
-      
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string08", 
-            Types.VARCHAR, "50", false, false); 
-      
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "last_updated", 
-            Types.TIMESTAMP, null, false, false); 
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditTypeTable.getName(), 
-            "audit_type_category_type_idx", true, "audit_category", "action_name");
-
-      }
-      
-      {
-        Table grouperAuditEntryTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
-            AuditEntry.TABLE_GROUPER_AUDIT_ENTRY);
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "act_as_member_id", Types.VARCHAR, "128", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "audit_type_id", Types.VARCHAR, "128", false, true); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "context_id", Types.VARCHAR, "128", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "created_on", Types.TIMESTAMP, null, false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "description", Types.VARCHAR, "4000", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "env_name", Types.VARCHAR, "50", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "grouper_engine", Types.VARCHAR, "50", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "grouper_version", Types.VARCHAR, "20", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "hibernate_version_number", Types.INTEGER, null, false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "id", Types.VARCHAR, "128", true, true); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "int01", Types.INTEGER, null, false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "int02", Types.INTEGER, null, false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "int03", Types.INTEGER, null, false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "int04", Types.INTEGER, null, false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "int05", Types.INTEGER, null, false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "last_updated", Types.TIMESTAMP, null, false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "logged_in_member_id", Types.VARCHAR, "128", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "server_host", Types.VARCHAR, "50", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "string01", Types.VARCHAR, "4000", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "string02", Types.VARCHAR, "4000", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "string03", Types.VARCHAR, "4000", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "string04", Types.VARCHAR, "4000", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "string05", Types.VARCHAR, "4000", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "string06", Types.VARCHAR, "4000", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "string07", Types.VARCHAR, "4000", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "string08", Types.VARCHAR, "4000", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "user_ip_address", Types.VARCHAR, "50", false, false); 
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "duration_microseconds", Types.INTEGER, null, false, false); 
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "query_count", Types.INTEGER, null, false, false); 
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-            "server_user_name", Types.VARCHAR, "50", false, false); 
-
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
-            "audit_entry_act_as_idx", false, "act_as_member_id");
-
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
-            "audit_entry_type_idx", false, "audit_type_id");
-
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
-            "audit_entry_context_idx", false, "context_id");
-
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
-            "audit_entry_logged_in_idx", false, "logged_in_member_id");
-
-        //do 5 string indexes, probably dont need them on the other string cols
-        for (int i=1;i<=5;i++) {
-          //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
-          String scriptOverride = ddlVersionBean.isMysql() ? "\nCREATE INDEX audit_entry_string0" + i + "_idx " +
-              "ON grouper_audit_entry (string0" + i + "(333));\n" : null;
-          
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperAuditEntryTable.getName(), 
-              "audit_entry_string0" + i + "_idx", scriptOverride, false, "string0" + i);
-          
-        }
-        
-      }
     }
   },
 
@@ -1738,6 +1553,8 @@ public enum GrouperDdl implements DdlVersionable {
       
       addContextIdCols(database);
       
+      addAuditTables(ddlVersionBean, database);
+
     }
 
   }, 
@@ -2610,11 +2427,15 @@ public enum GrouperDdl implements DdlVersionable {
     
     String typeIdCol = "id";
     
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY, 
-        "fk_audit_entry_type_id", AuditType.TABLE_GROUPER_AUDIT_TYPE, "audit_type_id", "id");
+    //dont add if just testing
+    boolean buildingAudits = buildingToVersion >= V19.getVersion();
+    if (buildingAudits) {
+      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY, 
+          "fk_audit_entry_type_id", AuditType.TABLE_GROUPER_AUDIT_TYPE, "audit_type_id", "id");
 
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Attribute.TABLE_GROUPER_ATTRIBUTES, 
-        "fk_attributes_group_id", Group.TABLE_GROUPER_GROUPS, "group_id", groupIdCol);
+      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Attribute.TABLE_GROUPER_ATTRIBUTES, 
+          "fk_attributes_group_id", Group.TABLE_GROUPER_GROUPS, "group_id", groupIdCol);
+    }
     
     //dont add if just testing
     boolean buildingFieldIds = buildingToVersion > V4.getVersion();
@@ -2679,90 +2500,89 @@ public enum GrouperDdl implements DdlVersionable {
         "fk_types_creator_uuid", Member.TABLE_GROUPER_MEMBERS, "creator_uuid", memberIdCol);
   
     //now lets add views
-
-    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_audit_entry_v",
-        "Join of audit entry and audit type, and converts member ids to subject ids",
-        GrouperUtil.toSet("created_on", "audit_category", "action_name", 
-            "logged_in_subject_id",
-            "act_as_subject_id",
-            "label_string01", "string01",
-            "label_string02", "string02",
-            "label_string03", "string03",
-            "label_string04", "string04",
-            "label_string05", "string05",
-            "label_string06", "string06",
-            "label_string07", "string07",
-            "label_string08", "string08",
-            "label_int01", "int01",
-            "label_int02", "int02",
-            "label_int03", "int03",
-            "label_int04", "int04",
-            "label_int05", "int05",
-            "context_id", "grouper_engine",
-            "description", "logged_in_source_id", "act_as_source_id", 
-            "logged_in_member_id", "act_as_member_id",
-            "audit_type_id",
-            "user_ip_address", "server_host",
-            "audit_entry_last_updated", "audit_entry_id", "grouper_version", "env_name"),
-         GrouperUtil.toSet("When this audit entry record was created",
-             "The category of this audit from grouper_audit_type",
-             "The action in this audit category from grouper_audit_type",
-             "The subject id of the logged in subject, e.g. from WS or UI",
-             "The subject id of the user using the system if they are acting as another user, e.g. from WS",
-             "The label of the string field 01 from grouper_audit_type", "The string 01 value",
-             "The label of the string field 02 from grouper_audit_type", "The string 02 value",
-             "The label of the string field 03 from grouper_audit_type", "The string 03 value",
-             "The label of the string field 04 from grouper_audit_type", "The string 04 value",
-             "The label of the string field 05 from grouper_audit_type", "The string 05 value",
-             "The label of the string field 06 from grouper_audit_type", "The string 06 value",
-             "The label of the string field 07 from grouper_audit_type", "The string 07 value",
-             "The label of the string field 08 from grouper_audit_type", "The string 08 value",
-             "The label of the int field 01 from grouper_audit_type", "The int 01 value",
-             "The label of the int field 02 from grouper_audit_type", "The int 02 value",
-             "The label of the int field 03 from grouper_audit_type", "The int 03 value",
-             "The label of the int field 04 from grouper_audit_type", "The int 04 value",
-             "The label of the int field 05 from grouper_audit_type", "The int 05 value",
-             "Context id links together multiple operations into one high level action",
-             "Grouper engine is e.g. UI, WS, GSH, loader, etc",
-             "Description is a sentence form expression of what is being audited",
-             "Source id of the user who is logged in",
-             "Source id of the user who is being acted as (e.g. in WS)",
-             "Member id (foreign key) of the user logged in",
-             "Member id (foreign key) of the user who is being acted as",
-             "ID of the audit type row",
-             "IP address of the user connecting to the system (e.g. from UI or WS)",
-             "Host of the system running the grouper API",
-             "When this audit entry was last updated", "ID of this audit entry", "Grouper version of the API executing", 
-             "environment label of the system running, from grouper.properties"),
-             "select gae.created_on, gat.audit_category, gat.action_name, "
-             + "(select gm.subject_id from grouper_members gm where gm.id = gae.logged_in_member_id) as logged_in_subject_id, "
-             + "(select gm.subject_id from grouper_members gm where gm.id = gae.act_as_member_id) as act_as_subject_id, "
-             + "gat.label_string01, gae.string01, "
-             + "gat.label_string02, gae.string02, "
-             + "gat.label_string03, gae.string03, "
-             + "gat.label_string04, gae.string04, "
-             + "gat.label_string05, gae.string05, "
-             + "gat.label_string06, gae.string06, "
-             + "gat.label_string07, gae.string07, "
-             + "gat.label_string08, gae.string08, "
-             + "gat.label_int01, gae.int01, "
-             + "gat.label_int02, gae.int02, "
-             + "gat.label_int03, gae.int03, "
-             + "gat.label_int04, gae.int04, "
-             + "gat.label_int05, gae.int05, "
-             + "gae.context_id, "
-             + "gae.grouper_engine, "
-             + "gae.description, "
-             + "(select gm.subject_source from grouper_members gm where gm.id = gae.logged_in_member_id) as logged_in_source_id, "
-             + "(select gm.subject_source from grouper_members gm where gm.id = gae.act_as_member_id) as act_as_source_id, "
-             + "gae.logged_in_member_id, gae.act_as_member_id, "
-             + "gat.id audit_type_id, "
-             + "gae.user_ip_address, gae.server_host, "
-             + "gae.last_updated, gae.id audit_entry_id, gae.grouper_version, gae.env_name "
-             + "from grouper_audit_type gat, grouper_audit_entry gae "
-             + "where gat.id = gae.audit_type_id ");
-
-    
+    if (buildingAudits) {
+      GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_audit_entry_v",
+          "Join of audit entry and audit type, and converts member ids to subject ids",
+          GrouperUtil.toSet("created_on", "audit_category", "action_name", 
+              "logged_in_subject_id",
+              "act_as_subject_id",
+              "label_string01", "string01",
+              "label_string02", "string02",
+              "label_string03", "string03",
+              "label_string04", "string04",
+              "label_string05", "string05",
+              "label_string06", "string06",
+              "label_string07", "string07",
+              "label_string08", "string08",
+              "label_int01", "int01",
+              "label_int02", "int02",
+              "label_int03", "int03",
+              "label_int04", "int04",
+              "label_int05", "int05",
+              "context_id", "grouper_engine",
+              "description", "logged_in_source_id", "act_as_source_id", 
+              "logged_in_member_id", "act_as_member_id",
+              "audit_type_id",
+              "user_ip_address", "server_host",
+              "audit_entry_last_updated", "audit_entry_id", "grouper_version", "env_name"),
+           GrouperUtil.toSet("When this audit entry record was created",
+               "The category of this audit from grouper_audit_type",
+               "The action in this audit category from grouper_audit_type",
+               "The subject id of the logged in subject, e.g. from WS or UI",
+               "The subject id of the user using the system if they are acting as another user, e.g. from WS",
+               "The label of the string field 01 from grouper_audit_type", "The string 01 value",
+               "The label of the string field 02 from grouper_audit_type", "The string 02 value",
+               "The label of the string field 03 from grouper_audit_type", "The string 03 value",
+               "The label of the string field 04 from grouper_audit_type", "The string 04 value",
+               "The label of the string field 05 from grouper_audit_type", "The string 05 value",
+               "The label of the string field 06 from grouper_audit_type", "The string 06 value",
+               "The label of the string field 07 from grouper_audit_type", "The string 07 value",
+               "The label of the string field 08 from grouper_audit_type", "The string 08 value",
+               "The label of the int field 01 from grouper_audit_type", "The int 01 value",
+               "The label of the int field 02 from grouper_audit_type", "The int 02 value",
+               "The label of the int field 03 from grouper_audit_type", "The int 03 value",
+               "The label of the int field 04 from grouper_audit_type", "The int 04 value",
+               "The label of the int field 05 from grouper_audit_type", "The int 05 value",
+               "Context id links together multiple operations into one high level action",
+               "Grouper engine is e.g. UI, WS, GSH, loader, etc",
+               "Description is a sentence form expression of what is being audited",
+               "Source id of the user who is logged in",
+               "Source id of the user who is being acted as (e.g. in WS)",
+               "Member id (foreign key) of the user logged in",
+               "Member id (foreign key) of the user who is being acted as",
+               "ID of the audit type row",
+               "IP address of the user connecting to the system (e.g. from UI or WS)",
+               "Host of the system running the grouper API",
+               "When this audit entry was last updated", "ID of this audit entry", "Grouper version of the API executing", 
+               "environment label of the system running, from grouper.properties"),
+               "select gae.created_on, gat.audit_category, gat.action_name, "
+               + "(select gm.subject_id from grouper_members gm where gm.id = gae.logged_in_member_id) as logged_in_subject_id, "
+               + "(select gm.subject_id from grouper_members gm where gm.id = gae.act_as_member_id) as act_as_subject_id, "
+               + "gat.label_string01, gae.string01, "
+               + "gat.label_string02, gae.string02, "
+               + "gat.label_string03, gae.string03, "
+               + "gat.label_string04, gae.string04, "
+               + "gat.label_string05, gae.string05, "
+               + "gat.label_string06, gae.string06, "
+               + "gat.label_string07, gae.string07, "
+               + "gat.label_string08, gae.string08, "
+               + "gat.label_int01, gae.int01, "
+               + "gat.label_int02, gae.int02, "
+               + "gat.label_int03, gae.int03, "
+               + "gat.label_int04, gae.int04, "
+               + "gat.label_int05, gae.int05, "
+               + "gae.context_id, "
+               + "gae.grouper_engine, "
+               + "gae.description, "
+               + "(select gm.subject_source from grouper_members gm where gm.id = gae.logged_in_member_id) as logged_in_source_id, "
+               + "(select gm.subject_source from grouper_members gm where gm.id = gae.act_as_member_id) as act_as_source_id, "
+               + "gae.logged_in_member_id, gae.act_as_member_id, "
+               + "gat.id audit_type_id, "
+               + "gae.user_ip_address, gae.server_host, "
+               + "gae.last_updated, gae.id audit_entry_id, gae.grouper_version, gae.env_name "
+               + "from grouper_audit_type gat, grouper_audit_entry gae "
+               + "where gat.id = gae.audit_type_id ");
+    }
     
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attributes_v",
         "Join of groups and attributes with friendly names.  Attributes are name/value pairs for groups.  " +
@@ -3459,6 +3279,202 @@ public enum GrouperDdl implements DdlVersionable {
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, "description", 
         Types.VARCHAR, "1024", false, false);
+
+  }
+  
+  /**
+   * add audit tables in v2 or when needed
+   * @param ddlVersionBean
+   * @param database
+   */
+  private static void addAuditTables(DdlVersionBean ddlVersionBean, Database database) {
+    {
+      Table grouperAuditTypeTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          AuditType.TABLE_GROUPER_AUDIT_TYPE);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "action_name", 
+          Types.VARCHAR, "50", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "audit_category", 
+          Types.VARCHAR, "50", false, false); 
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "context_id", 
+          Types.VARCHAR, "128", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "created_on", 
+          Types.TIMESTAMP, null, false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "hibernate_version_number", 
+          Types.INTEGER, null, false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "id", 
+          Types.VARCHAR, "128", true, true); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int01", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int02", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int03", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int04", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_int05", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string01", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string02", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string03", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string04", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string05", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string06", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string07", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "label_string08", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "last_updated", 
+          Types.TIMESTAMP, null, false, false); 
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditTypeTable.getName(), 
+          "audit_type_category_type_idx", true, "audit_category", "action_name");
+
+    }
+    
+    {
+      Table grouperAuditEntryTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          AuditEntry.TABLE_GROUPER_AUDIT_ENTRY);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "act_as_member_id", Types.VARCHAR, "128", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "audit_type_id", Types.VARCHAR, "128", false, true); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "context_id", Types.VARCHAR, "128", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "created_on", Types.TIMESTAMP, null, false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "description", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "env_name", Types.VARCHAR, "50", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "grouper_engine", Types.VARCHAR, "50", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "grouper_version", Types.VARCHAR, "20", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "hibernate_version_number", Types.INTEGER, null, false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "id", Types.VARCHAR, "128", true, true); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "int01", Types.INTEGER, null, false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "int02", Types.INTEGER, null, false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "int03", Types.INTEGER, null, false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "int04", Types.INTEGER, null, false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "int05", Types.INTEGER, null, false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "last_updated", Types.TIMESTAMP, null, false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "logged_in_member_id", Types.VARCHAR, "128", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "server_host", Types.VARCHAR, "50", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "string01", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "string02", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "string03", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "string04", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "string05", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "string06", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "string07", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "string08", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "user_ip_address", Types.VARCHAR, "50", false, false); 
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "duration_microseconds", Types.INTEGER, null, false, false); 
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "query_count", Types.INTEGER, null, false, false); 
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
+          "server_user_name", Types.VARCHAR, "50", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
+          "audit_entry_act_as_idx", false, "act_as_member_id");
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
+          "audit_entry_type_idx", false, "audit_type_id");
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
+          "audit_entry_context_idx", false, "context_id");
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditEntryTable.getName(), 
+          "audit_entry_logged_in_idx", false, "logged_in_member_id");
+
+      //do 5 string indexes, probably dont need them on the other string cols
+      for (int i=1;i<=5;i++) {
+        //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
+        String scriptOverride = ddlVersionBean.isMysql() ? "\nCREATE INDEX audit_entry_string0" + i + "_idx " +
+            "ON grouper_audit_entry (string0" + i + "(333));\n" : null;
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperAuditEntryTable.getName(), 
+            "audit_entry_string0" + i + "_idx", scriptOverride, false, "string0" + i);
+        
+      }
+      
+    }
 
   }
   
