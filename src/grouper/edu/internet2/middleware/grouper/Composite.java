@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
@@ -57,11 +58,11 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.64 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.65 2009-03-02 07:33:25 mchyzer Exp $
  * @since   1.0
  */
 @SuppressWarnings("serial")
-public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
+public class Composite extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
   /** table for composites */
   public static final String TABLE_GROUPER_COMPOSITES = "grouper_composites";
@@ -206,8 +207,8 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
    * @since   1.0
    */
   public CompositeType getType() {
-    return CompositeType.getInstance( this.type );
-  } // public CompositeType getType()
+    return CompositeType.valueOfIgnoreCase( this.type );
+  }
 
   /**
    * simple getter for type for db
@@ -766,6 +767,25 @@ public class Composite extends GrouperAPI implements Hib3GrouperVersioned {
   @Override
   public Composite clone() {
     return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
+
+  /** context id of the transaction */
+  private String contextId;
+
+  /**
+   * context id of the transaction
+   * @return context id
+   */
+  public String getContextId() {
+    return this.contextId;
+  }
+
+  /**
+   * context id of the transaction
+   * @param contextId1
+   */
+  public void setContextId(String contextId1) {
+    this.contextId = contextId1;
   }
 
 } 

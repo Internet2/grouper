@@ -64,6 +64,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -78,9 +79,9 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.113 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.114 2009-03-02 07:33:25 mchyzer Exp $
  */
-public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
+public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
   /**
    * 
@@ -1389,5 +1390,23 @@ public class Membership extends GrouperAPI implements Hib3GrouperVersioned {
     this.ownerStemId = stemId1;
   }
 
+  /** context id of the transaction */
+  private String contextId;
+
+  /**
+   * context id of the transaction
+   * @return context id
+   */
+  public String getContextId() {
+    return this.contextId;
+  }
+
+  /**
+   * context id of the transaction
+   * @param contextId1
+   */
+  public void setContextId(String contextId1) {
+    this.contextId = contextId1;
+  }
   
 }

@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3CompositeDAO.hbm.xml,v 1.8 2008-10-16 05:45:47 mchyzer Exp $ -->
+<!-- $Id: Hib3CompositeDAO.hbm.xml,v 1.9 2009-03-02 07:33:25 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper"  default-lazy="false">
   <class name="Composite" table="grouper_composites">
@@ -124,6 +124,8 @@
       />
     </property>
     <!-- createTime -->
+
+    <property name="contextId" column="context_id"/>
 
   </class>
 </hibernate-mapping>
