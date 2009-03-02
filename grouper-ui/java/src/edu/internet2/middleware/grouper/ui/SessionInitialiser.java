@@ -25,10 +25,12 @@ import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.tools.ant.types.Assertions.EnabledAssertion;
 import org.w3c.dom.Document;
 
 import edu.internet2.middleware.grouper.*;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
 import edu.internet2.middleware.grouper.ui.util.*;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -38,11 +40,13 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.17 2008-11-05 05:10:40 mchyzer Exp $
+ * @version $Id: SessionInitialiser.java,v 1.18 2009-03-02 13:44:42 isgwb Exp $
  */
 
 public class SessionInitialiser {
 	protected static Log LOG = LogFactory.getLog(SessionInitialiser.class);
+	private static Group debuggers;
+	private static boolean attemptedDebuggers=false;
 	/**
 	 * Sets locale and calls any module specific initialisation
 	 * 
@@ -171,6 +175,8 @@ public class SessionInitialiser {
 		} catch (Exception e) {
 
 		}
+		
+		initDebugging(session);
 		GrouperSession s = getGrouperSession(session);
 		//@TODO: should we split the personalStemRoot and create
 		//any stems which are missing
@@ -229,6 +235,50 @@ public class SessionInitialiser {
 		}
 		
 	}
+	private static void initDebugging(HttpSession session) {
+		boolean debugOff = true;
+		String debugGroup=null;
+		ResourceBundle media = LowLevelGrouperCapableAction.getMediaResources(session);
+		try {
+			debugOff = !"false".equals(media.getString("debug.off"));
+		}catch(Exception e) {
+			LOG.error("Error processing debug.off. Disabling.", e);
+		}
+		if(debugOff){
+			session.setAttribute("debugMessage", "debug.error.disabled");
+			return;
+		}
+		if(debuggers==null) {
+			try {
+				debugGroup = media.getString("debug.group");
+			}catch(Exception e) {
+				LOG.info("debug.group not set in media.properties");
+			}
+			if(debugGroup!=null && !attemptedDebuggers) {
+				try {
+					attemptedDebuggers=true;
+					GrouperSession root = GrouperSession.startRootSession();
+					debuggers=GroupFinder.findByName(root, debugGroup);
+				}catch(Exception e) {
+					LOG.error("debug.group:" + debugGroup + " does not exist",e);
+				}
+			}
+		}
+		if(debuggers==null || !debuggers.hasMember(getGrouperSession(session).getSubject())) {
+			session.setAttribute("debugMessage", "debug.error.not-allowed");
+			return;
+		}
+		boolean enableHtmlEditor=false;
+		try {
+			enableHtmlEditor="true".equals(media.getString("debug.group.enable-html-editor"));
+		}catch(Exception e){
+			LOG.info("debug.group.enable-html-editor not set in media.properties");
+		}
+		session.setAttribute("enableHtmlEditor", enableHtmlEditor);
+		
+		
+	}
+	
 
   /**
    * add in exclude and include tooltips if not already in there (from grouper.properties)

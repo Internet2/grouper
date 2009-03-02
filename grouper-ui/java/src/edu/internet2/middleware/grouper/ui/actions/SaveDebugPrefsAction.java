@@ -97,13 +97,14 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: SaveDebugPrefsAction.java,v 1.3 2006-09-20 17:15:34 isgwb Exp $
+ * @version $Id: SaveDebugPrefsAction.java,v 1.4 2009-03-02 13:44:42 isgwb Exp $
  */
 public class SaveDebugPrefsAction extends GrouperCapableAction {
 
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_DebugPrefs = "DebugPrefs";
+	static final private String FORWARD_DebugNotAllowed = "NotAllowed";
 
 	//------------------------------------------------------------ Action
 	// Methods
@@ -114,6 +115,10 @@ public class SaveDebugPrefsAction extends GrouperCapableAction {
 			throws Exception {
 		
 		request.setAttribute("title", "debug.prefs.title");
+		if(session.getAttribute("debugMessage")!=null){
+			addMessage(new Message((String)session.getAttribute("debugMessage"),true), request);
+			return mapping.findForward(FORWARD_DebugNotAllowed);
+		}
 		request.setAttribute("message",new Message("debug.prefs.saved"));
 		DynaActionForm debugPrefsForm = (DynaActionForm)form;
 		Map values = debugPrefsForm.getMap();

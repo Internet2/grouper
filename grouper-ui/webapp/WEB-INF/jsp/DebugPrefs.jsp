@@ -2,7 +2,7 @@
 		  Form for saving debug preferences.
 --%><%--
   @author Gary Brown.
-  @version $Id: DebugPrefs.jsp,v 1.4 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: DebugPrefs.jsp,v 1.5 2009-03-02 13:44:42 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="preferences">
@@ -14,6 +14,7 @@
     <td valign="top"><html:checkbox property="isActive" />
     </td>
 </tr>
+<c:if test="${enableHtmlEditor}">
 <tr>
     <td valign="top"><grouper:message bundle="${nav}" key="debug.prefs.edit.i2miDir"/></td>
     <td valign="top"><html:text property="i2miDir" size="75" />
@@ -24,6 +25,7 @@
     <td valign="top"><html:text property="siteDir" size="75" />
     </td>
 </tr>
+</c:if>
 <tr>
     <td valign="top"><grouper:message bundle="${nav}" key="debug.prefs.edit.doShowResources"/></td>
     <td valign="top"><html:checkbox property="doShowResources" />
@@ -39,11 +41,13 @@
     <td valign="top"><html:checkbox property="doShowTilesHistory" />
     </td>
 </tr>
+<c:if test="${enableHtmlEditor}">
 <tr>
     <td valign="top"><grouper:message bundle="${nav}" key="debug.prefs.edit.editor"/></td>
     <td valign="top"><html:text property="JSPEditor" size="75" />
     </td>
 </tr>
+</c:if>
 <tr>
     <td valign="top"><grouper:message bundle="${nav}" key="debug.prefs.edit.doHideStyles"/></td>
     <td valign="top"><html:checkbox property="doHideStyles" />

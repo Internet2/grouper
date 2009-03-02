@@ -216,6 +216,7 @@
             type="edu.internet2.middleware.grouper.ui.actions.EditJSPAction"
             unknown="false" validate="false">
       <forward name="Editor" path="EditorDef" redirect="false"/>
+      <forward name="NotAllowed" path="DebugNotAllowedDef" redirect="false"/>
     </action>  
   
   <!--<action  path="/exportXml"
@@ -236,6 +237,7 @@
             type="edu.internet2.middleware.grouper.ui.actions.PopulateDebugPrefsAction"
             unknown="false" validate="false">
       <forward name="DebugPrefs" path="DebugPrefsDef" redirect="false"/>
+      <forward name="NotAllowed" path="DebugNotAllowedDef" redirect="false"/>
     </action>
     
        <!-- <action path="/populateChain"  name="GroupFormBean" scope="request"
@@ -254,6 +256,7 @@
             type="edu.internet2.middleware.grouper.ui.actions.SaveDebugPrefsAction"
             unknown="false" validate="false">
       <forward name="DebugPrefs" path="DebugPrefsDef" redirect="false"/>
+      <forward name="NotAllowed" path="DebugNotAllowedDef" redirect="false"/>
     </action>
     
 

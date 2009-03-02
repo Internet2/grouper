@@ -114,6 +114,13 @@
     <put name="content" type="page" value="/WEB-INF/jsp/DebugPrefs.jsp"/>
   </definition>
   
+  <definition extends="BaseDef" name="DebugNotAllowedDef">
+  	 <description>
+		 Show instead of debug page if not enabled
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/DebugNotAllowed.jsp"/>
+  </definition>
+  
   <definition extends="BaseDef" name="FindNewMembersDef">
   	 <description>
 		Browse tree / search screen for finding members 

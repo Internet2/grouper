@@ -29,6 +29,7 @@ import org.apache.struts.action.ActionMapping;
 
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.ui.Message;
 
 /**
  * Top level Strut's action which launches JSP editor configured through 
@@ -36,13 +37,14 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: EditJSPAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: EditJSPAction.java,v 1.3 2009-03-02 13:44:42 isgwb Exp $
  */
 public class EditJSPAction extends GrouperCapableAction {
 
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_Editor = "Editor";
+	static final private String FORWARD_DebugNotAllowed = "NotAllowed";
 
 	//------------------------------------------------------------ Action
 	// Methods
@@ -54,6 +56,10 @@ public class EditJSPAction extends GrouperCapableAction {
 		
 		session.removeAttribute("subtitle");
 		session.setAttribute("title", "prefs.debug.title");
+		if(!Boolean.TRUE.equals(session.getAttribute("enableHtmlEditor"))){
+			addMessage(new Message("debug.error.editor-not-allowed",true), request);
+			return mapping.findForward(FORWARD_DebugNotAllowed);
+		}
 		Map prefs = (Map)session.getAttribute("debugPrefs");
 		
 		String jsp=request.getParameter("jsp");

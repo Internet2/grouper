@@ -19,18 +19,24 @@ package edu.internet2.middleware.grouper.ui.actions;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.ui.Message;
 
 /**
  * Top level Strut's action which does any setup needed prior to letting user 
@@ -90,13 +96,15 @@ import edu.internet2.middleware.grouper.GrouperSession;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateDebugPrefsAction.java,v 1.3 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: PopulateDebugPrefsAction.java,v 1.4 2009-03-02 13:44:42 isgwb Exp $
  */
 public class PopulateDebugPrefsAction extends GrouperCapableAction {
-
+	protected static final Log LOG = LogFactory.getLog(PopulateDebugPrefsAction.class);
+	
 	//------------------------------------------------------------ Local
 	// Forwards
 	static final private String FORWARD_DebugPrefs = "DebugPrefs";
+	static final private String FORWARD_DebugNotAllowed = "NotAllowed";
 
 	//------------------------------------------------------------ Action
 	// Methods
@@ -105,7 +113,10 @@ public class PopulateDebugPrefsAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
-		
+		if(session.getAttribute("debugMessage")!=null){
+			addMessage(new Message((String)session.getAttribute("debugMessage"),true), request);
+			return mapping.findForward(FORWARD_DebugNotAllowed);
+		}
 		request.setAttribute("title", "debug.prefs.title");
 		request.setAttribute("subtitle","empty.space"); 
 		Map prefs = (Map)session.getAttribute("debugPrefs");
