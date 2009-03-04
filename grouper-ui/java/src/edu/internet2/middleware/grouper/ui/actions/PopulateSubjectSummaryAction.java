@@ -45,11 +45,13 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Top level Strut's action which retrieves and makes available a Subject.  
@@ -273,7 +275,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.23 2008-11-12 11:05:38 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.24 2009-03-04 15:36:09 isgwb Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 	
@@ -345,10 +347,16 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 			subject=SubjectFinder.findById(subjectId,subjectType,subjectSource);
 		}catch (Exception e) {
 			LOG.error(e);
-			String contextError="error.subject-summary.subject.exception";
-			session.setAttribute("sessionMessage",new Message(neh.key(e),contextError,true));
-			if(doRedirectToCaller(subjectForm)) return redirectToCaller(subjectForm);
-			throw new UnrecoverableErrorException(contextError,e);
+			if(e instanceof SubjectNotFoundException) {
+				subject=new UnresolvableSubject(subjectId,subjectType,subjectSource);
+				addMessage(new Message("error.subject.unresolvable", new String[] {subjectId,subjectSource},true), request);
+			}else{
+				
+				String contextError="error.subject-summary.subject.exception";
+				session.setAttribute("sessionMessage",new Message(neh.key(e),contextError,true));
+				if(doRedirectToCaller(subjectForm)) return redirectToCaller(subjectForm);
+				throw new UnrecoverableErrorException(contextError,e);
+			}
 		}
 		Map subjectMap = GrouperHelper.subject2Map(subject);
 		request.setAttribute("subject",subjectMap);
@@ -401,6 +409,9 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		Member member = null;
 		try {
 			member=MemberFinder.findBySubject(grouperSession,subject);
+			if(member==null) {
+				throw new MemberNotFoundException("Unresolvable subject is also not a Member");
+			}
 		}catch(Exception e) {
 			LOG.error(e);
 			if(doRedirectToCaller(subjectForm)) {

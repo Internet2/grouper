@@ -40,12 +40,15 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.MissingGroupOrStemException;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
 
@@ -209,7 +212,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMemberAction.java,v 1.11 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: PopulateGroupMemberAction.java,v 1.12 2009-03-04 15:36:09 isgwb Exp $
  */
 public class PopulateGroupMemberAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(PopulateGroupMemberAction.class);
@@ -332,7 +335,13 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 		
 		//Retrieve privileges current user, and selected subject have over
 		//current group/stem
-		Member member = MemberFinder.findBySubject(grouperSession,SubjectFinder.findById(subjectId,subjectType,sourceId));
+		Member member = null;
+		try {
+			member=MemberFinder.findBySubject(grouperSession,SubjectFinder.findById(subjectId,subjectType,sourceId));
+		}catch(SubjectNotFoundException e) {
+			Subject unresolvable = new UnresolvableSubject(subjectId,subjectType,sourceId);
+			member = MemberFinder.findBySubject(grouperSession,unresolvable);
+		}
 		Map authUserPrivs = GrouperHelper.hasAsMap(grouperSession, groupOrStem,false);
 		Map privs = GrouperHelper.hasAsMap(grouperSession, groupOrStem, member,mField); 
 		Map extendedPrivs = GrouperHelper.getExtendedHas(grouperSession,groupOrStem,member,mField);

@@ -22,8 +22,13 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.beanutils.WrapDynaBean;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.ui.actions.PopulateGroupSummaryAction;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Wraps a Subject - allows non persistent values to be stored for the UI and
@@ -31,9 +36,11 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectAsMap.java,v 1.12 2008-05-20 16:44:38 isgwb Exp $
+ * @version $Id: SubjectAsMap.java,v 1.13 2009-03-04 15:36:09 isgwb Exp $
  */
 public class SubjectAsMap extends ObjectAsMap {
+	protected static final Log LOG = LogFactory.getLog(SubjectAsMap.class);
+
 
 	protected String objType = "I2miSubject";
 
@@ -69,54 +76,59 @@ public class SubjectAsMap extends ObjectAsMap {
 	 * @see java.util.Map#get(java.lang.Object)
 	 */
 	public Object get(Object key) {
-		Object obj = getByIntrospection(key);
-		if(obj!=null) return obj;
-		obj = super.get(key);
-		//Map overrides wrapped Subject
-		if(obj==null && "useMulti".equals(key)) {
-			return null;
-		}
-		
-		if(obj!=null && !"".equals(obj)) return obj;
-			//if (values != null && values.size() != 0)
-			//	obj = values.iterator().next();
-		
-				if ("id".equals(key)||"subjectId".equals(key))
-					obj = subject.getId();
-				else if ("description".equals(key) || "desc".equals(key)) {
-					obj = subject.getDescription();
-					if((obj==null || "".equals(obj)) && subject.getType().getName().equals("group")) {
-						obj = subject.getAttributeValue("displayExtension");
-					}
-				} else if ("subjectType".equals(key))
-					obj = subject.getType().getName();
-				else if ("sourceId".equals(key))
-					obj = subject.getSource().getId();
-				if (obj == null) {
-					//No value so check wrapped Subject for value
-					String sep = (String)this.get("useMulti");
-					if(sep==null) {
-						obj = subject.getAttributeValue((String) key);
-					}else{
-						StringBuffer sb = new StringBuffer();
-						Set values = (Set)subject.getAttributeValues((String)key);
-						if(values==null) return null;
-						Iterator it = values.iterator();
-						Object val;
-						int count=0;
-						while(it.hasNext()) {
-							val=it.next();
-							if(count>0) {
-								sb.append(sep);
-								sb.append(" ");
-							}
-							sb.append(val);
+		try {
+			Object obj = getByIntrospection(key);
+			if(obj!=null) return obj;
+			obj = super.get(key);
+			//Map overrides wrapped Subject
+			if(obj==null && "useMulti".equals(key)) {
+				return null;
+			}
+			
+			if(obj!=null && !"".equals(obj)) return obj;
+				//if (values != null && values.size() != 0)
+				//	obj = values.iterator().next();
+			
+					if ("id".equals(key)||"subjectId".equals(key))
+						obj = subject.getId();
+					else if ("description".equals(key) || "desc".equals(key)) {
+						obj = subject.getDescription();
+						if((obj==null || "".equals(obj)) && subject.getType().getName().equals("group")) {
+							obj = subject.getAttributeValue("displayExtension");
 						}
-						obj=sb.toString();
+					} else if ("subjectType".equals(key))
+						obj = subject.getType().getName();
+					else if ("sourceId".equals(key))
+						obj = subject.getSource().getId();
+					if (obj == null) {
+						//No value so check wrapped Subject for value
+						String sep = (String)this.get("useMulti");
+						if(sep==null) {
+							obj = subject.getAttributeValue((String) key);
+						}else{
+							StringBuffer sb = new StringBuffer();
+							Set values = (Set)subject.getAttributeValues((String)key);
+							if(values==null) return null;
+							Iterator it = values.iterator();
+							Object val;
+							int count=0;
+							while(it.hasNext()) {
+								val=it.next();
+								if(count>0) {
+									sb.append(sep);
+									sb.append(" ");
+								}
+								sb.append(val);
+							}
+							obj=sb.toString();
+						}
 					}
-				}
-		
-		return obj;
+			
+			return obj;
+		}catch(Exception e) {
+			LOG.error(e);
+				return "Unresolvable";
+		}
 	}
 	
 	protected Set getExtraKeys() {

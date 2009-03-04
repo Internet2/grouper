@@ -21,8 +21,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.ui.actions.PopulateGroupSummaryAction;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.StemAsMap;
 import edu.internet2.middleware.subject.Subject;
@@ -56,9 +60,10 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: DefaultComparatorImpl.java,v 1.2 2007-04-17 08:40:07 isgwb Exp $
+ * @version $Id: DefaultComparatorImpl.java,v 1.3 2009-03-04 15:36:09 isgwb Exp $
  */
 public class DefaultComparatorImpl implements GrouperComparator {
+	protected static final Log LOG = LogFactory.getLog(DefaultComparatorImpl.class);
 	private ResourceBundle config;
 	private String context;
 	private Map helpers = new HashMap();
@@ -108,7 +113,13 @@ public class DefaultComparatorImpl implements GrouperComparator {
 	
 	private String getComparisonString(Object obj) {
 		GrouperComparatorHelper helper = getHelper(obj);
-		return helper.getComparisonString(obj,config,context);
+		try {
+			String comp = helper.getComparisonString(obj,config,context);
+			return comp;
+		}catch(Exception e) {
+			LOG.error(e);
+			return "?";
+		}
 	}
 	
 	private GrouperComparatorHelper getHelper(Object obj) {

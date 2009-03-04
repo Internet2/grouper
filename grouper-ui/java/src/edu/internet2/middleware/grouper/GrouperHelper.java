@@ -31,6 +31,9 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
@@ -54,9 +57,11 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.PersonalStem;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
+import edu.internet2.middleware.grouper.ui.actions.PopulateGroupMemberAction;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
 import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
@@ -77,11 +82,12 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.55 2009-03-04 10:52:40 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.56 2009-03-04 15:36:09 isgwb Exp $
  */
 
 
 public class GrouperHelper {
+	protected static final Log LOG = LogFactory.getLog(GrouperHelper.class);
 	public static HashMap list2privMap;
 	static {
 		list2privMap = new HashMap();
@@ -605,7 +611,8 @@ public class GrouperHelper {
 			try {
 				subject = SubjectFinder.findById(subjectId, subjectType,sourceId);
 			} catch (Exception e) {
-				throw new RuntimeException(e);
+				LOG.error(e);
+				subject = new UnresolvableSubject(subjectId,subjectType,sourceId); 
 			}
 			SubjectAsMap map =(SubjectAsMap)ObjectAsMap.getInstance("SubjectAsMap", subject);
 			return (Map) map;
