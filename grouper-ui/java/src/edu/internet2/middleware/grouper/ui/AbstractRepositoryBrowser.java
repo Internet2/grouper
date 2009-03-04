@@ -132,7 +132,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.18 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.19 2009-03-04 16:48:39 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -301,11 +301,13 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 
 					child = (Map) it.next();
 						if(isForAssignment) {
-							if(omitForAssignment!=null && omitForAssignment.equals(child.get("id"))) {
-								addChild=false;
-							}else{
+							//Do not try to exclude current group - so what if someone tries to add an existing member?
+							//Also becomes complicated if there are custom fields
+							//if(omitForAssignment!=null && omitForAssignment.equals(child.get("id"))) {
+								//addChild=false;
+							//}else{
 								addChild=true;
-							}
+							//}
 						}else{
 							addChild=isValidChild(child);
 						}
