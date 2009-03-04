@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.LazySubject;
+import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -38,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.58 2008-12-15 07:09:37 mchyzer Exp $
+ * @version $Id: MemberFinder.java,v 1.59 2009-03-04 15:33:31 isgwb Exp $
  */
 public class MemberFinder {
 	
@@ -102,7 +103,7 @@ public class MemberFinder {
   public static Member findBySubject(GrouperSession s, Subject subj) {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Member m = internal_findBySubject(subj, true);
+    Member m = internal_findBySubject(subj, !(subj instanceof UnresolvableSubject));
     return m;
   } // public static Member findBySubject(s, subj)
 
