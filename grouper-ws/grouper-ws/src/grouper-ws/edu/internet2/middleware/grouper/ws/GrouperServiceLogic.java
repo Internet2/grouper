@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.22.2.5 2009-02-23 18:39:59 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.22.2.6 2009-03-04 17:08:13 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -936,8 +936,7 @@ public class GrouperServiceLogic {
       wsGetGroupsResults.setResults(new WsGetGroupsResult[subjectLength]);
 
       //convert the options to a map for easy access, and validate them
-      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
-          params);
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(params);
       String fieldName = paramMap.get("fieldName");
       Field field = null;
       if (!StringUtils.isBlank(fieldName)) {

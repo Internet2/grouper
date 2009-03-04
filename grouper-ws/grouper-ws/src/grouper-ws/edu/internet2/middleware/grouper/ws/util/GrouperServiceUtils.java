@@ -708,7 +708,7 @@ public final class GrouperServiceUtils {
    */
   public static Map<String, String> convertParamsToMap(WsParam[] params) throws WsInvalidQueryException {
     if (params == null || params.length == 0) {
-      return null;
+      return new HashMap<String,String>();
     }
     Map<String, String> result = new LinkedHashMap<String, String>(params.length);
     int i = 0;
