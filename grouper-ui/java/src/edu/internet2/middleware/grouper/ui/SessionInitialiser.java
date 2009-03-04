@@ -40,7 +40,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.18 2009-03-02 13:44:42 isgwb Exp $
+ * @version $Id: SessionInitialiser.java,v 1.19 2009-03-04 10:48:57 isgwb Exp $
  */
 
 public class SessionInitialiser {
@@ -254,7 +254,7 @@ public class SessionInitialiser {
 			}catch(Exception e) {
 				LOG.info("debug.group not set in media.properties");
 			}
-			if(debugGroup!=null && !attemptedDebuggers) {
+			if(debugGroup!=null && !debugGroup.matches("^@.*?@$") && !attemptedDebuggers) {
 				try {
 					attemptedDebuggers=true;
 					GrouperSession root = GrouperSession.startRootSession();
@@ -264,7 +264,7 @@ public class SessionInitialiser {
 				}
 			}
 		}
-		if(debuggers==null || !debuggers.hasMember(getGrouperSession(session).getSubject())) {
+		if((debuggers==null && attemptedDebuggers) || (debuggers !=null &&!debuggers.hasMember(getGrouperSession(session).getSubject()))) {
 			session.setAttribute("debugMessage", "debug.error.not-allowed");
 			return;
 		}
