@@ -30,6 +30,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
+import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
@@ -141,7 +142,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: DoAssignNewMembersAction.java,v 1.9 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: DoAssignNewMembersAction.java,v 1.10 2009-03-04 10:52:40 isgwb Exp $
  */
 public class DoAssignNewMembersAction extends GrouperCapableAction {
 	protected static Log LOG = LogFactory.getLog(DoAssignNewMembersAction.class);
@@ -250,6 +251,9 @@ public class DoAssignNewMembersAction extends GrouperCapableAction {
 				membersAsSubjects, privileges, "true".equals(request
 						.getParameter("stems")),mField);
 			message = new Message("priv.message.assigned");
+		}catch(GrantPrivilegeException e) {
+			LOG.error("Could not assign all privileges", e);
+			throw new UnrecoverableErrorException(e);
 		}catch(Exception e) {
 			LOG.error("Could not assign all privileges", e);
 			throw new UnrecoverableErrorException("error.assign-members.assign-privs",e);

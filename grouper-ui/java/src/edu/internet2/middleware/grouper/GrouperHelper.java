@@ -77,7 +77,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.54 2008-12-15 15:31:53 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.55 2009-03-04 10:52:40 isgwb Exp $
  */
 
 
@@ -929,7 +929,7 @@ public class GrouperHelper {
 					}
 				} catch (GrantPrivilegeException e) {
 					//@TODO Expect different type of Exception in future
-					if (e.getMessage().indexOf("membership already exists") == -1)
+					if (e.getMessage()==null || e.getMessage().indexOf("membership already exists") == -1)
 						throw e;
 				} 
 			}
