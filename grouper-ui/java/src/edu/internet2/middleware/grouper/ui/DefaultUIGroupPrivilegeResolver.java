@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * see https://bugs.internet2.edu/jira/browse/GRP-72
  * 
  * @author Gary Brown.
- * @version $Id: DefaultUIGroupPrivilegeResolver.java,v 1.2 2008-04-17 18:59:46 isgwb Exp $
+ * @version $Id: DefaultUIGroupPrivilegeResolver.java,v 1.3 2009-03-04 10:49:41 isgwb Exp $
  */
 public class DefaultUIGroupPrivilegeResolver implements
 		UIGroupPrivilegeResolver {
@@ -58,7 +58,8 @@ public class DefaultUIGroupPrivilegeResolver implements
 	 */
 	public boolean canEditGroup() {
 		try {
-			return group.canWriteField(FieldFinder.find("extension"));
+			return group.hasAdmin(subject);
+			//return group.canWriteField(FieldFinder.find("extension"));
 		}catch(Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -80,7 +81,8 @@ public class DefaultUIGroupPrivilegeResolver implements
 	 */
 	public boolean canManagePrivileges() {
 		try {
-			return group.canWriteField(FieldFinder.find("extension"));
+			return group.hasAdmin(subject);
+			//return group.canWriteField(FieldFinder.find("extension"));
 		}catch(Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -150,7 +152,8 @@ public class DefaultUIGroupPrivilegeResolver implements
 	 */
 	public boolean canViewGroup() {
 		try {
-			return group.canReadField(FieldFinder.find("displayExtension"));
+			return group.hasView(subject);
+			//return group.canReadField(FieldFinder.find("displayExtension"));
 		}catch(Exception e) {
 			throw new RuntimeException(e);
 		}

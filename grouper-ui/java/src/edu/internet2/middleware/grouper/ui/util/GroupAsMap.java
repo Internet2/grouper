@@ -20,6 +20,8 @@ package edu.internet2.middleware.grouper.ui.util;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.beanutils.WrapDynaBean;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
@@ -33,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * and works well with JSTL <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupAsMap.java,v 1.12 2008-12-15 07:09:39 mchyzer Exp $
+ * @version $Id: GroupAsMap.java,v 1.13 2009-03-04 10:49:41 isgwb Exp $
  */
 public class GroupAsMap extends ObjectAsMap {
 	//
@@ -52,6 +54,7 @@ public class GroupAsMap extends ObjectAsMap {
 		if(group==null) throw new NullPointerException("Cannot create as GroupAsMap with a null group");
 		this.group = group;
 		wrappedObject=group;
+		dynaBean = new WrapDynaBean(group);
 		put("subjectType","group");
 		put("isGroup",Boolean.TRUE);
 		put("id",group.getUuid());
@@ -68,8 +71,10 @@ public class GroupAsMap extends ObjectAsMap {
 	 * @see java.util.Map#get(java.lang.Object)
 	 */
 	public Object get(Object key) {
+		Object obj = getByIntrospection(key);
+		if(obj!=null) return obj;
 		//Map would override GrouperGroup values
-		Object obj=super.get(key);
+		obj=super.get(key);
 		
 		if(obj==null) {
 			//No value, so check the wrapped group
