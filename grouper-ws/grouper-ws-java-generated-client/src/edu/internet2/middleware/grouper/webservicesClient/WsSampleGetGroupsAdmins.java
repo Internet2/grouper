@@ -61,7 +61,6 @@ public class WsSampleGetGroupsAdmins implements WsSampleGenerated {
 
             //set the act as id
             WsSubjectLookup actAsSubject = WsSubjectLookup.class.newInstance();
-            actAsSubject.setSubjectId("GrouperSystem");
             getGroups.setActAsSubjectLookup(actAsSubject);
 
             //version, e.g. v1_3_000
