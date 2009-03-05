@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.21.2.1 2009-01-26 02:56:09 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.21.2.2 2009-03-05 04:32:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -1466,6 +1466,7 @@ public class GrouperClient {
         substituteMap.put("wsSubject", wsHasMemberResult.getWsSubject());
         String resultCode = wsHasMemberResult.getResultMetadata().getResultCode();
         substituteMap.put("hasMember", GrouperClientUtils.equals("IS_MEMBER", resultCode));
+        substituteMap.put("resultMetadata", wsHasMemberResult.getResultMetadata());
 //            result.append("Index " + index + ": success: " + wsHasMemberResult.getResultMetadata().getSuccess()
 //                + ": code: " + resultCode + ": " 
 //                + wsHasMemberResult.getWsSubject().getId() + "\n");
@@ -1545,6 +1546,7 @@ public class GrouperClient {
       substituteMap.put("wsDeleteMemberResults", wsDeleteMemberResults);
       substituteMap.put("grouperClientUtils", new GrouperClientUtils());
       substituteMap.put("wsGroup", wsDeleteMemberResults.getWsGroup());
+      substituteMap.put("resultMetadata", wsDeleteMemberResults.getResultMetadata());
       
       String outputTemplate = null;
   
@@ -1562,7 +1564,6 @@ public class GrouperClient {
         substituteMap.put("index", index);
         substituteMap.put("wsDeleteMemberResult", wsDeleteMemberResult);
         substituteMap.put("wsSubject", wsDeleteMemberResult.getWsSubject());
-        substituteMap.put("resultMetadata", wsDeleteMemberResult.getResultMetadata());
         
   //          result.append("Index " + index + ": success: " + wsDeleteMemberResult.getResultMetadata().getSuccess()
   //              + ": code: " + wsDeleteMemberResult.getResultMetadata().getResultCode() + ": " 
@@ -1741,7 +1742,7 @@ public class GrouperClient {
       substituteMap.put("wsFindGroupsResults", wsFindGroupsResults);
       substituteMap.put("resultMetadata", wsFindGroupsResults.getResultMetadata());
       substituteMap.put("grouperClientUtils", new GrouperClientUtils());
-      
+
       String outputTemplate = null;
     
       if (argMap.containsKey("outputTemplate")) {
