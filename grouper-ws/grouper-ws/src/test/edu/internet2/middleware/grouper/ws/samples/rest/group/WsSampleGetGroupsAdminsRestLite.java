@@ -13,17 +13,16 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
-import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResults;
-import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
+import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
  * @author mchyzer
  */
-public class WsSampleGetGroupsRest implements WsSampleRest {
+public class WsSampleGetGroupsAdminsRestLite implements WsSampleRest {
 
   /**
    * get groups lite web service with REST
@@ -41,13 +40,14 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
-          RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/subjects");
+          RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
+            + "/" + RestClientSettings.VERSION  
+            + "/subjects/10021368/groups");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
           RestClientSettings.PASS);
-
+      
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
@@ -57,20 +57,19 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestGetGroupsRequest getGroups = new WsRestGetGroupsRequest();
+      WsRestGetGroupsLiteRequest getGroupsLite = new WsRestGetGroupsLiteRequest();
 
-      getGroups.setSubjectAttributeNames(new String[]{"description"});
+      // set the act as id
+      getGroupsLite.setActAsSubjectId("GrouperSystem");
 
-      // seeif two subjects are in the group
-      WsSubjectLookup[] subjectLookups = new WsSubjectLookup[2];
-      subjectLookups[0] = new WsSubjectLookup("10021368", null, null);
-
-      subjectLookups[1] = new WsSubjectLookup("10039438", null, null);
-
-      getGroups.setSubjectLookups(subjectLookups);
+      getGroupsLite.setIncludeGroupDetail("T");
+      getGroupsLite.setIncludeSubjectDetail("T");
+      
+      getGroupsLite.setParamName0("fieldName");
+      getGroupsLite.setParamValue0("admins");
       
       //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getGroups);
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getGroupsLite);
       
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
@@ -90,26 +89,25 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
       
       String response = RestClientSettings.responseBodyAsString(method);
 
-      Object result = wsSampleRestType
-        .getWsLiteResponseContentType().parseString(response);
-      
+      Object resultObject = wsSampleRestType.getWsLiteResponseContentType().parseString(response);
+    
       //see if problem
-      if (result instanceof WsRestResultProblem) {
-        throw new RuntimeException(((WsRestResultProblem)result).getResultMetadata().getResultMessage());
+      if (resultObject instanceof WsRestResultProblem) {
+        throw new RuntimeException(((WsRestResultProblem)resultObject).getResultMetadata().getResultMessage());
       }
-      
+
       //convert to object (from xhtml, xml, json, etc)
-      WsGetGroupsResults wsGetGroupsResults = (WsGetGroupsResults)result;
+      WsGetGroupsLiteResult wsGetGroupsLiteResult = (WsGetGroupsLiteResult)resultObject;
       
-      String resultMessage = wsGetGroupsResults.getResultMetadata().getResultMessage();
+      String resultMessage = wsGetGroupsLiteResult.getResultMetadata().getResultMessage();
 
       // see if request worked or not
       if (!success) {
-        throw new RuntimeException("Bad response from web service: successString: " + successString + ", resultCode: " + resultCode
+        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
             + ", " + resultMessage);
       }
       
-      System.out.println("Server version: " + wsGetGroupsResults.getResponseMetadata().getServerVersion()
+      System.out.println("Server version: " + wsGetGroupsLiteResult.getResponseMetadata().getServerVersion()
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
 
@@ -138,7 +136,6 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
-    //dont allow http params
-    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
+    return true;
   }
 }

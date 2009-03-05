@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: xhtml, for version: v1_4_000
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: xhtml, for version: v1_4_002
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, ma
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_002/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -28,18 +28,18 @@ Content-Type: application/xhtml+xml; charset=UTF-8
       <p class="subjectSourceId" />
       <p class="subjectId" />
       <p class="clientVersion" />
+      <p class="memberFilter" />
+      <p class="includeGroupDetail">T</p>
+      <p class="includeSubjectDetail">T</p>
+      <p class="subjectAttributeNames" />
       <p class="subjectIdentifier" />
       <p class="actAsSubjectId">GrouperSystem</p>
       <p class="actAsSubjectSourceId" />
       <p class="actAsSubjectIdentifier" />
-      <p class="includeSubjectDetail">T</p>
-      <p class="subjectAttributeNames" />
-      <p class="includeGroupDetail">T</p>
       <p class="paramName0" />
       <p class="paramValue0" />
       <p class="paramName1" />
       <p class="paramValue1" />
-      <p class="memberFilter" />
     </div>
   </body>
 </html>
@@ -60,7 +60,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 15 Dec 2008 09:04:20 GMT
+Date: Thu, 05 Mar 2009 05:36:01 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -74,16 +74,16 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_4_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+        <p class="resultMessage">Success for: clientVersion: v1_4_002, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null</p>
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">765</p>
+        <p class="millis">4883</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">v1_4_000</p>
+        <p class="serverVersion">v1_4_002</p>
       </div>
       <div class="wsSubject" title="WsSubject">
         <p class="name" />
@@ -255,7 +255,7 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: v1_4_002, result code: SUCCESS, result message: Success for: clientVersion: v1_4_002, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null

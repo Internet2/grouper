@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: v1_4_000
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: xml, for version: v1_4_002
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, ma
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_000/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_002/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -39,21 +39,21 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Mon, 15 Dec 2008 09:04:32 GMT
+Date: Thu, 05 Mar 2009 05:36:22 GMT
 Connection: close
 
 <WsGetGroupsLiteResult>
   <resultMetadata>
     <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_4_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+    <resultMessage>Success for: clientVersion: v1_4_002, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null</resultMessage>
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
-    <millis>578</millis>
-    <serverVersion>v1_4_000</serverVersion>
+    <millis>78</millis>
+    <serverVersion>v1_4_002</serverVersion>
   </responseMetadata>
   <wsSubject>
     <resultCode>SUCCESS</resultCode>
@@ -221,7 +221,7 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: v1_4_002, result code: SUCCESS, result message: Success for: clientVersion: v1_4_002, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
 
 memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
 , params: null

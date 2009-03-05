@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, manually written lite/rest, format: xhtml, for version: v1_4_000
+Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, manually written lite/rest, format: xhtml, for version: v1_4_002
 
 
 #########################################
@@ -9,7 +9,7 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, man
 #########################################
 
 
-GET /grouperWs/servicesRest/xhtml/v1_4_000/subjects/10021368/groups HTTP/1.1
+GET /grouperWs/servicesRest/xhtml/v1_4_002/subjects/10021368/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
@@ -26,12 +26,15 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
+Pragma: No-cache
+Cache-Control: no-cache
+Expires: Wed, 31 Dec 1969 19:00:00 EST
 Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Mon, 15 Dec 2008 09:04:06 GMT
+Date: Thu, 05 Mar 2009 05:34:39 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -45,61 +48,61 @@ Connection: close
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_4_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+        <p class="resultMessage">Success for: clientVersion: v1_4_002, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]
 , params: null</p>
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">485</p>
+        <p class="millis">172</p>
         <p class="resultWarnings" />
-        <p class="serverVersion">v1_4_000</p>
+        <p class="serverVersion">v1_4_002</p>
       </div>
       <ul class="wsGroups">
         <li title="WsGroup">
-          <p class="name">penn:etc:webServiceClientUsers</p>
-          <p class="displayName">penn:etc:webServiceClientUsers</p>
+          <p class="name">etc:webServiceClientUsers</p>
+          <p class="displayName">etc:webServiceClientUsers</p>
           <p class="description" />
-          <div class="detail" title="WsGroupDetail" />
           <p class="extension">webServiceClientUsers</p>
-          <p class="uuid">f03dceb4-e626-4ca1-a7cf-4a4cfc505b1c</p>
-          <p class="displayExtension">webServiceClientUsers</p>
-        </li>
-        <li title="WsGroup">
-          <p class="name">penn:etc:webServiceActAsGroup</p>
-          <p class="displayName">penn:etc:webServiceActAsGroup</p>
-          <p class="description" />
           <div class="detail" title="WsGroupDetail" />
-          <p class="extension">webServiceActAsGroup</p>
-          <p class="uuid">95519ee6-5dd9-4a53-a891-4f93655de885</p>
-          <p class="displayExtension">webServiceActAsGroup</p>
+          <p class="uuid">3fd2040b-b9d2-4cd8-934d-90e00753690c</p>
+          <p class="displayExtension">webServiceClientUsers</p>
         </li>
         <li title="WsGroup">
           <p class="name">aStem:aGroup2</p>
           <p class="displayName">a stem:a group2</p>
           <p class="description">a group description2</p>
-          <div class="detail" title="WsGroupDetail" />
           <p class="extension">aGroup2</p>
-          <p class="uuid">a26aaaaa-8286-46d0-9ed6-3e70d4a1e08e</p>
+          <div class="detail" title="WsGroupDetail" />
+          <p class="uuid">1d9709a2-3063-45a0-99b8-611f942cc707</p>
           <p class="displayExtension">a group2</p>
         </li>
         <li title="WsGroup">
-          <p class="name">penn:etc:sysAdminGroup</p>
-          <p class="displayName">penn:etc:sysAdminGroup</p>
+          <p class="name">etc:sysadmingroup</p>
+          <p class="displayName">etc:sysadmingroup</p>
           <p class="description" />
+          <p class="extension">sysadmingroup</p>
           <div class="detail" title="WsGroupDetail" />
-          <p class="extension">sysAdminGroup</p>
-          <p class="uuid">e577423f-cffd-43e7-b771-1494d6e06416</p>
-          <p class="displayExtension">sysAdminGroup</p>
+          <p class="uuid">707d5ce8-07e6-4cf1-b560-c4361df194b5</p>
+          <p class="displayExtension">sysadmingroup</p>
+        </li>
+        <li title="WsGroup">
+          <p class="name">etc:webServiceActAsGroup</p>
+          <p class="displayName">etc:webServiceActAsGroup</p>
+          <p class="description" />
+          <p class="extension">webServiceActAsGroup</p>
+          <div class="detail" title="WsGroupDetail" />
+          <p class="uuid">a5cc9509-9c49-479e-ac2e-525e1200658f</p>
+          <p class="displayExtension">webServiceActAsGroup</p>
         </li>
         <li title="WsGroup">
           <p class="name">aStem:aGroup</p>
           <p class="displayName">a stem:a group</p>
           <p class="description">a group description</p>
-          <div class="detail" title="WsGroupDetail" />
           <p class="extension">aGroup</p>
-          <p class="uuid">29237030-1e97-461a-9e14-0412a8e22bc3</p>
+          <div class="detail" title="WsGroupDetail" />
+          <p class="uuid">7fd8a216-ae65-474a-85ed-cd62d597e268</p>
           <p class="displayExtension">a group</p>
         </li>
       </ul>
@@ -246,7 +249,7 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_000, result code: SUCCESS, result message: Success for: clientVersion: v1_4_000, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+Server version: v1_4_002, result code: SUCCESS, result message: Success for: clientVersion: v1_4_002, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]
 , params: null

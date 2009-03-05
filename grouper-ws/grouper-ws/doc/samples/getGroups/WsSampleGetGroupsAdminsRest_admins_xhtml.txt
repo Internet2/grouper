@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, manually written lite/rest, type: _withInput, format: http_xhtml, for version: v1_4_002
+Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRest, manually written lite/rest, type: _admins, format: xhtml, for version: v1_4_002
 
 
 #########################################
@@ -9,14 +9,51 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite2, ma
 #########################################
 
 
-POST /grouperWs/servicesRest/v1_4_002/subjects/sources/jdbc/subjectId/test.subject.0/groups HTTP/1.1
+POST /grouperWs/servicesRest/v1_4_002/subjects HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 116
+Content-Length: 968
+Content-Type: application/xhtml+xml; charset=UTF-8
 
-wsLiteObjectType=WsRestGetGroupsLiteRequest&includeGroupDetail=T&includeSubjectDetail=T&actAsSubjectId=GrouperSystem
+<?xml version='1.0' encoding='iso-8859-1'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>WsRestGetGroupsRequest</title>
+  </head>
+  <body>
+    <div title="WsRestGetGroupsRequest">
+      <p class="clientVersion" />
+      <ul class="subjectLookups">
+        <li title="WsSubjectLookup">
+          <p class="subjectSourceId" />
+          <p class="subjectId">10021368</p>
+          <p class="subjectIdentifier" />
+        </li>
+        <li title="WsSubjectLookup">
+          <p class="subjectSourceId" />
+          <p class="subjectId">10039438</p>
+          <p class="subjectIdentifier" />
+        </li>
+      </ul>
+      <p class="memberFilter" />
+      <div class="actAsSubjectLookup" title="WsSubjectLookup" />
+      <p class="includeGroupDetail" />
+      <p class="includeSubjectDetail" />
+      <ul class="subjectAttributeNames">
+        <li>description</li>
+      </ul>
+      <ul class="params">
+        <li title="WsParam">
+          <p class="paramName">fieldName</p>
+          <p class="paramValue">admins</p>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
 
 
 #########################################
@@ -27,46 +64,83 @@ wsLiteObjectType=WsRestGetGroupsLiteRequest&includeGroupDetail=T&includeSubjectD
 #########################################
 
 
-HTTP/1.1 200 OK
+HTTP/1.1 201 Created
 Server: Apache-Coyote/1.1
 Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Thu, 05 Mar 2009 05:36:14 GMT
+Date: Thu, 05 Mar 2009 05:35:09 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
-    <title>WsGetGroupsLiteResult</title>
+    <title>WsGetGroupsResults</title>
   </head>
   <body>
-    <div title="WsGetGroupsLiteResult">
+    <div title="WsGetGroupsResults">
+      <ul class="results">
+        <li title="WsGetGroupsResult">
+          <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode">SUCCESS</p>
+            <p class="success">T</p>
+            <p class="resultMessage" />
+            <p class="resultCode2" />
+          </div>
+          <div class="wsSubject" title="WsSubject">
+            <p class="name" />
+            <p class="id">10021368</p>
+            <ul class="attributeValues">
+              <li>Chris Hyzer</li>
+            </ul>
+            <p class="resultCode">SUCCESS</p>
+            <p class="success">T</p>
+            <p class="identifierLookup" />
+            <p class="sourceId">pennperson</p>
+          </div>
+        </li>
+        <li title="WsGetGroupsResult">
+          <div class="resultMetadata" title="WsResultMeta">
+            <p class="resultCode">SUCCESS</p>
+            <p class="success">T</p>
+            <p class="resultMessage" />
+            <p class="resultCode2" />
+          </div>
+          <div class="wsSubject" title="WsSubject">
+            <p class="name" />
+            <p class="id">10039438</p>
+            <ul class="attributeValues">
+              <li>John Smith</li>
+            </ul>
+            <p class="resultCode">SUCCESS</p>
+            <p class="success">T</p>
+            <p class="identifierLookup" />
+            <p class="sourceId">pennperson</p>
+          </div>
+        </li>
+      </ul>
       <div class="resultMetadata" title="WsResultMeta">
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
-        <p class="resultMessage">Success for: clientVersion: v1_4_002, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+        <p class="resultMessage">Success for: clientVersion: v1_4_002, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+[1]: WsSubjectLookup[subjectId=10039438]
 
-memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
-, params: null</p>
+memberFilter: All, includeGroupDetail: false, actAsSubject: null
+, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
+, field: admins</p>
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">109</p>
+        <p class="millis">3947</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_002</p>
       </div>
-      <div class="wsSubject" title="WsSubject">
-        <p class="name" />
-        <p class="id">test.subject.0</p>
-        <p class="resultCode">SUCCESS</p>
-        <p class="success">T</p>
-        <p class="identifierLookup" />
-        <p class="sourceId">jdbc</p>
-      </div>
+      <ul class="subjectAttributeNames">
+        <li>description</li>
+      </ul>
     </div>
   </body>
 </html>
@@ -97,16 +171,18 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
-import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsLiteRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
-import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult;
+import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResults;
+import edu.internet2.middleware.grouper.ws.soap.WsParam;
+import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
  * @author mchyzer
  */
-public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
+public class WsSampleGetGroupsAdminsRest implements WsSampleRest {
 
   /**
    * get groups lite web service with REST
@@ -125,12 +201,12 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
       PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/subjects/sources/jdbc/subjectId/test.subject.0/groups");
-      
+            + "/subjects");
+
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
           RestClientSettings.PASS);
-      
+
       //no keep alive so response if easier to indent for tests
       method.setRequestHeader("Connection", "close");
       
@@ -140,16 +216,22 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 
       //Make the body of the request, in this case with beans and marshaling, but you can make
       //your request document in whatever language or way you want
-      WsRestGetGroupsLiteRequest getGroupsLite = new WsRestGetGroupsLiteRequest();
+      WsRestGetGroupsRequest getGroups = new WsRestGetGroupsRequest();
 
-      // set the act as id
-      getGroupsLite.setActAsSubjectId("GrouperSystem");
+      getGroups.setSubjectAttributeNames(new String[]{"description"});
 
-      getGroupsLite.setIncludeGroupDetail("T");
-      getGroupsLite.setIncludeSubjectDetail("T");
+      // seeif two subjects are in the group
+      WsSubjectLookup[] subjectLookups = new WsSubjectLookup[2];
+      subjectLookups[0] = new WsSubjectLookup("10021368", null, null);
+
+      subjectLookups[1] = new WsSubjectLookup("10039438", null, null);
+
+      getGroups.setSubjectLookups(subjectLookups);
+      
+      getGroups.setParams(new WsParam[] {new WsParam("fieldName", "admins")});
       
       //get the xml / json / xhtml / paramString
-      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getGroupsLite);
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getGroups);
       
       //make sure right content type is in request (e.g. application/xhtml+xml
       String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
@@ -169,25 +251,26 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
       
       String response = RestClientSettings.responseBodyAsString(method);
 
-      Object resultObject = wsSampleRestType.getWsLiteResponseContentType().parseString(response);
-    
-      //see if problem
-      if (resultObject instanceof WsRestResultProblem) {
-        throw new RuntimeException(((WsRestResultProblem)resultObject).getResultMetadata().getResultMessage());
-      }
-
-      //convert to object (from xhtml, xml, json, etc)
-      WsGetGroupsLiteResult wsGetGroupsLiteResult = (WsGetGroupsLiteResult)resultObject;
+      Object result = wsSampleRestType
+        .getWsLiteResponseContentType().parseString(response);
       
-      String resultMessage = wsGetGroupsLiteResult.getResultMetadata().getResultMessage();
+      //see if problem
+      if (result instanceof WsRestResultProblem) {
+        throw new RuntimeException(((WsRestResultProblem)result).getResultMetadata().getResultMessage());
+      }
+      
+      //convert to object (from xhtml, xml, json, etc)
+      WsGetGroupsResults wsGetGroupsResults = (WsGetGroupsResults)result;
+      
+      String resultMessage = wsGetGroupsResults.getResultMetadata().getResultMessage();
 
       // see if request worked or not
       if (!success) {
-        throw new RuntimeException("Bad response from web service: resultCode: " + resultCode
+        throw new RuntimeException("Bad response from web service: successString: " + successString + ", resultCode: " + resultCode
             + ", " + resultMessage);
       }
       
-      System.out.println("Server version: " + wsGetGroupsLiteResult.getResponseMetadata().getServerVersion()
+      System.out.println("Server version: " + wsGetGroupsResults.getResponseMetadata().getServerVersion()
           + ", result code: " + resultCode
           + ", result message: " + resultMessage );
 
@@ -202,7 +285,7 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    getGroupsLite(WsSampleRestType.xhtml);
+    getGroupsLite(WsSampleRestType.xml);
   }
 
   /**
@@ -216,8 +299,8 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#validType(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public boolean validType(WsSampleRestType wsSampleRestType) {
-    //allow all
-    return true;
+    //dont allow http params
+    return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
   }
 }
 
@@ -229,7 +312,9 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
 #########################################
 
 
-Server version: v1_4_002, result code: SUCCESS, result message: Success for: clientVersion: v1_4_002, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=test.subject.0,subjectSourceId=jdbc]
+Server version: v1_4_002, result code: SUCCESS, result message: Success for: clientVersion: v1_4_002, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+[1]: WsSubjectLookup[subjectId=10039438]
 
-memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
-, params: null
+memberFilter: All, includeGroupDetail: false, actAsSubject: null
+, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
+, field: admins

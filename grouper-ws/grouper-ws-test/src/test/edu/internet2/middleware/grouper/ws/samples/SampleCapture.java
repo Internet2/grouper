@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SampleCapture.java,v 1.6 2008-11-06 21:51:53 mchyzer Exp $
+ * $Id: SampleCapture.java,v 1.6.2.1 2009-03-05 05:54:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples;
 
@@ -38,6 +38,8 @@ import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindStems;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindStemsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGrouperPrivilegesLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroups;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroupsAdmins;
+import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroupsAdminsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroupsLite;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembers;
 import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembersLite;
@@ -58,6 +60,8 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.GrouperWsVersion;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindGroupsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleFindGroupsRestLite;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGetGroupsAdminsRest;
+import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGetGroupsAdminsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGetGroupsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGetGroupsRestLite;
 import edu.internet2.middleware.grouper.ws.samples.rest.group.WsSampleGetGroupsRestLite2;
@@ -118,6 +122,8 @@ public class SampleCapture {
   public static void main(String[] args) {
     
     setupData();
+    
+    //captureGetGroups();
     
 //  captureRampart();
 //    captureSample(WsSampleClientType.REST_BEANS,  
@@ -478,11 +484,19 @@ public class SampleCapture {
     captureSample(WsSampleClientType.GENERATED_SOAP,  
         WsSampleGetGroups.class, "getGroups", (String)null);
     captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGetGroupsAdmins.class, "getGroups", "_admins");
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
         WsSampleGetGroupsLite.class, "getGroups", null);
+    captureSample(WsSampleClientType.GENERATED_SOAP,  
+        WsSampleGetGroupsAdminsLite.class, "getGroups", "_admins");
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetGroupsRest.class, "getGroups", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetGroupsRestLite.class, "getGroups", null);
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetGroupsAdminsRest.class, "getGroups", "_admins");
+    captureSample(WsSampleClientType.REST_BEANS,  
+        WsSampleGetGroupsAdminsRestLite.class, "getGroups", "_admins");
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetGroupsRestLite2.class, "getGroups", "_withInput");
     

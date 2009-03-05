@@ -1,3 +1,130 @@
+Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRest, manually written lite/rest, type: _admins, format: json, for version: v1_4_002
+
+
+#########################################
+##
+## HTTP request sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+POST /grouperWs/servicesRest/v1_4_002/subjects HTTP/1.1
+Connection: close
+Authorization: Basic xxxxxxxxxxxxxxxxx==
+User-Agent: Jakarta Commons-HttpClient/3.1
+Host: localhost:8092
+Content-Length: 231
+Content-Type: text/x-json; charset=UTF-8
+
+{
+  "WsRestGetGroupsRequest":{
+    "subjectLookups":{
+      "WsSubjectLookup":[
+        {
+          "subjectId":10021368
+        },
+        {
+          "subjectId":10039438
+        }
+      ]
+      
+    },
+    "subjectAttributeNames":{
+      "string":"description"
+    },
+    "params":{
+      "WsParam":{
+        "paramName":"fieldName",
+        "paramValue":"admins"
+      }
+    }
+  }
+}
+
+
+#########################################
+##
+## HTTP response sample (could be formatted for view by
+## indenting or changing dates or other data)
+##
+#########################################
+
+
+HTTP/1.1 201 Created
+Server: Apache-Coyote/1.1
+Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
+X-Grouper-resultCode: SUCCESS
+X-Grouper-success: T
+X-Grouper-resultCode2: NONE
+Content-Type: text/x-json
+Date: Thu, 05 Mar 2009 05:35:18 GMT
+Connection: close
+
+{
+  "WsGetGroupsResults":{
+    "results":{
+      "WsGetGroupsResult":[
+        {
+          "resultMetadata":{
+            "resultCode":"SUCCESS",
+            "success":"T"
+          },
+          "wsSubject":{
+            "resultCode":"SUCCESS",
+            "success":"T",
+            "id":"10021368",
+            "sourceId":"pennperson",
+            "attributeValues":{
+              "string":"Chris Hyzer"
+            }
+          }
+          
+        },
+        {
+          "resultMetadata":{
+            "resultCode":"SUCCESS",
+            "success":"T"
+          },
+          "wsSubject":{
+            "resultCode":"SUCCESS",
+            "success":"T",
+            "id":"10039438",
+            "sourceId":"pennperson",
+            "attributeValues":{
+              "string":"John Smith"
+            }
+          }
+        }
+      ]
+      
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Success for: clientVersion: v1_4_002, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]\n, field: admins",
+      "success":"T"
+    },
+    "subjectAttributeNames":{
+      "string":"description"
+    },
+    "responseMetadata":{
+      "millis":"94",
+      "serverVersion":"v1_4_002"
+    }
+  }
+}
+
+
+#########################################
+##
+## Java source code (note, any programming language / objects
+## can use used to generate the above request/response.  Nothing
+## is Java specific.  Also, if you are using Java, the client libraries
+## are available
+##
+#########################################
+
+
 package edu.internet2.middleware.grouper.ws.samples.rest.group;
 
 import org.apache.commons.httpclient.Credentials;
@@ -17,13 +144,14 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResults;
+import edu.internet2.middleware.grouper.ws.soap.WsParam;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
  * @author mchyzer
  */
-public class WsSampleGetGroupsRest implements WsSampleRest {
+public class WsSampleGetGroupsAdminsRest implements WsSampleRest {
 
   /**
    * get groups lite web service with REST
@@ -68,6 +196,8 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
       subjectLookups[1] = new WsSubjectLookup("10039438", null, null);
 
       getGroups.setSubjectLookups(subjectLookups);
+      
+      getGroups.setParams(new WsParam[] {new WsParam("fieldName", "admins")});
       
       //get the xml / json / xhtml / paramString
       String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getGroups);
@@ -142,3 +272,18 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
     return !WsSampleRestType.http_xhtml.equals(wsSampleRestType);
   }
 }
+
+
+#########################################
+##
+## Stdout
+##
+#########################################
+
+
+Server version: v1_4_002, result code: SUCCESS, result message: Success for: clientVersion: v1_4_002, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
+[1]: WsSubjectLookup[subjectId=10039438]
+
+memberFilter: All, includeGroupDetail: false, actAsSubject: null
+, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
+, field: admins

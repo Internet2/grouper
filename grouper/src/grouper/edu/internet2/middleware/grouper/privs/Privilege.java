@@ -30,7 +30,7 @@ import org.apache.commons.lang.StringUtils;
  * and Stems from NamingPrivilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.5 2008-10-22 16:30:10 mchyzer Exp $
+ * @version $Id: Privilege.java,v 1.5.2.1 2009-03-05 05:49:39 mchyzer Exp $
  */
 public class Privilege implements Serializable {
 
@@ -112,21 +112,21 @@ public class Privilege implements Serializable {
 
   public static Set getNamingPrivs() {
     return NAMING;
-  } // pubilc static Set getNamingPrivs()
+  }
 
   public static boolean isAccess(Privilege p) {
     if (ACCESS.contains(p)) {
       return true;
     }
     return false;
-  } // public static boolean isAccess(p)
+  }
 
   public static boolean isNaming(Privilege p) {
     if (NAMING.contains(p)) {
       return true;
     }
     return false;
-  } // public static boolean isNaming(p)
+  }
 
 
   // PUBLIC INSTANCE METHODS //
