@@ -744,6 +744,10 @@ public final class GrouperServiceUtils {
     List<String> attributeNamesList = GrouperUtil.nonNull(GrouperUtil
         .toList(requestedAttributes));
 
+    if (attributeNamesList.size() == 1 && StringUtils.isBlank(attributeNamesList.get(0))) {
+      attributeNamesList.remove(0);
+    }
+    
     //reduce the attributes into one list
     String attributeNames = GrouperWsConfig
         .getPropertyString(GrouperWsConfig.WS_SUBJECT_RESULT_ATTRIBUTE_NAMES);
