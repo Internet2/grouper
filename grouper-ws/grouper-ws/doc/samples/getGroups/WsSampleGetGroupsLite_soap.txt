@@ -54,7 +54,7 @@ X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/soap+xml; action="urn:getGroupsLiteResponse";charset=UTF-8
 Transfer-Encoding: chunked
-Date: Thu, 05 Mar 2009 05:34:06 GMT
+Date: Thu, 05 Mar 2009 06:25:06 GMT
 
 a72
 <?xml version='1.0' encoding='UTF-8'?>
@@ -63,7 +63,7 @@ a72
     <ns:getGroupsLiteResponse xmlns:ns="http://soap.ws.grouper.middleware.internet2.edu/xsd">
       <ns:return type="edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult">
         <ns:responseMetadata type="edu.internet2.middleware.grouper.ws.soap.WsResponseMeta">
-          <ns:millis>203</ns:millis>
+          <ns:millis>124</ns:millis>
           <ns:resultWarnings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
           <ns:serverVersion>v1_4_002</ns:serverVersion>
         </ns:responseMetadata>
@@ -85,7 +85,7 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[subj
           <ns:displayName>a stem:a group</ns:displayName>
           <ns:extension>aGroup</ns:extension>
           <ns:name>aStem:aGroup</ns:name>
-          <ns:uuid>c756f10a-3134-4998-9547-5b86b43b2e70</ns:uuid>
+          <ns:uuid>16c63680-02ee-402d-b5ed-2200b2a18e25</ns:uuid>
         </ns:wsGroups>
         <ns:wsGroups type="edu.internet2.middleware.grouper.ws.soap.WsGroup">
           <ns:description>a group description2</ns:description>
@@ -94,7 +94,7 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[subj
           <ns:displayName>a stem:a group2</ns:displayName>
           <ns:extension>aGroup2</ns:extension>
           <ns:name>aStem:aGroup2</ns:name>
-          <ns:uuid>7b6fc132-7ebb-44e2-9cd6-39c95abadfed</ns:uuid>
+          <ns:uuid>0dcd3633-f302-4831-b719-b526bb16ea04</ns:uuid>
         </ns:wsGroups>
         <ns:wsSubject type="edu.internet2.middleware.grouper.ws.soap.WsSubject">
           <ns:attributeValues>GrouperSysAdmin</ns:attributeValues>
@@ -233,10 +233,10 @@ public class WsSampleGetGroupsLite implements WsSampleGenerated {
 
 
 WsGetGroupsLiteResult[
-  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@9a4ba3,localResponseMetadataTracker=true,
-  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@1dbe098,localResultMetadataTracker=true,
+  localResponseMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResponseMeta@1891842,localResponseMetadataTracker=true,
+  localResultMetadata=edu.internet2.middleware.grouper.ws.soap.xsd.WsResultMeta@197c401,localResultMetadataTracker=true,
   localSubjectAttributeNames={description},localSubjectAttributeNamesTracker=true,
-  localWsGroups={edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@1527c4a,edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@5ddffa},localWsGroupsTracker=true,
-  localWsSubject=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@11ba4a2,localWsSubjectTracker=true]
-WsGroup[localDescription=a group description,localDescriptionTracker=true,localDetailTracker=true,localDisplayExtension=a group,localDisplayExtensionTracker=true,localDisplayName=a stem:a group,localDisplayNameTracker=true,localExtension=aGroup,localExtensionTracker=true,localName=aStem:aGroup,localNameTracker=true,localUuid=c756f10a-3134-4998-9547-5b86b43b2e70,localUuidTracker=true]
-WsGroup[localDescription=a group description2,localDescriptionTracker=true,localDetailTracker=true,localDisplayExtension=a group2,localDisplayExtensionTracker=true,localDisplayName=a stem:a group2,localDisplayNameTracker=true,localExtension=aGroup2,localExtensionTracker=true,localName=aStem:aGroup2,localNameTracker=true,localUuid=7b6fc132-7ebb-44e2-9cd6-39c95abadfed,localUuidTracker=true]
+  localWsGroups={edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@46aa61,edu.internet2.middleware.grouper.ws.soap.xsd.WsGroup@15be21d},localWsGroupsTracker=true,
+  localWsSubject=edu.internet2.middleware.grouper.ws.soap.xsd.WsSubject@15a0bc0,localWsSubjectTracker=true]
+WsGroup[localDescription=a group description,localDescriptionTracker=true,localDetailTracker=true,localDisplayExtension=a group,localDisplayExtensionTracker=true,localDisplayName=a stem:a group,localDisplayNameTracker=true,localExtension=aGroup,localExtensionTracker=true,localName=aStem:aGroup,localNameTracker=true,localUuid=16c63680-02ee-402d-b5ed-2200b2a18e25,localUuidTracker=true]
+WsGroup[localDescription=a group description2,localDescriptionTracker=true,localDetailTracker=true,localDisplayExtension=a group2,localDisplayExtensionTracker=true,localDisplayName=a stem:a group2,localDisplayNameTracker=true,localExtension=aGroup2,localExtensionTracker=true,localName=aStem:aGroup2,localNameTracker=true,localUuid=0dcd3633-f302-4831-b719-b526bb16ea04,localUuidTracker=true]

@@ -34,7 +34,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Thu, 05 Mar 2009 05:34:39 GMT
+Date: Thu, 05 Mar 2009 06:25:40 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -55,64 +55,64 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">172</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_002</p>
+        <p class="millis">172</p>
       </div>
       <ul class="wsGroups">
         <li title="WsGroup">
-          <p class="name">etc:webServiceClientUsers</p>
-          <p class="displayName">etc:webServiceClientUsers</p>
-          <p class="description" />
-          <p class="extension">webServiceClientUsers</p>
           <div class="detail" title="WsGroupDetail" />
-          <p class="uuid">3fd2040b-b9d2-4cd8-934d-90e00753690c</p>
-          <p class="displayExtension">webServiceClientUsers</p>
-        </li>
-        <li title="WsGroup">
+          <p class="uuid">9bfcf81b-844a-4f87-91db-a81a7dfbf3d2</p>
+          <p class="displayExtension">a group2</p>
           <p class="name">aStem:aGroup2</p>
           <p class="displayName">a stem:a group2</p>
           <p class="description">a group description2</p>
           <p class="extension">aGroup2</p>
-          <div class="detail" title="WsGroupDetail" />
-          <p class="uuid">1d9709a2-3063-45a0-99b8-611f942cc707</p>
-          <p class="displayExtension">a group2</p>
         </li>
         <li title="WsGroup">
-          <p class="name">etc:sysadmingroup</p>
-          <p class="displayName">etc:sysadmingroup</p>
+          <div class="detail" title="WsGroupDetail" />
+          <p class="uuid">2d601510-8624-4df0-8ff2-4ec13ee42733</p>
+          <p class="displayExtension">webServiceClientUsers</p>
+          <p class="name">etc:webServiceClientUsers</p>
+          <p class="displayName">etc:webServiceClientUsers</p>
           <p class="description" />
-          <p class="extension">sysadmingroup</p>
-          <div class="detail" title="WsGroupDetail" />
-          <p class="uuid">707d5ce8-07e6-4cf1-b560-c4361df194b5</p>
-          <p class="displayExtension">sysadmingroup</p>
+          <p class="extension">webServiceClientUsers</p>
         </li>
         <li title="WsGroup">
-          <p class="name">etc:webServiceActAsGroup</p>
-          <p class="displayName">etc:webServiceActAsGroup</p>
-          <p class="description" />
-          <p class="extension">webServiceActAsGroup</p>
           <div class="detail" title="WsGroupDetail" />
-          <p class="uuid">a5cc9509-9c49-479e-ac2e-525e1200658f</p>
-          <p class="displayExtension">webServiceActAsGroup</p>
-        </li>
-        <li title="WsGroup">
+          <p class="uuid">f8347968-e47e-4af0-8263-59ebf6eda351</p>
+          <p class="displayExtension">a group</p>
           <p class="name">aStem:aGroup</p>
           <p class="displayName">a stem:a group</p>
           <p class="description">a group description</p>
           <p class="extension">aGroup</p>
+        </li>
+        <li title="WsGroup">
           <div class="detail" title="WsGroupDetail" />
-          <p class="uuid">7fd8a216-ae65-474a-85ed-cd62d597e268</p>
-          <p class="displayExtension">a group</p>
+          <p class="uuid">58635178-093d-4c1a-ab3f-dace44571aa7</p>
+          <p class="displayExtension">webServiceActAsGroup</p>
+          <p class="name">etc:webServiceActAsGroup</p>
+          <p class="displayName">etc:webServiceActAsGroup</p>
+          <p class="description" />
+          <p class="extension">webServiceActAsGroup</p>
+        </li>
+        <li title="WsGroup">
+          <div class="detail" title="WsGroupDetail" />
+          <p class="uuid">e3429d17-1be2-4b8c-a911-a116b3f86183</p>
+          <p class="displayExtension">sysadmingroup</p>
+          <p class="name">etc:sysadmingroup</p>
+          <p class="displayName">etc:sysadmingroup</p>
+          <p class="description" />
+          <p class="extension">sysadmingroup</p>
         </li>
       </ul>
       <div class="wsSubject" title="WsSubject">
-        <p class="name" />
-        <p class="id">10021368</p>
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
         <p class="identifierLookup" />
         <p class="sourceId">pennperson</p>
+        <p class="name" />
+        <p class="id">10021368</p>
       </div>
     </div>
   </body>

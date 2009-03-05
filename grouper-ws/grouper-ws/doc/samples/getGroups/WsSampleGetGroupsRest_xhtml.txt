@@ -65,7 +65,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Thu, 05 Mar 2009 05:34:19 GMT
+Date: Thu, 05 Mar 2009 06:25:20 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -86,61 +86,61 @@ Connection: close
           </div>
           <ul class="wsGroups">
             <li title="WsGroup">
+              <div class="detail" title="WsGroupDetail" />
+              <p class="uuid">5b42a522-5b6a-4562-89f4-b4b07416bf3d</p>
+              <p class="displayExtension">a group</p>
               <p class="name">aStem:aGroup</p>
               <p class="displayName">a stem:a group</p>
               <p class="description">a group description</p>
               <p class="extension">aGroup</p>
-              <div class="detail" title="WsGroupDetail" />
-              <p class="uuid">d8fcd8d6-4b12-4c0c-bdd3-8e3b21625c30</p>
-              <p class="displayExtension">a group</p>
             </li>
             <li title="WsGroup">
+              <div class="detail" title="WsGroupDetail" />
+              <p class="uuid">78c61e3b-344b-47b3-ad2b-29a6517e6d87</p>
+              <p class="displayExtension">sysadmingroup</p>
               <p class="name">etc:sysadmingroup</p>
               <p class="displayName">etc:sysadmingroup</p>
               <p class="description" />
               <p class="extension">sysadmingroup</p>
-              <div class="detail" title="WsGroupDetail" />
-              <p class="uuid">07a1022f-5029-4610-af5e-03c6e647c3c7</p>
-              <p class="displayExtension">sysadmingroup</p>
             </li>
             <li title="WsGroup">
+              <div class="detail" title="WsGroupDetail" />
+              <p class="uuid">78621475-0382-4d17-ba28-87b5338215a8</p>
+              <p class="displayExtension">a group2</p>
               <p class="name">aStem:aGroup2</p>
               <p class="displayName">a stem:a group2</p>
               <p class="description">a group description2</p>
               <p class="extension">aGroup2</p>
-              <div class="detail" title="WsGroupDetail" />
-              <p class="uuid">3ec778f3-5097-4fc3-b008-773565edcc8b</p>
-              <p class="displayExtension">a group2</p>
             </li>
             <li title="WsGroup">
+              <div class="detail" title="WsGroupDetail" />
+              <p class="uuid">caa3e53e-01e5-4956-8209-289f49eb3351</p>
+              <p class="displayExtension">webServiceClientUsers</p>
               <p class="name">etc:webServiceClientUsers</p>
               <p class="displayName">etc:webServiceClientUsers</p>
               <p class="description" />
               <p class="extension">webServiceClientUsers</p>
-              <div class="detail" title="WsGroupDetail" />
-              <p class="uuid">8118e037-9941-492e-81a2-3b7479058733</p>
-              <p class="displayExtension">webServiceClientUsers</p>
             </li>
             <li title="WsGroup">
+              <div class="detail" title="WsGroupDetail" />
+              <p class="uuid">65c92f23-1290-43d0-989a-47f616bdae5e</p>
+              <p class="displayExtension">webServiceActAsGroup</p>
               <p class="name">etc:webServiceActAsGroup</p>
               <p class="displayName">etc:webServiceActAsGroup</p>
               <p class="description" />
               <p class="extension">webServiceActAsGroup</p>
-              <div class="detail" title="WsGroupDetail" />
-              <p class="uuid">ab034046-51f9-46d8-b799-05182eda9192</p>
-              <p class="displayExtension">webServiceActAsGroup</p>
             </li>
           </ul>
           <div class="wsSubject" title="WsSubject">
+            <p class="resultCode">SUCCESS</p>
+            <p class="success">T</p>
+            <p class="identifierLookup" />
+            <p class="sourceId">pennperson</p>
             <p class="name" />
             <p class="id">10021368</p>
             <ul class="attributeValues">
               <li>Chris Hyzer</li>
             </ul>
-            <p class="resultCode">SUCCESS</p>
-            <p class="success">T</p>
-            <p class="identifierLookup" />
-            <p class="sourceId">pennperson</p>
           </div>
         </li>
         <li title="WsGetGroupsResult">
@@ -152,34 +152,34 @@ Connection: close
           </div>
           <ul class="wsGroups">
             <li title="WsGroup">
-              <p class="name">aStem:aGroup</p>
-              <p class="displayName">a stem:a group</p>
-              <p class="description">a group description</p>
-              <p class="extension">aGroup</p>
               <div class="detail" title="WsGroupDetail" />
-              <p class="uuid">d8fcd8d6-4b12-4c0c-bdd3-8e3b21625c30</p>
-              <p class="displayExtension">a group</p>
-            </li>
-            <li title="WsGroup">
+              <p class="uuid">78621475-0382-4d17-ba28-87b5338215a8</p>
+              <p class="displayExtension">a group2</p>
               <p class="name">aStem:aGroup2</p>
               <p class="displayName">a stem:a group2</p>
               <p class="description">a group description2</p>
               <p class="extension">aGroup2</p>
+            </li>
+            <li title="WsGroup">
               <div class="detail" title="WsGroupDetail" />
-              <p class="uuid">3ec778f3-5097-4fc3-b008-773565edcc8b</p>
-              <p class="displayExtension">a group2</p>
+              <p class="uuid">5b42a522-5b6a-4562-89f4-b4b07416bf3d</p>
+              <p class="displayExtension">a group</p>
+              <p class="name">aStem:aGroup</p>
+              <p class="displayName">a stem:a group</p>
+              <p class="description">a group description</p>
+              <p class="extension">aGroup</p>
             </li>
           </ul>
           <div class="wsSubject" title="WsSubject">
+            <p class="resultCode">SUCCESS</p>
+            <p class="success">T</p>
+            <p class="identifierLookup" />
+            <p class="sourceId">pennperson</p>
             <p class="name" />
             <p class="id">10039438</p>
             <ul class="attributeValues">
               <li>John Smith</li>
             </ul>
-            <p class="resultCode">SUCCESS</p>
-            <p class="success">T</p>
-            <p class="identifierLookup" />
-            <p class="sourceId">pennperson</p>
           </div>
         </li>
       </ul>
@@ -194,9 +194,9 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: null
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">4197</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_002</p>
+        <p class="millis">4149</p>
       </div>
       <ul class="subjectAttributeNames">
         <li>description</li>

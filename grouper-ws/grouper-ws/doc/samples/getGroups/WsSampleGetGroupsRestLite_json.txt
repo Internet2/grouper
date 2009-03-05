@@ -34,7 +34,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Thu, 05 Mar 2009 05:34:47 GMT
+Date: Thu, 05 Mar 2009 06:25:49 GMT
 Connection: close
 
 {
@@ -45,32 +45,31 @@ Connection: close
       "success":"T"
     },
     "responseMetadata":{
-      "millis":"187",
+      "millis":"156",
       "serverVersion":"v1_4_002"
     },
     "wsGroups":{
       "WsGroup":[
         {
-          "extension":"webServiceActAsGroup",
-          "displayExtension":"webServiceActAsGroup",
-          "displayName":"etc:webServiceActAsGroup",
-          "name":"etc:webServiceActAsGroup",
-          "uuid":"931185f1-0b9a-415e-bb08-815fe42cb528"
+          "extension":"sysadmingroup",
+          "displayExtension":"sysadmingroup",
+          "displayName":"etc:sysadmingroup",
+          "name":"etc:sysadmingroup",
+          "uuid":"20cd70cd-5edc-4e56-8997-da3a3d8aeeb0"
         },
         {
           "extension":"webServiceClientUsers",
           "displayExtension":"webServiceClientUsers",
           "displayName":"etc:webServiceClientUsers",
           "name":"etc:webServiceClientUsers",
-          "uuid":"a0ca5faa-8d4d-4dd1-a150-d706044d0df2"
+          "uuid":"a0e54444-a53e-45aa-b70f-7fceeea79531"
         },
         {
-          "extension":"aGroup",
-          "displayExtension":"a group",
-          "description":"a group description",
-          "displayName":"a stem:a group",
-          "name":"aStem:aGroup",
-          "uuid":"f19c667b-08aa-49ef-ad70-38e9722d218d"
+          "extension":"webServiceActAsGroup",
+          "displayExtension":"webServiceActAsGroup",
+          "displayName":"etc:webServiceActAsGroup",
+          "name":"etc:webServiceActAsGroup",
+          "uuid":"1aa13421-bc0a-4a49-8ce6-41416a173b15"
         },
         {
           "extension":"aGroup2",
@@ -78,14 +77,15 @@ Connection: close
           "description":"a group description2",
           "displayName":"a stem:a group2",
           "name":"aStem:aGroup2",
-          "uuid":"e396054e-5cc7-49b9-8142-22bdd95eed38"
+          "uuid":"4d34b6eb-f938-43a6-90e6-d2dae4ed3f00"
         },
         {
-          "extension":"sysadmingroup",
-          "displayExtension":"sysadmingroup",
-          "displayName":"etc:sysadmingroup",
-          "name":"etc:sysadmingroup",
-          "uuid":"711b4950-4cde-4822-8dc8-faecc401137f"
+          "extension":"aGroup",
+          "displayExtension":"a group",
+          "description":"a group description",
+          "displayName":"a stem:a group",
+          "name":"aStem:aGroup",
+          "uuid":"bb4510bf-cae5-433e-9a78-0cd9ec52446f"
         }
       ]
       

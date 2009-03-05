@@ -52,7 +52,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Thu, 05 Mar 2009 05:34:29 GMT
+Date: Thu, 05 Mar 2009 06:25:30 GMT
 Connection: close
 
 {
@@ -63,41 +63,41 @@ Connection: close
           "wsGroups":{
             "WsGroup":[
               {
+                "extension":"aGroup2",
+                "displayExtension":"a group2",
+                "description":"a group description2",
+                "displayName":"a stem:a group2",
+                "name":"aStem:aGroup2",
+                "uuid":"51648793-528b-44f6-a6a9-a58c9d6127bd"
+              },
+              {
                 "extension":"aGroup",
                 "displayExtension":"a group",
                 "description":"a group description",
                 "displayName":"a stem:a group",
                 "name":"aStem:aGroup",
-                "uuid":"121b927d-a9d2-4c53-a945-eb6a4d023328"
-              },
-              {
-                "extension":"webServiceClientUsers",
-                "displayExtension":"webServiceClientUsers",
-                "displayName":"etc:webServiceClientUsers",
-                "name":"etc:webServiceClientUsers",
-                "uuid":"4da1a1d0-e279-4674-9b33-bd1038c8dfeb"
-              },
-              {
-                "extension":"sysadmingroup",
-                "displayExtension":"sysadmingroup",
-                "displayName":"etc:sysadmingroup",
-                "name":"etc:sysadmingroup",
-                "uuid":"6aa5dee1-1f88-49f4-b92c-9b092256c283"
+                "uuid":"08223bd6-94fe-45fe-a946-89dd9205fff8"
               },
               {
                 "extension":"webServiceActAsGroup",
                 "displayExtension":"webServiceActAsGroup",
                 "displayName":"etc:webServiceActAsGroup",
                 "name":"etc:webServiceActAsGroup",
-                "uuid":"57307a5c-96ef-457c-ab50-f5fdfcb5bc5c"
+                "uuid":"10043cd6-e073-4df9-8a9d-31e434a63105"
               },
               {
-                "extension":"aGroup2",
-                "displayExtension":"a group2",
-                "description":"a group description2",
-                "displayName":"a stem:a group2",
-                "name":"aStem:aGroup2",
-                "uuid":"94608776-12e8-482e-9631-38b57ada0fff"
+                "extension":"webServiceClientUsers",
+                "displayExtension":"webServiceClientUsers",
+                "displayName":"etc:webServiceClientUsers",
+                "name":"etc:webServiceClientUsers",
+                "uuid":"e69286e1-f451-4451-b657-0aa263ef81cb"
+              },
+              {
+                "extension":"sysadmingroup",
+                "displayExtension":"sysadmingroup",
+                "displayName":"etc:sysadmingroup",
+                "name":"etc:sysadmingroup",
+                "uuid":"ea055e7a-33cd-4c22-ba6a-96981a8524e3"
               }
             ]
             
@@ -121,20 +121,20 @@ Connection: close
           "wsGroups":{
             "WsGroup":[
               {
-                "extension":"aGroup",
-                "displayExtension":"a group",
-                "description":"a group description",
-                "displayName":"a stem:a group",
-                "name":"aStem:aGroup",
-                "uuid":"121b927d-a9d2-4c53-a945-eb6a4d023328"
-              },
-              {
                 "extension":"aGroup2",
                 "displayExtension":"a group2",
                 "description":"a group description2",
                 "displayName":"a stem:a group2",
                 "name":"aStem:aGroup2",
-                "uuid":"94608776-12e8-482e-9631-38b57ada0fff"
+                "uuid":"51648793-528b-44f6-a6a9-a58c9d6127bd"
+              },
+              {
+                "extension":"aGroup",
+                "displayExtension":"a group",
+                "description":"a group description",
+                "displayName":"a stem:a group",
+                "name":"aStem:aGroup",
+                "uuid":"08223bd6-94fe-45fe-a946-89dd9205fff8"
               }
             ]
             
@@ -165,7 +165,7 @@ Connection: close
       "string":"description"
     },
     "responseMetadata":{
-      "millis":"312",
+      "millis":"546",
       "serverVersion":"v1_4_002"
     }
   }

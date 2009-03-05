@@ -41,7 +41,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Thu, 05 Mar 2009 05:35:51 GMT
+Date: Thu, 05 Mar 2009 06:26:54 GMT
 Connection: close
 
 <WsGetGroupsLiteResult>

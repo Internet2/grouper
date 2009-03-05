@@ -47,7 +47,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Thu, 05 Mar 2009 05:34:34 GMT
+Date: Thu, 05 Mar 2009 06:25:35 GMT
 Connection: close
 
 <WsGetGroupsResults>
@@ -55,25 +55,26 @@ Connection: close
     <WsGetGroupsResult>
       <wsGroups>
         <WsGroup>
-          <extension>webServiceActAsGroup</extension>
-          <displayExtension>webServiceActAsGroup</displayExtension>
-          <displayName>etc:webServiceActAsGroup</displayName>
-          <name>etc:webServiceActAsGroup</name>
-          <uuid>2bf7ac28-048c-4180-9f0a-8e4f5473135a</uuid>
+          <extension>aGroup2</extension>
+          <displayExtension>a group2</displayExtension>
+          <description>a group description2</description>
+          <displayName>a stem:a group2</displayName>
+          <name>aStem:aGroup2</name>
+          <uuid>11716b0f-e03b-4b1c-928c-02a80e840607</uuid>
         </WsGroup>
         <WsGroup>
           <extension>sysadmingroup</extension>
           <displayExtension>sysadmingroup</displayExtension>
           <displayName>etc:sysadmingroup</displayName>
           <name>etc:sysadmingroup</name>
-          <uuid>c3ff09f0-6bae-407a-bf02-1e5b79251e2e</uuid>
+          <uuid>60ce9e23-c173-408b-b105-69097eae4d3e</uuid>
         </WsGroup>
         <WsGroup>
-          <extension>webServiceClientUsers</extension>
-          <displayExtension>webServiceClientUsers</displayExtension>
-          <displayName>etc:webServiceClientUsers</displayName>
-          <name>etc:webServiceClientUsers</name>
-          <uuid>8d918644-c962-49d0-8632-919e9c33a34a</uuid>
+          <extension>webServiceActAsGroup</extension>
+          <displayExtension>webServiceActAsGroup</displayExtension>
+          <displayName>etc:webServiceActAsGroup</displayName>
+          <name>etc:webServiceActAsGroup</name>
+          <uuid>06c4250f-f9e5-4ecd-984b-58d4d3c79ecb</uuid>
         </WsGroup>
         <WsGroup>
           <extension>aGroup</extension>
@@ -81,15 +82,14 @@ Connection: close
           <description>a group description</description>
           <displayName>a stem:a group</displayName>
           <name>aStem:aGroup</name>
-          <uuid>b65ad6ad-8364-47e0-8621-95f1b9dc51b5</uuid>
+          <uuid>38a3532c-cb82-4b90-bb50-d57b67b31967</uuid>
         </WsGroup>
         <WsGroup>
-          <extension>aGroup2</extension>
-          <displayExtension>a group2</displayExtension>
-          <description>a group description2</description>
-          <displayName>a stem:a group2</displayName>
-          <name>aStem:aGroup2</name>
-          <uuid>6ff421e3-4437-49f4-b789-2a1c4ad4686c</uuid>
+          <extension>webServiceClientUsers</extension>
+          <displayExtension>webServiceClientUsers</displayExtension>
+          <displayName>etc:webServiceClientUsers</displayName>
+          <name>etc:webServiceClientUsers</name>
+          <uuid>5ac9dc4a-7d97-4411-9817-91d3d63f4fbd</uuid>
         </WsGroup>
       </wsGroups>
       <resultMetadata>
@@ -114,7 +114,7 @@ Connection: close
           <description>a group description</description>
           <displayName>a stem:a group</displayName>
           <name>aStem:aGroup</name>
-          <uuid>b65ad6ad-8364-47e0-8621-95f1b9dc51b5</uuid>
+          <uuid>38a3532c-cb82-4b90-bb50-d57b67b31967</uuid>
         </WsGroup>
         <WsGroup>
           <extension>aGroup2</extension>
@@ -122,7 +122,7 @@ Connection: close
           <description>a group description2</description>
           <displayName>a stem:a group2</displayName>
           <name>aStem:aGroup2</name>
-          <uuid>6ff421e3-4437-49f4-b789-2a1c4ad4686c</uuid>
+          <uuid>11716b0f-e03b-4b1c-928c-02a80e840607</uuid>
         </WsGroup>
       </wsGroups>
       <resultMetadata>
@@ -153,7 +153,7 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: null
     <string>description</string>
   </subjectAttributeNames>
   <responseMetadata>
-    <millis>187</millis>
+    <millis>281</millis>
     <serverVersion>v1_4_002</serverVersion>
   </responseMetadata>
 </WsGetGroupsResults>

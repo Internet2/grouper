@@ -39,7 +39,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Thu, 05 Mar 2009 05:36:22 GMT
+Date: Thu, 05 Mar 2009 06:27:25 GMT
 Connection: close
 
 <WsGetGroupsLiteResult>
@@ -52,7 +52,7 @@ memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subje
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
-    <millis>78</millis>
+    <millis>94</millis>
     <serverVersion>v1_4_002</serverVersion>
   </responseMetadata>
   <wsSubject>

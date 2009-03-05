@@ -34,7 +34,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/xml
-Date: Thu, 05 Mar 2009 05:35:01 GMT
+Date: Thu, 05 Mar 2009 06:26:04 GMT
 Connection: close
 
 <WsGetGroupsLiteResult>
@@ -47,23 +47,16 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]
     <success>T</success>
   </resultMetadata>
   <responseMetadata>
-    <millis>172</millis>
+    <millis>156</millis>
     <serverVersion>v1_4_002</serverVersion>
   </responseMetadata>
   <wsGroups>
-    <WsGroup>
-      <extension>sysadmingroup</extension>
-      <displayExtension>sysadmingroup</displayExtension>
-      <displayName>etc:sysadmingroup</displayName>
-      <name>etc:sysadmingroup</name>
-      <uuid>824e2d32-b446-4a9b-a9c5-78d444a3cc26</uuid>
-    </WsGroup>
     <WsGroup>
       <extension>webServiceActAsGroup</extension>
       <displayExtension>webServiceActAsGroup</displayExtension>
       <displayName>etc:webServiceActAsGroup</displayName>
       <name>etc:webServiceActAsGroup</name>
-      <uuid>c0401845-f99e-4c82-aca1-f259c2a28bf2</uuid>
+      <uuid>ad1fc77c-1c9b-4e41-8da6-e0f12c5d82df</uuid>
     </WsGroup>
     <WsGroup>
       <extension>aGroup2</extension>
@@ -71,7 +64,21 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]
       <description>a group description2</description>
       <displayName>a stem:a group2</displayName>
       <name>aStem:aGroup2</name>
-      <uuid>938eb24c-e936-45da-8f6d-ce0304e5aa40</uuid>
+      <uuid>b55f230f-a95a-4e34-9ffb-bdb4e41e10af</uuid>
+    </WsGroup>
+    <WsGroup>
+      <extension>webServiceClientUsers</extension>
+      <displayExtension>webServiceClientUsers</displayExtension>
+      <displayName>etc:webServiceClientUsers</displayName>
+      <name>etc:webServiceClientUsers</name>
+      <uuid>b4cad75a-285e-46a5-abf0-fe5b38d156f5</uuid>
+    </WsGroup>
+    <WsGroup>
+      <extension>sysadmingroup</extension>
+      <displayExtension>sysadmingroup</displayExtension>
+      <displayName>etc:sysadmingroup</displayName>
+      <name>etc:sysadmingroup</name>
+      <uuid>b4468584-a538-47f7-a58f-524e2aba137f</uuid>
     </WsGroup>
     <WsGroup>
       <extension>aGroup</extension>
@@ -79,14 +86,7 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]
       <description>a group description</description>
       <displayName>a stem:a group</displayName>
       <name>aStem:aGroup</name>
-      <uuid>e3e5981d-83ef-439c-81e1-921f420d97f6</uuid>
-    </WsGroup>
-    <WsGroup>
-      <extension>webServiceClientUsers</extension>
-      <displayExtension>webServiceClientUsers</displayExtension>
-      <displayName>etc:webServiceClientUsers</displayName>
-      <name>etc:webServiceClientUsers</name>
-      <uuid>b61aeaa9-0080-4c3e-b4ad-be2303b74abe</uuid>
+      <uuid>11233f0c-c051-478b-bddb-840f04589adc</uuid>
     </WsGroup>
   </wsGroups>
   <wsSubject>

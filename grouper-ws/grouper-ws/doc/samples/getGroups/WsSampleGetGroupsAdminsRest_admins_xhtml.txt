@@ -71,7 +71,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Thu, 05 Mar 2009 05:35:09 GMT
+Date: Thu, 05 Mar 2009 06:26:13 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -91,15 +91,15 @@ Connection: close
             <p class="resultCode2" />
           </div>
           <div class="wsSubject" title="WsSubject">
+            <p class="resultCode">SUCCESS</p>
+            <p class="success">T</p>
+            <p class="identifierLookup" />
+            <p class="sourceId">pennperson</p>
             <p class="name" />
             <p class="id">10021368</p>
             <ul class="attributeValues">
               <li>Chris Hyzer</li>
             </ul>
-            <p class="resultCode">SUCCESS</p>
-            <p class="success">T</p>
-            <p class="identifierLookup" />
-            <p class="sourceId">pennperson</p>
           </div>
         </li>
         <li title="WsGetGroupsResult">
@@ -110,15 +110,15 @@ Connection: close
             <p class="resultCode2" />
           </div>
           <div class="wsSubject" title="WsSubject">
+            <p class="resultCode">SUCCESS</p>
+            <p class="success">T</p>
+            <p class="identifierLookup" />
+            <p class="sourceId">pennperson</p>
             <p class="name" />
             <p class="id">10039438</p>
             <ul class="attributeValues">
               <li>John Smith</li>
             </ul>
-            <p class="resultCode">SUCCESS</p>
-            <p class="success">T</p>
-            <p class="identifierLookup" />
-            <p class="sourceId">pennperson</p>
           </div>
         </li>
       </ul>
@@ -134,9 +134,9 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: null
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">3947</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_002</p>
+        <p class="millis">3900</p>
       </div>
       <ul class="subjectAttributeNames">
         <li>description</li>

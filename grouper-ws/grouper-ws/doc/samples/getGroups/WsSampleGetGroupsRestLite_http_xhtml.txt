@@ -34,7 +34,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Thu, 05 Mar 2009 05:34:52 GMT
+Date: Thu, 05 Mar 2009 06:25:55 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -55,64 +55,64 @@ memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">187</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_002</p>
+        <p class="millis">141</p>
       </div>
       <ul class="wsGroups">
         <li title="WsGroup">
-          <p class="name">aStem:aGroup2</p>
-          <p class="displayName">a stem:a group2</p>
-          <p class="description">a group description2</p>
-          <p class="extension">aGroup2</p>
           <div class="detail" title="WsGroupDetail" />
-          <p class="uuid">1aa4beae-da6d-4a8a-a61f-9f37c662e22c</p>
-          <p class="displayExtension">a group2</p>
-        </li>
-        <li title="WsGroup">
-          <p class="name">etc:webServiceClientUsers</p>
-          <p class="displayName">etc:webServiceClientUsers</p>
-          <p class="description" />
-          <p class="extension">webServiceClientUsers</p>
-          <div class="detail" title="WsGroupDetail" />
-          <p class="uuid">29abac47-a4af-40cc-8953-1b35999ea16c</p>
-          <p class="displayExtension">webServiceClientUsers</p>
-        </li>
-        <li title="WsGroup">
+          <p class="uuid">8c3dcb76-9cce-4a19-9bd2-9cb6d8af938a</p>
+          <p class="displayExtension">webServiceActAsGroup</p>
           <p class="name">etc:webServiceActAsGroup</p>
           <p class="displayName">etc:webServiceActAsGroup</p>
           <p class="description" />
           <p class="extension">webServiceActAsGroup</p>
-          <div class="detail" title="WsGroupDetail" />
-          <p class="uuid">6b7f33af-38f5-4576-ad2c-7e4192312b09</p>
-          <p class="displayExtension">webServiceActAsGroup</p>
         </li>
         <li title="WsGroup">
-          <p class="name">aStem:aGroup</p>
-          <p class="displayName">a stem:a group</p>
-          <p class="description">a group description</p>
-          <p class="extension">aGroup</p>
           <div class="detail" title="WsGroupDetail" />
-          <p class="uuid">4d42caab-092d-4d9c-b151-6792405960d3</p>
-          <p class="displayExtension">a group</p>
-        </li>
-        <li title="WsGroup">
+          <p class="uuid">8141cea2-7586-4c15-914c-bace88d4caca</p>
+          <p class="displayExtension">sysadmingroup</p>
           <p class="name">etc:sysadmingroup</p>
           <p class="displayName">etc:sysadmingroup</p>
           <p class="description" />
           <p class="extension">sysadmingroup</p>
+        </li>
+        <li title="WsGroup">
           <div class="detail" title="WsGroupDetail" />
-          <p class="uuid">330d9e40-df16-4354-820c-4472188614b2</p>
-          <p class="displayExtension">sysadmingroup</p>
+          <p class="uuid">c8a2fa01-68fe-4363-8c29-60d876d1dde2</p>
+          <p class="displayExtension">webServiceClientUsers</p>
+          <p class="name">etc:webServiceClientUsers</p>
+          <p class="displayName">etc:webServiceClientUsers</p>
+          <p class="description" />
+          <p class="extension">webServiceClientUsers</p>
+        </li>
+        <li title="WsGroup">
+          <div class="detail" title="WsGroupDetail" />
+          <p class="uuid">325c3ae0-d4b6-4bf8-a8e4-0c48fd2bd137</p>
+          <p class="displayExtension">a group2</p>
+          <p class="name">aStem:aGroup2</p>
+          <p class="displayName">a stem:a group2</p>
+          <p class="description">a group description2</p>
+          <p class="extension">aGroup2</p>
+        </li>
+        <li title="WsGroup">
+          <div class="detail" title="WsGroupDetail" />
+          <p class="uuid">39f94adb-3d5e-4d1c-8d06-2df2167b61f1</p>
+          <p class="displayExtension">a group</p>
+          <p class="name">aStem:aGroup</p>
+          <p class="displayName">a stem:a group</p>
+          <p class="description">a group description</p>
+          <p class="extension">aGroup</p>
         </li>
       </ul>
       <div class="wsSubject" title="WsSubject">
-        <p class="name" />
-        <p class="id">10021368</p>
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
         <p class="identifierLookup" />
         <p class="sourceId">pennperson</p>
+        <p class="name" />
+        <p class="id">10021368</p>
       </div>
     </div>
   </body>

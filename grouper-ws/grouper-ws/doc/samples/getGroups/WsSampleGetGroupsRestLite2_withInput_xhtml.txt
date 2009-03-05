@@ -60,7 +60,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: application/xhtml+xml
-Date: Thu, 05 Mar 2009 05:36:01 GMT
+Date: Thu, 05 Mar 2009 06:27:02 GMT
 Connection: close
 
 <?xml version='1.0' encoding='iso-8859-1'?>
@@ -81,17 +81,17 @@ memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subje
         <p class="resultCode2" />
       </div>
       <div class="responseMetadata" title="WsResponseMeta">
-        <p class="millis">4883</p>
         <p class="resultWarnings" />
         <p class="serverVersion">v1_4_002</p>
+        <p class="millis">3838</p>
       </div>
       <div class="wsSubject" title="WsSubject">
-        <p class="name" />
-        <p class="id">test.subject.0</p>
         <p class="resultCode">SUCCESS</p>
         <p class="success">T</p>
         <p class="identifierLookup" />
         <p class="sourceId">jdbc</p>
+        <p class="name" />
+        <p class="id">test.subject.0</p>
       </div>
     </div>
   </body>

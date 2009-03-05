@@ -41,7 +41,7 @@ X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
 Content-Type: text/x-json
-Date: Thu, 05 Mar 2009 05:36:10 GMT
+Date: Thu, 05 Mar 2009 06:27:10 GMT
 Connection: close
 
 {
@@ -52,7 +52,7 @@ Connection: close
       "success":"T"
     },
     "responseMetadata":{
-      "millis":"78",
+      "millis":"93",
       "serverVersion":"v1_4_002"
     },
     "wsSubject":{
