@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.17 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: MembershipDAO.java,v 1.18 2009-03-06 17:48:56 shilen Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
@@ -298,6 +298,16 @@ public interface MembershipDAO extends GrouperDAO {
    * @since   1.2.0
    */
   Set<Membership> findAllImmediateByMemberAndField(String memberUUID, Field f) 
+    throws  GrouperDAOException;
+  
+  /**
+   * @param memberUUID 
+   * @param fieldType
+   * @return set
+   * @throws GrouperDAOException 
+   * @since   1.2.0
+   */
+  Set<Membership> findAllImmediateByMemberAndFieldType(String memberUUID, String fieldType) 
     throws  GrouperDAOException;
 
   /**

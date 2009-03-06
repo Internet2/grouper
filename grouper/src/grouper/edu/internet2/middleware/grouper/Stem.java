@@ -99,7 +99,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.179 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: Stem.java,v 1.180 2009-03-06 17:48:56 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -2537,7 +2537,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
                 oldStemUuidToNewStem.put(Stem.this.getUuid(), newStem);
                 
                 for (Stem childStem : GrouperDAOFactory.getFactory().getStem()
-                    .findAllChildStems(Stem.this, Stem.Scope.ONE, true)) {
+                    .findAllChildStems(Stem.this, Stem.Scope.SUB, true)) {
                   Stem newChildStem = oldStemUuidToNewStem.get(childStem.getParentUuid())
                       .internal_addChildStem(GrouperSession
                           .staticGrouperSession().internal_getRootSession(), childStem.getExtension(),
@@ -2638,15 +2638,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   } 
   
   private void internal_copyPrivilegesOfStem(GrouperSession session, Stem stem)
-    throws UnableToPerformException {
-  Set<Privilege> privileges = Privilege.getNamingPrivs();
+      throws UnableToPerformException {
+    Set<Privilege> privileges = Privilege.getNamingPrivs();
 
-  Iterator<Privilege> iter = privileges.iterator();
-  while (iter.hasNext()) {
-    Privilege priv = iter.next();
-    session.getNamingResolver().privilegeCopy(stem, this, priv);      
-  }  
-}
+    Iterator<Privilege> iter = privileges.iterator();
+    while (iter.hasNext()) {
+      Privilege priv = iter.next();
+      session.getNamingResolver().privilegeCopy(stem, this, priv);
+    }
+  }
   
 } // public class Stem extends GrouperAPI implements Owner
 

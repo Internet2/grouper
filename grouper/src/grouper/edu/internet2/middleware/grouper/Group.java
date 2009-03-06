@@ -121,7 +121,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.223 2009-03-02 07:33:25 mchyzer Exp $
+ * @version $Id: Group.java,v 1.224 2009-03-06 17:48:56 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -4152,9 +4152,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     
     // verify that the subject can create groups in the stem where the group will be moved to.
     if (!PrivilegeHelper.canCreate(GrouperSession.staticGrouperSession(), stem,
-        GrouperSession.staticGrouperSession().getSubject())
-        && !PrivilegeHelper.canStem(stem, GrouperSession.staticGrouperSession()
-            .getSubject())) {
+        GrouperSession.staticGrouperSession().getSubject())) {
       throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
     }
     
@@ -4222,23 +4220,6 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
                 } else {
                   actAs = GrouperSession.staticGrouperSession().internal_getRootSession();
                 }
-                
-                // if the group already exists in the new stem, lets append ".#" to the extension.
-                String newGroupExtension = Group.this.getExtensionDb();
-                int extensionCount = 1;
-                boolean notFound = false;
-                while (notFound == false) {
-                  Group foundGroup = GroupFinder.findByName(GrouperSession
-                      .staticGrouperSession().internal_getRootSession(), stem.getName()
-                      + Stem.DELIM + newGroupExtension, false);
-                  if (foundGroup != null) {
-                    extensionCount++;
-                    newGroupExtension = Group.this.getExtensionDb() + "."
-                        + extensionCount;
-                  } else {
-                    notFound = true;
-                  }
-                }
 
                 Map<String, String> attributesMap = new HashMap<String, String>();
                 if (attributes == true) {                  
@@ -4256,10 +4237,43 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
                   attributesMap = filtered;
                 }
 
-                Group newGroup = stem.internal_addChildGroup(actAs, newGroupExtension,
-                    Group.this.getDisplayExtensionDb(), null,
-                    Group.this.getDescription(), Group.this.getTypesDb(), attributesMap,
-                    addDefaultGroupPrivileges);
+                Group newGroup = null;
+                
+                try {
+                  newGroup = stem.internal_addChildGroup(actAs, Group.this.getExtension(),
+                      Group.this.getDisplayExtensionDb(), null, Group.this
+                          .getDescription(), Group.this.getTypesDb(), attributesMap,
+                      addDefaultGroupPrivileges);
+                } catch (GroupAddException e) {
+                  Group test = GroupFinder.findByName(GrouperSession
+                      .staticGrouperSession().internal_getRootSession(), stem.getName()
+                      + Stem.DELIM + Group.this.getExtension(), false);
+                  if (test == null) {
+                    throw e;
+                  }
+                  
+                  // if the group already exists in the new stem, lets append ".#" to the extension.
+                  String newGroupExtension = Group.this.getExtensionDb() + ".2";
+                  int extensionCount = 2;
+                  boolean notFound = false;
+                  while (notFound == false) {
+                    Group foundGroup = GroupFinder.findByName(GrouperSession
+                        .staticGrouperSession().internal_getRootSession(), stem.getName()
+                        + Stem.DELIM + newGroupExtension, false);
+                    if (foundGroup != null) {
+                      extensionCount++;
+                      newGroupExtension = Group.this.getExtensionDb() + "."
+                          + extensionCount;
+                    } else {
+                      notFound = true;
+                    }
+                  }
+                  
+                  newGroup = stem.internal_addChildGroup(actAs, newGroupExtension,
+                      Group.this.getDisplayExtensionDb(), null, Group.this
+                          .getDescription(), Group.this.getTypesDb(), attributesMap,
+                      addDefaultGroupPrivileges);
+                }
                 
                 if (composite) {
                   try {
@@ -4314,6 +4328,8 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
                 throw new GrouperInverseOfControlException(e);
               } catch (UnableToPerformException e) {
                 throw new GrouperInverseOfControlException(e);
+              } catch (GrouperRuntimeException e) {
+                throw new GrouperInverseOfControlException(e);
               }
             }
           });
@@ -4325,6 +4341,16 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
       if (cause instanceof GroupAddException) {
         throw (GroupAddException) cause;
       }
+      if (cause instanceof UnableToPerformException) {
+        if (cause.getCause() instanceof InsufficientPrivilegeException) {
+          throw (InsufficientPrivilegeException) cause.getCause();
+        }
+      }
+      if (cause instanceof GrouperRuntimeException) {
+        if (cause.getCause() instanceof InsufficientPrivilegeException) {
+          throw (InsufficientPrivilegeException) cause.getCause();
+        }
+      }
       LOG.error("Cant find cause: " + cause, gioc);
       throw new RuntimeException(cause);
 
@@ -4334,21 +4360,19 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   private void internal_copyGroupAsMember(GrouperSession session, Group group)
       throws SchemaException, MemberAddException, SubjectNotFoundException,
       GroupNotFoundException, GrouperRuntimeException, InsufficientPrivilegeException {
-    Set<Field> fields = FieldFinder.findAllByType(FieldType.LIST);
-    Iterator<Field> iter = fields.iterator();
-    while (iter.hasNext()) {
-      Field f = iter.next();
 
-      Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
-          .findAllImmediateByMemberAndField(group.toMember().getUuid(), f);
+    Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+        .findAllImmediateByMemberAndFieldType(group.toMember().getUuid(),
+            FieldType.LIST.toString());
 
-      Iterator<Membership> membershipsIter = memberships.iterator();
-      while (membershipsIter.hasNext()) {
-        Group g = membershipsIter.next().getGroup();
-        PrivilegeHelper.dispatch(session, g, session.getSubject(), f.getReadPriv());
-        PrivilegeHelper.dispatch(session, g, session.getSubject(), f.getWritePriv());
-        Membership.internal_addImmediateMembership(session, g, this.toSubject(), f);
-      }
+    Iterator<Membership> membershipsIter = memberships.iterator();
+    while (membershipsIter.hasNext()) {
+      Membership ms = membershipsIter.next();
+      Field f = FieldFinder.findById(ms.getFieldId());
+      Group g = ms.getGroup();
+      PrivilegeHelper.dispatch(session, g, session.getSubject(), f.getWritePriv());
+      Membership.internal_addImmediateMembership(session, g, this.toSubject(), f);
+
     }
   }
 
@@ -4402,10 +4426,11 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   /**
    * Copy this group to another Stem.
    * @param stem
+   * @return the new group
    * @throws InsufficientPrivilegeException 
    * @throws GroupAddException 
    */
-  public void copy(Stem stem) throws GroupAddException, InsufficientPrivilegeException {
-    copy(stem, true, true, true, true, true);
+  public Group copy(Stem stem) throws GroupAddException, InsufficientPrivilegeException {
+    return copy(stem, true, true, true, true, true);
   } 
 }
