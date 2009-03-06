@@ -46,7 +46,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.28 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.29 2009-03-06 17:48:56 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -856,6 +856,33 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .setString( "type",   Membership.IMMEDIATE   )
       .listSet(Object[].class);
 	  return _getMembershipsFromMembershipAndMemberQuery(mships);
+  } 
+  
+  /**
+   * @param memberUUID 
+   * @param fieldType
+   * @return set
+   * @throws GrouperDAOException 
+   * @since   @HEAD@
+   */
+  public Set<Membership> findAllImmediateByMemberAndFieldType(String memberUUID, String fieldType) 
+    throws  GrouperDAOException
+  {
+    Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(
+        "select ms, m from Membership as ms, Member as m, Field as field where  "
+        + "     ms.memberUuid = :member           "
+        + "and  ms.fieldId = field.uuid "
+        + "and  field.typeString       = :ftype             "
+        + "and  ms.type       = :type             "
+        + "and ms.memberUuid = m.uuid")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllImmediateByMemberAndFieldType")
+      .setString( "member", memberUUID             )
+      .setString( "ftype",  fieldType )
+      .setString( "type",   Membership.IMMEDIATE   )
+      .listSet(Object[].class);
+    return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
 
   /**

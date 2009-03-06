@@ -56,7 +56,7 @@ import edu.internet2.middleware.subject.Subject;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.75 2009-03-02 07:33:25 mchyzer Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.76 2009-03-06 17:48:56 shilen Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -410,7 +410,6 @@ public class GrouperNamingAdapter implements NamingAdapter {
       } catch (StemNotFoundException e1) {
         throw new GrouperRuntimeException(e1.getMessage(), e1);
       }
-      PrivilegeHelper.dispatch(s, stem, s.getSubject(), f.getReadPriv());
       PrivilegeHelper.dispatch(s, stem, s.getSubject(), f.getWritePriv());
       try {
         Membership.internal_addImmediateMembership(s, stem, subj2, f);

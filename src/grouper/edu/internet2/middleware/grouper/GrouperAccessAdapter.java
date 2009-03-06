@@ -55,7 +55,7 @@ import edu.internet2.middleware.subject.Subject;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.75 2009-03-02 07:33:25 mchyzer Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.76 2009-03-06 17:48:56 shilen Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -416,7 +416,6 @@ public class GrouperAccessAdapter implements AccessAdapter {
       } catch (GroupNotFoundException e1) {
         throw new GrouperRuntimeException(e1.getMessage(), e1);
       }
-      PrivilegeHelper.dispatch(s, g, s.getSubject(), f.getReadPriv());
       PrivilegeHelper.dispatch(s, g, s.getSubject(), f.getWritePriv());
       try {
         Membership.internal_addImmediateMembership(s, g, subj2, f);
