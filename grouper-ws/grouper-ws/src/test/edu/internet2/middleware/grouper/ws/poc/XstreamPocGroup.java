@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: XstreamPocGroup.java,v 1.1.2.1 2009-02-23 18:39:59 mchyzer Exp $
+ * $Id: XstreamPocGroup.java,v 1.1.2.2 2009-03-07 06:48:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.poc;
 
@@ -10,6 +10,8 @@ package edu.internet2.middleware.grouper.ws.poc;
  */
 public class XstreamPocGroup {
 
+  private String somethingNotMarshaled = "whatever";
+  
   public XstreamPocGroup(String theName, XstreamPocMember[] theMembers) {
     this.name = theName;
     this.members = theMembers;

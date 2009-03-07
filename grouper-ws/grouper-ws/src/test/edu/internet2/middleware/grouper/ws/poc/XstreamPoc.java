@@ -1,12 +1,13 @@
 /*
  * @author mchyzer
- * $Id: XstreamPoc.java,v 1.1.2.1 2009-02-23 18:39:59 mchyzer Exp $
+ * $Id: XstreamPoc.java,v 1.1.2.2 2009-03-07 06:48:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.poc;
 
 import java.io.StringWriter;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
 import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
@@ -36,6 +37,22 @@ public class XstreamPoc {
          new XstreamPocMember("John", "John Smith - Employee"),
          new XstreamPocMember("Mary", "Mary Johnson - Student")});
     XStream xStream = new XStream(new XppDriver());
+    
+    //do javabean properties, not fields
+    xStream.registerConverter(new JavaBeanConverter(xStream.getMapper()) {
+
+      /**
+       * @see com.thoughtworks.xstream.converters.javabean.JavaBeanConverter#canConvert(java.lang.Class)
+       */
+      @SuppressWarnings("unchecked")
+      @Override
+      public boolean canConvert(Class type) {
+        //see if one of our beans
+        return type.getName().startsWith("edu.internet2");
+      }
+      
+    }); 
+    
     xStream.alias("XstreamPocGroup", XstreamPocGroup.class);
     xStream.alias("XstreamPocMember", XstreamPocMember.class);
     StringWriter stringWriter = new StringWriter();
