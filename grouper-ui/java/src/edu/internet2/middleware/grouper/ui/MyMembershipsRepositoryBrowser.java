@@ -25,6 +25,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -33,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MyMembershipsRepositoryBrowser.java,v 1.6 2007-11-16 14:55:22 isgwb Exp $
+ * @version $Id: MyMembershipsRepositoryBrowser.java,v 1.6.8.1 2009-03-13 06:34:01 mchyzer Exp $
  */
 
 public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
@@ -70,15 +72,26 @@ public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
 	/* (non-Javadoc)
 	 * @see edu.internet2.middleware.grouper.ui.AbstractRepositoryBrowser#getValidStems()
 	 */
-	protected Map getValidStems() throws Exception{
-		Map validStems = savedValidStems;
-		if(validStems !=null) return validStems;
-		Set groups = null;
-		GrouperSession s = getGrouperSession();
-		Member member = MemberFinder.findBySubject(s,s.getSubject());
-		groups = member.getGroups();
+	protected Map getValidStems() throws Exception {
 
-		return getStems(groups);
+    Map validStems = savedValidStems;
+    if (validStems != null)
+      return validStems;
+    GrouperSession s = GrouperSession.startRootSession(true);
+    Set groups = (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        Subject curSubj = getGrouperSession().getSubject();
+        Member member = MemberFinder.findBySubject(grouperSession, curSubj);
+        Set groupSet = member.getGroups();
+        return groupSet;
+      }
+      
+    });
+    s.stop();
+    return getStems(groups);
+
 	}
 	
 	protected Map getGroups() throws Exception{
