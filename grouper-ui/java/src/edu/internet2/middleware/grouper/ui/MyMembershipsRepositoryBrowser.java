@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MyMembershipsRepositoryBrowser.java,v 1.6.8.1 2009-03-13 06:34:01 mchyzer Exp $
+ * @version $Id: MyMembershipsRepositoryBrowser.java,v 1.6.8.2 2009-03-13 15:22:10 mchyzer Exp $
  */
 
 public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
@@ -77,7 +77,7 @@ public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
     Map validStems = savedValidStems;
     if (validStems != null)
       return validStems;
-    GrouperSession s = GrouperSession.startRootSession(true);
+    GrouperSession s = GrouperSession.startRootSession(false);
     Set groups = (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
 
       public Object callback(GrouperSession grouperSession)
