@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SampleCapture.java,v 1.6 2008-11-06 21:51:53 mchyzer Exp $
+ * $Id: SampleCapture.java,v 1.7 2009-03-15 06:42:14 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.samples;
 
@@ -154,10 +154,10 @@ public class SampleCapture {
       
       GrouperCheckConfig.checkGroups();
 
-      Subject grouperSystemSubject = SubjectFinder.findById("GrouperSystem");
+      Subject grouperSystemSubject = SubjectFinder.findById("GrouperSystem", true);
       
       try {
-        SubjectFinder.findById("10039438");
+        SubjectFinder.findById("10039438", true);
       } catch (SubjectNotFoundException snfe) {
         RegistrySubject registrySubject = new RegistrySubject();
         registrySubject.setId("10039438");
@@ -166,10 +166,10 @@ public class SampleCapture {
         GrouperDAOFactory.getFactory().getRegistrySubject().create(registrySubject);
       }
       
-      Subject subject1 = SubjectFinder.findById("10039438");
+      Subject subject1 = SubjectFinder.findById("10039438", true);
 
       try {
-        SubjectFinder.findById("10021368");
+        SubjectFinder.findById("10021368", true);
       } catch (SubjectNotFoundException snfe) {
         RegistrySubject registrySubject = new RegistrySubject();
         registrySubject.setId("10021368");
@@ -178,13 +178,13 @@ public class SampleCapture {
         GrouperDAOFactory.getFactory().getRegistrySubject().create(registrySubject);
       }
       
-      Subject subject2 = SubjectFinder.findById("10021368");
+      Subject subject2 = SubjectFinder.findById("10021368", true);
       
       try {
-        SubjectFinder.findById("mchyzer");
+        SubjectFinder.findById("mchyzer", true);
       } catch (SubjectNotFoundException snfe) {
         try {
-          SubjectFinder.findByIdentifier("mchyzer");
+          SubjectFinder.findByIdentifier("mchyzer", true);
         } catch (SubjectNotFoundException snfe2) {
           RegistrySubject registrySubject = new RegistrySubject();
           registrySubject.setId("mchyzer");
@@ -213,7 +213,7 @@ public class SampleCapture {
        
       String userGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
       Group wsUserGroup = Group.saveGroup(grouperSession, userGroupName, null, userGroupName, null, null, null, true);
-      Subject userSubject = SubjectFinder.findByIdentifier(RestClientSettings.USER);
+      Subject userSubject = SubjectFinder.findByIdentifier(RestClientSettings.USER, true);
       wsUserGroup.addMember(userSubject, false);
 
       String actAsGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_ACT_AS_GROUP);
@@ -227,9 +227,9 @@ public class SampleCapture {
       wheelGroup.addMember(subject2, false);
       
       //add the member
-      MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.0"));
-      MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.2"));
-      MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.3"));
+      MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.0", true), true);
+      MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.2", true), true);
+      MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.3", true), true);
       
       //add some types and attributes
       GroupType groupType = GroupType.createType(grouperSession, "aType", false);
