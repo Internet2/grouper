@@ -41,7 +41,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.19 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.20 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -87,7 +87,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
         this.wheelSession = GrouperSession.start( SubjectFinder.findRootSubject(), false );
         this.wheelGroup = GroupFinder.findByName(
                             this.wheelSession,
-                            wheelName
+                            wheelName, true
                           );
       }
       catch (Exception e) {

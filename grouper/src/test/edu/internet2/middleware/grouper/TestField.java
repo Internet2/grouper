@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.9 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: TestField.java,v 1.10 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestField extends TestCase {
 
@@ -51,12 +51,7 @@ public class TestField extends TestCase {
   }
 
   protected void setUp () {
-    try {
-      FieldFinder.find("viewers");
-      
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    FieldFinder.find("viewers", true);
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
   }
 

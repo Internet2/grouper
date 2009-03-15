@@ -25,7 +25,7 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * Test {@link GroupFinder.findByUuid()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrFiFindByUuid.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGrFiFindByUuid.java,v 1.8 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGrFiFindByUuid extends TestCase {
 
@@ -49,7 +49,7 @@ public class TestGrFiFindByUuid extends TestCase {
     Stem            edu   = StemHelper.addChildStem(root, "edu", "educational");
     Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
     try {
-      Group found = GroupFinder.findByUuid(s, i2.getUuid());
+      Group found = GroupFinder.findByUuid(s, i2.getUuid(), true);
       Assert.assertTrue("found a group", true);
       Assert.assertNotNull("found group !null", found);
       Assert.assertTrue("found instanceof Group", found instanceof Group);

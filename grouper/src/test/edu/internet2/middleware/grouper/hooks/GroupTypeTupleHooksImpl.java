@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeTupleHooksImpl.java,v 1.3 2008-07-21 04:43:58 mchyzer Exp $
+ * $Id: GroupTypeTupleHooksImpl.java,v 1.4 2009-03-15 06:37:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -33,7 +33,7 @@ public class GroupTypeTupleHooksImpl extends GroupTypeTupleHooks {
     GroupTypeTuple groupTypeTuple = preInsertBean.getGroupTypeTuple();
     String name = null;
     try {
-      name = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(),groupTypeTuple.getGroupUuid()).getExtension();
+      name = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(),groupTypeTuple.getGroupUuid(), true).getExtension();
     } catch (GroupNotFoundException gnfe) {
       throw new RuntimeException(gnfe);
     }
@@ -54,7 +54,7 @@ public class GroupTypeTupleHooksImpl extends GroupTypeTupleHooks {
     GroupTypeTuple groupTypeTuple = postInsertBean.getGroupTypeTuple();
     String name = null;
     try {
-      name = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(),groupTypeTuple.getGroupUuid()).getExtension();
+      name = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(),groupTypeTuple.getGroupUuid(), true).getExtension();
     } catch (GroupNotFoundException gnfe) {
       throw new RuntimeException(gnfe);
     }
@@ -75,7 +75,7 @@ public class GroupTypeTupleHooksImpl extends GroupTypeTupleHooks {
     GroupTypeTuple groupTypeTuple = preDeleteBean.getGroupTypeTuple();
     String name = null;
     try {
-      name = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(),groupTypeTuple.getGroupUuid()).getExtension();
+      name = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(),groupTypeTuple.getGroupUuid(), true).getExtension();
     } catch (GroupNotFoundException gnfe) {
       throw new RuntimeException(gnfe);
     }
@@ -96,7 +96,7 @@ public class GroupTypeTupleHooksImpl extends GroupTypeTupleHooks {
     GroupTypeTuple groupTypeTuple = preDeleteBean.getGroupTypeTuple();
     String name = null;
     try {
-      name = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(),groupTypeTuple.getGroupUuid()).getExtension();
+      name = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(),groupTypeTuple.getGroupUuid(), true).getExtension();
     } catch (GroupNotFoundException gnfe) {
       throw new RuntimeException(gnfe);
     }
@@ -116,7 +116,7 @@ public class GroupTypeTupleHooksImpl extends GroupTypeTupleHooks {
     GroupTypeTuple groupTypeTuple = preDeleteBean.getGroupTypeTuple();
     String name = null;
     try {
-      name = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(),groupTypeTuple.getGroupUuid()).getExtension();
+      name = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(),groupTypeTuple.getGroupUuid(), true).getExtension();
     } catch (GroupNotFoundException gnfe) {
       throw new RuntimeException(gnfe);
     }
@@ -133,7 +133,7 @@ public class GroupTypeTupleHooksImpl extends GroupTypeTupleHooks {
     GroupTypeTuple groupTypeTuple = postInsertBean.getGroupTypeTuple();
     String name = null;
     try {
-      name = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(),groupTypeTuple.getGroupUuid()).getExtension();
+      name = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(),groupTypeTuple.getGroupUuid(), true).getExtension();
     } catch (GroupNotFoundException gnfe) {
       throw new RuntimeException(gnfe);
     }

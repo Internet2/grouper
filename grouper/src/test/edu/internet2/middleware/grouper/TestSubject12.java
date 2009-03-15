@@ -29,7 +29,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSubject12.java,v 1.4 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestSubject12.java,v 1.5 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestSubject12 extends TestCase {
@@ -52,7 +52,7 @@ public class TestSubject12 extends TestCase {
   public void testFindGrouperAllByIdentifier() {
     LOG.info("testFindGrouperAllByIdentifier");
     try {
-      Subject subj = SubjectFinder.findByIdentifier(GrouperConfig.ALL);
+      Subject subj = SubjectFinder.findByIdentifier(GrouperConfig.ALL, true);
       Assert.assertNotNull("subj !null", subj);
       Assert.assertTrue("subj instanceof Subject", subj instanceof Subject);
       T.string("subj id"      , GrouperConfig.ALL       , subj.getId()              );

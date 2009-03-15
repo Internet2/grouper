@@ -23,7 +23,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupFinder_FindByAttribute.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroupFinder_FindByAttribute.java,v 1.8 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroupFinder_FindByAttribute extends GrouperTest {
@@ -47,7 +47,7 @@ public class TestGroupFinder_FindByAttribute extends GrouperTest {
     LOG.info("testFailToFindGroupByAttributeNullSession");
     try {
       R.populateRegistry(0, 0, 0);
-      GroupFinder.findByAttribute(null, "description", "i2:a:a");
+      GroupFinder.findByAttribute(null, "description", "i2:a:a", true);
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eIA) {
@@ -62,7 +62,7 @@ public class TestGroupFinder_FindByAttribute extends GrouperTest {
     LOG.info("testFailToFindGroupByAttributeNullAttribute");
     try {
       R r = R.populateRegistry(0, 0, 0);
-      GroupFinder.findByAttribute(r.rs, null, "i2:a:a");
+      GroupFinder.findByAttribute(r.rs, null, "i2:a:a", true);
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eIA) {
@@ -77,7 +77,7 @@ public class TestGroupFinder_FindByAttribute extends GrouperTest {
     LOG.info("testFailToFindGroupByAttributeNullAttributeValue");
     try {
       R r = R.populateRegistry(0, 0, 0);
-      GroupFinder.findByAttribute(r.rs, "description", null);
+      GroupFinder.findByAttribute(r.rs, "description", null, true);
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eIA) {

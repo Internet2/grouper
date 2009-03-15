@@ -16,16 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.MemberOf;
-import  edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_deleteImmediate.java,v 1.7 2009-01-27 12:09:23 mchyzer Exp $
+ * @version $Id: Test_I_API_MemberOf_deleteImmediate.java,v 1.8 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
@@ -52,12 +52,12 @@ public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
       gB      = parent.addChildGroup("child group b", "child group b");
       gC      = parent.addChildGroup("child group c", "child group c");
       gD      = parent.addChildGroup("child group d", "child group d");
-      subjX   = SubjectFinder.findById( RegistrySubject.add(s, "subjX", "person", "subjX").getId() );
-      subjY   = SubjectFinder.findById( RegistrySubject.add(s, "subjY", "person", "subjY").getId() );
-      mX      = MemberFinder.findBySubject(s, subjX);
+      subjX   = SubjectFinder.findById( RegistrySubject.add(s, "subjX", "person", "subjX").getId(), true );
+      subjY   = SubjectFinder.findById( RegistrySubject.add(s, "subjY", "person", "subjY").getId(), true );
+      mX      = MemberFinder.findBySubject(s, subjX, true);
     }
     catch (Exception eShouldNotHappen) {
-      throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
+      throw new GrouperException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
   }
 
@@ -66,7 +66,7 @@ public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
       s.stop();
     }
     catch (Exception eShouldNotHappen) {
-      throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
+      throw new GrouperException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
     super.tearDown();
   }
@@ -82,7 +82,7 @@ public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
     try {
       gA.addMember(subjX);
       _ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        gA.getUuid(), mX.getUuid(), Group.getDefaultList(), Membership.IMMEDIATE
+        gA.getUuid(), mX.getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true
       );
     }
     catch (Exception eShouldNotHappen) {
@@ -115,7 +115,7 @@ public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
       gA.addCompositeMember( CompositeType.UNION, gB, gC );
       gD.addMember( gA.toSubject() );
       _ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        gB.getUuid(), mX.getUuid(), Group.getDefaultList(), Membership.IMMEDIATE
+        gB.getUuid(), mX.getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true
       );
     }
     catch (Exception eShouldNotHappen) {

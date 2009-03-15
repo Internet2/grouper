@@ -23,7 +23,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.59 2009-03-04 15:33:31 isgwb Exp $
+ * @version $Id: MemberFinder.java,v 1.60 2009-03-15 06:37:21 mchyzer Exp $
  */
 public class MemberFinder {
 	
@@ -57,10 +57,10 @@ public class MemberFinder {
    * </pre>
    * @param   s   Find all members within this session context.
    * @return  {@link Set} of {@link Member} objects.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public static Set findAll(GrouperSession s)
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     //note, no need for GrouperSession inverse of control
     return findAll(s, null);
@@ -74,10 +74,10 @@ public class MemberFinder {
    * @param   s       Find all members within this session context.
    * @param   source  Find all members with this source.
    * @return  {@link Set} of {@link Member} objects.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public static Set findAll(GrouperSession s, Source source)
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
@@ -91,7 +91,7 @@ public class MemberFinder {
   } // public static Set findAll(GrouperSession s)
 
   /**
-   * Convert a {@link Subject} to a {@link Member}.
+   * Convert a {@link Subject} to a {@link Member}.  Create if not exist
    * <pre class="eg">
    * // Convert a subject to a Member object, create if not exist
    *   Member m = MemberFinder.findBySubject(s, subj);
@@ -99,13 +99,30 @@ public class MemberFinder {
    * @param   s   Find {@link Member} within this session context.
    * @param   subj  {@link Subject} to convert.
    * @return  A {@link Member} object.
+   * @deprecated use overload
    */
+  @Deprecated
   public static Member findBySubject(GrouperSession s, Subject subj) {
+    return findBySubject(s, subj, true);
+  }
+
+  /**
+   * Convert a {@link Subject} to a {@link Member}.
+   * <pre class="eg">
+   * // Convert a subject to a Member object, create if not exist
+   *   Member m = MemberFinder.findBySubject(s, subj, true);
+   * </pre>
+   * @param   s   Find {@link Member} within this session context.
+   * @param   subj  {@link Subject} to convert.
+   * @param createIfNotExist true if the member should be created if not there
+   * @return  A {@link Member} object.
+   */
+  public static Member findBySubject(GrouperSession s, Subject subj, boolean createIfNotExist) {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Member m = internal_findBySubject(subj, !(subj instanceof UnresolvableSubject));
+    Member m = internal_findBySubject(subj, createIfNotExist && !(subj instanceof UnresolvableSubject));
     return m;
-  } // public static Member findBySubject(s, subj)
+  }
 
   /**
    * Get a member by UUID.
@@ -122,22 +139,38 @@ public class MemberFinder {
    * @param   uuid  Get {@link Member} with this UUID.
    * @return  A {@link Member} object.
    * @throws  MemberNotFoundException
+   * @Deprecated use overload instread
    */
+  @Deprecated
   public static Member findByUuid(GrouperSession s, String uuid)
-    throws MemberNotFoundException
-  {
+    throws MemberNotFoundException {
+
+    return findByUuid(s, uuid, true);
+  }
+
+  /**
+   * Get a member by UUID.
+   * <pre class="eg">
+   * // Get a member by uuid.
+   * Member m = MemberFind.findByUuid(s, uuid, false);
+   * </pre>
+   * @param   s     Get {@link Member} within this session context.
+   * @param   uuid  Get {@link Member} with this UUID.
+   * @param exceptionIfNotFound true to throw exception if not found
+   * @return  A {@link Member} object.
+   * @throws  MemberNotFoundException
+   */
+  public static Member findByUuid(GrouperSession s, String uuid, 
+      boolean exceptionIfNotFound) throws MemberNotFoundException {
     GrouperSession.validate(s);
     //note, no need for GrouperSession inverse of control
-    Member m = GrouperDAOFactory.getFactory().getMember().findByUuid(uuid);
+    Member m = GrouperDAOFactory.getFactory().getMember().findByUuid(uuid, exceptionIfNotFound);
     return m;
-  } // public static Member findByUuid(s, uuid)
+  }
 
   
-  // public CLASS METHODS //
-
-  // @since   1.2.0
   public static Member internal_findAllMember() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
 	  if(all !=null) return all;
     all= MemberFinder.internal_findBySubject( SubjectFinder.findAllSubject(), true); 
@@ -145,11 +178,12 @@ public class MemberFinder {
   } // public static Member internal_findAllMember()
 
   /** logger */
+  @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(MemberFinder.class);
 
   // @since   1.2.0
   public static Member internal_findRootMember() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
 	if(root != null) return root;
     root= MemberFinder.internal_findBySubject( SubjectFinder.findRootSubject(), true ); 
@@ -200,7 +234,7 @@ public class MemberFinder {
    */
   private static Member internal_findOrCreateBySubject(String id, String src, String type, boolean createIfNotExist) {
     try {
-      return GrouperDAOFactory.getFactory().getMember().findBySubject(id, src, type);
+      return GrouperDAOFactory.getFactory().getMember().findBySubject(id, src, type, true);
     }
     catch (MemberNotFoundException eMNF) {
       if (createIfNotExist) {
@@ -215,21 +249,31 @@ public class MemberFinder {
       }
       return null;
     }
-  } // public static Member internal_findOrCreateBySubject(id, src, type)
+  } 
 
-  // @since   1.2.0
-  public static Member internal_findViewableMemberBySubject(GrouperSession s, Subject subj)
+  /**
+   * @param s
+   * @param subj
+   * @param exceptionIfNotExist
+   * @return the member or null if exceptionIfNotExist is false
+   * @throws InsufficientPrivilegeException
+   * @throws MemberNotFoundException
+   */
+  public static Member internal_findViewableMemberBySubject(GrouperSession s, Subject subj, boolean exceptionIfNotExist)
     throws  InsufficientPrivilegeException,
             MemberNotFoundException  {
     //note, no need for GrouperSession inverse of control
-    Member m = findBySubject(s, subj);
+    Member m = findBySubject(s, subj, exceptionIfNotExist);
     if ( SubjectFinder.internal_getGSA().getId().equals( m.getSubjectSourceId() )) {
       // subject is a group.  is it VIEWable?
       try {
-        GroupFinder.findByUuid( s, m.getSubjectId() ); // TODO 20070328 this is rather heavy
+        GroupFinder.findByUuid( s, m.getSubjectId(), true ); // TODO 20070328 this is rather heavy
       }
       catch (GroupNotFoundException eGNF) {
-        throw new MemberNotFoundException( eGNF.getMessage(), eGNF );  
+        if (exceptionIfNotExist) {
+          throw new MemberNotFoundException( eGNF.getMessage(), eGNF );  
+        }
+        return null;
       }
     }
     return m;
@@ -239,23 +283,31 @@ public class MemberFinder {
    * find a member object and if group, make sure it is readable
    * @param grouperSession
    * @param subject
+   * @param exceptionIfNotExist
    * @return the member
    * @throws MemberNotFoundException 
    * @throws InsufficientPrivilegeException 
    */
   public static Member internal_findReadableMemberBySubject(GrouperSession grouperSession, 
-      Subject subject)
+      Subject subject, boolean exceptionIfNotExist)
      throws MemberNotFoundException, InsufficientPrivilegeException {
-    Member member = findBySubject(grouperSession, subject);
+    Member member = findBySubject(grouperSession, subject, exceptionIfNotExist);
+    
+    if (!exceptionIfNotExist && member == null) {
+      return null;
+    }
     
     //see if this subject is a group
     if ( SubjectFinder.internal_getGSA().getId().equals( member.getSubjectSourceId() )) {
       Group group = null;
       
       try {
-        group = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId());
+        group = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), true);
       } catch (GroupNotFoundException gnfe) {
-        throw new MemberNotFoundException("Cant find (or possibly view) group: " + member.getSubjectId(), gnfe);
+        if (exceptionIfNotExist) {
+          throw new MemberNotFoundException("Cant find (or possibly view) group: " + member.getSubjectId(), gnfe);
+        }
+        return null;
       }
       
       //see if the session can read the group

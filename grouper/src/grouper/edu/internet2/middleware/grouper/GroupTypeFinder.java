@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cache.GrouperCache;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find group types.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupTypeFinder.java,v 1.34 2008-11-11 07:27:32 mchyzer Exp $
+ * @version $Id: GroupTypeFinder.java,v 1.35 2009-03-15 06:37:21 mchyzer Exp $
  */
 public class GroupTypeFinder {
   
@@ -136,7 +136,9 @@ public class GroupTypeFinder {
    * @param   name  Find {@link GroupType} with this name.
    * @return  {@link GroupType}
    * @throws  SchemaException
+   * @Deprecated use the overload
    */
+  @Deprecated
   public static GroupType find(String name) throws  SchemaException {
     return find(name, true);
   }
@@ -219,9 +221,9 @@ public class GroupTypeFinder {
   /**
    * 
    * @return set
-   * @throws GrouperRuntimeException
+   * @throws GrouperException
    */
-  private static Set<GroupType> _findAll() throws  GrouperRuntimeException {
+  private static Set<GroupType> _findAll() throws  GrouperException {
     try {
       Set<GroupType>       types = new LinkedHashSet<GroupType>();
       Iterator<GroupType>  it    = GrouperDAOFactory.getFactory().getGroupType().findAll().iterator();
@@ -232,10 +234,10 @@ public class GroupTypeFinder {
       LOG.info("found group types: " + types.size() );
       return types;
     }
-    catch (GrouperRuntimeException eGRE) {
+    catch (GrouperException eGRE) {
       String msg = E.GROUPTYPE_FINDALL + eGRE.getMessage();
       LOG.fatal(msg);
-      throw new GrouperRuntimeException(msg, eGRE);
+      throw new GrouperException(msg, eGRE);
     }
   } // private Static Set _findAll()
 

@@ -25,13 +25,11 @@ import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.FindBadMemberships;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author Shilen Patel.
@@ -81,7 +79,7 @@ public class TestMembership12 extends GrouperTest {
       gF    = r.getGroup("a", "f");
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters");
+      fieldUpdaters = FieldFinder.find("updaters", true);
 
       // Test 1
       gA.addCompositeMember(CompositeType.UNION, gB, gC);

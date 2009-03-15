@@ -24,7 +24,7 @@ public class GroupHookAddType extends
     super.groupPostInsert(hooksContext, postInsertBean);
     try {
       Group group = postInsertBean.getGroup();
-      GroupType fubGroup = GroupTypeFinder.find("fubGroup");
+      GroupType fubGroup = GroupTypeFinder.find("fubGroup", true);
       group.addType(fubGroup);
       group.setAttribute("gid", "2");
       group.store();

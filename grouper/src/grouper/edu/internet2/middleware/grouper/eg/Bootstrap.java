@@ -21,13 +21,13 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
@@ -185,7 +185,7 @@ import edu.internet2.middleware.subject.Subject;
  * }
  * </pre>
  * @author  blair christensen.
- * @version $Id: Bootstrap.java,v 1.5 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: Bootstrap.java,v 1.6 2009-03-15 06:37:24 mchyzer Exp $
  * @see     <a href="http://viewvc.internet2.edu/viewvc.py/grouper/src/grouper/edu/internet2/middleware/grouper/eg/Bootstrap.java?root=I2MI&view=markup">Source</a>
  * @since   1.2.0
  */
@@ -233,7 +233,7 @@ public class Bootstrap {
       bs.stopSession();
       exitValue = 0;
     }
-    catch (GrouperRuntimeException eGRE) {
+    catch (GrouperException eGRE) {
       System.err.println( eGRE.getMessage() );
     }
 
@@ -260,10 +260,10 @@ public class Bootstrap {
         System.err.println("added GrouperAll to sysadmin (wheel) group");
       }
       catch (InsufficientPrivilegeException eIP) {
-        throw new GrouperRuntimeException( "error adding GrouperAll to sysadmin (wheel) group: " + eIP.getMessage(), eIP );
+        throw new GrouperException( "error adding GrouperAll to sysadmin (wheel) group: " + eIP.getMessage(), eIP );
       }
       catch (MemberAddException eMA) {
-        throw new GrouperRuntimeException( "error adding GrouperAll to sysadmin (wheel) group: " + eMA.getMessage(), eMA );
+        throw new GrouperException( "error adding GrouperAll to sysadmin (wheel) group: " + eMA.getMessage(), eMA );
       }
     }
     else {
@@ -286,7 +286,7 @@ public class Bootstrap {
     String displayExtn  = "Grouper Administration";
     // check to see if stem exists
     try {
-      this.etc = StemFinder.findByName(this.s, etcStem);
+      this.etc = StemFinder.findByName(this.s, etcStem, true);
       System.err.println("found top-level stem: " + this.etc);
     }
     catch (StemNotFoundException eNSNF) {
@@ -296,7 +296,7 @@ public class Bootstrap {
         System.err.println("created top-level stem: " + this.etc);
       }
       catch (Exception eIP) {
-        throw new GrouperRuntimeException( "error adding top-level stem: " + eIP.getMessage() + ", " + etcStem, eIP );
+        throw new GrouperException( "error adding top-level stem: " + eIP.getMessage() + ", " + etcStem, eIP );
       }
     }
   }
@@ -315,7 +315,7 @@ public class Bootstrap {
         : "Sysadmin group";
     // check to see if group exists
     try {
-      this.wheel = GroupFinder.findByName( s, this.etc.getName() + ":" + extn );
+      this.wheel = GroupFinder.findByName( s, this.etc.getName() + ":" + extn , true);
       System.err.println("found sysadmin (wheel) group: " + this.wheel);
     }
     catch (GroupNotFoundException eGNF) {
@@ -325,7 +325,7 @@ public class Bootstrap {
         System.err.println("created sysadmin (wheel) group: " + this.wheel);
       }
       catch (Exception eGA) {
-        throw new GrouperRuntimeException( "error adding sysadmin group: " + eGA.getMessage() + ", " + wheelGroupName, eGA );
+        throw new GrouperException( "error adding sysadmin group: " + eGA.getMessage() + ", " + wheelGroupName, eGA );
       }
     }
   }
@@ -350,7 +350,7 @@ public class Bootstrap {
       System.err.println("started session: " + this.s);
     }
     catch (SessionException eS) {
-      throw new GrouperRuntimeException( "error starting session: " + eS.getMessage(), eS );
+      throw new GrouperException( "error starting session: " + eS.getMessage(), eS );
     }
   }
 
@@ -360,7 +360,7 @@ public class Bootstrap {
       System.err.println("stopped session");
     }
     catch (SessionException eS) {
-      throw new GrouperRuntimeException( "error stopping session: " + eS.getMessage(), eS );
+      throw new GrouperException( "error stopping session: " + eS.getMessage(), eS );
     }
   }
 

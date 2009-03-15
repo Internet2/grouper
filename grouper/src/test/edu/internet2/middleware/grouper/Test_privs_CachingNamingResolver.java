@@ -16,19 +16,19 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.cfg.ApiConfig;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
-import  edu.internet2.middleware.grouper.internal.util.Realize;
-import  edu.internet2.middleware.grouper.privs.CachingNamingResolver;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.internal.util.Realize;
+import edu.internet2.middleware.grouper.privs.CachingNamingResolver;
 import edu.internet2.middleware.grouper.privs.NamingAdapter;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
-import  edu.internet2.middleware.grouper.privs.NamingWrapper;
+import edu.internet2.middleware.grouper.privs.NamingWrapper;
 
 
 /**
  * Test {@link CachingNamingResolver}.
  * @author  blair christensen.
- * @version $Id: Test_privs_CachingNamingResolver.java,v 1.3 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_privs_CachingNamingResolver.java,v 1.4 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_privs_CachingNamingResolver extends GrouperTest {
@@ -55,7 +55,7 @@ public class Test_privs_CachingNamingResolver extends GrouperTest {
                       );
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException( "error in setUp(): " + e.getMessage(), e );
+      throw new GrouperException( "error in setUp(): " + e.getMessage(), e );
     }
   }
 

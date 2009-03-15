@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMember0.java,v 1.6 2008-10-20 14:41:20 mchyzer Exp $
+ * @version $Id: TestMember0.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestMember0 extends TestCase {
 
@@ -91,10 +91,10 @@ public class TestMember0 extends TestCase {
    * @throws Exception
    */
   public void testFindBySubjectId() throws Exception {
-    GrouperDAOFactory.getFactory().getMember().findBySubject("GrouperSystem");
-    GrouperDAOFactory.getFactory().getMember().findBySubject("GrouperSystem", "g:isa");
+    GrouperDAOFactory.getFactory().getMember().findBySubject("GrouperSystem", true);
+    GrouperDAOFactory.getFactory().getMember().findBySubject("GrouperSystem", "g:isa", true);
     try {
-      GrouperDAOFactory.getFactory().getMember().findBySubject("sflkjlksjflksjdlksd");
+      GrouperDAOFactory.getFactory().getMember().findBySubject("sflkjlksjflksjdlksd", true);
       fail("Shouldnt find this");
     } catch (MemberNotFoundException snfe) {
       //good

@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -27,13 +28,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupType8.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroupType8.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGroupType8 extends GrouperTest {
 
   // Private Static Class Constants
   private static final Log LOG = GrouperUtil.getLog(TestGroupType8.class);
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestGroupType8("testFailToDeleteWhenInUse"));
+  }
+  
   public TestGroupType8(String name) {
     super(name);
   }
@@ -59,10 +68,10 @@ public class TestGroupType8 extends GrouperTest {
         Assert.fail("deleted in use type");
       }
       catch (SchemaException eS) {
-        T.string(
-          "OK: failed to delete in use type", 
-          E.GROUPTYPE_DELINUSE,
-          eS.getMessage()
+        assertContains(
+          "OK: failed to delete in use type",
+          eS.getMessage(), 
+          E.GROUPTYPE_DELINUSE
         );
       } 
       finally {

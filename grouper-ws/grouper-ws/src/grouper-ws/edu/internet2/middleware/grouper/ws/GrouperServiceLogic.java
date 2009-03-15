@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.22 2008-12-08 02:55:48 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.23 2009-03-15 06:41:45 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -27,11 +27,13 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeRuntimeEx
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.SaveMode;
@@ -1595,9 +1597,9 @@ public class GrouperServiceLogic {
                 try {
                   //this should be autonomous, so that within one group, it is transactional
                   HibernateSession.callbackHibernateSession(
-                      GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
+                      GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
-                    public Object callback(HibernateSession hibernateSession)
+                    public Object callback(HibernateHandlerBean hibernateHandlerBean)
                         throws GrouperDAOException {
                       //make sure everything is in order
                       WS_GROUP_TO_SAVE.validate();
@@ -1618,7 +1620,7 @@ public class GrouperServiceLogic {
 
                       return null;
                     }
-                    
+
                   });
   
                 } catch (Exception e) {

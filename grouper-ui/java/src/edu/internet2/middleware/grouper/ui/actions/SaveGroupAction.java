@@ -141,7 +141,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.18 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: SaveGroupAction.java,v 1.19 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -181,7 +181,7 @@ public class SaveGroupAction extends GrouperCapableAction {
 		}
 		if (curNode == null || "".equals(curNode)) {
 			String defaultStem = getDefaultRootStemName(session);
-			Stem root = StemFinder.findByName(grouperSession, defaultStem);
+			Stem root = StemFinder.findByName(grouperSession, defaultStem, true);
 			curNode = root.getUuid();
 		}
 
@@ -205,14 +205,14 @@ public class SaveGroupAction extends GrouperCapableAction {
 		if(isEmpty(displayExtension))displayExtension=extension;
 		//TODO: should be transactional - so add map or List of attributes
 		Map assignedPrivs=null;
-		Subject grouperAll = SubjectFinder.findById("GrouperAll");
+		Subject grouperAll = SubjectFinder.findById("GrouperAll", true);
 		if (groupExists) {
-			group = GroupFinder.findByUuid(grouperSession, curNode);
+			group = GroupFinder.findByUuid(grouperSession, curNode, true);
 			doTypes(group,request);
 			group.setDisplayExtension(displayExtension);
 			group.setExtension(extension);
 			group.store();
-			Map selectedPrivs = GrouperHelper.getImmediateHas(grouperSession,GroupOrStem.findByGroup(grouperSession,group),MemberFinder.findBySubject(grouperSession,grouperAll));
+			Map selectedPrivs = GrouperHelper.getImmediateHas(grouperSession,GroupOrStem.findByGroup(grouperSession,group),MemberFinder.findBySubject(grouperSession,grouperAll, true));
 			assignedPrivs=new HashMap();
 			Map.Entry entry;
 			String key;
@@ -317,7 +317,7 @@ public class SaveGroupAction extends GrouperCapableAction {
 		GroupType type;
 		if(selectedGroupTypes!=null) {
 			for(int i=0;i<selectedGroupTypes.length;i++) {
-				type = GroupTypeFinder.find(selectedGroupTypes[i]);
+				type = GroupTypeFinder.find(selectedGroupTypes[i], true);
 				selected.add(type);
 				if(!curGroupTypes.contains(type)) group.addType(type);
 			}

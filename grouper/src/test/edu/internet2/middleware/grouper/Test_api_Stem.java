@@ -17,10 +17,10 @@
 
 package edu.internet2.middleware.grouper;
 
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
-import edu.internet2.middleware.grouper.exception.GroupModifyException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -31,14 +31,13 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
-import junit.textui.TestRunner;
 
 
 /**
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.16 2009-03-06 17:48:56 shilen Exp $
+ * @version $Id: Test_api_Stem.java,v 1.17 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_Stem extends GrouperTest {
@@ -137,7 +136,7 @@ public class Test_api_Stem extends GrouperTest {
       this.child_group  = this.child.addChildGroup("child group", "child group display name");
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException( "test setUp() error: " + e.getMessage(), e );
+      throw new GrouperException( "test setUp() error: " + e.getMessage(), e );
     }
   }
 
@@ -692,9 +691,9 @@ public class Test_api_Stem extends GrouperTest {
     // first move to a non-root stem
     top.move(top_new);
 
-    top = StemFinder.findByName(s, "top new:top");
-    child = StemFinder.findByName(s, "top new:top:child");
-    child_group = GroupFinder.findByName(s, "top new:top:child:child group");
+    top = StemFinder.findByName(s, "top new:top", true);
+    child = StemFinder.findByName(s, "top new:top:child", true);
+    child_group = GroupFinder.findByName(s, "top new:top:child:child group", true);
     assertStemName(top, "top new:top");
     assertStemDisplayName(top, "top new display name:top display name");
     assertStemName(child, "top new:top:child");
@@ -718,9 +717,9 @@ public class Test_api_Stem extends GrouperTest {
     // second move to a root stem
     top.move(root);
 
-    top = StemFinder.findByName(s, "top");
-    child = StemFinder.findByName(s, "top:child");
-    child_group = GroupFinder.findByName(s, "top:child:child group");
+    top = StemFinder.findByName(s, "top", true);
+    child = StemFinder.findByName(s, "top:child", true);
+    child_group = GroupFinder.findByName(s, "top:child:child group", true);
     assertStemName(top, "top");
     assertStemDisplayName(top, "top display name");
     assertStemName(child, "top:child");
@@ -1181,12 +1180,12 @@ public class Test_api_Stem extends GrouperTest {
 
     
     // verify other stems
-    Stem level1Stem1 = StemFinder.findByName(r.rs, "target:source:level1Stem1");
-    Stem level1Stem2 = StemFinder.findByName(r.rs, "target:source:level1Stem2");
-    Stem level2Stem1 = StemFinder.findByName(r.rs, "target:source:level1Stem1:level2Stem1");
-    Stem level2Stem2 = StemFinder.findByName(r.rs, "target:source:level1Stem1:level2Stem2");
-    Stem level3Stem1 = StemFinder.findByName(r.rs, "target:source:level1Stem1:level2Stem1:level3Stem1");
-    Stem level3Stem2 = StemFinder.findByName(r.rs, "target:source:level1Stem1:level2Stem1:level3Stem2");
+    Stem level1Stem1 = StemFinder.findByName(r.rs, "target:source:level1Stem1", true);
+    Stem level1Stem2 = StemFinder.findByName(r.rs, "target:source:level1Stem2", true);
+    Stem level2Stem1 = StemFinder.findByName(r.rs, "target:source:level1Stem1:level2Stem1", true);
+    Stem level2Stem2 = StemFinder.findByName(r.rs, "target:source:level1Stem1:level2Stem2", true);
+    Stem level3Stem1 = StemFinder.findByName(r.rs, "target:source:level1Stem1:level2Stem1:level3Stem1", true);
+    Stem level3Stem2 = StemFinder.findByName(r.rs, "target:source:level1Stem1:level2Stem1:level3Stem2", true);
     assertTrue(level1Stem1.getDisplayExtension().equals("level1Stem1 display name"));
     assertTrue(level1Stem1.getStemmers().size() == 0);
     assertTrue(level1Stem1.getCreators().size() == 0);
@@ -1195,15 +1194,15 @@ public class Test_api_Stem extends GrouperTest {
     assertTrue(level3Stem2.getCreators().size() == 0);
     
     // verify other groups
-    Group level1Group1 = GroupFinder.findByName(r.rs, "target:source:level1Group1");
-    Group level1Group2 = GroupFinder.findByName(r.rs, "target:source:level1Group2");
-    Group level1Group3 = GroupFinder.findByName(r.rs, "target:source:level1Group3");
-    Group level2Group1 = GroupFinder.findByName(r.rs, "target:source:level1Stem1:level2Group1");
-    Group level2Group2 = GroupFinder.findByName(r.rs, "target:source:level1Stem1:level2Group2");
-    Group level2Group3 = GroupFinder.findByName(r.rs, "target:source:level1Stem1:level2Group3");
-    Group level3Group1 = GroupFinder.findByName(r.rs, "target:source:level1Stem1:level2Stem1:level3Group1");
-    Group level3Group2 = GroupFinder.findByName(r.rs, "target:source:level1Stem1:level2Stem1:level3Group2");
-    Group level3Group3 = GroupFinder.findByName(r.rs, "target:source:level1Stem1:level2Stem2:level3Group3");
+    Group level1Group1 = GroupFinder.findByName(r.rs, "target:source:level1Group1", true);
+    Group level1Group2 = GroupFinder.findByName(r.rs, "target:source:level1Group2", true);
+    Group level1Group3 = GroupFinder.findByName(r.rs, "target:source:level1Group3", true);
+    Group level2Group1 = GroupFinder.findByName(r.rs, "target:source:level1Stem1:level2Group1", true);
+    Group level2Group2 = GroupFinder.findByName(r.rs, "target:source:level1Stem1:level2Group2", true);
+    Group level2Group3 = GroupFinder.findByName(r.rs, "target:source:level1Stem1:level2Group3", true);
+    Group level3Group1 = GroupFinder.findByName(r.rs, "target:source:level1Stem1:level2Stem1:level3Group1", true);
+    Group level3Group2 = GroupFinder.findByName(r.rs, "target:source:level1Stem1:level2Stem1:level3Group2", true);
+    Group level3Group3 = GroupFinder.findByName(r.rs, "target:source:level1Stem1:level2Stem2:level3Group3", true);
     assertTrue(level1Group1.getDisplayExtension().equals("level1Group1 display name"));
     assertTrue(level1Group1.getAdmins().size() == 0);
     assertTrue(level1Group1.getUpdaters().size() == 0);
@@ -1233,12 +1232,12 @@ public class Test_api_Stem extends GrouperTest {
     assertTrue(level3Group1.hasComposite() == true);
     assertTrue(level3Group2.hasComposite() == false);
     assertTrue(level3Group3.hasComposite() == false);
-    assertTrue(level1Group1.getComposite().getLeftGroup().getName().equals("target:source:level1Group2"));
-    assertTrue(level1Group1.getComposite().getRightGroup().getName().equals("target:source:level1Group3"));
-    assertTrue(level2Group1.getComposite().getLeftGroup().getName().equals("target:source:level1Stem1:level2Group2"));
-    assertTrue(level2Group1.getComposite().getRightGroup().getName().equals("target:source:level1Stem1:level2Group3"));
-    assertTrue(level3Group1.getComposite().getLeftGroup().getName().equals("top:child:child group"));
-    assertTrue(level3Group1.getComposite().getRightGroup().getName().equals("source:level1Stem1:level2Stem1:level3Group2"));
+    assertTrue(level1Group1.getComposite(true).getLeftGroup().getName().equals("target:source:level1Group2"));
+    assertTrue(level1Group1.getComposite(true).getRightGroup().getName().equals("target:source:level1Group3"));
+    assertTrue(level2Group1.getComposite(true).getLeftGroup().getName().equals("target:source:level1Stem1:level2Group2"));
+    assertTrue(level2Group1.getComposite(true).getRightGroup().getName().equals("target:source:level1Stem1:level2Group3"));
+    assertTrue(level3Group1.getComposite(true).getLeftGroup().getName().equals("top:child:child group"));
+    assertTrue(level3Group1.getComposite(true).getRightGroup().getName().equals("source:level1Stem1:level2Stem1:level3Group2"));
     
     // stem privilege checks
     if (privilegesOfStem) {

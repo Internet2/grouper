@@ -92,7 +92,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: RemoveSavedSubjectsAction.java,v 1.3 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: RemoveSavedSubjectsAction.java,v 1.4 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class RemoveSavedSubjectsAction extends GrouperCapableAction {
 
@@ -109,7 +109,7 @@ public class RemoveSavedSubjectsAction extends GrouperCapableAction {
 			Map map = new HashMap();
 			Subject subj;
 			for(int i=0;i<ids.length;i++) {
-				subj=SubjectFinder.findById(ids[i]);
+				subj=SubjectFinder.findById(ids[i], true);
 				removeSavedSubject(session,subj);
 			}
 			

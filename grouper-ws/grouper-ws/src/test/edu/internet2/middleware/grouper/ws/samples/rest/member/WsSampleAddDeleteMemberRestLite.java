@@ -40,11 +40,11 @@ public class WsSampleAddDeleteMemberRestLite implements WsSampleRest {
   public static void addMemberApi() throws Exception {
     GrouperSession grouperSession = null;
     try {
-      grouperSession = GrouperSession.start(SubjectFinder.findById("GrouperSystem"));
+      grouperSession = GrouperSession.start(SubjectFinder.findById("GrouperSystem", true));
       
-      Group group = GroupFinder.findByName(grouperSession, "aStem:aGroup1");
+      Group group = GroupFinder.findByName(grouperSession, "aStem:aGroup1", true);
       
-      Subject me = SubjectFinder.findById("10021368");
+      Subject me = SubjectFinder.findById("10021368", true);
       
       group.addMember(me, false);
       
@@ -61,11 +61,11 @@ public class WsSampleAddDeleteMemberRestLite implements WsSampleRest {
   public static void deleteMemberApi() throws Exception {
     GrouperSession grouperSession = null;
     try {
-      grouperSession = GrouperSession.start(SubjectFinder.findById("GrouperSystem"));
+      grouperSession = GrouperSession.start(SubjectFinder.findById("GrouperSystem", true));
       
-      Group group = GroupFinder.findByName(grouperSession, "aStem:aGroup1");
+      Group group = GroupFinder.findByName(grouperSession, "aStem:aGroup1", true);
       
-      Subject me = SubjectFinder.findById("10021368");
+      Subject me = SubjectFinder.findById("10021368", true);
       
       if (group.hasImmediateMember(me)) {
         group.deleteMember(me);

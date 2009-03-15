@@ -17,18 +17,18 @@
 
 package edu.internet2.middleware.grouper;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
-import  edu.internet2.middleware.grouper.subj.CachingResolver;
-import  edu.internet2.middleware.grouper.subj.SourcesXmlResolver;
-import  edu.internet2.middleware.subject.SubjectNotFoundException;
-import  edu.internet2.middleware.subject.SubjectNotUniqueException;
-import  edu.internet2.middleware.subject.provider.SourceManager;
+import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.subj.CachingResolver;
+import edu.internet2.middleware.grouper.subj.SourcesXmlResolver;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
  * Test {@link CachingResolver}.
  * @author  blair christensen.
- * @version $Id: Test_subj_CachingResolver.java,v 1.4 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_subj_CachingResolver.java,v 1.5 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_subj_CachingResolver extends GrouperTest {
@@ -45,7 +45,7 @@ public class Test_subj_CachingResolver extends GrouperTest {
       this.resolver = new CachingResolver( new SourcesXmlResolver( SourceManager.getInstance() ) );
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException( "error in setUp(): " + e.getMessage(), e );
+      throw new GrouperException( "error in setUp(): " + e.getMessage(), e );
     }
   }
 

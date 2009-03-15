@@ -233,7 +233,7 @@ public class WsSubjectLookup {
               this.subjectId);
           return;
         } 
-        this.subject = SubjectFinder.findById(this.subjectId);
+        this.subject = SubjectFinder.findById(this.subjectId, true);
         return;
       } else if (hasSubjectIdentifier) {
   
@@ -243,7 +243,7 @@ public class WsSubjectLookup {
               this.subjectIdentifier);
           return;
         }
-        this.subject = SubjectFinder.findByIdentifier(this.subjectIdentifier);
+        this.subject = SubjectFinder.findByIdentifier(this.subjectIdentifier, true);
         return;
   
       }
@@ -282,13 +282,13 @@ public class WsSubjectLookup {
       Subject theSubject = this.retrieveSubject();
       
       if (theSubject != null) {
-        this.member = GrouperDAOFactory.getFactory().getMember().findBySubject(theSubject);
+        this.member = GrouperDAOFactory.getFactory().getMember().findBySubject(theSubject, true);
       } else {
         //we need to find with the params passed in
         if (hasSubjectId && hasSubjectSource) {
-          this.member = GrouperDAOFactory.getFactory().getMember().findBySubject(this.subjectId, this.subjectSourceId);
+          this.member = GrouperDAOFactory.getFactory().getMember().findBySubject(this.subjectId, this.subjectSourceId, true);
         } else if (hasSubjectId) {
-          this.member = GrouperDAOFactory.getFactory().getMember().findBySubject(this.subjectId);
+          this.member = GrouperDAOFactory.getFactory().getMember().findBySubject(this.subjectId, true);
         } else {
           this.memberFindResult = MemberFindResult.INVALID_QUERY;
           LOG.warn("Cannot find subject: " + this);

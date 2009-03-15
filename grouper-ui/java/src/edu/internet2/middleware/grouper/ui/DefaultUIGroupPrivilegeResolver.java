@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * see https://bugs.internet2.edu/jira/browse/GRP-72
  * 
  * @author Gary Brown.
- * @version $Id: DefaultUIGroupPrivilegeResolver.java,v 1.3 2009-03-04 10:49:41 isgwb Exp $
+ * @version $Id: DefaultUIGroupPrivilegeResolver.java,v 1.4 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class DefaultUIGroupPrivilegeResolver implements
 		UIGroupPrivilegeResolver {
@@ -59,7 +59,7 @@ public class DefaultUIGroupPrivilegeResolver implements
 	public boolean canEditGroup() {
 		try {
 			return group.hasAdmin(subject);
-			//return group.canWriteField(FieldFinder.find("extension"));
+			//return group.canWriteField(FieldFinder.find("extension", true));
 		}catch(Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -70,7 +70,7 @@ public class DefaultUIGroupPrivilegeResolver implements
 	 */
 	public boolean canManageMembers() {
 		try {
-			return group.canWriteField(FieldFinder.find("members"));
+			return group.canWriteField(FieldFinder.find("members", true));
 		}catch(Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -82,7 +82,7 @@ public class DefaultUIGroupPrivilegeResolver implements
 	public boolean canManagePrivileges() {
 		try {
 			return group.hasAdmin(subject);
-			//return group.canWriteField(FieldFinder.find("extension"));
+			//return group.canWriteField(FieldFinder.find("extension", true));
 		}catch(Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -93,7 +93,7 @@ public class DefaultUIGroupPrivilegeResolver implements
 	 */
 	public boolean canManageField(String field) {
 		try {
-			return group.canWriteField(FieldFinder.find(field));
+			return group.canWriteField(FieldFinder.find(field, true));
 		}catch(Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -104,7 +104,7 @@ public class DefaultUIGroupPrivilegeResolver implements
 	 */
 	public boolean canReadField(String field) {
 		try {
-			return group.canReadField(FieldFinder.find(field));
+			return group.canReadField(FieldFinder.find(field, true));
 		}catch(Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -141,7 +141,7 @@ public class DefaultUIGroupPrivilegeResolver implements
 	 */
 	public boolean canReadGroup() {
 		try {
-			return group.canReadField(FieldFinder.find("members"));
+			return group.canReadField(FieldFinder.find("members", true));
 		}catch(Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -153,7 +153,7 @@ public class DefaultUIGroupPrivilegeResolver implements
 	public boolean canViewGroup() {
 		try {
 			return group.hasView(subject);
-			//return group.canReadField(FieldFinder.find("displayExtension"));
+			//return group.canReadField(FieldFinder.find("displayExtension", true));
 		}catch(Exception e) {
 			throw new RuntimeException(e);
 		}

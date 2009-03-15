@@ -16,13 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.cache.EhcacheStats;
+import edu.internet2.middleware.grouper.cache.EhcacheStats;
 
 
 /**
  * Test {@link EhcacheStats}.
  * @author  blair christensen.
- * @version $Id: Test_cache_EhcacheStats.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: Test_cache_EhcacheStats.java,v 1.3 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_cache_EhcacheStats extends GrouperTest {

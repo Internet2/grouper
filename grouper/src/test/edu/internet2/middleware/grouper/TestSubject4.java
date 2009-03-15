@@ -27,7 +27,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSubject4.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestSubject4.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestSubject4 extends TestCase {
 
@@ -54,7 +54,7 @@ public class TestSubject4 extends TestCase {
       String  id    = "a";
       String  type  = "person";
       String  sa    = "jdbc";
-      Subject subj  = SubjectFinder.findById(id, type, sa);
+      Subject subj  = SubjectFinder.findById(id, type, sa, true);
       T.string("subject id"     , subj.getId()              , id    );
       T.string("subject type"   , subj.getType().getName()  , type  );
       T.string("subject source" , subj.getSource().getId()  , sa    );

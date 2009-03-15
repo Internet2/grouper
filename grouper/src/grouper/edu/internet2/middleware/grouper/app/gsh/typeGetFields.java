@@ -20,7 +20,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
  * Find <code>Field</code>s belonging to a <code>GroupType</code>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: typeGetFields.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: typeGetFields.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.1.0
  */
 public class typeGetFields {
@@ -43,7 +43,7 @@ public class typeGetFields {
     Set fields = new LinkedHashSet();
     GrouperShell.setOurCommand(i, true);
     try {
-      GroupType t = GroupTypeFinder.find(name);
+      GroupType t = GroupTypeFinder.find(name, true);
       fields = t.getFields();
     }
     catch (SchemaException eS) {

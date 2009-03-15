@@ -103,7 +103,7 @@ public class TestMembership5 extends TestCase {
       subjD = r.getSubject("d");
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters");
+      fieldUpdaters = FieldFinder.find("updaters", true);
 
 
       // Test 1:  Test when the last operations are adding update privileges for gA.

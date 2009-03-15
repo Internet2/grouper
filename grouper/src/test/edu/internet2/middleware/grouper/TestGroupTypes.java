@@ -31,14 +31,13 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Test Group Types.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroupTypes.java,v 1.15 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: TestGroupTypes.java,v 1.16 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGroupTypes extends GrouperTest {
 
@@ -50,7 +49,8 @@ public class TestGroupTypes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroupTypes("testGetAttributeReturnTypes"));
+    //TestRunner.run(new TestGroupTypes("testAddFieldDuplicateName"));
+    TestRunner.run(TestGroupTypes.class);
   }
 
   public TestGroupTypes(String name) {
@@ -132,7 +132,7 @@ public class TestGroupTypes extends GrouperTest {
     String          name  = "customType";
     try {
       s               = SessionHelper.getRootSession();
-      GroupTypeFinder.find(name);
+      GroupTypeFinder.find(name, true);
       Assert.fail("somehow found custom type: " + name);
     }
     catch (SchemaException eS) {
@@ -150,7 +150,7 @@ public class TestGroupTypes extends GrouperTest {
       s               = SessionHelper.getRootSession();
       GroupType.createType(s, name);
       try {
-        GroupTypeFinder.find(name);
+        GroupTypeFinder.find(name, true);
         Assert.assertTrue("found custom type: " + name, true);
       }
       catch  (SchemaException eS) {
@@ -173,7 +173,7 @@ public class TestGroupTypes extends GrouperTest {
     String          name  = "customField";
     try {
       s = SessionHelper.getRootSession();
-      FieldFinder.find(name);
+      FieldFinder.find(name, true);
       Assert.fail("found custom field");
     }
     catch (SchemaException eS) {
@@ -191,7 +191,7 @@ public class TestGroupTypes extends GrouperTest {
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
     try {
-      GroupType base = GroupTypeFinder.find(type);
+      GroupType base = GroupTypeFinder.find(type, true);
       s = SessionHelper.getRootSession();
       base.addList(s, name, read, write);
       Assert.fail("added field to base type"); 
@@ -214,7 +214,7 @@ public class TestGroupTypes extends GrouperTest {
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
     try {
-      GroupType base = GroupTypeFinder.find(type);
+      GroupType base = GroupTypeFinder.find(type, true);
       s = SessionHelper.getRootSession();
       base.addList(s, name, read, write);
       Assert.fail("added field to base type"); 
@@ -237,7 +237,7 @@ public class TestGroupTypes extends GrouperTest {
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
     try {
-      GroupType base = GroupTypeFinder.find(type);
+      GroupType base = GroupTypeFinder.find(type, true);
       s = SessionHelper.getRootSession();
       base.addList(s, name, read, write);
       Assert.fail("added field to naming type"); 
@@ -417,7 +417,7 @@ public class TestGroupTypes extends GrouperTest {
       custom.addList(s, name, read, write);
       Assert.assertTrue("added LIST field", true);
       try {
-        FieldFinder.find(name);
+        FieldFinder.find(name, true);
         Assert.assertTrue("found custom field", true);
       }
       catch (SchemaException eS) {
@@ -644,7 +644,7 @@ public class TestGroupTypes extends GrouperTest {
     String          name  = "description";
     try {
       s = SessionHelper.getRootSession();
-      GroupType base = GroupTypeFinder.find(type);
+      GroupType base = GroupTypeFinder.find(type, true);
       try {
         base.deleteField(s, name);  
         Assert.fail("deleted field from BASE");
@@ -670,7 +670,7 @@ public class TestGroupTypes extends GrouperTest {
     String          name  = "creators";
     try {
       s = SessionHelper.getRootSession();
-      GroupType naming = GroupTypeFinder.find(type);
+      GroupType naming = GroupTypeFinder.find(type, true);
       try {
         naming.deleteField(s, name);  
         Assert.fail("deleted field from NAMING");
@@ -737,7 +737,7 @@ public class TestGroupTypes extends GrouperTest {
       GroupType custom = GroupType.createType(s, type);
       Field f = custom.addAttribute(s, name, read, write, req);
       Assert.assertTrue("added ATTRIBUTE field", true);
-      f = FieldFinder.find(name);
+      f = FieldFinder.find(name, true);
       try {
         custom.deleteField(s, name);  
         Assert.assertTrue("deleted unused ATTRIBUTE", true);
@@ -772,7 +772,7 @@ public class TestGroupTypes extends GrouperTest {
       GroupType custom = GroupType.createType(s, type);
       Field f = custom.addList(s, name, read, write);
       Assert.assertTrue("added LIST field", true);
-      f = FieldFinder.find(name);
+      f = FieldFinder.find(name, true);
       try {
         custom.deleteField(s, name);  
         Assert.assertTrue("deleted unused LIST", true);
@@ -844,7 +844,7 @@ public class TestGroupTypes extends GrouperTest {
       Stem  ns    = root.addChildStem("ns", "ns");
       Group g     = ns.addChildGroup("g", "g");
       g.addType(custom);
-      f = FieldFinder.find(name);
+      f = FieldFinder.find(name, true);
       g.addMember(SubjectTestHelper.SUBJ0, f);
       try {
         custom.deleteField(s, name);  
@@ -866,7 +866,7 @@ public class TestGroupTypes extends GrouperTest {
     GrouperSession  s = null;
     try {
       s = SessionHelper.getRootSession();
-      GroupType type = GroupTypeFinder.find("base");
+      GroupType type = GroupTypeFinder.find("base", true);
       Stem  root  = StemFinder.findRootStem(s);
       Stem  edu   = root.addChildStem("edu", "edu");
       Group g     = edu.addChildGroup("g", "g");
@@ -890,7 +890,7 @@ public class TestGroupTypes extends GrouperTest {
     GrouperSession  s = null;
     try {
       s = SessionHelper.getRootSession();
-      GroupType type = GroupTypeFinder.find("naming");
+      GroupType type = GroupTypeFinder.find("naming", true);
       Stem  root  = StemFinder.findRootStem(s);
       Stem  edu   = root.addChildStem("edu", "edu");
       Group g     = edu.addChildGroup("g", "g");

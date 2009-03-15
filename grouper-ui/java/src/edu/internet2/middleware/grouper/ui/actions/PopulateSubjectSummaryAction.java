@@ -275,7 +275,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.24 2009-03-04 15:36:09 isgwb Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.25 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 	
@@ -317,14 +317,14 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		}
 		Field mField = null;
 		try {
-			mField=FieldFinder.find(membershipField);
+			mField=FieldFinder.find(membershipField, true);
 		}catch(SchemaException e) {
 			LOG.error("Could not find Field: " + membershipField,e);
 			if("members".equals(membershipField)) {
 				LOG.fatal("Built in field: members, missing");
 				throw new UnrecoverableErrorException(e);
 			}else{
-				mField=FieldFinder.find("members");
+				mField=FieldFinder.find("members", true);
 				request.setAttribute("message",new Message("error.subject-summary.missing-field",listField,true));
 			}
 		}
@@ -344,7 +344,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		}
 		Subject subject = null;
 		try{ 
-			subject=SubjectFinder.findById(subjectId,subjectType,subjectSource);
+			subject=SubjectFinder.findById(subjectId,subjectType,subjectSource, true);
 		}catch (Exception e) {
 			LOG.error(e);
 			if(e instanceof SubjectNotFoundException) {
@@ -352,11 +352,11 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 				addMessage(new Message("error.subject.unresolvable", new String[] {subjectId,subjectSource},true), request);
 			}else{
 				
-				String contextError="error.subject-summary.subject.exception";
-				session.setAttribute("sessionMessage",new Message(neh.key(e),contextError,true));
-				if(doRedirectToCaller(subjectForm)) return redirectToCaller(subjectForm);
-				throw new UnrecoverableErrorException(contextError,e);
-			}
+			String contextError="error.subject-summary.subject.exception";
+			session.setAttribute("sessionMessage",new Message(neh.key(e),contextError,true));
+			if(doRedirectToCaller(subjectForm)) return redirectToCaller(subjectForm);
+			throw new UnrecoverableErrorException(contextError,e);
+		}
 		}
 		Map subjectMap = GrouperHelper.subject2Map(subject);
 		request.setAttribute("subject",subjectMap);
@@ -408,7 +408,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		//Retrieve the membership according to scope selected by user
 		Member member = null;
 		try {
-			member=MemberFinder.findBySubject(grouperSession,subject);
+			member=MemberFinder.findBySubject(grouperSession,subject, true);
 			if(member==null) {
 				throw new MemberNotFoundException("Unresolvable subject is also not a Member");
 			}

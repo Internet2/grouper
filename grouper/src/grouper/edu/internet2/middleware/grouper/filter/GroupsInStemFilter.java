@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Query by stem name exact, and get all children, or just immediate
  * <p/>
  * @author  mchyzer
- * @version $Id: GroupsInStemFilter.java,v 1.1 2008-07-21 05:15:59 mchyzer Exp $
+ * @version $Id: GroupsInStemFilter.java,v 1.2 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class GroupsInStemFilter extends BaseQueryFilter {
   
@@ -76,7 +76,7 @@ public class GroupsInStemFilter extends BaseQueryFilter {
     //first find the stem.
     final Stem stem;
     try {
-      stem = StemFinder.findByName(s, this.stemName);
+      stem = StemFinder.findByName(s, this.stemName, true);
     } catch (StemNotFoundException stfe) {
       if (this.failOnStemNotFound) {
         throw new QueryException("Stem not found: '" + this.stemName + "'");

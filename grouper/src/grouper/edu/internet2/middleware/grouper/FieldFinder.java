@@ -24,7 +24,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cache.GrouperCache;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -35,14 +35,16 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.43 2009-02-13 13:51:58 mchyzer Exp $
+ * @version $Id: FieldFinder.java,v 1.44 2009-03-15 06:37:21 mchyzer Exp $
  */
 public class FieldFinder {
 
   /**
    * logger 
    */
+  @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(FieldFinder.class);
+
   /** 
    * every 10 minutes, get new elements
    */
@@ -50,32 +52,45 @@ public class FieldFinder {
       FieldFinder.class.getName() + ".fieldCache", 10000, false, 60*10, 60*10, false);
 
   /**
-   * 
    * @param name
    * @param type
-   * @return
+   * @return the field id
    */
+  @Deprecated
   public static String findFieldId(String name, String type) {
+    return findFieldId(name, type, true);
+  }
+
+  /**
+   * @param name
+   * @param type
+   * @param exceptionIfNull
+   * @return the field id
+   */
+  public static String findFieldId(String name, String type, boolean exceptionIfNull) {
+
     //if both null then we are all set
     if (StringUtils.isBlank(name) && StringUtils.isBlank(type)) {
       return null;
     }
+
     //either both blank, or both filled in
     if (StringUtils.isBlank(name) || StringUtils.isBlank(type)) {
       throw new RuntimeException("Name or type cannot be blank: '" + name + "', '" + type + "'");
     }
     
-    try {
-      Field field = FieldFinder.find(name);
+    Field field = FieldFinder.find(name, false);
+    if (field != null) {
       if (!StringUtils.equals(field.getTypeString(), type)) {
         throw new RuntimeException("Field with name '" + name + "' should have type: '" + type 
             + "' but instead has type: '" + field.getTypeString() + "'");
       }
       return field.getUuid();
-    } catch (SchemaException se) {
-      throw new RuntimeException("Problem finding attribute name: " + name, se);
     }
-
+    if (exceptionIfNull) {
+      throw new RuntimeException("Problem finding attribute name: " + name);
+    }
+    return null;
   }
 
   /**
@@ -83,8 +98,8 @@ public class FieldFinder {
    * @param attrName
    * @return the field uuid
    */
-  public static String findFieldIdForAttribute(String attrName) {
-    return findFieldId(attrName, "attribute");
+  public static String findFieldIdForAttribute(String attrName, boolean exceptionIfNull) {
+    return findFieldId(attrName, "attribute", exceptionIfNull);
   }
 
   /**
@@ -95,9 +110,22 @@ public class FieldFinder {
    * @param   name  Name of {@link Field} to return.
    * @throws  SchemaException
    */
-  public static Field find(String name) 
-    throws  SchemaException
-  {
+  @Deprecated
+  public static Field find(String name) throws  SchemaException {
+    return find(name, true);
+  }
+
+  /**
+   * Get the specified field.
+   * <pre class="eg">
+   * Field f = FieldFinder.find(field);
+   * </pre>
+   * @param   name  Name of {@link Field} to return.
+   * @param exceptionIfNotFound true if exception if not found, otherwise null
+   * @throws  SchemaException
+   */
+  public static Field find(String name, boolean exceptionIfNotFound) 
+    throws  SchemaException {
     if ( fieldCache.containsKey(name) ) {
       return fieldCache.get(name);
     }
@@ -105,16 +133,31 @@ public class FieldFinder {
     if ( fieldCache.containsKey(name) ) {
       return fieldCache.get(name);
     }
-    throw new SchemaException("field not found: " + name + ", expecting one of: "
-        + GrouperUtil.stringValue(fieldCache.keySet()));
+    if (exceptionIfNotFound) {
+      throw new SchemaException("field not found: " + name + ", expecting one of: "
+          + GrouperUtil.stringValue(fieldCache.keySet()));
+    }
+    return null;
   } 
 
   /**
    * Get the specified field by id.
    * @param   fieldId  fieldId
    * @return the field or null if fieldId is blank.  will throw runtime exception if the field is not found
+   * @deprecated use the overload
    */
+  @Deprecated
   public static Field findById(String fieldId) {
+    return findById(fieldId, true);
+  }
+
+  /**
+   * Get the specified field by id.
+   * @param   fieldId  fieldId
+   * @param exceptionIfNull
+   * @return the field or null if fieldId is blank.  will throw runtime exception if the field is not found
+   */
+  public static Field findById(String fieldId, boolean exceptionIfNull) {
     if (StringUtils.isBlank(fieldId)) {
       return null;
     }
@@ -129,7 +172,10 @@ public class FieldFinder {
         return field;
       }
     }
-    throw new RuntimeException("Cant find field with id: '" + fieldId + "'");
+    if (exceptionIfNull) {
+      throw new RuntimeException("Cant find field with id: '" + fieldId + "'");
+    }
+    return null;
   } 
 
   /**
@@ -138,10 +184,10 @@ public class FieldFinder {
    * Set fields = FieldFinder.findAll();
    * </pre>
    * @return  {@link Set} of {@link Field} objects.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public static Set findAll() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     Set       fields  = new LinkedHashSet();
     Iterator  it      = GrouperDAOFactory.getFactory().getField().findAll().iterator();

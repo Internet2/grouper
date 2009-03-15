@@ -26,7 +26,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMember10.java,v 1.5 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestMember10.java,v 1.6 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestMember10 extends TestCase {
 
@@ -50,7 +50,7 @@ public class TestMember10 extends TestCase {
     try {
       R       r   = R.populateRegistry(1, 1, 1);
       Group   a   = r.getGroup("a", "a");
-      Member  m   = MemberFinder.findBySubject(r.rs, r.getSubject("a"));
+      Member  m   = MemberFinder.findBySubject(r.rs, r.getSubject("a"), true);
       Assert.assertFalse("OK: cannot optin", m.canOptin(a));
       r.rs.stop();
     }

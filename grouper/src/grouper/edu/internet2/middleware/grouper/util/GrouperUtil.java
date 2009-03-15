@@ -2150,7 +2150,7 @@ public class GrouperUtil {
    */
   public static String dbVersionDescribeDifferences(Object theOld, Object theNew, Set<String> differentFieldNames) {
 
-    StringBuilder result = new StringBuilder("Fields changed: ");
+    StringBuilder result = new StringBuilder(theOld == null ? "Old state unknown, new state is: " : "Fields changed: ");
     
     int length = length(differentFieldNames);
     
@@ -2171,7 +2171,7 @@ public class GrouperUtil {
     //do each field
     i=0;
     for (String fieldName : nonNull(differentFieldNames)) {
-      String oldString = stringValue(fieldValue(theOld, fieldName));
+      String oldString = theOld == null ? "?" : stringValue(fieldValue(theOld, fieldName));
       oldString = StringUtils.abbreviate(oldString, 200);
       String newString = stringValue(fieldValue(theNew, fieldName));
       newString = StringUtils.abbreviate(newString, 200);

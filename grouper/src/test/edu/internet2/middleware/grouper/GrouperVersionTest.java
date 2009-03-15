@@ -1,12 +1,12 @@
 /*
  * @author mchyzer
- * $Id: GrouperVersionTest.java,v 1.4 2008-11-26 19:10:11 mchyzer Exp $
+ * $Id: GrouperVersionTest.java,v 1.5 2009-03-15 06:37:22 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
-import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 
 
 

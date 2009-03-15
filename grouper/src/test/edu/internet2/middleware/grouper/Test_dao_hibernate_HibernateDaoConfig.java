@@ -16,14 +16,14 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.cfg.Configuration;
-import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfig;
+import edu.internet2.middleware.grouper.cfg.Configuration;
+import edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfig;
 
 /**
  * Test {@link HibernateDaoConfig}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_dao_hibernate_HibernateDaoConfig.java,v 1.2 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: Test_dao_hibernate_HibernateDaoConfig.java,v 1.3 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_dao_hibernate_HibernateDaoConfig extends GrouperTest {

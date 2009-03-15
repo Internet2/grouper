@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.time.StopWatch;
@@ -30,7 +29,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.SessionException;
@@ -58,7 +57,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.92 2008-11-11 22:08:33 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.93 2009-03-15 06:37:21 mchyzer Exp $
  */
 public class GrouperSession {
 
@@ -351,7 +350,7 @@ public class GrouperSession {
       return this.cachedMember;
     }
     try {
-      Member m = GrouperDAOFactory.getFactory().getMember().findByUuid( this.getMemberUuid() );
+      Member m = GrouperDAOFactory.getFactory().getMember().findByUuid( this.getMemberUuid(), true );
       this.cachedMember = m;
       return this.cachedMember;
     }
@@ -427,10 +426,10 @@ public class GrouperSession {
    * Subject subj = s.getSubject(); 
    * </pre>
    * @return  A {@link Subject} object.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public Subject getSubject() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     this.internal_ThrowIllegalStateIfStopped();
     return this.subject;
@@ -442,10 +441,10 @@ public class GrouperSession {
    * Subject subj = s.getSubject(); 
    * </pre>
    * @return  A {@link Subject} object.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public Subject getSubjectDb() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     return this.subject;
   } // public Subject getSubject()
@@ -521,7 +520,7 @@ public class GrouperSession {
 
   // @since   1.2.0
   public GrouperSession internal_getRootSession() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     // TODO 20070417 deprecate if possible
     if (this.rootSession == null) {

@@ -36,15 +36,11 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.GrouperInverseOfControlException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
@@ -99,7 +95,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.180 2009-03-06 17:48:56 shilen Exp $
+ * @version $Id: Stem.java,v 1.181 2009-03-15 06:37:21 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -349,69 +345,51 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    */
   public void delete() throws InsufficientPrivilegeException, StemDeleteException {
     
-    try {
-      HibernateSession.callbackHibernateSession(
-          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
-          new HibernateHandler() {
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
 
-            public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                throws GrouperDAOException {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
 
-              try {
-                StopWatch sw = new StopWatch();
-                sw.start();
-                GrouperSession.validate(GrouperSession.staticGrouperSession());
-                if ( !PrivilegeHelper.canStem( Stem.this, GrouperSession.staticGrouperSession().getSubject() ) ) {
-                  throw new InsufficientPrivilegeException(E.CANNOT_STEM + ", " + Stem.this.getName());
-                }
-                DeleteStemValidator v = DeleteStemValidator.validate(Stem.this);
-                if (v.isInvalid()) {
-                  throw new StemDeleteException( v.getErrorMessage() );
-                }
-                try {
-                  String name = Stem.this.getName(); // Preserve name for logging
-                  Stem.this._revokeAllNamingPrivs();
-                  GrouperDAOFactory.getFactory().getStem().delete( Stem.this );
-                  
-                  if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                    AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_DELETE, "id", 
-                        Stem.this.getUuid(), "name", Stem.this.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
-                        Stem.this.getDisplayName(), "description", Stem.this.getDescription());
-                    auditEntry.setDescription("Deleted stem: " +Stem.this.getName());
-                    auditEntry.saveOrUpdate(true);
-                  }
-                  
-                  sw.stop();
-                  EventLog.info(GrouperSession.staticGrouperSession(), M.STEM_DEL + Quote.single(name), sw);
-                }
-                catch (GrouperDAOException eDAO)      {
-                  throw new StemDeleteException( eDAO.getMessage() + ", " + Stem.this.getName(), eDAO );
-                }
-                catch (RevokePrivilegeException eRP)  {
-                  throw new StemDeleteException(eRP.getMessage() + ", " + Stem.this.getName(), eRP);
-                }
-                catch (SchemaException eS)            {
-                  throw new StemDeleteException(eS.getMessage() + ", " + Stem.this.getName(), eS);
-                }
-                return null;
-              } catch (InsufficientPrivilegeException ipe) {
-                throw new GrouperInverseOfControlException(ipe);
-              } catch (StemDeleteException sde) {
-                throw new GrouperInverseOfControlException(sde);
+            StopWatch sw = new StopWatch();
+            sw.start();
+            GrouperSession.validate(GrouperSession.staticGrouperSession());
+            if ( !PrivilegeHelper.canStem( Stem.this, GrouperSession.staticGrouperSession().getSubject() ) ) {
+              throw new InsufficientPrivilegeException(E.CANNOT_STEM + ", " + Stem.this.getName());
+            }
+            DeleteStemValidator v = DeleteStemValidator.validate(Stem.this);
+            if (v.isInvalid()) {
+              throw new StemDeleteException( v.getErrorMessage() );
+            }
+            try {
+              String name = Stem.this.getName(); // Preserve name for logging
+              Stem.this._revokeAllNamingPrivs();
+              GrouperDAOFactory.getFactory().getStem().delete( Stem.this );
+              
+              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_DELETE, "id", 
+                    Stem.this.getUuid(), "name", Stem.this.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
+                    Stem.this.getDisplayName(), "description", Stem.this.getDescription());
+                auditEntry.setDescription("Deleted stem: " +Stem.this.getName());
+                auditEntry.saveOrUpdate(true);
               }
-           }
-      });
-    } catch (GrouperInverseOfControlException gioc) {
-      Throwable cause = gioc.getCause();
-      if (cause instanceof InsufficientPrivilegeException) {
-        throw (InsufficientPrivilegeException)cause;
-      }
-      if (cause instanceof StemDeleteException) {
-        throw (StemDeleteException)cause;
-      }
-      LOG.error("Cant find cause: " + cause, gioc);
-      throw new RuntimeException(cause);
-    }
+              
+              sw.stop();
+              EventLog.info(GrouperSession.staticGrouperSession(), M.STEM_DEL + Quote.single(name), sw);
+            }
+            catch (GrouperDAOException eDAO)      {
+              throw new StemDeleteException( eDAO.getMessage() + ", " + Stem.this.getName(), eDAO );
+            }
+            catch (RevokePrivilegeException eRP)  {
+              throw new StemDeleteException(eRP.getMessage() + ", " + Stem.this.getName(), eRP);
+            }
+            catch (SchemaException eS)            {
+              throw new StemDeleteException(eS.getMessage() + ", " + Stem.this.getName(), eS);
+            }
+            return null;
+         }
+    });
 
     
   }
@@ -574,7 +552,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     if (this.creator == null) {
       try {
         this.creator = MemberFinder.findByUuid( GrouperSession.staticGrouperSession(), 
-            this.getCreatorUuid() ).getSubject();
+            this.getCreatorUuid(), true ).getSubject();
       }
       catch (MemberNotFoundException eMNF) {
         throw new SubjectNotFoundException( eMNF.getMessage(), eMNF );
@@ -601,10 +579,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    * Set creators = ns.getCreators();
    * </pre>
    * @return  Set of {@link Subject} objects
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public Set getCreators() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     return GrouperSession.staticGrouperSession().getNamingResolver().getSubjectsWithPrivilege(this, NamingPrivilege.CREATE);
   }
@@ -696,7 +674,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
       }
       try {
         this.modifier = MemberFinder.findByUuid( GrouperSession.staticGrouperSession(), 
-            this.getModifierUuid() ).getSubject();
+            this.getModifierUuid() , true).getSubject();
       }
       catch (MemberNotFoundException eMNF) {
         throw new SubjectNotFoundException( eMNF.getMessage(), eMNF );
@@ -749,7 +727,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     if (uuid == null) {
       throw new StemNotFoundException();
     }
-    Stem parent = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid);
+    Stem parent = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, true);
     return parent;
   } // public Stem getParentStem()
 
@@ -771,10 +749,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    * Set stemmers = ns.getStemmers();
    * </pre>
    * @return  Set of {@link Subject} objects
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public Set getStemmers() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     return GrouperSession.staticGrouperSession().getNamingResolver().getSubjectsWithPrivilege(this, NamingPrivilege.STEM);
   } 
@@ -1134,7 +1112,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
               throws GrouperDAOException {
 
             String differences = GrouperUtil.dbVersionDescribeDifferences(Stem.this.dbVersion(), 
-                Stem.this, Stem.this.dbVersionDifferentFields());
+                Stem.this, Stem.this.dbVersion() != null ? Stem.this.dbVersionDifferentFields() : Stem.CLONE_FIELDS);
 
             try {
               GrouperDAOFactory.getFactory().getStem().update( Stem.this );
@@ -1326,13 +1304,13 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    * @param changed if you want to know if it was added, pass in array of size one, else null
    * @since   1.2.0
    * @return stem
-   * @throws GrouperRuntimeException is problem
+   * @throws GrouperException is problem
    */
   public static Stem internal_addRootStem(GrouperSession s, boolean[] changed) 
-    throws  GrouperRuntimeException {
+    throws  GrouperException {
     Stem root = null;
     try {
-      root = StemFinder.findByName(s, ROOT_INT);
+      root = StemFinder.findByName(s, ROOT_INT, true);
     } catch (StemNotFoundException snfe) {
     
     }
@@ -1381,7 +1359,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     catch (GrouperDAOException eDAO) {
       String msg = E.STEM_ROOTINSTALL + eDAO.getMessage();
       LOG.fatal(msg);
-      throw new GrouperRuntimeException(msg, eDAO);
+      throw new GrouperException(msg, eDAO);
     }
   } // protected static Stem internal_addRootStem(GrouperSession s)
 
@@ -1415,7 +1393,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
 
     Set types = new LinkedHashSet<GroupType>();
     try {
-      types.add(GroupTypeFinder.find("base"));
+      types.add(GroupTypeFinder.find("base", true));
     } catch (SchemaException e) {
       throw new GroupAddException(e);
     } 
@@ -1432,106 +1410,88 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     final String errorMessageSuffix = ", stem name: " + this.name + ", group extension: " + extn
       + ", group dExtension: " + dExtn + ", uuid: " + uuid + ", ";
     
-    try {
-      return (Group)HibernateSession.callbackHibernateSession(
-          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
-          new HibernateHandler() {
+    return (Group)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
 
-            public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                throws GrouperDAOException {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            try {
               StopWatch sw = new StopWatch();
               sw.start();
               if (!PrivilegeHelper.canCreate(session, 
                   Stem.this, session.getSubject())) {
-                throw new GrouperInverseOfControlException(
-                    new InsufficientPrivilegeException(E.CANNOT_CREATE + errorMessageSuffix));
+                throw new InsufficientPrivilegeException(E.CANNOT_CREATE + errorMessageSuffix);
               } 
               GrouperValidator v = AddGroupValidator.validate(Stem.this, extn, dExtn);
               if (v.isInvalid()) {
-                throw new GrouperInverseOfControlException(new GroupAddException( v.getErrorMessage() 
-                    + errorMessageSuffix ));
+                throw new GroupAddException( v.getErrorMessage() + errorMessageSuffix );
               }
-              try {
-          
-                Group _g = new Group();
-                _g.setParentUuid(Stem.this.getUuid());
-                _g.setDisplayExtension(dExtn);
-                _g.setExtension(extn);
-                _g.setDescription(description);
-                _g.setAttributes(attributes);
-                _g.setCreateTimeLong(new Date().getTime());
-                _g.setCreatorUuid(session.getMember().getUuid());
-                _g.setTypes(types);
+        
+              Group _g = new Group();
+              _g.setParentUuid(Stem.this.getUuid());
+              _g.setDisplayExtension(dExtn);
+              _g.setExtension(extn);
+              _g.setDescription(description);
+              _g.setAttributes(attributes);
+              _g.setCreateTimeLong(new Date().getTime());
+              _g.setCreatorUuid(session.getMember().getUuid());
+              _g.setTypes(types);
 
-                v = NotNullOrEmptyValidator.validate(uuid);
-                if (v.isInvalid()) {
-                  _g.setUuid( GrouperUuid.getUuid() );
-                }
-                else {
-                  _g.setUuid(uuid);
-                }
-          
-                GrouperSubject  subj  = new GrouperSubject(_g);
-                Member _m = new Member();
-                _m.setSubjectIdDb( subj.getId() );
-                _m.setSubjectSourceIdDb( subj.getSource().getId() );
-                _m.setSubjectTypeId( subj.getType().getName() );
-                // TODO 20070328 this is incredibly ugly.  making it even worse is that i am also checking
-                //               for existence in the dao as well.
-                if (uuid == null) {
-                  _m.setUuid( GrouperUuid.getUuid() ); // assign a new uuid
-                }
-                else {
-                  try {
-                    // member already exists.  use existing uuid.
-                    _m.setUuid( GrouperDAOFactory.getFactory().getMember().findBySubject(subj).getUuid() );
-                  }
-                  catch (MemberNotFoundException eMNF) {
-                    // couldn't find member.  assign new uuid.
-                    _m.setUuid( GrouperUuid.getUuid() ); 
-                  }
-                }
-          
-                //CH 20080220: this will start saving the stem
-                GrouperDAOFactory.getFactory().getStem().createChildGroup( Stem.this, _g, _m );
-                  
-                if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ADD, "id", 
-                      _g.getUuid(), "name", _g.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
-                      _g.getDisplayName(), "description", _g.getDescription());
-                  auditEntry.setDescription("Added group: " + _g.getName());
-                  auditEntry.saveOrUpdate(true);
-                }
-                
-                sw.stop();
-                EventLog.info(session, M.GROUP_ADD + Quote.single(_g.getName()), sw);
-                
-                if (addDefaultGroupPrivileges == true) {
-                  _grantDefaultPrivsUponCreate(_g);
-                }
-                return _g;
-              } catch (GroupAddException gae) {
-                throw new GrouperInverseOfControlException(gae);
-              } 
-              catch (SourceUnavailableException eSU)  {
-                throw new GrouperInverseOfControlException(new GroupAddException(E.CANNOT_CREATE_GROUP
-                    + errorMessageSuffix + eSU.getMessage(), eSU));
+              v = NotNullOrEmptyValidator.validate(uuid);
+              if (v.isInvalid()) {
+                _g.setUuid( GrouperUuid.getUuid() );
               }
+              else {
+                _g.setUuid(uuid);
+              }
+        
+              GrouperSubject  subj  = new GrouperSubject(_g);
+              Member _m = new Member();
+              _m.setSubjectIdDb( subj.getId() );
+              _m.setSubjectSourceIdDb( subj.getSource().getId() );
+              _m.setSubjectTypeId( subj.getType().getName() );
+              // TODO 20070328 this is incredibly ugly.  making it even worse is that i am also checking
+              //               for existence in the dao as well.
+              if (uuid == null) {
+                _m.setUuid( GrouperUuid.getUuid() ); // assign a new uuid
+              }
+              else {
+                try {
+                  // member already exists.  use existing uuid.
+                  _m.setUuid( GrouperDAOFactory.getFactory().getMember().findBySubject(subj, true).getUuid() );
+                }
+                catch (MemberNotFoundException eMNF) {
+                  // couldn't find member.  assign new uuid.
+                  _m.setUuid( GrouperUuid.getUuid() ); 
+                }
+              }
+        
+              //CH 20080220: this will start saving the stem
+              GrouperDAOFactory.getFactory().getStem().createChildGroup( Stem.this, _g, _m );
+                
+              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ADD, "id", 
+                    _g.getUuid(), "name", _g.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
+                    _g.getDisplayName(), "description", _g.getDescription());
+                auditEntry.setDescription("Added group: " + _g.getName());
+                auditEntry.saveOrUpdate(true);
+              }
+              
+              sw.stop();
+              EventLog.info(session, M.GROUP_ADD + Quote.single(_g.getName()), sw);
+              
+              if (addDefaultGroupPrivileges == true) {
+                _grantDefaultPrivsUponCreate(_g);
+              }
+              return _g;
+            } catch (GrouperDAOException eDAO) {
+              throw new GroupAddException( E.CANNOT_CREATE_GROUP + errorMessageSuffix + eDAO.getMessage(), eDAO );
+            } catch (SourceUnavailableException eSU)  {
+              throw new GroupAddException(E.CANNOT_CREATE_GROUP + errorMessageSuffix + eSU.getMessage(), eSU);
             }
-          });
-    } catch (GrouperDAOException eDAO) {
-      throw new GroupAddException( E.CANNOT_CREATE_GROUP + errorMessageSuffix + eDAO.getMessage(), eDAO );
-    } catch (GrouperInverseOfControlException gioc) {
-      Throwable cause = gioc.getCause();
-      if (cause instanceof InsufficientPrivilegeException) {
-        throw (InsufficientPrivilegeException)cause;
-      }
-      if (cause instanceof GroupAddException) {
-        throw (GroupAddException)cause;
-      }
-      LOG.error("Cant find cause: " + cause, gioc);
-      throw new RuntimeException(cause);
-    }
+          }
+        });
   } 
 
   /**
@@ -1555,90 +1515,76 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     throws  StemAddException,
             InsufficientPrivilegeException {
     
-    try {
-      return (Stem)HibernateSession.callbackHibernateSession(
-          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
-          new HibernateHandler() {
+    return (Stem)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
 
-            public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                throws GrouperDAOException {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
 
-              StopWatch sw = new StopWatch();
-              sw.start();
-              if ( !PrivilegeHelper.canStem( Stem.this, session.getSubject() ) ) {
-                throw new GrouperInverseOfControlException(new InsufficientPrivilegeException(E.CANNOT_STEM + ", "
-                    + GrouperUtil.toStringSafe(Stem.this) + ", extn: " + extn + ", dExtn: " 
-                    + dExtn + ", uuid: " + uuid));
-              } 
-              GrouperValidator v = AddStemValidator.validate(Stem.this, extn, dExtn);
-              if (v.isInvalid()) {
-                throw new GrouperInverseOfControlException(new StemAddException( "Problem with stem extension: '" 
-                    + extn 
-                    + "', displayExtension: '" + dExtn + "', child of: " + GrouperUtil.toStringSafe(Stem.this) 
-                    + v.getErrorMessage() ));
-              }
-              try {
-                Stem _ns = new Stem();
-                _ns.setCreatorUuid( session.getMember().getUuid() );
-                _ns.setCreateTimeLong( new Date().getTime() );
-                _ns.setDisplayExtensionDb(dExtn);
-                _ns.setDisplayNameDb( U.constructName( Stem.this.getDisplayName(), dExtn ) );
-                _ns.setExtensionDb(extn);
-                _ns.setNameDb( U.constructName( Stem.this.getName(), extn ) );
-                _ns.setParentUuid( Stem.this.getUuid() );
-                
-                v = NotNullOrEmptyValidator.validate(uuid);
-                if (v.isInvalid()) {
-                  _ns.setUuid( GrouperUuid.getUuid() );
-                }
-                else {
-                  _ns.setUuid(uuid);
-                }
-                GrouperDAOFactory.getFactory().getStem().createChildStem( _ns ) ;
-
-
-                if (addDefaultStemPrivileges) {
-                  _grantDefaultPrivsUponCreate(_ns);
-                }
-
-                if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ADD, "id", 
-                      _ns.getUuid(), "name", _ns.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
-                      _ns.getDisplayName(), "description", _ns.getDescription());
-                  auditEntry.setDescription("Added stem: " + _ns.getName());
-                  auditEntry.saveOrUpdate(true);
-                }
-                
-                sw.stop();
-                EventLog.info(session, M.STEM_ADD + Quote.single( _ns.getName() ), sw);
-
-                return _ns;
-              } catch (StemAddException e) {
-                String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(this)
-                  + ", extn: " + extn + ", dExtn: " + dExtn + ", uuid: " + uuid + ", " + e.getMessage();
-                GrouperUtil.injectInException(e, error);
-                throw new GrouperInverseOfControlException(e);
-              } catch (GrouperDAOException e) {
-                String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(this)
-                  + ", extn: " + extn + ", dExtn: " + dExtn + ", uuid: " + uuid + ", " + e.getMessage();
-                GrouperUtil.injectInException(e, error);
-                throw e;
-              }
+            StopWatch sw = new StopWatch();
+            sw.start();
+            if ( !PrivilegeHelper.canStem( Stem.this, session.getSubject() ) ) {
+              throw new InsufficientPrivilegeException(E.CANNOT_STEM + ", "
+                  + GrouperUtil.toStringSafe(Stem.this) + ", extn: " + extn + ", dExtn: " 
+                  + dExtn + ", uuid: " + uuid);
+            } 
+            GrouperValidator v = AddStemValidator.validate(Stem.this, extn, dExtn);
+            if (v.isInvalid()) {
+              throw new StemAddException( "Problem with stem extension: '" 
+                  + extn 
+                  + "', displayExtension: '" + dExtn + "', child of: " + GrouperUtil.toStringSafe(Stem.this) 
+                  + v.getErrorMessage() );
             }
-      });
-    } catch (GrouperInverseOfControlException gioc) {
-      Throwable cause = gioc.getCause();
-      if (cause instanceof InsufficientPrivilegeException) {
-        throw (InsufficientPrivilegeException)cause;
-      }
-      if (cause instanceof StemAddException) {
-        throw (StemAddException)cause;
-      }
-      LOG.error("Cant find cause: " + cause, gioc);
-      throw new RuntimeException(cause);
-    } catch (GrouperDAOException eDAO) {
-      throw new StemAddException( E.CANNOT_CREATE_STEM + eDAO.getMessage(), eDAO );
-    }
+            try {
+              Stem _ns = new Stem();
+              _ns.setCreatorUuid( session.getMember().getUuid() );
+              _ns.setCreateTimeLong( new Date().getTime() );
+              _ns.setDisplayExtensionDb(dExtn);
+              _ns.setDisplayNameDb( U.constructName( Stem.this.getDisplayName(), dExtn ) );
+              _ns.setExtensionDb(extn);
+              _ns.setNameDb( U.constructName( Stem.this.getName(), extn ) );
+              _ns.setParentUuid( Stem.this.getUuid() );
+              
+              v = NotNullOrEmptyValidator.validate(uuid);
+              if (v.isInvalid()) {
+                _ns.setUuid( GrouperUuid.getUuid() );
+              }
+              else {
+                _ns.setUuid(uuid);
+              }
+              GrouperDAOFactory.getFactory().getStem().createChildStem( _ns ) ;
+
+
+              if (addDefaultStemPrivileges) {
+                _grantDefaultPrivsUponCreate(_ns);
+              }
+
+              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_ADD, "id", 
+                    _ns.getUuid(), "name", _ns.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
+                    _ns.getDisplayName(), "description", _ns.getDescription());
+                auditEntry.setDescription("Added stem: " + _ns.getName());
+                auditEntry.saveOrUpdate(true);
+              }
+              
+              sw.stop();
+              EventLog.info(session, M.STEM_ADD + Quote.single( _ns.getName() ), sw);
+
+              return _ns;
+            } catch (StemAddException e) {
+              String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(this)
+                + ", extn: " + extn + ", dExtn: " + dExtn + ", uuid: " + uuid + ", " + e.getMessage();
+              GrouperUtil.injectInException(e, error);
+              throw e;
+            } catch (GrouperDAOException e) {
+              String error = "Problem creating child stem: " + GrouperUtil.toStringSafe(this)
+                + ", extn: " + extn + ", dExtn: " + dExtn + ", uuid: " + uuid + ", " + e.getMessage();
+              GrouperUtil.injectInException(e, error);
+              throw new StemAddException(E.CANNOT_CREATE_STEM + e.getMessage(), e);
+            }
+          }
+    });
   }
 
   /**
@@ -2146,13 +2092,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
 
     super.onPostSave(hibernateSession);
     
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
+        StemHooks.METHOD_STEM_POST_INSERT, HooksStemBean.class, 
+        this, Stem.class, VetoTypeGrouper.STEM_POST_INSERT, true, false);
+
+    //do these second so the right object version is set, and dbVersion is ok
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_POST_COMMIT_INSERT, HooksStemBean.class, 
         this, Stem.class);
 
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
-        StemHooks.METHOD_STEM_POST_INSERT, HooksStemBean.class, 
-        this, Stem.class, VetoTypeGrouper.STEM_POST_INSERT, true, false);
   }
 
   /**
@@ -2322,7 +2270,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     String currentName = stems[0];
     for (int i=0;i<stems.length;i++) {
       try {
-        currentStem = StemFinder.findByName(grouperSession, currentName);
+        currentStem = StemFinder.findByName(grouperSession, currentName, true);
       } catch (StemNotFoundException snfe1) {
         //this isnt ideal, but just use the extension as the display extension
         currentStem = currentStem.addChildStem(stems[i], hasDisplayStems ? displayStems[i] : stems[i]);
@@ -2333,7 +2281,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
       }
     }
     //at this point the stem should be there (and is equal to currentStem), just to be sure, query again
-    Stem parentStem = StemFinder.findByName(grouperSession, stemName);
+    Stem parentStem = StemFinder.findByName(grouperSession, stemName, true);
     return parentStem;
 
   }
@@ -2482,147 +2430,118 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
       final boolean listMembersOfGroup, final boolean listGroupAsMember,
       final boolean attributes) throws StemAddException, InsufficientPrivilegeException {
 
-    try {
-      return (Stem) HibernateSession.callbackHibernateSession(
-          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-          new HibernateHandler() {
+    return (Stem) HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        new HibernateHandler() {
 
-            public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                throws GrouperDAOException {
-              try {
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
 
-                // cannot copy the root stem
-                if (Stem.this.isRootStem()) {
-                  throw new StemAddException("Cannot copy the root stem.");
-                }
-
-                // the new stem should not be a child of the current stem
-                if (Stem.this.isChildStem(stem)) {
-                  throw new StemAddException("Cannot copy stem. " + stem.getName()
-                      + " is a child of " + Stem.this.getName() + ".");
-                }
-
-                // verify that if the property security.stem.groupAllowedToCopyStem is set,
-                // then the user is a member of that group.
-                String allowedGroupName = GrouperConfig
-                    .getProperty("security.stem.groupAllowedToCopyStem");
-                if (StringUtils.isNotBlank(allowedGroupName)
-                    && !PrivilegeHelper.isRoot(GrouperSession.staticGrouperSession())) {
-
-                  Group allowedGroup = GroupFinder.findByName(GrouperSession
-                      .staticGrouperSession().internal_getRootSession(),
-                      allowedGroupName, false);
-                  if (allowedGroup == null
-                      || !allowedGroup.hasMember(GrouperSession.staticGrouperSession()
-                          .getSubject())) {
-                    throw new InsufficientPrivilegeException("User is not a member of "
-                        + allowedGroupName + ".");
-                  }
-                }
-                
-                Map<String, Stem> oldStemUuidToNewStem = new HashMap<String, Stem>();
-                Map<String, Group> oldGroupUuidToNewGroup = new HashMap<String, Group>();
-                Set<Composite> oldComposites = new LinkedHashSet<Composite>();
-                
-                // now lets copy over the stems
-                Stem newStem = stem.internal_addChildStem(GrouperSession
-                    .staticGrouperSession(), Stem.this.getExtension(),
-                    Stem.this.getDisplayExtension(), null, false);
-                
-                if (privilegesOfStem) {
-                  newStem.internal_copyPrivilegesOfStem(GrouperSession
-                      .staticGrouperSession().internal_getRootSession(), Stem.this);
-                }
-                
-                oldStemUuidToNewStem.put(Stem.this.getUuid(), newStem);
-                
-                for (Stem childStem : GrouperDAOFactory.getFactory().getStem()
-                    .findAllChildStems(Stem.this, Stem.Scope.SUB, true)) {
-                  Stem newChildStem = oldStemUuidToNewStem.get(childStem.getParentUuid())
-                      .internal_addChildStem(GrouperSession
-                          .staticGrouperSession().internal_getRootSession(), childStem.getExtension(),
-                          childStem.getDisplayExtension(), null, false);
-                  
-                  if (privilegesOfStem) {
-                    newChildStem.internal_copyPrivilegesOfStem(GrouperSession
-                        .staticGrouperSession().internal_getRootSession(), childStem);
-                  }
-                  
-                  oldStemUuidToNewStem.put(childStem.getUuid(), newChildStem);
-                }
-                
-                // now lets copy over the groups
-                for (Group child : GrouperDAOFactory.getFactory().getStem()
-                    .findAllChildGroups(Stem.this, Stem.Scope.SUB)) {
-                  Group newChild = child.internal_copy(oldStemUuidToNewStem.get(child
-                      .getParentUuid()), privilegesOfGroup, groupAsPrivilege,
-                      listMembersOfGroup, listGroupAsMember, attributes, false, false);
-                  oldGroupUuidToNewGroup.put(child.getUuid(), newChild);
-                  
-                  try {
-                    Composite oldComposite = GrouperDAOFactory.getFactory().getComposite()
-                        .findAsOwner(child);
-                    oldComposites.add(oldComposite);
-                  } catch (CompositeNotFoundException e) {
-                    // this is okay
-                  }
-                }
-          
-                
-                // need to take care of composites....
-                Iterator<Composite> oldCompositesIter = oldComposites.iterator();
-                while (oldCompositesIter.hasNext()) {
-                  Composite oldComposite = oldCompositesIter.next();
-                  String oldOwnerUuid = oldComposite.getFactorOwnerUuid();
-                  String oldLeftUuid = oldComposite.getLeftFactorUuid();
-                  String oldRightUuid = oldComposite.getRightFactorUuid();
-
-                  Group newCompositeOwnerGroup = oldGroupUuidToNewGroup.get(oldOwnerUuid);
-                  Group newCompositeLeftGroup = oldGroupUuidToNewGroup.get(oldLeftUuid);
-                  Group newCompositeRightGroup = oldGroupUuidToNewGroup.get(oldRightUuid);
-
-                  // if the factors aren't part of the stem being moved, 
-                  // we'll create the composite using the old factors...
-                  // maybe the way this works should be configurable? 
-                  if (newCompositeLeftGroup == null || newCompositeRightGroup == null) {
-                    newCompositeLeftGroup = oldComposite.getLeftGroup();
-                    newCompositeRightGroup = oldComposite.getRightGroup();
-                  }
-
-                  newCompositeOwnerGroup.internal_addCompositeMember(GrouperSession
-                      .staticGrouperSession().internal_getRootSession(), oldComposite
-                      .getType(), newCompositeLeftGroup, newCompositeRightGroup);
-                }
-                
-                return newStem;
-              } catch (InsufficientPrivilegeException e) {
-                throw new GrouperInverseOfControlException(e);
-              } catch (StemAddException e) {
-                throw new GrouperInverseOfControlException(e);
-              } catch (UnableToPerformException e) {
-                throw new GrouperInverseOfControlException(e);
-              } catch (GroupAddException e) {
-                throw new GrouperInverseOfControlException(e);
-              } catch (GroupNotFoundException e) {
-                throw new GrouperInverseOfControlException(e);
-              } catch (MemberAddException e) {
-                throw new GrouperInverseOfControlException(e);
-              } 
+            // cannot copy the root stem
+            if (Stem.this.isRootStem()) {
+              throw new StemAddException("Cannot copy the root stem.");
             }
-          });
-    } catch (GrouperInverseOfControlException gioc) {
-      Throwable cause = gioc.getCause();
-      if (cause instanceof InsufficientPrivilegeException) {
-        throw (InsufficientPrivilegeException) cause;
-      }
-      if (cause instanceof GroupAddException) {
-        throw (StemAddException) cause;
-      }
-      LOG.error("Cant find cause: " + cause, gioc);
-      throw new RuntimeException(cause);
 
-    }
+            // the new stem should not be a child of the current stem
+            if (Stem.this.isChildStem(stem)) {
+              throw new StemAddException("Cannot copy stem. " + stem.getName()
+                  + " is a child of " + Stem.this.getName() + ".");
+            }
 
+            // verify that if the property security.stem.groupAllowedToCopyStem is set,
+            // then the user is a member of that group.
+            String allowedGroupName = GrouperConfig
+                .getProperty("security.stem.groupAllowedToCopyStem");
+            if (StringUtils.isNotBlank(allowedGroupName)
+                && !PrivilegeHelper.isRoot(GrouperSession.staticGrouperSession())) {
+
+              Group allowedGroup = GroupFinder.findByName(GrouperSession
+                  .staticGrouperSession().internal_getRootSession(),
+                  allowedGroupName, false);
+              if (allowedGroup == null
+                  || !allowedGroup.hasMember(GrouperSession.staticGrouperSession()
+                      .getSubject())) {
+                throw new InsufficientPrivilegeException("User is not a member of "
+                    + allowedGroupName + ".");
+              }
+            }
+            
+            Map<String, Stem> oldStemUuidToNewStem = new HashMap<String, Stem>();
+            Map<String, Group> oldGroupUuidToNewGroup = new HashMap<String, Group>();
+            Set<Composite> oldComposites = new LinkedHashSet<Composite>();
+            
+            // now lets copy over the stems
+            Stem newStem = stem.internal_addChildStem(GrouperSession
+                .staticGrouperSession(), Stem.this.getExtension(),
+                Stem.this.getDisplayExtension(), null, false);
+            
+            if (privilegesOfStem) {
+              newStem.internal_copyPrivilegesOfStem(GrouperSession
+                  .staticGrouperSession().internal_getRootSession(), Stem.this);
+            }
+            
+            oldStemUuidToNewStem.put(Stem.this.getUuid(), newStem);
+            
+            for (Stem childStem : GrouperDAOFactory.getFactory().getStem()
+                    .findAllChildStems(Stem.this, Stem.Scope.SUB, true)) {
+              Stem newChildStem = oldStemUuidToNewStem.get(childStem.getParentUuid())
+                  .internal_addChildStem(GrouperSession
+                      .staticGrouperSession().internal_getRootSession(), childStem.getExtension(),
+                      childStem.getDisplayExtension(), null, false);
+              
+              if (privilegesOfStem) {
+                newChildStem.internal_copyPrivilegesOfStem(GrouperSession
+                    .staticGrouperSession().internal_getRootSession(), childStem);
+              }
+              
+              oldStemUuidToNewStem.put(childStem.getUuid(), newChildStem);
+            }
+            
+            // now lets copy over the groups
+            for (Group child : GrouperDAOFactory.getFactory().getStem()
+                .findAllChildGroups(Stem.this, Stem.Scope.SUB)) {
+              Group newChild = child.internal_copy(oldStemUuidToNewStem.get(child
+                  .getParentUuid()), privilegesOfGroup, groupAsPrivilege,
+                  listMembersOfGroup, listGroupAsMember, attributes, false, false);
+              oldGroupUuidToNewGroup.put(child.getUuid(), newChild);
+              
+              Composite oldComposite = GrouperDAOFactory.getFactory().getComposite()
+                  .findAsOwner(child, false);
+              if (oldComposite != null) {
+                
+                oldComposites.add(oldComposite);
+              }
+            }
+      
+            
+            // need to take care of composites....
+            Iterator<Composite> oldCompositesIter = oldComposites.iterator();
+            while (oldCompositesIter.hasNext()) {
+              Composite oldComposite = oldCompositesIter.next();
+              String oldOwnerUuid = oldComposite.getFactorOwnerUuid();
+              String oldLeftUuid = oldComposite.getLeftFactorUuid();
+              String oldRightUuid = oldComposite.getRightFactorUuid();
+
+              Group newCompositeOwnerGroup = oldGroupUuidToNewGroup.get(oldOwnerUuid);
+              Group newCompositeLeftGroup = oldGroupUuidToNewGroup.get(oldLeftUuid);
+              Group newCompositeRightGroup = oldGroupUuidToNewGroup.get(oldRightUuid);
+
+              // if the factors aren't part of the stem being moved, 
+              // we'll create the composite using the old factors...
+              // maybe the way this works should be configurable? 
+              if (newCompositeLeftGroup == null || newCompositeRightGroup == null) {
+                newCompositeLeftGroup = oldComposite.getLeftGroup();
+                newCompositeRightGroup = oldComposite.getRightGroup();
+              }
+
+              newCompositeOwnerGroup.internal_addCompositeMember(GrouperSession
+                  .staticGrouperSession().internal_getRootSession(), oldComposite
+                  .getType(), newCompositeLeftGroup, newCompositeRightGroup);
+            }
+            
+            return newStem;
+          }
+        });
   }
 
 
@@ -2638,15 +2557,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   } 
   
   private void internal_copyPrivilegesOfStem(GrouperSession session, Stem stem)
-      throws UnableToPerformException {
-    Set<Privilege> privileges = Privilege.getNamingPrivs();
+    throws UnableToPerformException {
+  Set<Privilege> privileges = Privilege.getNamingPrivs();
 
-    Iterator<Privilege> iter = privileges.iterator();
-    while (iter.hasNext()) {
-      Privilege priv = iter.next();
-      session.getNamingResolver().privilegeCopy(stem, this, priv);
-    }
-  }
+  Iterator<Privilege> iter = privileges.iterator();
+  while (iter.hasNext()) {
+    Privilege priv = iter.next();
+    session.getNamingResolver().privilegeCopy(stem, this, priv);      
+  }  
+}
   
 } // public class Stem extends GrouperAPI implements Owner
 

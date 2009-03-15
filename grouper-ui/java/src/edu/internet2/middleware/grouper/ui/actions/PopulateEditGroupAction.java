@@ -133,7 +133,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateEditGroupAction.java,v 1.11 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: PopulateEditGroupAction.java,v 1.12 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class PopulateEditGroupAction extends GrouperCapableAction {
 
@@ -176,8 +176,8 @@ public class PopulateEditGroupAction extends GrouperCapableAction {
 			privileges.add(accessPrivs[i].toLowerCase());
 		}
 		
-		Subject grouperAll = SubjectFinder.findById("GrouperAll");
-		Map selectedPrivs = GrouperHelper.getImmediateHas(grouperSession,GroupOrStem.findByGroup(grouperSession,group),MemberFinder.findBySubject(grouperSession,grouperAll));
+		Subject grouperAll = SubjectFinder.findById("GrouperAll", true);
+		Map selectedPrivs = GrouperHelper.getImmediateHas(grouperSession,GroupOrStem.findByGroup(grouperSession,group),MemberFinder.findBySubject(grouperSession,grouperAll, true));
 		Map selected = new HashMap();
 		Map.Entry entry;
 		String key;

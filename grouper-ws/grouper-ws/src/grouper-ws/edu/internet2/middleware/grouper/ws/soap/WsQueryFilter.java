@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsQueryFilter.java,v 1.4 2008-12-07 05:57:33 mchyzer Exp $
+ * @author mchyzer $Id: WsQueryFilter.java,v 1.5 2009-03-15 06:41:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.soap;
 
@@ -495,7 +495,7 @@ public class WsQueryFilter {
       return null;
     }
     try {
-      Stem stem = StemFinder.findByName(this.grouperSession, this.stemName);
+      Stem stem = StemFinder.findByName(this.grouperSession, this.stemName, true);
       return stem;
     } catch (StemNotFoundException snfe) {
       throw new WsInvalidQueryException("Cant find stem: '" + this.stemName + "'");

@@ -17,10 +17,10 @@
 
 package edu.internet2.middleware.grouper;
 import junit.textui.TestRunner;
-import  edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
-import  edu.internet2.middleware.grouper.internal.util.Realize;
+import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.internal.util.Realize;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 
@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  * Test {@link GrouperDAOFactory}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_GrouperDAOFactory.java,v 1.6 2008-10-20 15:27:31 mchyzer Exp $
+ * @version $Id: Test_api_GrouperDAOFactory.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_GrouperDAOFactory extends GrouperTest {
@@ -92,7 +92,7 @@ public class Test_api_GrouperDAOFactory extends GrouperTest {
       GrouperDAOFactory.getFactory(cfg);
       fail("did not throw GrouperRuntimeException");
     }
-    catch (GrouperRuntimeException eExpected) {
+    catch (GrouperException eExpected) {
       assertTrue("threw expected exception", true);
     } 
     

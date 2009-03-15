@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * @author  blair christensen.
- * @version $Id: MembershipValidator.java,v 1.2 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: MembershipValidator.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   1.0
  */
 public class MembershipValidator extends GrouperValidator {
@@ -73,13 +73,7 @@ public class MembershipValidator extends GrouperValidator {
    * @return if exist
    */
   private boolean _doesFieldExist(String name) {
-    try {
-      FieldFinder.find(name);
-      return true;
-    }
-    catch (SchemaException eS) {
-      return false;
-    }
+    return null != FieldFinder.find(name, false);
   }
 
   /**

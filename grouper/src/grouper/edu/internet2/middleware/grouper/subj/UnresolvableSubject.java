@@ -22,8 +22,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -37,7 +38,7 @@ import edu.internet2.middleware.subject.SubjectType;
  * Allows the UI to continue working when, otherwise, a SubjectNotFoundException would cause an error.
  * <p/>
  * @author  Gary Brown.
- * @version $Id: UnresolvableSubject.java,v 1.1 2009-03-04 15:33:31 isgwb Exp $
+ * @version $Id: UnresolvableSubject.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  */
 
 public class UnresolvableSubject implements Subject {
@@ -187,8 +188,8 @@ public Map getAttributes() {
 			try {
 				source=SubjectFinder.getSource(getId());
 			}catch(SourceUnavailableException e) {
-				throw new GrouperRuntimeException(e);
-	}
+				throw new GrouperException(e);
+			}
 			return source;
 		}
   

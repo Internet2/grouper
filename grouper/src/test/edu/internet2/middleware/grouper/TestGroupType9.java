@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupType9.java,v 1.5 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroupType9.java,v 1.6 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGroupType9 extends TestCase {
 
@@ -54,7 +54,7 @@ public class TestGroupType9 extends TestCase {
       GroupType       custom  = GroupType.createType(r.rs, "custom");
       custom.delete(r.rs);
       try {
-        GroupTypeFinder.find(custom.getName());
+        GroupTypeFinder.find(custom.getName(), true);
         Assert.fail("FAIL: found deleted type");
       }
       catch (SchemaException eS) {

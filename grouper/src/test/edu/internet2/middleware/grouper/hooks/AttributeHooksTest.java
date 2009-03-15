@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AttributeHooksTest.java,v 1.1 2008-11-04 07:17:56 mchyzer Exp $
+ * $Id: AttributeHooksTest.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -136,7 +136,7 @@ public class AttributeHooksTest extends GrouperTest {
     this.aGroup.setAttribute(this.field.getName(), "test1");
     this.aGroup.store();
     
-    assertEquals("test1", GroupFinder.findByUuid(this.grouperSession, this.aGroup.getUuid()).getAttribute(this.field.getName()));
+    assertEquals("test1", GroupFinder.findByUuid(this.grouperSession, this.aGroup.getUuid(), true).getAttribute(this.field.getName()));
     assertEquals("test1", AttributeHooksImpl.mostRecentPreInsertAttributeValue);
 
     //delete so we can insert again

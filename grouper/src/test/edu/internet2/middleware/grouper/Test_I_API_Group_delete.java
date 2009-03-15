@@ -18,18 +18,17 @@
 package edu.internet2.middleware.grouper;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
-import  edu.internet2.middleware.subject.Subject;
-import  edu.internet2.middleware.subject.SourceUnavailableException;
-import  edu.internet2.middleware.subject.SubjectNotFoundException;
-import  edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.SourceUnavailableException;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 /**
  * Test <code>Group.delete()</code>.
  * @author  blair christensen.
- * @version $Id: Test_I_API_Group_delete.java,v 1.2 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_I_API_Group_delete.java,v 1.3 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Group_delete extends GrouperTest {
@@ -53,10 +52,10 @@ public class Test_I_API_Group_delete extends GrouperTest {
       gA      = parent.addChildGroup("child group a", "child group a");
       gB      = parent.addChildGroup("child group b", "child group b");
       rSubjX  = RegistrySubject.add(s, "subjX", "person", "subjX");
-      subjX   = SubjectFinder.findById( rSubjX.getId() );
+      subjX   = SubjectFinder.findById( rSubjX.getId(), true );
     }
     catch (Exception eShouldNotHappen) {
-      throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
+      throw new GrouperException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
   }
 
@@ -65,7 +64,7 @@ public class Test_I_API_Group_delete extends GrouperTest {
       s.stop();
     }
     catch (Exception eShouldNotHappen) {
-      throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
+      throw new GrouperException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
     super.tearDown();
   }

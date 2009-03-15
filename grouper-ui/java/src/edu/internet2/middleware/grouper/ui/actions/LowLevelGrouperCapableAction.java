@@ -76,7 +76,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.20 2008-09-09 20:03:41 mchyzer Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.21 2009-03-15 06:37:51 mchyzer Exp $
  */
 
 /**
@@ -430,9 +430,9 @@ public abstract class LowLevelGrouperCapableAction
 		if(obj==null) {
 			if("true".equals(GrouperConfig.getProperty("groups.wheel.use"))) {
 				try {
-					Subject subj = SubjectFinder.findById("GrouperSystem");
+					Subject subj = SubjectFinder.findById("GrouperSystem", true);
 					GrouperSession s = GrouperSession.start(subj);
-					obj=GroupFinder.findByName(s,GrouperConfig.getProperty("groups.wheel.group"));
+					obj=GroupFinder.findByName(s,GrouperConfig.getProperty("groups.wheel.group"), true);
 					session.getServletContext().setAttribute("wheelGroup",obj);
 				}catch(Exception e) {
 					session.setAttribute("isWheelGroupMember",Boolean.FALSE);
@@ -469,7 +469,7 @@ public abstract class LowLevelGrouperCapableAction
 			subj=(Subject)it.next();
 			if("group".equals(subj.getType().getName())) {
 				try {
-					group=GroupFinder.findByUuid(grouperSession,subj.getId());
+					group=GroupFinder.findByUuid(grouperSession,subj.getId(), true);
 					savedAsMaps.add(GrouperHelper.group2Map(grouperSession,group));
 				}catch(GroupNotFoundException e) {
 					it.remove();

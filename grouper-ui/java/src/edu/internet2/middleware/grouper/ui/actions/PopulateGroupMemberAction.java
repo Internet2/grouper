@@ -212,7 +212,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMemberAction.java,v 1.12 2009-03-04 15:36:09 isgwb Exp $
+ * @version $Id: PopulateGroupMemberAction.java,v 1.13 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class PopulateGroupMemberAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(PopulateGroupMemberAction.class);
@@ -254,7 +254,7 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 		}
 		Field mField = null;
 		try {
-			mField=FieldFinder.find(membershipField);
+			mField=FieldFinder.find(membershipField, true);
 		}catch(SchemaException e) {
 			LOG.error("Error retrieving " + membershipField,e);
 			throw new UnrecoverableErrorException("error.group-member.bad-field",e,membershipField);
@@ -335,14 +335,14 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 		
 		//Retrieve privileges current user, and selected subject have over
 		//current group/stem
-		Member member = null;
+				Member member = null;
 		try {
-			member=MemberFinder.findBySubject(grouperSession,SubjectFinder.findById(subjectId,subjectType,sourceId));
+			member=MemberFinder.findBySubject(grouperSession,SubjectFinder.findById(subjectId,subjectType,sourceId, true), true);
 		}catch(SubjectNotFoundException e) {
 			Subject unresolvable = new UnresolvableSubject(subjectId,subjectType,sourceId);
-			member = MemberFinder.findBySubject(grouperSession,unresolvable);
+			member = MemberFinder.findBySubject(grouperSession,unresolvable, true);
 		}
-		Map authUserPrivs = GrouperHelper.hasAsMap(grouperSession, groupOrStem,false);
+    Map authUserPrivs = GrouperHelper.hasAsMap(grouperSession, groupOrStem,false);
 		Map privs = GrouperHelper.hasAsMap(grouperSession, groupOrStem, member,mField); 
 		Map extendedPrivs = GrouperHelper.getExtendedHas(grouperSession,groupOrStem,member,mField);
 		Map immediatePrivs = GrouperHelper.getImmediateHas(grouperSession,groupOrStem,member,mField);

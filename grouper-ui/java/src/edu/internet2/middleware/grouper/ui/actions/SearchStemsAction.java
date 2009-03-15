@@ -134,7 +134,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SearchStemsAction.java,v 1.7 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: SearchStemsAction.java,v 1.8 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class SearchStemsAction extends GrouperCapableAction {
 
@@ -204,7 +204,7 @@ public class SearchStemsAction extends GrouperCapableAction {
 		request.setAttribute("queryOutTerms",outTerms);
 		if (!isEmpty(searchFrom)) {
 			Stem fromStem = StemFinder.findByName(grouperSession,
-					searchFrom);
+					searchFrom, true);
 			pager.setParam("searchFromDisplay", fromStem.getDisplayExtension());
 		}
 		return mapping.findForward(FORWARD_Results);

@@ -124,7 +124,7 @@ public class USDU {
     try {
       GrouperSession s = null;
       if (line.hasOption("start")) {
-        s = GrouperSession.start(SubjectFinder.findByIdentifier(line.getOptionValue("start")));
+        s = GrouperSession.start(SubjectFinder.findByIdentifier(line.getOptionValue("start"), true));
       } else {
         s = GrouperSession.start(SubjectFinder.findRootSubject());
       }
@@ -192,7 +192,7 @@ public class USDU {
 
     Member member;
     try {
-      member = MemberFinder.findByUuid(s, uuid);
+      member = MemberFinder.findByUuid(s, uuid, true);
     } catch (MemberNotFoundException e) {
       System.out.println("member with uuid '" + uuid + "' not found");
       return;
@@ -508,7 +508,7 @@ public class USDU {
      */
     if (member.getSubjectSourceId().equals(getGrouperSourceAdapterId())) {
       try {
-        GroupFinder.findByUuid(s, member.getSubjectId());
+        GroupFinder.findByUuid(s, member.getSubjectId(), true);
         return true;
       } catch (GroupNotFoundException e) {
         return false;
@@ -518,7 +518,7 @@ public class USDU {
     try {
       // Changed because member.getSubject now always returns a LazySubject
       //member.getSubject();
-      SubjectFinder.findById(member.getSubjectId(),member.getSubjectTypeId(),member.getSubjectSourceId());
+      SubjectFinder.findById(member.getSubjectId(),member.getSubjectTypeId(),member.getSubjectSourceId(), true);
       return true;
     } catch (SubjectNotFoundException e) {
       return false;

@@ -46,7 +46,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.29 2009-03-06 17:48:56 shilen Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.30 2009-03-15 06:37:23 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -491,36 +491,49 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @throws GrouperDAOException 
    * @throws MembershipNotFoundException 
    * @since   @HEAD@
+   * @deprecated
    */
+  @Deprecated 
   public Membership findByGroupOwnerAndMemberAndFieldAndType(String ownerGroupId, String memberUUID, Field f, String type)
     throws  GrouperDAOException,
             MembershipNotFoundException {
-    Object[] result = HibernateSession.byHqlStatic()
-      .createQuery(
+    return findByGroupOwnerAndMemberAndFieldAndType(ownerGroupId, memberUUID, f, type, true);
+  }
+
+  /**
+   * @param ownerGroupId
+   * @param memberUUID
+   * @param f
+   * @param type
+   * @param exceptionIfNull 
+   */
+  public Membership findByGroupOwnerAndMemberAndFieldAndType(String ownerGroupId,
+      String memberUUID, Field f, String type, boolean exceptionIfNull)
+      throws GrouperDAOException, MembershipNotFoundException {
+    Object[] result = HibernateSession.byHqlStatic().createQuery(
         "select ms, m from Membership as ms, Member as m, Field as field where  "
-        + "     ms.ownerGroupId  = :owner            "
-        + "and  ms.memberUuid = :member           "
-        + "and  ms.fieldId = field.uuid "
-        + "and  field.name   = :fname            "
-        + "and  field.typeString       = :ftype             "
-        + "and  ms.type       = :type             "
-        + "and  ms.memberUuid = m.uuid")
-      .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindByGroupOwnerAndMemberAndFieldAndType")
-      .setString( "owner",  ownerGroupId              )
-      .setString( "member", memberUUID             )
-      .setString( "fname",  f.getName()            )
-      .setString( "ftype",  f.getType().toString() ) 
-      .setString( "type",   type                   )
-      .uniqueResult(Object[].class);
-    if (result==null || result[0]==null) {
-      throw new MembershipNotFoundException();
+            + "     ms.ownerGroupId  = :owner            "
+            + "and  ms.memberUuid = :member           " + "and  ms.fieldId = field.uuid "
+            + "and  field.name   = :fname            "
+            + "and  field.typeString       = :ftype             "
+            + "and  ms.type       = :type             " + "and  ms.memberUuid = m.uuid")
+        .setCacheable(false).setCacheRegion(
+            KLASS + ".FindByGroupOwnerAndMemberAndFieldAndType").setString("owner",
+            ownerGroupId).setString("member", memberUUID).setString("fname", f.getName())
+        .setString("ftype", f.getType().toString()).setString("type", type).uniqueResult(
+            Object[].class);
+    if (result == null || result[0] == null) {
+      if (exceptionIfNull) {
+        throw new MembershipNotFoundException();
+      }
+      return null;
     }
-    Membership ms = (Membership)result[0];
-    Member m = (Member)result[1];
+    Membership ms = (Membership) result[0];
+    Member m = (Member) result[1];
     ms.setMember(m);
     return ms;
   }
+
 
   /**
    * @param ownerStemId 
@@ -531,36 +544,55 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @throws GrouperDAOException 
    * @throws MembershipNotFoundException 
    * @since   @HEAD@
+   * @deprecated
    */
+  @Deprecated
   public Membership findByStemOwnerAndMemberAndFieldAndType(String ownerStemId, String memberUUID, Field f, String type)
     throws  GrouperDAOException,
             MembershipNotFoundException {
-    Object[] result = HibernateSession.byHqlStatic()
-      .createQuery(
-        "select ms, m from Membership as ms, Member as m, Field as field where  "
-        + "     ms.ownerStemId  = :owner            "
-        + "and  ms.memberUuid = :member           "
-        + "and  ms.fieldId = field.uuid "
-        + "and  field.name   = :fname            "
-        + "and  field.typeString       = :ftype             "
-        + "and  ms.type       = :type             "
-        + "and  ms.memberUuid = m.uuid")
-      .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindByStemOwnerAndMemberAndFieldAndType")
-      .setString( "owner",  ownerStemId              )
-      .setString( "member", memberUUID             )
-      .setString( "fname",  f.getName()            )
-      .setString( "ftype",  f.getType().toString() ) 
-      .setString( "type",   type                   )
-      .uniqueResult(Object[].class);
-    if (result==null || result[0]==null) {
-      throw new MembershipNotFoundException();
-    }
-    Membership ms = (Membership)result[0];
-    Member m = (Member)result[1];
-    ms.setMember(m);
-    return ms;
+    return findByStemOwnerAndMemberAndFieldAndType(ownerStemId, memberUUID, f, type, true);
   } 
+
+  /**
+   * @param ownerStemId
+   * @param memberUUID
+   * @param f
+   * @param type
+   * @param exceptionIfNull
+   */
+  public Membership findByStemOwnerAndMemberAndFieldAndType(String ownerStemId,
+      String memberUUID, Field f, String type, boolean exceptionIfNull)
+      throws GrouperDAOException, MembershipNotFoundException {
+    Object[] result = HibernateSession.byHqlStatic()
+    .createQuery(
+      "select ms, m from Membership as ms, Member as m, Field as field where  "
+      + "     ms.ownerStemId  = :owner            "
+      + "and  ms.memberUuid = :member           "
+      + "and  ms.fieldId = field.uuid "
+      + "and  field.name   = :fname            "
+      + "and  field.typeString       = :ftype             "
+      + "and  ms.type       = :type             "
+      + "and  ms.memberUuid = m.uuid")
+    .setCacheable(false)
+    .setCacheRegion(KLASS + ".FindByStemOwnerAndMemberAndFieldAndType")
+    .setString( "owner",  ownerStemId              )
+    .setString( "member", memberUUID             )
+    .setString( "fname",  f.getName()            )
+    .setString( "ftype",  f.getType().toString() ) 
+    .setString( "type",   type                   )
+    .uniqueResult(Object[].class);
+  if (result==null || result[0]==null) {
+    if (exceptionIfNull) {
+      throw new MembershipNotFoundException();
+    } 
+    return null;
+  }
+  Membership ms = (Membership)result[0];
+  Member m = (Member)result[1];
+  ms.setMember(m);
+  return ms;
+  }
+
 
   /**
    * @param _ms 
@@ -857,7 +889,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .listSet(Object[].class);
 	  return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
-  
+
   /**
    * @param memberUUID 
    * @param fieldType
@@ -890,28 +922,44 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @return membership
    * @throws GrouperDAOException 
    * @throws MembershipNotFoundException 
-   * @since   @HEAD@
+   * @deprecated
    */
+  @Deprecated
   public Membership findByUuid(String uuid) 
-    throws  GrouperDAOException,
-            MembershipNotFoundException 
-  {
+    throws  GrouperDAOException, MembershipNotFoundException {
+    return findByUuid(uuid, true);
+  } 
+
+  /**
+   * @param uuid
+   * @param exceptionIfNull
+   * @throws GrouperDAOException 
+   * @throws MembershipNotFoundException 
+   */
+  public Membership findByUuid(String uuid, boolean exceptionIfNull)
+      throws GrouperDAOException, MembershipNotFoundException {
     Object[] result = HibernateSession.byHqlStatic()
       .createQuery("select ms, m from Membership as ms, Member as m where ms.uuid = :uuid "
-    		     + "and ms.memberUuid = m.uuid")
+             + "and ms.memberUuid = m.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByUuid")
       .setString("uuid", uuid)
       .uniqueResult(Object[].class);
     if (result==null || result[0] == null) {
-      throw new MembershipNotFoundException("could not find membership with uuid: " + Quote.single(uuid));
+      if (exceptionIfNull) {
+        throw new MembershipNotFoundException("could not find membership with uuid: " + Quote.single(uuid));
+      }
+      return null;
     }
     Membership ms = (Membership)result[0];
     Member m = (Member)result[1];
     ms.setMember(m);
     return ms;
-  } 
+    
+  }
 
+
+  
   /**
    * @param memberUUID 
    * @param f 
@@ -1043,7 +1091,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     return memberships;
       
 
-  } 
+  }
 
 } 
 

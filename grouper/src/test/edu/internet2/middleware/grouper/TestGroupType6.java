@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper;
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -28,13 +29,17 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupType6.java,v 1.5 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroupType6.java,v 1.6 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGroupType6 extends TestCase {
 
   // Private Static Class Constants
   private static final Log LOG = GrouperUtil.getLog(TestGroupType6.class);
 
+  public static void main(String[] args) {
+    TestRunner.run(new TestGroupType6("testFailToDeleteWhenNotRoot"));
+  }
+  
   public TestGroupType6(String name) {
     super(name);
   }
@@ -59,7 +64,7 @@ public class TestGroupType6 extends TestCase {
         Assert.fail("deleted group type as !root");
       }
       catch (InsufficientPrivilegeException eIP) {
-        T.string("OK: failed to delete as !root", E.GROUPTYPE_NODEL, eIP.getMessage());
+        assertTrue(GrouperUtil.getFullStackTrace(eIP), eIP.getMessage().contains(E.GROUPTYPE_NODEL));
       } 
       finally {
         s.stop();

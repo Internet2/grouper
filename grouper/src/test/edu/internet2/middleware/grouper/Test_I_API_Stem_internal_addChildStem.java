@@ -18,7 +18,7 @@
 package edu.internet2.middleware.grouper;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
@@ -26,7 +26,7 @@ import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_Stem_internal_addChildStem.java,v 1.3 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_I_API_Stem_internal_addChildStem.java,v 1.4 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Stem_internal_addChildStem extends GrouperTest {
@@ -45,7 +45,7 @@ public class Test_I_API_Stem_internal_addChildStem extends GrouperTest {
       parent  = StemFinder.findRootStem(s).addChildStem("parent", "parent");
     }
     catch (Exception eShouldNotHappen) {
-      throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
+      throw new GrouperException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
   }
 
@@ -54,7 +54,7 @@ public class Test_I_API_Stem_internal_addChildStem extends GrouperTest {
       s.stop();
     }
     catch (Exception eShouldNotHappen) {
-      throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
+      throw new GrouperException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
     super.tearDown();
   }

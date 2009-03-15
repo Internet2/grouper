@@ -25,7 +25,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMemberFinder_FindByUuid.java,v 1.4 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestMemberFinder_FindByUuid.java,v 1.5 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestMemberFinder_FindByUuid extends GrouperTest {
@@ -49,7 +49,7 @@ public class TestMemberFinder_FindByUuid extends GrouperTest {
     try {
       MemberFinder.findByUuid(
         GrouperSession.start( SubjectFinder.findRootSubject() ),
-        null
+        null, true
       );
       fail("found member by null uuid");
     }
@@ -66,8 +66,8 @@ public class TestMemberFinder_FindByUuid extends GrouperTest {
     try {
       Subject         root  = SubjectFinder.findRootSubject();
       GrouperSession  s     = GrouperSession.start(root);
-      Member          m     = MemberFinder.findBySubject(s, root);
-      MemberFinder.findByUuid( s, m.getUuid() );
+      Member          m     = MemberFinder.findBySubject(s, root, true);
+      MemberFinder.findByUuid( s, m.getUuid(), true );
       assertTrue("OK: found member by uuid", true);
     }
     catch (Exception e) {

@@ -16,12 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper.bench;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 
 /** 
  * Interface for writing Grouper benchmarks.
  * @author  blair christensen.
- * @version $Id: GrouperBenchmark.java,v 1.4 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: GrouperBenchmark.java,v 1.5 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.1.0
  */
 public interface GrouperBenchmark {
@@ -32,13 +32,13 @@ public interface GrouperBenchmark {
    * Perform any initialization necessary for this benchmark.
    * @since 1.1.0
    */
-  void init() throws GrouperRuntimeException;
+  void init() throws GrouperException;
 
   /**
    * Run benchmark.
    * @since 1.1.0
    */
-  void run() throws GrouperRuntimeException;
+  void run() throws GrouperException;
 
 } // public interface GrouperBenchmark
 

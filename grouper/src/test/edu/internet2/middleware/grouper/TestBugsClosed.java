@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test closed bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsClosed.java,v 1.12 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestBugsClosed.java,v 1.13 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestBugsClosed extends GrouperTest {
 
@@ -68,32 +68,32 @@ public class TestBugsClosed extends GrouperTest {
     try {
       // Setup
       GrouperSession  s     = GrouperSession.start(
-        SubjectFinder.findById("GrouperSystem", "application")
+        SubjectFinder.findById("GrouperSystem", "application", true)
       );
       Stem            root  = StemFinder.findRootStem(s);
       Stem            edu   = root.addChildStem("edu", "educational");
       Group           i2    = edu.addChildGroup("i2", "internet2");
-      Subject         subj0 = SubjectFinder.findById("test.subject.0");
+      Subject         subj0 = SubjectFinder.findById("test.subject.0", true);
       i2.addMember(subj0);
       Assert.assertTrue("i2 has mem subj0", i2.hasMember(subj0));
       Assert.assertTrue("i2 has imm mem subj0", i2.hasImmediateMember(subj0));
       // Test
-      Stem            ns    = StemFinder.findByName(s, edu.getName());
+      Stem            ns    = StemFinder.findByName(s, edu.getName(), true);
       Assert.assertNotNull("ns !null", ns);
-      Group           g     = GroupFinder.findByName(s, i2.getName());
+      Group           g     = GroupFinder.findByName(s, i2.getName(), true);
       Assert.assertNotNull("g !null", g);
 
       // Without the pre-granting of CREATE, the later granting of STEM
       // is fine.
       ns.grantPriv(
-        SubjectFinder.findById(g.getUuid()),
+        SubjectFinder.findById(g.getUuid(), true),
          Privilege.getInstance("create")
        );
       Assert.assertTrue("g (ns) has CREATE", g.toMember().hasCreate(ns));
       Assert.assertTrue("g (m) has CREATE",  ns.hasCreate(g.toSubject()));
 
       ns.grantPriv(
-        SubjectFinder.findById(g.getUuid()),
+        SubjectFinder.findById(g.getUuid(), true),
         Privilege.getInstance("stem")
       );
       Assert.assertTrue("g (ns) has STEM", g.toMember().hasStem(ns));
@@ -116,7 +116,7 @@ public class TestBugsClosed extends GrouperTest {
       Subject iawi = SubjectTestHelper.SUBJ2;
 
       LOG.debug("testBadEffMshipDepthCalcExposedByGroupDelete.0");
-      Subject subj = SubjectFinder.findById("GrouperSystem");
+      Subject subj = SubjectFinder.findById("GrouperSystem", true);
       GrouperSession s = GrouperSession.start(subj);
       Stem root = StemFinder.findRootStem(s);
 			Stem qsuob = root.addChildStem("qsuob","qsuob");
@@ -299,14 +299,14 @@ public class TestBugsClosed extends GrouperTest {
   public void testChildStemsLazyInitializationException() {
     LOG.info("testChildStemsLazyInitializationException");
     try {
-      Subject         subj  = SubjectFinder.findById("GrouperSystem");
+      Subject         subj  = SubjectFinder.findById("GrouperSystem", true);
       GrouperSession  s     = GrouperSession.start(subj);
       Stem  root  = StemFinder.findRootStem(s);
       root.addChildStem("qsuob", "qsuob");
       s.stop();
 
       s = GrouperSession.start(subj);
-      Stem  a         = StemFinder.findByName(s,"qsuob");
+      Stem  a         = StemFinder.findByName(s,"qsuob", true);
       a.getChildStems();
       s.stop();
 
@@ -345,11 +345,11 @@ public class TestBugsClosed extends GrouperTest {
     // Test
     Subject         subj  = SubjectTestHelper.SUBJ0;
     GrouperSession  nrs   = GrouperSession.start(subj);
-    Member          m     = MemberFinder.findBySubject(nrs, subj);
-    Group           A     = GroupFinder.findByName(nrs, "edu:a");
-    Group           B     = GroupFinder.findByName(nrs, "edu:b");
-    Group           C     = GroupFinder.findByName(nrs, "edu:c");
-    Group           D     = GroupFinder.findByName(nrs, "edu:d");
+    Member          m     = MemberFinder.findBySubject(nrs, subj, true);
+    Group           A     = GroupFinder.findByName(nrs, "edu:a", true);
+    Group           B     = GroupFinder.findByName(nrs, "edu:b", true);
+    Group           C     = GroupFinder.findByName(nrs, "edu:c", true);
+    Group           D     = GroupFinder.findByName(nrs, "edu:d", true);
 
     Set view    = m.hasView();
     Assert.assertTrue(
@@ -459,10 +459,10 @@ public class TestBugsClosed extends GrouperTest {
     // Test
     Subject         subj  = SubjectTestHelper.SUBJ0;
     GrouperSession  nrs   = GrouperSession.start(subj);
-    Member          m     = MemberFinder.findBySubject(nrs, subj);
-    Stem            A     = StemFinder.findByName(nrs, "edu:a");
-    Stem            B     = StemFinder.findByName(nrs, "edu:b");
-    Stem            C     = StemFinder.findByName(nrs, "edu:c");
+    Member          m     = MemberFinder.findBySubject(nrs, subj, true);
+    Stem            A     = StemFinder.findByName(nrs, "edu:a", true);
+    Stem            B     = StemFinder.findByName(nrs, "edu:b", true);
+    Stem            C     = StemFinder.findByName(nrs, "edu:c", true);
 
     Set create  = m.hasCreate();
     T.amount( "CREATE", 1, create.size() );
@@ -548,7 +548,7 @@ public class TestBugsClosed extends GrouperTest {
     // Test
     try {
       GrouperSession  nrs   = GrouperSession.start(subj0);
-      Stem            qsuob = StemFinder.findByName(nrs, "qsuob");
+      Stem            qsuob = StemFinder.findByName(nrs, "qsuob", true);
       String          de    = "QS University of Bristol";
       qsuob.setDisplayExtension(de);
       qsuob.store();

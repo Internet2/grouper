@@ -181,7 +181,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateChainsAction.java,v 1.13 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: PopulateChainsAction.java,v 1.14 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class PopulateChainsAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(PopulateChainsAction.class);
@@ -211,7 +211,7 @@ public class PopulateChainsAction extends GrouperCapableAction {
 		Subject subject = null;
 		
 		try{
-			subject=SubjectFinder.findById(subjectId,subjectType,sourceId);
+			subject=SubjectFinder.findById(subjectId,subjectType,sourceId, true);
 		}catch (Exception e) {
 			LOG.error("Unable to retrieve subject: " + subjectId + "," + sourceId,e);
 			String contextError="error.chain.subject.exception";
@@ -227,7 +227,7 @@ public class PopulateChainsAction extends GrouperCapableAction {
 		String membershipField = "members";
 		
 		if(!isEmpty(listField)) membershipField=listField;
-		Field mField = FieldFinder.find(membershipField);
+		Field mField = FieldFinder.find(membershipField, true);
 		//TODO: check following - shouldn't I always pass parameter
 		if (groupId == null || groupId.length() == 0)
 			groupId = (String) session.getAttribute("findForNode");
@@ -240,14 +240,14 @@ public class PopulateChainsAction extends GrouperCapableAction {
 		}
 		Group group = null;
 		try{
-			group=GroupFinder.findByUuid(grouperSession,groupId);
+			group=GroupFinder.findByUuid(grouperSession,groupId, true);
 		}catch(GroupNotFoundException e) {
 			LOG.error("No group with id=" + groupId,e);
 			throw new UnrecoverableErrorException("error.chain.bad-id",groupId);
 		}
 		Map gMap = null;
 		if(group.hasComposite()) {
-			Composite comp = CompositeFinder.findAsOwner(group);
+			Composite comp = CompositeFinder.findAsOwner(group, true);
 			gMap = GrouperHelper.getCompositeMap(grouperSession,comp,subject);
 			request.setAttribute("composite",gMap);
 			request.setAttribute("linkParams",new HashMap());
@@ -288,7 +288,7 @@ public class PopulateChainsAction extends GrouperCapableAction {
 		groupMemberParams.put("callerPageId",request.getAttribute("thisPageId"));
 		request.setAttribute("groupMemberParams",groupMemberParams);
 		request.setAttribute("subject",GrouperHelper.subject2Map(subject));
-		Map privs = GrouperHelper.hasAsMap(grouperSession,GroupOrStem.findByGroup(grouperSession,group),MemberFinder.findBySubject(grouperSession,subject),FieldFinder.find("members"));
+		Map privs = GrouperHelper.hasAsMap(grouperSession,GroupOrStem.findByGroup(grouperSession,group),MemberFinder.findBySubject(grouperSession,subject, true),FieldFinder.find("members", true));
 		privs.remove("MEMBER");
 		request.setAttribute("privs",privs.keySet());
 		request.setAttribute("privsSize",new Integer(privs.size()));

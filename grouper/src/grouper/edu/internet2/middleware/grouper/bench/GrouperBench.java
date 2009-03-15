@@ -20,14 +20,14 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Run Grouper benchmarks.
  * @author  blair christensen.
- * @version $Id: GrouperBench.java,v 1.22 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: GrouperBench.java,v 1.23 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperBench {
@@ -70,7 +70,7 @@ public class GrouperBench {
       run( new AddAsEffMemberToLotsOfGroups() );
       run( new AddLotsOfGroupsToStem()        );
     }
-    catch (GrouperRuntimeException eGRE) {
+    catch (GrouperException eGRE) {
       LOG.fatal(eGRE.getMessage());
       exit_value = 1;
     }

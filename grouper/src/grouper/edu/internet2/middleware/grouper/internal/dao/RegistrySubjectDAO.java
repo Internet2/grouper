@@ -22,7 +22,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 /** 
  * Basic <code>RegistrySubject</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: RegistrySubjectDAO.java,v 1.6 2008-06-25 05:46:05 mchyzer Exp $
+ * @version $Id: RegistrySubjectDAO.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public interface RegistrySubjectDAO extends GrouperDAO {
@@ -41,8 +41,17 @@ public interface RegistrySubjectDAO extends GrouperDAO {
 
   /**
    * @since   1.2.0
+   * @deprecated
    */
+  @Deprecated
   RegistrySubject find(String id, String type) 
+    throws  GrouperDAOException,
+            SubjectNotFoundException;
+
+  /**
+   * @since   1.2.0
+   */
+  RegistrySubject find(String id, String type, boolean exceptionIfNotFound) 
     throws  GrouperDAOException,
             SubjectNotFoundException;
 

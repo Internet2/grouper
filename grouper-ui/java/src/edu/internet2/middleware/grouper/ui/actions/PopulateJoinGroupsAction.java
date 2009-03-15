@@ -110,7 +110,7 @@ import edu.internet2.middleware.grouper.Stem;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateJoinGroupsAction.java,v 1.3 2006-02-24 13:40:58 isgwb Exp $
+ * @version $Id: PopulateJoinGroupsAction.java,v 1.4 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class PopulateJoinGroupsAction extends GrouperCapableAction {
 
@@ -137,7 +137,7 @@ public class PopulateJoinGroupsAction extends GrouperCapableAction {
 			//If user has browsed to group, reset id to that of group stem
 			try{
 				group=GroupFinder.findByUuid(grouperSession,
-						curId);
+						curId, true);
 				Stem stem = group.getParentStem();
 				setBrowseNode(stem.getUuid(), session);
 			}catch(Exception e) {

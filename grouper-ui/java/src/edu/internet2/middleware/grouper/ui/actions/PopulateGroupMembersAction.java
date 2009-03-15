@@ -270,7 +270,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.23 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.24 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(PopulateGroupMembersAction.class);
@@ -338,7 +338,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		
 		
 		try {
-			mField=FieldFinder.find(membershipField);
+			mField=FieldFinder.find(membershipField, true);
 		}catch(SchemaException e) {
 			LOG.error("Error retrieving " + membershipField,e);
 			throw new UnrecoverableErrorException("error.group-members.bad-field",e,membershipField);
@@ -359,7 +359,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 	
 		//Retrieve the membership according to scope selected by user
 		try{
-			group=GroupFinder.findByUuid(grouperSession,groupId);
+			group=GroupFinder.findByUuid(grouperSession,groupId, true);
 		}catch(GroupNotFoundException e) {
 			LOG.error("Error retirving group with id=" + groupId,e);
 			throw new UnrecoverableErrorException("error.group-members.bad-id",groupId);
@@ -412,7 +412,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			
 			if(group.hasComposite()) {
 				if(!"eff".equals(membershipListScope)) {
-					Composite comp = CompositeFinder.findAsOwner(group);
+					Composite comp = CompositeFinder.findAsOwner(group, true);
 					compMap = GrouperHelper.getCompositeMap(grouperSession,comp);
 				}
 				request.setAttribute("isCompositeGroup",Boolean.TRUE);

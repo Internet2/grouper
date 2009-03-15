@@ -96,7 +96,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
 
  * @author Gary Brown.
- * @version $Id: PopulateAddCompositeAction.java,v 1.4 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: PopulateAddCompositeAction.java,v 1.5 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class PopulateAddCompositeAction extends GrouperCapableAction {
 
@@ -117,7 +117,7 @@ public class PopulateAddCompositeAction extends GrouperCapableAction {
 		}
 		Group group = null;
 		try{
-			group=GroupFinder.findByUuid(grouperSession,id);
+			group=GroupFinder.findByUuid(grouperSession,id, true);
 		}catch(GroupNotFoundException e) {
 			LOG.error(e);
 			throw new UnrecoverableErrorException("error.add-composite.bad-id");

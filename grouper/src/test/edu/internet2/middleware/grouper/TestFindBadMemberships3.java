@@ -122,7 +122,7 @@ public class TestFindBadMemberships3 extends TestCase {
 
       // gD -> gH gets deleted
       Membership gDgH = MembershipTestHelper.findEffectiveMembership(r.rs, gH, 
-          gD.toSubject(), gA, 2, FieldFinder.find("updaters"));
+          gD.toSubject(), gA, 2, FieldFinder.find("updaters", true));
       DefaultMemberOf mof = new DefaultMemberOf();
       mof.addDelete(gDgH);
       GrouperDAOFactory.getFactory().getMembership().update(mof);
@@ -133,7 +133,7 @@ public class TestFindBadMemberships3 extends TestCase {
 
       // gD -> nsA gets deleted (create priv)
       Membership gDnsA = MembershipTestHelper.findEffectiveMembership(r.rs, nsA, 
-          gD.toSubject(), gE, 1, FieldFinder.find("creators"));
+          gD.toSubject(), gE, 1, FieldFinder.find("creators", true));
       mof = new DefaultMemberOf();
       mof.addDelete(gDnsA);
       GrouperDAOFactory.getFactory().getMembership().update(mof);
@@ -144,7 +144,7 @@ public class TestFindBadMemberships3 extends TestCase {
 
       // gD -> nsB gets deleted (stem priv)
       Membership gDnsB = MembershipTestHelper.findEffectiveMembership(r.rs, nsB, 
-          gD.toSubject(), gE, 1, FieldFinder.find("stemmers"));
+          gD.toSubject(), gE, 1, FieldFinder.find("stemmers", true));
       mof = new DefaultMemberOf();
       mof.addDelete(gDnsB);
       GrouperDAOFactory.getFactory().getMembership().update(mof);

@@ -23,7 +23,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.SessionException;
@@ -60,7 +60,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.28 2008-10-15 03:57:06 mchyzer Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.29 2009-03-15 06:37:21 mchyzer Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -118,7 +118,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     throws SubjectNotFoundException 
   {
     try {
-      return new GrouperSubject( GrouperDAOFactory.getFactory().getGroup().findByUuid(id) );
+      return new GrouperSubject( GrouperDAOFactory.getFactory().getGroup().findByUuid(id, true) );
     }
     catch (GroupNotFoundException eGNF) {
       throw new SubjectNotFoundException( "subject not found: " + eGNF.getMessage(), eGNF );
@@ -156,7 +156,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     throws SubjectNotFoundException 
   {
     try {
-      return new GrouperSubject( GrouperDAOFactory.getFactory().getGroup().findByName(name) );
+      return new GrouperSubject( GrouperDAOFactory.getFactory().getGroup().findByName(name, true) );
     }
     catch (GroupNotFoundException eGNF) {
       throw new SubjectNotFoundException( "subject not found: " + eGNF.getMessage(), eGNF );
@@ -260,7 +260,7 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
         this.rootSession = GrouperSession.start( SubjectFinder.findRootSubject(), false );
       }
       catch (SessionException eS) {
-        throw new GrouperRuntimeException(E.S_NOSTARTROOT + eS.getMessage());
+        throw new GrouperException(E.S_NOSTARTROOT + eS.getMessage());
       }
     }
     return this.rootSession;

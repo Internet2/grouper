@@ -18,20 +18,20 @@
 package edu.internet2.middleware.grouper.bench;
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * Benchmark adding 10 union {@link Composite} {@link Membership}s.
  * @author  blair christensen.
- * @version $Id: Add100UnionMembers.java,v 1.6 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: Add100UnionMembers.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.1.0
  */
 public class Add100UnionMembers extends BaseGrouperBenchmark {
@@ -67,7 +67,7 @@ public class Add100UnionMembers extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void init() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
@@ -80,7 +80,7 @@ public class Add100UnionMembers extends BaseGrouperBenchmark {
       for (int i=0; i < CNT; i++) {
         String id = "subj" + i;
         RegistrySubject.add(s, id, type, "subject " + i);
-        subjects[i] = SubjectFinder.findById(id);
+        subjects[i] = SubjectFinder.findById(id, true);
         // add half to each group
         if (i % 2 == 0) {
           this.g0.addMember( subjects[i] );
@@ -91,7 +91,7 @@ public class Add100UnionMembers extends BaseGrouperBenchmark {
       }
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e.getMessage());
+      throw new GrouperException(e.getMessage());
     }
   } // public void init()
 
@@ -99,13 +99,13 @@ public class Add100UnionMembers extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void run() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       this.g2.addCompositeMember(CompositeType.UNION, this.g0, this.g1);
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e);
+      throw new GrouperException(e);
     }
   } // public void run()
 

@@ -164,7 +164,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupMemberAction.java,v 1.10 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: SaveGroupMemberAction.java,v 1.11 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class SaveGroupMemberAction extends GrouperCapableAction {
 
@@ -194,14 +194,14 @@ public class SaveGroupMemberAction extends GrouperCapableAction {
 		String membershipField = "members";
 		
 		if(!isEmpty(listField)) membershipField=listField;
-		Field mField = FieldFinder.find(membershipField);
+		Field mField = FieldFinder.find(membershipField, true);
 		if(isEmpty(asMemberOf)&& !isEmpty(contextGroup))asMemberOf=contextGroup;
 		
 		Group curGroup = GroupFinder.findByUuid(grouperSession,
-				asMemberOf);
+				asMemberOf, true);
 		Map subjectMap = GrouperHelper.subject2Map(grouperSession, subjectId,
 				subjectType,sourceId);
-		Member member = MemberFinder.findBySubject(grouperSession, SubjectFinder.findById(subjectId,subjectType,sourceId));
+		Member member = MemberFinder.findBySubject(grouperSession, SubjectFinder.findById(subjectId,subjectType,sourceId, true), true);
 		List failedRevocations=new ArrayList();
 		//Get privileges as they existed and determine new ones as Map
 		Map privs = GrouperHelper.getImmediateHas(grouperSession, GroupOrStem.findByGroup(grouperSession,curGroup), member,mField);

@@ -115,7 +115,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MembershipExporter.java,v 1.4 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: MembershipExporter.java,v 1.5 2009-03-15 06:37:51 mchyzer Exp $
  */
 
 public class MembershipExporter {
@@ -129,9 +129,9 @@ public class MembershipExporter {
 	private boolean quote=false;
 	
 	public static void main(String[] args) throws Exception{
-		Subject gs = SubjectFinder.findById("GrouperSystem");
+		Subject gs = SubjectFinder.findById("GrouperSystem", true);
 		GrouperSession s = GrouperSession.start(gs);
-		Group g = GroupFinder.findByName(s,"qsuob:all");
+		Group g = GroupFinder.findByName(s,"qsuob:all", true);
 		Set members=g.getMembers();
 		PrintWriter writer = new PrintWriter(System.out);
 		ResourceBundle bundle = ResourceBundle.getBundle("resources/grouper/media");

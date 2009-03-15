@@ -17,7 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -31,7 +31,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test naming privilege use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_NamingPrivs.java,v 1.6 2009-01-31 16:46:41 mchyzer Exp $
+ * @version $Id: Test_uc_NamingPrivs.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_uc_NamingPrivs extends GrouperTest {
@@ -47,7 +47,7 @@ public class Test_uc_NamingPrivs extends GrouperTest {
       r     = R.getContext("grouper");
       GrouperSession s = GrouperSession.startRootSession();
       try {
-        StemFinder.findByName(s, "etc");
+        StemFinder.findByName(s, "etc", true);
       } catch (StemNotFoundException snfe) {
         r.root.addChildStem("etc", "etc");
       }
@@ -55,7 +55,7 @@ public class Test_uc_NamingPrivs extends GrouperTest {
       subjB = r.getSubject("b");
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException( "test setUp() error: " + e.getMessage(), e );
+      throw new GrouperException( "test setUp() error: " + e.getMessage(), e );
     }
   }
 

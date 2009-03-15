@@ -125,7 +125,7 @@ public final class GrouperServiceUtils {
       return null;
     }
     try {
-      GroupType groupType = GroupTypeFinder.find(groupTypeName);
+      GroupType groupType = GroupTypeFinder.find(groupTypeName, true);
       return groupType;
     } catch (SchemaException se) {
 
@@ -563,7 +563,7 @@ public final class GrouperServiceUtils {
 
     Member member = null;
 
-    member = MemberFinder.findBySubject(session, subject);
+    member = MemberFinder.findBySubject(session, subject, true);
     if (member == null) {
       throw new WsInvalidQueryException("Member is null after findBySubject");
     }
@@ -811,7 +811,7 @@ public final class GrouperServiceUtils {
 
     //get field
     try {
-      field = StringUtils.isBlank(fieldName) ? null : FieldFinder.find(fieldName);
+      field = StringUtils.isBlank(fieldName) ? null : FieldFinder.find(fieldName, true);
     } catch (Exception e) {
       throw new WsInvalidQueryException("Problem with fieldName: " + fieldName + ".  "
           + ExceptionUtils.getFullStackTrace(e));

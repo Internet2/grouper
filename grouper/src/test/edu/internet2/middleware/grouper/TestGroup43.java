@@ -28,7 +28,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup43.java,v 1.15 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroup43.java,v 1.16 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroup43 extends GrouperTest {
@@ -132,7 +132,7 @@ public class TestGroup43 extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group g = GroupFinder.findByUuid( s, gA.getUuid() );
+      Group g = GroupFinder.findByUuid( s, gA.getUuid(), true );
       assertTrue( "gA modifyTime >= pre",  g.getModifyTime().getTime() >= pre );
       assertTrue( "gA modifyTime <= post", g.getModifyTime().getTime() <= post );
 
@@ -163,7 +163,7 @@ public class TestGroup43 extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group g = GroupFinder.findByUuid( s, gA.getUuid() );
+      Group g = GroupFinder.findByUuid( s, gA.getUuid(), true );
       assertTrue( "gA modifyTime >= pre",  g.getModifyTime().getTime() >= pre );
       assertTrue( "gA modifyTime <= post", g.getModifyTime().getTime() <= post );
 
@@ -202,7 +202,7 @@ public class TestGroup43 extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group           g     = GroupFinder.findByUuid( s, gC.getUuid() );
+      Group           g     = GroupFinder.findByUuid( s, gC.getUuid(), true );
       long            mtime = g.getModifyTime().getTime();
 
       assertTrue( "gC modifyTime >= pre",  mtime >= pre );
@@ -288,7 +288,7 @@ public class TestGroup43 extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group g     = GroupFinder.findByUuid( s, gA.getUuid() );
+      Group g     = GroupFinder.findByUuid( s, gA.getUuid(), true );
       long  mtime = g.getModifyTime().getTime();
       assertTrue( "gA modifyTime <= pre (" + mtime + " <= " + pre + ")",  mtime <= pre );
 
@@ -320,7 +320,7 @@ public class TestGroup43 extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group g = GroupFinder.findByUuid( s, gA.getUuid() );
+      Group g = GroupFinder.findByUuid( s, gA.getUuid(), true );
       assertTrue( "gA modifyTime < pre",  g.getModifyTime().getTime() < pre );
 
       s.stop();

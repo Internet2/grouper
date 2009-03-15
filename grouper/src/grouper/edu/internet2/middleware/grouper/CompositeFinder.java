@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: CompositeFinder.java,v 1.25 2008-11-11 22:08:33 mchyzer Exp $
+ * @version $Id: CompositeFinder.java,v 1.26 2009-03-15 06:37:21 mchyzer Exp $
  * @since   1.0
  */
 public class CompositeFinder {
@@ -80,26 +80,48 @@ public class CompositeFinder {
    * <pre class="eg">
    * Composite c = CompositeFinder.findAsOwner(g);
    * </pre>
+   * @deprecated use findAsOwner(Group, boolean) instead.
    * @param   g   Search on this {@link Group}.
    * @return  c   {@link Composite} owned by this {@link Group}.
    * @throws  CompositeNotFoundException
    * @since   1.0
    */
+  @Deprecated
   public static Composite findAsOwner(Group g) 
-    throws  CompositeNotFoundException
-  {
+    throws  CompositeNotFoundException, GroupNotFoundException {
+    return findAsOwner(g, true);
+  }
+
+  /**
+   * Find {@link Composite} owned by this {@link Group}.
+   * <pre class="eg">
+   * Composite c = CompositeFinder.findAsOwner(g, false);
+   * </pre>
+   * @param   g   Search on this {@link Group}.
+   * @param throwExceptionIfNotFound true to throw exception if not found
+   * @return  c   {@link Composite} owned by this {@link Group}.
+   * @throws  CompositeNotFoundException if throwExceptionIfNotFound is true, and composite is not found
+   * @throws GroupNotFoundException if the group owner of composite cant be found (this is a problem)
+   * @since   1.0
+   */
+  public static Composite findAsOwner(Group g, boolean throwExceptionIfNotFound) 
+    throws  CompositeNotFoundException, GroupNotFoundException {
     GrouperSession  s = GrouperSession.staticGrouperSession();
     Member          m = s.getMember();
-    Composite       c = GrouperDAOFactory.getFactory().getComposite().findAsOwner( g);
-    try {
-      if ( m.canView( c.getOwnerGroup() ) ) {
-        return c;
-      }
+    
+    Composite       c = null;
+    
+    c =GrouperDAOFactory.getFactory().getComposite().findAsOwner(g, throwExceptionIfNotFound);
+    if (c == null) {
+      return null;
+    }
+    if ( m.canView( c.getOwnerGroup() ) ) {
+      return c;
+    }
+    if (throwExceptionIfNotFound) {
       throw new CompositeNotFoundException();
     }
-    catch (GroupNotFoundException eGNF) {
-      throw new CompositeNotFoundException();
-    }
+    return null;
   } // public static Composite findAsOwner(g)
 
 } // public class CompositeFinder

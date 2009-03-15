@@ -41,7 +41,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Member}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMember.java,v 1.11 2008-10-16 05:45:47 mchyzer Exp $
+ * @version $Id: TestMember.java,v 1.12 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestMember extends TestCase {
 
@@ -98,9 +98,9 @@ public class TestMember extends TestCase {
       Group           uofc  = edu.addChildGroup("uofc", "uofc");
       GroupHelper.addMember(uofc, subj, "members");
       GroupHelper.addMember(i2, uofc.toSubject(), "members");
-      Member          m     = MemberFinder.findBySubject(s, subj);
+      Member          m     = MemberFinder.findBySubject(s, subj, true);
 
-      Field f = FieldFinder.find("members");
+      Field f = FieldFinder.find("members", true);
 
       // Get mships (by field and without)
       Assert.assertTrue(
@@ -245,7 +245,7 @@ public class TestMember extends TestCase {
     Group           uofc  = edu.addChildGroup("uofc", "uofc");
     GroupHelper.addMember(uofc, subj, "members");
     GroupHelper.addMember(i2, uofc.toSubject(), "members");
-    Member          m     = MemberFinder.findBySubject(s, subj);
+    Member          m     = MemberFinder.findBySubject(s, subj, true);
     root.grantPriv( subj, NamingPrivilege.CREATE );
     edu.grantPriv( all, NamingPrivilege.STEM );
     i2.grantPriv( all, AccessPrivilege.OPTIN );

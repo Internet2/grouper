@@ -47,7 +47,7 @@ public class GrouperSubjectRetriever
         Subject subject = null;
         try
         {
-            subject = SubjectFinder.findById(subjectId);
+            subject = SubjectFinder.findById(subjectId, true);
             // e.g. GrouperSystem
             DebugLog.debug(this.getClass(), "Found " + subjectId);
         }

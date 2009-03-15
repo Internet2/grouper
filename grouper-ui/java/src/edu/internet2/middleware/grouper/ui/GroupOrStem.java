@@ -24,7 +24,7 @@ import java.util.Map;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupOrStem.java,v 1.6 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: GroupOrStem.java,v 1.7 2009-03-15 06:37:51 mchyzer Exp $
  */
 
 import edu.internet2.middleware.grouper.Group;
@@ -79,12 +79,12 @@ public class GroupOrStem {
 			return groupOrStem;
 		}
 		try {
-			Group group = GroupFinder.findByUuid(s,id);
+			Group group = GroupFinder.findByUuid(s,id, true);
 			groupOrStem.group = group;
 			
 		}catch(Exception e) {
 			try {
-				Stem stem = StemFinder.findByUuid(s,id);
+				Stem stem = StemFinder.findByUuid(s,id, true);
 				groupOrStem.stem = stem;
 			}catch(Exception se) {
 				throw new MissingGroupOrStemException("Unable to instantiate a group or stem with ID=" + id);
@@ -103,12 +103,12 @@ public class GroupOrStem {
 		GroupOrStem groupOrStem = new GroupOrStem();
 		groupOrStem.s = s;
 		try {
-			Group group = GroupFinder.findByName(s,name);
+			Group group = GroupFinder.findByName(s,name, true);
 			groupOrStem.group = group;
 			
 		}catch(Exception e) {
 			try {
-				Stem stem = StemFinder.findByName(s,name);
+				Stem stem = StemFinder.findByName(s,name, true);
 				groupOrStem.stem = stem;
 			}catch(Exception se) {
 				throw new MissingGroupOrStemException("Unable to instatiate a group or stem with name=" + name);

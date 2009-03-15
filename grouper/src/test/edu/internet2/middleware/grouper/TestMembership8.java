@@ -21,17 +21,13 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
-import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.FindBadMemberships;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.privs.NamingPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -93,7 +89,7 @@ public class TestMembership8 extends GrouperTest {
       fieldCustom2 = customType.addList(r.rs, "customField2", AccessPrivilege.READ, AccessPrivilege.UPDATE);
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters");
+      fieldUpdaters = FieldFinder.find("updaters", true);
       Set<Membership> listMemberships;
       Set<Membership> updateMemberships;
       Set<Membership> custom1Memberships;

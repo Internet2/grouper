@@ -21,7 +21,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
  * Add a {@link GroupType} to a {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: groupAddType.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: groupAddType.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.1.0
  */
 public class groupAddType {
@@ -46,8 +46,8 @@ public class groupAddType {
   {
     GrouperShell.setOurCommand(i, true);
     try {
-      Group     g = GroupFinder.findByName(GrouperShell.getSession(i), name);
-      GroupType t = GroupTypeFinder.find(type);
+      Group     g = GroupFinder.findByName(GrouperShell.getSession(i), name, true);
+      GroupType t = GroupTypeFinder.find(type, true);
       g.addType(t);
       return true;
     }

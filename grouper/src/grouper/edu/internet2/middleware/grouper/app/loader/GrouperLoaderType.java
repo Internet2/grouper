@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.14 2009-01-02 06:57:12 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.15 2009-03-15 06:37:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -806,7 +806,7 @@ public enum GrouperLoaderType {
           LOG.debug(groupName + ": saving group if necessary, result type: " + groupSave.getSaveResultType());
         }
       } else {
-        theGroup = GroupFinder.findByName(grouperSession, groupName);
+        theGroup = GroupFinder.findByName(grouperSession, groupName, true);
       }
 
       final Group[] group = new Group[]{theGroup};
@@ -982,7 +982,7 @@ public enum GrouperLoaderType {
                 HIB3_GROUPER_LOADER_LOG.setJobMessage(jobStatus[0] + ", " + jobMessage);
                 HIB3_GROUPER_LOADER_LOG.store();
                 //refresh group so it doesnt time out
-                group[0] = GroupFinder.findByUuid(grouperSession, group[0].getUuid());
+                group[0] = GroupFinder.findByUuid(grouperSession, group[0].getUuid(), true);
               }
               TOTAL_COUNT[0]++;
             }
@@ -1011,7 +1011,7 @@ public enum GrouperLoaderType {
                 HIB3_GROUPER_LOADER_LOG.setJobMessage(jobStatus[0] + ", " + jobMessage);
                 HIB3_GROUPER_LOADER_LOG.store();
                 //refresh group so it doesnt time out
-                group[0] = GroupFinder.findByUuid(grouperSession, group[0].getUuid());
+                group[0] = GroupFinder.findByUuid(grouperSession, group[0].getUuid(), true);
               }
               TOTAL_COUNT[0]++;
 
@@ -1061,7 +1061,7 @@ public enum GrouperLoaderType {
     GrouperSession grouperSession = null;
     try {
       grouperSession = GrouperSession.start(
-          SubjectFinder.findById("GrouperSystem")
+          SubjectFinder.findById("GrouperSystem", true)
         );
 
       Set<Group> groups = retrieveGroups(grouperSession);

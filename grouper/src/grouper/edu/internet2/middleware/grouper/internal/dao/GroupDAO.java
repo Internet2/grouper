@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.16 2009-02-10 05:23:45 mchyzer Exp $
+ * @version $Id: GroupDAO.java,v 1.17 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -217,27 +217,46 @@ public interface GroupDAO extends GrouperDAO {
 
   /**
    * @since   1.2.0
+   * @deprecated use overload
    */
+  @Deprecated
   Group findByAttribute(String attr, String val) 
-    throws  GrouperDAOException,
-            GroupNotFoundException
-            ;
+    throws  GrouperDAOException, GroupNotFoundException;
 
   /**
    * @since   1.2.0
    */
+  Group findByAttribute(String attr, String val, boolean exceptionIfNotFound) 
+    throws  GrouperDAOException, GroupNotFoundException;
+
+  /**
+   * @since   1.2.0
+   * @deprecated use overload
+   */
+  @Deprecated
   Group findByName(String name) 
-    throws  GrouperDAOException,
-            GroupNotFoundException
-            ;
+    throws GrouperDAOException, GroupNotFoundException;
+
+  /**
+   * @since   1.2.0
+   *
+   */
+  Group findByName(String name, boolean exceptionIfNotFound) 
+    throws GrouperDAOException, GroupNotFoundException;
+
+  /**
+   * @since   1.2.0
+   * @deprecated use overload
+   */
+  @Deprecated
+  Group findByUuid(String uuid) 
+    throws  GrouperDAOException, GroupNotFoundException;
 
   /**
    * @since   1.2.0
    */
-  Group findByUuid(String uuid) 
-    throws  GrouperDAOException,
-            GroupNotFoundException
-            ;
+  Group findByUuid(String uuid, boolean exceptionIfNotFound) 
+    throws  GrouperDAOException, GroupNotFoundException;
 
   /**
    * @since   1.3.1

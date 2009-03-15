@@ -136,7 +136,7 @@ import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: ImportMembersAction.java,v 1.4 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: ImportMembersAction.java,v 1.5 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class ImportMembersAction extends GrouperCapableAction {
 	protected static Log LOG = LogFactory.getLog(ImportMembersAction.class);
@@ -171,13 +171,13 @@ public class ImportMembersAction extends GrouperCapableAction {
 		if(!isEmpty(listField)) membershipField=listField;
 		Field mField = null;
 		try {
-			mField=FieldFinder.find(membershipField);
+			mField=FieldFinder.find(membershipField, true);
 		}catch(SchemaException e) {
 			LOG.error("Error retrieving " + membershipField,e);
 			throw new UnrecoverableErrorException("error.import-members.bad-field",e,membershipField);
 		}
 		try {
-			group = GroupFinder.findByUuid(grouperSession, groupId);
+			group = GroupFinder.findByUuid(grouperSession, groupId, true);
 		}catch(GroupNotFoundException e) {
 			LOG.error(e);
 			throw new UnrecoverableErrorException("error.import-members.bad-id",groupId);

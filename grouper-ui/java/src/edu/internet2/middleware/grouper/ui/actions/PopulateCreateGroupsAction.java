@@ -110,7 +110,7 @@ import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateCreateGroupsAction.java,v 1.6 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: PopulateCreateGroupsAction.java,v 1.7 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class PopulateCreateGroupsAction extends GrouperCapableAction {
 	
@@ -135,7 +135,7 @@ public class PopulateCreateGroupsAction extends GrouperCapableAction {
 		String curId = getBrowseNode(session);
 		if (isEmpty(curId)) {
 			try {
-				stem = StemFinder.findByName(grouperSession,repositoryBrowser.getRootNode());
+				stem = StemFinder.findByName(grouperSession,repositoryBrowser.getRootNode(), true);
 			}catch(StemNotFoundException e) {
 				LOG.error("Could not find root stem [" + repositoryBrowser.getRootNode() + "]",e);
 				throw new UnrecoverableErrorException("error.create-groups.find-root",repositoryBrowser.getRootNode());

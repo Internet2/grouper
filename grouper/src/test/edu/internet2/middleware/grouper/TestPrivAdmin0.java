@@ -28,7 +28,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestPrivAdmin0.java,v 1.4 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestPrivAdmin0.java,v 1.5 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestPrivAdmin0 extends TestCase {
@@ -62,7 +62,7 @@ public class TestPrivAdmin0 extends TestCase {
       r.rs.stop();
 
       GrouperSession  nrs = GrouperSession.start(subjB);
-      g = GroupFinder.findByName(nrs, name);
+      g = GroupFinder.findByName(nrs, name, true);
       g.revokePriv(subjA, AccessPrivilege.VIEW);
       // Should still have VIEW through ALL
       Assert.assertTrue("subjA VIEW", g.hasView(subjA));

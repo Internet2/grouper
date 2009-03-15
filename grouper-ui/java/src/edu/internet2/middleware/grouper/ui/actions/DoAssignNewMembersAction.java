@@ -142,7 +142,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: DoAssignNewMembersAction.java,v 1.10 2009-03-04 10:52:40 isgwb Exp $
+ * @version $Id: DoAssignNewMembersAction.java,v 1.11 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class DoAssignNewMembersAction extends GrouperCapableAction {
 	protected static Log LOG = LogFactory.getLog(DoAssignNewMembersAction.class);
@@ -181,7 +181,7 @@ public class DoAssignNewMembersAction extends GrouperCapableAction {
 		if(!isEmpty(listField)) membershipField=listField;
 		Field mField = null;
 		try {
-			mField=FieldFinder.find(membershipField);
+			mField=FieldFinder.find(membershipField, true);
 		}catch(SchemaException e) {
 			LOG.error("Error retrieving " + membershipField,e);
 			throw new UnrecoverableErrorException("error.assign-new-members.bad-field",e,membershipField);
@@ -226,7 +226,7 @@ public class DoAssignNewMembersAction extends GrouperCapableAction {
 			}
 			try {
 			subject = SubjectFinder.findById(subjectId,
-					subjectTypeId,sourceId);
+					subjectTypeId,sourceId, true);
 			}catch(Exception e) {
 				LOG.error(e);
 				throw new UnrecoverableErrorException("error.assign-members.retrieve-subject",e,subjectId);

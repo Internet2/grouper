@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipTestHelper.java,v 1.13 2009-01-27 12:09:23 mchyzer Exp $
+ * @version $Id: MembershipTestHelper.java,v 1.14 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class MembershipTestHelper {
 
@@ -56,8 +56,8 @@ public class MembershipTestHelper {
     String msg = "getEff: ";
     LOG.debug(msg);
     try {
-      Field   f     = FieldFinder.find(list);
-      Member  m     = MemberFinder.findBySubject(s, subj);
+      Field   f     = FieldFinder.find(list, true);
+      Member  m     = MemberFinder.findBySubject(s, subj, true);
       Set     effs  = MembershipFinder.findEffectiveMemberships(
         s, g, subj, f, via, depth
       );
@@ -94,10 +94,10 @@ public class MembershipTestHelper {
   {
     String msg = "getImm ";
     try {
-      Field       f   = FieldFinder.find(list);
-      Member      m   = MemberFinder.findBySubject(s, subj);
+      Field       f   = FieldFinder.find(list, true);
+      Member      m   = MemberFinder.findBySubject(s, subj, true);
       Membership  ms  = MembershipFinder.findImmediateMembership(
-        s, g, subj, f
+        s, g, subj, f, true
       );
       Assert.assertNotNull(msg + "found ms", ms);
       Assert.assertTrue(msg + "ms group   " , ms.getGroup().equals(g) );
@@ -190,8 +190,8 @@ public class MembershipTestHelper {
   {
     String msg = "testImm ";
     try {
-      Field   f   = FieldFinder.find(list);
-      Member  m   = MemberFinder.findBySubject(s, subj);
+      Field   f   = FieldFinder.find(list, true);
+      Member  m   = MemberFinder.findBySubject(s, subj, true);
       msg += "["+g.getName()+"]["+m+"]["+f.getName()+"] ";
       Assert.assertTrue(msg + "m.subj == subj", SubjectHelper.eq( m.getSubject(), subj ) );
       Assert.assertTrue(msg + "g hasMember"   , g.hasMember(subj, f));
@@ -211,8 +211,8 @@ public class MembershipTestHelper {
   {
     String msg = "testEff ";
     try {
-      Field   f   = FieldFinder.find(list);
-      Member  m   = MemberFinder.findBySubject(s, subj);
+      Field   f   = FieldFinder.find(list, true);
+      Member  m   = MemberFinder.findBySubject(s, subj, true);
       msg += "["+g.getName()+"]["+m+"]["+f.getName()+"]"
         + "["+depth+"]["+via.getName()+"] ";
       Assert.assertTrue(msg + "m.subj == subj", SubjectHelper.eq( m.getSubject(), subj ) );
@@ -231,7 +231,7 @@ public class MembershipTestHelper {
     Group g, String list, int m, int i, int e) 
   {
     try {
-      testNumMship(g, FieldFinder.find(list), m, i, e);
+      testNumMship(g, FieldFinder.find(list, true), m, i, e);
     }
     catch (Exception e0) {
       Assert.fail(e0.getMessage());
@@ -331,7 +331,7 @@ public class MembershipTestHelper {
 
   protected static void testImmMship(GrouperSession s, Group g, Subject subj, Field f) {
     try {
-      MembershipFinder.findImmediateMembership(s, g, subj, f);
+      MembershipFinder.findImmediateMembership(s, g, subj, f, true);
       Assert.assertTrue("imm mship found", true);
     }
     catch (MembershipNotFoundException eMNF) {
@@ -435,7 +435,7 @@ public class MembershipTestHelper {
     Membership mship = null;
 
     try {
-      mship = MembershipFinder.findImmediateMembership(s, g, subj, f);
+      mship = MembershipFinder.findImmediateMembership(s, g, subj, f, true);
     } catch (Exception e) {
       // do nothing
     }
@@ -448,9 +448,9 @@ public class MembershipTestHelper {
     Membership mship = null;
     
     try {
-      Member m = MemberFinder.findBySubject(s, subj);
+      Member m = MemberFinder.findBySubject(s, subj, true);
       mship = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
-          stem.getUuid(), m.getUuid(), f, Membership.IMMEDIATE
+          stem.getUuid(), m.getUuid(), f, Membership.IMMEDIATE, true
         );
     } catch (Exception e) {
       mship = null;
@@ -458,20 +458,13 @@ public class MembershipTestHelper {
     
     return mship;
   }   
-    
+
   protected static Membership findCompositeMembership(GrouperSession s, Group g, Subject subj) {
-    
-    Membership mship = null;
-      
-    try {
-      mship = MembershipFinder.findCompositeMembership(s, g, subj);
-    } catch (Exception e) {
-      // do nothing
-    }   
-        
-    return mship;
+
+    return MembershipFinder.findCompositeMembership(s, g, subj, false);
+
   }      
-    
+
   protected static Membership findEffectiveMembership(GrouperSession s, Group g, Subject subj, Group via, int depth, Field f) {
     Membership mship = null;
     try {
@@ -523,7 +516,7 @@ public class MembershipTestHelper {
     Membership mship = null;
     
     try {
-      Member m = MemberFinder.findBySubject(s, subj);
+      Member m = MemberFinder.findBySubject(s, subj, true);
       Iterator<Membership> it = GrouperDAOFactory.getFactory().getMembership().findAllEffectiveByStemOwner(
         stem.getUuid(), m.getUuid(), f, via.getUuid(), depth).iterator();
         

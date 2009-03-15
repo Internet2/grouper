@@ -295,10 +295,10 @@ public class GrouperServiceJ2ee implements Filter {
         //if not in cache
         if (allowedInCache == null) {
           grouperSession = GrouperSession.start(
-              SubjectFinder.findById("GrouperSystem")
+              SubjectFinder.findById("GrouperSystem", true)
             );
 
-          Group group = GroupFinder.findByName(grouperSession, userGroupName);
+          Group group = GroupFinder.findByName(grouperSession, userGroupName, true);
           if (!group.hasMember(loggedInSubject)) {
             //not allowed, cache it
             subjectAllowedCache().put(cacheKey, false);
@@ -384,9 +384,9 @@ public class GrouperServiceJ2ee implements Filter {
             String actAsMustBeInGroupName = groupEntryArray[1];
 
             Group userMustBeInGroup = GroupFinder.findByName(session,
-                userMustBeInGroupName);
+                userMustBeInGroupName, true);
             Group actAsMustBeInGroup = GroupFinder.findByName(session,
-                actAsMustBeInGroupName);
+                actAsMustBeInGroupName, true);
 
             if (userMustBeInGroup.hasMember(loggedInSubject)
                 && actAsMustBeInGroup.hasMember(actAsSubject)) {
@@ -398,7 +398,7 @@ public class GrouperServiceJ2ee implements Filter {
           } else {
             //else this is a straightforward rule where the logged in user just has to be in a group and
             //can act as anyone
-            Group actAsGroup = GroupFinder.findByName(session, actAsGroupName);
+            Group actAsGroup = GroupFinder.findByName(session, actAsGroupName, true);
 
             // if the logged in user is a member of the actAs group, then allow
             // the actAs

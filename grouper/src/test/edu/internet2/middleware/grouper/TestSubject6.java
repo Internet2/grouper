@@ -27,7 +27,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSubject6.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestSubject6.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestSubject6 extends TestCase {
 
@@ -54,7 +54,7 @@ public class TestSubject6 extends TestCase {
       String  id    = "i2:a:a";
       String  type  = "group";
       String  sa    = "g:gsa";
-      Subject subj  = SubjectFinder.findByIdentifier(id, type, sa);
+      Subject subj  = SubjectFinder.findByIdentifier(id, type, sa, true);
       T.string("subject name"   , subj.getName()            , id    );
       T.string("subject type"   , subj.getType().getName()  , type  );
       T.string("subject source" , subj.getSource().getId()  , sa    );

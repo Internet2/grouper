@@ -19,14 +19,14 @@ package edu.internet2.middleware.grouper.xml;
 import java.io.IOException;
 import java.io.Writer;
 
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 
 /**
  * Create XML representation of the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlWriter.java,v 1.2 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: XmlWriter.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   1.1.0
  */
 class XmlWriter {
@@ -95,10 +95,10 @@ class XmlWriter {
 
   // @since   1.2.0
   protected void internal_undent() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     if (this._getPadding().length() < 2) {
-      throw new GrouperRuntimeException(
+      throw new GrouperException(
         "CANNOT UNDENT WHEN PADDING SIZE IS " + this._getPadding().length()
       );
     }

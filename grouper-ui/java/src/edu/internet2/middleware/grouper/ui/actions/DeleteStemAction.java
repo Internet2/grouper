@@ -89,7 +89,7 @@ import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: DeleteStemAction.java,v 1.8 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: DeleteStemAction.java,v 1.9 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class DeleteStemAction extends GrouperCapableAction {
 	protected static Log LOG = LogFactory.getLog(DeleteStemAction.class);
@@ -117,7 +117,7 @@ public class DeleteStemAction extends GrouperCapableAction {
 		}
 		Stem stem = null;
 		try {
-		stem=StemFinder.findByUuid(grouperSession, stemId);
+		stem=StemFinder.findByUuid(grouperSession, stemId, true);
 		}catch(StemNotFoundException e) {
 			LOG.error(e);
 			throw new UnrecoverableErrorException("error.delete-stem.bad-id",stemId);

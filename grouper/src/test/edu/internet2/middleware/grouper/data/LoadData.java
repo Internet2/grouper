@@ -63,7 +63,7 @@ public class LoadData {
    */
   public static void loadDukeData() throws Exception {
     GrouperSession session = GrouperSession.start(SubjectFinder.findById("GrouperSystem", 
-        "application", InternalSourceAdapter.ID));
+        "application", InternalSourceAdapter.ID, true));
 
     Stem dukeStem = Stem.saveStem(session, "duke", null, "duke", "Duke University", "", 
         null, false);
@@ -101,7 +101,7 @@ public class LoadData {
                stemsCreated++;
              } catch (StemAddException sae) {
                //hopefully it is because the group already exists
-               classStem = StemFinder.findByName(session, secStem.getName() + ":" + classCount);
+               classStem = StemFinder.findByName(session, secStem.getName() + ":" + classCount, true);
              }
              for (int termCount = 2000; termCount <= 2000; termCount++) {
                Stem termStem = null;
@@ -110,7 +110,7 @@ public class LoadData {
                  stemsCreated++;
                } catch (StemAddException sae) {
                  //hopefully it is because the group already exists
-                 termStem = StemFinder.findByName(session, classStem.getName() + ":" + termCount);
+                 termStem = StemFinder.findByName(session, classStem.getName() + ":" + termCount, true);
                }
                
                Group instructors = null;
@@ -119,7 +119,7 @@ public class LoadData {
                  groupsCreated++;
                } catch (GroupAddException gae) {
                  //hopefully it is because the group already exists
-                 instructors = GroupFinder.findByName(session, termStem.getName() + ":instructors");
+                 instructors = GroupFinder.findByName(session, termStem.getName() + ":instructors", true);
                }
                
                Group ta = null;
@@ -128,7 +128,7 @@ public class LoadData {
                  groupsCreated++;
                } catch (GroupAddException gae) {
                  //hopefully it is because the group already exists
-                 ta = GroupFinder.findByName(session, termStem.getName() + ":TAs");
+                 ta = GroupFinder.findByName(session, termStem.getName() + ":TAs", true);
                }
                  
                Group students = null;
@@ -137,7 +137,7 @@ public class LoadData {
                  groupsCreated++;
                } catch (GroupAddException gae) {
                  //hopefully it is because the group already exists
-                 students = GroupFinder.findByName(session, termStem.getName() + ":students");
+                 students = GroupFinder.findByName(session, termStem.getName() + ":students", true);
                }
 
 
@@ -195,7 +195,7 @@ public class LoadData {
       throws SubjectNotFoundException, SubjectNotUniqueException {
 
     try {
-      return SubjectFinder.findById(subjectId);
+      return SubjectFinder.findById(subjectId, true);
     } catch (SubjectNotFoundException snfe) {
       //create;
       
@@ -248,7 +248,7 @@ public class LoadData {
       });
       
     }
-    return SubjectFinder.findById(subjectId);
+    return SubjectFinder.findById(subjectId, true);
   }
   
 }

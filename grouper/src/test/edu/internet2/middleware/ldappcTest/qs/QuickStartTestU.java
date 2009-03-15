@@ -170,7 +170,7 @@ public class QuickStartTestU extends BaseLdappcTestCase
      */
     private Set getProvisionedGroups() throws Exception
     {
-        Stem stem = StemFinder.findByName(sessionCtrl.getSession(), "qsuob");
+        Stem stem = StemFinder.findByName(sessionCtrl.getSession(), "qsuob", true);
         GroupNameFilter filter = new GroupNameFilter("%", stem);
         return GrouperQuery.createQuery(sessionCtrl.getSession(), filter)
                 .getGroups();

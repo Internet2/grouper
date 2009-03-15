@@ -262,7 +262,7 @@ public class WsGroupLookup {
       }
 
       if (hasName) {
-        Group theGroup = GroupFinder.findByName(grouperSession, this.groupName);
+        Group theGroup = GroupFinder.findByName(grouperSession, this.groupName, true);
 
         //make sure uuid matches 
         if (hasUuid && !StringUtils.equals(this.uuid, theGroup.getUuid())) {
@@ -281,7 +281,7 @@ public class WsGroupLookup {
         this.group = theGroup;
 
       } else if (hasUuid) {
-        this.group = GroupFinder.findByUuid(grouperSession, this.uuid);
+        this.group = GroupFinder.findByUuid(grouperSession, this.uuid, true);
       }
       //assume success (set otherwise if there is a problem)
       this.groupFindResult = GroupFindResult.SUCCESS;

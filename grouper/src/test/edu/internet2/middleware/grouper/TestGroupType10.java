@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupType10.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroupType10.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGroupType10 extends GrouperTest {
 
@@ -60,21 +60,21 @@ public class TestGroupType10 extends GrouperTest {
       );
       custom.delete(r.rs);
       try {
-        GroupTypeFinder.find(custom.getName());
+        GroupTypeFinder.find(custom.getName(), true);
         Assert.fail("FAIL: found deleted type");
       }
       catch (SchemaException eS) {
         Assert.assertTrue("OK: deleted type not found", true);
       }
       try {
-        FieldFinder.find(customA.getName());
+        FieldFinder.find(customA.getName(), true);
         Assert.fail("FAIL: found deleted attribute");
       }
       catch (SchemaException eS) {
         Assert.assertTrue("OK: deleted attribute not found", true);
       }
       try {
-        FieldFinder.find(customL.getName());
+        FieldFinder.find(customL.getName(), true);
         Assert.fail("FAIL: found deleted list");
       }
       catch (SchemaException eS) {

@@ -133,7 +133,7 @@ import edu.internet2.middleware.grouper.ui.Message;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveStemAction.java,v 1.10 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: SaveStemAction.java,v 1.11 2009-03-15 06:37:51 mchyzer Exp $
  */
 
 public class SaveStemAction extends GrouperCapableAction {
@@ -173,7 +173,7 @@ public class SaveStemAction extends GrouperCapableAction {
 			if(GrouperHelper.NS_ROOT.equals(defaultStem)) {
 				curNode = defaultStem;
 			}else {
-				Stem root = StemFinder.findByName(grouperSession, defaultStem);
+				Stem root = StemFinder.findByName(grouperSession, defaultStem, true);
 				curNode = root.getUuid();
 			}
 		}
@@ -186,7 +186,7 @@ public class SaveStemAction extends GrouperCapableAction {
 		
 		//TODO: should be transactional
 		if (stemExists) {
-			stem = StemFinder.findByUuid(grouperSession, curNode);
+			stem = StemFinder.findByUuid(grouperSession, curNode, true);
 		
 		} else {
 			Stem parentStem=null;

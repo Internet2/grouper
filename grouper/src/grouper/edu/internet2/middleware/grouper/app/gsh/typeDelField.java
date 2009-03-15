@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
  * Delete a {@link Field} from a {@link GroupType}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: typeDelField.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: typeDelField.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.1.0
  */
 public class typeDelField {
@@ -43,7 +43,7 @@ public class typeDelField {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s = GrouperShell.getSession(i);
-      GroupType       t = GroupTypeFinder.find(type);
+      GroupType       t = GroupTypeFinder.find(type, true);
       t.deleteField(s, name);
       return true;
     }

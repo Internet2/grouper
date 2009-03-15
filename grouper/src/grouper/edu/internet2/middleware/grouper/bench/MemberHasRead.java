@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.bench;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -23,13 +24,12 @@ import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 
 /**
  * Benchmark <code>Member.hasRead()</code> when <i>GrouperAll</i> has a large
  * number of memberships.
  * @author  blair christensen.
- * @version $Id: MemberHasRead.java,v 1.7 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: MemberHasRead.java,v 1.8 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class MemberHasRead extends BaseGrouperBenchmark {
@@ -64,7 +64,7 @@ public class MemberHasRead extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void init() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
@@ -75,10 +75,10 @@ public class MemberHasRead extends BaseGrouperBenchmark {
       }
       String subjectId = "MemberHasRead";
       RegistrySubject.add(s, subjectId, "person", subjectId + " Subject");
-      this.m = MemberFinder.findBySubject( s, SubjectFinder.findById(subjectId) );
+      this.m = MemberFinder.findBySubject( s, SubjectFinder.findById(subjectId, true), true );
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e.getMessage());
+      throw new GrouperException(e.getMessage());
     }
   } // public void init()
 
@@ -86,13 +86,13 @@ public class MemberHasRead extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void run() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       this.m.hasRead();
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e);
+      throw new GrouperException(e);
     }
   } // public void run()
 

@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_Stem_setExtension.java,v 1.9 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: Test_Integration_Stem_setExtension.java,v 1.10 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_Stem_setExtension extends GrouperTest {
@@ -108,7 +108,7 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
       i2mi.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
     
       // Change and verify in a new session
-      Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName() );
+      Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName(), true );
       String  val = "new extension";
       ns.setExtension(val);
       ns.store();
@@ -130,7 +130,7 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
       i2mi.store();
 
       // Verify in another session
-      Stem ns = StemFinder.findByName( r.startAllSession(), i2mi.getName() );
+      Stem ns = StemFinder.findByName( r.startAllSession(), i2mi.getName(), true );
       assertEquals( "extn verification", i2mi.getExtension(), ns.getExtension() );
       assertEquals( "name verification", i2mi.getName(), ns.getName() );
     }
@@ -150,13 +150,13 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
       i2mi.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
 
       // Change in a new session
-      Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName() );
+      Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName(), true );
       String  val = "new extension";
       ns.setExtension(val);
       ns.store();
       
       // Verify in another session
-      Stem verify = StemFinder.findByName( r.startAllSession(), ns.getName() );
+      Stem verify = StemFinder.findByName( r.startAllSession(), ns.getName(), true );
       assertEquals( "extn verification", ns.getExtension(), verify.getExtension() );
       assertEquals( "name verification", ns.getName(), verify.getName() );
     }
@@ -179,13 +179,13 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
 
       // Verify propagation in a new session
       GrouperSession  s       = r.startAllSession();
-      Stem            grouper = StemFinder.findByName(s, "new extension:grouper");
+      Stem            grouper = StemFinder.findByName(s, "new extension:grouper", true);
       assertEquals( "child stem extn verification", "grouper", grouper.getExtension() );
       assertEquals( "child stem name verification", val + ":grouper", grouper.getName() );
-      Group           dev     = GroupFinder.findByName( s, grouper.getName() + ":grouper-dev" );
+      Group           dev     = GroupFinder.findByName( s, grouper.getName() + ":grouper-dev" , true);
       assertEquals( "child group 0 extn verification", "grouper-dev", dev.getExtension());
       assertEquals( "child group 0 name verification", grouper.getName() + ":" + dev.getExtension(), dev.getName() );
-      Group           users   = GroupFinder.findByName( s, grouper.getName() + ":grouper-users" );
+      Group           users   = GroupFinder.findByName( s, grouper.getName() + ":grouper-users", true );
       assertEquals( "child group 1 extn verification", "grouper-users", users.getExtension());
       assertEquals( "child group 1 name verification", grouper.getName() + ":" + users.getExtension(), users.getName() );
     }
@@ -209,7 +209,7 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
       i2mi.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
 
       // Change in a new session
-      Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName() );
+      Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName(), true );
       String  val = "new extension";
       ns.setExtension(val);
       ns.setDisplayExtension(val);
@@ -218,13 +218,13 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
 
       // Verify propagation in a new session
       GrouperSession  s       = r.startAllSession();
-      Stem            grouper = StemFinder.findByName(s, "new extension:grouper");
+      Stem            grouper = StemFinder.findByName(s, "new extension:grouper", true);
       assertEquals( "child stem extn verification", "grouper", grouper.getExtension() );
       assertEquals( "child stem name verification", val + ":grouper", grouper.getName() );
-      Group           dev     = GroupFinder.findByName( s, grouper.getName() + ":grouper-dev" );
+      Group           dev     = GroupFinder.findByName( s, grouper.getName() + ":grouper-dev", true );
       assertEquals( "child group 0 extn verification", "grouper-dev", dev.getExtension());
       assertEquals( "child group 0 name verification", grouper.getName() + ":" + dev.getExtension(), dev.getName() );
-      Group           users   = GroupFinder.findByName( s, grouper.getName() + ":grouper-users" );
+      Group           users   = GroupFinder.findByName( s, grouper.getName() + ":grouper-users", true );
       assertEquals( "child group 1 extn verification", "grouper-users", users.getExtension());
       assertEquals( "child group 1 name verification", grouper.getName() + ":" + users.getExtension(), users.getName() );
     }
@@ -247,7 +247,7 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
       i2mi.grantPriv( SubjectFinder.findAllSubject(), NamingPrivilege.STEM );
 
       // Change in a new session
-      Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName() );
+      Stem    ns  = StemFinder.findByName( r.startAllSession(), i2mi.getName(), true );
       String  val = "new extension";
       ns.setExtension(val);
       
@@ -255,13 +255,13 @@ public class Test_Integration_Stem_setExtension extends GrouperTest {
 
       // Verify propagation in a new session
       GrouperSession  s       = r.startAllSession();
-      Stem            grouper = StemFinder.findByName(s, "new extension:grouper");
+      Stem            grouper = StemFinder.findByName(s, "new extension:grouper", true);
       assertEquals( "child stem extn verification", "grouper", grouper.getExtension() );
       assertEquals( "child stem name verification", val + ":grouper", grouper.getName() );
-      Group           dev     = GroupFinder.findByName( s, grouper.getName() + ":grouper-dev" );
+      Group           dev     = GroupFinder.findByName( s, grouper.getName() + ":grouper-dev", true );
       assertEquals( "child group 0 extn verification", "grouper-dev", dev.getExtension());
       assertEquals( "child group 0 name verification", grouper.getName() + ":" + dev.getExtension(), dev.getName() );
-      Group           users   = GroupFinder.findByName( s, grouper.getName() + ":grouper-users" );
+      Group           users   = GroupFinder.findByName( s, grouper.getName() + ":grouper-users", true );
       assertEquals( "child group 1 extn verification", "grouper-users", users.getExtension());
       assertEquals( "child group 1 name verification", grouper.getName() + ":" + users.getExtension(), users.getName() );
     }

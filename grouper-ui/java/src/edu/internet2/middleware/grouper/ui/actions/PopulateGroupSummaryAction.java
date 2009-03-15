@@ -212,7 +212,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateGroupSummaryAction.java,v 1.14 2008-10-10 07:37:55 isgwb Exp $
+ * @version $Id: PopulateGroupSummaryAction.java,v 1.15 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class PopulateGroupSummaryAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(PopulateGroupSummaryAction.class);
@@ -246,7 +246,7 @@ public class PopulateGroupSummaryAction extends GrouperCapableAction {
 		Group group = null;
 		try{
 			group=GroupFinder.findByUuid(grouperSession,
-				groupId);
+				groupId, true);
 		}catch(GroupNotFoundException e) {
 			LOG.error("Error retirving group with id=" + groupId,e);
 			throw new UnrecoverableErrorException("error.group-summary.bad-id",groupId);

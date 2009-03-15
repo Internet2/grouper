@@ -103,7 +103,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: SaveGroupAttributesAction.java,v 1.12 2008-09-09 20:03:41 mchyzer Exp $
+ * @version $Id: SaveGroupAttributesAction.java,v 1.13 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class SaveGroupAttributesAction extends GrouperCapableAction {
 
@@ -122,7 +122,7 @@ public class SaveGroupAttributesAction extends GrouperCapableAction {
       throws Exception {
       	DynaActionForm groupFormBean = (DynaActionForm) form;
       	String groupId = (String)groupFormBean.get("groupId");
-      	Group group = GroupFinder.findByUuid(grouperSession,groupId);
+      	Group group = GroupFinder.findByUuid(grouperSession,groupId, true);
       	List fields = new ArrayList();
       	Set types = group.getRemovableTypes();
       	GroupType type;

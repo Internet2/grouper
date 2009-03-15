@@ -24,7 +24,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
@@ -47,11 +47,37 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * and, if an effective membership, the parent membership
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.100 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: MembershipFinder.java,v 1.101 2009-03-15 06:37:21 mchyzer Exp $
  */
 public class MembershipFinder {
   
-  // PUBLIC CLASS METHODS //
+  /**
+   * Return the composite membership if it exists. 
+   *
+   * A composite group is composed of two groups and a set operator 
+   * (stored in grouper_composites table)
+   * (e.g. union, intersection, etc).  A composite group has no immediate members.
+   * All subjects in a composite group are effective members.
+   * 
+   * <p/>
+   * <pre class="eg">
+   * </pre>
+   * @param   s     Get membership within this session context.
+   * @param   g     Composite membership has this group.
+   * @param   subj  Composite membership has this subject.
+   * @return  A {@link Membership} object
+   * @throws  MembershipNotFoundException 
+   * @throws  SchemaException
+   * @since   1.0
+   * @deprecated see overload
+   */
+  @Deprecated
+  public static Membership findCompositeMembership(GrouperSession s, Group g, Subject subj)
+      throws  MembershipNotFoundException, SchemaException {
+    
+    return findCompositeMembership(s, g, subj, true);
+    
+  }
 
   /**
    * Return the composite membership if it exists. 
@@ -72,31 +98,32 @@ public class MembershipFinder {
    * @throws  SchemaException
    * @since   1.0
    */
-  public static Membership findCompositeMembership(
-    GrouperSession s, Group g, Subject subj
-  )
-    throws  MembershipNotFoundException,
-            SchemaException
-  {
+  public static Membership findCompositeMembership(GrouperSession s, Group g, Subject subj, boolean exceptionOnNull)
+    throws  MembershipNotFoundException, SchemaException {
+
     //note, no need for GrouperSession inverse of control
      // @filtered  true
      // @session   true
     GrouperSession.validate(s);
     try {
       Field       f   = Group.getDefaultList();
-      Member      m   = MemberFinder.findBySubject(s, subj);
+      Member      m   = MemberFinder.findBySubject(s, subj, true);
       Membership  ms  = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
-          g.getUuid(), m.getUuid(), f, Membership.COMPOSITE);
+          g.getUuid(), m.getUuid(), f, Membership.COMPOSITE, true);
       PrivilegeHelper.dispatch( s, ms.getGroup(), s.getSubject(), f.getReadPriv() );
       return ms;
+    } catch (MembershipNotFoundException mnfe)  {
+      if (exceptionOnNull) {
+        throw mnfe;
+      }
+      return null;
+    } catch (InsufficientPrivilegeException eIP)  {
+      if (exceptionOnNull) {
+        throw new MembershipNotFoundException(eIP.getMessage(), eIP);
+      }
+      return null;
     }
-    catch (GroupNotFoundException eGNF)         {
-      throw new MembershipNotFoundException(eGNF.getMessage(), eGNF);
-    }
-    catch (InsufficientPrivilegeException eIP)  {
-      throw new MembershipNotFoundException(eIP.getMessage(), eIP);
-    }
-  } // public static Membership findCompositeMembership(s, g, m)
+  }
 
   /**
    * Return effective memberships.  
@@ -132,7 +159,7 @@ public class MembershipFinder {
      // @session   true
     GrouperSession.validate(s);
     Set mships = new LinkedHashSet();
-    Member m = MemberFinder.findBySubject(s, subj);
+    Member m = MemberFinder.findBySubject(s, subj, true);
     try {
       PrivilegeHelper.dispatch( s, g, s.getSubject(), f.getReadPriv() );
       Iterator  it    = GrouperDAOFactory.getFactory().getMembership().findAllEffectiveByGroupOwner(
@@ -149,6 +176,7 @@ public class MembershipFinder {
     }
     return mships;
   } // public static Membership findEffectiveMembership(s, g, subj, f, via, depth)
+
 
   /**
    * Return the immediate membership if it exists.  
@@ -170,28 +198,68 @@ public class MembershipFinder {
    * @return  A {@link Membership} object
    * @throws  MembershipNotFoundException 
    * @throws  SchemaException
+   * @deprecated see overload
    */
+  @Deprecated
   public static Membership findImmediateMembership(
     GrouperSession s, Group g, Subject subj, Field f
+    ) throws  MembershipNotFoundException, SchemaException {
+    return findImmediateMembership(s, g, subj, f, true);
+  }
+
+  /**
+   * Return the immediate membership if it exists.  
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <p/>
+   * <pre class="eg">
+   * </pre>
+   * @param   s     Get membership within this session context.
+   * @param   g     Immediate membership has this group.
+   * @param   subj  Immediate membership has this subject.
+   * @param   f     Immediate membership has this list.
+   * @param exceptionIfNotFound
+   * @return  A {@link Membership} object
+   * @throws  MembershipNotFoundException 
+   * @throws  SchemaException
+   */
+  public static Membership findImmediateMembership(
+    GrouperSession s, Group g, Subject subj, Field f, boolean exceptionIfNotFound
   ) throws  MembershipNotFoundException, SchemaException {
     //note, no need for GrouperSession inverse of control
     // @filtered  true
     // @session   true
     GrouperSession.validate(s);
     try {
-      Member      m   = MemberFinder.findBySubject(s, subj);
+      Member      m   = MemberFinder.findBySubject(s, subj, true);
       Membership  ms  = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
-          g.getUuid(), m.getUuid(), f, Membership.IMMEDIATE );
+          g.getUuid(), m.getUuid(), f, Membership.IMMEDIATE, true );
       PrivilegeHelper.dispatch( s, ms.getGroup(), s.getSubject(), f.getReadPriv() );
       return ms;
+    } catch (MembershipNotFoundException mnfe)         {
+      if (exceptionIfNotFound) {
+        throw mnfe;
+      }
+      return null;
+    } catch (GroupNotFoundException eGNF)         {
+      //not sure why this should happen in a non-corrupt db
+      if (exceptionIfNotFound) {
+        throw new MembershipNotFoundException(eGNF.getMessage(), eGNF);
+      }
+      return null;
+    } catch (InsufficientPrivilegeException eIP)  {
+      if (exceptionIfNotFound) {
+        throw new MembershipNotFoundException(eIP.getMessage(), eIP);
+      }
+      return null;
     }
-    catch (GroupNotFoundException eGNF)         {
-      throw new MembershipNotFoundException(eGNF.getMessage(), eGNF);
-    }
-    catch (InsufficientPrivilegeException eIP)  {
-      throw new MembershipNotFoundException(eIP.getMessage(), eIP);
-    }
-  } // public static Membership findImmediateMembership(s, g, m, f)
+  }
 
   /**
    * @param dto
@@ -232,7 +300,7 @@ public class MembershipFinder {
       while (childIt.hasNext()) {
         _child = (Membership) childIt.next();
         Set<Membership> memberships = null;
-        Field field = FieldFinder.find( _eff.getListName() );
+        Field field = FieldFinder.find( _eff.getListName(), true );
         if (field.isGroupListField()) {
           memberships = dao.findAllEffectiveByGroupOwner(
               _eff.getOwnerGroupId(), _child.getMemberUuid(), field, 
@@ -293,10 +361,10 @@ public class MembershipFinder {
    * @param group
    * @param f
    * @return set of subjects
-   * @throws GrouperRuntimeException
+   * @throws GrouperException
    */
   public static Set<Subject> internal_findGroupSubjects(GrouperSession s, Group group, Field f) 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     GrouperSession.validate(s);
     Set       subjs = new LinkedHashSet();
@@ -313,7 +381,7 @@ public class MembershipFinder {
     	//a Membership when the latter is created - assuming one query.
     	try {
     		subjs.add ( new LazySubject((Membership) it.next()) );
-    	}catch(GrouperRuntimeException gre) {
+    	}catch(GrouperException gre) {
     		if(gre.getCause() instanceof MemberNotFoundException) {
     			throw (MemberNotFoundException) gre.getCause();
     		}
@@ -326,12 +394,12 @@ public class MembershipFinder {
     catch (MemberNotFoundException eMNF) {
       String msg = "internal_findSubjects: " + eMNF.getMessage();
       LOG.fatal(msg);
-      throw new GrouperRuntimeException(msg, eMNF);
+      throw new GrouperException(msg, eMNF);
     }
     catch (SubjectNotFoundException eSNF) {
       String msg = "internal_findSubjects: " + eSNF.getMessage();
       LOG.fatal(msg);
-      throw new GrouperRuntimeException(msg, eSNF);
+      throw new GrouperException(msg, eSNF);
     }
     return subjs;
   } // public static Set internal_findSubjects(s, o, f)
@@ -342,10 +410,10 @@ public class MembershipFinder {
    * @param group
    * @param f
    * @return set of subjects
-   * @throws GrouperRuntimeException
+   * @throws GrouperException
    */
   public static Set<Subject> internal_findGroupSubjectsImmediateOnly(GrouperSession s,
-      Group group, Field f) throws GrouperRuntimeException {
+      Group group, Field f) throws GrouperException {
     GrouperSession.validate(s);
     Set<Subject> subjs = new LinkedHashSet();
     try {
@@ -357,7 +425,7 @@ public class MembershipFinder {
       while (it.hasNext()) {
         try {
           subjs.add(new LazySubject(it.next()));
-        } catch (GrouperRuntimeException gre) {
+        } catch (GrouperException gre) {
           if (gre.getCause() instanceof MemberNotFoundException) {
             throw (MemberNotFoundException) gre.getCause();
           }
@@ -369,19 +437,19 @@ public class MembershipFinder {
     } catch (MemberNotFoundException eMNF) {
       String msg = "internal_findGroupSubjectsImmediateOnly: " + eMNF.getMessage();
       LOG.fatal(msg);
-      throw new GrouperRuntimeException(msg, eMNF);
+      throw new GrouperException(msg, eMNF);
     } catch (SubjectNotFoundException eSNF) {
       String msg = "internal_findGroupSubjectsImmediateOnly: " + eSNF.getMessage();
       LOG.fatal(msg);
-      throw new GrouperRuntimeException(msg, eSNF);
+      throw new GrouperException(msg, eSNF);
     } catch (InsufficientPrivilegeException e) {
       String msg = "internal_findGroupSubjectsImmediateOnly: " + e.getMessage();
       LOG.fatal(msg);
-      throw new GrouperRuntimeException(msg, e);
+      throw new GrouperException(msg, e);
     } catch (SchemaException e) {
       String msg = "internal_findGroupSubjectsImmediateOnly: " + e.getMessage();
       LOG.fatal(msg);
-      throw new GrouperRuntimeException(msg, e);
+      throw new GrouperException(msg, e);
     }
     return subjs;
   } 
@@ -392,10 +460,10 @@ public class MembershipFinder {
    * @param stem
    * @param f
    * @return set of subjects
-   * @throws GrouperRuntimeException
+   * @throws GrouperException
    */
   public static Set<Subject> internal_findStemSubjectsImmediateOnly(GrouperSession s,
-      Stem stem, Field f) throws GrouperRuntimeException {
+      Stem stem, Field f) throws GrouperException {
     GrouperSession.validate(s);
     Set<Subject> subjs = new LinkedHashSet();
     try {
@@ -407,7 +475,7 @@ public class MembershipFinder {
       while (it.hasNext()) {
         try {
           subjs.add(new LazySubject(it.next()));
-        } catch (GrouperRuntimeException gre) {
+        } catch (GrouperException gre) {
           if (gre.getCause() instanceof MemberNotFoundException) {
             throw (MemberNotFoundException) gre.getCause();
           }
@@ -419,19 +487,19 @@ public class MembershipFinder {
     } catch (MemberNotFoundException eMNF) {
       String msg = "internal_findStemSubjectsImmediateOnly: " + eMNF.getMessage();
       LOG.fatal(msg);
-      throw new GrouperRuntimeException(msg, eMNF);
+      throw new GrouperException(msg, eMNF);
     } catch (SubjectNotFoundException eSNF) {
       String msg = "internal_findStemSubjectsImmediateOnly: " + eSNF.getMessage();
       LOG.fatal(msg);
-      throw new GrouperRuntimeException(msg, eSNF);
+      throw new GrouperException(msg, eSNF);
     } catch (InsufficientPrivilegeException e) {
       String msg = "internal_findStemSubjectsImmediateOnly: " + e.getMessage();
       LOG.fatal(msg);
-      throw new GrouperRuntimeException(msg, e);
+      throw new GrouperException(msg, e);
     } catch (SchemaException e) {
       String msg = "internal_findStemSubjectsImmediateOnly: " + e.getMessage();
       LOG.fatal(msg);
-      throw new GrouperRuntimeException(msg, e);
+      throw new GrouperException(msg, e);
     }
     return subjs;
   } 

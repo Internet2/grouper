@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: StemSave.java,v 1.2 2008-12-09 08:11:50 mchyzer Exp $
+ * $Id: StemSave.java,v 1.3 2009-03-15 06:37:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -252,7 +252,7 @@ public class StemSave {
                 
                 try {
                   parentStem = topLevelStem ? StemFinder.findRootStem(grouperSession) 
-                      : StemFinder.findByName(grouperSession, parentStemNameNew);
+                      : StemFinder.findByName(grouperSession, parentStemNameNew, true);
                 } catch (StemNotFoundException snfe) {
                   
                   //see if we should fix this problem
@@ -279,7 +279,7 @@ public class StemSave {
                         + parentStemNameLookup + "', new stem: '" + parentStemNameNew + "'");
                 }    
                 try {
-                    theStem = StemFinder.findByName(grouperSession, stemNameToEdit);
+                    theStem = StemFinder.findByName(grouperSession, stemNameToEdit, true);
                     
                     //while we are here, make sure uuid's match if passed in
                     if (!StringUtils.isBlank(uuid) && !StringUtils.equals(uuid, theStem.getUuid())) {

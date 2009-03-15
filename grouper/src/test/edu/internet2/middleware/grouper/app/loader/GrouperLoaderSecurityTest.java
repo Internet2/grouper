@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderSecurityTest.java,v 1.1 2008-11-11 07:27:32 mchyzer Exp $
+ * $Id: GrouperLoaderSecurityTest.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -184,7 +184,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
       //good
     }
     //refresh it
-    this.group = GroupFinder.findByName(this.grouperSession, this.group.getName());
+    this.group = GroupFinder.findByName(this.grouperSession, this.group.getName(), true);
     
     //type should not be applied
     assertFalse(this.group.hasType(this.groupType));
@@ -200,7 +200,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
       //good
     }
 
-    this.groupWithType = GroupFinder.findByName(this.grouperSession, this.groupWithType.getName());
+    this.groupWithType = GroupFinder.findByName(this.grouperSession, this.groupWithType.getName(), true);
 
     assertTrue(this.groupWithType.hasType(this.groupType));
     assertEquals("fieldValue", this.groupWithType.getAttribute(this.field.getName()));
@@ -322,7 +322,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
       //good
     }
     
-    this.group = GroupFinder.findByName(this.grouperSession, this.group.getName());
+    this.group = GroupFinder.findByName(this.grouperSession, this.group.getName(), true);
     
     //type should not be applied
     assertFalse(this.group.hasType(this.groupType));
@@ -335,7 +335,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
       //good
     }
 
-    this.groupWithType = GroupFinder.findByName(this.grouperSession, this.groupWithType.getName());
+    this.groupWithType = GroupFinder.findByName(this.grouperSession, this.groupWithType.getName(), true);
 
     assertTrue(this.groupWithType.hasType(this.groupType));
     assertEquals("fieldValue", this.groupWithType.getAttribute(this.field.getName()));

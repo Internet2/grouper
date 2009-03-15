@@ -17,8 +17,8 @@
 
 package edu.internet2.middleware.grouper;
 import junit.textui.TestRunner;
-import  edu.internet2.middleware.grouper.cfg.ApiConfig;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.privs.AccessAdapter;
 import edu.internet2.middleware.grouper.privs.NamingAdapter;
 
@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.privs.NamingAdapter;
  * Test {@link GrouperSession}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_GrouperSession.java,v 1.5 2008-10-18 07:14:39 mchyzer Exp $
+ * @version $Id: Test_api_GrouperSession.java,v 1.6 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_GrouperSession extends GrouperTest {
@@ -68,7 +68,7 @@ public class Test_api_GrouperSession extends GrouperTest {
       this.s    = GrouperSession.start( SubjectFinder.findAllSubject() );
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException( "test setUp() error: " + e.getMessage(), e );
+      throw new GrouperException( "test setUp() error: " + e.getMessage(), e );
     }
   }
 

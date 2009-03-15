@@ -97,7 +97,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateEditGroupAttributesAction.java,v 1.7 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: PopulateEditGroupAttributesAction.java,v 1.8 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class PopulateEditGroupAttributesAction extends GrouperCapableAction {
 
@@ -118,7 +118,7 @@ public class PopulateEditGroupAttributesAction extends GrouperCapableAction {
   		}else {
   			groupForm.set("groupId",groupId);
   		}
-  		Group group = GroupFinder.findByUuid(grouperSession,groupId);
+  		Group group = GroupFinder.findByUuid(grouperSession,groupId, true);
   		request.setAttribute("group",GrouperHelper.group2Map(grouperSession,group));
   		request.setAttribute("browseParent",GrouperHelper.group2Map(grouperSession,group));
 		session.setAttribute("subtitle","groups.action.edit-attr");

@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Basic Hibernate <code>Composite</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3CompositeDAO.java,v 1.10 2009-02-09 05:33:30 mchyzer Exp $
+ * @version $Id: Hib3CompositeDAO.java,v 1.11 2009-03-15 06:37:23 mchyzer Exp $
  */
 public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
 
@@ -64,9 +64,8 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
   } // public Set findAsFactor(_g)
 
   /**
-   * @since   @HEAD@
    */
-  public Composite findAsOwner(Group _g) 
+  public Composite findAsOwner(Group _g, boolean throwExceptionIfNotFound) 
     throws  CompositeNotFoundException,
             GrouperDAOException {
     Composite dto = HibernateSession.byHqlStatic()
@@ -75,7 +74,10 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
       .setCacheRegion(KLASS + ".FindAsOwner")
       .setString( "uuid", _g.getUuid() ).uniqueResult(Composite.class);
     if (dto == null) {
-      throw new CompositeNotFoundException();
+      if (throwExceptionIfNotFound) { 
+        throw new CompositeNotFoundException();
+      }
+      return null;
     }
     return dto;
   } // public Composite findAsOwner(_g)
@@ -87,7 +89,7 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Composite findByUuid(String uuid) 
+  public Composite findByUuid(String uuid, boolean throwExceptionIfNotFound) 
     throws  CompositeNotFoundException,
             GrouperDAOException {
     Composite dto = HibernateSession.byHqlStatic()
@@ -97,7 +99,10 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
     .setString( "uuid", uuid ).uniqueResult(Composite.class);
 
     if (dto == null) {
-      throw new CompositeNotFoundException();
+      if (throwExceptionIfNotFound) { 
+        throw new CompositeNotFoundException();
+      }
+      return null;
     }
     return dto;
   } // public Composite findByUuid(uuid)

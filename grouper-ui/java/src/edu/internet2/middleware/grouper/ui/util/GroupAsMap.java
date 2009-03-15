@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * and works well with JSTL <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupAsMap.java,v 1.13 2009-03-04 10:49:41 isgwb Exp $
+ * @version $Id: GroupAsMap.java,v 1.14 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class GroupAsMap extends ObjectAsMap {
 	//
@@ -107,7 +107,7 @@ public class GroupAsMap extends ObjectAsMap {
 			obj = group.getTypes();
 			Set set = (Set)obj;
 			try {
-			GroupType gt = GroupTypeFinder.find("base");
+			GroupType gt = GroupTypeFinder.find("base", true);
 				set.remove(gt);
 			}catch(Exception e) {}
 			if(set.isEmpty()) return null;

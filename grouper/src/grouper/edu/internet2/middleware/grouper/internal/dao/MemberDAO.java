@@ -27,7 +27,7 @@ import edu.internet2.middleware.subject.Subject;
 /** 
  * Basic <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MemberDAO.java,v 1.8 2008-10-20 14:41:20 mchyzer Exp $
+ * @version $Id: MemberDAO.java,v 1.9 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MemberDAO extends GrouperDAO {
@@ -58,7 +58,9 @@ public interface MemberDAO extends GrouperDAO {
   
   /**
    * @since   1.2.0
+   * @deprecated use overload
    */
+  @Deprecated
   Member findBySubject(Subject subj)
     throws  GrouperDAOException,
             MemberNotFoundException
@@ -67,7 +69,25 @@ public interface MemberDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
+  Member findBySubject(Subject subj, boolean exceptionIfNull)
+    throws  GrouperDAOException,
+            MemberNotFoundException
+            ;
+
+  /**
+   * @since   1.2.0
+   * @deprecated use overload
+   */
+  @Deprecated
   Member findBySubject(String id, String src, String type) 
+    throws  GrouperDAOException,
+            MemberNotFoundException
+            ;
+
+  /**
+   * @since   1.2.0
+   */
+  Member findBySubject(String id, String src, String type, boolean exceptionIfNull) 
     throws  GrouperDAOException,
             MemberNotFoundException
             ;
@@ -79,8 +99,23 @@ public interface MemberDAO extends GrouperDAO {
    * @throws GrouperDAOException
    * @throws MemberNotFoundException
    * @throws MemberNotUniqueException 
+   * @deprecated use overload
    */
+  @Deprecated
   Member findBySubject(String subjectId) 
+    throws  GrouperDAOException,
+            MemberNotFoundException,
+            MemberNotUniqueException;
+  
+  /**
+   * find by subject id only (cant be duplicates)
+   * @param subjectId
+   * @return the member
+   * @throws GrouperDAOException
+   * @throws MemberNotFoundException
+   * @throws MemberNotUniqueException 
+   */
+  Member findBySubject(String subjectId, boolean exceptionIfNull) 
     throws  GrouperDAOException,
             MemberNotFoundException,
             MemberNotUniqueException;
@@ -93,6 +128,21 @@ public interface MemberDAO extends GrouperDAO {
    * @throws GrouperDAOException
    * @throws MemberNotFoundException
    */
+  Member findBySubject(String subjectId, String src, boolean exceptionIfNull) 
+    throws  GrouperDAOException,
+            MemberNotFoundException
+            ;
+
+  /**
+   * find by subject id and source id
+   * @param subjectId
+   * @param src
+   * @return the member
+   * @throws GrouperDAOException
+   * @throws MemberNotFoundException
+   * @deprecated use overload
+   */
+  @Deprecated
   Member findBySubject(String subjectId, String src) 
     throws  GrouperDAOException,
             MemberNotFoundException
@@ -100,8 +150,18 @@ public interface MemberDAO extends GrouperDAO {
 
   /**
    * @since   1.2.0
+   * @deprecated
    */
+  @Deprecated
   Member findByUuid(String uuid) 
+    throws  GrouperDAOException,
+            MemberNotFoundException
+            ;
+
+  /**
+   * @since   1.2.0
+   */
+  Member findByUuid(String uuid, boolean exceptionIfNull) 
     throws  GrouperDAOException,
             MemberNotFoundException
             ;

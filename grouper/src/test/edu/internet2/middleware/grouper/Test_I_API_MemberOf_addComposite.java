@@ -18,7 +18,7 @@
 package edu.internet2.middleware.grouper;
 import java.util.Date;
 
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
@@ -27,7 +27,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_addComposite.java,v 1.7 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_I_API_MemberOf_addComposite.java,v 1.8 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_addComposite extends GrouperTest {
@@ -52,8 +52,8 @@ public class Test_I_API_MemberOf_addComposite extends GrouperTest {
       gA      = parent.addChildGroup("child group a", "child group a");
       gB      = parent.addChildGroup("child group b", "child group b");
       gC      = parent.addChildGroup("child group c", "child group c");
-      subjX   = SubjectFinder.findById( RegistrySubject.add(s, "subjX", "person", "subjX").getId() );
-      subjY   = SubjectFinder.findById( RegistrySubject.add(s, "subjY", "person", "subjY").getId() );
+      subjX   = SubjectFinder.findById( RegistrySubject.add(s, "subjX", "person", "subjX").getId(), true );
+      subjY   = SubjectFinder.findById( RegistrySubject.add(s, "subjY", "person", "subjY").getId(), true );
       // TODO 20070523 this *screams* for an easier way
       c = new Composite();
       c.setCreateTime( new Date().getTime() );
@@ -65,7 +65,7 @@ public class Test_I_API_MemberOf_addComposite extends GrouperTest {
       c.setUuid( GrouperUuid.getUuid() );
     }
     catch (Exception eShouldNotHappen) {
-      throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
+      throw new GrouperException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
   }
 
@@ -74,7 +74,7 @@ public class Test_I_API_MemberOf_addComposite extends GrouperTest {
       s.stop();
     }
     catch (Exception eShouldNotHappen) {
-      throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
+      throw new GrouperException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
     super.tearDown();
   }

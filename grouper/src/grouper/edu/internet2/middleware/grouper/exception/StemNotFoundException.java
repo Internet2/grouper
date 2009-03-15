@@ -22,9 +22,9 @@ package edu.internet2.middleware.grouper.exception;
  * Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemNotFoundException.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: StemNotFoundException.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  */
-public class StemNotFoundException extends Exception {
+public class StemNotFoundException extends RuntimeException {
   private static final long serialVersionUID = -8647313192109780774L;
   public StemNotFoundException() { 
     super(); 

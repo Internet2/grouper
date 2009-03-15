@@ -108,7 +108,7 @@ public class TestMembership11 extends GrouperTest {
       all   = SubjectFinder.findAllSubject();
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters");
+      fieldUpdaters = FieldFinder.find("updaters", true);
 
       Set<Membership> listMemberships;
       Set<Membership> updateMemberships;

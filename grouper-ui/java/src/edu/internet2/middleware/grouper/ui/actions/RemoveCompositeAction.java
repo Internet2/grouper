@@ -86,7 +86,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 </table>
 
  * @author Gary Brown.
- * @version $Id: RemoveCompositeAction.java,v 1.3 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: RemoveCompositeAction.java,v 1.4 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class RemoveCompositeAction extends GrouperCapableAction {
 
@@ -98,7 +98,7 @@ public class RemoveCompositeAction extends GrouperCapableAction {
 		
 		DynaActionForm groupForm = (DynaActionForm) form;
 		String id = groupForm.getString("groupId");
-		Group group = GroupFinder.findByUuid(grouperSession,id);
+		Group group = GroupFinder.findByUuid(grouperSession,id, true);
 		if(group.hasComposite()) group.deleteCompositeMember();
 		return redirectToCaller(groupForm);
 	}

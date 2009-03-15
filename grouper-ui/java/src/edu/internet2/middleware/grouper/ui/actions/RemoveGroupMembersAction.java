@@ -121,7 +121,7 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: RemoveGroupMembersAction.java,v 1.3 2007-09-26 15:04:54 isgwb Exp $
+ * @version $Id: RemoveGroupMembersAction.java,v 1.4 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class RemoveGroupMembersAction extends GrouperCapableAction {
 
@@ -150,12 +150,12 @@ public class RemoveGroupMembersAction extends GrouperCapableAction {
 		String membershipField = "members";
 		
 		if(!isEmpty(listField)) membershipField=listField;
-		Field mField = FieldFinder.find(membershipField);
+		Field mField = FieldFinder.find(membershipField, true);
 		
 		
 	
 		//Retrieve the membership according to scope selected by user
-		Group group = GroupFinder.findByUuid(grouperSession, groupId);
+		Group group = GroupFinder.findByUuid(grouperSession, groupId, true);
 		if(group.canWriteField(mField) && !group.isComposite()) {
 			if(!isEmpty(request.getParameter("submit.remove.all"))) {
 				Set members = group.getImmediateMembers(mField);

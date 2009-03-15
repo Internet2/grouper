@@ -32,7 +32,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: JoinRepositoryBrowser.java,v 1.5 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: JoinRepositoryBrowser.java,v 1.6 2009-03-15 06:37:51 mchyzer Exp $
  */
 
 public class JoinRepositoryBrowser extends AbstractRepositoryBrowser{
@@ -76,7 +76,7 @@ public class JoinRepositoryBrowser extends AbstractRepositoryBrowser{
 		if(validStems !=null) return validStems;
 		Set groups = null;
 		GrouperSession s = getGrouperSession();
-		Member member = MemberFinder.findBySubject(s,s.getSubject());
+		Member member = MemberFinder.findBySubject(s,s.getSubject(), true);
 		groups = member.hasOptin();
 				
 		validStems= getStems(groups);

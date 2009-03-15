@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  * Utility class for pretty printing objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrettyPrint.java,v 1.5 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: PrettyPrint.java,v 1.6 2009-03-15 06:37:23 mchyzer Exp $
  * @since   1.2.0
  */
 public class PrettyPrint {
@@ -63,9 +63,9 @@ public class PrettyPrint {
    */
   private static String _pp(Composite _c) {
     try {
-      Group  _gOwner = GrouperDAOFactory.getFactory().getGroup().findByUuid( _c.getFactorOwnerUuid() );
-      Group  _gLeft  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _c.getLeftFactorUuid() );
-      Group  _gRight = GrouperDAOFactory.getFactory().getGroup().findByUuid( _c.getRightFactorUuid() );
+      Group  _gOwner = GrouperDAOFactory.getFactory().getGroup().findByUuid( _c.getFactorOwnerUuid(), true );
+      Group  _gLeft  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _c.getLeftFactorUuid(), true );
+      Group  _gRight = GrouperDAOFactory.getFactory().getGroup().findByUuid( _c.getRightFactorUuid(), true );
       return _c.getClass().getName() 
         + OPEN
         + "owner="  + _gOwner.getAttributesDb().get("name")
@@ -91,8 +91,8 @@ public class PrettyPrint {
    */
   private static String _pp(Membership _ms) {
     try {
-      Group  _g  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerGroupId() );
-      Member _m  = GrouperDAOFactory.getFactory().getMember().findByUuid( _ms.getMemberUuid() );
+      Group  _g  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerGroupId(), true );
+      Member _m  = GrouperDAOFactory.getFactory().getMember().findByUuid( _ms.getMemberUuid(), true );
       return _ms.getClass().getName()
         + OPEN 
         + "group="    + _g.getAttributesDb().get("name")

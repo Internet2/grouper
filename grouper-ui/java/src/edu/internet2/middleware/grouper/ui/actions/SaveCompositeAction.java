@@ -106,7 +106,7 @@ import edu.internet2.middleware.grouper.ui.Message;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveCompositeAction.java,v 1.4 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: SaveCompositeAction.java,v 1.5 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class SaveCompositeAction extends GrouperCapableAction {
 
@@ -131,10 +131,10 @@ public class SaveCompositeAction extends GrouperCapableAction {
 					"groups.composite.save.self-reference",true));
 			return mapping.findForward("self");
 		}
-		Group owner = GroupFinder.findByUuid(grouperSession,groupId);
-		Group leftGroup = GroupFinder.findByUuid(grouperSession,leftId);
-		Group rightGroup = GroupFinder.findByUuid(grouperSession,rightId);
-		CompositeType cType = CompositeType.getInstance(type);
+		Group owner = GroupFinder.findByUuid(grouperSession,groupId, true);
+		Group leftGroup = GroupFinder.findByUuid(grouperSession,leftId, true);
+		Group rightGroup = GroupFinder.findByUuid(grouperSession,rightId, true);
+		CompositeType cType = CompositeType.valueOf(type);
 		owner.addCompositeMember(cType,leftGroup,rightGroup);
 		request.setAttribute("message", new Message(
 						"groups.composite.save.success"));

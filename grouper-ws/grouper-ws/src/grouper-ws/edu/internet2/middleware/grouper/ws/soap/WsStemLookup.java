@@ -183,9 +183,9 @@ public class WsStemLookup {
       }
 
       if (hasName) {
-        this.stem = StemFinder.findByName(grouperSession, this.stemName);
+        this.stem = StemFinder.findByName(grouperSession, this.stemName, true);
       } else if (hasUuid) {
-        this.stem = StemFinder.findByUuid(grouperSession, this.uuid);
+        this.stem = StemFinder.findByUuid(grouperSession, this.uuid, true);
       }
 
     } catch (StemNotFoundException gnf) {

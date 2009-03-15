@@ -16,15 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper.bench;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 
 /**
  * Benchmark adding a {@link RegistrySubject}.
  * @author  blair christensen.
- * @version $Id: AddRegistrySubject.java,v 1.3 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: AddRegistrySubject.java,v 1.4 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.1.0
  */
 public class AddRegistrySubject extends BaseGrouperBenchmark {
@@ -55,13 +55,13 @@ public class AddRegistrySubject extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void init() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       this.s = GrouperSession.start( SubjectFinder.findRootSubject() );
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e.getMessage());
+      throw new GrouperException(e.getMessage());
     }
   } // public void init()
 
@@ -69,13 +69,13 @@ public class AddRegistrySubject extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void run() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       RegistrySubject.add(s, "subj0", "person", "subject 0");
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e);
+      throw new GrouperException(e);
     }
   } // public void run()
 

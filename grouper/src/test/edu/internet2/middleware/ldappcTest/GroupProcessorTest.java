@@ -22,10 +22,10 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.SessionException;
@@ -145,8 +145,8 @@ public class GroupProcessorTest extends BaseLdappcTestCase
 
         try
         {
-            testGroup31 = GroupFinder.findByName(grouperSession, "testStem1:testStem2:testStem3:testGroup31");
-            testGroup21 = GroupFinder.findByName(grouperSession, "testStem1:testStem2:testGroup21");
+            testGroup31 = GroupFinder.findByName(grouperSession, "testStem1:testStem2:testStem3:testGroup31", true);
+            testGroup21 = GroupFinder.findByName(grouperSession, "testStem1:testStem2:testGroup21", true);
         }
         catch (GroupNotFoundException gnfe) 
         {
@@ -195,7 +195,7 @@ public class GroupProcessorTest extends BaseLdappcTestCase
         // We know there's only one subject matching "babl". Let's just find by Id.
         try
         {
-            testSubject = SubjectFinder.findById(subjectTestString);
+            testSubject = SubjectFinder.findById(subjectTestString, true);
         }
         catch (SubjectNotFoundException e)
         {
@@ -213,7 +213,7 @@ public class GroupProcessorTest extends BaseLdappcTestCase
             String subjectTestString2 = "test.subject.2";
             try
             {
-                testSubject = SubjectFinder.findById(subjectTestString2);
+                testSubject = SubjectFinder.findById(subjectTestString2, true);
             }
             catch (SubjectNotFoundException eSNF)  
             {
@@ -245,7 +245,7 @@ public class GroupProcessorTest extends BaseLdappcTestCase
         //
         try
         { 
-            GroupFinder.findByUuid(grouperSession, testGroup21.getUuid());
+            GroupFinder.findByUuid(grouperSession, testGroup21.getUuid(), true);
         } 
         catch (GroupNotFoundException mnfe)
         {
@@ -275,7 +275,7 @@ public class GroupProcessorTest extends BaseLdappcTestCase
         { 
             retrievedMembers = testGroup31.getMembers();
         } 
-        catch (GrouperRuntimeException mnfe)
+        catch (GrouperException mnfe)
         {
             fail("Failure trying to find members for testGroup21: " + mnfe.getMessage()); 
         }

@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateChainAction.java,v 1.5 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: PopulateChainAction.java,v 1.6 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class PopulateChainAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(PopulateChainAction.class);
@@ -77,7 +77,7 @@ public class PopulateChainAction extends GrouperCapableAction {
 		}
 		Subject subject = null;
 		try{ 
-			subject=SubjectFinder.findById(subjectId,subjectType,sourceId);
+			subject=SubjectFinder.findById(subjectId,subjectType,sourceId, true);
 		}catch (Exception e) {
 			LOG.error("Unable to retrieve subject: " + subjectId + "," + sourceId,e);
 			String contextError="error.chain.subject.exception";
@@ -100,7 +100,7 @@ public class PopulateChainAction extends GrouperCapableAction {
 		
 		Group group = null;
 		try{
-			group=GroupFinder.findByUuid(grouperSession,groupId);
+			group=GroupFinder.findByUuid(grouperSession,groupId, true);
 		}catch(GroupNotFoundException e) {
 			LOG.error(e);
 			throw new UnrecoverableErrorException("error.chain.bad-id",groupId);
@@ -112,7 +112,7 @@ public class PopulateChainAction extends GrouperCapableAction {
 		
 		for(int i=chainGroupIds.length-1;i>-1;i--) {
 			try{
-				chainGroup = GroupFinder.findByUuid(grouperSession,chainGroupIds[i]);
+				chainGroup = GroupFinder.findByUuid(grouperSession,chainGroupIds[i], true);
 				chain.add(GrouperHelper.group2Map(grouperSession,chainGroup));
 			}catch(GroupNotFoundException e) {
 				LOG.error(e);

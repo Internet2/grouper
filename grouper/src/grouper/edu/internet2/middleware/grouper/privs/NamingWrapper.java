@@ -17,10 +17,10 @@
 
 package edu.internet2.middleware.grouper.privs;
 import edu.internet2.middleware.grouper.GrantPrivilegeAlreadyExistsException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import  edu.internet2.middleware.grouper.GrouperSession;
 import  edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
@@ -36,7 +36,7 @@ import  java.util.Set;
  * Class implementing wrapper around {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingWrapper.java,v 1.9 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: NamingWrapper.java,v 1.10 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.1
  */
 public class NamingWrapper implements NamingResolver {
@@ -87,7 +87,7 @@ public class NamingWrapper implements NamingResolver {
       return this.naming.getStemsWhereSubjectHasPriv(this.s, subject, privilege);
     }
     catch (SchemaException eSchema) {
-      throw new GrouperRuntimeException("unexpected condition"); // TODO 20070726 log?  throw IllegalStateException?
+      throw new GrouperException("unexpected condition"); // TODO 20070726 log?  throw IllegalStateException?
     }
   }
 
@@ -114,7 +114,7 @@ public class NamingWrapper implements NamingResolver {
       return this.naming.getSubjectsWithPriv(this.s, stem, privilege);
     }
     catch (SchemaException eSchema) {
-      throw new GrouperRuntimeException("unexpected condition"); // TODO 20070726 log?  throw IllegalStateException?
+      throw new GrouperException("unexpected condition"); // TODO 20070726 log?  throw IllegalStateException?
     }
   }
 
@@ -140,7 +140,7 @@ public class NamingWrapper implements NamingResolver {
       throw new UnableToPerformException( ePrivs.getMessage(), ePrivs );
     }
     catch (SchemaException eSchema) {
-      throw new GrouperRuntimeException("unexpected condition", eSchema); 
+      throw new GrouperException("unexpected condition", eSchema); 
     }
   }
 
@@ -156,7 +156,7 @@ public class NamingWrapper implements NamingResolver {
       return this.naming.hasPriv(this.s, stem, subject, privilege);
     }
     catch (SchemaException eSchema) {
-      throw new GrouperRuntimeException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
+      throw new GrouperException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
     }
   }
 
@@ -179,7 +179,7 @@ public class NamingWrapper implements NamingResolver {
       throw new UnableToPerformException( eRevoke.getMessage(), eRevoke );
     }
     catch (SchemaException eSchema) {
-      throw new GrouperRuntimeException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
+      throw new GrouperException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
     }
   }
             
@@ -202,7 +202,7 @@ public class NamingWrapper implements NamingResolver {
     } catch (RevokePrivilegeException eRevoke) {
       throw new UnableToPerformException( eRevoke.getMessage(), eRevoke );
     } catch (SchemaException eSchema) {
-      throw new GrouperRuntimeException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
+      throw new GrouperException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
     }
   }     
   
@@ -221,7 +221,7 @@ public class NamingWrapper implements NamingResolver {
     } catch (InsufficientPrivilegeException e) {
       throw new UnableToPerformException(e.getMessage(), e);
     } catch (SchemaException e) {
-      throw new GrouperRuntimeException("unexpected condition", e);
+      throw new GrouperException("unexpected condition", e);
     }
   }
 
@@ -240,7 +240,7 @@ public class NamingWrapper implements NamingResolver {
     } catch (InsufficientPrivilegeException e) {
       throw new UnableToPerformException(e.getMessage(), e);
     } catch (SchemaException e) {
-      throw new GrouperRuntimeException("unexpected condition", e);
+      throw new GrouperException("unexpected condition", e);
     }
   }
 

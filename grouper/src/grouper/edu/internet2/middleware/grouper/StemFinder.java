@@ -23,10 +23,9 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -35,11 +34,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find stems within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemFinder.java,v 1.51 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: StemFinder.java,v 1.52 2009-03-15 06:37:21 mchyzer Exp $
  */
 public class StemFinder {
-
-  // PUBLIC CLASS METHODS //
 
   /**
    * Find stem by name.
@@ -55,19 +52,35 @@ public class StemFinder {
    * @param   name  Find stem with this name.
    * @return  A {@link Stem} object
    * @throws  StemNotFoundException
+   * @deprecated see overload
    */
-  public static Stem findByName(GrouperSession s, String name) 
-    throws StemNotFoundException
-  {
+  @Deprecated
+  public static Stem findByName(GrouperSession s, String name) throws StemNotFoundException {
+    return findByName(s, name, true);
+  }
+
+  /**
+   * Find stem by name.
+   * <pre class="eg">
+   *   Stem stem = StemFinder.findByName(s, name, false);
+   * </pre>
+   * @param   s     Search within this {@link GrouperSession} context
+   * @param   name  Find stem with this name.
+   * @param exceptionOnNotFound
+   * @return  A {@link Stem} object
+   * @throws  StemNotFoundException
+   */
+  public static Stem findByName(GrouperSession s, String name, boolean exceptionOnNotFound)
+      throws StemNotFoundException {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     // TODO 20070314 bah.  should be in dao if it exists at all.
     if ( name.equals(Stem.ROOT_NAME) ) {
       name = Stem.ROOT_INT;
     }
-    Stem ns = GrouperDAOFactory.getFactory().getStem().findByName(name) ;
+    Stem ns = GrouperDAOFactory.getFactory().getStem().findByName(name, exceptionOnNotFound) ;
     return ns;
-  } // public static Stem findByName(s, name)
+  }
 
   /**
    * Find root stem of the Groups Registry.
@@ -77,21 +90,14 @@ public class StemFinder {
    * </pre>
    * @param   s     Search within this {@link GrouperSession} context
    * @return  A {@link Stem} object
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public static Stem findRootStem(GrouperSession s) 
-    throws  GrouperRuntimeException  {
+    throws  StemNotFoundException  {
     GrouperStartup.startup();
     GrouperSession.validate(s);
-    try {
-      return StemFinder.findByName(s, Stem.ROOT_INT);
-    }
-    catch (StemNotFoundException eSNF) {
-      String msg = E.STEM_ROOTNOTFOUND;
-      LOG.fatal(msg);
-      throw new GrouperRuntimeException(msg, eSNF);
-    }
-  } // public static Stem findRootStem(s)
+    return StemFinder.findByName(s, Stem.ROOT_INT, true);
+  } 
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(StemFinder.class);
@@ -111,13 +117,36 @@ public class StemFinder {
    * @param   uuid  Get stem with this UUID.
    * @return  A {@link Stem} object
    * @throws  StemNotFoundException
+   * @deprecated see overload
    */
+  @Deprecated
   public static Stem findByUuid(GrouperSession s, String uuid) 
-    throws StemNotFoundException
-  {
+    throws StemNotFoundException {
+    return findByUuid(s, uuid, true);
+  }
+
+  /**
+   * Get stem by uuid.
+   * <pre class="eg">
+   * // Get the specified stem by uuid.
+   * try {
+   *   Stem stem = StemFinder.findByUuid(s, uuid);
+   * }
+   * catch (StemNotFoundException e) {
+   *   // Stem not found
+   * }
+   * </pre>
+   * @param   s     Search within this {@link GrouperSession} context
+   * @param   uuid  Get stem with this UUID.
+   * @param exceptionIfNull
+   * @return  A {@link Stem} object
+   * @throws  StemNotFoundException
+   */
+  public static Stem findByUuid(GrouperSession s, String uuid, boolean exceptionIfNull) 
+    throws StemNotFoundException {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Stem ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid) ;
+    Stem ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, exceptionIfNull) ;
     return ns;
   } // public static Stem findByUuid(s, uuid)
 
@@ -234,15 +263,20 @@ public class StemFinder {
     return stems;
   } // public static Set internal_findAllByCreatedBefore(s, d)
 
-  // @since   1.2.0
-  public static Stem internal_findByName(String name) 
-    throws  StemNotFoundException
-  {
+  /**
+   * 
+   * @param name
+   * @param exceptionIfNull
+   * @return
+   * @throws StemNotFoundException
+   */
+  public static Stem internal_findByName(String name, boolean exceptionIfNull) 
+    throws  StemNotFoundException {
     // @session false
     if (name.equals(Stem.ROOT_NAME)) {
       name = Stem.ROOT_INT;
     }
-    return GrouperDAOFactory.getFactory().getStem().findByName(name);
+    return GrouperDAOFactory.getFactory().getStem().findByName(name, exceptionIfNull);
   } // public static StemDTO internal_findByName(name)
 
 }

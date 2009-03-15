@@ -43,7 +43,7 @@ import edu.internet2.middleware.subject.Subject;
  * Generic filter for ui for grouper (e.g. set hooks context)
  * 
  * @author Chris Hyzer.
- * @version $Id: GrouperUiFilter.java,v 1.1 2008-07-20 21:18:43 mchyzer Exp $
+ * @version $Id: GrouperUiFilter.java,v 1.2 2009-03-15 06:37:51 mchyzer Exp $
  */
 
 public class GrouperUiFilter implements Filter {
@@ -88,7 +88,7 @@ public class GrouperUiFilter implements Filter {
     
     if (subject == null && !StringUtils.isBlank(remoteUser)) {
       try {
-        subject = SubjectFinder.findByIdentifier(remoteUser);
+        subject = SubjectFinder.findByIdentifier(remoteUser, true);
       } catch (Exception e) {
         //this is not really ok, but cant do much about it
         LOG.error("Cant find login subject", e);

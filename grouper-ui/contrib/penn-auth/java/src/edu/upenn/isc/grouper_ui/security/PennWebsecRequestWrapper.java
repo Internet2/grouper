@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: PennWebsecRequestWrapper.java,v 1.3 2008-06-09 20:01:42 mchyzer Exp $
+ * $Id: PennWebsecRequestWrapper.java,v 1.4 2009-03-15 06:37:51 mchyzer Exp $
  */
 package edu.upenn.isc.grouper_ui.security;
 
@@ -128,10 +128,10 @@ public class PennWebsecRequestWrapper extends HttpServletRequestWrapper {
         
         try {
           grouperSession = GrouperSession.start(
-            SubjectFinder.findById("GrouperSystem")
+            SubjectFinder.findById("GrouperSystem", true)
           );
-          Subject subject = SubjectFinder.findByIdentifier(user);
-          Group group = GroupFinder.findByName(grouperSession, uiGroupName);
+          Subject subject = SubjectFinder.findByIdentifier(user, true);
+          Group group = GroupFinder.findByName(grouperSession, uiGroupName, true);
           if (!group.hasMember(subject)) {
             throw new RuntimeException("User is not authorized");
           }

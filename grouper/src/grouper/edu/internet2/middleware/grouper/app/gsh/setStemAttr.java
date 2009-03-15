@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
  * Set {@link Stem} attribute value.
  * <p/>
  * @author  blair christensen.
- * @version $Id: setStemAttr.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: setStemAttr.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.0.1
  */
 public class setStemAttr {
@@ -46,7 +46,7 @@ public class setStemAttr {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s   = GrouperShell.getSession(i);
-      Stem            ns  = StemFinder.findByName(s, name);
+      Stem            ns  = StemFinder.findByName(s, name, true);
       if      (attr.equals("description"))      {
         ns.setDescription(val);
         ns.store();

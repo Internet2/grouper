@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
  * Delete a group.
  * <p/>
  * @author  blair christensen.
- * @version $Id: delGroup.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: delGroup.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.0.1
  */
 public class delGroup {
@@ -42,7 +42,7 @@ public class delGroup {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s = GrouperShell.getSession(i);
-      Group           g = GroupFinder.findByName(s, name);
+      Group           g = GroupFinder.findByName(s, name, true);
       g.delete();
       return true;
     }

@@ -168,7 +168,7 @@ public class WsGroupToSave {
         Set<GroupType> typesAlreadyInGroup = new TreeSet<GroupType>(group.getTypes());
         StringBuilder typesPassedInBuilder = new StringBuilder();
         for (int i=0;i<typeNamesLength;i++) {
-          GroupType groupType = GroupTypeFinder.find(typeNames[i]);
+          GroupType groupType = GroupTypeFinder.find(typeNames[i], true);
           typesPassedIn.add(groupType);
           if (i != 0) {
             typesPassedInBuilder.append(", ");
@@ -236,18 +236,18 @@ public class WsGroupToSave {
         for (String key : new HashSet<String>(attributes.keySet())) {
           
           //these are built in attributes, dont touch
-          if (StringUtils.equals(GrouperConfig.ATTR_NAME, key)
-            || StringUtils.equals(GrouperConfig.ATTR_EXTENSION, key)
-            || StringUtils.equals(GrouperConfig.ATTR_DISPLAY_EXTENSION, key)
-            || StringUtils.equals(GrouperConfig.ATTR_DESCRIPTION, key)
-            || StringUtils.equals(GrouperConfig.ATTR_DISPLAY_NAME, key)) {
+          if (StringUtils.equals(GrouperConfig.ATTRIBUTE_NAME, key)
+            || StringUtils.equals(GrouperConfig.ATTRIBUTE_EXTENSION, key)
+            || StringUtils.equals(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION, key)
+            || StringUtils.equals(GrouperConfig.ATTRIBUTE_DESCRIPTION, key)
+            || StringUtils.equals(GrouperConfig.ATTRIBUTE_DISPLAY_NAME, key)) {
             continue;
           }
           
           //see if in the passed in set
           if (!attributeNamesPassedIn.contains(key)) {
             groupDirty = true;
-            Field field = FieldFinder.find(key);
+            Field field = FieldFinder.find(key, true);
             GroupType groupType = field.getGroupType();
             if (LOG.isDebugEnabled()) {
               LOG.debug("Group: " + group.getName() + ": delete attribute: " + key 
@@ -321,7 +321,7 @@ public class WsGroupToSave {
           Group rightGroup = rightGroupLookup.retrieveGroupIfNeeded(grouperSession, "right group");
           
   
-          Composite composite = group.getCompositeOrNull();
+          Composite composite = group.getComposite(false);
           boolean needsChange = composite == null;
           if (composite != null) {
             if (!theCompositeType.equals(composite.getType())) {

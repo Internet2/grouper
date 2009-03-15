@@ -217,7 +217,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.18 2008-10-10 10:16:04 isgwb Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.19 2009-03-15 06:37:51 mchyzer Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -308,7 +308,7 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 				curNodeStem = StemFinder.findRootStem(grouperSession);
 			}else {
 				try{
-					curNodeStem = StemFinder.findByName(grouperSession, defaultStem);
+					curNodeStem = StemFinder.findByName(grouperSession, defaultStem, true);
 				}catch(StemNotFoundException e){
 					LOG.error("Cannot retrieve defaultStem: " + defaultStem,e);
 					throw new UnrecoverableErrorException("error.browse.bad-current-id",e,defaultStem);
@@ -334,7 +334,7 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 				curGroupOrStem = GroupOrStem.findByStem(grouperSession, curNodeStem);
 			}else {
 				try{
-					curNodeStem = StemFinder.findByName(grouperSession, defaultStem);
+					curNodeStem = StemFinder.findByName(grouperSession, defaultStem, true);
 					curGroupOrStem = GroupOrStem.findByStem(grouperSession, curNodeStem);
 				}catch(StemNotFoundException e){
 					LOG.error("Cannot retrieve defaultStem: " + defaultStem,e);

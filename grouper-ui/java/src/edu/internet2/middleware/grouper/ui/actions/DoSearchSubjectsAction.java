@@ -115,7 +115,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: DoSearchSubjectsAction.java,v 1.10 2008-12-12 15:31:51 isgwb Exp $
+ * @version $Id: DoSearchSubjectsAction.java,v 1.11 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class DoSearchSubjectsAction extends GrouperCapableAction {
 
@@ -184,7 +184,7 @@ public class DoSearchSubjectsAction extends GrouperCapableAction {
 			subj=(Subject)it.next();
 			if(subj.getSource().getId().equals("g:gsa")) {
 				try {
-					Group g = GroupFinder.findByUuid(grouperSession, subj.getId());
+					Group g = GroupFinder.findByUuid(grouperSession, subj.getId(), true);
 				}catch(Exception e) {
 					it.remove();
 				}

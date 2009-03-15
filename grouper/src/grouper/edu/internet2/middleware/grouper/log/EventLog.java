@@ -51,7 +51,7 @@ import edu.internet2.middleware.subject.Subject;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.6 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: EventLog.java,v 1.7 2009-03-15 06:37:24 mchyzer Exp $
  */
 public class EventLog {
 
@@ -459,7 +459,7 @@ public class EventLog {
   // @since   1.2.0
   private String _getEffSubjectMsg(Membership _eff) {
     try {
-      return " subject=" + SubjectHelper.getPretty( GrouperDAOFactory.getFactory().getMember().findByUuid( _eff.getMemberUuid() ) );
+      return " subject=" + SubjectHelper.getPretty( GrouperDAOFactory.getFactory().getMember().findByUuid( _eff.getMemberUuid(), true ) );
     }
     catch (MemberNotFoundException eMNF)    {
       // TODO 20070323 this can't help performance

@@ -99,7 +99,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 </table>
 
  * @author Gary Brown.
- * @version $Id: AddSavedSubjectAction.java,v 1.6 2008-07-09 05:28:14 mchyzer Exp $
+ * @version $Id: AddSavedSubjectAction.java,v 1.7 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class AddSavedSubjectAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(AddSavedSubjectAction.class);
@@ -117,7 +117,7 @@ public class AddSavedSubjectAction extends GrouperCapableAction {
 		if(!isEmpty(subjectId) && !isEmpty(subjectType) && !isEmpty(sourceId)) {
 			LOG.info("Saved entity to workspace ("+subjectId + "," +subjectType+"," + sourceId+")");
 			try {
-				Subject subj = SubjectFinder.findById(subjectId,subjectType,sourceId);
+				Subject subj = SubjectFinder.findById(subjectId,subjectType,sourceId, true);
 				addSavedSubject(session,subj);
 			}catch (Exception e) {
 				String contextError=null;

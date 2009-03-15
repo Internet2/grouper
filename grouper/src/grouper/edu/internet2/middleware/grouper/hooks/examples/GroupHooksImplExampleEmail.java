@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksImplExampleEmail.java,v 1.3 2008-07-21 04:43:59 mchyzer Exp $
+ * $Id: GroupHooksImplExampleEmail.java,v 1.4 2009-03-15 06:37:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -86,7 +86,7 @@ public class GroupHooksImplExampleEmail extends GroupHooks {
           String emailPrefix = GrouperUtil.prefixOrSuffix(emailAddress, "@", true);
           boolean foundSubject = false;
           try {
-            SubjectFinder.findByIdentifier(emailPrefix);
+            SubjectFinder.findByIdentifier(emailPrefix, true);
             foundSubject = true;
           } catch (SubjectNotFoundException snfe) {
 

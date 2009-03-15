@@ -22,11 +22,11 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.8 2008-11-13 20:26:10 mchyzer Exp $
+ * @version $Id: RegistryReset.java,v 1.9 2009-03-15 06:37:23 mchyzer Exp $
  */
 public class RegistryReset {
 
@@ -170,10 +170,10 @@ public class RegistryReset {
   } 
 
   private void _abort(String msg) 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     LOG.error(msg);
-    throw new GrouperRuntimeException(msg);
+    throw new GrouperException(msg);
   }
 
   /** logger */

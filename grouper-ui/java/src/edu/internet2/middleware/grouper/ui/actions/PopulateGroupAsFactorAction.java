@@ -103,7 +103,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateGroupAsFactorAction.java,v 1.5 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: PopulateGroupAsFactorAction.java,v 1.6 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class PopulateGroupAsFactorAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(PopulateGroupAsFactorAction.class);
@@ -134,7 +134,7 @@ public class PopulateGroupAsFactorAction extends GrouperCapableAction {
 		}
 		Group group = null;
 		try{
-			group=GroupFinder.findByUuid(grouperSession,groupId);
+			group=GroupFinder.findByUuid(grouperSession,groupId, true);
 		}catch(GroupNotFoundException e) {
 			LOG.error("No group with id=" + groupId,e);
 			throw new UnrecoverableErrorException("error.group-as-factor.bad-id",groupId);

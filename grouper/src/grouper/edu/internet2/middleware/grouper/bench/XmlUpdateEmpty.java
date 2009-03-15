@@ -20,9 +20,9 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Properties;
 
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.xml.XmlExporter;
 import edu.internet2.middleware.grouper.xml.XmlImporter;
 import edu.internet2.middleware.grouper.xml.XmlReader;
@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.xml.XmlReader;
 /**
  * Benchmark updating an effectively empty XML file.
  * @author  blair christensen.
- * @version $Id: XmlUpdateEmpty.java,v 1.4 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: XmlUpdateEmpty.java,v 1.5 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.1.0
  */
 public class XmlUpdateEmpty extends BaseGrouperBenchmark {
@@ -62,7 +62,7 @@ public class XmlUpdateEmpty extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void init() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       GrouperSession  s         = GrouperSession.start( SubjectFinder.findRootSubject() );
@@ -73,7 +73,7 @@ public class XmlUpdateEmpty extends BaseGrouperBenchmark {
       this.importer             = new XmlImporter( s, new Properties() );
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e.getMessage());
+      throw new GrouperException(e.getMessage());
     }
   } // public void init()
 
@@ -81,13 +81,13 @@ public class XmlUpdateEmpty extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void run() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       this.importer.update( XmlReader.getDocumentFromString(this.xml) );
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e);
+      throw new GrouperException(e);
     }
   } // public void run()
 

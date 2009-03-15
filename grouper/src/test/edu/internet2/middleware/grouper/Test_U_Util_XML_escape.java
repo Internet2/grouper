@@ -16,11 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.internal.util.XML;
+import edu.internet2.middleware.grouper.internal.util.XML;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_U_Util_XML_escape.java,v 1.1 2007-05-21 16:16:41 blair Exp $
+ * @version $Id: Test_U_Util_XML_escape.java,v 1.2 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_U_Util_XML_escape extends GrouperTest {

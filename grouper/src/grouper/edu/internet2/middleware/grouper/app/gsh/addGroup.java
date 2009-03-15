@@ -20,7 +20,7 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
  * Add group.
  * <p/>
  * @author  blair christensen.
- * @version $Id: addGroup.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: addGroup.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.0.1
  */
 public class addGroup {
@@ -47,7 +47,7 @@ public class addGroup {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s   = GrouperShell.getSession(i);
-      Stem            ns  = StemFinder.findByName(s, parent);
+      Stem            ns  = StemFinder.findByName(s, parent, true);
       return ns.addChildGroup(extn, displayExtn);
     }
     catch (GroupAddException eGA)               {

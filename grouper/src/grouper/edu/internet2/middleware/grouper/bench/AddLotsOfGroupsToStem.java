@@ -16,16 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper.bench;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 
 /**
  * Add a number of groups beneath a single stem.
  * @author  blair christensen.
- * @version $Id: AddLotsOfGroupsToStem.java,v 1.6 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: AddLotsOfGroupsToStem.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class AddLotsOfGroupsToStem extends BaseGrouperBenchmark {
@@ -60,7 +60,7 @@ public class AddLotsOfGroupsToStem extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void init() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
@@ -68,7 +68,7 @@ public class AddLotsOfGroupsToStem extends BaseGrouperBenchmark {
       this.ns               = root.addChildStem("example", "example");
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e.getMessage());
+      throw new GrouperException(e.getMessage());
     }
   } // public void init()
 
@@ -76,7 +76,7 @@ public class AddLotsOfGroupsToStem extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void run() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       for (int i=0; i < CNT; i++) {
@@ -84,7 +84,7 @@ public class AddLotsOfGroupsToStem extends BaseGrouperBenchmark {
       }
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e);
+      throw new GrouperException(e);
     }
   } // public void run()
 

@@ -25,10 +25,8 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.FindBadMemberships;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -82,8 +80,8 @@ public class TestMembership7 extends TestCase {
       subjA = r.getSubject("a");
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters");
-      fieldOptIns = FieldFinder.find("optins");
+      fieldUpdaters = FieldFinder.find("updaters", true);
+      fieldOptIns = FieldFinder.find("optins", true);
 
       Set<Group> goodGroups = new LinkedHashSet<Group>();
       Set<Group> badGroups = new LinkedHashSet<Group>();

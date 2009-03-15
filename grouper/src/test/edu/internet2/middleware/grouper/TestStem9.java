@@ -27,7 +27,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem9.java,v 1.5 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestStem9.java,v 1.6 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestStem9 extends TestCase {
 
@@ -57,7 +57,7 @@ public class TestStem9 extends TestCase {
 
       // Now reload and delete
       GrouperSession  s   = GrouperSession.start(subj);
-      Stem            ns  = StemFinder.findByName(s, name);
+      Stem            ns  = StemFinder.findByName(s, name, true);
       ns.delete();
       Assert.assertTrue("no lazy initialization error", true);
       s.stop();

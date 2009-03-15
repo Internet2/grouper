@@ -18,13 +18,13 @@
 package edu.internet2.middleware.grouper.bench;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Base {@link GrouperBenchmark} implementation.
  * @author  blair christensen.
- * @version $Id: BaseGrouperBenchmark.java,v 1.6 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: BaseGrouperBenchmark.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.1.0
  */
 public class BaseGrouperBenchmark implements GrouperBenchmark {
@@ -60,7 +60,7 @@ public class BaseGrouperBenchmark implements GrouperBenchmark {
     try {
       GrouperBench.run( this );
     }
-    catch (GrouperRuntimeException eGRE) {
+    catch (GrouperException eGRE) {
       LOG.fatal(eGRE.getMessage());
       exit_value = 1;
     }
@@ -71,7 +71,7 @@ public class BaseGrouperBenchmark implements GrouperBenchmark {
    * @since 1.1.0
    */
   public void init() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     // Nothing
   } // public void init()
@@ -80,7 +80,7 @@ public class BaseGrouperBenchmark implements GrouperBenchmark {
    * @since 1.1.0
    */
   public void run() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     // Nothing
   } // public void run()

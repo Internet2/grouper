@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper;
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -28,10 +29,18 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupType7.java,v 1.5 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroupType7.java,v 1.6 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGroupType7 extends TestCase {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestGroupType7("testFailToDeleteWhenSystemType"));
+  }
+  
   // Private Static Class Constants
   private static final Log LOG = GrouperUtil.getLog(TestGroupType7.class);
 
@@ -52,17 +61,13 @@ public class TestGroupType7 extends TestCase {
     LOG.info("testFailToDeleteWhenSystemType");
     try {
       R               r       = R.populateRegistry(0, 0, 0);
-      GroupType       base    = GroupTypeFinder.find("base");
+      GroupType       base    = GroupTypeFinder.find("base", true);
       try {
         base.delete(r.rs);
         Assert.fail("deleted system type");
       }
       catch (SchemaException eS) {
-        T.string(
-          "OK: failed to delete system type", 
-          E.GROUPTYPE_NODELSYS + base.getName(),
-          eS.getMessage()
-        );
+        assertTrue(GrouperUtil.getFullStackTrace(eS), eS.getMessage().contains(E.GROUPTYPE_NODELSYS));
       } 
       finally {
         r.rs.stop();

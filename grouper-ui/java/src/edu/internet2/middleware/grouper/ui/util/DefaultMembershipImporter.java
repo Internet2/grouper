@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: DefaultMembershipImporter.java,v 1.4 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: DefaultMembershipImporter.java,v 1.5 2009-03-15 06:37:51 mchyzer Exp $
  */
 
 public class DefaultMembershipImporter implements MembershipImporter{
@@ -109,9 +109,9 @@ public class DefaultMembershipImporter implements MembershipImporter{
 				}
 				try {
 					if(useId) {
-						subject=SubjectFinder.findById(id);
+						subject=SubjectFinder.findById(id, true);
 					}else{
-						subject=SubjectFinder.findByIdentifier(id);
+						subject=SubjectFinder.findByIdentifier(id, true);
 					}
 					if(group.hasImmediateMember(subject,field)) {
 						if(!ignoreExisting) {

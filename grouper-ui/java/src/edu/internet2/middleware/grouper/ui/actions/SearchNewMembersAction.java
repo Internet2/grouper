@@ -187,7 +187,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 </table>
 
  * @author Gary Brown.
- * @version $Id: SearchNewMembersAction.java,v 1.10 2009-03-04 10:52:40 isgwb Exp $
+ * @version $Id: SearchNewMembersAction.java,v 1.11 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class SearchNewMembersAction extends GrouperCapableAction {
 
@@ -328,15 +328,14 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 		    if (group == null) {
 	        String subjectId = (String)map.get("subjectId");
 		      try {
-		        group = GroupFinder.findByUuid(grouperSession,subjectId);
+		        group = GroupFinder.findByUuid(grouperSession,subjectId, true);
 		      } catch (Exception e) {
 		        //this is probably ok, just cant find it
 		        LOG.debug("Cant find group: " + subjectId, e);
 		      }
 		    }
 	      if (group != null) {
-	    	  
-	    	 	        
+	        
 	        try {
 	          PrivilegeHelper.dispatch( grouperSession, group, 
 	              grouperSession.getSubject(), Group.getDefaultList().getReadPriv() );
@@ -357,7 +356,7 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 		if(!forStem) {
 			Group group = null;
 			try {
-				group = GroupFinder.findByUuid(grouperSession, targetId);
+				group = GroupFinder.findByUuid(grouperSession, targetId, true);
 			}catch(GroupNotFoundException e) {
 				LOG.error("Error retirving group with id=" + targetId,e);
 				throw new UnrecoverableErrorException("error.search-new-members.bad-group-id",targetId);

@@ -31,7 +31,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test using the wrong field type in various operations.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestWrongFieldType.java,v 1.10 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestWrongFieldType.java,v 1.11 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestWrongFieldType extends TestCase {
 
@@ -86,7 +86,7 @@ public class TestWrongFieldType extends TestCase {
   public void testGroupLists() {
     LOG.info("testGroupLists");
     try {
-      Field f = FieldFinder.find("name");
+      Field f = FieldFinder.find("name", true);
       i2.addMember(subj0, f);
       Assert.fail("set attribute-as-list");
     }

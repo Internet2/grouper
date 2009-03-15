@@ -21,9 +21,9 @@ package edu.internet2.middleware.grouper.exception;
  * Exception thrown when a group cannot be deleted from the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupDeleteException.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: GroupDeleteException.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  */
-public class GroupDeleteException extends Exception {
+public class GroupDeleteException extends RuntimeException {
   private static final long serialVersionUID = 2529375797709195916L;
   public GroupDeleteException() { 
     super(); 

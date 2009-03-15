@@ -20,7 +20,7 @@ import edu.internet2.middleware.grouper.privs.Privilege;
  * Add an <code>Attribute</code> to a <code>GroupType</code>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: typeAddAttr.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: typeAddAttr.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.1.0
  */
 public class typeAddAttr {
@@ -50,7 +50,7 @@ public class typeAddAttr {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s = GrouperShell.getSession(i);
-      GroupType       t = GroupTypeFinder.find(type);
+      GroupType       t = GroupTypeFinder.find(type, true);
       return t.addAttribute(s, name, read, write, req);
     }
     catch (InsufficientPrivilegeException eIP)  {

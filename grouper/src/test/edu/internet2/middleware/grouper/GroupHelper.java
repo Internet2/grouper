@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
@@ -41,7 +41,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.22 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: GroupHelper.java,v 1.23 2009-03-15 06:37:22 mchyzer Exp $
  */
 class GroupHelper {
 
@@ -54,7 +54,7 @@ class GroupHelper {
   // Add a member to a group
   protected static void addMember(Group g, Subject subj, String list) {
     try {
-      Field f = FieldFinder.find(list); 
+      Field f = FieldFinder.find(list, true); 
       g.addMember(subj, f);
       Assert.assertTrue("added member", true);
     }
@@ -265,7 +265,7 @@ class GroupHelper {
   protected static Group findByName(GrouperSession s, String name) {
     LOG.debug("findByName.0 " + name);
     try {
-      Group g = GroupFinder.findByName(s, name);
+      Group g = GroupFinder.findByName(s, name, true);
       LOG.debug("findByName.1 " + name);
       Assert.assertNotNull("found group by name !null", g);
       LOG.debug("findByName.2 " + name);
@@ -282,7 +282,7 @@ class GroupHelper {
     LOG.debug("findByNameFail.0 " + name);
     try {
       LOG.debug("findByNameFail.1 " + name);
-      GroupFinder.findByName(s, name);
+      GroupFinder.findByName(s, name, true);
       LOG.debug("findByNameFail.2 " + name);
       Assert.fail("found group: " + name);
     }
@@ -295,7 +295,7 @@ class GroupHelper {
   protected static Group findByUuid(GrouperSession s, String uuid) {
     LOG.debug("findByUuid.0 " + uuid);
     try {
-      Group g = GroupFinder.findByUuid(s, uuid);
+      Group g = GroupFinder.findByUuid(s, uuid, true);
       LOG.debug("findByUuid.1 " + uuid);
       Assert.assertNotNull("found group by uuid !null", g);
       LOG.debug("findByUuid.2 " + uuid);
@@ -313,7 +313,7 @@ class GroupHelper {
   protected static void findByUuidFail(GrouperSession s, String uuid) {
     LOG.debug("findByUuidFail.0 " + uuid);
     try {
-      GroupFinder.findByUuid(s, uuid);
+      GroupFinder.findByUuid(s, uuid, true);
       LOG.debug("findByUuidFail.1 " + uuid);
       Assert.fail("found group: " + uuid);
       LOG.debug("findByUuidFail.2 " + uuid);
@@ -454,7 +454,7 @@ class GroupHelper {
     catch (Exception e) {
       T.e(e);
     }
-    throw new GrouperRuntimeException();
+    throw new GrouperException();
   } // protected static Member toMember(g)
 
 } // class GroupHelper

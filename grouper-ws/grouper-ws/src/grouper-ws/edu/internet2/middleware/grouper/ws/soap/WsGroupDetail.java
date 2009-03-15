@@ -15,7 +15,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -177,12 +176,7 @@ public class WsGroupDetail {
       if (groupHasComposite) {
         Composite composite = null;
 
-        try {
-          composite = group.getComposite();
-        } catch (CompositeNotFoundException cnfe) {
-          //this means something bad is happening
-          throw new RuntimeException(cnfe);
-        }
+        composite = group.getComposite(true);
 
         this.setCompositeType(composite.getType().getName());
         
@@ -213,7 +207,7 @@ public class WsGroupDetail {
       Set<GroupType> groupTypes = new TreeSet<GroupType>(group.getTypes());
       
       try {
-        GroupType baseType = GroupTypeFinder.find("base");
+        GroupType baseType = GroupTypeFinder.find("base", true);
         groupTypes.remove(baseType);
       } catch (SchemaException se) {
         throw new RuntimeException(se);
@@ -229,11 +223,11 @@ public class WsGroupDetail {
       Map<String, String> attributeMap = new TreeMap<String, String>(group.getAttributes());
 
       //remove common attributes to not take redundant space in response
-      attributeMap.remove(GrouperConfig.ATTR_NAME);
-      attributeMap.remove(GrouperConfig.ATTR_EXTENSION);
-      attributeMap.remove(GrouperConfig.ATTR_DISPLAY_EXTENSION);
-      attributeMap.remove(GrouperConfig.ATTR_DISPLAY_NAME);
-      attributeMap.remove(GrouperConfig.ATTR_DESCRIPTION);
+      attributeMap.remove(GrouperConfig.ATTRIBUTE_NAME);
+      attributeMap.remove(GrouperConfig.ATTRIBUTE_EXTENSION);
+      attributeMap.remove(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION);
+      attributeMap.remove(GrouperConfig.ATTRIBUTE_DISPLAY_NAME);
+      attributeMap.remove(GrouperConfig.ATTRIBUTE_DESCRIPTION);
 
       //find attributes, set in arrays in order
       if (attributeMap.size() > 0) {

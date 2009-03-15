@@ -22,7 +22,7 @@ import junit.framework.Assert;
 
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -30,7 +30,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMemberOf1.java,v 1.15 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestMemberOf1.java,v 1.16 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.0
  */
 public class TestMemberOf1 extends GrouperTest {
@@ -429,7 +429,7 @@ public class TestMemberOf1 extends GrouperTest {
 
       try {
         Membership ms = MembershipFinder.findImmediateMembership(
-          r.rs, gALL, gAAS.toSubject(), Group.getDefaultList()
+          r.rs, gALL, gAAS.toSubject(), Group.getDefaultList(), true
         );
         Assert.assertNotNull(ms);
         DefaultMemberOf mof = new DefaultMemberOf();
@@ -443,7 +443,7 @@ public class TestMemberOf1 extends GrouperTest {
         T.getMemberships(gALL, 0);
         T.getMemberships(gAAS, 14);
       }
-      catch (GrouperRuntimeException eGRT) {
+      catch (GrouperException eGRT) {
         Assert.fail("GrouperRuntimeException thrown: " + eGRT.getMessage());
       }
 

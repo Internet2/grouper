@@ -16,15 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 
 /**
  * Generic Grouper DAO exception.
  * @author  blair christensen.
- * @version $Id: GrouperDAOException.java,v 1.4 2008-07-21 04:43:59 mchyzer Exp $
+ * @version $Id: GrouperDAOException.java,v 1.5 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
-public class GrouperDAOException extends GrouperRuntimeException {
+public class GrouperDAOException extends GrouperException {
   private static final long serialVersionUID = -7856283917603254749L;
   /**
    * @since   1.2.0

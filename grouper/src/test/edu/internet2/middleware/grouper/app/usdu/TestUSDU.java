@@ -85,7 +85,7 @@ public class TestUSDU extends GrouperTest {
     SubjectFinder.flushCache();
 
     try {
-      SubjectFinder.findById(subject.getId());
+      SubjectFinder.findById(subject.getId(), true);
       fail("should not find subject " + subject.getId());
     } catch (SubjectNotFoundException e) {
       // OK
@@ -108,7 +108,7 @@ public class TestUSDU extends GrouperTest {
       Group gE = r.getGroup("a", "e");
       Group gF = r.getGroup("a", "f");
 
-      Subject subjA = SubjectFinder.findById("a");
+      Subject subjA = SubjectFinder.findById("a", true);
 
       gA.addMember(subjA);
       gB.addMember(gA.toSubject());
@@ -151,7 +151,7 @@ public class TestUSDU extends GrouperTest {
 
       R r = R.populateRegistry(1, 1, 1);
       Group gA = r.getGroup("a", "a");
-      Subject subjA = SubjectFinder.findById("a");
+      Subject subjA = SubjectFinder.findById("a", true);
 
       GroupType customGroupType = GroupType.createType(r.getSession(), "customGroupType");
       Field customListField = customGroupType.addList(r.getSession(), "customList", AccessPrivilege.VIEW,
@@ -179,7 +179,7 @@ public class TestUSDU extends GrouperTest {
 
       R r = R.populateRegistry(1, 1, 1);
       Group gA = r.getGroup("a", "a");
-      Subject subjA = SubjectFinder.findById("a");
+      Subject subjA = SubjectFinder.findById("a", true);
 
       gA.grantPriv(subjA, AccessPrivilege.ADMIN);
       gA.grantPriv(subjA, AccessPrivilege.OPTIN);
@@ -207,8 +207,8 @@ public class TestUSDU extends GrouperTest {
       LOG.info("testNamingPrivilege");
 
       R r = R.populateRegistry(1, 0, 1);
-      Subject subjA = SubjectFinder.findById("a");
-      Stem stem = StemFinder.findByName(r.getSession(), "i2");
+      Subject subjA = SubjectFinder.findById("a", true);
+      Stem stem = StemFinder.findByName(r.getSession(), "i2", true);
 
       stem.grantPriv(subjA, NamingPrivilege.CREATE);
       stem.grantPriv(subjA, NamingPrivilege.STEM);

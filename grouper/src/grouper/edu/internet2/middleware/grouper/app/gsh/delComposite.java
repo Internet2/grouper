@@ -20,7 +20,7 @@ import edu.internet2.middleware.grouper.exception.MemberDeleteException;
  * Delete a composite member.
  * <p/>
  * @author  blair christensen.
- * @version $Id: delComposite.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: delComposite.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.0.1
  */
 public class delComposite {
@@ -45,7 +45,7 @@ public class delComposite {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
-      Group           g     = GroupFinder.findByName(s, group);
+      Group           g     = GroupFinder.findByName(s, group, true);
       g.deleteCompositeMember();
       return true;
     }

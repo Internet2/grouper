@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MemberHooksTest.java,v 1.6 2009-01-31 16:46:41 mchyzer Exp $
+ * $Id: MemberHooksTest.java,v 1.7 2009-03-15 06:37:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -95,7 +95,7 @@ public class MemberHooksTest extends GrouperTest {
     
     group.addMember(SubjectTestHelper.SUBJ0);
     
-    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
     
     MemberHooksImpl.mostRecentPreUpdateMemberSubjectId = null;
     
@@ -105,7 +105,7 @@ public class MemberHooksTest extends GrouperTest {
     assertEquals("whatever", MemberHooksImpl.mostRecentPreUpdateMemberSubjectId);
     
     group.addMember(SubjectTestHelper.SUBJ2);
-    Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2);
+    Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
     try {
       member2.setSubjectId("whatever2");
       member2.store();
@@ -115,7 +115,7 @@ public class MemberHooksTest extends GrouperTest {
       assertEquals("subjectId cannot be whatever2", hookVeto.getReason());
       assertEquals(VetoTypeGrouper.MEMBER_PRE_UPDATE, hookVeto.getVetoType());
     }
-    member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2);
+    member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
     assertEquals(SubjectTestHelper.SUBJ2.getId(), member2.getSubjectId());
     
   }
@@ -131,7 +131,7 @@ public class MemberHooksTest extends GrouperTest {
     
     group.addMember(SubjectTestHelper.SUBJ0);
     
-    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
     
     MemberHooksImpl.mostRecentPreUpdateMemberSubjectId = null;
     
@@ -141,7 +141,7 @@ public class MemberHooksTest extends GrouperTest {
     assertEquals("whatever3", MemberHooksImpl.mostRecentPreUpdateMemberSubjectId);
     
     group.addMember(SubjectTestHelper.SUBJ2);
-    Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2);
+    Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
     try {
       member2.setSubjectId("whatever4");
       member2.store();
@@ -150,7 +150,7 @@ public class MemberHooksTest extends GrouperTest {
       assertEquals("subjectId cannot be whatever4", hookVeto.getReason());
       assertEquals(VetoTypeGrouper.MEMBER_POST_UPDATE, hookVeto.getVetoType());
     }
-    member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2);
+    member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
     assertEquals(SubjectTestHelper.SUBJ2.getId(), member2.getSubjectId());
     
   }
@@ -186,12 +186,12 @@ public class MemberHooksTest extends GrouperTest {
     
     MemberHooksImpl.mostRecentPostDeleteMemberSubjectId = null;
     
-    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
     HibernateSession.byObjectStatic().delete(member);
 
     assertEquals(SubjectTestHelper.SUBJ0.getId(), MemberHooksImpl.mostRecentPostDeleteMemberSubjectId);
     
-    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ6);
+    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ6, true);
     
     try {
       HibernateSession.byObjectStatic().delete(member);
@@ -297,7 +297,7 @@ public class MemberHooksTest extends GrouperTest {
     
     group.addMember(SubjectTestHelper.SUBJ0);
   
-    final Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
+    final Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
   
     MemberHooksImpl.mostRecentPostCommitUpdateMemberSubjectId = null;
   
@@ -334,7 +334,7 @@ public class MemberHooksTest extends GrouperTest {
       MemberNotFoundException {
     
   
-    final Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
+    final Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
   
     MemberHooksImpl.mostRecentPostCommitDeleteMemberSubjectId = null;
   
@@ -365,7 +365,7 @@ public class MemberHooksTest extends GrouperTest {
   public void testMemberPostCommitChange() throws MemberAddException, InsufficientPrivilegeException,
       MemberNotFoundException {
 
-    final Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
+    final Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
 
     MemberHooksImpl.mostRecentPostCommitChangeMemberSubjectId = null;
 
@@ -397,12 +397,12 @@ public class MemberHooksTest extends GrouperTest {
     
     MemberHooksImpl.mostRecentPreDeleteMemberSubjectId = null;
     
-    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
     HibernateSession.byObjectStatic().delete(member);
     
     assertEquals(SubjectTestHelper.SUBJ0.getId(), MemberHooksImpl.mostRecentPreDeleteMemberSubjectId);
     
-    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ5);
+    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ5, true);
     
     try {
       HibernateSession.byObjectStatic().delete(member);
@@ -428,7 +428,7 @@ public class MemberHooksTest extends GrouperTest {
     
     group.addMember(SubjectTestHelper.SUBJ0);
     
-    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
 
     member.changeSubject(SubjectTestHelper.SUBJ1);
     
@@ -437,7 +437,7 @@ public class MemberHooksTest extends GrouperTest {
     group.deleteMember(group.getMembers().iterator().next());
     
     group.addMember(SubjectTestHelper.SUBJ8);
-    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ8);
+    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ8, true);
     try {
       member.changeSubject(SubjectTestHelper.SUBJ9);
       fail("Should veto subj8");
@@ -445,7 +445,7 @@ public class MemberHooksTest extends GrouperTest {
       assertEquals("subjectId cannot be " + SubjectTestHelper.SUBJ8.getId(), hookVeto.getReason());
       assertEquals(VetoTypeGrouper.MEMBER_PRE_CHANGE_SUBJECT, hookVeto.getVetoType());
     }
-    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ8);
+    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ8, true);
     assertEquals(SubjectTestHelper.SUBJ8_ID, member.getSubjectId());
     Set<Membership> memberships = group.getMemberships();
     assertEquals(1, memberships.size());
@@ -467,7 +467,7 @@ public class MemberHooksTest extends GrouperTest {
     
     group.addMember(SubjectTestHelper.SUBJ0);
     
-    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0);
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
   
     member.changeSubject(SubjectTestHelper.SUBJ1);
     
@@ -476,7 +476,7 @@ public class MemberHooksTest extends GrouperTest {
     group.deleteMember(group.getMembers().iterator().next());
     
     group.addMember(SubjectTestHelper.SUBJ7);
-    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ7);
+    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ7, true);
     try {
       member.changeSubject(SubjectTestHelper.SUBJ9);
       fail("Should veto subj7");
@@ -484,7 +484,7 @@ public class MemberHooksTest extends GrouperTest {
       assertEquals("subjectId cannot be " + SubjectTestHelper.SUBJ7.getId(), hookVeto.getReason());
       assertEquals(VetoTypeGrouper.MEMBER_POST_CHANGE_SUBJECT, hookVeto.getVetoType());
     }
-    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ7);
+    member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ7, true);
     assertEquals(SubjectTestHelper.SUBJ7_ID, member.getSubjectId());
     Set<Membership> memberships = group.getMemberships();
     assertEquals(1, memberships.size());

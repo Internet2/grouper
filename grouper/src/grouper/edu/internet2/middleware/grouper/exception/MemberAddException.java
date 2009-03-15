@@ -21,9 +21,9 @@ package edu.internet2.middleware.grouper.exception;
  * Exception thrown when a member cannot be added to a group.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberAddException.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: MemberAddException.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  */
-public class MemberAddException extends Exception {
+public class MemberAddException extends RuntimeException {
   private static final long serialVersionUID = 1432937212026422218L;
   public MemberAddException() { 
     super(); 

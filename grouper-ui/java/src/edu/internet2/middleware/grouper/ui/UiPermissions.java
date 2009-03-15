@@ -70,7 +70,7 @@ is=&quot;false&quot;/&gt;<br>
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: UiPermissions.java,v 1.2 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: UiPermissions.java,v 1.3 2009-03-15 06:37:51 mchyzer Exp $
  */
 
 public class UiPermissions {
@@ -151,7 +151,7 @@ public class UiPermissions {
 			}else{
 				Group group = null;
 				try {
-					group=GroupFinder.findByName(GrouperHelper.getRootGrouperSession(s), name);
+					group=GroupFinder.findByName(GrouperHelper.getRootGrouperSession(s), name, true);
 				}catch(GroupNotFoundException e) {}
 				if(group!=null) groups.add(group);
 			}

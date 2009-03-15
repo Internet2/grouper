@@ -58,7 +58,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.65 2009-03-02 07:33:25 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.66 2009-03-15 06:37:21 mchyzer Exp $
  * @since   1.0
  */
 @SuppressWarnings("serial")
@@ -313,7 +313,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     Iterator it = factorOwners.iterator();
       while (it.hasNext()) {
         factorOwnerUuid = (String) it.next();
-        factorOwner     = GrouperDAOFactory.getFactory().getGroup().findByUuid(factorOwnerUuid) ;
+        factorOwner     = GrouperDAOFactory.getFactory().getGroup().findByUuid(factorOwnerUuid, true) ;
         _updateWhereFactorOwnerIsImmediateMember(factorOwner);
       }
   }
@@ -339,7 +339,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
       factorOwner.toMember().getUuid()).iterator();
     while (it.hasNext()) {
       _ms     = (Membership) it.next();
-      Field f = FieldFinder.find(_ms.getListName());
+      Field f = FieldFinder.find(_ms.getListName(), true);
       if (!FieldType.NAMING.equals(f.getType())) {
         Group msOwner =  _ms.getGroup() ;
 
@@ -400,7 +400,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
    */
   private Group _getGroup(String uuid) 
     throws  GroupNotFoundException {
-    Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) ;
+    Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid, true) ;
     GrouperSession.staticGrouperSession().getMember().canView(g);
     return g;
   } 
@@ -413,10 +413,11 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
    */
   private String _getName(String uuid, String msg) {
     try {
-      Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid) ;
+      Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid, true) ;
       return g.getName();
     }
     catch (GroupNotFoundException eGNF) {
+      //CH 20090308 why does this just not throw the exception?
       LOG.error( msg + Quote.single( this.getUuid() ) + ": " + eGNF.getMessage() );
       return GrouperConfig.EMPTY_STRING;
     }
@@ -434,7 +435,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
       StopWatch sw  = new StopWatch();
       sw.start();
 
-      Group     g   = GrouperDAOFactory.getFactory().getGroup().findByUuid( this.getFactorOwnerUuid() ) ;
+      Group     g   = GrouperDAOFactory.getFactory().getGroup().findByUuid( this.getFactorOwnerUuid(), true ) ;
       DefaultMemberOf  mof = new DefaultMemberOf();
       mof.addComposite( GrouperSession.staticGrouperSession(), g, this );
   
@@ -662,13 +663,15 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
 
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
+        CompositeHooks.METHOD_COMPOSITE_POST_INSERT, HooksCompositeBean.class, 
+        this, Composite.class, VetoTypeGrouper.COMPOSITE_POST_INSERT, true, false);
+
+    //do these second so the right object version is set, and dbVersion is ok
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.COMPOSITE, 
         CompositeHooks.METHOD_COMPOSITE_POST_COMMIT_INSERT, HooksCompositeBean.class, 
         this, Composite.class);
 
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
-        CompositeHooks.METHOD_COMPOSITE_POST_INSERT, HooksCompositeBean.class, 
-        this, Composite.class, VetoTypeGrouper.COMPOSITE_POST_INSERT, true, false);
   }
 
   /**

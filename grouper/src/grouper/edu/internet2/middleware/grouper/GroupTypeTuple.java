@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DTO implementation.
  * @author  blair christensen.
- * @version $Id: GroupTypeTuple.java,v 1.8 2009-02-10 05:23:45 mchyzer Exp $
+ * @version $Id: GroupTypeTuple.java,v 1.9 2009-03-15 06:37:21 mchyzer Exp $
  * @since   @HEAD@
  */
 @SuppressWarnings("serial")
@@ -224,13 +224,15 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
 
     super.onPostSave(hibernateSession);
     
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
+        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_INSERT, HooksGroupTypeTupleBean.class, 
+        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_INSERT, true, false);
+
+    //do these second so the right object version is set, and dbVersion is ok
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.GROUP_TYPE_TUPLE, 
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_COMMIT_INSERT, HooksGroupTypeTupleBean.class, 
         this, GroupTypeTuple.class);
 
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
-        GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_POST_INSERT, HooksGroupTypeTupleBean.class, 
-        this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_POST_INSERT, true, false);
   }
 
   /**

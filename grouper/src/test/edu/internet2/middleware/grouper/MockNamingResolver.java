@@ -18,7 +18,7 @@
 package edu.internet2.middleware.grouper;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingResolver;
@@ -29,13 +29,13 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Mock {@link NamingResolver}.
  * @author  blair christensen.
- * @version $Id: MockNamingResolver.java,v 1.7 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: MockNamingResolver.java,v 1.8 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.1
  */
 public class MockNamingResolver implements NamingResolver {
 
 
-  private static final GrouperRuntimeException E = new GrouperRuntimeException("not implemented");
+  private static final GrouperException E = new GrouperException("not implemented");
 
 
 
@@ -51,7 +51,7 @@ public class MockNamingResolver implements NamingResolver {
 
   /**
    * Not implemented.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @since   1.2.1
    */
   public String getConfig(String property) 
@@ -62,7 +62,7 @@ public class MockNamingResolver implements NamingResolver {
 
   /**
    * Not implemented.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @since   1.2.1
    */
   public Set<Stem> getStemsWhereSubjectHasPrivilege(Subject subject, Privilege privilege)
@@ -73,7 +73,7 @@ public class MockNamingResolver implements NamingResolver {
 
   /**
    * Not implemented.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @since   1.2.1
    */
   public Set<NamingPrivilege> getPrivileges(Stem stem, Subject subject)
@@ -84,7 +84,7 @@ public class MockNamingResolver implements NamingResolver {
 
   /**
    * Not implemented.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @since   1.2.1
    */
   public Set<Subject> getSubjectsWithPrivilege(Stem stem, Privilege privilege)
@@ -95,7 +95,7 @@ public class MockNamingResolver implements NamingResolver {
 
   /**
    * Not implemented.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @since   1.2.1
    */
   public void grantPrivilege(Stem stem, Subject subject, Privilege privilege)
@@ -107,7 +107,7 @@ public class MockNamingResolver implements NamingResolver {
 
   /**
    * Not implemented.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @since   1.2.1
    */
   public boolean hasPrivilege(Stem stem, Subject subject, Privilege privilege)
@@ -118,7 +118,7 @@ public class MockNamingResolver implements NamingResolver {
 
   /**
    * Not implemented.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @since   1.2.1
    */
   public void revokePrivilege(Stem stem, Privilege privilege)
@@ -131,7 +131,7 @@ public class MockNamingResolver implements NamingResolver {
 
   /**
    * Not implemented.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @since   1.2.1
    */
   public void revokePrivilege(Stem stem, Subject subject, Privilege privilege)

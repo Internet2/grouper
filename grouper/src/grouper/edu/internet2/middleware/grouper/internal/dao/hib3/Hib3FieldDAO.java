@@ -22,7 +22,7 @@ import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Field</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3FieldDAO.java,v 1.11 2008-11-04 07:17:56 mchyzer Exp $
+ * @version $Id: Hib3FieldDAO.java,v 1.12 2009-03-15 06:37:23 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
@@ -76,11 +76,11 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   
   /**
    * @return set of fields
-   * @throws GrouperRuntimeException 
+   * @throws GrouperException 
    * @since   @HEAD@
    */
   public Set<Field> findAll() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     return HibernateSession.byHqlStatic()
       .createQuery("from Field order by name asc")

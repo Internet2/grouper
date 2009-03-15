@@ -132,7 +132,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.19 2009-03-04 16:48:39 isgwb Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.20 2009-03-15 06:37:51 mchyzer Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -260,7 +260,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		Group group = groupOrStem.getGroup();
 		Stem stem = groupOrStem.getStem();
 		if(listField==null || "".equals(listField)) listField="members";
-		Field field = FieldFinder.find(listField);
+		Field field = FieldFinder.find(listField, true);
 		Set allChildren = new LinkedHashSet();
 		List sortedChildren=null;
 		int resultSize=0;
@@ -430,7 +430,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		}
 
 		while (!isEndPointReached && !"".equals(map.get("stem")) && !GrouperHelper.NS_ROOT.equals(map.get("stem"))) {
-			curStem = StemFinder.findByName(s, (String) map.get("stem"));
+			curStem = StemFinder.findByName(s, (String) map.get("stem"), true);
 			if (curStem != null) {
 				map = GrouperHelper.stem2Map(s, curStem);
 				path.add(0, map);
@@ -508,7 +508,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		QueryFilter queryFilter = null;
 		if(outTerms==null) outTerms=new ArrayList();
 		
-		Stem fromStem = StemFinder.findByName(s,from);
+		Stem fromStem = StemFinder.findByName(s,from, true);
 		for (int i=1;i<=maxCount;i++) {
 			field = getSingle("searchField." + i,attr);
 			query = getSingle("searchField." + i + ".query",attr);
@@ -572,7 +572,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		QueryFilter queryFilter = null;
 		if(outTerms==null) outTerms=new ArrayList();
 		
-		Stem fromStem = StemFinder.findByName(s,from);
+		Stem fromStem = StemFinder.findByName(s,from, true);
 		for (int i=1;i<=maxCount;i++) {
 			field = getSingle("searchField." + i,attr);
 			query = getSingle("searchField." + i + ".query",attr);
@@ -623,7 +623,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		for (int i=1;i<=maxCount;i++) {
 			groupType = getSingle("searchType." + i,attr);
 			if(groupType==null) break;
-			gt=GroupTypeFinder.find(groupType);
+			gt=GroupTypeFinder.find(groupType, true);
 			
 			andOrNot = getSingle("searchType." + i + ".searchAndOrNot",attr);
 			

@@ -24,7 +24,7 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 * Field-related helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: FieldHelper.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: FieldHelper.java,v 1.8 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class FieldHelper {
 
@@ -36,7 +36,7 @@ public class FieldHelper {
   {
     _testField(f, name, type, read, write);
     try {
-      Field field = FieldFinder.find(name);
+      Field field = FieldFinder.find(name, true);
       _testField(field, name, type, read, write);
     }
     catch (SchemaException eS) {

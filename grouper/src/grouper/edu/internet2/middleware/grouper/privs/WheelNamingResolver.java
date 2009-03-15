@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelNamingResolver.java,v 1.13 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: WheelNamingResolver.java,v 1.14 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelNamingResolver extends NamingResolverDecorator {
@@ -73,7 +73,7 @@ public class WheelNamingResolver extends NamingResolverDecorator {
         this.wheelGroup = GroupFinder.findByName(
                             //dont replace the current grouper session
                             this.wheelSession,
-                            wheelGroupName
+                            wheelGroupName, true
                           );
       }
       catch (Exception e) {

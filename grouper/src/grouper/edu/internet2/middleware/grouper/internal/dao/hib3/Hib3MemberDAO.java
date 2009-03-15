@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.12 2008-11-06 12:19:06 isgwb Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.13 2009-03-15 06:37:23 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
@@ -51,7 +51,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   
   
   private static final  String                      KLASS           = Hib3MemberDAO.class.getName();
-  //TODO, move this to ehcache?
+
   private static        GrouperCache<String, Member>  uuid2dtoCache   = null;
   
 
@@ -122,21 +122,38 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   } // public findAll(Source source)
 
   /**
-   * @since   @HEAD@
+   * @deprecated use overload
    */
+  @Deprecated
   public Member findBySubject(Subject subj)
     throws  GrouperDAOException,
-            MemberNotFoundException
-  {
-    return this.findBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() );
+            MemberNotFoundException {
+    return findBySubject(subj, true);
   } 
 
   /**
-   * @since   @HEAD@
+   * 
    */
+  public Member findBySubject(Subject subj, boolean exceptionIfNull)
+      throws GrouperDAOException, MemberNotFoundException {
+    return this.findBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() );
+  }
+
+  /**
+   * @deprecated use overload
+   */
+  @Deprecated
   public Member findBySubject(String id, String src, String type) 
     throws  GrouperDAOException,
             MemberNotFoundException {
+    return findBySubject(id, src, type, true);
+  } 
+
+  /**
+   * 
+   */
+  public Member findBySubject(String id, String src, String type, boolean exceptionIfNull)
+      throws GrouperDAOException, MemberNotFoundException {
     Member member = HibernateSession.byHqlStatic()
       .createQuery("from Member as m where "
         + "     m.subjectIdDb       = :sid    "  
@@ -153,15 +170,25 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     }
     getUuid2dtoCache().put( member.getUuid(), member );
     return member;
+  }
+
+
+
+  /**
+   * @deprecated use overload
+   */
+  @Deprecated
+  public Member findByUuid(String uuid) 
+    throws  GrouperDAOException,
+            MemberNotFoundException  {
+    return findByUuid(uuid, true);
   } 
 
   /**
-   * @since   @HEAD@
+   * 
    */
-  public Member findByUuid(String uuid) 
-    throws  GrouperDAOException,
-            MemberNotFoundException
-  {
+  public Member findByUuid(String uuid, boolean exceptionIfNull)
+      throws GrouperDAOException, MemberNotFoundException {
     if ( getUuid2dtoCache().containsKey(uuid) ) {
       return getUuid2dtoCache().get(uuid);
     }
@@ -181,12 +208,12 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
       }
       throw gde;
     }
-    if (memberDto == null) {
+    if (memberDto == null && exceptionIfNull) {
       throw new MemberNotFoundException();
     }
     getUuid2dtoCache().put(uuid, memberDto);
     return memberDto;
-  } 
+  }
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(Hib3MemberDAO.class);
@@ -233,10 +260,20 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   }
 
   /**
+   * @deprecated use overload
    * @see edu.internet2.middleware.grouper.internal.dao.MemberDAO#findBySubject(java.lang.String)
    */
+  @Deprecated
   public Member findBySubject(String subjectId) throws GrouperDAOException,
       MemberNotFoundException, MemberNotUniqueException {
+    return findBySubject(subjectId, true);
+  }
+
+  /**
+   * 
+   */
+  public Member findBySubject(String subjectId, boolean exceptionIfNull)
+      throws GrouperDAOException, MemberNotFoundException, MemberNotUniqueException {
     List<Member> members = HibernateSession.byHqlStatic().createQuery(
         "from Member as m where m.subjectIdDb       = :sid")
         .setCacheable(true)
@@ -254,21 +291,32 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   }
 
   /**
+   * @deprecated use overload
    * @see edu.internet2.middleware.grouper.internal.dao.MemberDAO#findBySubject(java.lang.String, java.lang.String)
    */
+  @Deprecated
   public Member findBySubject(String subjectId, String src) throws GrouperDAOException,
       MemberNotFoundException {
+    return findBySubject(subjectId, src, true);
+  } 
+
+  /**
+   * 
+   */
+  public Member findBySubject(String subjectId, String src, boolean exceptionIfNull)
+      throws GrouperDAOException, MemberNotFoundException {
     Member member = HibernateSession.byHqlStatic().createQuery(
         "from Member as m where " + "     m.subjectIdDb       = :sid    "
             + "and  m.subjectSourceIdDb = :source ").setCacheable(true).setCacheRegion(
         KLASS + ".FindBySubjectIdSrc").setString("sid", subjectId).setString("source",
         src).uniqueResult(Member.class);
-    if (member == null) {
+    if (member == null && exceptionIfNull) {
       throw new MemberNotFoundException();
     }
     getUuid2dtoCache().put(member.getUuid(), member);
     return member;
-  } 
+  }
+
   
   private static GrouperCache<String, Boolean> getExistsCache() {
 	  if(existsCache==null) {
@@ -285,6 +333,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
 	  }
 	  return uuid2dtoCache;
   }
+
 
 } 
 

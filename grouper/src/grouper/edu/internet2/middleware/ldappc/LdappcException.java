@@ -21,7 +21,7 @@ package edu.internet2.middleware.ldappc;
 /**
  * This is the parent class to all non-runtime Ldappc exceptions.
  */
-public class LdappcException extends Exception
+public class LdappcException extends RuntimeException
 {
     /**
      * Needed because this class implements Serializable.

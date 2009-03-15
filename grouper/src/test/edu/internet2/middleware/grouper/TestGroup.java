@@ -25,7 +25,6 @@ import junit.textui.TestRunner;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupAddException;
-import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -35,7 +34,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroup.java,v 1.12 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: TestGroup.java,v 1.13 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGroup extends GrouperTest {
 
@@ -267,7 +266,7 @@ public class TestGroup extends GrouperTest {
       Group           uofc  = edu.addChildGroup("uofc", "uofc");
       GroupHelper.addMember(uofc, subj, "members");
       GroupHelper.addMember(i2, uofc.toSubject(), "members");
-      MemberFinder.findBySubject(s, subj);
+      MemberFinder.findBySubject(s, subj, true);
       PrivHelper.grantPriv(s, i2,   all,  AccessPrivilege.OPTIN);
       PrivHelper.grantPriv(s, uofc, subj, AccessPrivilege.UPDATE);
 

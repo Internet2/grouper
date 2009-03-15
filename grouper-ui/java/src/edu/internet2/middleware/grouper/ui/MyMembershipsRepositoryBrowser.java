@@ -33,7 +33,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MyMembershipsRepositoryBrowser.java,v 1.6 2007-11-16 14:55:22 isgwb Exp $
+ * @version $Id: MyMembershipsRepositoryBrowser.java,v 1.7 2009-03-15 06:37:51 mchyzer Exp $
  */
 
 public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
@@ -75,7 +75,7 @@ public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
 		if(validStems !=null) return validStems;
 		Set groups = null;
 		GrouperSession s = getGrouperSession();
-		Member member = MemberFinder.findBySubject(s,s.getSubject());
+		Member member = MemberFinder.findBySubject(s,s.getSubject(), true);
 		groups = member.getGroups();
 
 		return getStems(groups);
@@ -85,7 +85,7 @@ public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
 		if(groups!=null) return groups;
 		groups=new HashMap<Group, Object>();
 		GrouperSession s = getGrouperSession();
-		Member member = MemberFinder.findBySubject(s,s.getSubject());
+		Member member = MemberFinder.findBySubject(s,s.getSubject(), true);
 		Set<Group> groupsSet = member.getGroups();
 		for(Group g : groupsSet) {
 			groups.put(g,"");

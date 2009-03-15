@@ -18,7 +18,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Get {@link Stem} attribute value.
  * <p/>
  * @author  blair christensen.
- * @version $Id: getStemAttr.java,v 1.3 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: getStemAttr.java,v 1.4 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.0.1
  */
 public class getStemAttr {
@@ -42,7 +42,7 @@ public class getStemAttr {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s   = GrouperShell.getSession(i);
-      Stem            ns  = StemFinder.findByName(s, name);
+      Stem            ns  = StemFinder.findByName(s, name, true);
       if (attr.equals("createSubject"))    {
         return ns.getCreateSubject();
       }

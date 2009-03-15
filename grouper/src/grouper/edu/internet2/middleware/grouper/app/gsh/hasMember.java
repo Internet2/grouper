@@ -24,7 +24,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * Is the subject a member of this group.
  * <p/>
  * @author  blair christensen.
- * @version $Id: hasMember.java,v 1.3 2008-11-09 22:13:58 shilen Exp $
+ * @version $Id: hasMember.java,v 1.4 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.0.1
  */
 public class hasMember {
@@ -50,8 +50,8 @@ public class hasMember {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
-      Group           g     = GroupFinder.findByName(s, group);
-      Subject         subj  = SubjectFinder.findById(subjId);
+      Group           g     = GroupFinder.findByName(s, group, true);
+      Subject         subj  = SubjectFinder.findById(subjId, true);
       return g.hasMember(subj);
     }
     catch (GroupNotFoundException eGNF)         {
@@ -86,8 +86,8 @@ public class hasMember {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
-      Group           g     = GroupFinder.findByName(s, group);
-      Subject         subj  = SubjectFinder.findById(subjId);
+      Group           g     = GroupFinder.findByName(s, group, true);
+      Subject         subj  = SubjectFinder.findById(subjId, true);
       return g.hasMember(subj, field);
     }
     catch (GroupNotFoundException eGNF)         {

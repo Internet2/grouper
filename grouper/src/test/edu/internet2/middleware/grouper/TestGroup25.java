@@ -26,7 +26,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup25.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroup25.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGroup25 extends TestCase {
 
@@ -54,7 +54,7 @@ public class TestGroup25 extends TestCase {
       Group   a     = r.getGroup("a", "a");
 
       try {
-        a.canWriteField(null, FieldFinder.find("stemmers"));
+        a.canWriteField(null, FieldFinder.find("stemmers", true));
         Assert.fail("IllegalArgumentException not thrown");
       }
       catch (IllegalArgumentException eIA) {

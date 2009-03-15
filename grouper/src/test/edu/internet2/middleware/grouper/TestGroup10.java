@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup10.java,v 1.7 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: TestGroup10.java,v 1.8 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGroup10 extends TestCase {
 
@@ -67,7 +67,7 @@ public class TestGroup10 extends TestCase {
       grouperSession.stop();
 
       try {
-        a.canReadField(null, FieldFinder.find("theAttribute1"));
+        a.canReadField(null, FieldFinder.find("theAttribute1", true));
         Assert.fail("IllegalArgumentException not thrown");
       }
       catch (IllegalArgumentException eIA) {

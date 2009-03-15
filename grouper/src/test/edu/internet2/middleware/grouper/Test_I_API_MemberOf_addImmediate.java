@@ -16,7 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.MemberOf;
@@ -24,7 +24,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_addImmediate.java,v 1.5 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_I_API_MemberOf_addImmediate.java,v 1.6 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_addImmediate extends GrouperTest {
@@ -50,12 +50,12 @@ public class Test_I_API_MemberOf_addImmediate extends GrouperTest {
       gB      = parent.addChildGroup("child group b", "child group b");
       gC      = parent.addChildGroup("child group c", "child group c");
       gD      = parent.addChildGroup("child group d", "child group d");
-      subjX   = SubjectFinder.findById( RegistrySubject.add(s, "subjX", "person", "subjX").getId() );
-      subjY   = SubjectFinder.findById( RegistrySubject.add(s, "subjY", "person", "subjY").getId() );
-      mX      = MemberFinder.findBySubject(s, subjX);
+      subjX   = SubjectFinder.findById( RegistrySubject.add(s, "subjX", "person", "subjX").getId(), true );
+      subjY   = SubjectFinder.findById( RegistrySubject.add(s, "subjY", "person", "subjY").getId(), true );
+      mX      = MemberFinder.findBySubject(s, subjX, true);
     }
     catch (Exception eShouldNotHappen) {
-      throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
+      throw new GrouperException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
   }
 
@@ -64,7 +64,7 @@ public class Test_I_API_MemberOf_addImmediate extends GrouperTest {
       s.stop();
     }
     catch (Exception eShouldNotHappen) {
-      throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
+      throw new GrouperException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
     super.tearDown();
   }

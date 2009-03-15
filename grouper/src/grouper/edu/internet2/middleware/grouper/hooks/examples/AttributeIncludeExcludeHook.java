@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AttributeIncludeExcludeHook.java,v 1.2 2008-11-05 05:10:37 mchyzer Exp $
+ * $Id: AttributeIncludeExcludeHook.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -73,7 +73,7 @@ public class AttributeIncludeExcludeHook extends AttributeHooks {
     
     Attribute attribute = postInsertBean.getAttribute();
 
-    Field attributeField = FieldFinder.findById(attribute.getFieldId());
+    Field attributeField = FieldFinder.findById(attribute.getFieldId(), true);
     
     //make sure this is the right type
     String requireGroupsTypeName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.type.name");
@@ -98,7 +98,7 @@ public class AttributeIncludeExcludeHook extends AttributeHooks {
         return;
       }
       
-      Group typedGroup = GroupFinder.findByUuid(grouperSession, groupUuid);
+      Group typedGroup = GroupFinder.findByUuid(grouperSession, groupUuid, true);
 
       GroupTypeTupleIncludeExcludeHook.manageIncludesExcludesAndGroups(grouperSession, typedGroup, 
           summaryForLog + " attribute '" + attributeField.getName() + "' for group: " + typedGroup.getExtension());

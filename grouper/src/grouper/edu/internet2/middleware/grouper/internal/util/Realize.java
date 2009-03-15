@@ -18,13 +18,13 @@
 package edu.internet2.middleware.grouper.internal.util;
 import java.lang.reflect.Constructor;
 
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 
 /**
  * Reflectively instantiate classes.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Realize.java,v 1.4 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: Realize.java,v 1.5 2009-03-15 06:37:23 mchyzer Exp $
  * @since   1.2.0
  */
 public class Realize {
@@ -35,7 +35,7 @@ public class Realize {
    * @since   1.2.0
    */ 
   public static Object instantiate(String name)
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     try {
       Class       classType   = Class.forName(name);
@@ -45,7 +45,7 @@ public class Realize {
       return con.newInstance(params);
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException( "cannot instantiate (" + name + "): " + e.getMessage(), e );
+      throw new GrouperException( "cannot instantiate (" + name + "): " + e.getMessage(), e );
     }
   } 
 

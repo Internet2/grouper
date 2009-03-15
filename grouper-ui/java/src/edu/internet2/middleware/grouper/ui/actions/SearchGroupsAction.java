@@ -155,7 +155,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table> 
  * @author Gary Brown.
- * @version $Id: SearchGroupsAction.java,v 1.9 2007-09-30 08:58:18 isgwb Exp $
+ * @version $Id: SearchGroupsAction.java,v 1.10 2009-03-15 06:37:51 mchyzer Exp $
  */
 
 public class SearchGroupsAction extends GrouperCapableAction {
@@ -257,7 +257,7 @@ public class SearchGroupsAction extends GrouperCapableAction {
 		
 		if (!isEmpty(searchFrom)) {
 			Stem fromStem = StemFinder.findByName(grouperSession,
-					searchFrom);
+					searchFrom, true);
 			pager.setParam("searchFromDisplay", fromStem.getDisplayExtension());
 		}
 		

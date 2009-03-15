@@ -34,7 +34,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: ManageRepositoryBrowser.java,v 1.5 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: ManageRepositoryBrowser.java,v 1.6 2009-03-15 06:37:51 mchyzer Exp $
  */
 
 
@@ -80,7 +80,7 @@ public class ManageRepositoryBrowser extends AbstractRepositoryBrowser{
 		if(validStems !=null) return validStems;
 		List groups = new ArrayList();
 		GrouperSession s = getGrouperSession();
-		Member member = MemberFinder.findBySubject(s,s.getSubject());
+		Member member = MemberFinder.findBySubject(s,s.getSubject(), true);
 		groups.addAll(member.hasAdmin());
 		groups.addAll(member.hasUpdate());
 		groups.addAll(member.hasStem());

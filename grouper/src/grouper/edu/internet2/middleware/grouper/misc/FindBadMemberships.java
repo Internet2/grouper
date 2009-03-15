@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
@@ -55,7 +56,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.SessionException;
@@ -252,7 +252,7 @@ public class FindBadMemberships {
         out.println("Error checking stem " + stem.getName() + ": " + e.getMessage());
       } catch (SchemaException e) {
         out.println("Error checking stem " + stem.getName() + ": " + e.getMessage());
-      } catch (GrouperRuntimeException e) {
+      } catch (GrouperException e) {
         out.println("Error checking stem " + stem.getName() + ": " + e.getMessage());
       } catch (IllegalStateException e) {
         out.println("Error checking stem " + stem.getName() + ": " + e.getMessage());
@@ -275,7 +275,7 @@ public class FindBadMemberships {
   protected static boolean checkStem(String stemName) throws SessionException, StemNotFoundException, 
     MemberNotFoundException, SchemaException {
     GrouperSession.start(SubjectFinder.findRootSubject());
-    Stem stem = GrouperDAOFactory.getFactory().getStem().findByName(stemName);
+    Stem stem = GrouperDAOFactory.getFactory().getStem().findByName(stemName, true);
 
     out.println("Checking stem: " + stem.getName());
     return checkStem(stem);
@@ -320,14 +320,15 @@ public class FindBadMemberships {
         }
         continue;
       }
-      Member currentMember = GrouperDAOFactory.getFactory().getMember().findByUuid(currentMembership.getMemberUuid());
+      Member currentMember = GrouperDAOFactory.getFactory().getMember().findByUuid(currentMembership.getMemberUuid(), true);
 
       // add the immediate membership and get back the membership objects that are created.
       DefaultMemberOf mof = new DefaultMemberOf();
 
       try {
         // if this throws a HibernateException, we might have bad data in the database.
-        mof.addImmediateWithoutValidation(GrouperSession.staticGrouperSession(), stem, FieldFinder.find(currentMembership.getListName()), currentMember);
+        mof.addImmediateWithoutValidation(GrouperSession.staticGrouperSession(), stem, 
+            FieldFinder.find(currentMembership.getListName(), true), currentMember);
       } catch (HibernateException e) {
         return false;
       }
@@ -362,12 +363,8 @@ public class FindBadMemberships {
    * @return the composite or null if the group is not the owner of a composite.
    */
   private static Composite getComposite(Group group) {
-    try {
-      Composite c = group.getComposite();
+      Composite c = group.getComposite(false);
       return c;
-    } catch (CompositeNotFoundException e) {
-      return null;
-    }
   }
 
   /**
@@ -398,7 +395,7 @@ public class FindBadMemberships {
         out.println("Error checking group " + group.getName() + ": " + e.getMessage());
       } catch (SchemaException e) {
         out.println("Error checking group " + group.getName() + ": " + e.getMessage());
-      } catch (GrouperRuntimeException e) {
+      } catch (GrouperException e) {
         out.println("Error checking group " + group.getName() + ": " + e.getMessage());
       } catch (IllegalStateException e) {
         out.println("Error checking group " + group.getName() + ": " + e.getMessage());
@@ -465,7 +462,7 @@ public class FindBadMemberships {
   protected static boolean checkGroup(String groupName) throws SessionException, GroupNotFoundException,
     MemberNotFoundException, SchemaException {
     GrouperSession.start(SubjectFinder.findRootSubject());
-    Group group = GrouperDAOFactory.getFactory().getGroup().findByName(groupName);
+    Group group = GrouperDAOFactory.getFactory().getGroup().findByName(groupName, true);
 
     out.println("Checking group: " + group.getName());
     return checkGroup(group);
@@ -528,14 +525,15 @@ public class FindBadMemberships {
         }
         continue;
       }
-      Member currentMember = GrouperDAOFactory.getFactory().getMember().findByUuid(currentMembership.getMemberUuid());
+      Member currentMember = GrouperDAOFactory.getFactory().getMember().findByUuid(currentMembership.getMemberUuid(), true);
 
       // add the immediate membership and lets see what effective memberships are created.
       DefaultMemberOf mof = new DefaultMemberOf();
 
       try {
         // if this throws a HibernateException, we might have bad data in the database.
-        mof.addImmediateWithoutValidation(GrouperSession.staticGrouperSession(), group, FieldFinder.find(currentMembership.getListName()), currentMember);
+        mof.addImmediateWithoutValidation(GrouperSession.staticGrouperSession(), group, 
+            FieldFinder.find(currentMembership.getListName(), true), currentMember);
       } catch (HibernateException e) {
         return false;
       }
@@ -745,8 +743,8 @@ public class FindBadMemberships {
       Membership ms = currentIterator.next();
       if (ms.getType().equals(Membership.IMMEDIATE)) {
         try { 
-          Field f = FieldFinder.find(ms.getListName());
-          Member m = GrouperDAOFactory.getFactory().getMember().findByUuid(ms.getMemberUuid());
+          Field f = FieldFinder.find(ms.getListName(), true);
+          Member m = GrouperDAOFactory.getFactory().getMember().findByUuid(ms.getMemberUuid(), true);
           String subjectId = m.getSubjectId();
           if (f.equals(Group.getDefaultList())) {
             deletes.write("delMember(\"" + group.getName() + "\", \"" + subjectId + "\")\n");
@@ -760,9 +758,6 @@ public class FindBadMemberships {
             deletes.write("revokePriv(\"" + group.getName() + "\", \"" + subjectId + "\", " + privilegeString + ")\n");
             adds.write("grantPriv(\"" + group.getName() + "\", \"" + subjectId + "\", " + privilegeString + ")\n");
           }
-        } catch (SchemaException e) {
-          // this shouldn't happen...
-          throw new IllegalStateException(e.getMessage(), e);
         } catch (MemberNotFoundException e) {
           throw new IllegalStateException("Unable to find member object for this bad membership: " + e.getMessage(), e);
         }
@@ -810,15 +805,12 @@ public class FindBadMemberships {
       Membership ms = currentIterator.next();
       if (ms.getType().equals(Membership.IMMEDIATE)) {
         try {
-          Field f = FieldFinder.find(ms.getListName());
-          Member m = GrouperDAOFactory.getFactory().getMember().findByUuid(ms.getMemberUuid());
+          Field f = FieldFinder.find(ms.getListName(), true);
+          Member m = GrouperDAOFactory.getFactory().getMember().findByUuid(ms.getMemberUuid(), true);
           String subjectId = m.getSubjectId();
           String privilegeString = getPrivilegeString(f);
           deletes.write("revokePriv(\"" + stem.getName() + "\", \"" + subjectId + "\", " + privilegeString + ")\n");
           adds.write("grantPriv(\"" + stem.getName() + "\", \"" + subjectId + "\", " + privilegeString + ")\n");
-        } catch (SchemaException e) {
-          // this shouldn't happen...
-          throw new IllegalStateException(e.getMessage(), e);
         } catch (MemberNotFoundException e) {
           throw new IllegalStateException("Unable to find member object for this bad membership: " + e.getMessage(), e);
         }

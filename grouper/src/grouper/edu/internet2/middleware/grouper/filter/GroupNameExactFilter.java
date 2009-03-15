@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.exception.QueryException;
  * Query by exact group name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupNameExactFilter.java,v 1.1 2008-07-21 05:15:59 mchyzer Exp $
+ * @version $Id: GroupNameExactFilter.java,v 1.2 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class GroupNameExactFilter extends BaseQueryFilter {
 
@@ -63,7 +63,7 @@ public class GroupNameExactFilter extends BaseQueryFilter {
     Set candidates  = new HashSet<Group>();
     Group group = null;
     try {
-      group = GroupFinder.findByName(s, this.name);
+      group = GroupFinder.findByName(s, this.name, true);
       candidates.add(group);
     } catch (GroupNotFoundException gnfe) {
       return candidates;

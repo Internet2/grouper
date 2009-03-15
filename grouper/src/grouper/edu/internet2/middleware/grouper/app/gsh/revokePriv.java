@@ -28,7 +28,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * Revoke a privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: revokePriv.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: revokePriv.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.0.1
  */
 public class revokePriv {
@@ -55,14 +55,14 @@ public class revokePriv {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s     = GrouperShell.getSession(i);
-      Subject         subj  = SubjectFinder.findById(subjId);
+      Subject         subj  = SubjectFinder.findById(subjId, true);
       if (Privilege.isAccess(priv)) {
-        Group   g     = GroupFinder.findByName(s, name);
+        Group   g     = GroupFinder.findByName(s, name, true);
         g.revokePriv(subj, priv);
         return true;
       } 
       else {
-        Stem    ns    = StemFinder.findByName(s, name);
+        Stem    ns    = StemFinder.findByName(s, name, true);
         ns.revokePriv(subj, priv);
         return true;
       }

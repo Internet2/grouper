@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: RestClientSettings.java,v 1.11 2008-12-06 20:39:33 mchyzer Exp $
+ * @author mchyzer $Id: RestClientSettings.java,v 1.12 2009-03-15 06:41:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.util;
 
@@ -113,10 +113,10 @@ public class RestClientSettings {
         }
         
         //add the member
-        Subject subject0 = SubjectFinder.findById("test.subject.0");
-        MemberFinder.findBySubject(grouperSession, subject0);
-        MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.2"));
-        MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.3"));
+        Subject subject0 = SubjectFinder.findById("test.subject.0", true);
+        MemberFinder.findBySubject(grouperSession, subject0, true);
+        MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.2", true), true);
+        MemberFinder.findBySubject(grouperSession, SubjectFinder.findById("test.subject.3", true), true);
         
         Stem aStem = Stem.saveStem(grouperSession, "aStem", null, "aStem", null, null, null, true);
 

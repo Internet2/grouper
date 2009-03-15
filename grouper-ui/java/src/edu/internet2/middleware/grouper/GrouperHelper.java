@@ -82,7 +82,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.56 2009-03-04 15:36:09 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.57 2009-03-15 06:37:51 mchyzer Exp $
  */
 
 
@@ -141,11 +141,11 @@ public class GrouperHelper {
 	//GB 20080415 changed back, but UI looks up display name now for select options 
 	private static String[] stemPrivs = {"CREATE", "STEM"};
 	public static void main(String args[]) throws Exception{
-		Subject subj = SubjectFinder.findById("GrouperSystem");
+		Subject subj = SubjectFinder.findById("GrouperSystem", true);
 		GrouperSession s = GrouperSession.start(subj);
 
 		//GroupType type = GroupType.createType(s,"teaching");
-		GroupType type = GroupTypeFinder.find("committee");
+		GroupType type = GroupTypeFinder.find("committee", true);
 		/*type.addField(s,"enforcer",FieldType.ATTRIBUTE,Privilege.getInstance("read"),Privilege.getInstance("update"),true);
 		type = GroupTypeFinder.find("mailingList");
 		type.addField(s,"alias",FieldType.ATTRIBUTE,Privilege.getInstance("read"),Privilege.getInstance("update"),true);
@@ -154,10 +154,10 @@ public class GrouperHelper {
 		type = GroupTypeFinder.find("personal");
 		type.addField(s,"proxy",FieldType.ATTRIBUTE,Privilege.getInstance("read"),Privilege.getInstance("update"),true);
 		*/
-		type = GroupTypeFinder.find("community");
+		type = GroupTypeFinder.find("community", true);
 		type.addList(s,"contributors",Privilege.getInstance("read"),Privilege.getInstance("update"));
 		type.addAttribute(s,"scope",Privilege.getInstance("read"),Privilege.getInstance("update"),true);
-		type = GroupTypeFinder.find("staff");
+		type = GroupTypeFinder.find("staff", true);
 		type.addAttribute(s,"dept",Privilege.getInstance("read"),Privilege.getInstance("update"),true);
 		/*type.addField(s,"staff",FieldType.LIST,Privilege.getInstance("read"),Privilege.getInstance("update"),false);
 		type.addField(s,"clerical",FieldType.LIST,Privilege.getInstance("read"),Privilege.getInstance("update"),false);
@@ -205,7 +205,7 @@ public class GrouperHelper {
 		if("".equals(stemId)) {
 			stem=StemFinder.findRootStem(s);
 		}else{
-			stem=StemFinder.findByName(s, stemId);
+			stem=StemFinder.findByName(s, stemId, true);
 		}
 		ArrayList res = new ArrayList();
 		Set children = stem.getChildStems();
@@ -405,7 +405,7 @@ public class GrouperHelper {
 
 		Stem curStem = null;
 		while (!GrouperHelper.NS_ROOT.equals(map.get("stem"))) {
-			curStem = StemFinder.findByName(s, (String) map.get("stem"));
+			curStem = StemFinder.findByName(s, (String) map.get("stem"), true);
 			if (curStem != null) {
 				map = stem2Map(s, curStem);
 				path.add(0, map);
@@ -609,7 +609,7 @@ public class GrouperHelper {
 		if (!"group".equals(subjectType)) {
 			Subject subject = null;
 			try {
-				subject = SubjectFinder.findById(subjectId, subjectType,sourceId);
+				subject = SubjectFinder.findById(subjectId, subjectType,sourceId, true);
 			} catch (Exception e) {
 				LOG.error(e);
 				subject = new UnresolvableSubject(subjectId,subjectType,sourceId); 
@@ -618,11 +618,11 @@ public class GrouperHelper {
 			return (Map) map;
 		}
 		try {
-		Group group = GroupFinder.findByUuid(s, subjectId);
+		Group group = GroupFinder.findByUuid(s, subjectId, true);
 		Map groupMap = group2Map(s, group);
 		return groupMap;
 		}catch(GroupNotFoundException e) {
-			throw new SubjectNotFoundException(e.getMessage());
+			throw new SubjectNotFoundException(e.getMessage(), e);
 		}
 	}
 	

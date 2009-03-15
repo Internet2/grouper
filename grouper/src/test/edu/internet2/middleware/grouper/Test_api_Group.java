@@ -19,7 +19,7 @@ package edu.internet2.middleware.grouper;
 
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Group.java,v 1.6 2009-03-06 17:48:56 shilen Exp $
+ * @version $Id: Test_api_Group.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_Group extends GrouperTest {
@@ -77,7 +77,7 @@ public class Test_api_Group extends GrouperTest {
       type3attr2 = type3.addAttribute(s, "type3attr2", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN, false);
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException( "test setUp() error: " + e.getMessage(), e );
+      throw new GrouperException( "test setUp() error: " + e.getMessage(), e );
     }
   }
 
@@ -133,7 +133,7 @@ public class Test_api_Group extends GrouperTest {
     child_group.grantPriv(a, AccessPrivilege.UPDATE);
     child_group.move(top);
 
-    child_group = GroupFinder.findByName(s, "top:child group");
+    child_group = GroupFinder.findByName(s, "top:child group", true);
     assertGroupName(child_group, "top:child group");
     assertGroupDisplayName(child_group, "top display name:child group display name");
     assertGroupHasMember(child_group, a, true);
@@ -155,7 +155,7 @@ public class Test_api_Group extends GrouperTest {
       assertTrue(true);
     }
   }
-  
+
   /**
    * @throws InsufficientPrivilegeException 
    */
@@ -345,8 +345,8 @@ public class Test_api_Group extends GrouperTest {
     Group newGroup = child_group.copy(top);
     verify_copy(r, newGroup, true, true, true, true, true);
     
-    assertTrue(composite.getComposite().getRightGroup().getName().equals("top:right"));
-    assertTrue(composite.getComposite().getLeftGroup().getName().equals("top:child:child group"));
+    assertTrue(composite.getComposite(true).getRightGroup().getName().equals("top:right"));
+    assertTrue(composite.getComposite(true).getLeftGroup().getName().equals("top:child:child group"));
     
     assertTrue(newGroup.hasComposite() == false);
     
@@ -371,10 +371,10 @@ public class Test_api_Group extends GrouperTest {
     Group newGroup = child_group.copy(top);
     verify_copy(r, newGroup, true, true, true, true, true);
     
-    assertTrue(child_group.getComposite().getRightGroup().getName().equals("top:right"));
-    assertTrue(child_group.getComposite().getLeftGroup().getName().equals("top:left"));
-    assertTrue(newGroup.getComposite().getRightGroup().getName().equals("top:right"));
-    assertTrue(newGroup.getComposite().getLeftGroup().getName().equals("top:left"));
+    assertTrue(child_group.getComposite(true).getRightGroup().getName().equals("top:right"));
+    assertTrue(child_group.getComposite(true).getLeftGroup().getName().equals("top:left"));
+    assertTrue(newGroup.getComposite(true).getRightGroup().getName().equals("top:right"));
+    assertTrue(newGroup.getComposite(true).getLeftGroup().getName().equals("top:left"));
         
     r.rs.stop();
   }
@@ -517,7 +517,7 @@ public class Test_api_Group extends GrouperTest {
     // subject can read child_group and can create in top stem, but cannot write privileges to top_group.
     nrs.stop();
     nrs = GrouperSession.start(SubjectFinder.findRootSubject());
-    Field admins = FieldFinder.find("admins");
+    Field admins = FieldFinder.find("admins", true);
     admins.setReadPrivilege(AccessPrivilege.VIEW);
     GrouperDAOFactory.getFactory().getField().createOrUpdate(admins);
     nrs.stop();
@@ -548,7 +548,7 @@ public class Test_api_Group extends GrouperTest {
     // subject can read child_group and can create in top stem, but cannot write privileges to top.
     nrs.stop();
     nrs = GrouperSession.start(SubjectFinder.findRootSubject());
-    Field stemmers = FieldFinder.find("stemmers");
+    Field stemmers = FieldFinder.find("stemmers", true);
     stemmers.setReadPrivilege(NamingPrivilege.CREATE);
     GrouperDAOFactory.getFactory().getField().createOrUpdate(stemmers);
     nrs.stop();
@@ -580,7 +580,7 @@ public class Test_api_Group extends GrouperTest {
     nrs.stop();
     nrs = GrouperSession.start(SubjectFinder.findRootSubject());
     child_group.deleteType(type1);
-    Field members = FieldFinder.find("members");
+    Field members = FieldFinder.find("members", true);
     members.setReadPrivilege(AccessPrivilege.ADMIN);
     GrouperDAOFactory.getFactory().getField().createOrUpdate(members);
     nrs.stop();
@@ -711,7 +711,7 @@ public class Test_api_Group extends GrouperTest {
     assertGroupDisplayName(newGroup, "top display name:child group display name");
     newGroup = null;
 
-    newGroup = GroupFinder.findByName(s, "top:child group");
+    newGroup = GroupFinder.findByName(s, "top:child group", true);
 
     // name checks
     assertGroupName(newGroup, "top:child group");

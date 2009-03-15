@@ -64,7 +64,7 @@ public class GroupMemberFilter extends BaseQueryFilter {
     GrouperSession.validate(s);
 
     Member member = null;
-    member = MemberFinder.findBySubject(s, subj);
+    member = MemberFinder.findBySubject(s, subj, true);
 
     Set candidates  = PrivilegeHelper.canViewGroups(
       s, member.getGroups()

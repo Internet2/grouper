@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: CreateRepositoryBrowser.java,v 1.6 2007-11-06 16:44:28 isgwb Exp $
+ * @version $Id: CreateRepositoryBrowser.java,v 1.7 2009-03-15 06:37:51 mchyzer Exp $
  */
 
 
@@ -91,7 +91,7 @@ public class CreateRepositoryBrowser extends AbstractRepositoryBrowser{
 		if(validStems !=null) return validStems;
 		List stems = new ArrayList();
 		GrouperSession s = getGrouperSession();
-		Member member = MemberFinder.findBySubject(s,s.getSubject());
+		Member member = MemberFinder.findBySubject(s,s.getSubject(), true);
 		stems.addAll(member.hasStem());
 		stems.addAll(member.hasCreate());
 		

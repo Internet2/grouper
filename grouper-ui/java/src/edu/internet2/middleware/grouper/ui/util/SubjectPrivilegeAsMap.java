@@ -32,7 +32,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SubjectPrivilegeAsMap.java,v 1.6 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: SubjectPrivilegeAsMap.java,v 1.7 2009-03-15 06:37:51 mchyzer Exp $
  */
 public class SubjectPrivilegeAsMap extends ObjectAsMap {
 
@@ -98,7 +98,7 @@ public class SubjectPrivilegeAsMap extends ObjectAsMap {
 			if("isDirect".equals(key)) {
 				if(subject instanceof LazySubject) return GrouperHelper.isDirect((LazySubject)subject);
 				try {
-					Map tmpPrivMap = GrouperHelper.getImmediateHas(s,groupOrStem,MemberFinder.findBySubject(s,subject));
+					Map tmpPrivMap = GrouperHelper.getImmediateHas(s,groupOrStem,MemberFinder.findBySubject(s,subject, true));
 					Boolean answer = new Boolean(tmpPrivMap.containsKey(privilege.toUpperCase()));
 					put("isDirect",answer);
 					return answer;

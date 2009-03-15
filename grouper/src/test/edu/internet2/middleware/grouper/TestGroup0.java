@@ -52,7 +52,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup0.java,v 1.19 2008-12-15 08:12:32 mchyzer Exp $
+ * @version $Id: TestGroup0.java,v 1.20 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGroup0 extends GrouperTest {
 
@@ -200,14 +200,14 @@ public class TestGroup0 extends GrouperTest {
   public void testMemberRead() throws Exception {
     R.populateRegistry(1, 2, 1);
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    Group group1 = GroupFinder.findByName(grouperSession, "i2:a:a");
-    Group group2 = GroupFinder.findByName(grouperSession, "i2:a:b");
+    Group group1 = GroupFinder.findByName(grouperSession, "i2:a:a", true);
+    Group group2 = GroupFinder.findByName(grouperSession, "i2:a:b", true);
     //System.out.println(group1);
     
-    Stem stem = StemFinder.findByName(grouperSession, "i2");
+    Stem stem = StemFinder.findByName(grouperSession, "i2", true);
     
     
-    Subject subject = SubjectFinder.findById("a");
+    Subject subject = SubjectFinder.findById("a", true);
     //System.out.println(GrouperUtil.subjectToString(subject));
     
     group1.grantPriv(subject, AccessPrivilege.ADMIN);
@@ -220,19 +220,19 @@ public class TestGroup0 extends GrouperTest {
     grouperSession.stop();
     grouperSession = GrouperSession.start(subject);
     try {
-      group1.addMember(SubjectFinder.findById(group2.getUuid()));
+      group1.addMember(SubjectFinder.findById(group2.getUuid(), true));
       fail("Shouldnt be able to add this member without READ priv");
     } catch (MemberAddException e) {
       //this is ok
     }
     try {
-      group1.grantPriv(SubjectFinder.findById(group2.getUuid()), AccessPrivilege.VIEW);
+      group1.grantPriv(SubjectFinder.findById(group2.getUuid(), true), AccessPrivilege.VIEW);
       fail("Shouldnt be able to grant this member without READ priv");
     } catch (GrantPrivilegeException e) {
       //this is ok
     }
     try {
-      stem.grantPriv(SubjectFinder.findById(group2.getUuid()), NamingPrivilege.CREATE);
+      stem.grantPriv(SubjectFinder.findById(group2.getUuid(), true), NamingPrivilege.CREATE);
       fail("Shouldnt be able to grant this member without READ priv");
     } catch (GrantPrivilegeException e) {
       //this is ok
@@ -244,9 +244,9 @@ public class TestGroup0 extends GrouperTest {
     grouperSession = GrouperSession.start(subject);
     
     //this should work now with read priv
-    group1.addMember(SubjectFinder.findById(group2.getUuid()));
-    group1.grantPriv(SubjectFinder.findById(group2.getUuid()), AccessPrivilege.VIEW);
-    stem.grantPriv(SubjectFinder.findById(group2.getUuid()), NamingPrivilege.CREATE);
+    group1.addMember(SubjectFinder.findById(group2.getUuid(), true));
+    group1.grantPriv(SubjectFinder.findById(group2.getUuid(), true), AccessPrivilege.VIEW);
+    stem.grantPriv(SubjectFinder.findById(group2.getUuid(), true), NamingPrivilege.CREATE);
   }
   
   /**
@@ -256,12 +256,12 @@ public class TestGroup0 extends GrouperTest {
   public void testCompositeMemberRead() throws Exception {
     R.populateRegistry(1, 3, 1);
     GrouperSession grouperSession = GrouperSession.startRootSession();
-    Group group1 = GroupFinder.findByName(grouperSession, "i2:a:a");
-    Group group2 = GroupFinder.findByName(grouperSession, "i2:a:b");
-    Group group3 = GroupFinder.findByName(grouperSession, "i2:a:c");
+    Group group1 = GroupFinder.findByName(grouperSession, "i2:a:a", true);
+    Group group2 = GroupFinder.findByName(grouperSession, "i2:a:b", true);
+    Group group3 = GroupFinder.findByName(grouperSession, "i2:a:c", true);
     //System.out.println(group1);
     
-    Subject subject = SubjectFinder.findById("a");
+    Subject subject = SubjectFinder.findById("a", true);
     //System.out.println(GrouperUtil.subjectToString(subject));
     
     group1.grantPriv(subject, AccessPrivilege.ADMIN);
@@ -323,7 +323,7 @@ public class TestGroup0 extends GrouperTest {
         SaveMode.INSERT, false);
 
     //now retrieve
-    Group foundGroup = GroupFinder.findByName(rootSession, groupName);
+    Group foundGroup = GroupFinder.findByName(rootSession, groupName, true);
 
     assertEquals(groupName, createdGroup.getName());
     assertEquals(groupName, foundGroup.getName());
@@ -408,7 +408,7 @@ public class TestGroup0 extends GrouperTest {
         });
 
     //now retrieve
-    Group foundGroup = GroupFinder.findByName(rootSession, groupName);
+    Group foundGroup = GroupFinder.findByName(rootSession, groupName, true);
 
     assertEquals("Name should be there", groupName, foundGroup.getName());
 
@@ -436,7 +436,7 @@ public class TestGroup0 extends GrouperTest {
         });
 
     //now retrieve
-    foundGroup = GroupFinder.findByName(rootSession, groupName);
+    foundGroup = GroupFinder.findByName(rootSession, groupName, true);
 
     assertEquals("Name should be there", groupName, foundGroup.getName());
     assertEquals("Description should be new", groupDescription + "1", foundGroup
@@ -480,7 +480,7 @@ public class TestGroup0 extends GrouperTest {
 
     //now retrieve, shouldnt be there
     try {
-      GroupFinder.findByName(rootSession, groupName);
+      GroupFinder.findByName(rootSession, groupName, true);
       fail("Shouldnt find the group");
     } catch (GroupNotFoundException gnfe) {
       //all good
@@ -528,13 +528,13 @@ public class TestGroup0 extends GrouperTest {
     //see if group is there
     //now retrieve, shouldnt be there
     try {
-      GroupFinder.findByName(rootSession, groupName);
+      GroupFinder.findByName(rootSession, groupName, true);
       fail("Shouldnt find the group");
     } catch (GroupNotFoundException gnfe) {
       //all good
     }
     try {
-      GroupFinder.findByName(rootSession, groupName2);
+      GroupFinder.findByName(rootSession, groupName2, true);
       fail("Shouldnt find the group");
     } catch (GroupNotFoundException gnfe) {
       //all good
@@ -578,13 +578,13 @@ public class TestGroup0 extends GrouperTest {
     //see if group is there
     //now retrieve, shouldnt be there
     try {
-      GroupFinder.findByName(rootSession, groupName);
+      GroupFinder.findByName(rootSession, groupName, true);
       fail("Shouldnt find the group");
     } catch (GroupNotFoundException gnfe) {
       //all good
     }
     try {
-      GroupFinder.findByName(rootSession, groupName2);
+      GroupFinder.findByName(rootSession, groupName2, true);
       fail("Shouldnt find the group");
     } catch (GroupNotFoundException gnfe) {
       //all good
@@ -645,14 +645,14 @@ public class TestGroup0 extends GrouperTest {
     //see if group is there
     //now retrieve, shouldnt be there since out tx rolled back
     try {
-      GroupFinder.findByName(rootSession, groupName);
+      GroupFinder.findByName(rootSession, groupName, true);
       fail("Shouldnt find the group");
     } catch (GroupNotFoundException gnfe) {
       //all good
     }
     //this one should be there since inner tx committed
     //now retrieve
-    Group foundGroup2 = GroupFinder.findByName(rootSession, groupName2);
+    Group foundGroup2 = GroupFinder.findByName(rootSession, groupName2, true);
 
     assertEquals("Name should be there", groupName2, foundGroup2.getName());
 
@@ -797,7 +797,7 @@ public class TestGroup0 extends GrouperTest {
     rootStem = StemFinder.findRootStem(rootSession); 
     for (int i=0;i<100;i++) {
       try {
-        SubjectFinder.findById("GrouperSystem"+i);
+        SubjectFinder.findById("GrouperSystem"+i, true);
       } catch (SubjectNotFoundException e) {
         
       }
