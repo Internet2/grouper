@@ -28,7 +28,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Test {@link SubjectFinder} class with {@link InternalSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSubjectFinderInternal.java,v 1.11 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestSubjectFinderInternal.java,v 1.12 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestSubjectFinderInternal extends TestCase {
 
@@ -59,7 +59,7 @@ public class TestSubjectFinderInternal extends TestCase {
   public void testFinderBadSubjectByIdentifier() {
     String id = "i do not exist";
     try { 
-      Subject subj = SubjectFinder.findByIdentifier(id);
+      Subject subj = SubjectFinder.findByIdentifier(id, true);
       Assert.fail("found bad subject: " + subj);
     } 
     catch (SubjectNotFoundException e) {
@@ -74,7 +74,7 @@ public class TestSubjectFinderInternal extends TestCase {
     String  id    = "i do not exist";
     String  type  = "person";
     try { 
-      Subject subj = SubjectFinder.findByIdentifier(id, type);
+      Subject subj = SubjectFinder.findByIdentifier(id, type, true);
       Assert.fail("found bad subject: " + subj);
     } 
     catch (SubjectNotFoundException e) {
@@ -89,7 +89,7 @@ public class TestSubjectFinderInternal extends TestCase {
     String  id    = "i do not exist";
     String  type  = "application";
     try { 
-      Subject subj = SubjectFinder.findByIdentifier(id, type);
+      Subject subj = SubjectFinder.findByIdentifier(id, type, true);
       Assert.fail("found bad subject: " + subj);
     } 
     catch (SubjectNotFoundException e) {
@@ -103,7 +103,7 @@ public class TestSubjectFinderInternal extends TestCase {
   public void testFinderGrouperSystemSubject() {
     String id = "GrouperSystem";
     try { 
-      Subject subj = SubjectFinder.findById(id);
+      Subject subj = SubjectFinder.findById(id, true);
       Assert.assertTrue("found subject: " + id, true);
       Assert.assertNotNull("subj !null", subj);
       Assert.assertTrue(
@@ -134,7 +134,7 @@ public class TestSubjectFinderInternal extends TestCase {
     String  id    = "GrouperSystem";
     String  type  = "person";
     try { 
-      Subject subj = SubjectFinder.findById(id, type);
+      Subject subj = SubjectFinder.findById(id, type, true);
       Assert.fail("found good subject with bad type: " + subj);
     } 
     catch (SubjectNotFoundException e) {
@@ -149,7 +149,7 @@ public class TestSubjectFinderInternal extends TestCase {
     String  id    = "GrouperSystem";
     String  type  = "application";
     try { 
-      Subject subj = SubjectFinder.findById(id, type);
+      Subject subj = SubjectFinder.findById(id, type, true);
       Assert.assertTrue("found subject: " + id, true);
       Assert.assertNotNull("subj !null", subj);
       Assert.assertTrue(
@@ -179,7 +179,7 @@ public class TestSubjectFinderInternal extends TestCase {
   public void testFinderGrouperSystemSubjectByIdentifier() {
     String id = "GrouperSystem";
     try { 
-      Subject subj = SubjectFinder.findByIdentifier(id);
+      Subject subj = SubjectFinder.findByIdentifier(id, true);
       Assert.assertTrue("found subject: " + id, true);
       Assert.assertNotNull("subj !null", subj);
       Assert.assertTrue(
@@ -210,7 +210,7 @@ public class TestSubjectFinderInternal extends TestCase {
     String  id    = "GrouperSystem";
     String  type  = "person";
     try { 
-      Subject subj = SubjectFinder.findByIdentifier(id, type);
+      Subject subj = SubjectFinder.findByIdentifier(id, type, true);
       Assert.fail("found good subject with bad type: " + subj);
     } 
     catch (SubjectNotFoundException e) {
@@ -225,7 +225,7 @@ public class TestSubjectFinderInternal extends TestCase {
     String  id    = "GrouperSystem";
     String  type  = "application";
     try { 
-      Subject subj = SubjectFinder.findByIdentifier(id, type);
+      Subject subj = SubjectFinder.findByIdentifier(id, type, true);
       Assert.assertTrue("found subject: " + id, true);
       Assert.assertNotNull("subj !null", subj);
       Assert.assertTrue(

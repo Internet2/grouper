@@ -21,9 +21,9 @@ package edu.internet2.middleware.grouper.exception;
  * Exception thrown when a group cannot be modified within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupModifyException.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: GroupModifyException.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  */
-public class GroupModifyException extends Exception {
+public class GroupModifyException extends RuntimeException {
   private static final long serialVersionUID = 0L;
   public GroupModifyException() { 
     super(); 

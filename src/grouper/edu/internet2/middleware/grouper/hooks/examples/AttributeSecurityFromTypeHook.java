@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AttributeSecurityFromTypeHook.java,v 1.1 2008-11-11 07:27:32 mchyzer Exp $
+ * $Id: AttributeSecurityFromTypeHook.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -70,7 +70,7 @@ public class AttributeSecurityFromTypeHook extends AttributeHooks {
     
     Attribute attribute = postInsertBean.getAttribute();
 
-    Field attributeField = FieldFinder.findById(attribute.getFieldId());
+    Field attributeField = FieldFinder.findById(attribute.getFieldId(), true);
     
     GroupType attributeGroupType = null;
     

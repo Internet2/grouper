@@ -22,7 +22,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupAddException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
  * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: R.java,v 1.25 2008-12-15 07:09:36 mchyzer Exp $
+ * @version $Id: R.java,v 1.26 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class R {
@@ -94,12 +94,12 @@ public class R {
   /**
    * Initializes and returns a pre-defined context.
    * <p/>
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @throws  IllegalStateException
    * @since   1.2.0
    */
   public static R getContext(String ctx) 
-    throws  GrouperRuntimeException,
+    throws  GrouperException,
             IllegalStateException
   {
     if      ( ctx.equals("grouper") ) { 
@@ -120,11 +120,11 @@ public class R {
    * Adds a child {@link Group} beneath <i>parent</i>.
    * <p/>
    * @return  Child {@link Group}. 
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @since   1.2.0
    */
   public Group addGroup(Stem parent, String extn, String displayExtn) 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     try {
       Group child = parent.addChildGroup(extn, displayExtn);
@@ -132,10 +132,10 @@ public class R {
       return child;
     }
     catch (GroupAddException eGA) {
-      throw new GrouperRuntimeException( eGA.getMessage(), eGA );
+      throw new GrouperException( eGA.getMessage(), eGA );
     }
     catch (InsufficientPrivilegeException eIP) {
-      throw new GrouperRuntimeException( eIP.getMessage(), eIP );
+      throw new GrouperException( eIP.getMessage(), eIP );
     }
   } // public Group addGroup(parent, extn, displayExtn)
 
@@ -143,11 +143,11 @@ public class R {
    * Adds a child {@link Stem} beneath the root stem.
    * <p/>
    * @return  Child {@link Stem}.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @since   1.2.0
    */
   public Stem addStem(String extn, String displayExtn) 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     return addStem( this.findRootStem(), extn, displayExtn );
   } // public Stem addStem(extn)
@@ -156,11 +156,11 @@ public class R {
    * Adds a child {@link Stem} beneath <i>parent</i>.
    * <p/>
    * @return  Child {@link Stem}.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @since   1.2.0
    */
   public Stem addStem(Stem parent, String extn, String displayExtn) 
-    throws  GrouperRuntimeException 
+    throws  GrouperException 
   {
     try {
       Stem child = parent.addChildStem(extn, displayExtn);
@@ -168,10 +168,10 @@ public class R {
       return child;
     }
     catch (InsufficientPrivilegeException eIP) {
-      throw new GrouperRuntimeException( eIP.getMessage(), eIP );
+      throw new GrouperException( eIP.getMessage(), eIP );
     }
     catch (StemAddException eNSA) {
-      throw new GrouperRuntimeException( eNSA.getMessage(), eNSA );
+      throw new GrouperException( eNSA.getMessage(), eNSA );
     }
   } // public Stem addStem(parent, extn, displayExtn)
 
@@ -190,11 +190,11 @@ public class R {
    * Starts, associates and returns a {@link GrouperSession} running as <i>GrouperSystem</i>.
    * <p/>
    * @return  Return {@link GrouperSession} running as <i>GrouperSystem</i>.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @since   1.2.0
    */
   public GrouperSession startSession() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     return this.startRootSession();
   } // public GrouperSession startSession()
@@ -203,18 +203,18 @@ public class R {
    * Starts, associates and returns a {@link GrouperSession} running as <i>subj</i>.
    * <p/>
    * @return  Return {@link GrouperSession} running as <i>subj</i>.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @since   1.2.0 
    */
   public GrouperSession startSession(Subject subj) 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     try {
       this.setSession( GrouperSession.start(subj) );
       return this.getSession();
     }
     catch (SessionException eS) {
-      throw new GrouperRuntimeException( eS.getMessage(), eS );
+      throw new GrouperException( eS.getMessage(), eS );
     }
   } // public GrouperSession startSession(subj)
 
@@ -222,11 +222,11 @@ public class R {
    * Starts, associates and returns a {@link GrouperSession} running as <i>GrouperAll</i>.
    * <p/>
    * @return  Return {@link GrouperSession} running as <i>GrouperSystem</i>.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @since   1.2.0
    */
   public GrouperSession startAllSession() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     return this.startSession( SubjectFinder.findAllSubject() );
   } // public GrouperSession startAllSession()
@@ -235,11 +235,11 @@ public class R {
    * Starts, associates and returns a {@link GrouperSession} running as <i>GrouperSystem</i>.
    * <p/>
    * @return  Return {@link GrouperSession} running as <i>GrouperSystem</i>.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @since   1.2.0
    */
   public GrouperSession startRootSession() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     return this.startSession( SubjectFinder.findRootSubject() );
   } // public GrouperSession startRootSession()
@@ -249,7 +249,7 @@ public class R {
 
   // @since   1.2.0 
   private static R _getContextGrouper() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     R     r       = getContext("i2mi");
     Stem  i2mi    = r.getStem("i2mi");
@@ -287,16 +287,16 @@ public class R {
    * Returns a cached {@link Stem}.
    * <p/>
    * @return  Cached {@link Stem} if it exists.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    * @since   1.2.0
    */
   public Stem getStem(String stem) 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     if (this.stems.containsKey(stem)) {
       return (Stem) this.stems.get(stem);
     }
-    throw new GrouperRuntimeException("stem not found: " + stem);
+    throw new GrouperException("stem not found: " + stem);
   } // public Stem getStem(stem)
 
 
@@ -365,7 +365,7 @@ public class R {
   {
     // Bah.  We stash RegistrySubjects but we need Subjects.  
     if (this.subjects.containsKey(id)) {
-      return SubjectFinder.findById(id, "person");
+      return SubjectFinder.findById(id, "person", true);
     }
     throw new Exception("subject not found: " + id);
   } // protected Subject getSubject(id)

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTest.java,v 1.9 2009-03-02 07:33:25 mchyzer Exp $
+ * $Id: AuditTest.java,v 1.10 2009-03-15 06:37:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -404,7 +404,7 @@ public class AuditTest extends GrouperTest {
     
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
     
-    Composite composite = group.getComposite();
+    Composite composite = group.getComposite(true);
     
     assertEquals("Context id's should match", auditEntry.getContextId(), composite.getContextId());
     
@@ -414,7 +414,7 @@ public class AuditTest extends GrouperTest {
     GrouperUtil.sleep(1000);
 
     group.assignCompositeMember(CompositeType.COMPLEMENT, groupLeft, groupRight);
-    composite = group.getComposite();
+    composite = group.getComposite(true);
     
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
@@ -481,7 +481,7 @@ public class AuditTest extends GrouperTest {
     
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
     
-    Membership membership = MembershipFinder.findImmediateMembership(this.grouperSession, group, subject, Group.getDefaultList());
+    Membership membership = MembershipFinder.findImmediateMembership(this.grouperSession, group, subject, Group.getDefaultList(), true);
     
     assertEquals("Context id's should match", auditEntry.getContextId(), membership.getContextId());
     

@@ -16,18 +16,18 @@
 */
 
 package edu.internet2.middleware.grouper.bench;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * Benchmark finding an already existing {@link Member} by {@link Subject}.
  * @author  blair christensen.
- * @version $Id: FindExistingMemberBySubject.java,v 1.6 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: FindExistingMemberBySubject.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.1.0
  */
 public class FindExistingMemberBySubject extends BaseGrouperBenchmark {
@@ -59,16 +59,16 @@ public class FindExistingMemberBySubject extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void init() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       this.s = GrouperSession.start( SubjectFinder.findRootSubject());
       RegistrySubject.add(this.s, "subj0", "person", "subject 0");
-      this.subj = SubjectFinder.findById("subj0");
-      MemberFinder.findBySubject(s, subj);
+      this.subj = SubjectFinder.findById("subj0", true);
+      MemberFinder.findBySubject(s, subj, true);
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e.getMessage());
+      throw new GrouperException(e.getMessage());
     }
   } // public void init()
 
@@ -76,13 +76,13 @@ public class FindExistingMemberBySubject extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void run() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
-      MemberFinder.findBySubject(this.s, this.subj);
+      MemberFinder.findBySubject(this.s, this.subj, true);
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e);
+      throw new GrouperException(e);
     }
   } // public void run()
 

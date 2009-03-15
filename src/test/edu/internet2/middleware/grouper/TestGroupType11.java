@@ -28,7 +28,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupType11.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroupType11.java,v 1.8 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGroupType11 extends GrouperTest {
 
@@ -65,7 +65,7 @@ public class TestGroupType11 extends GrouperTest {
 
       // Now test-and-set attribute as !root
       GrouperSession  s = GrouperSession.start(subjA);
-      Group           g = GroupFinder.findByName(s, name);
+      Group           g = GroupFinder.findByName(s, name, true);
       Assert.assertTrue(
         "group has custom type", g.hasType(custom)
       );         
@@ -86,7 +86,7 @@ public class TestGroupType11 extends GrouperTest {
 
       // Now make sure it was properly persisted
       GrouperSession  S = GrouperSession.start(subjA);
-      Group           G = GroupFinder.findByName(S, name);
+      Group           G = GroupFinder.findByName(S, name, true);
       T.string("attribute was persisted", name, G.getAttribute(attr.getName()));
       S.stop();
     }

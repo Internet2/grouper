@@ -29,7 +29,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMembership0.java,v 1.11 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestMembership0.java,v 1.12 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestMembership0 extends GrouperTest {
 
@@ -69,7 +69,7 @@ public class TestMembership0 extends GrouperTest {
         expMS   = ms;
         expUUID = ms.getUuid();
       }
-      Membership ms0 = GrouperDAOFactory.getFactory().getMembership().findByUuid(expUUID);
+      Membership ms0 = GrouperDAOFactory.getFactory().getMembership().findByUuid(expUUID, true);
       Assert.assertEquals("ms0", expMS, ms0);
 
       gA.deleteMember(subjA);

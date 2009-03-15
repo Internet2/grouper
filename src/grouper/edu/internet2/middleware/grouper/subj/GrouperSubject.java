@@ -45,7 +45,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.3 2009-01-02 06:57:12 mchyzer Exp $
+ * @version $Id: GrouperSubject.java,v 1.4 2009-03-15 06:37:23 mchyzer Exp $
  */
 public class GrouperSubject implements Subject {
   
@@ -347,7 +347,7 @@ public class GrouperSubject implements Subject {
     }
     Group g = null;
     try {
-      g = GrouperDAOFactory.getFactory().getGroup().findByUuid( this.getId() ) ;
+      g = GrouperDAOFactory.getFactory().getGroup().findByUuid( this.getId(), true ) ;
     } catch (GroupNotFoundException eGNF) {
       LOG.error("unable to retrieve group attributes: " + this.getId() + ", " 
           + this.name + ", " + eGNF.getMessage() );
@@ -389,7 +389,7 @@ public class GrouperSubject implements Subject {
     Group g = null;
     Map.Entry<String,String> kv;
     try {
-      g = GrouperDAOFactory.getFactory().getGroup().findByUuid( this.getId() ) ;
+      g = GrouperDAOFactory.getFactory().getGroup().findByUuid( this.getId(), true ) ;
     } catch (GroupNotFoundException eGNF) {
       LOG.error("unable to retrieve group attributes: " + this.getId() + ", " 
           + this.name + ", " + eGNF.getMessage() );

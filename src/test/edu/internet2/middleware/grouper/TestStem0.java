@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem0.java,v 1.9 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestStem0.java,v 1.10 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestStem0 extends GrouperTest {
 
@@ -110,7 +110,7 @@ public class TestStem0 extends GrouperTest {
         SaveMode.INSERT, false);
     
     //now retrieve
-    Stem foundStem = StemFinder.findByName(rootSession, stemName);
+    Stem foundStem = StemFinder.findByName(rootSession, stemName, true);
     
     assertEquals(stemName, createdStem.getName());
     assertEquals(stemName, foundStem.getName());

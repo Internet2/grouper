@@ -30,7 +30,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMembership1.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestMembership1.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestMembership1 extends TestCase {
 
@@ -63,15 +63,15 @@ public class TestMembership1 extends TestCase {
       gC.addMember( gB.toSubject() );
 
       Membership msSA_GA  = MembershipFinder.findImmediateMembership(
-        r.rs, gA, subjA, Group.getDefaultList()
+        r.rs, gA, subjA, Group.getDefaultList(), true
       );
       Assert.assertNotNull(msSA_GA);
       Membership msGA_GB  = MembershipFinder.findImmediateMembership(
-        r.rs, gB, gA.toSubject(), Group.getDefaultList()
+        r.rs, gB, gA.toSubject(), Group.getDefaultList(), true
       );
       Assert.assertNotNull(msGA_GB);
       Membership msGB_GC  = MembershipFinder.findImmediateMembership(
-        r.rs, gC, gB.toSubject(), Group.getDefaultList()
+        r.rs, gC, gB.toSubject(), Group.getDefaultList(), true
       );
       Assert.assertNotNull(msGB_GC);
 

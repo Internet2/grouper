@@ -24,7 +24,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMember28.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestMember28.java,v 1.8 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestMember28 extends GrouperTest {
@@ -49,7 +49,7 @@ public class TestMember28 extends GrouperTest {
     try {
       R       r     = R.populateRegistry(0, 0, 1);
       Subject subjA = r.getSubject("a");
-      Member  m     = MemberFinder.findBySubject(r.rs, subjA);
+      Member  m     = MemberFinder.findBySubject(r.rs, subjA, true);
       try {
         m.setSubjectSourceId(null);
         m.store();

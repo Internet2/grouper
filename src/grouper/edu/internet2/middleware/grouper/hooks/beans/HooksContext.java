@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HooksContext.java,v 1.8 2008-07-21 04:43:58 mchyzer Exp $
+ * $Id: HooksContext.java,v 1.9 2009-03-15 06:37:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -198,7 +198,7 @@ public class HooksContext {
           
           if (group == null) {
             try {
-              group = GroupFinder.findByName(grouperSession, groupName);
+              group = GroupFinder.findByName(grouperSession, groupName, true);
             } catch (GroupNotFoundException gnfe) {
               //wrap in groupersessionexception to get through inverse of control
               throw new GrouperSessionException(gnfe);

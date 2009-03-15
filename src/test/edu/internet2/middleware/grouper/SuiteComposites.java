@@ -22,22 +22,16 @@ import junit.framework.TestSuite;
 
 /**
  * @author  blair christensen.
- * @version $Id: SuiteComposites.java,v 1.9 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: SuiteComposites.java,v 1.10 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class SuiteComposites extends TestCase {
 
   static public Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTest(      SuiteCompositesModel.suite()  );
-    suite.addTest(      SuiteCompositesC.suite()      );
-    suite.addTest(      SuiteCompositesI.suite()      );
-    suite.addTest(      SuiteCompositesU.suite()      );
-    suite.addTestSuite( TestComposite0.class          );  // `CompositeFinder.findAsFactor()`
-    suite.addTestSuite( TestComposite1.class          );  // `CompositeFinder.findAsOwner()`
-    suite.addTestSuite( TestComposite2.class          );  // `Composite.getType()`
-    suite.addTestSuite( TestComposite3.class          );  // `Composite.getOwnerGroup()`
-    suite.addTestSuite( TestComposite4.class          );  // `Composite.getLeftGroup()`
-    suite.addTestSuite( TestComposite5.class          );  // `Composite.getRightGroup()`
+    suite.addTestSuite( TestComposite.class          );
+    suite.addTestSuite( TestCompositeI.class          );
+    suite.addTestSuite( TestCompositeU.class          );
+    suite.addTestSuite( TestCompositeModel.class          );
     return suite;
   } // static public Test suite()
 

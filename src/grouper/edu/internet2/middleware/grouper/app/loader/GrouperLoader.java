@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoader.java,v 1.11 2009-02-09 05:33:31 mchyzer Exp $
+ * $Id: GrouperLoader.java,v 1.12 2009-03-15 06:37:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -308,7 +308,7 @@ public class GrouperLoader {
       
       String grouperLoaderTypeString = GrouperLoaderType.attributeValueOrDefaultOrNull(group, GROUPER_LOADER_TYPE);
   
-      if (!group.hasType(GroupTypeFinder.find("grouperLoader")) 
+      if (!group.hasType(GroupTypeFinder.find("grouperLoader", true)) 
           || StringUtils.isBlank(grouperLoaderTypeString)) {
         throw new RuntimeException("Cant find grouper loader type of group: " + group.getName());
       }
@@ -342,7 +342,7 @@ public class GrouperLoader {
         int uuidIndexStart = jobName.lastIndexOf("__");
       
         String grouperLoaderGroupUuid = jobName.substring(uuidIndexStart+2, jobName.length());
-        Group group = GroupFinder.findByUuid(grouperSession, grouperLoaderGroupUuid);
+        Group group = GroupFinder.findByUuid(grouperSession, grouperLoaderGroupUuid, true);
         return runJobOnceForGroup(grouperSession, group);
       }
       Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();

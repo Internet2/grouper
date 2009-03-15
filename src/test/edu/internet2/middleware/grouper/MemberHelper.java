@@ -17,14 +17,14 @@
 
 package edu.internet2.middleware.grouper;
 import junit.framework.Assert;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * {@link Member} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MemberHelper.java,v 1.10 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: MemberHelper.java,v 1.11 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class MemberHelper {
 
@@ -51,14 +51,14 @@ public class MemberHelper {
     catch (Exception e) {
       T.e(e);
     }
-    throw new GrouperRuntimeException(); 
+    throw new GrouperException(); 
   } // protected static Group toGroup(m)
 
   // Get a member by subject
   // @return  A {link Member}
   protected static Member getMemberBySubject(GrouperSession s, Subject subj) {
     try {
-      Member m = MemberFinder.findBySubject(s, subj);
+      Member m = MemberFinder.findBySubject(s, subj, true);
       Assert.assertNotNull("m !null", m);
       Assert.assertTrue(
         "m instanceof Member", m instanceof Member
@@ -73,7 +73,7 @@ public class MemberHelper {
     catch (Exception e) {
       T.e(e);
     }
-    throw new GrouperRuntimeException();
+    throw new GrouperException();
   } // protected static Member getMemberBySubject(s, subj)
 
 } // public class MemberHelper

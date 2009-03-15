@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.13 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.14 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
@@ -138,7 +138,7 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
     LOG.info("testDelete_GroupTypeTuplesDeletedWhenGroupIsDeleted");
     R         r     = R.getContext("grouper");
     Group     g     = r.getGroup("i2mi:grouper", "grouper-dev");
-    GroupType type  = GroupTypeFinder.find("base");
+    GroupType type  = GroupTypeFinder.find("base", true);
 
     Hib3GroupTypeTupleDAO.findByGroupAndType(g, type);
     assertTrue("group has type tuple in registry before deletion", true);
@@ -159,7 +159,7 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
     LOG.info("testDelete_GroupTypeTuplesDeletedWhenRegistryIsReset");
     R         r     = R.getContext("grouper");
     Group     g     = r.getGroup("i2mi:grouper", "grouper-dev");
-    GroupType type  = GroupTypeFinder.find("base");
+    GroupType type  = GroupTypeFinder.find("base", true);
 
     Hib3GroupTypeTupleDAO.findByGroupAndType(g, type);
     assertTrue("group has type tuple in registry before reset", true);

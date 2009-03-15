@@ -17,17 +17,17 @@
 
 package edu.internet2.middleware.grouper;
 
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.filter.ChildGroupFilter;
-import junit.textui.TestRunner;
 
 
 /**
  * Test {@link ChildGroupFilter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_ChildGroupFilter.java,v 1.8 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: Test_api_ChildGroupFilter.java,v 1.9 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_ChildGroupFilter extends GrouperTest {
@@ -82,7 +82,7 @@ public class Test_api_ChildGroupFilter extends GrouperTest {
       this.child.addChildGroup("child group", "child group");
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException( "test setUp() error: " + e.getMessage(), e );
+      throw new GrouperException( "test setUp() error: " + e.getMessage(), e );
     }
   }
 

@@ -162,7 +162,7 @@ public class GrouperProvisionerLastModifyTest extends BaseLdappcTestCase
             Group testGroup31 = null;
             try
             {
-                testGroup31 = GroupFinder.findByName(grouperSession, "testStem1:testStem2:testStem3:testGroup31");
+                testGroup31 = GroupFinder.findByName(grouperSession, "testStem1:testStem2:testStem3:testGroup31", true);
             }
             catch (GroupNotFoundException gnfe) 
             {
@@ -236,7 +236,7 @@ public class GrouperProvisionerLastModifyTest extends BaseLdappcTestCase
         String stemName = "testStem1:testStem2:testStem3";
         try
         {
-            stem = StemFinder.findByName(grouperSession, stemName);
+            stem = StemFinder.findByName(grouperSession, stemName, true);
         }
         catch(StemNotFoundException snfe)
         {

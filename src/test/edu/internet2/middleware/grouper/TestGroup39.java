@@ -29,7 +29,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup39.java,v 1.6 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: TestGroup39.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGroup39 extends TestCase {
@@ -69,7 +69,7 @@ public class TestGroup39 extends TestCase {
       Subject   subjA   = r.getSubject("a");
 
       GrouperSession  s = GrouperSession.start(subjA);
-      Group           a = GroupFinder.findByName(s, gA.getName());
+      Group           a = GroupFinder.findByName(s, gA.getName(), true);
       try {
         a.deleteAttribute("theAttribute1");
         Assert.fail("FAIL: deleted description w/out priv");

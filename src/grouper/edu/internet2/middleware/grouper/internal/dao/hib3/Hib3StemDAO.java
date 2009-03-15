@@ -30,10 +30,6 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
-import edu.internet2.middleware.grouper.exception.GrouperInverseOfControlException;
-import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
@@ -50,7 +46,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.21 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.22 2009-03-15 06:37:23 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -559,9 +555,21 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   } 
 
   /**
-   * @since   @HEAD@
+   * @param name
+   * @deprecated
    */
+  @Deprecated
   public Stem findByName(String name) 
+    throws  GrouperDAOException,
+            StemNotFoundException {
+    return findByName(name, true);
+  } 
+
+  /**
+   * @param name
+   * @param exceptionIfNull
+   */
+  public Stem findByName(String name, boolean exceptionIfNull) 
     throws  GrouperDAOException,
             StemNotFoundException {
     try {
@@ -571,7 +579,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         .setCacheRegion(KLASS + ".FindByName")
         .setString("name", name)
         .uniqueResult(Stem.class);
-      if (stemDto == null) {
+      if (stemDto == null && exceptionIfNull) {
         throw new StemNotFoundException("Can't find stem by name: '" + name + "'");
       }
       return stemDto;
@@ -584,9 +592,21 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   } 
 
   /**
-   * @since   @HEAD@
+   * @param uuid
+   * @deprecated
    */
+  @Deprecated
   public Stem findByUuid(String uuid)
+    throws  GrouperDAOException,
+            StemNotFoundException {
+    return findByUuid(uuid, true);
+  } 
+
+  /**
+   * @param uuid
+   * @param exceptionIfNull
+   */
+  public Stem findByUuid(String uuid, boolean exceptionIfNull)
     throws  GrouperDAOException,
             StemNotFoundException {
     try {
@@ -596,7 +616,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         .setCacheRegion(KLASS + ".FindByUuid")
         .setString("uuid", uuid)
         .uniqueResult(Stem.class);
-      if (stemDto == null) {
+      if (stemDto == null && exceptionIfNull) {
         throw new StemNotFoundException("Can't find stem by uuid: '" + uuid + "'");
       }
       return stemDto;

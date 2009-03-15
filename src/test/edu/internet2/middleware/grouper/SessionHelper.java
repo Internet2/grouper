@@ -18,7 +18,7 @@
 package edu.internet2.middleware.grouper;
 import junit.framework.Assert;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -27,7 +27,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * {@link GrouperSession} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SessionHelper.java,v 1.9 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: SessionHelper.java,v 1.10 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class SessionHelper {
 
@@ -43,7 +43,7 @@ public class SessionHelper {
   protected static GrouperSession getSession(String id) {
     try {
       GrouperSession s = GrouperSession.start(
-        SubjectFinder.findById(id)
+        SubjectFinder.findById(id, true)
       );
       Assert.assertNotNull("s !null", s);
       Assert.assertNotNull("session_id !null", s.getSessionId());
@@ -64,7 +64,7 @@ public class SessionHelper {
     catch (Exception e) {
       T.e(e);
     }
-    throw new GrouperRuntimeException();
+    throw new GrouperException();
   } // protected static GrouperSession getSession(id)
 
   // Get a session by id and type
@@ -72,7 +72,7 @@ public class SessionHelper {
   protected static GrouperSession getSession(String id, String type) {
     try {
       GrouperSession s = GrouperSession.start(
-        SubjectFinder.findById(id, type)
+        SubjectFinder.findById(id, type, true)
       );
       Assert.assertNotNull("s !null", s);
       Assert.assertNotNull("session_id !null", s.getSessionId());
@@ -104,7 +104,7 @@ public class SessionHelper {
     catch (Exception e) {
       T.e(e);
     }
-    throw new GrouperRuntimeException();
+    throw new GrouperException();
   } // protected static GrouperSession getSession(id, type)
 
   protected static void stop(GrouperSession s) {
@@ -120,7 +120,7 @@ public class SessionHelper {
   protected static void getBadSession(String id) {
     try {
       GrouperSession s = GrouperSession.start(
-        SubjectFinder.findById(id)
+        SubjectFinder.findById(id, true)
       );
       Assert.fail("started session with bad subject: " + s);
     }

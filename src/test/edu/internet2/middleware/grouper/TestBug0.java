@@ -21,14 +21,14 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestBug0.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestBug0.java,v 1.8 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.0
  */
 public class TestBug0 extends TestCase {
@@ -82,7 +82,7 @@ public class TestBug0 extends TestCase {
         T.getMemberships( gB, 0 );
         T.getMemberships( gC, 1 );
       }
-      catch (GrouperRuntimeException eGRT) {
+      catch (GrouperException eGRT) {
         Assert.fail("runtime exception thrown: " + eGRT.getMessage());
       }
 

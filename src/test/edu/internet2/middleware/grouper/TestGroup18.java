@@ -27,7 +27,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup18.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroup18.java,v 1.9 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGroup18 extends TestCase {
 
@@ -58,7 +58,7 @@ public class TestGroup18 extends TestCase {
       GrouperSession s = GrouperSession.start(subjA);
       Assert.assertFalse(
         "cannot read", 
-        a.canReadField(subjA, FieldFinder.find("admins"))
+        a.canReadField(subjA, FieldFinder.find("admins", true))
       );
       s.stop();
 

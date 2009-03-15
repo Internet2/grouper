@@ -26,7 +26,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 /** 
  * Basic <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupTypeDAO.java,v 1.9 2009-02-06 16:33:18 mchyzer Exp $
+ * @version $Id: GroupTypeDAO.java,v 1.10 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupTypeDAO extends GrouperDAO {
@@ -86,8 +86,22 @@ public interface GroupTypeDAO extends GrouperDAO {
    * @throws GrouperDAOException 
    * @throws SchemaException 
    * @since   1.2.0
+   * @deprecated use overload instead
    */
+  @Deprecated
   GroupType findByUuid(String uuid)
+    throws  GrouperDAOException,
+            SchemaException
+            ;
+
+  /**
+   * @param uuid 
+   * @return uuid
+   * @throws GrouperDAOException 
+   * @throws SchemaException 
+   * @since   1.2.0
+   */
+  GroupType findByUuid(String uuid, boolean exceptionIfNull)
     throws  GrouperDAOException,
             SchemaException
             ;

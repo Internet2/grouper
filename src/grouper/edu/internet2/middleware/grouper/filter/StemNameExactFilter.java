@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
  * Query by exact stem name.
  * <p/>
  * @author  blair christensen.
- * @version $Id: StemNameExactFilter.java,v 1.1 2008-07-21 05:15:59 mchyzer Exp $
+ * @version $Id: StemNameExactFilter.java,v 1.2 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class StemNameExactFilter extends BaseQueryFilter {
 
@@ -63,7 +63,7 @@ public class StemNameExactFilter extends BaseQueryFilter {
     Set candidates  = new HashSet<Stem>();
     Stem stem = null;
     try {
-      stem = StemFinder.findByName(s, this.name);
+      stem = StemFinder.findByName(s, this.name, true);
       candidates.add(stem);
     } catch (StemNotFoundException gnfe) {
       return candidates;

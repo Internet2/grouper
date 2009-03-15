@@ -21,10 +21,10 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * this will put the base records that grouper needs to operate (e.g. root stem)
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.9 2009-01-02 06:57:11 mchyzer Exp $    
+ * @version $Id: RegistryInstall.java,v 1.10 2009-03-15 06:37:23 mchyzer Exp $    
  */
 public class RegistryInstall {
 
@@ -86,7 +86,7 @@ public class RegistryInstall {
       }
       String msg = "unable to initialize registry: " + throwable.getMessage();
       LOG.fatal(msg, throwable);
-      throw new GrouperRuntimeException(msg, throwable);
+      throw new GrouperException(msg, throwable);
     }
 
   }
@@ -150,10 +150,10 @@ public class RegistryInstall {
    * 
    * @param s
    * @return true if there were changes, false if not
-   * @throws GrouperRuntimeException
+   * @throws GrouperException
    */
   private static boolean _installGroupsAndStems(GrouperSession s) 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     //note, no need for GrouperSession inverse of control
     boolean[] changed = {false};

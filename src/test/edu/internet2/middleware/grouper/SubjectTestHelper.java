@@ -17,7 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import junit.framework.Assert;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -26,7 +26,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * {@link Subject} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: SubjectTestHelper.java,v 1.13 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: SubjectTestHelper.java,v 1.14 2009-03-15 06:37:22 mchyzer Exp $
  */
  public class SubjectTestHelper {
 
@@ -78,18 +78,18 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
   static {
     try {
-      SUBJ0 = SubjectFinder.findById(SUBJ0_ID);
-      SUBJ1 = SubjectFinder.findById(SUBJ1_ID);
-      SUBJ2 = SubjectFinder.findById(SUBJ2_ID);
-      SUBJ3 = SubjectFinder.findById(SUBJ3_ID);
-      SUBJ4 = SubjectFinder.findById(SUBJ4_ID);
-      SUBJ5 = SubjectFinder.findById(SUBJ5_ID);
-      SUBJ6 = SubjectFinder.findById(SUBJ6_ID);
-      SUBJ7 = SubjectFinder.findById(SUBJ7_ID);
-      SUBJ8 = SubjectFinder.findById(SUBJ8_ID);
-      SUBJ9 = SubjectFinder.findById(SUBJ9_ID);
-      SUBJA = SubjectFinder.findById(SUBJ_ALL);
-      SUBJR = SubjectFinder.findById(SUBJ_ROOT);
+      SUBJ0 = SubjectFinder.findById(SUBJ0_ID, true);
+      SUBJ1 = SubjectFinder.findById(SUBJ1_ID, true);
+      SUBJ2 = SubjectFinder.findById(SUBJ2_ID, true);
+      SUBJ3 = SubjectFinder.findById(SUBJ3_ID, true);
+      SUBJ4 = SubjectFinder.findById(SUBJ4_ID, true);
+      SUBJ5 = SubjectFinder.findById(SUBJ5_ID, true);
+      SUBJ6 = SubjectFinder.findById(SUBJ6_ID, true);
+      SUBJ7 = SubjectFinder.findById(SUBJ7_ID, true);
+      SUBJ8 = SubjectFinder.findById(SUBJ8_ID, true);
+      SUBJ9 = SubjectFinder.findById(SUBJ9_ID, true);
+      SUBJA = SubjectFinder.findById(SUBJ_ALL, true);
+      SUBJR = SubjectFinder.findById(SUBJ_ROOT, true);
     }
     catch (Exception e) {
       throw new RuntimeException(
@@ -104,7 +104,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
   // Don't get a subject by bad id
   protected static void getSubjectByBadId(String id) { 
     try {
-      Subject subj = SubjectFinder.findById(id);
+      Subject subj = SubjectFinder.findById(id, true);
       Assert.fail("found bad subject '" + id + "': " + subj);
     }
     catch (SubjectNotFoundException e) {
@@ -118,7 +118,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
   // Don't get a subject by bad id and type
   protected static void getSubjectByBadIdType(String id, String type) { 
     try {
-      Subject subj = SubjectFinder.findById(id, type);
+      Subject subj = SubjectFinder.findById(id, type, true);
       Assert.fail("found bad subject '" + id + "'/'" + type + "': " + subj);
     }
     catch (SubjectNotFoundException e) {
@@ -132,7 +132,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
   // Don't get a subject by bad identifier and type
   protected static void getSubjectByBadIdentifierType(String id, String type) { 
     try {
-      Subject subj = SubjectFinder.findByIdentifier(id, type);
+      Subject subj = SubjectFinder.findByIdentifier(id, type, true);
       Assert.fail("found bad subject '" + id + "'/'" + type + "': " + subj);
     }
     catch (SubjectNotFoundException e) {
@@ -147,7 +147,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
   // @return  A {@link Subject}
   protected static Subject getSubjectById(String id) { 
     try {
-      Subject subj = SubjectFinder.findById(id);
+      Subject subj = SubjectFinder.findById(id, true);
       Assert.assertNotNull("subj !null", subj);
       Assert.assertTrue(
         "subj instanceof Subject", subj instanceof Subject
@@ -161,14 +161,14 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
     catch (SubjectNotUniqueException eSNU) {
       T.e(eSNU);
     }
-    throw new GrouperRuntimeException();
+    throw new GrouperException();
   } // protected static Subject getSubjectById(id)
 
   // Get a subject by identifier
   // @return  A {@link Subject}
   protected static Subject getSubjectByIdentifier(String id) { 
     try {
-      Subject subj = SubjectFinder.findByIdentifier(id);
+      Subject subj = SubjectFinder.findByIdentifier(id, true);
       Assert.assertNotNull("subj !null", subj);
       Assert.assertTrue(
         "subj instanceof Subject", subj instanceof Subject
@@ -185,14 +185,14 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
     catch (SubjectNotUniqueException eSNU) {
       T.e(eSNU);
     }
-    throw new GrouperRuntimeException();
+    throw new GrouperException();
   } // protected static Subject getSubjectByIdentifier(id)
 
   // Get a subject by id and type
   // @return  A {@link Subject}
   protected static Subject getSubjectByIdType(String id, String type) { 
     try {
-      Subject subj = SubjectFinder.findById(id, type);
+      Subject subj = SubjectFinder.findById(id, type, true);
       Assert.assertNotNull("subj !null", subj);
       Assert.assertTrue(
         "subj instanceof Subject", subj instanceof Subject
@@ -211,14 +211,14 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
     catch (SubjectNotUniqueException eSNU) {
       T.e(eSNU);
     }
-    throw new GrouperRuntimeException();
+    throw new GrouperException();
   } // protected static Subject getSubjectByIdType(id, type)
 
   // Get a subject by identifier and type
   // @return  A {@link Subject}
   protected static Subject getSubjectByIdentifierType(String id, String type) { 
     try {
-      Subject subj = SubjectFinder.findByIdentifier(id, type);
+      Subject subj = SubjectFinder.findByIdentifier(id, type, true);
       Assert.assertNotNull("subj !null", subj);
       Assert.assertTrue(
         "subj instanceof Subject", subj instanceof Subject
@@ -241,7 +241,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
     catch (SubjectNotUniqueException eSNU) {
       T.e(eSNU);
     }
-    throw new GrouperRuntimeException();
+    throw new GrouperException();
   } // protected static Subject getSubjectByIdentifierType(id, type)
 
 } // class SubjectTestHelper

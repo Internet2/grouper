@@ -17,16 +17,16 @@
 
 package edu.internet2.middleware.grouper.bench;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 
 /**
  * Benchmark adding a {@link Group}.
  * @author  blair christensen.
- * @version $Id: AddGroup.java,v 1.7 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: AddGroup.java,v 1.8 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.1.0
  */
 public class AddGroup extends BaseGrouperBenchmark {
@@ -57,7 +57,7 @@ public class AddGroup extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void init() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       Stem root = StemFinder.findRootStem(
@@ -66,7 +66,7 @@ public class AddGroup extends BaseGrouperBenchmark {
       this.parent = root.addChildStem("example", "example");
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e.getMessage());
+      throw new GrouperException(e.getMessage());
     }
   } // public void init()
 
@@ -74,13 +74,13 @@ public class AddGroup extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void run() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       this.parent.addChildGroup("group", "group");
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e);
+      throw new GrouperException(e);
     }
   } // public void run()
 

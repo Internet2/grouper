@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupSave.java,v 1.5 2009-01-31 16:46:41 mchyzer Exp $
+ * $Id: GroupSave.java,v 1.6 2009-03-15 06:37:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -279,7 +279,7 @@ public class GroupSave {
                   
                   try {
                     parentStem = topLevelGroup ? StemFinder.findRootStem(grouperSession) 
-                        : StemFinder.findByName(grouperSession, parentStemNameNew);
+                        : StemFinder.findByName(grouperSession, parentStemNameNew, true);
                   } catch (StemNotFoundException snfe) {
                     
                     //see if we should fix this problem
@@ -305,7 +305,7 @@ public class GroupSave {
                           + parentStemNameLookup + "', new stem: '" + parentStemNameNew + "'"));
                   }    
                   try {
-                      theGroup = GroupFinder.findByName(grouperSession, GroupSave.this.groupNameToEdit);
+                      theGroup = GroupFinder.findByName(grouperSession, GroupSave.this.groupNameToEdit, true);
                       
                       //while we are here, make sure uuid's match if passed in
                       if (!StringUtils.isBlank(GroupSave.this.uuid) && !StringUtils.equals(GroupSave.this.uuid, theGroup.getUuid())) {

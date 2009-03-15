@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
@@ -30,7 +29,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.18 2009-03-06 17:48:56 shilen Exp $
+ * @version $Id: MembershipDAO.java,v 1.19 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
@@ -213,7 +212,9 @@ public interface MembershipDAO extends GrouperDAO {
    * @throws GrouperDAOException 
    * @throws MembershipNotFoundException 
    * @since   1.2.0
+   * @deprecated see overload
    */
+  @Deprecated
   Membership findByGroupOwnerAndMemberAndFieldAndType(String ownerGroupId, String memberUUID, Field f, String type)
     throws  GrouperDAOException,
             MembershipNotFoundException
@@ -228,8 +229,40 @@ public interface MembershipDAO extends GrouperDAO {
    * @throws GrouperDAOException 
    * @throws MembershipNotFoundException 
    * @since   1.2.0
+   * @deprecated
    */
+  @Deprecated
   Membership findByStemOwnerAndMemberAndFieldAndType(String ownerStemId, String memberUUID, Field f, String type)
+    throws  GrouperDAOException,
+            MembershipNotFoundException
+            ;            
+
+  /**
+   * @param ownerGroupId 
+   * @param memberUUID 
+   * @param f 
+   * @param type 
+   * @param exceptionIfNull
+   * @return membership
+   * @throws GrouperDAOException 
+   * @throws MembershipNotFoundException 
+   */
+  Membership findByGroupOwnerAndMemberAndFieldAndType(String ownerGroupId, String memberUUID, Field f, String type, boolean exceptionIfNull)
+    throws  GrouperDAOException,
+            MembershipNotFoundException
+            ;            
+
+  /**
+   * @param ownerStemId 
+   * @param memberUUID 
+   * @param f 
+   * @param type 
+   * @param exceptionIfNull
+   * @return membership
+   * @throws GrouperDAOException 
+   * @throws MembershipNotFoundException 
+   */
+  Membership findByStemOwnerAndMemberAndFieldAndType(String ownerStemId, String memberUUID, Field f, String type, boolean exceptionIfNull)
     throws  GrouperDAOException,
             MembershipNotFoundException
             ;            
@@ -299,7 +332,7 @@ public interface MembershipDAO extends GrouperDAO {
    */
   Set<Membership> findAllImmediateByMemberAndField(String memberUUID, Field f) 
     throws  GrouperDAOException;
-  
+
   /**
    * @param memberUUID 
    * @param fieldType
@@ -350,9 +383,21 @@ public interface MembershipDAO extends GrouperDAO {
    * @return membership
    * @throws GrouperDAOException 
    * @throws MembershipNotFoundException 
-   * @since   1.2.0
+   * @deprecated
    */
+  @Deprecated
   Membership findByUuid(String uuid) 
+    throws  GrouperDAOException,
+            MembershipNotFoundException 
+            ;
+
+  /**
+   * @param uuid 
+   * @return membership
+   * @throws GrouperDAOException 
+   * @throws MembershipNotFoundException 
+   */
+  Membership findByUuid(String uuid, boolean exceptionIfNull) 
     throws  GrouperDAOException,
             MembershipNotFoundException 
             ;

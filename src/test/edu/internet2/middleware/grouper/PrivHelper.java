@@ -28,7 +28,6 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -42,7 +41,7 @@ import edu.internet2.middleware.subject.Subject;
  * Privilege helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: PrivHelper.java,v 1.15 2008-11-11 22:08:33 mchyzer Exp $
+ * @version $Id: PrivHelper.java,v 1.16 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class PrivHelper {
 
@@ -99,7 +98,7 @@ public class PrivHelper {
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
         try {
-          Member m = MemberFinder.findBySubject(grouperSession, subj);
+          Member m = MemberFinder.findBySubject(grouperSession, subj, true);
           g.grantPriv(subj, priv);  
           hasPriv(g, subj, m, priv, true);
         }
@@ -119,7 +118,7 @@ public class PrivHelper {
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
         LOG.debug("grantPrivFail.0 " + priv.getName());
-        MemberFinder.findBySubject(grouperSession, subj);
+        MemberFinder.findBySubject(grouperSession, subj, true);
         LOG.debug("grantPrivFail.1 " + priv.getName());
         try {
           g.grantPriv(subj, priv);  
@@ -155,7 +154,7 @@ public class PrivHelper {
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
         try {
-          Member m = MemberFinder.findBySubject(grouperSession, subj);
+          Member m = MemberFinder.findBySubject(grouperSession, subj, true);
           ns.grantPriv(subj, priv);  
           hasPriv(ns, subj, m, priv, true);
         }
@@ -180,7 +179,7 @@ public class PrivHelper {
 
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
-        Member m = MemberFinder.findBySubject(grouperSession, subj);
+        Member m = MemberFinder.findBySubject(grouperSession, subj, true);
         try {
           ns.grantPriv(subj, priv);  
           Assert.fail("granted " + priv);
@@ -207,7 +206,7 @@ public class PrivHelper {
     GrouperSession s, Group g, Subject subj, Privilege priv, boolean has
   )
   {
-    hasPriv(g, subj, MemberFinder.findBySubject(s, subj), priv, has);  
+    hasPriv(g, subj, MemberFinder.findBySubject(s, subj, true), priv, has);  
   } // protected static void hasPriv(s, g, subj, priv, has)
 
   protected static void hasPriv(
@@ -257,7 +256,7 @@ public class PrivHelper {
     GrouperSession s, Stem ns, Subject subj, Privilege priv, boolean has
   )
   {
-    hasPriv(ns, subj, MemberFinder.findBySubject(s, subj), priv, has);  
+    hasPriv(ns, subj, MemberFinder.findBySubject(s, subj, true), priv, has);  
   } // protected static void hasPriv(s, ns, subj, priv, has)
 
   protected static void hasPriv(
@@ -292,7 +291,7 @@ public class PrivHelper {
   )
   {
     try {
-      Member m = MemberFinder.findBySubject(s, subj);
+      Member m = MemberFinder.findBySubject(s, subj, true);
       g.revokePriv(subj, priv);  
       if      (priv.equals(AccessPrivilege.READ)) {  
         // Granted to ALL by default - but possibly revoked
@@ -330,7 +329,7 @@ public class PrivHelper {
   {
     LOG.debug("revokePrivAllHasPriv.0");
     try {
-      Member m = MemberFinder.findBySubject(s, subj);
+      Member m = MemberFinder.findBySubject(s, subj, true);
       LOG.debug("revokePrivAllHasPriv.1");
       g.revokePriv(subj, priv);  
       LOG.debug("revokePrivAllHasPriv.2");
@@ -351,7 +350,7 @@ public class PrivHelper {
           throws GrouperSessionException {
         LOG.debug("revokePrivFail.0");
         try {
-          MemberFinder.findBySubject(grouperSession, subj);
+          MemberFinder.findBySubject(grouperSession, subj, true);
           LOG.debug("revokePrivFail.1");
           g.revokePriv(subj, priv);  
           LOG.debug("revokePrivFail.2");
@@ -372,7 +371,7 @@ public class PrivHelper {
   )
   {
     try {
-      Member m = MemberFinder.findBySubject(s, subj);
+      Member m = MemberFinder.findBySubject(s, subj, true);
       ns.revokePriv(subj, priv);  
       hasPriv(ns, subj, m, priv, false);
     }
@@ -387,7 +386,7 @@ public class PrivHelper {
   {
     LOG.debug("revokePrivFail.0");
     try {
-      MemberFinder.findBySubject(s, subj);
+      MemberFinder.findBySubject(s, subj, true);
       LOG.debug("revokePrivFail.1");
       ns.revokePriv(subj, priv);  
       LOG.debug("revokePrivFail.2");

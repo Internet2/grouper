@@ -21,9 +21,9 @@ package edu.internet2.middleware.grouper.exception;
  * Exception thrown when a member cannot be removed from a group.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberDeleteException.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: MemberDeleteException.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  */
-public class MemberDeleteException extends Exception {
+public class MemberDeleteException extends RuntimeException {
   private static final long serialVersionUID = -4002859579198713638L;
   public MemberDeleteException() { 
     super(); 

@@ -11,10 +11,10 @@ package edu.internet2.middleware.grouper.app.gsh;
  * Generic {@link GrouperShell} exception.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShellException.java,v 1.1 2008-07-21 21:01:59 mchyzer Exp $
+ * @version $Id: GrouperShellException.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.0.1
  */
-public class GrouperShellException extends Exception {
+public class GrouperShellException extends RuntimeException {
   public GrouperShellException() { 
     super(); 
   }

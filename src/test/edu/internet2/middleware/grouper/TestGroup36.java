@@ -25,7 +25,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup36.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroup36.java,v 1.9 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGroup36 extends GrouperTest {
 
@@ -54,17 +54,14 @@ public class TestGroup36 extends GrouperTest {
       Subject     subjA = r.getSubject("a");
       gB.addMember(subjA);
       gA.addCompositeMember(CompositeType.UNION, gB, gC);
-      Member      mA    = MemberFinder.findBySubject(r.rs, subjA);
+      Member      mA    = MemberFinder.findBySubject(r.rs, subjA, true);
       T.amount("subjA mships before deletion", 2, mA.getMemberships().size());
-      MembershipFinder.findCompositeMembership(
-        r.rs, gA, subjA
-      );  
+      MembershipFinder.findCompositeMembership(r.rs, gA, subjA, true);  
       gA.delete(); 
-      mA    = MemberFinder.findBySubject(r.rs, subjA);
+      mA    = MemberFinder.findBySubject(r.rs, subjA, true);
       T.amount("subjA mships after deletion", 1, mA.getMemberships().size());
       r.rs.stop();
-    }
-    catch (Exception e) {
+    } catch (Exception e) {
       T.e(e);
     }
   } // public void testCompositeIsDeletedWhenGroupIsDeleted()

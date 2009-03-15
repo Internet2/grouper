@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Attribute</code> DTO interface.
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.22 2008-11-04 07:17:55 mchyzer Exp $
+ * @version $Id: Attribute.java,v 1.23 2009-03-15 06:37:21 mchyzer Exp $
  * @since   @HEAD@
  */
 @SuppressWarnings("serial")
@@ -147,7 +147,7 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
     if (StringUtils.isBlank(this.fieldId)) {
       return null;
     }
-    Field field = FieldFinder.findById(this.fieldId);
+    Field field = FieldFinder.findById(this.fieldId, true);
     if (!field.isAttributeName()) {
       throw new RuntimeException("Field is not an attribute name, id: " + this.fieldId
           + ", instead it is: " + field.getTypeString());
@@ -252,14 +252,16 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
 
     super.onPostSave(hibernateSession);
     
-    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE, 
-        AttributeHooks.METHOD_ATTRIBUTE_POST_COMMIT_INSERT, HooksAttributeBean.class, 
-        this, Attribute.class);
-  
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE, 
         AttributeHooks.METHOD_ATTRIBUTE_POST_INSERT, HooksAttributeBean.class, 
         this, Attribute.class, VetoTypeGrouper.ATTRIBUTE_POST_INSERT, true, false);
   
+    //do these second so the right object version is set, and dbVersion is ok
+    GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.ATTRIBUTE, 
+        AttributeHooks.METHOD_ATTRIBUTE_POST_COMMIT_INSERT, HooksAttributeBean.class, 
+        this, Attribute.class);
+  
+
   }
 
   /**

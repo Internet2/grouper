@@ -27,13 +27,8 @@ import org.hibernate.HibernateException;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -43,7 +38,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeDAO.java,v 1.12 2009-02-07 20:16:08 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeDAO.java,v 1.13 2009-03-15 06:37:23 mchyzer Exp $
  */
 public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
 
@@ -135,24 +130,32 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
    * @return type
    * @throws GrouperDAOException 
    * @throws SchemaException 
-   * @since   @HEAD@
    */
   public GroupType findByUuid(String uuid)
     throws  GrouperDAOException,
-            SchemaException
-  {
+            SchemaException {
+    return findByUuid(uuid, true);
+  } 
+
+  /**
+   * @param uuid 
+   * @return type
+   * @throws GrouperDAOException 
+   * @throws SchemaException 
+   */
+  public GroupType findByUuid(String uuid, boolean exceptionIfNull)
+      throws GrouperDAOException, SchemaException {
     GroupType groupType = HibernateSession.byHqlStatic()
       .createQuery("from GroupType as gt where gt.uuid = :uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByUuid")
       .setString("uuid", uuid)
       .uniqueResult(GroupType.class);
-    if (groupType == null) {
+    if (groupType == null && exceptionIfNull) {
       throw new SchemaException("Group type with uuid: '" + uuid + "' cant be found");
     }
     return groupType;
-  } 
-
+  }
   /**
    * 
    * @param hibernateSession
@@ -189,5 +192,6 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
       .setString( "uuid", member.getUuid() ).listSet(GroupType.class);
     return groupTypes;
   }
+
 } 
 

@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMember22.java,v 1.5 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestMember22.java,v 1.6 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestMember22 extends TestCase {
 
@@ -53,7 +53,7 @@ public class TestMember22 extends TestCase {
       Group   a   = r.getGroup("a", "a");
       a.revokePriv(AccessPrivilege.VIEW); // Revoke VIEW from all subjects
       a.revokePriv(AccessPrivilege.READ); // Revoke READ from all subjects
-      Member  m   = MemberFinder.findBySubject(r.rs, r.getSubject("a"));
+      Member  m   = MemberFinder.findBySubject(r.rs, r.getSubject("a"), true);
       Assert.assertFalse("OK: cannot view", m.canView(a));
       r.rs.stop();
     }

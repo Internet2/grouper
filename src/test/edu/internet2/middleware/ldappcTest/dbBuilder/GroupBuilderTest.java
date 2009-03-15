@@ -125,7 +125,7 @@ public class GroupBuilderTest extends BaseLdappcTestCase
 
         try
         { 
-            Group group1 = GroupFinder.findByName(grouperSession, "topLevelStem1:topLevelGroup1");
+            Group group1 = GroupFinder.findByName(grouperSession, "topLevelStem1:topLevelGroup1", true);
             group1.delete();
         } 
         catch (GroupNotFoundException gnfe)
@@ -145,7 +145,7 @@ public class GroupBuilderTest extends BaseLdappcTestCase
 
         try
         { 
-            Stem stem1 = StemFinder.findByName(grouperSession, "topLevelStem1");
+            Stem stem1 = StemFinder.findByName(grouperSession, "topLevelStem1", true);
             stem1.delete();
         } 
         catch (StemNotFoundException snfe)
@@ -231,7 +231,7 @@ public class GroupBuilderTest extends BaseLdappcTestCase
         //
         try
         { 
-            topLevelStem1 = StemFinder.findByName(grouperSession, "topLevelStem1");
+            topLevelStem1 = StemFinder.findByName(grouperSession, "topLevelStem1", true);
         } 
         catch (StemNotFoundException snfe)
         {
@@ -292,7 +292,7 @@ public class GroupBuilderTest extends BaseLdappcTestCase
 
         try
         { 
-            topLevelStem1 = StemFinder.findByName(grouperSession, "topLevelStem1");
+            topLevelStem1 = StemFinder.findByName(grouperSession, "topLevelStem1", true);
             fail("topLevelStem1 exists but should have been deleted."); 
         } 
         catch (StemNotFoundException snfe)
@@ -313,12 +313,12 @@ public class GroupBuilderTest extends BaseLdappcTestCase
 
         try
         { 
-            topLevelStem1 = StemFinder.findByName(grouperSession, "topLevelStem1");
+            topLevelStem1 = StemFinder.findByName(grouperSession, "topLevelStem1", true);
             if (topLevelStem1 != null)
             {
                 try
                 {
-                    topLevelGroup1 = GroupFinder.findByName(grouperSession, "topLevelStem1:topLevelGroup1");
+                    topLevelGroup1 = GroupFinder.findByName(grouperSession, "topLevelStem1:topLevelGroup1", true);
                     try
                     {
                         //

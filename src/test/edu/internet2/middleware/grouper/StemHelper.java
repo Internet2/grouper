@@ -21,7 +21,7 @@ import junit.framework.Assert;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupAddException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.13 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: StemHelper.java,v 1.14 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class StemHelper {
 
@@ -127,7 +127,7 @@ public class StemHelper {
     } catch (Exception e) {
       T.e(e);
     }
-    throw new GrouperRuntimeException();
+    throw new GrouperException();
   } // protected static Stem addChildStem(ns, extn, displayExtn)
 
   protected static void addChildStemFail(Stem ns, String extn, String displayExtn) {
@@ -146,7 +146,7 @@ public class StemHelper {
   protected static Stem findByName(GrouperSession s, String name) {
     Stem ns = null;
     try {
-      ns = StemFinder.findByName(s, name);
+      ns = StemFinder.findByName(s, name, true);
       Assert.assertNotNull("!null", ns);
       Assert.assertTrue("instance of Stem", ns instanceof Stem);
       Assert.assertTrue("name", ns.getName().equals(name));

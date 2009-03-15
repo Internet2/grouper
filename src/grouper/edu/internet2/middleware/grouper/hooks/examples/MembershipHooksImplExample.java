@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImplExample.java,v 1.3 2008-07-21 04:43:59 mchyzer Exp $
+ * $Id: MembershipHooksImplExample.java,v 1.4 2009-03-15 06:37:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -43,7 +43,7 @@ public class MembershipHooksImplExample extends MembershipHooks {
         Group group = preAddMemberBean.getGroup();
         GroupType groupType = null;
         try {
-          groupType = GroupTypeFinder.find("grouperLoader");
+          groupType = GroupTypeFinder.find("grouperLoader", true);
         } catch (SchemaException se) {
           throw new RuntimeException(se);
         }

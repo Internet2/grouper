@@ -27,7 +27,6 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -38,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.21 2009-02-11 07:22:34 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.22 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -410,7 +409,7 @@ public class TestStem extends GrouperTest {
       String          uofc  = "uofc";
       String          bsd   = "bsd";
 
-      Subject         subj  = SubjectFinder.findById("GrouperSystem");
+      Subject         subj  = SubjectFinder.findById("GrouperSystem", true);
       GrouperSession  s     = GrouperSession.start(subj);
       Stem            root  = StemFinder.findRootStem(s);
       Stem            ns0   = root.addChildStem(edu, edu);
@@ -419,7 +418,7 @@ public class TestStem extends GrouperTest {
       s.stop();
 
       s = GrouperSession.start(subj);
-      Stem  a         = StemFinder.findByName(s, edu);
+      Stem  a         = StemFinder.findByName(s, edu, true);
       Set   children  = a.getChildStems();
       Assert.assertTrue("has child stems", children.size() > 0);
       Iterator iter = children.iterator();
@@ -451,7 +450,7 @@ public class TestStem extends GrouperTest {
       String          uofc  = "uofc";
       String          bsd   = "bsd";
 
-      Subject         subj  = SubjectFinder.findById("GrouperSystem");
+      Subject         subj  = SubjectFinder.findById("GrouperSystem", true);
       GrouperSession  s     = GrouperSession.start(subj);
       Stem            root  = StemFinder.findRootStem(s);
       Stem            ns0   = root.addChildStem(edu, edu);
@@ -460,7 +459,7 @@ public class TestStem extends GrouperTest {
       s.stop();
 
       s = GrouperSession.start(subj);
-      Stem  a         = StemFinder.findByName(s, edu);
+      Stem  a         = StemFinder.findByName(s, edu, true);
       Stem  parent    = a.getParentStem();
       Set   children  = parent.getChildStems();
       Assert.assertTrue("parent has child stems", children.size() > 0);

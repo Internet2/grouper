@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
@@ -79,7 +79,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.114 2009-03-02 07:33:25 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.115 2009-03-15 06:37:21 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -392,11 +392,11 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     throws  MemberNotFoundException
   {
     try {
-      Member m = GrouperDAOFactory.getFactory().getMember().findByUuid( this.getCreatorUuid() );
+      Member m = GrouperDAOFactory.getFactory().getMember().findByUuid( this.getCreatorUuid(), true );
       return m;
     }
     catch (GrouperDAOException eDAO) {
-      throw new GrouperRuntimeException( eDAO.getMessage(), eDAO );
+      throw new GrouperException( eDAO.getMessage(), eDAO );
     }
   } // public Member getCreator()
 
@@ -425,7 +425,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     if (g != null)
       return g;
 
-    g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid);
+    g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid, true);
     putGroupInCache(g);
     return g;
   }
@@ -438,12 +438,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * @return  The {@link Field} type of this membership.
    */
   public Field getList() {
-    try {
-      return FieldFinder.find( this.getListName() );
-    }
-    catch (SchemaException eS) {
-      throw new GrouperRuntimeException( eS.getMessage(), eS );
-    }
+    return FieldFinder.find( this.getListName(), true );
   } // public Field getList()
 
   /**
@@ -469,7 +464,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     if (uuid == null) {
       throw new MemberNotFoundException("membership does not have a member!");
     }
-    member = GrouperDAOFactory.getFactory().getMember().findByUuid(uuid) ;
+    member = GrouperDAOFactory.getFactory().getMember().findByUuid(uuid, true) ;
     return member;
   } // public Member getMember()
 
@@ -498,7 +493,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     if (uuid == null) {
       throw new MembershipNotFoundException("no parent");
     }
-    Membership parent = GrouperDAOFactory.getFactory().getMembership().findByUuid(uuid) ;
+    Membership parent = GrouperDAOFactory.getFactory().getMembership().findByUuid(uuid, true) ;
     return parent;
   } // public Membership getParentMembership()
 
@@ -517,7 +512,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     Stem ns = getStemFromCache(uuid);
 	if(ns != null) return ns;
     
-     ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid) ;
+     ns = GrouperDAOFactory.getFactory().getStem().findByUuid(uuid, true) ;
     putStemInCache(ns);
     return ns;
   } // public Stem getStem()
@@ -555,7 +550,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     if (uuid == null) {
       throw new CompositeNotFoundException();
     }
-    Composite via = GrouperDAOFactory.getFactory().getComposite().findByUuid(uuid) ;
+    Composite via = GrouperDAOFactory.getFactory().getComposite().findByUuid(uuid, true) ;
     return via;
   } // public Composite getViaComposite()
 
@@ -581,7 +576,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     if (uuid == null) {
       throw new GroupNotFoundException();
     }
-    Group via = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid);
+    Group via = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid, true);
     return via;
   } // public Group getViaGroup()
 
@@ -635,7 +630,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       + ", field: " + (f == null ? null : f.getName());
     try {
       GrouperSession.validate(s);
-      Member    m   = MemberFinder.internal_findReadableMemberBySubject(s, subj);
+      Member    m   = MemberFinder.internal_findReadableMemberBySubject(s, subj, true);
       DefaultMemberOf  mof = new DefaultMemberOf();
       mof.addImmediate( s, g, f, m );
       internal_insertPersistDefaultMemberOf(mof);
@@ -671,7 +666,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     throws  MemberAddException  {
     try {
       GrouperSession.validate(s);
-      Member    m   = MemberFinder.internal_findReadableMemberBySubject(s, subj);
+      Member    m   = MemberFinder.internal_findReadableMemberBySubject(s, subj, true);
       DefaultMemberOf  mof = new DefaultMemberOf();
       mof.addImmediate( s, ns, f, m );
       internal_insertPersistDefaultMemberOf(mof);
@@ -702,12 +697,12 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     throws  MemberDeleteException {
     try {
       GrouperSession.validate(s); 
-      Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
+      Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj, true);
       DefaultMemberOf  mof = new DefaultMemberOf();
       mof.deleteImmediate(
         s, g, 
         GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType( 
-          g.getUuid(), m.getUuid(), f, IMMEDIATE
+          g.getUuid(), m.getUuid(), f, IMMEDIATE, true
         ), 
         m
       );
@@ -740,12 +735,12 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       GrouperSession.validate(s); 
       // Who we're deleting
       //Member m = PrivilegeResolver.internal_canViewSubject(s, subj);
-      Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj);
+      Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj, true);
       DefaultMemberOf  mof = new DefaultMemberOf();
       mof.deleteImmediate(
         s, ns,
         GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType( 
-          ns.getUuid(), m.getUuid(), f, IMMEDIATE 
+          ns.getUuid(), m.getUuid(), f, IMMEDIATE , true
         ), 
         m
       );
@@ -796,7 +791,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
               mof.deleteImmediate(
                 grouperSession, ms.getGroup(),
                 dao.findByGroupOwnerAndMemberAndFieldAndType( 
-                  ms.getGroup().getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
+                  ms.getGroup().getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE, true
                 ),
                  ms.getMember()
               );
@@ -811,7 +806,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
               mof.deleteImmediate(
                 grouperSession, g,
                 dao.findByGroupOwnerAndMemberAndFieldAndType(
-                  g.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
+                  g.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE, true
                 ), ms.getMember()
               );
               deletes.addAll( mof.getDeletes() );
@@ -872,7 +867,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
             mof.deleteImmediate(
               grouperSession, ns,
               dao.findByStemOwnerAndMemberAndFieldAndType(
-                ns.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE
+                ns.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE, true
               ), ms.getMember());
             deletes.addAll( mof.getDeletes() );
           }
@@ -1035,7 +1030,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     if (StringUtils.isBlank(this.fieldId)) {
       return null;
     }
-    Field field = FieldFinder.findById(this.fieldId);
+    Field field = FieldFinder.findById(this.fieldId, true);
     return field;
   }
 
@@ -1247,13 +1242,15 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
 
     super.onPostSave(hibernateSession);
     
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+        MembershipHooks.METHOD_MEMBERSHIP_POST_INSERT, HooksMembershipBean.class, 
+        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_INSERT, true, false);
+
+    //do these second so the right object version is set, and dbVersion is ok
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_INSERT, HooksMembershipBean.class, 
         this, Membership.class);
 
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
-        MembershipHooks.METHOD_MEMBERSHIP_POST_INSERT, HooksMembershipBean.class, 
-        this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_INSERT, true, false);
   }
 
   /**

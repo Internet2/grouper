@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksAddTypePostCommitTest.java,v 1.2 2009-02-13 13:51:58 mchyzer Exp $
+ * $Id: GroupHooksAddTypePostCommitTest.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -29,7 +29,6 @@ public class GroupHooksAddTypePostCommitTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new GroupHooksAddTypePostCommitTest("testGroupPostCommitInsert"));
     TestRunner.run(new GroupHooksAddTypePostCommitTest("testGroupHooksAddType"));
     //TestRunner.run(GroupHooksAddTypePostCommitTest.class);
   }
@@ -106,7 +105,7 @@ public class GroupHooksAddTypePostCommitTest extends GrouperTest {
     Group group = edu.addChildGroup("myGroup", "myGroup");
     
     //requery
-    group = GroupFinder.findByName(grouperSession, "edu:myGroup");
+    group = GroupFinder.findByName(grouperSession, "edu:myGroup", true);
     
     assertTrue(group.getTypes().contains(fubGroup));
     

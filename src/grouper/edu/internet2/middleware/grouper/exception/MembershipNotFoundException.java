@@ -21,9 +21,9 @@ package edu.internet2.middleware.grouper.exception;
  * Exception thrown when a membership cannot be found.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipNotFoundException.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: MembershipNotFoundException.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  */
-public class MembershipNotFoundException extends Exception {
+public class MembershipNotFoundException extends RuntimeException {
   private static final long serialVersionUID = -9217824330914213064L;
   public MembershipNotFoundException() { 
     super(); 

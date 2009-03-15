@@ -54,7 +54,7 @@ public class TestMemberFinder_FindAll extends GrouperTest {
       R r = R.populateRegistry(1, 3, 2);      
       Group gA = r.getGroup("a", "a");
       Group gB = r.getGroup("a", "b");      
-      Subject subjA = SubjectFinder.findById("a");
+      Subject subjA = SubjectFinder.findById("a", true);
       
       gA.addMember(gB.toSubject());
       gB.addMember(subjA);

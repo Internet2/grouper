@@ -26,7 +26,7 @@ import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 /** 
  * Basic <code>Composite</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: CompositeDAO.java,v 1.9 2008-10-16 05:45:47 mchyzer Exp $
+ * @version $Id: CompositeDAO.java,v 1.10 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public interface CompositeDAO extends GrouperDAO {
@@ -40,7 +40,7 @@ public interface CompositeDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  Composite findAsOwner(Group _g) 
+  Composite findAsOwner(Group _g, boolean exceptionIfNotFound) 
     throws  CompositeNotFoundException,
             GrouperDAOException
             ;
@@ -48,7 +48,7 @@ public interface CompositeDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  Composite findByUuid(String uuid) 
+  Composite findByUuid(String uuid, boolean exceptionIfNotFound) 
     throws  CompositeNotFoundException,
             GrouperDAOException
             ;

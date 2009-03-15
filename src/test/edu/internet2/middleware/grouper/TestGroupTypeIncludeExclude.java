@@ -37,7 +37,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  mchyzer
- * @version $Id: TestGroupTypeIncludeExclude.java,v 1.6 2009-02-09 05:33:30 mchyzer Exp $
+ * @version $Id: TestGroupTypeIncludeExclude.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGroupTypeIncludeExclude extends GrouperTest {
 
@@ -85,21 +85,21 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
 
       //shouldnt exist
       try {
-        GroupTypeFinder.find(groupTypeName);
+        GroupTypeFinder.find(groupTypeName, true);
         fail("Shouldnt exist now");
       } catch (SchemaException se) {
         //good
       }
 
       try {
-        GroupTypeFinder.find(requireInGroupsTypeName);
+        GroupTypeFinder.find(requireInGroupsTypeName, true);
         fail("Shouldnt exist now");
       } catch (SchemaException se) {
         //good
       }
 
       try {
-        GroupTypeFinder.find("requireInActiveStudent");
+        GroupTypeFinder.find("requireInActiveStudent", true);
         fail("Shouldnt exist now");
       } catch (SchemaException se) {
         //good
@@ -107,19 +107,19 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
 
       GrouperStartup.initIncludeExcludeType();
       
-      this.includeExcludeType = GroupTypeFinder.find(groupTypeName);
+      this.includeExcludeType = GroupTypeFinder.find(groupTypeName, true);
       
       assertNotNull("Should exist now", this.includeExcludeType);
       
-      this.requireGroupsType = GroupTypeFinder.find(requireInGroupsTypeName);
+      this.requireGroupsType = GroupTypeFinder.find(requireInGroupsTypeName, true);
       
       assertNotNull("Should exist now", this.requireGroupsType);
 
-      this.requireActiveStudentType = GroupTypeFinder.find("requireActiveStudent");
+      this.requireActiveStudentType = GroupTypeFinder.find("requireActiveStudent", true);
       
       assertNotNull("Should exist now", this.requireGroupsType);
       
-      this.requireActiveEmployee = FieldFinder.find("requireActiveEmployee");
+      this.requireActiveEmployee = FieldFinder.find("requireActiveEmployee", true);
       
       assertNotNull("Should exist now", this.requireActiveEmployee);
 
@@ -258,7 +258,7 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     String systemOfRecordIdPath = overallName + "_systemOfRecord";
     
     try {
-      systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, startWithOverallGroup ? systemOfRecordIdPath : overallName);
+      systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, startWithOverallGroup ? systemOfRecordIdPath : overallName, true);
       fail("Should not find this group yet");
     } catch (GroupNotFoundException gnfe) {
       //good
@@ -267,10 +267,10 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     aGroup.addType(includeExcludeType);
     
     //refresh this
-    Group overallGroup = GroupFinder.findByName(this.grouperSession, overallName);
+    Group overallGroup = GroupFinder.findByName(this.grouperSession, overallName, true);
     
     //check the system of record group
-    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, systemOfRecordIdPath);
+    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, systemOfRecordIdPath, true);
     
     assertNotNull("Should exist now", systemOfRecordGroup);
     
@@ -281,7 +281,7 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     }
     
     //check the includes group
-    Group includesGroup = GroupFinder.findByName(this.grouperSession, overallName + "_includes");
+    Group includesGroup = GroupFinder.findByName(this.grouperSession, overallName + "_includes", true);
     {
       
       assertNotNull("Should exist now", includesGroup);
@@ -292,7 +292,7 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     }
     
     //check the excludes group
-    Group excludesGroup = GroupFinder.findByName(this.grouperSession, overallName + "_excludes");
+    Group excludesGroup = GroupFinder.findByName(this.grouperSession, overallName + "_excludes", true);
     {
       
       assertNotNull("Should exist now", excludesGroup);
@@ -303,7 +303,7 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     }      
   
     //check the excludes group
-    Group systemOfRecordAndIncludesGroup = GroupFinder.findByName(this.grouperSession, overallName + "_systemOfRecordAndIncludes");
+    Group systemOfRecordAndIncludesGroup = GroupFinder.findByName(this.grouperSession, overallName + "_systemOfRecordAndIncludes", true);
     {
       
       assertNotNull("Should exist now", systemOfRecordAndIncludesGroup);
@@ -312,14 +312,14 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
       assertEquals(overallGroup.getDisplayName() + " system of record and includes", systemOfRecordAndIncludesGroup.getDisplayName());
       assertTrue("Should contain", systemOfRecordAndIncludesGroup.getDescription().toLowerCase().contains("group math for the include and exclude lists"));
       
-      assertTrue("should have system of record as member", systemOfRecordAndIncludesGroup.hasImmediateMember(SubjectFinder.findById(systemOfRecordGroup.getUuid())));
-      assertTrue("should have includes as member", systemOfRecordAndIncludesGroup.hasImmediateMember(SubjectFinder.findById(includesGroup.getUuid())));
+      assertTrue("should have system of record as member", systemOfRecordAndIncludesGroup.hasImmediateMember(SubjectFinder.findById(systemOfRecordGroup.getUuid(), true)));
+      assertTrue("should have includes as member", systemOfRecordAndIncludesGroup.hasImmediateMember(SubjectFinder.findById(includesGroup.getUuid(), true)));
     }      
   
     //check the overall group
-    assertTrue(overallGroup.getComposite().getType().equals(CompositeType.COMPLEMENT));
-    assertEquals(overallGroup.getComposite().getLeftGroup(), systemOfRecordAndIncludesGroup);
-    assertEquals(overallGroup.getComposite().getRightGroup(), excludesGroup);
+    assertTrue(overallGroup.getComposite(true).getType().equals(CompositeType.COMPLEMENT));
+    assertEquals(overallGroup.getComposite(true).getLeftGroup(), systemOfRecordAndIncludesGroup);
+    assertEquals(overallGroup.getComposite(true).getRightGroup(), excludesGroup);
     
     //now lets add some to the include
     includesGroup.addMember(SubjectTestHelper.SUBJ4);
@@ -400,9 +400,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     aGroup.addType(this.requireActiveStudentType);
   
     //refresh this
-    Group overallGroup = GroupFinder.findByName(this.grouperSession, overallName);
+    Group overallGroup = GroupFinder.findByName(this.grouperSession, overallName, true);
     //get the system of record
-    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, systemOfRecordIdPath);
+    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, systemOfRecordIdPath, true);
     
     Group requireGroups1 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups1", false);
     Group requireGroups2 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups2", false);
@@ -424,9 +424,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertNull(systemOfRecordAndIncludesGroup);
     assertNull(includesMinusExcludes);
     
-    assertTrue(overallGroup.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(overallGroup.getComposite().getLeftGroup(), systemOfRecordGroup);
-    assertEquals(overallGroup.getComposite().getRightGroup(), activeStudentGroup);
+    assertTrue(overallGroup.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(overallGroup.getComposite(true).getLeftGroup(), systemOfRecordGroup);
+    assertEquals(overallGroup.getComposite(true).getRightGroup(), activeStudentGroup);
   
     //and lets test the overall membership
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ0));
@@ -472,9 +472,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertNull(includesMinusExcludes);
   
     //check the requireGroups3 group
-    assertTrue(requireGroups3.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(requireGroups3.getComposite().getLeftGroup(), systemOfRecordGroup);
-    assertEquals(requireGroups3.getComposite().getRightGroup(), activeEmployeeGroup);
+    assertTrue(requireGroups3.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(requireGroups3.getComposite(true).getLeftGroup(), systemOfRecordGroup);
+    assertEquals(requireGroups3.getComposite(true).getRightGroup(), activeEmployeeGroup);
   
     assertTrue(requireGroups3.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(requireGroups3.hasMember(SubjectTestHelper.SUBJ1));
@@ -483,9 +483,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertTrue(requireGroups3.hasMember(SubjectTestHelper.SUBJ4));
   
     //check the requireGroups2 group
-    assertTrue(requireGroups2.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(requireGroups2.getComposite().getLeftGroup(), requireGroups3);
-    assertEquals(requireGroups2.getComposite().getRightGroup(), activeStudentGroup);
+    assertTrue(requireGroups2.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(requireGroups2.getComposite(true).getLeftGroup(), requireGroups3);
+    assertEquals(requireGroups2.getComposite(true).getRightGroup(), activeStudentGroup);
   
     assertTrue(requireGroups2.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(requireGroups2.hasMember(SubjectTestHelper.SUBJ1));
@@ -494,9 +494,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertFalse(requireGroups2.hasMember(SubjectTestHelper.SUBJ4));
   
     //check the requireGroups1 group
-    assertTrue(requireGroups1.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(requireGroups1.getComposite().getLeftGroup(), requireGroups2);
-    assertEquals(requireGroups1.getComposite().getRightGroup(), anotherGroup);
+    assertTrue(requireGroups1.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(requireGroups1.getComposite(true).getLeftGroup(), requireGroups2);
+    assertEquals(requireGroups1.getComposite(true).getRightGroup(), anotherGroup);
   
     assertTrue(requireGroups1.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(requireGroups1.hasMember(SubjectTestHelper.SUBJ1));
@@ -505,9 +505,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertFalse(requireGroups1.hasMember(SubjectTestHelper.SUBJ4));
   
     //check the overall group
-    assertTrue(overallGroup.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(overallGroup.getComposite().getLeftGroup(), requireGroups1);
-    assertEquals(overallGroup.getComposite().getRightGroup(), yetAnotherGroup);
+    assertTrue(overallGroup.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(overallGroup.getComposite(true).getLeftGroup(), requireGroups1);
+    assertEquals(overallGroup.getComposite(true).getRightGroup(), yetAnotherGroup);
   
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup.hasMember(SubjectTestHelper.SUBJ1));
@@ -542,9 +542,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertNull(includesMinusExcludes);
   
     //check the requireGroups2 group
-    assertTrue(requireGroups2.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(requireGroups2.getComposite().getLeftGroup(), systemOfRecordGroup);
-    assertEquals(requireGroups2.getComposite().getRightGroup(), activeEmployeeGroup);
+    assertTrue(requireGroups2.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(requireGroups2.getComposite(true).getLeftGroup(), systemOfRecordGroup);
+    assertEquals(requireGroups2.getComposite(true).getRightGroup(), activeEmployeeGroup);
   
     assertTrue(requireGroups2.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(requireGroups2.hasMember(SubjectTestHelper.SUBJ1));
@@ -553,9 +553,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertTrue(requireGroups2.hasMember(SubjectTestHelper.SUBJ4));
   
     //check the requireGroups1 group
-    assertTrue(requireGroups1.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(requireGroups1.getComposite().getLeftGroup(), requireGroups2);
-    assertEquals(requireGroups1.getComposite().getRightGroup(), anotherGroup);
+    assertTrue(requireGroups1.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(requireGroups1.getComposite(true).getLeftGroup(), requireGroups2);
+    assertEquals(requireGroups1.getComposite(true).getRightGroup(), anotherGroup);
   
     assertTrue(requireGroups1.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(requireGroups1.hasMember(SubjectTestHelper.SUBJ1));
@@ -564,9 +564,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertTrue(requireGroups1.hasMember(SubjectTestHelper.SUBJ4));
   
     //check the overall group
-    assertTrue(overallGroup.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(overallGroup.getComposite().getLeftGroup(), requireGroups1);
-    assertEquals(overallGroup.getComposite().getRightGroup(), yetAnotherGroup);
+    assertTrue(overallGroup.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(overallGroup.getComposite(true).getLeftGroup(), requireGroups1);
+    assertEquals(overallGroup.getComposite(true).getRightGroup(), yetAnotherGroup);
   
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup.hasMember(SubjectTestHelper.SUBJ1));
@@ -600,7 +600,7 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
   
     //check the overall group
     assertEquals(overallGroup.getImmediateMembers().size(), 1);
-    assertTrue(overallGroup.hasImmediateMember(SubjectFinder.findById(systemOfRecordGroup.getUuid())));
+    assertTrue(overallGroup.hasImmediateMember(SubjectFinder.findById(systemOfRecordGroup.getUuid(), true)));
   
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ1));
@@ -669,9 +669,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     aGroup.addType(this.requireActiveStudentType);
 
     //refresh this
-    Group overallGroup = GroupFinder.findByName(this.grouperSession, overallName);
+    Group overallGroup = GroupFinder.findByName(this.grouperSession, overallName, true);
     //get the system of record
-    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, systemOfRecordIdPath);
+    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, systemOfRecordIdPath, true);
     
     Group requireGroups1 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups1", false);
     Group requireGroups2 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups2", false);
@@ -693,9 +693,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertNull(systemOfRecordAndIncludesGroup);
     assertNull(includesMinusExcludes);
     
-    assertTrue(overallGroup.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(overallGroup.getComposite().getLeftGroup(), systemOfRecordGroup);
-    assertEquals(overallGroup.getComposite().getRightGroup(), activeStudentGroup);
+    assertTrue(overallGroup.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(overallGroup.getComposite(true).getLeftGroup(), systemOfRecordGroup);
+    assertEquals(overallGroup.getComposite(true).getRightGroup(), activeStudentGroup);
 
     //and lets test the overall membership
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ0));
@@ -745,9 +745,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertNull(includesMinusExcludes);
 
     //check the requireGroups3 group
-    assertTrue(requireGroups3.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(requireGroups3.getComposite().getLeftGroup(), systemOfRecordGroup);
-    assertEquals(requireGroups3.getComposite().getRightGroup(), activeEmployeeGroup);
+    assertTrue(requireGroups3.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(requireGroups3.getComposite(true).getLeftGroup(), systemOfRecordGroup);
+    assertEquals(requireGroups3.getComposite(true).getRightGroup(), activeEmployeeGroup);
 
     assertTrue(requireGroups3.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(requireGroups3.hasMember(SubjectTestHelper.SUBJ1));
@@ -758,9 +758,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertFalse(requireGroups3.hasMember(SubjectTestHelper.SUBJ6));
 
     //check the requireGroups2 group
-    assertTrue(requireGroups2.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(requireGroups2.getComposite().getLeftGroup(), requireGroups3);
-    assertEquals(requireGroups2.getComposite().getRightGroup(), activeStudentGroup);
+    assertTrue(requireGroups2.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(requireGroups2.getComposite(true).getLeftGroup(), requireGroups3);
+    assertEquals(requireGroups2.getComposite(true).getRightGroup(), activeStudentGroup);
 
     assertTrue(requireGroups2.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(requireGroups2.hasMember(SubjectTestHelper.SUBJ1));
@@ -771,9 +771,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertFalse(requireGroups2.hasMember(SubjectTestHelper.SUBJ6));
 
     //check the requireGroups1 group
-    assertTrue(requireGroups1.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(requireGroups1.getComposite().getLeftGroup(), requireGroups2);
-    assertEquals(requireGroups1.getComposite().getRightGroup(), anotherGroup);
+    assertTrue(requireGroups1.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(requireGroups1.getComposite(true).getLeftGroup(), requireGroups2);
+    assertEquals(requireGroups1.getComposite(true).getRightGroup(), anotherGroup);
 
     assertTrue(requireGroups1.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(requireGroups1.hasMember(SubjectTestHelper.SUBJ1));
@@ -784,9 +784,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertFalse(requireGroups1.hasMember(SubjectTestHelper.SUBJ6));
 
     //check the overall group
-    assertTrue(overallGroup.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(overallGroup.getComposite().getLeftGroup(), requireGroups1);
-    assertEquals(overallGroup.getComposite().getRightGroup(), yetAnotherGroup);
+    assertTrue(overallGroup.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(overallGroup.getComposite(true).getLeftGroup(), requireGroups1);
+    assertEquals(overallGroup.getComposite(true).getRightGroup(), yetAnotherGroup);
 
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup.hasMember(SubjectTestHelper.SUBJ1));
@@ -823,9 +823,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertNull(includesMinusExcludes);
 
     //check the requireGroups2 group
-    assertTrue(requireGroups2.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(requireGroups2.getComposite().getLeftGroup(), systemOfRecordGroup);
-    assertEquals(requireGroups2.getComposite().getRightGroup(), activeEmployeeGroup);
+    assertTrue(requireGroups2.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(requireGroups2.getComposite(true).getLeftGroup(), systemOfRecordGroup);
+    assertEquals(requireGroups2.getComposite(true).getRightGroup(), activeEmployeeGroup);
 
     assertTrue(requireGroups2.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(requireGroups2.hasMember(SubjectTestHelper.SUBJ1));
@@ -835,9 +835,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertFalse(requireGroups2.hasMember(SubjectTestHelper.SUBJ5));
 
     //check the requireGroups1 group
-    assertTrue(requireGroups1.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(requireGroups1.getComposite().getLeftGroup(), requireGroups2);
-    assertEquals(requireGroups1.getComposite().getRightGroup(), anotherGroup);
+    assertTrue(requireGroups1.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(requireGroups1.getComposite(true).getLeftGroup(), requireGroups2);
+    assertEquals(requireGroups1.getComposite(true).getRightGroup(), anotherGroup);
 
     assertTrue(requireGroups1.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(requireGroups1.hasMember(SubjectTestHelper.SUBJ1));
@@ -847,9 +847,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertFalse(requireGroups1.hasMember(SubjectTestHelper.SUBJ5));
 
     //check the overall group
-    assertTrue(overallGroup.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(overallGroup.getComposite().getLeftGroup(), requireGroups1);
-    assertEquals(overallGroup.getComposite().getRightGroup(), yetAnotherGroup);
+    assertTrue(overallGroup.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(overallGroup.getComposite(true).getLeftGroup(), requireGroups1);
+    assertEquals(overallGroup.getComposite(true).getRightGroup(), yetAnotherGroup);
 
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup.hasMember(SubjectTestHelper.SUBJ1));
@@ -902,8 +902,8 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     //check the systemOfRecordAndIncludes group
     assertFalse(systemOfRecordAndIncludesGroup.hasComposite());
     assertEquals(2, systemOfRecordAndIncludesGroup.getImmediateMembers().size());
-    assertTrue(systemOfRecordAndIncludesGroup.hasImmediateMember(SubjectFinder.findById(systemOfRecordGroup.getUuid())));
-    assertTrue(systemOfRecordAndIncludesGroup.hasImmediateMember(SubjectFinder.findById(includesGroup.getUuid())));
+    assertTrue(systemOfRecordAndIncludesGroup.hasImmediateMember(SubjectFinder.findById(systemOfRecordGroup.getUuid(), true)));
+    assertTrue(systemOfRecordAndIncludesGroup.hasImmediateMember(SubjectFinder.findById(includesGroup.getUuid(), true)));
 
     assertTrue(systemOfRecordAndIncludesGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(systemOfRecordAndIncludesGroup.hasMember(SubjectTestHelper.SUBJ1));
@@ -914,9 +914,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertTrue(systemOfRecordAndIncludesGroup.hasMember(SubjectTestHelper.SUBJ6));
     
     //check the includesMinusExcludes group
-    assertTrue(includesMinusExcludes.getComposite().getType().equals(CompositeType.COMPLEMENT));
-    assertEquals(includesMinusExcludes.getComposite().getLeftGroup(), systemOfRecordAndIncludesGroup);
-    assertEquals(includesMinusExcludes.getComposite().getRightGroup(), excludesGroup);
+    assertTrue(includesMinusExcludes.getComposite(true).getType().equals(CompositeType.COMPLEMENT));
+    assertEquals(includesMinusExcludes.getComposite(true).getLeftGroup(), systemOfRecordAndIncludesGroup);
+    assertEquals(includesMinusExcludes.getComposite(true).getRightGroup(), excludesGroup);
 
     assertFalse(includesMinusExcludes.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(includesMinusExcludes.hasMember(SubjectTestHelper.SUBJ1));
@@ -927,9 +927,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertTrue(includesMinusExcludes.hasMember(SubjectTestHelper.SUBJ6));
     
     //check the requireGroups2 group
-    assertTrue(requireGroups2.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(requireGroups2.getComposite().getLeftGroup(), includesMinusExcludes);
-    assertEquals(requireGroups2.getComposite().getRightGroup(), activeEmployeeGroup);
+    assertTrue(requireGroups2.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(requireGroups2.getComposite(true).getLeftGroup(), includesMinusExcludes);
+    assertEquals(requireGroups2.getComposite(true).getRightGroup(), activeEmployeeGroup);
 
     assertFalse(requireGroups2.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(requireGroups2.hasMember(SubjectTestHelper.SUBJ1));
@@ -940,9 +940,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertFalse(requireGroups2.hasMember(SubjectTestHelper.SUBJ6));
 
     //check the requireGroups1 group
-    assertTrue(requireGroups1.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(requireGroups1.getComposite().getLeftGroup(), requireGroups2);
-    assertEquals(requireGroups1.getComposite().getRightGroup(), anotherGroup);
+    assertTrue(requireGroups1.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(requireGroups1.getComposite(true).getLeftGroup(), requireGroups2);
+    assertEquals(requireGroups1.getComposite(true).getRightGroup(), anotherGroup);
 
     assertFalse(requireGroups1.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(requireGroups1.hasMember(SubjectTestHelper.SUBJ1));
@@ -953,9 +953,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertFalse(requireGroups1.hasMember(SubjectTestHelper.SUBJ6));
 
     //check the overall group
-    assertTrue(overallGroup.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(overallGroup.getComposite().getLeftGroup(), requireGroups1);
-    assertEquals(overallGroup.getComposite().getRightGroup(), yetAnotherGroup);
+    assertTrue(overallGroup.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(overallGroup.getComposite(true).getLeftGroup(), requireGroups1);
+    assertEquals(overallGroup.getComposite(true).getRightGroup(), yetAnotherGroup);
 
     assertFalse(overallGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup.hasMember(SubjectTestHelper.SUBJ1));
@@ -1006,8 +1006,8 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     //check the systemOfRecordAndIncludes group
     assertFalse(systemOfRecordAndIncludesGroup.hasComposite());
     assertEquals(2, systemOfRecordAndIncludesGroup.getImmediateMembers().size());
-    assertTrue(systemOfRecordAndIncludesGroup.hasImmediateMember(SubjectFinder.findById(systemOfRecordGroup.getUuid())));
-    assertTrue(systemOfRecordAndIncludesGroup.hasImmediateMember(SubjectFinder.findById(includesGroup.getUuid())));
+    assertTrue(systemOfRecordAndIncludesGroup.hasImmediateMember(SubjectFinder.findById(systemOfRecordGroup.getUuid(), true)));
+    assertTrue(systemOfRecordAndIncludesGroup.hasImmediateMember(SubjectFinder.findById(includesGroup.getUuid(), true)));
 
     assertTrue(systemOfRecordAndIncludesGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(systemOfRecordAndIncludesGroup.hasMember(SubjectTestHelper.SUBJ1));
@@ -1018,9 +1018,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertTrue(systemOfRecordAndIncludesGroup.hasMember(SubjectTestHelper.SUBJ6));
     
     //check the includesMinusExcludes group
-    assertTrue(includesMinusExcludes.getComposite().getType().equals(CompositeType.COMPLEMENT));
-    assertEquals(includesMinusExcludes.getComposite().getLeftGroup(), systemOfRecordAndIncludesGroup);
-    assertEquals(includesMinusExcludes.getComposite().getRightGroup(), excludesGroup);
+    assertTrue(includesMinusExcludes.getComposite(true).getType().equals(CompositeType.COMPLEMENT));
+    assertEquals(includesMinusExcludes.getComposite(true).getLeftGroup(), systemOfRecordAndIncludesGroup);
+    assertEquals(includesMinusExcludes.getComposite(true).getRightGroup(), excludesGroup);
 
     assertFalse(includesMinusExcludes.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(includesMinusExcludes.hasMember(SubjectTestHelper.SUBJ1));
@@ -1031,9 +1031,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertTrue(includesMinusExcludes.hasMember(SubjectTestHelper.SUBJ6));
     
     //check the requireGroups2 group
-    assertTrue(requireGroups2.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(requireGroups2.getComposite().getLeftGroup(), includesMinusExcludes);
-    assertEquals(requireGroups2.getComposite().getRightGroup(), activeEmployeeGroup);
+    assertTrue(requireGroups2.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(requireGroups2.getComposite(true).getLeftGroup(), includesMinusExcludes);
+    assertEquals(requireGroups2.getComposite(true).getRightGroup(), activeEmployeeGroup);
 
     assertFalse(requireGroups2.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(requireGroups2.hasMember(SubjectTestHelper.SUBJ1));
@@ -1044,9 +1044,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertFalse(requireGroups2.hasMember(SubjectTestHelper.SUBJ6));
 
     //check the requireGroups1 group
-    assertTrue(requireGroups1.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(requireGroups1.getComposite().getLeftGroup(), requireGroups2);
-    assertEquals(requireGroups1.getComposite().getRightGroup(), anotherGroup);
+    assertTrue(requireGroups1.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(requireGroups1.getComposite(true).getLeftGroup(), requireGroups2);
+    assertEquals(requireGroups1.getComposite(true).getRightGroup(), anotherGroup);
 
     assertFalse(requireGroups1.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(requireGroups1.hasMember(SubjectTestHelper.SUBJ1));
@@ -1057,9 +1057,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertFalse(requireGroups1.hasMember(SubjectTestHelper.SUBJ6));
 
     //check the overall group
-    assertTrue(overallGroup.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(overallGroup.getComposite().getLeftGroup(), requireGroups1);
-    assertEquals(overallGroup.getComposite().getRightGroup(), yetAnotherGroup);
+    assertTrue(overallGroup.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(overallGroup.getComposite(true).getLeftGroup(), requireGroups1);
+    assertEquals(overallGroup.getComposite(true).getRightGroup(), yetAnotherGroup);
 
     assertFalse(overallGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup.hasMember(SubjectTestHelper.SUBJ1));
@@ -1100,8 +1100,8 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     //check the systemOfRecordAndIncludes group
     assertFalse(systemOfRecordAndIncludesGroup.hasComposite());
     assertEquals(2, systemOfRecordAndIncludesGroup.getImmediateMembers().size());
-    assertTrue(systemOfRecordAndIncludesGroup.hasImmediateMember(SubjectFinder.findById(systemOfRecordGroup.getUuid())));
-    assertTrue(systemOfRecordAndIncludesGroup.hasImmediateMember(SubjectFinder.findById(includesGroup.getUuid())));
+    assertTrue(systemOfRecordAndIncludesGroup.hasImmediateMember(SubjectFinder.findById(systemOfRecordGroup.getUuid(), true)));
+    assertTrue(systemOfRecordAndIncludesGroup.hasImmediateMember(SubjectFinder.findById(includesGroup.getUuid(), true)));
 
     assertTrue(systemOfRecordAndIncludesGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(systemOfRecordAndIncludesGroup.hasMember(SubjectTestHelper.SUBJ1));
@@ -1112,9 +1112,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertTrue(systemOfRecordAndIncludesGroup.hasMember(SubjectTestHelper.SUBJ6));
 
     //check the overall group
-    assertTrue(overallGroup.getComposite().getType().equals(CompositeType.COMPLEMENT));
-    assertEquals(overallGroup.getComposite().getLeftGroup(), systemOfRecordAndIncludesGroup);
-    assertEquals(overallGroup.getComposite().getRightGroup(), excludesGroup);
+    assertTrue(overallGroup.getComposite(true).getType().equals(CompositeType.COMPLEMENT));
+    assertEquals(overallGroup.getComposite(true).getLeftGroup(), systemOfRecordAndIncludesGroup);
+    assertEquals(overallGroup.getComposite(true).getRightGroup(), excludesGroup);
 
     assertFalse(overallGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ1));
@@ -1157,7 +1157,7 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
   
     //check the overall group
     assertEquals(overallGroup.getImmediateMembers().size(), 1);
-    assertTrue(overallGroup.hasImmediateMember(SubjectFinder.findById(systemOfRecordGroup.getUuid())));
+    assertTrue(overallGroup.hasImmediateMember(SubjectFinder.findById(systemOfRecordGroup.getUuid(), true)));
   
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ1));
@@ -1210,26 +1210,26 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     aGroup.store();
     
     //refresh this
-    Group overallGroup = GroupFinder.findByName(this.grouperSession, overallName);
+    Group overallGroup = GroupFinder.findByName(this.grouperSession, overallName, true);
     
     //check the system of record group
-    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, systemOfRecordIdPath);
+    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, systemOfRecordIdPath, true);
     
     //check the includes group
-    Group includesGroup = GroupFinder.findByName(this.grouperSession, overallName + "_includes");
+    Group includesGroup = GroupFinder.findByName(this.grouperSession, overallName + "_includes", true);
 
     //check the excludes group
-    Group excludesGroup = GroupFinder.findByName(this.grouperSession, overallName + "_excludes");
+    Group excludesGroup = GroupFinder.findByName(this.grouperSession, overallName + "_excludes", true);
 
     //check the sor and includes group
-    Group systemOfRecordAndIncludesGroup = GroupFinder.findByName(this.grouperSession, overallName + "_systemOfRecordAndIncludes");
+    Group systemOfRecordAndIncludesGroup = GroupFinder.findByName(this.grouperSession, overallName + "_systemOfRecordAndIncludes", true);
 
     //includes minus excludes
-    Group includesMinusExcludes = GroupFinder.findByName(this.grouperSession, overallName + "_includesMinusExcludes");
+    Group includesMinusExcludes = GroupFinder.findByName(this.grouperSession, overallName + "_includesMinusExcludes", true);
     
     //first helper composite
-    Group requireGroups1 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups1");
-    Group requireGroups2 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups2");
+    Group requireGroups1 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups1", true);
+    Group requireGroups2 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups2", true);
     Group requireGroups3 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups3", false);
 
     assertNull("Shouldnt need 3 helpers, only 2", requireGroups3);
@@ -1241,24 +1241,24 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     //overallGroup is composite complement: requireGroups1 minus aStem:yetAnotherGroup
     
     //check the includesMinusExcludes group
-    assertTrue(includesMinusExcludes.getComposite().getType().equals(CompositeType.COMPLEMENT));
-    assertEquals(includesMinusExcludes.getComposite().getLeftGroup(), systemOfRecordAndIncludesGroup);
-    assertEquals(includesMinusExcludes.getComposite().getRightGroup(), excludesGroup);
+    assertTrue(includesMinusExcludes.getComposite(true).getType().equals(CompositeType.COMPLEMENT));
+    assertEquals(includesMinusExcludes.getComposite(true).getLeftGroup(), systemOfRecordAndIncludesGroup);
+    assertEquals(includesMinusExcludes.getComposite(true).getRightGroup(), excludesGroup);
 
     //check the requireGroups2 group
-    assertTrue(requireGroups2.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(requireGroups2.getComposite().getLeftGroup(), includesMinusExcludes);
-    assertEquals(requireGroups2.getComposite().getRightGroup(), activeEmployeeGroup);
+    assertTrue(requireGroups2.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(requireGroups2.getComposite(true).getLeftGroup(), includesMinusExcludes);
+    assertEquals(requireGroups2.getComposite(true).getRightGroup(), activeEmployeeGroup);
 
     //check the requireGroups1 group
-    assertTrue(requireGroups1.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(requireGroups1.getComposite().getLeftGroup(), requireGroups2);
-    assertEquals(requireGroups1.getComposite().getRightGroup(), anotherGroup);
+    assertTrue(requireGroups1.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(requireGroups1.getComposite(true).getLeftGroup(), requireGroups2);
+    assertEquals(requireGroups1.getComposite(true).getRightGroup(), anotherGroup);
 
     //check the overall group
-    assertTrue(overallGroup.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(overallGroup.getComposite().getLeftGroup(), requireGroups1);
-    assertEquals(overallGroup.getComposite().getRightGroup(), yetAnotherGroup);
+    assertTrue(overallGroup.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(overallGroup.getComposite(true).getLeftGroup(), requireGroups1);
+    assertEquals(overallGroup.getComposite(true).getRightGroup(), yetAnotherGroup);
     
     //now lets add some to the include
     includesGroup.addMember(SubjectTestHelper.SUBJ4);
@@ -1315,16 +1315,16 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     aGroup.store();
     
     //refresh this
-    overallGroup = GroupFinder.findByName(this.grouperSession, overallName);
+    overallGroup = GroupFinder.findByName(this.grouperSession, overallName, true);
     
     //check the system of record group
-    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, systemOfRecordIdPath);
+    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, systemOfRecordIdPath, true);
     
     //check the excludes group
-    systemOfRecordAndIncludesGroup = GroupFinder.findByName(this.grouperSession, overallName + "_systemOfRecordAndIncludes");
+    systemOfRecordAndIncludesGroup = GroupFinder.findByName(this.grouperSession, overallName + "_systemOfRecordAndIncludes", true);
 
     //includes minus excludes
-    includesMinusExcludes = GroupFinder.findByName(this.grouperSession, overallName + "_includesMinusExcludes");
+    includesMinusExcludes = GroupFinder.findByName(this.grouperSession, overallName + "_includesMinusExcludes", true);
     
     //first helper composite
     requireGroups1 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups1", false);
@@ -1340,14 +1340,14 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     //overallGroup is composite complement: includesMinusExcludes minus aStem:activeEmployee
     
     //check the includesMinusExcludes group
-    assertTrue(includesMinusExcludes.getComposite().getType().equals(CompositeType.COMPLEMENT));
-    assertEquals(includesMinusExcludes.getComposite().getLeftGroup(), systemOfRecordAndIncludesGroup);
-    assertEquals(includesMinusExcludes.getComposite().getRightGroup(), excludesGroup);
+    assertTrue(includesMinusExcludes.getComposite(true).getType().equals(CompositeType.COMPLEMENT));
+    assertEquals(includesMinusExcludes.getComposite(true).getLeftGroup(), systemOfRecordAndIncludesGroup);
+    assertEquals(includesMinusExcludes.getComposite(true).getRightGroup(), excludesGroup);
 
     //check the overall group
-    assertTrue(overallGroup.getComposite().getType().equals(CompositeType.INTERSECTION));
-    assertEquals(overallGroup.getComposite().getLeftGroup(), includesMinusExcludes);
-    assertEquals(overallGroup.getComposite().getRightGroup(), activeEmployeeGroup);
+    assertTrue(overallGroup.getComposite(true).getType().equals(CompositeType.INTERSECTION));
+    assertEquals(overallGroup.getComposite(true).getLeftGroup(), includesMinusExcludes);
+    assertEquals(overallGroup.getComposite(true).getRightGroup(), activeEmployeeGroup);
     
     //and lets test the overall membership
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ0));

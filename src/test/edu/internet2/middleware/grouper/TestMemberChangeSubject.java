@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: TestMemberChangeSubject.java,v 1.5 2009-01-02 06:57:11 mchyzer Exp $
+ * $Id: TestMemberChangeSubject.java,v 1.6 2009-03-15 06:37:22 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -131,10 +131,10 @@ public class TestMemberChangeSubject extends GrouperTest {
       
       groupComposite.addCompositeMember(CompositeType.UNION, group, group2);
       
-      composite = CompositeFinder.findAsOwner(groupComposite);
+      composite = CompositeFinder.findAsOwner(groupComposite, true);
       
       membershipSubj0 = MembershipFinder.findImmediateMembership(grouperSession, 
-          group, SubjectTestHelper.SUBJ0, Group.getDefaultList());
+          group, SubjectTestHelper.SUBJ0, Group.getDefaultList(), true);
 
       final Group sysadmingroup = Group.saveGroup(rootGrouperSession, null, 
           null, "etc:sysadmingroup", "sysadmingroup", "sysadmingroup", 
@@ -169,7 +169,7 @@ public class TestMemberChangeSubject extends GrouperTest {
    * @throws Exception 
    */
   public void testChangeSubjectSameSubject() throws Exception {
-    Member member0 = MemberFinder.findBySubject(this.rootGrouperSession, SubjectTestHelper.SUBJ0);
+    Member member0 = MemberFinder.findBySubject(this.rootGrouperSession, SubjectTestHelper.SUBJ0, true);
     String member0uuid = member0.getUuid();
     
     GrouperSession nonRootSession = GrouperSession.start(SubjectTestHelper.SUBJ9);
@@ -194,7 +194,7 @@ public class TestMemberChangeSubject extends GrouperTest {
     assertEquals("source id should not change", member0.getSubjectSourceId(), SubjectTestHelper.SUBJ0.getSource().getId());
     assertEquals("should have detected same subject", sameSubjects+1, Member.changeSubjectSameSubject);
     
-    member0 = MemberFinder.findBySubject(this.rootGrouperSession, SubjectTestHelper.SUBJ0);
+    member0 = MemberFinder.findBySubject(this.rootGrouperSession, SubjectTestHelper.SUBJ0, true);
     
     assertEquals("subject uuid should not change", member0uuid, member0.getUuid());
   }
@@ -204,7 +204,7 @@ public class TestMemberChangeSubject extends GrouperTest {
    * @throws Exception 
    */
   public void testChangeSubjectDidntExist() throws Exception {
-    Member member0 = MemberFinder.findBySubject(this.rootGrouperSession, SubjectTestHelper.SUBJ0);
+    Member member0 = MemberFinder.findBySubject(this.rootGrouperSession, SubjectTestHelper.SUBJ0, true);
     
     //lets set the source so we can see it change
     member0.setSubjectSourceIdDb("abc");
@@ -223,7 +223,7 @@ public class TestMemberChangeSubject extends GrouperTest {
     //make sure member doesnt exist
     try {
       GrouperDAOFactory.getFactory().getMember().findBySubject(
-          SubjectTestHelper.SUBJ2);
+          SubjectTestHelper.SUBJ2, true);
       fail("Should not find this member!");
     }catch (MemberNotFoundException mnfe) {
       //good
@@ -242,18 +242,18 @@ public class TestMemberChangeSubject extends GrouperTest {
     assertEquals("should have detected that it didnt change", subjectsDidntExist+1, Member.changeSubjectDidntExist);
     
     try {
-      member0 = GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectTestHelper.SUBJ0);
+      member0 = GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectTestHelper.SUBJ0, true);
       fail("Should not find this subject anymore");
     } catch (MemberNotFoundException mnfe) {
       
     }
     
-    member2 = MemberFinder.findBySubject(this.rootGrouperSession, SubjectTestHelper.SUBJ2);
+    member2 = MemberFinder.findBySubject(this.rootGrouperSession, SubjectTestHelper.SUBJ2, true);
     
     assertEquals("uuid should not have changed", member2.getUuid(), member0uuid);
     
     //refresh the stem
-    this.edu = StemFinder.findByName(this.rootGrouperSession, "edu");
+    this.edu = StemFinder.findByName(this.rootGrouperSession, "edu", true);
     
     assertEquals("the member uuid should not have changed", eduStemCreateUuid, this.edu.getCreatorUuid());
     
@@ -264,7 +264,7 @@ public class TestMemberChangeSubject extends GrouperTest {
    * @throws Exception 
    */
   public void testChangeSubjectDidExist() throws Exception {
-    Member member0 = MemberFinder.findBySubject(this.rootGrouperSession, SubjectTestHelper.SUBJ0);
+    Member member0 = MemberFinder.findBySubject(this.rootGrouperSession, SubjectTestHelper.SUBJ0, true);
     
     //lets set the source so we can see it change
     member0.setSubjectSourceIdDb("abc");
@@ -307,7 +307,7 @@ public class TestMemberChangeSubject extends GrouperTest {
     assertEquals("existing uuid", member0uuid, groupTypeId);
 
     Member member1 = GrouperDAOFactory.getFactory().getMember().findBySubject(
-        SubjectTestHelper.SUBJ1);
+        SubjectTestHelper.SUBJ1, true);
     
     String member1uuid = member1.getUuid();
     
@@ -332,27 +332,27 @@ public class TestMemberChangeSubject extends GrouperTest {
     assertTrue("should have detected at least one update", Member.changeSubjectMembershipAddCount > subjectAddCount+1);
 
     try {
-      member0 = GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectTestHelper.SUBJ0);
+      member0 = GrouperDAOFactory.getFactory().getMember().findBySubject(SubjectTestHelper.SUBJ0, true);
       fail("Should not find this subject anymore");
     } catch (MemberNotFoundException mnfe) {
       //good
     }
     
     member1 = GrouperDAOFactory.getFactory().getMember().findBySubject(
-        SubjectTestHelper.SUBJ1);
+        SubjectTestHelper.SUBJ1, true);
     
     assertEquals("uuid should not have changed", member1.getUuid(), member1uuid);
     assertTrue("uuid should not be the same", 
         !StringUtils.equals(member1.getUuid(), member0uuid));
       
     //grouper_composites.creator_id
-    this.composite = CompositeFinder.findAsOwner(this.groupComposite);
+    this.composite = CompositeFinder.findAsOwner(this.groupComposite, true);
     compositeUuid = this.composite.getCreatorUuid();
     assertEquals("new uuid", member1uuid, compositeUuid);
     
     //grouper_groups.creator_id, 
     //  modifier_id
-    this.group = GroupFinder.findByName(this.grouperSession, this.group.getName());
+    this.group = GroupFinder.findByName(this.grouperSession, this.group.getName(), true);
     groupCreatorId = this.group.getCreatorUuid();
     assertEquals("new uuid", member1uuid, groupCreatorId);
     groupModifierId = this.group.getModifierUuid();
@@ -361,7 +361,7 @@ public class TestMemberChangeSubject extends GrouperTest {
     //grouper_memberships.member_id, 
     //  creator_id
     Membership membershipSubj1 = MembershipFinder.findImmediateMembership(grouperSession, 
-        group, SubjectTestHelper.SUBJ1, Group.getDefaultList());
+        group, SubjectTestHelper.SUBJ1, Group.getDefaultList(), true);
     membershipMemberId = membershipSubj1.getMemberUuid();
     assertEquals("new uuid", member1uuid, membershipMemberId);
     membershipCreatorId = membershipSubj1.getCreatorUuid();
@@ -370,14 +370,14 @@ public class TestMemberChangeSubject extends GrouperTest {
     //grouper_stems.creator_id, 
     //  modifier_id
     //refresh the stem
-    this.edu = StemFinder.findByName(this.rootGrouperSession, "edu");
+    this.edu = StemFinder.findByName(this.rootGrouperSession, "edu", true);
     stemCreatorId = this.edu.getCreatorUuid();
     assertEquals("new uuid", member1uuid, stemCreatorId);
     stemModifierId = this.edu.getModifierUuid();
     assertEquals("new uuid", member1uuid, stemModifierId);
     
     //grouper_types.creator_uuid
-    this.groupType = GroupTypeFinder.find(this.groupType.getName());
+    this.groupType = GroupTypeFinder.find(this.groupType.getName(), true);
     groupTypeId = this.groupType.getCreatorUuid();
     assertEquals("new uuid", member1uuid, groupTypeId);
     

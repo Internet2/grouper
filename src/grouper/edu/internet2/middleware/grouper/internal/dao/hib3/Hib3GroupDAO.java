@@ -65,7 +65,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.28 2009-02-10 05:23:45 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.29 2009-03-15 06:37:23 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -120,7 +120,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             //get it again in case it was changed in the hook
             Group g2 = null;
             try {
-              g2 = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), _g.getUuid());
+              g2 = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), _g.getUuid(), true);
             } catch (GroupNotFoundException gnfe) {
               throw new RuntimeException("Weird problem getting group: " + _g.getName());
             }
@@ -721,7 +721,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     return resultGroups;
   } 
 
-
   /**
    * @param attr
    * @param val
@@ -730,10 +729,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @throws GroupNotFoundException
    * @since   @HEAD@
    */
-  public Group findByAttribute(String attr, String val) 
-    throws  GrouperDAOException,
-            GroupNotFoundException {
-    
+  public Group findByAttribute(String attr, String val, boolean exceptionIfNotFound)
+      throws GrouperDAOException, GroupNotFoundException {
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
     String attributeHql = null;
     
@@ -754,23 +751,38 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       .setCacheRegion(KLASS + ".FindByAttribute")
       .setString("value", val).uniqueResult(Group.class);
     
-     if (group == null) {
+     if (group == null && exceptionIfNotFound) {
        throw new GroupNotFoundException();
      }
      return group;
+    
+  }
+
+
+  /**
+   * @param attr
+   * @param val
+   * @return group
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   * @deprecated use overload
+   */
+  @Deprecated
+  public Group findByAttribute(String attr, String val) 
+    throws  GrouperDAOException,
+            GroupNotFoundException {
+    return findByAttribute(attr, val, true);
   } 
 
   /**
    * @param name
+   * @param exceptionIfNotFound
    * @return group
    * @throws GrouperDAOException
    * @throws GroupNotFoundException
-   * @since   @HEAD@
    */
-  public Group findByName(final String name) 
-    throws  GrouperDAOException,
-            GroupNotFoundException {
-    
+  public Group findByName(String name, boolean exceptionIfNotFound)
+      throws GrouperDAOException, GroupNotFoundException {
     Group group = HibernateSession.byHqlStatic()
       .createQuery("select g from Group as g where g.nameDb = :value")
       .setCacheable(false)
@@ -778,12 +790,41 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       .setString("value", name).uniqueResult(Group.class);
 
     //handle exceptions out of data access method...
-    if (group == null) {
+    if (group == null && exceptionIfNotFound) {
       throw new GroupNotFoundException("Cannot find group with name: '" + name + "'");
     }
     return group;
+  }
+
+
+  /**
+   * @param name
+   * @return group
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   * @deprecated use overload
+   */
+  @Deprecated
+  public Group findByName(final String name) 
+    throws  GrouperDAOException,
+            GroupNotFoundException {
+    return findByName(name, true);
   } 
 
+  /**
+   * <ol>
+   * <li>Hibernate caching is enabled.</li>
+   * </ol>
+   * @see     GroupDAO#findByUuid(String)
+   * @deprecated use overload
+   */
+  @Deprecated
+  public Group findByUuid(String uuid) 
+    throws  GrouperDAOException,
+            GroupNotFoundException  {
+    return findByUuid(uuid, true);
+  } 
+  
   /**
    * <p><b>Implementation Notes.</b</p>
    * <ol>
@@ -792,9 +833,8 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @see     GroupDAO#findByUuid(String)
    * @since   @HEAD@
    */
-  public Group findByUuid(String uuid) 
-    throws  GrouperDAOException,
-            GroupNotFoundException  {
+  public Group findByUuid(String uuid, boolean exceptionIfNotFound)
+      throws GrouperDAOException, GroupNotFoundException {
     Group dto = HibernateSession.byHqlStatic()
       .createQuery("from Group as g where g.uuid = :uuid")
       .setCacheable(true)
@@ -804,8 +844,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
        throw new GroupNotFoundException();
     }
     return dto;
-  } 
-
+  }
 
   /**
    * @return set
@@ -991,7 +1030,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     GroupTypeDAO dao = GrouperDAOFactory.getFactory().getGroupType(); 
     try {
       for (GroupTypeTuple  gtt : groupTypeTuples) {
-        types.add( dao.findByUuid( gtt.getTypeUuid() ) );
+        types.add( dao.findByUuid( gtt.getTypeUuid(), true ) );
       }
     } catch (SchemaException eS) {
       throw new GrouperDAOException( "Problem with finding by uuid: " + uuid + ", " + eS.getMessage(), eS );
@@ -1040,7 +1079,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     while (it.hasNext()) {
       kv = (Map.Entry) it.next();
       Attribute attributeDto = new Attribute(); 
-      attributeDto.setFieldId( FieldFinder.findFieldIdForAttribute((String) kv.getKey() ));
+      attributeDto.setFieldId( FieldFinder.findFieldIdForAttribute((String) kv.getKey(), true ));
       attributeDto.setGroupUuid(group.getUuid());
       attributeDto.setValue( (String) kv.getValue() );
       byObject.save(attributeDto);

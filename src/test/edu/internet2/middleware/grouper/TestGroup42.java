@@ -23,7 +23,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup42.java,v 1.5 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroup42.java,v 1.6 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGroup42 extends GrouperTest {
@@ -57,7 +57,7 @@ public class TestGroup42 extends GrouperTest {
       assertTrue( "group has new dn", gA.getDisplayName().equals(dn) );
       r.rs.stop();
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group g = GroupFinder.findByUuid(s, uuid);
+      Group g = GroupFinder.findByUuid(s, uuid, true);
       assertTrue( "group still has new de", g.getDisplayExtension().equals(de) );
       assertTrue( "group still has new dn", g.getDisplayName().equals(dn) );
       s.stop();

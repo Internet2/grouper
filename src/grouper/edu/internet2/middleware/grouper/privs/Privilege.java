@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
  * and Stems from NamingPrivilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.6 2009-03-02 07:33:25 mchyzer Exp $
+ * @version $Id: Privilege.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class Privilege implements Serializable {
 
@@ -138,7 +138,7 @@ public class Privilege implements Serializable {
   public Field getField() throws SchemaException {
     String listName = this.getListName();
     if (!StringUtils.isBlank(listName)) {
-      return FieldFinder.find(listName);
+      return FieldFinder.find(listName, true);
     }
     throw new SchemaException("invalid privilege: " + this);
   }

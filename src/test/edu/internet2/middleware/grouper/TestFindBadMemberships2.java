@@ -105,7 +105,7 @@ public class TestFindBadMemberships2 extends TestCase {
 
       // gF -> gA gets deleted
       Membership gFgA = MembershipTestHelper.findEffectiveMembership(r.rs, gA, 
-          gF.toSubject(), gD, 2, FieldFinder.find("updaters"));
+          gF.toSubject(), gD, 2, FieldFinder.find("updaters", true));
       DefaultMemberOf mof = new DefaultMemberOf();
       mof.addDelete(gFgA);
       GrouperDAOFactory.getFactory().getMembership().update(mof);

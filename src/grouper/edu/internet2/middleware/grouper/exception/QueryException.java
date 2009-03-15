@@ -21,9 +21,9 @@ package edu.internet2.middleware.grouper.exception;
  * Exception thrown when a query problem occurs.
  * <p/>
  * @author  blair christensen.
- * @version $Id: QueryException.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: QueryException.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
  */
-public class QueryException extends Exception {
+public class QueryException extends RuntimeException {
   private static final long serialVersionUID = -5511395052938871880L;
   public QueryException() { 
     super(); 

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeTupleIncludeExcludeHook.java,v 1.3 2008-11-11 22:08:33 mchyzer Exp $
+ * $Id: GroupTypeTupleIncludeExcludeHook.java,v 1.4 2009-03-15 06:37:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -209,7 +209,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
         return;
       }
         
-      Group typedGroup = GroupFinder.findByUuid(grouperSession, groupUuid);
+      Group typedGroup = GroupFinder.findByUuid(grouperSession, groupUuid, true);
 
       manageIncludesExcludesAndGroups(grouperSession, typedGroup, includeExcludeTypeName + " added to group: " + typedGroup.getExtension());
       
@@ -252,7 +252,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
     GroupType requireGroupsType = null;
     try {
       
-      includesExcludesType = GroupTypeFinder.find(includeExcludeName);
+      includesExcludesType = GroupTypeFinder.find(includeExcludeName, true);
       
       includeExclude = typedGroup.hasType(includesExcludesType);
       
@@ -270,7 +270,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       includeExclude = includeExclude || GroupFinder.findByName(grouperSession, 
           overallName + excludeExtensionSuffix(), false) != null;
       
-      requireGroupsType = GroupTypeFinder.find(groupTypeName);
+      requireGroupsType = GroupTypeFinder.find(groupTypeName, true);
   
       boolean hasRequireGroupsType = typedGroup.hasType(requireGroupsType);
       
@@ -282,7 +282,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
         if (!StringUtils.isBlank(groupNames)) {
           String[] andGroupNames = GrouperUtil.splitTrim(groupNames, ",");
           for (String andGroupName: andGroupNames) {
-            andGroups.add(GroupFinder.findByName(grouperSession, andGroupName));
+            andGroups.add(GroupFinder.findByName(grouperSession, andGroupName, true));
           }
         }
       }
@@ -303,7 +303,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
           
           if (valueBoolean) {
             String groupName = groupNameFromAndGroupAttributeName(field.getName());
-            andGroups.add(GroupFinder.findByName(grouperSession, groupName));
+            andGroups.add(GroupFinder.findByName(grouperSession, groupName, true));
           }
           
         }
@@ -325,10 +325,10 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
         if (StringUtils.equalsIgnoreCase("type", attributeOrType)) {
           String groupName = GrouperConfig.getProperty("grouperIncludeExclude.requireGroup.group." + i);
           
-          GroupType type = GroupTypeFinder.find(typeName);
+          GroupType type = GroupTypeFinder.find(typeName, true);
           //if the hooked group has this type, then good to go
           if (typedGroup.getTypes().contains(type)) {
-            Group group = GroupFinder.findByName(grouperSession, groupName);
+            Group group = GroupFinder.findByName(grouperSession, groupName, true);
             andGroups.add(group);
           }
         }
@@ -508,12 +508,12 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       //dont need to do this if not include/exclude
       if (isIncludeExclude) {
         //lets make sure systemOfRecord and includes are members
-        systemOfRecordAndIncludesGroup.addMember(SubjectFinder.findById(systemOfRecordGroup.getUuid()), false);
-        systemOfRecordAndIncludesGroup.addMember(SubjectFinder.findById(includesGroup.getUuid()), false);
+        systemOfRecordAndIncludesGroup.addMember(SubjectFinder.findById(systemOfRecordGroup.getUuid(), true), false);
+        systemOfRecordAndIncludesGroup.addMember(SubjectFinder.findById(includesGroup.getUuid(), true), false);
       }
       
       //at this point, the main group must have no members
-      if (overallGroup.getCompositeOrNull() == null) {
+      if (overallGroup.getComposite(false) == null) {
         
         //lets get all the existing members and add to the system of record group
         //lets do this if the overall group has members, and if the system of record group
@@ -570,7 +570,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
           if (overallGroup.hasComposite()) {
             overallGroup.deleteCompositeMember();
           }
-          overallGroup.addMember(SubjectFinder.findById(systemOfRecordGroup.getUuid()), false);
+          overallGroup.addMember(SubjectFinder.findById(systemOfRecordGroup.getUuid(), true), false);
           LOG.debug("Adding system of record group (" + systemOfRecordName + ") to the overall group: "  
               + overallGroup.getName());
 
@@ -796,7 +796,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       Group group = GroupFinder.findByName(grouperSession, overallName, false);
       if (group != null) {
         
-        Member member = MemberFinder.internal_findBySubject(SubjectFinder.findById(group.getUuid()), false);
+        Member member = MemberFinder.internal_findBySubject(SubjectFinder.findById(group.getUuid(), true), false);
         
         if (member != null) {
           //get any membership

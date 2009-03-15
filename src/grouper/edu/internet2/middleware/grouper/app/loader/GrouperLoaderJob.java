@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderJob.java,v 1.7 2008-12-22 05:50:42 mchyzer Exp $
+ * $Id: GrouperLoaderJob.java,v 1.8 2009-03-15 06:37:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -74,7 +74,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
         if (uuidIndexStart >= 0) {
           grouperLoaderGroupUuid = jobName.substring(uuidIndexStart+2, jobName.length());
           
-          group = GroupFinder.findByUuid(grouperSession, grouperLoaderGroupUuid);
+          group = GroupFinder.findByUuid(grouperSession, grouperLoaderGroupUuid, true);
           grouperLoaderQuartzCronFromGroup = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
               GrouperLoader.GROUPER_LOADER_QUARTZ_CRON);
           grouperLoaderScheduleTypeFromGroup = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
@@ -228,7 +228,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
         
         
         for (String groupName : groupNames) {
-          Group group = GroupFinder.findByName(grouperSession, groupName);
+          Group group = GroupFinder.findByName(grouperSession, groupName, true);
           andGroups.add(group);
         }
       }
@@ -267,7 +267,7 @@ public class GrouperLoaderJob implements Job, StatefulJob {
         groupTypes = new ArrayList<GroupType>();
         for (String groupType : groupTypeArray) {
           //this better find the type!
-          groupTypes.add(GroupTypeFinder.find(groupType));
+          groupTypes.add(GroupTypeFinder.find(groupType, true));
         }
       }
       

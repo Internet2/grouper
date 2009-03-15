@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
  * Delete a {@link GroupType}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: typeDel.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: typeDel.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.1.0
  */
 public class typeDel {
@@ -42,7 +42,7 @@ public class typeDel {
     GrouperShell.setOurCommand(i, true);
     try {
       GrouperSession  s = GrouperShell.getSession(i);
-      GroupType       t = GroupTypeFinder.find(name);
+      GroupType       t = GroupTypeFinder.find(name, true);
       t.delete(s);
       return true;
     }

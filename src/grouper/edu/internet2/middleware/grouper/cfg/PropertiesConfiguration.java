@@ -19,14 +19,14 @@ package edu.internet2.middleware.grouper.cfg;
 import java.util.Properties;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /** 
  * Access {@link Configuration} in a <i>Properties</i> file.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PropertiesConfiguration.java,v 1.10 2008-11-04 07:17:55 mchyzer Exp $
+ * @version $Id: PropertiesConfiguration.java,v 1.11 2009-03-15 06:37:24 mchyzer Exp $
  * @since   1.2.1
  */
 public class PropertiesConfiguration implements Configuration {
@@ -62,7 +62,7 @@ public class PropertiesConfiguration implements Configuration {
         this.cfg = GrouperUtil.propertiesFromResourceName(this.resource, false, true);
       }
       catch (Exception eInitializingError) {
-        throw new GrouperRuntimeException( 
+        throw new GrouperException( 
           "error reading configuration: " + eInitializingError.getMessage(), eInitializingError 
         );
       }

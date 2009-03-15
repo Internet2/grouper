@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -56,7 +57,6 @@ import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -90,7 +90,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.9 2008-11-13 09:33:52 isgwb Exp $
+ * @version $Id: XmlExporter.java,v 1.10 2009-03-15 06:37:23 mchyzer Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -240,13 +240,13 @@ public class XmlExporter {
    * @since   1.1.0
    */
   public XmlExporter(GrouperSession s, Properties userOptions) 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     try {
       this.options  = XmlUtils.internal_getSystemProperties(LOG, CF);
     }
     catch (IOException eIO) {
-      throw new GrouperRuntimeException(eIO.getMessage(), eIO);
+      throw new GrouperException(eIO.getMessage(), eIO);
     }
     this.options.putAll(userOptions); 
     this.s          = s;
@@ -281,7 +281,7 @@ public class XmlExporter {
     try {
       exporter = new XmlExporter(
         GrouperSession.start(
-          SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ) ), false),
+          SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ), true ), false),
         XmlUtils.internal_getUserProperties(LOG, rc.getProperty(XmlArgs.RC_UPROPS)));
       _handleArgs(exporter, rc);
       LOG.debug("Finished export to [" + rc.getProperty(XmlArgs.RC_EFILE) + "]");
@@ -621,13 +621,13 @@ public class XmlExporter {
       if (rc.getProperty(XmlArgs.RC_UUID) != null) {
         String uuid = rc.getProperty(XmlArgs.RC_UUID);
         try {
-          group = GroupFinder.findByUuid(exporter.s, uuid);
+          group = GroupFinder.findByUuid(exporter.s, uuid, true);
           LOG.debug("Found group with uuid [" + uuid + "]");
         } 
         catch (GroupNotFoundException eGNF) {
           // Look for stem instead
           try {
-            stem = StemFinder.findByUuid(exporter.s, uuid);
+            stem = StemFinder.findByUuid(exporter.s, uuid, true);
             LOG.debug("Found stem with uuid [" + uuid + "]");
           } 
           catch (StemNotFoundException eNSNF) {
@@ -640,13 +640,13 @@ public class XmlExporter {
       else {
         String name = rc.getProperty(XmlArgs.RC_NAME);
         try {
-          group = GroupFinder.findByName(exporter.s, name);
+          group = GroupFinder.findByName(exporter.s, name, true);
           LOG.debug("Found group with name [" + name + "]");
         } 
         catch (GroupNotFoundException eGNF) {
           // Look for stem instead
           try {
-            stem = StemFinder.findByName(exporter.s, name);
+            stem = StemFinder.findByName(exporter.s, name, true);
             LOG.debug("Found stem with name [" + name + "]");
           } catch (StemNotFoundException eNSNF) {
             // No group or stem
@@ -1259,7 +1259,7 @@ public class XmlExporter {
     }
     Iterator it = lists.iterator();
     while (it.hasNext()) {
-      this._writeList(g, FieldFinder.find( (String) it.next() ) );
+      this._writeList(g, FieldFinder.find( (String) it.next(), true ) );
     }
   } // private void _writeLists(g)
 
@@ -1378,10 +1378,10 @@ public class XmlExporter {
       this.xml.internal_indent();
       this.xml.internal_puts("<internalAttributes>");
       this._writeInternalAttribute( "parentStem",     this._getParentStemName(g)   );
-      this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, g.getCreatorUuid() ) );
+      this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, g.getCreatorUuid(), true ) );
       this._writeInternalAttribute( "createTime",     g.getCreateTimeLong() );
       if(g.getModifierUuid()!=null) {
-    	  this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, g.getModifierUuid() ) );
+    	  this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, g.getModifierUuid(), true ) );
     	  this._writeInternalAttribute( "modifyTime",     g.getModifyTimeLong() );
       }
       this.xml.internal_puts("</internalAttributes>");
@@ -1403,10 +1403,10 @@ public class XmlExporter {
       if(!ns.isRootStem()) {
     	  this._writeInternalAttribute( "parentStem",     this._getParentStemName(ns)   );
       }
-      this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, ns.getCreatorUuid() ) );
+      this._writeInternalAttribute( "createSubject",  MemberFinder.findByUuid( this.s, ns.getCreatorUuid(), true ) );
       this._writeInternalAttribute( "createTime",     ns.getCreateTimeLong() );
       if(ns.getModifierUuid()!=null) {
-    	  this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, ns.getModifierUuid() ) );
+    	  this._writeInternalAttribute( "modifySubject",  MemberFinder.findByUuid( this.s, ns.getModifierUuid(), true ) );
     	  this._writeInternalAttribute( "modifyTime",     ns.getModifyTimeLong() );
       }
       this.xml.internal_puts("</internalAttributes>");
@@ -1459,7 +1459,7 @@ public class XmlExporter {
         + ">"
       );
       if (isComposite) {
-        this._writeComposite( CompositeFinder.findAsOwner(g) );
+        this._writeComposite( CompositeFinder.findAsOwner(g, true) );
       }
       this._writeMembers(members, g);
       this.xml.internal_puts(

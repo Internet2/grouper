@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.exception.QueryException;
  * Query by group uuid.
  * <p/>
  * @author  mchyzer.
- * @version $Id: GroupUuidFilter.java,v 1.1 2008-07-21 05:15:59 mchyzer Exp $
+ * @version $Id: GroupUuidFilter.java,v 1.2 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class GroupUuidFilter extends BaseQueryFilter {
 
@@ -64,7 +64,7 @@ public class GroupUuidFilter extends BaseQueryFilter {
     Set<Group> groups  = new HashSet<Group>();
     Group group = null;
     try {
-      group = GroupFinder.findByUuid(s, this.uuid);
+      group = GroupFinder.findByUuid(s, this.uuid, true);
       groups.add(group);
     } catch (GroupNotFoundException gnfe) {
       //ignore

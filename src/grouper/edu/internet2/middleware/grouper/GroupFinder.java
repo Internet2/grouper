@@ -16,14 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundRuntimeException;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -35,7 +33,7 @@ import edu.internet2.middleware.grouper.validator.NotNullValidator;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.56 2008-11-04 07:17:55 mchyzer Exp $
+ * @version $Id: GroupFinder.java,v 1.57 2009-03-15 06:37:21 mchyzer Exp $
  */
 public class GroupFinder {
 
@@ -46,9 +44,6 @@ public class GroupFinder {
   /** error for finding by type */
   private static final String ERR_FINDBYTYPE      = "could not find group by type: ";
   
-  
-  // PUBLIC INSTANCE METHODS //
-
   /**
    * Find <tt>Group</tt> by attribute value.
    * <pre class="eg">
@@ -65,11 +60,35 @@ public class GroupFinder {
    * @throws  GroupNotFoundException
    * @throws  IllegalArgumentException
    * @since   1.1.0
+   * @deprecated use the overload
    */
+  @Deprecated
   public static Group findByAttribute(GrouperSession s, String attr, String val)
     throws  GroupNotFoundException,
-            IllegalArgumentException
-  {
+            IllegalArgumentException {
+
+    return findByAttribute(s, attr, val, true);
+
+  }
+
+  /**
+   * Find <tt>Group</tt> by attribute value.
+   * <pre class="eg">
+   *   Group g = GroupFinder.findByAttribute(s, "description", "some value", true);
+   * </pre>
+   * @param   s     Search within this session context.
+   * @param   attr  Search on this attribute.
+   * @param   val   Search for this value.
+   * @param exceptionOnNull true if there should be an exception on null
+   * @return  Matching {@link Group}.
+   * @throws  GroupNotFoundException
+   * @throws  IllegalArgumentException
+   * @since   1.1.0
+   */
+  public static Group findByAttribute(GrouperSession s, String attr, String val, 
+      boolean exceptionOnNull)
+    throws  GroupNotFoundException, IllegalArgumentException {
+
     //note, no need for GrouperSession inverse of control
     NotNullValidator v = NotNullValidator.validate(s);
     if (v.isInvalid()) {
@@ -83,14 +102,17 @@ public class GroupFinder {
     if (v.isInvalid()) {
       throw new IllegalArgumentException("null value");
     }
-    Group g = GrouperDAOFactory.getFactory().getGroup().findByAttribute(attr, val);
+    Group g = GrouperDAOFactory.getFactory().getGroup().findByAttribute(attr, val, exceptionOnNull);
     if (g != null) {
       if ( s.getMember().canView(g) ) {
         return g;
       }
     }
-    throw new GroupNotFoundException( ERR_FINDBYATTRIBUTE + Quote.single(attr) );
-  } // public static Group findByAttribute(s, attr, val)
+    if (exceptionOnNull) {
+      throw new GroupNotFoundException( ERR_FINDBYATTRIBUTE + Quote.single(attr) );
+    }
+    return null;
+  } 
 
   /**
    * Find <tt>Group</tt>s by attribute value.  Returns groups or empty set if none (never null)
@@ -145,14 +167,12 @@ public class GroupFinder {
    * @param   name  Name of group to find.
    * @return  A {@link Group}
    * @throws  GroupNotFoundException
+   * @Deprecated
    */
+  @Deprecated
   public static Group findByName(GrouperSession s, String name) 
       throws GroupNotFoundException {
-    try {
-      return findByName(s, name, true);
-    } catch (GroupNotFoundRuntimeException gnfre) {
-      throw new GroupNotFoundException(gnfre.getMessage(), gnfre);
-    }
+    return findByName(s, name, true);
   } 
 
   /**
@@ -169,22 +189,15 @@ public class GroupFinder {
    * @param   name  Name of group to find.
    * @param exceptionIfNotFound 
    * @return  A {@link Group}
-   * @throws  GroupNotFoundRuntimeException
+   * @throws  GroupNotFoundException
    */
   public static Group findByName(GrouperSession s, String name, boolean exceptionIfNotFound) 
-    throws GroupNotFoundRuntimeException {
+    throws GroupNotFoundException {
     
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     Group g = null;
-    try {
-      g = GrouperDAOFactory.getFactory().getGroup().findByName(name) ;
-    } catch (GroupNotFoundException gnfe) {
-      if (!exceptionIfNotFound) {
-        return null;
-      }
-      throw new GroupNotFoundRuntimeException(gnfe.getMessage(), gnfe);
-    }
+    g = GrouperDAOFactory.getFactory().getGroup().findByName(name, exceptionIfNotFound) ;
     //2007-10-16: Gary Brown
     //https://bugs.internet2.edu/jira/browse/GRP-36
     //Ugly... and probably breaks the abstraction but quick and easy to 
@@ -199,49 +212,11 @@ public class GroupFinder {
     if (!exceptionIfNotFound) {
       return null;
     }
-    throw new GroupNotFoundRuntimeException(E.GROUP_NOTFOUND + " by name: " + name);
+    throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by name: " + name);
   } 
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GroupFinder.class);
-
-  /**
-   * Find a group within the registry by its {@link GroupType}.
-   * <pre class="eg">
-   * try {
-   *   Group g = GroupFinder.findByType( s, GroupTypeFinder.find("your type") );
-   * }
-   * catch (GroupNotFoundException eGNF) {
-   *   // Unable to find group by type
-   * }
-   * </pre>
-   * @param   s     Find group within this session context.
-   * @param   type  Find group with this {@link GroupType}.
-   * @return  A {@link Group}
-   * @throws  GroupNotFoundException
-   * @throws  IllegalArgumentException
-   */
-  public static Group findByType(GrouperSession s, GroupType type)
-    throws  GroupNotFoundException,
-            IllegalArgumentException
-  {
-    //note, no need for GrouperSession inverse of control
-    NotNullValidator v = NotNullValidator.validate(s);
-    if (v.isInvalid()) {
-      throw new IllegalArgumentException("null session");
-    }
-    v = NotNullValidator.validate(type);
-    if (v.isInvalid()) {
-      throw new IllegalArgumentException("null type");
-    }
-    Set groups = PrivilegeHelper.canViewGroups(
-      s, GrouperDAOFactory.getFactory().getGroup().findAllByType( type )
-    );
-    if (groups.size() == 1) {
-      return (Group) new ArrayList(groups).get(0);
-    }
-    throw new GroupNotFoundException(ERR_FINDBYTYPE + Quote.single( type.toString() ));
-  } // public static Group findByType(s, type)
 
   /**
    * Find all groups within the registry by their {@link GroupType}.  Or empty set if none (never null).
@@ -272,29 +247,45 @@ public class GroupFinder {
   /**
    * Find a group within the registry by UUID.
    * <pre class="eg">
-   * try {
    *   Group g = GroupFinder.findByUuid(s, uuid);
-   * }
-   * catch (GroupNotFoundException e) {
-   *   // Group not found
-   * }
    * </pre>
    * @param   s     Find group within this session context.
    * @param   uuid  UUID of group to find.
    * @return  A {@link Group}
-   * @throws  GroupNotFoundException
+   * @throws GroupNotFoundException
+   * @Deprecated use the overload
    */
-  public static Group findByUuid(GrouperSession s, String uuid) 
-    throws GroupNotFoundException {
+  @Deprecated
+  public static Group findByUuid(GrouperSession s, String uuid) throws GroupNotFoundException {
+    return findByUuid(s, uuid, true);
+  }
 
+  /**
+   * Find a group within the registry by UUID.
+   * <pre class="eg">
+   *   Group g = GroupFinder.findByUuid(s, uuid);
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   uuid  UUID of group to find.
+   * @param exceptionIfNotFound true if exception if not found
+   * @return  A {@link Group}
+   * @throws GroupNotFoundException if not found an exceptionIfNotFound is true
+   */
+  public static Group findByUuid(GrouperSession s, String uuid, boolean exceptionIfNotFound) 
+      throws GroupNotFoundException {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid);
-    if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
-      return g;
+    try {
+      Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid, true);
+      if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
+        return g;
+      }
+    } catch (GroupNotFoundException gnfe) {
+      if (exceptionIfNotFound) {
+        throw gnfe;
+      }
     }
-    LOG.error(E.GF_FBUUID + E.CANNOT_VIEW);
-    throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by uuid: " + uuid);
+    return null;
   } 
 
 }

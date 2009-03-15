@@ -16,9 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import  edu.internet2.middleware.grouper.GrouperSession;
 import  edu.internet2.middleware.grouper.cfg.ApiConfig;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import  edu.internet2.middleware.grouper.internal.util.Realize;
 
@@ -26,7 +26,7 @@ import  edu.internet2.middleware.grouper.internal.util.Realize;
 /** 
  * Factory for returning a <code>AccessResolver</code>.
  * @author  blair christensen.
- * @version $Id: AccessResolverFactory.java,v 1.4 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: AccessResolverFactory.java,v 1.5 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.1
  */
 public class AccessResolverFactory {
@@ -63,12 +63,12 @@ public class AccessResolverFactory {
    *  <li>{@link AccessWrapper}</li>
    * </ol>
    * @return  <code>AccessResolver</code> instance.
-   * @throws  GrouperRuntimeException if unable to get instance.
+   * @throws  GrouperException if unable to get instance.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
    */
   public static AccessResolver getInstance(GrouperSession session, AccessAdapter access) 
-    throws  GrouperRuntimeException,
+    throws  GrouperException,
             IllegalArgumentException
   {
     param.notNullGrouperSession(session).notNullAccessAdapter(access);
@@ -87,12 +87,12 @@ public class AccessResolverFactory {
 
   /**
    * @return  Singleton <code>AccessResolver</code>.
-   * @throws  GrouperRuntimeException if unable to get resolver.
+   * @throws  GrouperException if unable to get resolver.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
    */
   public static AccessResolver getResolver(GrouperSession session) 
-    throws  GrouperRuntimeException,
+    throws  GrouperException,
             IllegalArgumentException
   {
     if (resolver == null) {

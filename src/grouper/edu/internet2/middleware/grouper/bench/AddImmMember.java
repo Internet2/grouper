@@ -17,13 +17,13 @@
 
 package edu.internet2.middleware.grouper.bench;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -37,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
  * memberships
  * 
  * @author  blair christensen.
- * @version $Id: AddImmMember.java,v 1.10 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: AddImmMember.java,v 1.11 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.1.0
  */
 public class AddImmMember extends BaseGrouperBenchmark {
@@ -69,7 +69,7 @@ public class AddImmMember extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void init() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
@@ -77,10 +77,10 @@ public class AddImmMember extends BaseGrouperBenchmark {
       Stem            ns    = root.addChildStem("example", "example");
       this.g                = ns.addChildGroup("group", "group");
       RegistrySubject.add(s, "subj0", "person", "subject0");
-      this.subj             = SubjectFinder.findById("subj0");
+      this.subj             = SubjectFinder.findById("subj0", true);
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e.getMessage());
+      throw new GrouperException(e.getMessage());
     }
   } // public void init()
 
@@ -88,13 +88,13 @@ public class AddImmMember extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void run() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       this.g.addMember(this.subj);
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e);
+      throw new GrouperException(e);
     }
   } // public void run()
 

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeSecurityHook.java,v 1.2 2009-01-02 06:57:11 mchyzer Exp $
+ * $Id: GroupTypeSecurityHook.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -170,7 +170,7 @@ public class GroupTypeSecurityHook extends GroupTypeTupleHooks {
       //only need this if debugging
       if (LOG.isDebugEnabled()) {
         try {
-          Group groupEdited = GroupFinder.findByUuid(currentSession.internal_getRootSession(), groupUuid);
+          Group groupEdited = GroupFinder.findByUuid(currentSession.internal_getRootSession(), groupUuid, true);
           groupNameUuidEdited = StringUtils.defaultIfEmpty(groupEdited.getName(), groupNameUuidEdited);
           
         } catch (Exception e) {

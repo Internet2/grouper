@@ -16,17 +16,17 @@
 */
 
 package edu.internet2.middleware.grouper;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
-import  edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import java.util.Date;
+
+import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.MemberOf;
 
-import  java.util.Date;
-
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_deleteComposite.java,v 1.5 2008-07-21 04:43:57 mchyzer Exp $
+ * @version $Id: Test_I_API_MemberOf_deleteComposite.java,v 1.6 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_deleteComposite extends GrouperTest {
@@ -62,7 +62,7 @@ public class Test_I_API_MemberOf_deleteComposite extends GrouperTest {
       c.setUuid( GrouperUuid.getUuid() );
     }
     catch (Exception eShouldNotHappen) {
-      throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
+      throw new GrouperException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
   }
 
@@ -71,7 +71,7 @@ public class Test_I_API_MemberOf_deleteComposite extends GrouperTest {
       s.stop();
     }
     catch (Exception eShouldNotHappen) {
-      throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
+      throw new GrouperException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
     super.tearDown();
   }

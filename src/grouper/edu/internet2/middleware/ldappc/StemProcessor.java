@@ -105,7 +105,7 @@ public class StemProcessor
             try
             {
                 String stemBaseExtension = stemBase.getExtension();
-                stem = StemFinder.findByName(grouperSession, stemBaseExtension + STEM_DELIMITER + stemExtension);
+                stem = StemFinder.findByName(grouperSession, stemBaseExtension + STEM_DELIMITER + stemExtension, true);
                 // If found, use the one that already exists; assume not an
                 // error.
                 ErrorLog.warn(this.getClass(), "DEBUG: Stem not added as it already exists: " + stem.getName());
@@ -149,7 +149,7 @@ public class StemProcessor
         boolean success = true;
         try
         {
-            stem = StemFinder.findByName(grouperSession, stemName);
+            stem = StemFinder.findByName(grouperSession, stemName, true);
             success = deleteStem(stem);
         }
         catch (StemNotFoundException snfe)
@@ -221,7 +221,7 @@ public class StemProcessor
             try
             {
                 String stemBaseExtension = stemBase.getExtension();
-                group = GroupFinder.findByName(grouperSession, stemBaseExtension + STEM_DELIMITER + groupExtension);
+                group = GroupFinder.findByName(grouperSession, stemBaseExtension + STEM_DELIMITER + groupExtension, true);
                 // If found, use the one that already exists; assume not an
                 // error.
             }
@@ -307,7 +307,7 @@ public class StemProcessor
         boolean success = true;
         try
         {
-            group = GroupFinder.findByName(grouperSession, groupName);
+            group = GroupFinder.findByName(grouperSession, groupName, true);
             success = deleteGroup(group);
         }
         catch (GroupNotFoundException gnfe)
@@ -338,7 +338,7 @@ public class StemProcessor
         {
             try
             {
-                StemFinder.findByName(grouperSession, stemName);
+                StemFinder.findByName(grouperSession, stemName, true);
                 exists = true;
             }
             catch (StemNotFoundException sde)

@@ -26,7 +26,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupFinder_FindByType.java,v 1.7 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: TestGroupFinder_FindByType.java,v 1.8 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroupFinder_FindByType extends GrouperTest {
@@ -36,8 +36,8 @@ public class TestGroupFinder_FindByType extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(TestGroupFinder_FindByType.class);
-    TestRunner.run(new TestGroupFinder_FindByType("testFindGroupByType"));
+    TestRunner.run(TestGroupFinder_FindByType.class);
+    //TestRunner.run(new TestGroupFinder_FindByType("testFailToFindGroupByTypeNotUnique"));
   }
 
   private static final Log LOG = GrouperUtil.getLog(TestGroupFinder_FindByType.class);
@@ -59,7 +59,7 @@ public class TestGroupFinder_FindByType extends GrouperTest {
     LOG.info("testFailToFindGroupByTypeNullSession");
     try {
       R.populateRegistry(0, 0, 0);
-      GroupFinder.findByType( null, GroupTypeFinder.find("base") );
+      GroupFinder.findAllByType( null, GroupTypeFinder.find("base", true) );
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eIA) {
@@ -74,7 +74,7 @@ public class TestGroupFinder_FindByType extends GrouperTest {
     LOG.info("testFailToFindGroupByTypeNullType");
     try {
       R r = R.populateRegistry(0, 0, 0);
-      GroupFinder.findByType(r.rs, null);
+      GroupFinder.findAllByType(r.rs, null);
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eIA) {
@@ -89,7 +89,7 @@ public class TestGroupFinder_FindByType extends GrouperTest {
     LOG.info("testFailToFindGroupByTypeInvalidType");
     try {
       R r = R.populateRegistry(0, 0, 0);
-      GroupFinder.findByType( r.rs, GroupTypeFinder.find("this is an invalid group type") );
+      GroupFinder.findAllByType( r.rs, GroupTypeFinder.find("this is an invalid group type", true) );
       fail("failed to throw IllegalArgumentException");
     }
     catch (SchemaException eS) {
@@ -104,7 +104,7 @@ public class TestGroupFinder_FindByType extends GrouperTest {
     LOG.info("testFailToFindGroupByType");
     try {
       R r = R.populateRegistry(0, 0, 0);
-      assertDoNotFindGroupByType( r.rs, GroupTypeFinder.find("base") );
+      assertDoNotFindGroupByType( r.rs, GroupTypeFinder.find("base", true) );
       r.rs.stop();
     }
     catch (Exception e) {
@@ -116,7 +116,7 @@ public class TestGroupFinder_FindByType extends GrouperTest {
     LOG.info("testFindGroupByType");
     try {
       R         r     = R.populateRegistry(1, 1, 0);
-      GroupType type  = GroupTypeFinder.find("base");
+      GroupType type  = GroupTypeFinder.find("base", true);
       assertFindGroupByType(r.rs, type);
       r.rs.stop();
     }
@@ -129,7 +129,7 @@ public class TestGroupFinder_FindByType extends GrouperTest {
     LOG.info("testFailToFindGroupByTypeNotUnique");
     try {
       R         r     = R.populateRegistry(1, 2, 0);
-      GroupType type  = GroupTypeFinder.find("base");
+      GroupType type  = GroupTypeFinder.find("base", true);
       assertDoNotFindGroupByType(r.rs, type);
       r.rs.stop();
     }

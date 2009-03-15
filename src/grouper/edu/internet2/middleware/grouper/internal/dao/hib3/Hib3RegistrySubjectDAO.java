@@ -28,7 +28,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 /**
  * Basic Hibernate <code>RegistrySubject</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3RegistrySubjectDAO.java,v 1.5 2008-10-21 03:51:03 mchyzer Exp $
+ * @version $Id: Hib3RegistrySubjectDAO.java,v 1.6 2009-03-15 06:37:23 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDAO {
@@ -61,12 +61,22 @@ public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDA
   }
 
   /**
-   * @since   @HEAD@
+   * @since
+   * @deprecated
    */
+  @Deprecated
   public RegistrySubject find(String id, String type) 
     throws  GrouperDAOException,
-            SubjectNotFoundException
-  {
+            SubjectNotFoundException {
+    return find(id, type, true);
+  }
+
+  /**
+   * @since
+   */
+  public RegistrySubject find(String id, String type, boolean exceptionIfNotFound) 
+    throws  GrouperDAOException,
+            SubjectNotFoundException {
     RegistrySubject subj = HibernateSession.byHqlStatic()
       .createQuery(
         "from RegistrySubject as rs where " 
@@ -76,11 +86,11 @@ public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDA
       .setString( "id",   id   )
       .setString( "type", type )
       .uniqueResult(RegistrySubject.class);
-    if (subj == null) {
+    if (subj == null && exceptionIfNotFound) {
       throw new SubjectNotFoundException("subject not found"); 
     }
     return subj;
-  } // public Hib3RegistrySubjectDAO find(id, type)
+  }
 
   // @since   @HEAD@
   protected static void reset(HibernateSession hibernateSession) 

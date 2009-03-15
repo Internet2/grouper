@@ -29,7 +29,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup35.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroup35.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGroup35 extends GrouperTest {
 
@@ -58,7 +58,7 @@ public class TestGroup35 extends GrouperTest {
       Subject     subjA = r.getSubject("a");
       gB.addMember(subjA);
       gA.addCompositeMember(CompositeType.UNION, gB, gC);
-      Membership  ms    = MembershipFinder.findCompositeMembership(r.rs, gA, subjA);  
+      Membership  ms    = MembershipFinder.findCompositeMembership(r.rs, gA, subjA, true);  
       // Fail
       try {
         ms.getViaGroup();

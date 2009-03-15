@@ -23,7 +23,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
@@ -56,7 +56,7 @@ import edu.internet2.middleware.subject.Subject;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.76 2009-03-06 17:48:56 shilen Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.77 2009-03-15 06:37:21 mchyzer Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -116,7 +116,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       Field f = priv.getField();
       // This subject
       stems.addAll( 
-        GrouperPrivilegeAdapter.internal_getStemsWhereSubjectHasPriv( s, MemberFinder.findBySubject(s, subj), f ) 
+        GrouperPrivilegeAdapter.internal_getStemsWhereSubjectHasPriv( s, MemberFinder.findBySubject(s, subj, true), f ) 
       );
       // The ALL subject
       if ( !( SubjectHelper.eq(subj, SubjectFinder.findAllSubject() ) ) ) {
@@ -151,7 +151,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     GrouperSession.validate(s);
     Set privs = new LinkedHashSet();
     try {
-      Member        m     = MemberFinder.findBySubject(s, subj);
+      Member        m     = MemberFinder.findBySubject(s, subj, true);
       Member        all   = MemberFinder.internal_findAllMember();     
       MembershipDAO dao   = GrouperDAOFactory.getFactory().getMembership();
       Privilege     p;
@@ -267,7 +267,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     boolean rv = false;
-    Member m = MemberFinder.findBySubject(s, subj);
+    Member m = MemberFinder.findBySubject(s, subj, true);
     rv = m.isMember( ns.getUuid(), priv.getField() );
     return rv;
   } // public boolean hasPriv(s, ns, subj, priv) 
@@ -400,7 +400,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     
     Field f = priv.getField();
     Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
-        .findAllImmediateByMemberAndField(MemberFinder.findBySubject(s, subj1).getUuid(), f);
+        .findAllImmediateByMemberAndField(MemberFinder.findBySubject(s, subj1, true).getUuid(), f);
 
     Iterator<Membership> membershipsIter = memberships.iterator();
     while (membershipsIter.hasNext()) {
@@ -408,7 +408,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
       try {
         stem = membershipsIter.next().getStem();
       } catch (StemNotFoundException e1) {
-        throw new GrouperRuntimeException(e1.getMessage(), e1);
+        throw new GrouperException(e1.getMessage(), e1);
       }
       PrivilegeHelper.dispatch(s, stem, s.getSubject(), f.getWritePriv());
       try {

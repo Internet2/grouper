@@ -24,7 +24,7 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * Test {@link Stem.addChildGroup()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStemAddChildGroup.java,v 1.10 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: TestStemAddChildGroup.java,v 1.11 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestStemAddChildGroup extends GrouperTest {
 
@@ -33,8 +33,8 @@ public class TestStemAddChildGroup extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestStemAddChildGroup("testPropagateDisplayExtensionChangeAsNonRoot"));
-    TestRunner.run(TestStemAddChildGroup.class);
+    TestRunner.run(new TestStemAddChildGroup("testAddChildGroupAtRootFail"));
+    //TestRunner.run(TestStemAddChildGroup.class);
   }
 
   /**

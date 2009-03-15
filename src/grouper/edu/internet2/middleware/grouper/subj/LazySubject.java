@@ -21,10 +21,10 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.SubjectType;
  * necessary to instantiate all the Subjects (and Members) 
  * <p/>
  * @author  Gary Brown.
- * @version $Id: LazySubject.java,v 1.5 2008-10-15 03:57:06 mchyzer Exp $
+ * @version $Id: LazySubject.java,v 1.6 2009-03-15 06:37:23 mchyzer Exp $
  */
 
 public class LazySubject implements Subject {
@@ -81,7 +81,7 @@ public class LazySubject implements Subject {
     try {
     	this.member = ms.getMember();
     }catch(MemberNotFoundException e) {
-    	throw new GrouperRuntimeException(e);
+    	throw new GrouperException(e);
     }
   } 
 
@@ -101,7 +101,7 @@ public Map getAttributes() {
 		return getSubject().getAttributes();
 	}catch(Exception e) {
 		unresolvable=true;
-		throw new GrouperRuntimeException(e);
+		throw new GrouperException(e);
 	}
 }
 
@@ -114,7 +114,7 @@ public Map getAttributes() {
 		try {
 			return getSubject().getAttributeValue(name);
 		}catch(Exception e) {
-			throw new GrouperRuntimeException(e);
+			throw new GrouperException(e);
 		}
 	}
 	
@@ -127,7 +127,7 @@ public Map getAttributes() {
 		try {
 			return getSubject().getAttributeValues(name);
 		}catch(Exception e) {
-			throw new GrouperRuntimeException(e);
+			throw new GrouperException(e);
 		}
 	}
 	
@@ -140,7 +140,7 @@ public Map getAttributes() {
 		try {
 			return getSubject().getDescription();
 		}catch(Exception e) {
-			throw new GrouperRuntimeException(e);
+			throw new GrouperException(e);
 		}
 	}
 	
@@ -153,7 +153,7 @@ public Map getAttributes() {
 		try {
 			return member.getSubjectId();
 		}catch(Exception e) {
-			throw new GrouperRuntimeException(e);
+			throw new GrouperException(e);
 		}
 	}
 	
@@ -166,7 +166,7 @@ public Map getAttributes() {
 		try {
 			return getSubject().getName();
 		}catch(Exception e) {
-			throw new GrouperRuntimeException(e);
+			throw new GrouperException(e);
 		}
 	}
 	
@@ -201,7 +201,7 @@ public Map getAttributes() {
 		  if(subject==null) {
 			  try {
 			        this.subject = SubjectFinder.findById(
-			          this.member.getSubjectId(), this.member.getSubjectTypeId(), this.member.getSubjectSourceId()
+			          this.member.getSubjectId(), this.member.getSubjectTypeId(), this.member.getSubjectSourceId(), true
 			        );
 			      }
 			      catch (SourceUnavailableException eSU) {
@@ -271,7 +271,7 @@ public Map getAttributes() {
 			try {
 				source=SubjectFinder.getSource(getId());
 			}catch(SourceUnavailableException e) {
-				throw new GrouperRuntimeException(e);
+				throw new GrouperException(e);
 	}
 			return source;
 		}

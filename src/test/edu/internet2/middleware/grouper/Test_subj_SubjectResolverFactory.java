@@ -16,13 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
+import edu.internet2.middleware.grouper.subj.SubjectResolverFactory;
 
 
 /**
  * Test {@link SubjectResolverFactory}.
  * @author  blair christensen.
- * @version $Id: Test_subj_SubjectResolverFactory.java,v 1.4 2007-08-27 15:53:53 blair Exp $
+ * @version $Id: Test_subj_SubjectResolverFactory.java,v 1.5 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_subj_SubjectResolverFactory extends GrouperTest {

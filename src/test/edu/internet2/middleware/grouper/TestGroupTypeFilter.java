@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupTypeFilter.java,v 1.7 2008-11-04 18:50:52 shilen Exp $
+ * @version $Id: TestGroupTypeFilter.java,v 1.8 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroupTypeFilter extends GrouperTest {
@@ -52,7 +52,7 @@ public class TestGroupTypeFilter extends GrouperTest {
     try {
       R             r   = R.populateRegistry(0, 0, 0);
       GrouperQuery  gq  = GrouperQuery.createQuery(
-        r.rs, new GroupTypeFilter( GroupTypeFinder.find("base"), r.root )
+        r.rs, new GroupTypeFilter( GroupTypeFinder.find("base", true), r.root )
       );
       T.amount( "groups"      , 0, gq.getGroups().size()      );
       T.amount( "members"     , 0, gq.getMembers().size()     );
@@ -70,7 +70,7 @@ public class TestGroupTypeFilter extends GrouperTest {
     try {
       R             r   = R.populateRegistry(2, 2, 0);
       GrouperQuery  gq  = GrouperQuery.createQuery(
-        r.rs, new GroupTypeFilter( GroupTypeFinder.find("base"), r.root )
+        r.rs, new GroupTypeFilter( GroupTypeFinder.find("base", true), r.root )
       );
       T.amount( "groups"      , 4, gq.getGroups().size()      );
       T.amount( "members"     , 0, gq.getMembers().size()     );
@@ -90,7 +90,7 @@ public class TestGroupTypeFilter extends GrouperTest {
       GroupType     type  = GroupType.createType(r.rs, "custom type");
       // Add custom type to all existing groups
       GrouperQuery  gq0   = GrouperQuery.createQuery(
-        r.rs, new GroupTypeFilter( GroupTypeFinder.find("base"), r.root )
+        r.rs, new GroupTypeFilter( GroupTypeFinder.find("base", true), r.root )
       );
       Group         g;
       Iterator      it    = gq0.getGroups().iterator();
@@ -118,7 +118,7 @@ public class TestGroupTypeFilter extends GrouperTest {
     try {
       R             r   = R.populateRegistry(2, 2, 0);
       GrouperQuery  gq  = GrouperQuery.createQuery(
-        r.rs, new GroupTypeFilter( GroupTypeFinder.find("base"), r.getStem("a") )
+        r.rs, new GroupTypeFilter( GroupTypeFinder.find("base", true), r.getStem("a") )
       );
       T.amount( "groups"      , 2, gq.getGroups().size()      );
       T.amount( "members"     , 0, gq.getMembers().size()     );
@@ -148,7 +148,7 @@ public class TestGroupTypeFilter extends GrouperTest {
       GroupType     type  = GroupType.createType(r.rs, "custom type");
       // Add custom type to all existing groups
       GrouperQuery  gq0   = GrouperQuery.createQuery(
-        r.rs, new GroupTypeFilter( GroupTypeFinder.find("base"), r.root )
+        r.rs, new GroupTypeFilter( GroupTypeFinder.find("base", true), r.root )
       );
       Group         g;
       Iterator      it    = gq0.getGroups().iterator();

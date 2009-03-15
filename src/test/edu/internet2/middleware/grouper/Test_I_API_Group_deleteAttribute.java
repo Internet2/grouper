@@ -21,7 +21,7 @@ import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
@@ -31,7 +31,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 /**
  * Test <code>Group.deleteAttribute()</code>.
  * @author  blair christensen.
- * @version $Id: Test_I_API_Group_deleteAttribute.java,v 1.5 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: Test_I_API_Group_deleteAttribute.java,v 1.6 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Group_deleteAttribute extends GrouperTest {
@@ -98,7 +98,7 @@ public class Test_I_API_Group_deleteAttribute extends GrouperTest {
       gA.addType(this.groupType, false);
     }
     catch (Exception eShouldNotHappen) {
-      throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
+      throw new GrouperException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
   }
 
@@ -111,7 +111,7 @@ public class Test_I_API_Group_deleteAttribute extends GrouperTest {
       s.stop();
     }
     catch (Exception eShouldNotHappen) {
-      throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
+      throw new GrouperException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
     super.tearDown();
   }
@@ -179,7 +179,7 @@ public class Test_I_API_Group_deleteAttribute extends GrouperTest {
     gA.store();
 
     //get the subject, make sure the lazy attributes load correctly (not too early, not too late)
-    GrouperSubject groupSubject = (GrouperSubject)SubjectFinder.findById(gA.getUuid());
+    GrouperSubject groupSubject = (GrouperSubject)SubjectFinder.findById(gA.getUuid(), true);
     assertFalse(groupSubject.isLoadedGroupAttributes());
     assertFalse(groupSubject.isLoadedModifyCreateSubjects());
     assertEquals(gA.getName(), groupSubject.getName());

@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil.FieldValuable;
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.18 2009-02-13 14:37:34 mchyzer Exp $
+ * @version $Id: GrouperAPI.java,v 1.19 2009-03-15 06:37:21 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrouperLifecycle, Lifecycle, GrouperCloneable {
@@ -46,6 +46,10 @@ public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrou
   /** save the state when retrieving from DB */
   @GrouperIgnoreDbVersion
   protected Object dbVersion = null;
+
+  /** save the state when retrieving from DB, but this is the db version in the current transaction */
+  @GrouperIgnoreDbVersion
+  protected Object dbVersionTx = null;
 
   /** field name for db version */
   public static final String FIELD_DB_VERSION = "dbVersion";
@@ -78,8 +82,6 @@ public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrou
     return differentFields.size() > 0;
   }
 
-
-
   /**
    * see which fields have changed compared to the DB state (last known)
    * note that attributes will print out: attribute__attributeName
@@ -88,7 +90,6 @@ public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrou
   public Set<String> dbVersionDifferentFields() {
     throw new RuntimeException("Not implemented");
   }
-
 
   /**
    * take a snapshot of the data since this is what is in the db
@@ -102,7 +103,6 @@ public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrou
   public void dbVersionClear() {
     this.dbVersion = null;
   }
-
 
   /**
    * @see org.hibernate.classic.Lifecycle#onDelete(org.hibernate.Session)

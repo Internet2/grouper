@@ -260,7 +260,7 @@ public class GrouperProvisioner extends Provisioner
         {
             try
             {
-                Stem stem = StemFinder.findByName(session, stemName);
+                Stem stem = StemFinder.findByName(session, stemName, true);
                 groupFilter = new UnionFilter(groupFilter, new ChildGroupFilter(stem));
             }
             catch (StemNotFoundException snfe)

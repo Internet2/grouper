@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
  * Verify whether a {@link Group} has a {@link GroupType}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: groupHasType.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: groupHasType.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.1.0
  */
 public class groupHasType {
@@ -44,8 +44,8 @@ public class groupHasType {
   {
     GrouperShell.setOurCommand(i, true);
     try {
-      Group     g = GroupFinder.findByName(GrouperShell.getSession(i), name);
-      GroupType t = GroupTypeFinder.find(type);
+      Group     g = GroupFinder.findByName(GrouperShell.getSession(i), name, true);
+      GroupType t = GroupTypeFinder.find(type, true);
       return g.hasType(t);         
     }
     catch (GroupNotFoundException eGNF) {

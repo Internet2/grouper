@@ -60,7 +60,7 @@ import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.11 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.12 2009-03-15 06:37:24 mchyzer Exp $
  * @since   1.2.0
  */
 @GrouperIgnoreDbVersion
@@ -329,7 +329,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         ownerStemId   = _ms.getOwnerStemId();
         if      ( _ms.getListType().equals(FieldType.LIST.toString()) || _ms.getListType().equals(FieldType.ACCESS.toString()) ) {
           if ( !groups.containsKey(ownerGroupId) ) {
-            _g = gDAO.findByUuid(ownerGroupId);
+            _g = gDAO.findByUuid(ownerGroupId, true);
             _g.setModifierUuid(modifierUuid);
             _g.setModifyTimeLong(modifyTime);
             _g.setDontSetModified(true);
@@ -338,7 +338,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         }
         else if ( _ms.getListType().equals(FieldType.NAMING.toString()) ) {
           if ( !stems.containsKey(ownerStemId) ) {
-            _ns = nsDAO.findByUuid(ownerStemId);
+            _ns = nsDAO.findByUuid(ownerStemId, true);
             _ns.setModifierUuid(modifierUuid);
             _ns.setModifyTimeLong(modifyTime);
             stems.put(ownerStemId, _ns);
@@ -448,7 +448,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
    */
   private boolean checkEquality(String memberUUID, String ownerGroupId) {
     try {
-      String memberUUID2 = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerGroupId).toMember().getUuid();
+      String memberUUID2 = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerGroupId, true).toMember().getUuid();
       if (memberUUID.equals(memberUUID2)) {
         return true;
       }
@@ -681,15 +681,12 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     }
 
     // check the database to see if the via uuid is a composite group.
-    try {
-      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid);
-      GrouperDAOFactory.getFactory().getComposite().findAsOwner(group);
+    Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid, true);
+    Composite composite = GrouperDAOFactory.getFactory().getComposite().findAsOwner(group, false);
+    if (composite != null) {
       return true;
-    } catch (CompositeNotFoundException e) {
-      return false;
-    } catch (GroupNotFoundException e) {
-      return false;
     }
+    return false;
   }
 
   /**
@@ -726,7 +723,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     _ms.setCreatorUuid(GrouperSession.staticGrouperSession().getMember().getUuid());
     _ms.setDepth(0);
     _ms.setFieldId(FieldFinder.findFieldId(this.getField().getName(),
-      this.getField().getType().toString()));
+      this.getField().getType().toString(), true));
     _ms.setMemberUuid(memberUuid);
     _ms.setOwnerGroupId(ownerGroupId);
     _ms.setParentUuid(null);
@@ -864,7 +861,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         Membership _ms = new Membership();
         _ms.setCreatorUuid( grouperSession.getMember().getUuid() );
         _ms.setFieldId(FieldFinder.findFieldId(f.getName(), 
-            f.getType().toString()));
+            f.getType().toString(), true));
         _ms.setMemberUuid( _m.getUuid() );
         _ms.setOwnerGroupId( DefaultMemberOf.this.getOwnerGroupId() );
         _ms.setOwnerStemId( DefaultMemberOf.this.getOwnerStemId() );
@@ -880,13 +877,8 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         }
     }
 
-        try {
-          // TODO 20070531 look into finding a way to avoid SchemaExceptions here
-          DefaultMemberOf.this.setField( FieldFinder.find( _ms.getListName() ) );
-        }
-        catch (SchemaException eS) {
-          throw new IllegalStateException( eS.getMessage(), eS );
-        }
+        DefaultMemberOf.this.setField( FieldFinder.find( _ms.getListName(), true ) );
+
         DefaultMemberOf.this.setMember(_m);
         DefaultMemberOf.this.setMembership(_ms);
 
@@ -995,7 +987,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         if (factorsToComposites.containsKey(ownerGroupId)) {
           factorsIterator = factorsToComposites.get(ownerGroupId).iterator();
         } else {
-          Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerGroupId);
+          Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerGroupId, true);
           Set<Composite> factorsSet = GrouperDAOFactory.getFactory().getComposite().findAsFactor(g);
           factorsIterator = factorsSet.iterator();
           factorsToComposites.put(ownerGroupId, factorsSet);
@@ -1004,9 +996,9 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         while (factorsIterator.hasNext()) {
           // check to see if the composite and the factors have the member.
           Composite c = factorsIterator.next();
-          Group left = GrouperDAOFactory.getFactory().getGroup().findByUuid(c.getLeftFactorUuid());
-          Group right = GrouperDAOFactory.getFactory().getGroup().findByUuid(c.getRightFactorUuid());
-          Group owner = GrouperDAOFactory.getFactory().getGroup().findByUuid(c.getFactorOwnerUuid());
+          Group left = GrouperDAOFactory.getFactory().getGroup().findByUuid(c.getLeftFactorUuid(), true);
+          Group right = GrouperDAOFactory.getFactory().getGroup().findByUuid(c.getRightFactorUuid(), true);
+          Group owner = GrouperDAOFactory.getFactory().getGroup().findByUuid(c.getFactorOwnerUuid(), true);
 
           // we're not allowing membership paths from a factor to the composite
           if (checkEquality(memberUuid, owner.getUuid()) == true) {
@@ -1038,7 +1030,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
             newSaves.addAll(_addHasMembersToWhereGroupIsMember(isMember, hasMember, true));
           } else if (!compositeShouldHaveMember && ownerHasMember) {
             Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-              owner.getUuid(), memberUuid, Group.getDefaultList(), Membership.COMPOSITE);
+              owner.getUuid(), memberUuid, Group.getDefaultList(), Membership.COMPOSITE, true);
             newDeletes.add(ms);
 
             Set<Membership> forwardMemberships = MembershipFinder.internal_findAllForwardMembershipsNoPriv(ms, new LinkedHashSet());
@@ -1121,7 +1113,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         _ms = (Membership) it.next();
         mof = new DefaultMemberOf();
         mof.deleteImmediate( 
-          GrouperSession.staticGrouperSession(), this.getGroup(), _ms, dao.findByUuid( _ms.getMemberUuid() ) 
+          GrouperSession.staticGrouperSession(), this.getGroup(), _ms, dao.findByUuid( _ms.getMemberUuid(), true ) 
         );
         this.addDeletes( mof.getDeletes() );
       }
@@ -1148,12 +1140,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
 
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
-        try {
-          DefaultMemberOf.this.setField( FieldFinder.find( _ms.getListName() ) );
-        }
-        catch (SchemaException eS) {
-          throw new IllegalStateException( eS.getMessage(), eS );
-        }
+        DefaultMemberOf.this.setField( FieldFinder.find( _ms.getListName(), true ) );
         DefaultMemberOf.this.setMember(_m);
         DefaultMemberOf.this.setMembership(_ms);
 
@@ -1214,7 +1201,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     throws  IllegalStateException {
     try {
       Set       memberUUIDs = new LinkedHashSet();
-      Group  _g          = GrouperDAOFactory.getFactory().getGroup().findByUuid(groupUUID);
+      Group  _g          = GrouperDAOFactory.getFactory().getGroup().findByUuid(groupUUID, true);
       Iterator  it          = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndField(
          _g.getUuid(), Group.getDefaultList() 
       ).iterator();

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdlUtilsTest.java,v 1.16 2009-02-13 14:37:34 mchyzer Exp $
+ * $Id: GrouperDdlUtilsTest.java,v 1.17 2009-03-15 06:37:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -210,11 +210,11 @@ public class GrouperDdlUtilsTest extends GrouperTest {
       //good
     }
     
-    StemFinder.findByName(grouperSession, "edu");
-    groupq = GroupFinder.findByName(grouperSession, "edu:testq");
+    StemFinder.findByName(grouperSession, "edu", true);
+    groupq = GroupFinder.findByName(grouperSession, "edu:testq", true);
     groupq.hasMember(SubjectTestHelper.SUBJ0);
-    assertEquals("edu:testr", groupq.getComposite().getLeftGroup().getName());
-    groups = GroupFinder.findByName(grouperSession, "edu:tests");
+    assertEquals("edu:testr", groupq.getComposite(true).getLeftGroup().getName());
+    groups = GroupFinder.findByName(grouperSession, "edu:tests", true);
     assertEquals("whatever", groups.getAttribute("test1"));
     
     //now delete the uuid cols
@@ -230,11 +230,11 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     }
     
     //make sure data is still there
-    StemFinder.findByName(grouperSession, "edu");
-    groupq = GroupFinder.findByName(grouperSession, "edu:testq");
+    StemFinder.findByName(grouperSession, "edu", true);
+    groupq = GroupFinder.findByName(grouperSession, "edu:testq", true);
     groupq.hasMember(SubjectTestHelper.SUBJ0);
-    assertEquals("edu:testr", groupq.getComposite().getLeftGroup().getName());
-    groups = GroupFinder.findByName(grouperSession, "edu:tests");
+    assertEquals("edu:testr", groupq.getComposite(true).getLeftGroup().getName());
+    groups = GroupFinder.findByName(grouperSession, "edu:tests", true);
     assertEquals("whatever", groups.getAttribute("test1"));
     
     //get ready for final test from scratch...
@@ -609,11 +609,11 @@ public class GrouperDdlUtilsTest extends GrouperTest {
       //good
     }
     
-    StemFinder.findByName(grouperSession, "edu");
-    groupq = GroupFinder.findByName(grouperSession, "edu:testq");
+    StemFinder.findByName(grouperSession, "edu", true);
+    groupq = GroupFinder.findByName(grouperSession, "edu:testq", true);
     groupq.hasMember(SubjectTestHelper.SUBJ0);
-    assertEquals("edu:testr", groupq.getComposite().getLeftGroup().getName());
-    groups = GroupFinder.findByName(grouperSession, "edu:tests");
+    assertEquals("edu:testr", groupq.getComposite(true).getLeftGroup().getName());
+    groups = GroupFinder.findByName(grouperSession, "edu:tests", true);
     assertEquals("whatever", groups.getAttribute("test1"));
     
     //now delete the uuid cols
@@ -629,11 +629,11 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     }
     
     //make sure data is still there
-    StemFinder.findByName(grouperSession, "edu");
-    groupq = GroupFinder.findByName(grouperSession, "edu:testq");
+    StemFinder.findByName(grouperSession, "edu", true);
+    groupq = GroupFinder.findByName(grouperSession, "edu:testq", true);
     groupq.hasMember(SubjectTestHelper.SUBJ0);
-    assertEquals("edu:testr", groupq.getComposite().getLeftGroup().getName());
-    groups = GroupFinder.findByName(grouperSession, "edu:tests");
+    assertEquals("edu:testr", groupq.getComposite(true).getLeftGroup().getName());
+    groups = GroupFinder.findByName(grouperSession, "edu:tests", true);
     assertEquals("whatever", groups.getAttribute("test1"));
     
     //get ready for final test from scratch...

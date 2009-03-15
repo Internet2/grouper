@@ -17,12 +17,12 @@
 
 package edu.internet2.middleware.grouper.bench;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.subject.Subject;
 
@@ -30,7 +30,7 @@ import edu.internet2.middleware.subject.Subject;
  * Benchmarking adding a member to a group that is privileged on a lot of other
  * groups.
  * @author  blair christensen.
- * @version $Id: AddAsEffMemberToLotsOfGroups.java,v 1.7 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: AddAsEffMemberToLotsOfGroups.java,v 1.8 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class AddAsEffMemberToLotsOfGroups extends BaseGrouperBenchmark {
@@ -66,7 +66,7 @@ public class AddAsEffMemberToLotsOfGroups extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void init() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
@@ -81,10 +81,10 @@ public class AddAsEffMemberToLotsOfGroups extends BaseGrouperBenchmark {
       }
       String subjectId = "AddAsEffMemberToLotsOfGroups";
       RegistrySubject.add(s, subjectId, "person", subjectId + " Subject");
-      this.subj = SubjectFinder.findById(subjectId);
+      this.subj = SubjectFinder.findById(subjectId, true);
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e.getMessage());
+      throw new GrouperException(e.getMessage());
     }
   } // public void init()
 
@@ -92,13 +92,13 @@ public class AddAsEffMemberToLotsOfGroups extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void run() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       this.g.addMember(this.subj);
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e);
+      throw new GrouperException(e);
     }
   } // public void run()
 

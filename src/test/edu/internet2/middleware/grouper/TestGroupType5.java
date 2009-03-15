@@ -29,7 +29,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupType5.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestGroupType5.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class TestGroupType5 extends TestCase {
 
@@ -53,7 +53,7 @@ public class TestGroupType5 extends TestCase {
     LOG.info("testFailToAddFieldToBaseAsNonRoot");
     try {
       R               r     = R.populateRegistry(1, 1, 1);
-      GroupType       base  = GroupTypeFinder.find("base");
+      GroupType       base  = GroupTypeFinder.find("base", true);
       Subject         subj  = r.getSubject("a");
       GrouperSession  s     = GrouperSession.start(subj);
       try {

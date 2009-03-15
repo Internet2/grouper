@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderTest.java,v 1.7 2009-01-31 16:46:40 mchyzer Exp $
+ * $Id: GrouperLoaderTest.java,v 1.8 2009-03-15 06:37:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -100,7 +100,7 @@ public class GrouperLoaderTest extends GrouperTest {
     //lets add a group which will load these
     Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
         "loader2:owner",null, null, null, true);
-    loaderGroup.addType(GroupTypeFinder.find("grouperLoader"));
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
     loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
         "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
     loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_TYPES,
@@ -110,9 +110,9 @@ public class GrouperLoaderTest extends GrouperTest {
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
     
-    Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1");
+    Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
     assertEquals("The loader:group 1", overallGroup1.getDisplayName());
-    Group systemOfRecordGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecord");
+    Group systemOfRecordGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1_systemOfRecord", true);
     assertEquals("This is the first group", systemOfRecordGroup1.getDescription());
     assertEquals("The loader:group 1 system of record", systemOfRecordGroup1.getDisplayName());
     assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ0));
@@ -123,10 +123,10 @@ public class GrouperLoaderTest extends GrouperTest {
     assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ5));
     assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ6));
     
-    Group overallGroup2 = GroupFinder.findByName(this.grouperSession, "loader:group2");
+    Group overallGroup2 = GroupFinder.findByName(this.grouperSession, "loader:group2", true);
 
     assertEquals("The loader:group 2", overallGroup2.getDisplayName());
-    Group systemOfRecordGroup2 = GroupFinder.findByName(this.grouperSession, "loader:group2_systemOfRecord");
+    Group systemOfRecordGroup2 = GroupFinder.findByName(this.grouperSession, "loader:group2_systemOfRecord", true);
     assertTrue(systemOfRecordGroup2.getDescription().length() > 0);
     assertEquals("The loader:group 2 system of record", systemOfRecordGroup2.getDisplayName());
 
@@ -138,9 +138,9 @@ public class GrouperLoaderTest extends GrouperTest {
     assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ5));
     assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ6));
     
-    Group overallGroup3 = GroupFinder.findByName(this.grouperSession, "loader:group3");
+    Group overallGroup3 = GroupFinder.findByName(this.grouperSession, "loader:group3", true);
     assertEquals("The loader:group3", overallGroup3.getDisplayName());
-    Group systemOfRecordGroup3 = GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord");
+    Group systemOfRecordGroup3 = GroupFinder.findByName(this.grouperSession, "loader:group3_systemOfRecord", true);
     assertEquals("This is the third group", systemOfRecordGroup3.getDescription());
     assertEquals("The loader:group3_systemOfRecord", systemOfRecordGroup3.getDisplayName());
 
@@ -152,9 +152,9 @@ public class GrouperLoaderTest extends GrouperTest {
     assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ5));
     assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ6));
 
-    Group overallGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4");
+    Group overallGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4", true);
     assertEquals("The loader:group4", overallGroup4.getDisplayName());
-    Group systemOfRecordGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4_systemOfRecord");
+    Group systemOfRecordGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4_systemOfRecord", true);
     assertTrue(systemOfRecordGroup4.getDescription().length() > 0);
     assertEquals("The loader:group4_systemOfRecord", systemOfRecordGroup4.getDisplayName());
     assertFalse(overallGroup4.hasMember(SubjectTestHelper.SUBJ0));
@@ -169,10 +169,10 @@ public class GrouperLoaderTest extends GrouperTest {
     assertNull(overallGroup5);
     
     //lets use the includes/excludes for group6
-    Group group6includes = GroupFinder.findByName(this.grouperSession, "loader:group6_includes");
+    Group group6includes = GroupFinder.findByName(this.grouperSession, "loader:group6_includes", true);
     group6includes.addMember(SubjectTestHelper.SUBJ9);
 
-    Group overallGroup6 = GroupFinder.findByName(this.grouperSession, "loader:group6");
+    Group overallGroup6 = GroupFinder.findByName(this.grouperSession, "loader:group6", true);
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ1));
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ2));
@@ -216,7 +216,7 @@ public class GrouperLoaderTest extends GrouperTest {
     //lets add a group which will load these
     Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
         "loader:owner",null, null, null, true);
-    loaderGroup.addType(GroupTypeFinder.find("grouperLoader"));
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
     loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
         "select col1 as GROUP_NAME, col2 as SUBJECT_ID from testgrouper_loader");
     loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_TYPES,
@@ -224,7 +224,7 @@ public class GrouperLoaderTest extends GrouperTest {
     
     GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
     
-    Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1");
+    Group overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
     assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ1));
     assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ2));
@@ -233,7 +233,7 @@ public class GrouperLoaderTest extends GrouperTest {
     assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ5));
     assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ6));
     
-    Group overallGroup2 = GroupFinder.findByName(this.grouperSession, "loader:group2");
+    Group overallGroup2 = GroupFinder.findByName(this.grouperSession, "loader:group2", true);
     assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(overallGroup2.hasMember(SubjectTestHelper.SUBJ1));
     assertTrue(overallGroup2.hasMember(SubjectTestHelper.SUBJ2));
@@ -242,7 +242,7 @@ public class GrouperLoaderTest extends GrouperTest {
     assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ5));
     assertFalse(overallGroup2.hasMember(SubjectTestHelper.SUBJ6));
     
-    Group overallGroup3 = GroupFinder.findByName(this.grouperSession, "loader:group3");
+    Group overallGroup3 = GroupFinder.findByName(this.grouperSession, "loader:group3", true);
     assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ1));
     assertTrue(overallGroup3.hasMember(SubjectTestHelper.SUBJ2));
@@ -251,7 +251,7 @@ public class GrouperLoaderTest extends GrouperTest {
     assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ5));
     assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ6));
 
-    Group overallGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4");
+    Group overallGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4", true);
     assertFalse(overallGroup4.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup4.hasMember(SubjectTestHelper.SUBJ1));
     assertFalse(overallGroup4.hasMember(SubjectTestHelper.SUBJ2));
@@ -264,10 +264,10 @@ public class GrouperLoaderTest extends GrouperTest {
     assertNull(overallGroup5);
     
     //lets use the includes/excludes for group6
-    Group group6includes = GroupFinder.findByName(this.grouperSession, "loader:group6_includes");
+    Group group6includes = GroupFinder.findByName(this.grouperSession, "loader:group6_includes", true);
     group6includes.addMember(SubjectTestHelper.SUBJ9);
 
-    Group overallGroup6 = GroupFinder.findByName(this.grouperSession, "loader:group6");
+    Group overallGroup6 = GroupFinder.findByName(this.grouperSession, "loader:group6", true);
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ1));
     assertFalse(overallGroup6.hasMember(SubjectTestHelper.SUBJ2));
@@ -284,7 +284,7 @@ public class GrouperLoaderTest extends GrouperTest {
     // now lets use a group in another group
     Group anotherGroup = Group.saveGroup(this.grouperSession, "aStem:anotherGroup", null, 
         "aStem:anotherGroup", null, null, null, true);
-    anotherGroup.addMember(SubjectFinder.findById(overallGroup1.getUuid()));
+    anotherGroup.addMember(SubjectFinder.findById(overallGroup1.getUuid(), true));
     
     //now lets change around the memberships...
     //delete group1, group2, and group3subj2
@@ -309,7 +309,7 @@ public class GrouperLoaderTest extends GrouperTest {
     //we didnt add the attribute yet, so nothing should work yet
     
     //group1 is used in another group, so it should exist, with no members
-    overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1");
+    overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
     assertTrue(overallGroup1.hasMember(SubjectTestHelper.SUBJ0));
     
     loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "loader:group%_systemOfRecord");
@@ -320,7 +320,7 @@ public class GrouperLoaderTest extends GrouperTest {
     //make sure everything worked...
     
     //group1 is used in another group, so it should exist, with no members
-    overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1");
+    overallGroup1 = GroupFinder.findByName(this.grouperSession, "loader:group1", true);
     assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ1));
     assertFalse(overallGroup1.hasMember(SubjectTestHelper.SUBJ2));
@@ -334,7 +334,7 @@ public class GrouperLoaderTest extends GrouperTest {
     assertNull(overallGroup2);
     
     //group3 should remove subj2 and add subj4
-    overallGroup3 = GroupFinder.findByName(this.grouperSession, "loader:group3");
+    overallGroup3 = GroupFinder.findByName(this.grouperSession, "loader:group3", true);
     assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ1));
     assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ2));
@@ -344,7 +344,7 @@ public class GrouperLoaderTest extends GrouperTest {
     assertFalse(overallGroup3.hasMember(SubjectTestHelper.SUBJ6));
 
     //group4 should be unchanged
-    overallGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4");
+    overallGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4", true);
     assertFalse(overallGroup4.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup4.hasMember(SubjectTestHelper.SUBJ1));
     assertFalse(overallGroup4.hasMember(SubjectTestHelper.SUBJ2));
@@ -354,7 +354,7 @@ public class GrouperLoaderTest extends GrouperTest {
     assertFalse(overallGroup4.hasMember(SubjectTestHelper.SUBJ6));
     
     //group5 should be added, with subj4 and subj5
-    overallGroup5 = GroupFinder.findByName(this.grouperSession, "loader:group5");
+    overallGroup5 = GroupFinder.findByName(this.grouperSession, "loader:group5", true);
     assertFalse(overallGroup5.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(overallGroup5.hasMember(SubjectTestHelper.SUBJ1));
     assertFalse(overallGroup5.hasMember(SubjectTestHelper.SUBJ2));
@@ -364,7 +364,7 @@ public class GrouperLoaderTest extends GrouperTest {
     assertFalse(overallGroup5.hasMember(SubjectTestHelper.SUBJ6));
 
     //group6 should be removed, and the excludes, but not the includes
-    group6includes = GroupFinder.findByName(this.grouperSession, "loader:group6_includes");
+    group6includes = GroupFinder.findByName(this.grouperSession, "loader:group6_includes", true);
     assertTrue(group6includes.hasMember(SubjectTestHelper.SUBJ9));
 
     overallGroup6 = GroupFinder.findByName(this.grouperSession, "loader:group6", false);

@@ -16,16 +16,15 @@
 */
 
 package edu.internet2.middleware.grouper;
-import  java.util.regex.Pattern;
-
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
-import edu.internet2.middleware.grouper.xml.XmlExporter;
+import java.util.regex.Pattern;
 
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.xml.XmlExporter;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_U_API_XmlExporter_internal_groupToXML.java,v 1.5 2008-10-15 03:57:06 mchyzer Exp $
+ * @version $Id: Test_U_API_XmlExporter_internal_groupToXML.java,v 1.6 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_U_API_XmlExporter_internal_groupToXML extends GrouperTest {
@@ -71,7 +70,7 @@ public class Test_U_API_XmlExporter_internal_groupToXML extends GrouperTest {
       export  = new XmlExporter( s, new java.util.Properties() );
     }
     catch (Exception eShouldNotHappen) {
-      throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
+      throw new GrouperException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
   }
 
@@ -80,7 +79,7 @@ public class Test_U_API_XmlExporter_internal_groupToXML extends GrouperTest {
       s.stop();
     }
     catch (Exception eShouldNotHappen) {
-      throw new GrouperRuntimeException( eShouldNotHappen.getMessage(), eShouldNotHappen );
+      throw new GrouperException( eShouldNotHappen.getMessage(), eShouldNotHappen );
     }
     super.tearDown();
   }

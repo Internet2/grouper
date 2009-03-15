@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  * memberships
  * 
  * @author  blair christensen.
- * @version $Id: ImmediateMembershipValidator.java,v 1.2 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: ImmediateMembershipValidator.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   1.2.0
  */
 public class ImmediateMembershipValidator extends MembershipValidator {
@@ -120,8 +120,8 @@ public class ImmediateMembershipValidator extends MembershipValidator {
     throws  IllegalStateException  {
     if ( GrouperConfig.LIST.equals( _ms.getListName() ) ) {
       try {
-        Group  _g  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerGroupId() );
-        Member _m  = GrouperDAOFactory.getFactory().getMember().findByUuid( _ms.getMemberUuid() );
+        Group  _g  = GrouperDAOFactory.getFactory().getGroup().findByUuid( _ms.getOwnerGroupId(), true );
+        Member _m  = GrouperDAOFactory.getFactory().getMember().findByUuid( _ms.getMemberUuid(), true );
         if ( _g.getUuid().equals( _m.getSubjectId() ) ) {
           return true;
         }

@@ -24,7 +24,7 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * you should probably use GrouperConfig
  * <p/>
  * @author  blair christensen.
- * @version $Id: ApiConfig.java,v 1.20 2008-12-04 20:59:11 mchyzer Exp $
+ * @version $Id: ApiConfig.java,v 1.21 2009-03-15 06:37:24 mchyzer Exp $
  * @since   1.2.1
  */
 public class ApiConfig implements Configuration {
@@ -111,7 +111,7 @@ public class ApiConfig implements Configuration {
     this.localCfg = new PropertiesConfiguration("/local.grouper.properties");
     try {
       this.localCfg.getProperty("dao.factory");
-    } catch (GrouperRuntimeException eInvalidLocalConfig) {
+    } catch (GrouperException eInvalidLocalConfig) {
       // TODO 20070802 add "isValid()" (or whatever) check to "PropertiesConfiguration" to avoid this hack
       this.useLocal = false; // invalid local configuration.  don't try again.
     }

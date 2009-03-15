@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.18 2009-01-02 06:57:12 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.19 2009-03-15 06:37:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -280,8 +280,8 @@ public class GrouperStartup {
       }
       try {
         needsInit = StemFinder.findRootStem(grouperSession) == null;
-        needsInit = needsInit || FieldFinder.find("admins") == null ;
-        needsInit = needsInit || GroupTypeFinder.find("base") == null ;
+        needsInit = needsInit || FieldFinder.find("admins", true) == null ;
+        needsInit = needsInit || GroupTypeFinder.find("base", true) == null ;
       } catch (Exception e) {
         if (logError && logErrorStatic) {
           LOG.error("Error initializing data, might just need to auto-create some data to fix...", e);

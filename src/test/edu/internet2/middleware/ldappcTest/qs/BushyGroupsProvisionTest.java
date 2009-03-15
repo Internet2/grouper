@@ -189,7 +189,7 @@ public class BushyGroupsProvisionTest extends BaseLdappcTestCase {
      * uses a single stem query of "qsuob"
      */
     private Set getProvisionedGroups() throws Exception {
-        Stem stem = StemFinder.findByName(sessionCtrl.getSession(), "qsuob");
+        Stem stem = StemFinder.findByName(sessionCtrl.getSession(), "qsuob", true);
         ChildGroupFilter filter = new ChildGroupFilter(stem);
         return GrouperQuery.createQuery(sessionCtrl.getSession(), filter).getGroups();
     }

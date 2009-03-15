@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.19 2009-02-27 20:51:46 shilen Exp $
+ * $Id: GrouperCheckConfig.java,v 1.20 2009-03-15 06:37:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -113,7 +113,7 @@ public class GrouperCheckConfig {
       return CheckGroupResult.DIDNT_CHECK;
     }
     try {
-      Group group = GroupFinder.findByName(grouperSession, groupName);
+      Group group = GroupFinder.findByName(grouperSession, groupName, true);
       if (group != null) {
         if (GrouperUtil.length(groupResult) >= 1) {
           groupResult[0] = group;

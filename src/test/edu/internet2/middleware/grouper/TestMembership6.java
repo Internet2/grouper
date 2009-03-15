@@ -91,8 +91,8 @@ public class TestMembership6 extends TestCase {
       nsA   = r.getStem("a");
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters");
-      fieldCreators = FieldFinder.find("creators");
+      fieldUpdaters = FieldFinder.find("updaters", true);
+      fieldCreators = FieldFinder.find("creators", true);
 
 
       // Test 1:  Test when the last operations are adding update privileges for gH and gJ.

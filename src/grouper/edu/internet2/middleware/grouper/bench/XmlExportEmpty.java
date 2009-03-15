@@ -20,15 +20,15 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Properties;
 
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.xml.XmlExporter;
 
 /**
  * Benchmark exporting an effectively empty XML file.
  * @author  blair christensen.
- * @version $Id: XmlExportEmpty.java,v 1.4 2008-09-29 03:38:30 mchyzer Exp $
+ * @version $Id: XmlExportEmpty.java,v 1.5 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.1.0
  */
 public class XmlExportEmpty extends BaseGrouperBenchmark {
@@ -60,7 +60,7 @@ public class XmlExportEmpty extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void init() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       this.exporter = new XmlExporter(
@@ -70,7 +70,7 @@ public class XmlExportEmpty extends BaseGrouperBenchmark {
       this.w        = new StringWriter();
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e.getMessage());
+      throw new GrouperException(e.getMessage());
     }
   } // public void init()
 
@@ -78,13 +78,13 @@ public class XmlExportEmpty extends BaseGrouperBenchmark {
    * @since 1.1.0
    */
   public void run() 
-    throws GrouperRuntimeException 
+    throws GrouperException 
   {
     try {
       this.exporter.export(this.w);
     }
     catch (Exception e) {
-      throw new GrouperRuntimeException(e);
+      throw new GrouperException(e);
     }
   } // public void run()
 

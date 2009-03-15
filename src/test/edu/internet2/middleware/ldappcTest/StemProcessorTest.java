@@ -164,7 +164,7 @@ public class StemProcessorTest extends BaseLdappcTestCase
         try
         {
             // If it already exists, use it.
-            testStem1 = StemFinder.findByName(grouperSession, "testStem1");
+            testStem1 = StemFinder.findByName(grouperSession, "testStem1", true);
         }
         catch(StemNotFoundException snfe)
         {
@@ -181,7 +181,7 @@ public class StemProcessorTest extends BaseLdappcTestCase
         try
         {
             // If it already exists, use it.
-            testStem2 = StemFinder.findByName(grouperSession, "testStem1:testStem2");
+            testStem2 = StemFinder.findByName(grouperSession, "testStem1:testStem2", true);
         }
         catch(StemNotFoundException snfe)
         {
@@ -218,7 +218,7 @@ public class StemProcessorTest extends BaseLdappcTestCase
         //
         try
         { 
-            StemFinder.findByName(grouperSession, "testStem1");
+            StemFinder.findByName(grouperSession, "testStem1", true);
         } 
         catch (StemNotFoundException snfe)
         {
@@ -227,8 +227,8 @@ public class StemProcessorTest extends BaseLdappcTestCase
         
         try
         { 
-            StemFinder.findByName(grouperSession, "testStem1:testStem2");
-            StemFinder.findByName(grouperSession, "testStem1:testStem2:testStem3");
+            StemFinder.findByName(grouperSession, "testStem1:testStem2", true);
+            StemFinder.findByName(grouperSession, "testStem1:testStem2:testStem3", true);
         } 
         catch (StemNotFoundException snfe)
         {
@@ -250,7 +250,7 @@ public class StemProcessorTest extends BaseLdappcTestCase
         try
         {
             // If it already exists, use it.
-            stem = StemFinder.findByName(grouperSession, stemFullPath);
+            stem = StemFinder.findByName(grouperSession, stemFullPath, true);
         }
         catch(StemNotFoundException snfe)
         {
@@ -277,7 +277,7 @@ public class StemProcessorTest extends BaseLdappcTestCase
         try 
         {
             // If found, use the one that already exists; assume not an error.
-            testGroup31 = GroupFinder.findByName(grouperSession, "testStem1:testStem2:testStem3:testGroup31");
+            testGroup31 = GroupFinder.findByName(grouperSession, "testStem1:testStem2:testStem3:testGroup31", true);
         }
         catch(GroupNotFoundException gnfe)
         {
@@ -293,7 +293,7 @@ public class StemProcessorTest extends BaseLdappcTestCase
         try 
         {
             // If found, use the one that already exists; assume not an error.
-            testGroup21 = GroupFinder.findByName(grouperSession, "testStem1:testStem2:testGroup21");
+            testGroup21 = GroupFinder.findByName(grouperSession, "testStem1:testStem2:testGroup21", true);
         }
         catch(GroupNotFoundException gnfe)
         {
@@ -310,7 +310,7 @@ public class StemProcessorTest extends BaseLdappcTestCase
         //
         try
         { 
-            GroupFinder.findByName(grouperSession, "testStem1:testStem2:testStem3:testGroup31");
+            GroupFinder.findByName(grouperSession, "testStem1:testStem2:testStem3:testGroup31", true);
         } 
         catch (GroupNotFoundException snfe)
         {
@@ -319,7 +319,7 @@ public class StemProcessorTest extends BaseLdappcTestCase
         
         try
         { 
-            GroupFinder.findByName(grouperSession, "testStem1:testStem2:testGroup21");
+            GroupFinder.findByName(grouperSession, "testStem1:testStem2:testGroup21", true);
         } 
         catch (GroupNotFoundException snfe)
         {

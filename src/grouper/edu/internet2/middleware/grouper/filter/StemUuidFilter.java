@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
  * Query by stem uuid.
  * <p/>
  * @author  mchyzer.
- * @version $Id: StemUuidFilter.java,v 1.1 2008-07-21 05:15:59 mchyzer Exp $
+ * @version $Id: StemUuidFilter.java,v 1.2 2009-03-15 06:37:22 mchyzer Exp $
  */
 public class StemUuidFilter extends BaseQueryFilter {
 
@@ -62,7 +62,7 @@ public class StemUuidFilter extends BaseQueryFilter {
     Set<Stem> stems  = new HashSet<Stem>();
     Stem stem = null;
     try {
-      stem = StemFinder.findByUuid(s, this.uuid);
+      stem = StemFinder.findByUuid(s, this.uuid, true);
       stems.add(stem);
     } catch (StemNotFoundException gnfe) {
       //ignore

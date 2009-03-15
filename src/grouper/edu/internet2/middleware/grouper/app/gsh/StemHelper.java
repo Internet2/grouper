@@ -18,7 +18,7 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
  * Stem Helper Methods.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.2 2008-09-29 03:38:28 mchyzer Exp $
+ * @version $Id: StemHelper.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
  * @since   0.0.1
  */
 class StemHelper {
@@ -39,7 +39,7 @@ class StemHelper {
         nsP = StemFinder.findRootStem(s);
       }
       else {
-        nsP = StemFinder.findByName(s, parent);
+        nsP = StemFinder.findByName(s, parent, true);
       }
       return nsP.addChildStem(extn, displayExtn);
     }

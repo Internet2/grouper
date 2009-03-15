@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import java.util.Date;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -24,10 +25,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
-import edu.internet2.middleware.grouper.audit.GrouperEngineIdentifier;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -50,7 +49,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.17 2009-02-09 05:33:30 mchyzer Exp $
+ * @version $Id: GrouperTest.java,v 1.18 2009-03-15 06:37:22 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -81,15 +80,34 @@ public class GrouperTest extends TestCase {
     GrouperStartup.startup();
   } // public GrouperTest()
 
-
-  // PUBLIC INSTANCE METHODS //
-
+  /**
+   * 
+   * @param message
+   * @param outer
+   * @param inner
+   */
+  public void assertContains(String message, String outer, String inner) {
+    if (!outer.contains(inner)) {
+      fail(StringUtils.defaultString(message) + ", expected string '" + outer + "' to contain '" + inner + "'");
+    }
+  }
+  
+  /**
+   * 
+   * @param message
+   * @param outer
+   * @param inner
+   */
+  public void assertContains(String outer, String inner) {
+    assertContains(null, outer, inner);
+  }
+  
   /**
    * @since   1.1.0
    */
   public void assertDoNotFindGroupByAttribute(GrouperSession s, String attr, String val) {
     try {
-      GroupFinder.findByAttribute(s, attr, val);
+      GroupFinder.findByAttribute(s, attr, val, true);
       fail("unexpected found group by attribute(" + attr + ")=value(" + val + ")");
     }
     catch (GroupNotFoundException eGNF) {
@@ -109,7 +127,7 @@ public class GrouperTest extends TestCase {
    */
   public void assertDoNotFindGroupByName(GrouperSession s, String name, String msg) {
     try {
-      GroupFinder.findByName(s, name);
+      GroupFinder.findByName(s, name, true);
       fail(Quote.parens(msg) + "unexpectedly found group by name: " + name);
     }
     catch (GroupNotFoundException eGNF) {
@@ -129,8 +147,16 @@ public class GrouperTest extends TestCase {
    */
   public void assertDoNotFindGroupByType(GrouperSession s, GroupType type, String msg) {
     try {
-      GroupFinder.findByType(s, type);
-      fail(Quote.parens(msg) + "unexpectedly found group by type: " + type);
+      Set<Group> groups = GroupFinder.findAllByType(s, type);
+      if (groups.size() == 1) {
+        String errorInfo = "size is " + groups.size();
+        if (groups.size() != 0) {
+          for (Group group : groups) {
+            errorInfo += ", group: " + group.getName() + " ";
+          }
+        }
+        fail(Quote.parens(msg) + "unexpectedly found one group by type: " + type + ", " + errorInfo);
+      }
     }
     catch (GroupNotFoundException eGNF) {
       assertTrue(msg, true);
@@ -149,7 +175,7 @@ public class GrouperTest extends TestCase {
    */
   public void assertDoNotFindStemByName(GrouperSession s, String name, String msg) {
     try {
-      StemFinder.findByName(s, name);
+      StemFinder.findByName(s, name, true);
       fail(Quote.parens(msg) + "unexpectedly found stem by name: " + name);
     }
     catch (StemNotFoundException eNSNF) {
@@ -163,7 +189,7 @@ public class GrouperTest extends TestCase {
   public Field assertFindField(String name) {
     Field f = null;
     try {
-      f = FieldFinder.find(name);
+      f = FieldFinder.find(name, true);
       assertTrue(true);
     }
     catch (SchemaException eS) {
@@ -179,7 +205,7 @@ public class GrouperTest extends TestCase {
   public Group assertFindGroupByAttribute(GrouperSession s, String attr, String val) {
     Group g = null;
     try {
-      g = GroupFinder.findByAttribute(s, attr, val);
+      g = GroupFinder.findByAttribute(s, attr, val, true);
       assertTrue(true);
     }
     catch (GroupNotFoundException eGNF) {
@@ -203,7 +229,7 @@ public class GrouperTest extends TestCase {
   public Group assertFindGroupByName(GrouperSession s, String name, String msg) {
     Group g = null;
     try {
-      g = GroupFinder.findByName(s, name);
+      g = GroupFinder.findByName(s, name, true);
       assertTrue(msg, true);
     }
     catch (GroupNotFoundException eGNF) {
@@ -225,11 +251,11 @@ public class GrouperTest extends TestCase {
   public Group assertFindGroupByType(GrouperSession s, GroupType type, String msg) {
     Group g = null;
     try {
-      g = GroupFinder.findByType(s, type);
+      g = GroupFinder.findAllByType(s, type).iterator().next();
       assertTrue(msg, true);
       assertGroupHasType(g, type, true);
     }
-    catch (GroupNotFoundException eGNF) {
+    catch (Exception eGNF) {
       fail(Quote.parens(msg) + "did not find group (" + type + ") by type: " + eGNF.getMessage());
     }
     return g;
@@ -241,7 +267,7 @@ public class GrouperTest extends TestCase {
   public GroupType assertFindGroupType(String name) {
     GroupType type = null;
     try {
-      type = GroupTypeFinder.find(name);
+      type = GroupTypeFinder.find(name, true);
       assertTrue(true);
     }
     catch (SchemaException eS) {
@@ -264,7 +290,7 @@ public class GrouperTest extends TestCase {
   public Stem assertFindStemByName(GrouperSession s, String name, String msg) {
     Stem ns = null;
     try {
-      ns = StemFinder.findByName(s, name);
+      ns = StemFinder.findByName(s, name, true);
       assertTrue(msg, true);
     }
     catch (StemNotFoundException eNSNF) {
@@ -701,7 +727,7 @@ public class GrouperTest extends TestCase {
   public static void deleteGroupIfExists(GrouperSession grouperSession, String name) throws Exception {
     
     try {
-      Group group = GroupFinder.findByName(grouperSession, name);
+      Group group = GroupFinder.findByName(grouperSession, name, true);
       //hopefully this will succeed
       group.delete();
     } catch (GroupNotFoundException gnfe) {
@@ -723,7 +749,7 @@ public class GrouperTest extends TestCase {
     for (int i=stems.length-1;i>-0;i--) {
       String currentName = GrouperTest.stemName(stems, i+1);
       try {
-        currentStem = StemFinder.findByName(grouperSession, currentName);
+        currentStem = StemFinder.findByName(grouperSession, currentName, true);
       } catch (StemNotFoundException snfe1) {
         continue;
       }
@@ -740,7 +766,7 @@ public class GrouperTest extends TestCase {
    */
   public static void deleteStemIfExists(GrouperSession grouperSession, String name) throws Exception {
     try {
-      Stem stem = StemFinder.findByName(grouperSession, name);
+      Stem stem = StemFinder.findByName(grouperSession, name, true);
       //hopefully this will succeed
       stem.delete();
     } catch (StemNotFoundException snfe) {

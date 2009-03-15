@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Reference to members list is: Group.getDefaultList()
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.40 2009-02-09 21:36:43 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.41 2009-03-15 06:37:21 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -439,13 +439,16 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
     
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.FIELD, 
+        FieldHooks.METHOD_FIELD_POST_INSERT, HooksFieldBean.class, 
+        this, Field.class, VetoTypeGrouper.FIELD_POST_INSERT, true, false);
+
+    //do these second so the right object version is set, and dbVersion is ok
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.FIELD, 
         FieldHooks.METHOD_FIELD_POST_COMMIT_INSERT, HooksFieldBean.class, 
         this, Field.class);
 
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.FIELD, 
-        FieldHooks.METHOD_FIELD_POST_INSERT, HooksFieldBean.class, 
-        this, Field.class, VetoTypeGrouper.FIELD_POST_INSERT, true, false);
+
   }
 
   /**

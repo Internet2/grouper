@@ -35,9 +35,8 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeRuntimeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -82,7 +81,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.120 2009-02-09 05:33:30 mchyzer Exp $
+ * @version $Id: Member.java,v 1.121 2009-03-15 06:37:21 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -185,7 +184,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @param newSubject
    * @throws InsufficientPrivilegeRuntimeException if not a root user
    */
-  public void changeSubject(Subject newSubject) throws InsufficientPrivilegeRuntimeException {
+  public void changeSubject(Subject newSubject) throws InsufficientPrivilegeException {
     this.changeSubject(newSubject, true);
   }
   
@@ -202,7 +201,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @throws InsufficientPrivilegeRuntimeException if not a root user
    */
   public void changeSubject(final Subject newSubject, final boolean deleteOldMember) 
-      throws InsufficientPrivilegeRuntimeException {
+      throws InsufficientPrivilegeException {
     this.changeSubjectHelper(newSubject, deleteOldMember, null);
   }
   
@@ -245,13 +244,13 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @throws InsufficientPrivilegeRuntimeException if not a root user
    */
   private void changeSubjectHelper(final Subject newSubject, final boolean deleteOldMember, 
-      final StringBuilder report) throws InsufficientPrivilegeRuntimeException {
+      final StringBuilder report) throws InsufficientPrivilegeException {
     
     //make sure root session
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     if (grouperSession == null  ||
         !PrivilegeHelper.isRoot(grouperSession)) {
-      throw new InsufficientPrivilegeRuntimeException("changeSubject requires GrouperSystem " +
+      throw new InsufficientPrivilegeException("changeSubject requires GrouperSystem " +
       		"or wheel/sysAdmin group grouperSession");
     }
     
@@ -283,7 +282,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
     Member theNewMember = null;
     boolean theMemberDidntExist = false;
     try {
-      theNewMember = GrouperDAOFactory.getFactory().getMember().findBySubject(newSubject);
+      theNewMember = GrouperDAOFactory.getFactory().getMember().findBySubject(newSubject, true);
     } catch (MemberNotFoundException mnfe) {
       theMemberDidntExist = true;
     }
@@ -777,10 +776,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * Set effectives = m.getEffectiveMemberships();
    * </pre>
    * @return  Set of {@link Membership} objects.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public Set<Membership> getEffectiveMemberships() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     try {
       return this.getEffectiveMemberships(Group.getDefaultList());
@@ -789,7 +788,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       LOG.fatal(msg);
-      throw new GrouperRuntimeException(msg, eS);
+      throw new GrouperException(msg, eS);
     }
   } // public Set getEffectiveMemberships()
 
@@ -878,10 +877,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * Set immediates = m.getImmediateMemberships();
    * </pre>
    * @return  Set of {@link Membership} objects.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public Set<Membership> getImmediateMemberships() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     try {
       return this.getImmediateMemberships(Group.getDefaultList());
@@ -890,7 +889,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       LOG.fatal( msg);
-      throw new GrouperRuntimeException(msg, eS);
+      throw new GrouperException(msg, eS);
     }
   } // public Set getImmediateMemberships()
 
@@ -933,10 +932,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * Set groups = m.getMemberships();
    * </pre>
    * @return  Set of {@link Membership} objects.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public Set<Membership> getMemberships() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     try {
       return this.getMemberships(Group.getDefaultList());
@@ -945,7 +944,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       LOG.fatal( msg);
-      throw new GrouperRuntimeException(msg, eS);
+      throw new GrouperException(msg, eS);
     }
   } // public Set getMemberships()
 
@@ -1040,10 +1039,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * Source sa = m.getSubjectSource();
    * </pre>
    * @return  Subject's {@link Source}
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */ 
   public Source getSubjectSource() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     try {
       return this.getSubject().getSource();
@@ -1051,7 +1050,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
     catch (SubjectNotFoundException eSNF) {
       String msg = E.MEMBER_SUBJNOTFOUND + eSNF.getMessage();
       LOG.fatal( msg);
-      throw new GrouperRuntimeException(msg, eSNF);
+      throw new GrouperException(msg, eSNF);
     }
   } // public Source getSubjectSource()
 
@@ -1116,10 +1115,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * Set admin = m.hasAdmin();
    * </pre>
    * @return  Set of {@link Group} objects.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public Set<Group> hasAdmin() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
 {
     Set privs = new LinkedHashSet();
     try {
@@ -1154,10 +1153,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * Set create = m.hasCreate();
    * </pre>
    * @return  Set of {@link Stem} objects.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public Set<Group> hasCreate() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     Set privs = new LinkedHashSet();
     try {
@@ -1190,10 +1189,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * Set optin = m.hasOptin();
    * </pre>
    * @return  Set of {@link Group} objects.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public Set<Group> hasOptin() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     Set privs = new LinkedHashSet();
     try {
@@ -1228,10 +1227,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * Set optout = m.hasOptout();
    * </pre>
    * @return  Set of {@link Group} objects.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public Set<Group> hasOptout() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     Set privs = new LinkedHashSet();
 /*
@@ -1278,10 +1277,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * Set read = m.hasRead();
    * </pre>
    * @return  Set of {@link Group} objects.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public Set<Group> hasRead() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     Set privs = new LinkedHashSet();
     try {
@@ -1316,10 +1315,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * Set stem = m.hasStem();
    * </pre>
    * @return  Set of {@link Stem} objects.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public Set<Stem> hasStem()
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     Set privs = new LinkedHashSet();
     try {
@@ -1351,10 +1350,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * Set update = m.hasUpdate();
    * </pre>
    * @return  Set of {@link Group} objects.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public Set hasUpdate() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     Set privs = new LinkedHashSet();
     try {
@@ -1389,10 +1388,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * Set view = m.hasView();
    * </pre>
    * @return  Set of {@link Group} objects.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public Set<Group> hasView() 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     Set privs = new LinkedHashSet();
     try {
@@ -1441,10 +1440,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * </pre>
    * @param   g   Test for membership in this group.
    * @return  Boolean true if is a member.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public boolean isEffectiveMember(Group g) 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     try {
       return this.isEffectiveMember(g, Group.getDefaultList());
@@ -1453,7 +1452,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       LOG.fatal( msg);
-      throw new GrouperRuntimeException(msg, eS);
+      throw new GrouperException(msg, eS);
     }
   } // public boolean isEffectiveMember(g);
 
@@ -1514,10 +1513,10 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * </pre>
    * @param   g   Test for membership in this group.
    * @return  Boolean true if is a member.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public boolean isImmediateMember(Group g) 
-    throws  GrouperRuntimeException
+    throws  GrouperException
   {
     try {
       return this.isImmediateMember(g, Group.getDefaultList());
@@ -1526,7 +1525,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
       // If we don't have "members" we have serious issues
       String msg = E.GROUP_NODEFAULTLIST + eS.getMessage();
       LOG.fatal( msg);
-      throw new GrouperRuntimeException(msg, eS);
+      throw new GrouperException(msg, eS);
     }
   } // public boolean isImmediateMember(g)
 
@@ -1558,13 +1557,13 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
     try {
       Subject subj = this.getSubject();
       try {
-        MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), g, subj, f);
+        MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), g, subj, f, true);
         rv = true;
       }
       catch (MembershipNotFoundException eMNF) {
         try {
           GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-            g.getUuid(), MemberFinder.internal_findAllMember().getUuid(), f, Membership.IMMEDIATE
+            g.getUuid(), MemberFinder.internal_findAllMember().getUuid(), f, Membership.IMMEDIATE, true
           );
           rv = true;
         }
@@ -1594,7 +1593,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * </pre>
    * @param   g   Test for membership in this group.
    * @return  Boolean true if is a member.
-   * @throws  GrouperRuntimeException
+   * @throws  GrouperException
    */
   public boolean isMember(Group g) 
   {
@@ -1605,7 +1604,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
       // If we don't have "members" we have serious issues
       String msg = "this should never happen: default group list not found: " + eShouldNeverHappen.getMessage();
       LOG.fatal( msg);
-      throw new GrouperRuntimeException(msg, eShouldNeverHappen);
+      throw new GrouperException(msg, eShouldNeverHappen);
     }
   } // public boolean isMember(g)
 
@@ -1759,7 +1758,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
   {
     if ( SubjectFinder.internal_getGSA().getId().equals( this.getSubjectSourceId() ) ) {
       if (this.g == null) {
-        this.g = GroupFinder.findByUuid( GrouperSession.staticGrouperSession(), this.getSubjectId() );
+        this.g = GroupFinder.findByUuid( GrouperSession.staticGrouperSession(), this.getSubjectId(), true );
       }
       return this.g;
     }
@@ -1992,13 +1991,15 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
     super.onPostSave(hibernateSession);
     
+    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
+        MemberHooks.METHOD_MEMBER_POST_INSERT, HooksMemberBean.class, 
+        this, Member.class, VetoTypeGrouper.MEMBER_POST_INSERT, true, false);
+
+    //do these second so the right object version is set, and dbVersion is ok
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_POST_COMMIT_INSERT, HooksMemberBean.class, 
         this, Member.class);
 
-    GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
-        MemberHooks.METHOD_MEMBER_POST_INSERT, HooksMemberBean.class, 
-        this, Member.class, VetoTypeGrouper.MEMBER_POST_INSERT, true, false);
   }
 
   /**

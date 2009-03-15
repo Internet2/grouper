@@ -18,11 +18,9 @@
 package edu.internet2.middleware.grouper;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -46,7 +44,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * <p/>
  * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubject.java,v 1.16 2009-02-13 13:51:58 mchyzer Exp $
+ * @version $Id: RegistrySubject.java,v 1.17 2009-03-15 06:37:21 mchyzer Exp $
  * @since   1.2.0
  */
 public class RegistrySubject extends GrouperAPI implements Subject {
@@ -93,7 +91,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
       throw new InsufficientPrivilegeException(E.ROOTLIKE_TO_ADD_HSUBJ);
     }    
     try {
-      GrouperDAOFactory.getFactory().getRegistrySubject().find(id, type);
+      GrouperDAOFactory.getFactory().getRegistrySubject().find(id, type, true);
       throw new GrouperException(E.SUBJ_ALREADY_EXISTS + id + "/" + type + "/" + name);
     }
     catch (SubjectNotFoundException eSNF) {
@@ -232,7 +230,7 @@ public class RegistrySubject extends GrouperAPI implements Subject {
     throws  IllegalStateException
   {
     try {
-      return SubjectFinder.findById( this.getId(), this.getTypeString()).getSource();
+      return SubjectFinder.findById( this.getId(), this.getTypeString(), true).getSource();
     }
     catch (SubjectNotFoundException eSNF)   {
       throw new IllegalStateException( eSNF.getMessage(), eSNF );

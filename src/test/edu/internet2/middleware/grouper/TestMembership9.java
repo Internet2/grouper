@@ -84,8 +84,8 @@ public class TestMembership9 extends TestCase {
       nsA   = r.getStem("a");
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters");
-      fieldCreators = FieldFinder.find("creators");
+      fieldUpdaters = FieldFinder.find("updaters", true);
+      fieldCreators = FieldFinder.find("creators", true);
 
       Set<Membership> listMemberships;
       Set<Membership> updateMemberships;

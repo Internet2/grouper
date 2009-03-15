@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -63,7 +64,6 @@ import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
@@ -101,7 +101,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.15 2009-03-02 07:33:25 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.16 2009-03-15 06:37:23 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -204,7 +204,7 @@ public class XmlImporter {
       this.options  = XmlUtils.internal_getSystemProperties(LOG, CF);
     }
     catch (IOException eIO) {
-      throw new GrouperRuntimeException(eIO.getMessage(), eIO);
+      throw new GrouperException(eIO.getMessage(), eIO);
     }
     this.options.putAll(userOptions); 
     this.s = s;
@@ -249,7 +249,7 @@ public class XmlImporter {
     try {
       importer  = new XmlImporter(
         GrouperSession.start(
-          SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ) ), false
+          SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ), true ), false
         ),
         XmlUtils.internal_getUserProperties(LOG, rc.getProperty(XmlArgs.RC_UPROPS))
       );
@@ -477,14 +477,14 @@ public class XmlImporter {
                 String  name  = rc.getProperty(XmlArgs.RC_NAME);
                 if      (uuid != null) {
                   try {
-                    ns = StemFinder.findByUuid(importer.s, uuid);
+                    ns = StemFinder.findByUuid(importer.s, uuid, true);
                   } catch (StemNotFoundException e) {
                     throw new IllegalArgumentException(E.NO_STEM_UUID + Quote.single(uuid));
                   }
                 } 
                 else if (name != null) {
                   try {
-                    ns = StemFinder.findByName(importer.s, name);
+                    ns = StemFinder.findByName(importer.s, name, true);
                   } catch (StemNotFoundException e) {
                     throw new IllegalArgumentException(E.NO_STEM_NAME + Quote.single(name));
                   }
@@ -667,9 +667,9 @@ public class XmlImporter {
   {
     NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(type);
     if (v.isInvalid()) {
-      return SubjectFinder.findById(id);
+      return SubjectFinder.findById(id, true);
     }
-    return SubjectFinder.findById(id, type);
+    return SubjectFinder.findById(id, type, true);
   } // private Subject _getSubjectById(id, type)
 
   // @since   1.0
@@ -679,9 +679,9 @@ public class XmlImporter {
   {
     NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(type);
     if (v.isInvalid()) {
-      return SubjectFinder.findByIdentifier(identifier);
+      return SubjectFinder.findByIdentifier(identifier, true);
     }
-    return SubjectFinder.findByIdentifier(identifier, type);
+    return SubjectFinder.findByIdentifier(identifier, type, true);
   } // private Subject _getSubjectByIdentifier(identifier, type)
 
   // @since   1.1.0
@@ -904,7 +904,7 @@ public class XmlImporter {
       return; // Ignore privileges
     }
     try {
-      Group     g = GroupFinder.findByName(s, groupName);
+      Group     g = GroupFinder.findByName(s, groupName, true);
       Privilege p = Privilege.getInstance( privs.getAttribute("type") );
       if (this._getDataPrivilegesImportMode().equals(MODE_REPLACE)) {
         g.revokePriv(p);
@@ -972,7 +972,7 @@ public class XmlImporter {
     if (elTypes == null) {
       return;
     }
-    Group     g       = GroupFinder.findByName(s, group);
+    Group     g       = GroupFinder.findByName(s, group, true);
     Iterator  it      = this._getImmediateElements(elTypes, "groupType").iterator();
     while (it.hasNext()) {
       this._processAttributesHandleType( g, (Element) it.next() );
@@ -988,7 +988,7 @@ public class XmlImporter {
     String name = e.getAttribute("name");
     if (!name.equals("base")) {
       try {
-        GroupType gt = GroupTypeFinder.find(name);
+        GroupType gt = GroupTypeFinder.find(name, true);
         if (!g.hasType(gt)) {
           if (this._optionTrue("import.data.apply-new-group-types")) {
             g.addType(gt);
@@ -1016,7 +1016,7 @@ public class XmlImporter {
     while (it.hasNext()) {
       elAttr  = (Element) it.next();
       name    = elAttr.getAttribute("name");
-      f       = FieldFinder.find(name);
+      f       = FieldFinder.find(name, true);
       if (!g.canWriteField(f)) {
         LOG.debug("cannot write (" + name + ") on (" + g.getName() + ")");
         continue;
@@ -1127,7 +1127,7 @@ public class XmlImporter {
     if (this._getUpdateOnly()) {
       return; // do not create groups when we are only updating
     }
-    Stem  parent  = StemFinder.findByName(this.s, stem);
+    Stem  parent  = StemFinder.findByName(this.s, stem, true);
     String id=null;
     if(!_isIgnoreInternalAttributes()) {
     	id=e.getAttribute("id");
@@ -1162,7 +1162,7 @@ public class XmlImporter {
     if (v.isInvalid()) {
       throw new IllegalStateException("Expected 'name' atribute for <groupRef>");
     }
-    return GroupFinder.findByName( s, this._getAbsoluteName(name, stem) );
+    return GroupFinder.findByName( s, this._getAbsoluteName(name, stem), true );
   } // private Group _processGroupRef(groupE, stem)
 
   // @since   1.1.0
@@ -1195,7 +1195,7 @@ public class XmlImporter {
     // We need to keep this outside the conditional so that a
     // GroupNotFoundException can be thrown if the stem does not exist.  That
     // will trigger the creation of the group.
-    Group g = GroupFinder.findByName(this.s, newGroup);
+    Group g = GroupFinder.findByName(this.s, newGroup, true);
     if (this._isUpdatingAttributes()) {
       String                  dExtn = e.getAttribute(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION);
       NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(dExtn);
@@ -1252,8 +1252,8 @@ public class XmlImporter {
       return; // Ignore lists
     }
     try {
-      Group   g = GroupFinder.findByName(s, groupName);
-      Field   f = FieldFinder.find( list.getAttribute("field") );
+      Group   g = GroupFinder.findByName(s, groupName, true);
+      Field   f = FieldFinder.find( list.getAttribute("field"), true );
       if (!f.getType().equals(FieldType.LIST)) {
         throw new SchemaException("field is not a list: " + f.getName());
       }
@@ -1413,7 +1413,7 @@ public class XmlImporter {
       Privilege read  = Privilege.getInstance( el.getAttribute("readPriv")  );
       Privilege write = Privilege.getInstance( el.getAttribute("writePriv") );
       try {
-        FieldFinder.find(fName); // already exists
+        FieldFinder.find(fName, true); // already exists
       } 
       catch (SchemaException eS) {
         if (fType.equals( FieldType.LIST.toString() ) )           {
@@ -1435,7 +1435,7 @@ public class XmlImporter {
     String    gtName  = el.getAttribute("name");
     GroupType gt      = null;
     try {
-      gt = GroupTypeFinder.find(gtName);
+      gt = GroupTypeFinder.find(gtName, true);
     } 
     catch (SchemaException ex) {
       gt    = GroupType.createType(s, gtName);
@@ -1483,7 +1483,7 @@ public class XmlImporter {
       return; // Ignore privileges
     }
     try {
-      Stem      ns        = StemFinder.findByName(s, stemName);
+      Stem      ns        = StemFinder.findByName(s, stemName, true);
       Privilege p         = Privilege.getInstance( privs.getAttribute("type") );
       if (this._getDataPrivilegesImportMode().equals(MODE_REPLACE)) {
         ns.revokePriv(p);
@@ -1581,7 +1581,7 @@ public class XmlImporter {
       parent = StemFinder.findRootStem(this.s);
     }
     else {
-      parent = StemFinder.findByName(this.s, stem);
+      parent = StemFinder.findByName(this.s, stem, true);
     }
     String id = null;
     if(!_isIgnoreInternalAttributes()) {
@@ -1612,7 +1612,7 @@ public class XmlImporter {
     // We need to keep this outside the conditional so that a
     // StemNotFoundException can be thrown if the stem does not exist.  That
     // will trigger the creation of the stem.
-    Stem ns = StemFinder.findByName(this.s, newStem);
+    Stem ns = StemFinder.findByName(this.s, newStem, true);
     if (this._isUpdatingAttributes()) {
       String                  dExtn = e.getAttribute(GrouperConfig.ATTRIBUTE_DISPLAY_EXTENSION);
       NotNullOrEmptyValidator v     = NotNullOrEmptyValidator.validate(dExtn);

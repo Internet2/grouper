@@ -17,10 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.Set;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
@@ -30,7 +27,6 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.MemberOf;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -111,11 +107,11 @@ public class TestMembershipDeletes1 extends TestCase {
       subjE = r.getSubject("e");
       subjFDel = r.getSubject("f");
       all   = SubjectFinder.findAllSubject();
-      memberA = MemberFinder.findBySubject(r.rs, subjA);
-      memberD = MemberFinder.findBySubject(r.rs, subjD);
+      memberA = MemberFinder.findBySubject(r.rs, subjA, true);
+      memberD = MemberFinder.findBySubject(r.rs, subjD, true);
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters");
+      fieldUpdaters = FieldFinder.find("updaters", true);
 
       // initial data
       gA.addCompositeMember(CompositeType.INTERSECTION, gB, gC);
@@ -146,7 +142,7 @@ public class TestMembershipDeletes1 extends TestCase {
       // Remove SA -> gM
       MemberOf mof = new DefaultMemberOf();
       Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        gM.getUuid(), memberA.getUuid(), Group.getDefaultList(), Membership.IMMEDIATE);
+        gM.getUuid(), memberA.getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true);
       mof.deleteImmediate(r.rs, gM, ms, memberA);
       assertEquals("mof deletes", 2, mof.getDeletes().size());
       assertEquals("mof saves", 0, mof.getSaves().size());
@@ -154,7 +150,7 @@ public class TestMembershipDeletes1 extends TestCase {
       // Remove gM -> gL
       mof = new DefaultMemberOf();
       ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        gL.getUuid(), gM.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE);
+        gL.getUuid(), gM.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true);
       mof.deleteImmediate(r.rs, gL, ms, gM.toMember());
       assertEquals("mof deletes", 7, mof.getDeletes().size());
       assertEquals("mof saves", 13, mof.getSaves().size());
@@ -163,7 +159,7 @@ public class TestMembershipDeletes1 extends TestCase {
       gG.addMember(subjD);
       mof = new DefaultMemberOf();
       ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        gG.getUuid(), memberD.getUuid(), Group.getDefaultList(), Membership.IMMEDIATE);
+        gG.getUuid(), memberD.getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true);
       mof.deleteImmediate(r.rs, gG, ms, memberD);
       assertEquals("mof deletes", 1, mof.getDeletes().size());
       assertEquals("mof saves", 0, mof.getSaves().size());

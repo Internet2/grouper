@@ -91,8 +91,8 @@ public class TestMembershipDeletes2 extends TestCase {
       nsA   = r.getStem("a");
 
       fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters");
-      fieldCreators = FieldFinder.find("creators");
+      fieldUpdaters = FieldFinder.find("updaters", true);
+      fieldCreators = FieldFinder.find("creators", true);
 
 
       // initial data
