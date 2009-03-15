@@ -24,9 +24,9 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * Test {@link Stem.addChildStem()}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStemAddChildStem.java,v 1.9 2009-01-02 06:57:11 mchyzer Exp $
+ * @version $Id: TestStemAddChildStem.java,v 1.10 2009-03-15 20:20:46 mchyzer Exp $
  */
-public class TestStemAddChildStem extends TestCase {
+public class TestStemAddChildStem extends GrouperTest {
 
   /**
    * Method main.
@@ -47,16 +47,6 @@ public class TestStemAddChildStem extends TestCase {
   public TestStemAddChildStem(String name) {
     super(name);
   }
-
-  protected void setUp () {
-    RegistryReset.internal_resetRegistryAndAddTestSubjects();
-  }
-
-  protected void tearDown () {
-    // Nothing 
-  }
-
-  // Tests
 
   public void testAddChildStemAtRoot() {
     Stem  root  = StemHelper.findRootStem(
