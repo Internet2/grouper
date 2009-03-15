@@ -79,7 +79,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.115 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.116 2009-03-15 21:28:31 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -621,8 +621,9 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * @param subj
    * @param f
    * @throws MemberAddException
+   * @return the membership if available
    */
-  public static void internal_addImmediateMembership(
+  public static Membership internal_addImmediateMembership(
     GrouperSession s, Group g, Subject subj, Field f) throws  MemberAddException {
     
     String errorString = "membership: group: " + (g == null ? null : g.getName())
@@ -636,6 +637,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       internal_insertPersistDefaultMemberOf(mof);
       EL.addEffMembers( s, g, subj, f, mof.getEffectiveSaves() );
       EL.delEffMembers( s, g, subj, f, mof.getEffectiveDeletes() );
+      return mof.getMembership();
     } catch (HookVeto hookVeto) {
       //just throw, this is ok
       throw hookVeto;

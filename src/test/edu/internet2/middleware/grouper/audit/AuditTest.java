@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTest.java,v 1.10 2009-03-15 06:37:23 mchyzer Exp $
+ * $Id: AuditTest.java,v 1.11 2009-03-15 21:30:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -462,6 +462,7 @@ public class AuditTest extends GrouperTest {
   public void testMemberships() throws Exception {
 
     Group group = this.edu.addChildGroup("test1", "test1");
+    Group group2 = this.edu.addChildGroup("test2", "test2");
     Subject subject = SubjectFinder.findRootSubject();
     
     HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
@@ -489,9 +490,11 @@ public class AuditTest extends GrouperTest {
     
     //make sure date is different
     GrouperUtil.sleep(1000);
-    /**
-    group.assignCompositeMember(CompositeType.COMPLEMENT, groupLeft, groupRight);
-    composite = group.getComposite();
+
+    group2.addMember(subject);
+
+    Membership membership2 = MembershipFinder.findImmediateMembership(this.grouperSession, group2, subject, 
+        Group.getDefaultList(), true);
     
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
@@ -507,14 +510,14 @@ public class AuditTest extends GrouperTest {
     
     assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry2.getContextId()));
     
-    assertEquals("Context id's should match: ", auditEntry2.getContextId(), composite.getContextId());
+    assertEquals("Context id's should match: ", auditEntry2.getContextId(), membership2.getContextId());
 
     assertTrue("description is blank", StringUtils.isNotBlank(auditEntry2.getDescription()));
 
     //make sure date is different
     GrouperUtil.sleep(1000);
     
-    group.deleteCompositeMember();
+    group.deleteMember(subject);
 
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
@@ -530,7 +533,6 @@ public class AuditTest extends GrouperTest {
     assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry3.getContextId()));
     
     assertTrue("description is blank", StringUtils.isNotBlank(auditEntry3.getDescription()));
-    */
   }
 
   /**

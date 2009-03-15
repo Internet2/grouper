@@ -63,8 +63,6 @@ import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
@@ -118,7 +116,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.226 2009-03-15 08:18:10 mchyzer Exp $
+ * @version $Id: Group.java,v 1.227 2009-03-15 21:28:31 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -154,6 +152,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   
   /**
    * if this is a composite group, get the composite object for this group
+   * @param throwExceptionIfNotFound 
    * @return the composite group or null if none
    * @throws CompositeNotFoundException if not found and throwExceptionIfNotFound is true
    */
@@ -665,38 +664,72 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @throws  SchemaException
    * @return false if it already existed, true if it didnt already exist
    */
-  public boolean addMember(Subject subj, Field f, boolean exceptionIfAlreadyMember)
+  public boolean addMember(final Subject subj, final Field f, final boolean exceptionIfAlreadyMember)
     throws  InsufficientPrivilegeException,
             MemberAddException, SchemaException {
-    StopWatch sw = new StopWatch();
+    final StopWatch sw = new StopWatch();
     sw.start();
-    if ( !FieldType.LIST.equals( f.getType() ) ) {
-      throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
-    }
-    if ( !this.canWriteField(f) ) { 
-      GrouperValidator v = CanOptinValidator.validate(this, subj, f);
-      if (v.isInvalid()) {
-        throw new InsufficientPrivilegeException();
-      }
-    }
-    //MCH 20090301: I would think this should be any member list (non privilege... not just default)
-    if ( ( Group.getDefaultList().equals(f) ) && ( this.hasComposite() ) ) {
-      throw new MemberAddException(E.GROUP_AMTC);
-    }
-    boolean doesntExist = true;
-    try {
-      Membership.internal_addImmediateMembership( GrouperSession.staticGrouperSession(), this, subj, f );
-    } catch (MemberAddAlreadyExistsException maaee) {
-      if (exceptionIfAlreadyMember) {
-        throw maaee;
-      }
-      doesntExist = false;
-    }
-    if (doesntExist) {
-      EVENT_LOG.groupAddMember(GrouperSession.staticGrouperSession(), this.getName(), subj, f, sw);
-    }
-    sw.stop();
-    return doesntExist;
+    
+    final String errorMessageSuffix = ", group name: " + this.name 
+      + ", subject: " + GrouperUtil.subjectToString(subj) + ", field: " + (f == null ? null : f.getName());
+  
+    return (Boolean)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
+  
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
+            try {
+              if ( !FieldType.LIST.equals( f.getType() ) ) {
+                throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
+              }
+              if ( !Group.this.canWriteField(f) ) { 
+                GrouperValidator v = CanOptinValidator.validate(Group.this, subj, f);
+                if (v.isInvalid()) {
+                  throw new InsufficientPrivilegeException();
+                }
+              }
+              //MCH 20090301: I would think this should be any member list (non privilege... not just default)
+              if ( ( Group.getDefaultList().equals(f) ) && ( Group.this.hasComposite() ) ) {
+                throw new MemberAddException(E.GROUP_AMTC);
+              }
+              boolean doesntExist = true;
+              Membership membership = null;
+              try {
+                membership = Membership.internal_addImmediateMembership( GrouperSession.staticGrouperSession(), Group.this, subj, f );
+              } catch (MemberAddAlreadyExistsException maaee) {
+                if (exceptionIfAlreadyMember) {
+                  throw maaee;
+                }
+                doesntExist = false;
+              }
+              if (doesntExist) {
+                EVENT_LOG.groupAddMember(GrouperSession.staticGrouperSession(), Group.this.getName(), subj, f, sw);
+                if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                  
+                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_ADD, "id", 
+                      membership == null ? null : membership.getUuid(), "fieldId", f.getUuid(),
+                          "fieldName", f.getName(), "memberId",  membership.getMemberUuid(),
+                          "membershipType", membership.getType(), "ownerType", "group", 
+                          "ownerId", Group.this.getUuid(), "ownerName", Group.this.getName());
+                          
+                  auditEntry.setDescription("Added membership: group: " + Group.this.getName()
+                      + ", subject: " + subj.getSource().getId() + "." + subj.getId() + ", field: "
+                      + f.getName());
+                  auditEntry.saveOrUpdate(true);
+                }
+
+              }
+              sw.stop();
+              return doesntExist;
+            } catch (RuntimeException re) {
+              GrouperUtil.injectInException(re, errorMessageSuffix);
+              throw re;
+            }
+          }
+        });
+    
   } // public void addMember(subj, f)
 
   /**
@@ -1439,73 +1472,92 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @throws  MemberDeleteException
    * @throws  SchemaException
    */
-  public boolean  deleteMember(Subject subj, Field f, boolean exceptionIfAlreadyDeleted) 
+  public boolean  deleteMember(final Subject subj, final Field f, final boolean exceptionIfAlreadyDeleted) 
     throws  InsufficientPrivilegeException, 
             MemberDeleteException,
-            SchemaException
-  { boolean notAlreadyDeleted = true;
-    StopWatch sw  = new StopWatch();
+            SchemaException { 
+    final StopWatch sw  = new StopWatch();
     sw.start();
-    if ( !FieldType.LIST.equals( f.getType() ) ) {
-      throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
-    }
-    if ( !this.canWriteField(f) ) {
-      GrouperValidator v = CanOptoutValidator.validate(this, subj, f);
-      if (v.isInvalid()) {
-        throw new InsufficientPrivilegeException();
-      }
-    }
-    if ( (f.equals( Group.getDefaultList() ) ) && ( this.hasComposite() ) ) {
-      throw new MemberDeleteException(E.GROUP_DMFC);
-    }
-    DefaultMemberOf  theMof = null;
-    try {
-      theMof = Membership.internal_delImmediateMembership( GrouperSession.staticGrouperSession(), this, subj, f );
-      final DefaultMemberOf  mof = theMof; 
-      
-      try {
-        GrouperTransaction.callbackGrouperTransaction(
-            GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
-  
-              public Object callback(GrouperTransaction grouperTransaction)
-                  throws GrouperDAOException {
-                GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                    MembershipHooks.METHOD_MEMBERSHIP_PRE_REMOVE_MEMBER,
-                    HooksMembershipChangeBean.class, mof, DefaultMemberOf.class, 
-                    VetoTypeGrouper.MEMBERSHIP_PRE_REMOVE_MEMBER);
-                
-                GrouperDAOFactory.getFactory().getMembership().update(mof);
-  
-                GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                    MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_REMOVE_MEMBER, HooksMembershipChangeBean.class, 
-                    mof, DefaultMemberOf.class);
-  
-                GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                    MembershipHooks.METHOD_MEMBERSHIP_POST_REMOVE_MEMBER,
-                    HooksMembershipChangeBean.class, mof, DefaultMemberOf.class, 
-                    VetoTypeGrouper.MEMBERSHIP_POST_REMOVE_MEMBER);
-                return null;
+    
+    final String errorMessageSuffix = ", group name: " + this.name 
+      + ", subject: " + GrouperUtil.subjectToString(subj) + ", field: " + (f == null ? null : f.getName());
+
+    return (Boolean)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+      new HibernateHandler() {
+
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+
+          boolean notAlreadyDeleted = true;
+          try {
+
+            if ( !FieldType.LIST.equals( f.getType() ) ) {
+              throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
+            }
+            if ( !Group.this.canWriteField(f) ) {
+              GrouperValidator v = CanOptoutValidator.validate(Group.this, subj, f);
+              if (v.isInvalid()) {
+                throw new InsufficientPrivilegeException(errorMessageSuffix);
               }
+            }
+            if ( (f.equals( Group.getDefaultList() ) ) && ( Group.this.hasComposite() ) ) {
+              throw new MemberDeleteException(E.GROUP_DMFC);
+            }
+            DefaultMemberOf mof = Membership.internal_delImmediateMembership( 
+                GrouperSession.staticGrouperSession(), Group.this, subj, f );
+
+            GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+                MembershipHooks.METHOD_MEMBERSHIP_PRE_REMOVE_MEMBER,
+                HooksMembershipChangeBean.class, mof, DefaultMemberOf.class, 
+                VetoTypeGrouper.MEMBERSHIP_PRE_REMOVE_MEMBER);
+            
+            GrouperDAOFactory.getFactory().getMembership().update(mof);
+
+            GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+                MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_REMOVE_MEMBER, HooksMembershipChangeBean.class, 
+                mof, DefaultMemberOf.class);
+
+            GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+                MembershipHooks.METHOD_MEMBERSHIP_POST_REMOVE_MEMBER,
+                HooksMembershipChangeBean.class, mof, DefaultMemberOf.class, 
+                VetoTypeGrouper.MEMBERSHIP_POST_REMOVE_MEMBER);
+            sw.stop();
+            if (notAlreadyDeleted) {
+              EVENT_LOG.groupDelMember(GrouperSession.staticGrouperSession(), Group.this.getName(), subj, f, sw);
+              EVENT_LOG.delEffMembers(GrouperSession.staticGrouperSession(), Group.this, subj, f, mof.getEffectiveDeletes());
+              EVENT_LOG.addEffMembers(GrouperSession.staticGrouperSession(), Group.this, subj, f, mof.getEffectiveSaves());
               
-            });
-  
-      }
-      catch (GrouperDAOException eDAO) {
-        throw new MemberDeleteException( eDAO.getMessage(), eDAO );
-      }
-    } catch (MemberDeleteAlreadyDeletedException mdade) {
-      if (exceptionIfAlreadyDeleted) {
-        throw mdade;
-      }
-      notAlreadyDeleted = false;
-    }
-    sw.stop();
-    if (notAlreadyDeleted) {
-      EVENT_LOG.groupDelMember(GrouperSession.staticGrouperSession(), this.getName(), subj, f, sw);
-      EVENT_LOG.delEffMembers(GrouperSession.staticGrouperSession(), this, subj, f, theMof.getEffectiveDeletes());
-      EVENT_LOG.addEffMembers(GrouperSession.staticGrouperSession(), this, subj, f, theMof.getEffectiveSaves());
-    }
-    return notAlreadyDeleted;
+              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                
+                Membership membership = mof.getMembership();
+                
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_DELETE, "id", 
+                    membership == null ? null : membership.getUuid(), "fieldId", f.getUuid(),
+                        "fieldName", f.getName(), "memberId",  membership.getMemberUuid(),
+                        "membershipType", membership.getType(), "ownerType", "group", 
+                        "ownerId", Group.this.getUuid(), "ownerName", Group.this.getName());
+                        
+                auditEntry.setDescription("Added membership: group: " + Group.this.getName()
+                    + ", subject: " + subj.getSource().getId() + "." + subj.getId() + ", field: "
+                    + f.getName());
+                auditEntry.saveOrUpdate(true);
+              }
+
+              
+            }
+          } catch (GrouperDAOException eDAO) {
+            throw new MemberDeleteException( eDAO.getMessage() + ", " + errorMessageSuffix, eDAO );
+          } catch (MemberDeleteAlreadyDeletedException mdade) {
+            if (exceptionIfAlreadyDeleted) {
+              GrouperUtil.injectInException(mdade, errorMessageSuffix);
+              throw mdade;
+            }
+            notAlreadyDeleted = false;
+          }
+          return notAlreadyDeleted;
+        }
+        });
   } // public void deleteMember(subj, f)
 
   /**
@@ -3424,9 +3476,15 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     }
   }
 
-
-  // PRIVATE INSTANCE METHODS //
-  
+  /**
+   * 
+   * @param session
+   * @param type
+   * @param left
+   * @param right
+   * @throws InsufficientPrivilegeException
+   * @throws MemberAddException
+   */
   protected void internal_addCompositeMember(final GrouperSession session, final CompositeType type,
       final Group left, final Group right) throws InsufficientPrivilegeException, MemberAddException {
 
@@ -3583,8 +3641,6 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
 
   
   /**
-   * @param renameCommonAttributes is true if these are massaged so that name, extension, etc look like normal fields.
-   * access with fieldValue()
    * @param failIfNull 
    * @return the set of different fields
    * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
@@ -4080,9 +4136,6 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @param listMembersOfGroup Whether to copy the list memberships of the group
    * @param listGroupAsMember Whether to copy list memberships where this group is a member
    * @param attributes Whether to copy attributes
-   * @param composite Whether to add a composite to the new group using the factors of the 
-   *                  existing group if the existing group is a composite
-   * @param addDefaultGroupPrivileges Whether to add the default group privileges
    * @return the new Group
    * @throws GroupAddException 
    * @throws InsufficientPrivilegeException 
@@ -4104,6 +4157,20 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
         listGroupAsMember, attributes, true, true);
   }
   
+  /**
+   * 
+   * @param stem
+   * @param privilegesOfGroup
+   * @param groupAsPrivilege
+   * @param listMembersOfGroup
+   * @param listGroupAsMember
+   * @param attributes
+   * @param composite
+   * @param addDefaultGroupPrivileges
+   * @return group
+   * @throws GroupAddException
+   * @throws InsufficientPrivilegeException
+   */
   protected Group internal_copy(final Stem stem, final boolean privilegesOfGroup,
       final boolean groupAsPrivilege, final boolean listMembersOfGroup,
       final boolean listGroupAsMember, final boolean attributes, final boolean composite,
@@ -4218,6 +4285,15 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
         });
   }
 
+  /**
+   * 
+   * @param session
+   * @param group
+   * @throws SchemaException
+   * @throws MemberAddException
+   * @throws GrouperException
+   * @throws InsufficientPrivilegeException
+   */
   private void internal_copyGroupAsMember(GrouperSession session, Group group)
       throws SchemaException, MemberAddException, GrouperException,
       InsufficientPrivilegeException {
@@ -4236,7 +4312,14 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     }
   }
 
-
+  /**
+   * 
+   * @param session
+   * @param group
+   * @throws SchemaException
+   * @throws MemberAddException
+   * @throws InsufficientPrivilegeException
+   */
   private void internal_copyListMembersOfGroup(GrouperSession session, Group group)
       throws SchemaException, MemberAddException, InsufficientPrivilegeException {
     Set<Field> fields = FieldFinder.findAllByType(FieldType.LIST);
@@ -4255,6 +4338,12 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     }
   }
 
+  /**
+   * 
+   * @param session
+   * @param group
+   * @throws UnableToPerformException
+   */
   private void internal_copyGroupAsPrivilege(GrouperSession session, Group group) 
     throws UnableToPerformException {
     Set<Privilege> privileges = Privilege.getAccessPrivs();
@@ -4273,6 +4362,12 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     } 
   }
 
+  /**
+   * 
+   * @param session
+   * @param group
+   * @throws UnableToPerformException
+   */
   private void internal_copyPrivilegesOfGroup(GrouperSession session, Group group)
     throws UnableToPerformException {
     Set<Privilege> privileges = Privilege.getAccessPrivs();
