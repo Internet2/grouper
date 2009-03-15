@@ -116,7 +116,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.227 2009-03-15 21:28:31 mchyzer Exp $
+ * @version $Id: Group.java,v 1.228 2009-03-15 23:13:50 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -4129,35 +4129,6 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   }
   
   /**
-   * Copy this group to another Stem.
-   * @param stem 
-   * @param privilegesOfGroup Whether to copy privileges of the group
-   * @param groupAsPrivilege Whether to copy privileges where this group is a member
-   * @param listMembersOfGroup Whether to copy the list memberships of the group
-   * @param listGroupAsMember Whether to copy list memberships where this group is a member
-   * @param attributes Whether to copy attributes
-   * @return the new Group
-   * @throws GroupAddException 
-   * @throws InsufficientPrivilegeException 
-   */
-  public Group copy(final Stem stem, final boolean privilegesOfGroup,
-      final boolean groupAsPrivilege, final boolean listMembersOfGroup,
-      final boolean listGroupAsMember, final boolean attributes)
-      throws GroupAddException, InsufficientPrivilegeException {
-
-    GrouperSession.validate(GrouperSession.staticGrouperSession());
-
-    // verify that the subject has read privileges to the group
-    if (!PrivilegeHelper.canRead(GrouperSession.staticGrouperSession(), this,
-        GrouperSession.staticGrouperSession().getSubject())) {
-      throw new InsufficientPrivilegeException(E.CANNOT_READ);
-    }
-    
-    return internal_copy(stem, privilegesOfGroup, groupAsPrivilege, listMembersOfGroup,
-        listGroupAsMember, attributes, true, true);
-  }
-  
-  /**
    * 
    * @param stem
    * @param privilegesOfGroup
@@ -4380,13 +4351,17 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   }
 
   /**
-   * Copy this group to another Stem.
+   * Copy this group to another Stem.  If you want to specify options
+   * for the copy, use GroupCopy.
    * @param stem
    * @return the new group
    * @throws InsufficientPrivilegeException 
    * @throws GroupAddException 
    */
   public Group copy(Stem stem) throws GroupAddException, InsufficientPrivilegeException {
-    return copy(stem, true, true, true, true, true);
+    GroupCopy groupCopy = new GroupCopy(this, stem);
+    return groupCopy.copyPrivilegesOfGroup(true).copyGroupAsPrivilege(true)
+        .copyListMembersOfGroup(true).copyListGroupAsMember(true).copyAttributes(true)
+        .save();
   } 
 }

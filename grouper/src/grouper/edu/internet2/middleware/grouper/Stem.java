@@ -96,7 +96,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.183 2009-03-15 20:20:46 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.184 2009-03-15 23:13:50 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -2427,7 +2427,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    * @throws InsufficientPrivilegeException 
    *
    */
-  public Stem copy(final Stem stem, final boolean privilegesOfStem,
+  protected Stem internal_copy(final Stem stem, final boolean privilegesOfStem,
       final boolean privilegesOfGroup, final boolean groupAsPrivilege,
       final boolean listMembersOfGroup, final boolean listGroupAsMember,
       final boolean attributes) throws StemAddException, InsufficientPrivilegeException {
@@ -2548,15 +2548,19 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
 
 
   /**
-   * Copy this stem to another Stem.
+   * Copy this stem to another Stem.  If you want to specify options
+   * for the copy, use StemCopy.
    * @param stem
    * @return the new stem
    * @throws StemAddException 
    * @throws InsufficientPrivilegeException 
    */
   public Stem copy(Stem stem) throws StemAddException, InsufficientPrivilegeException {
-    return copy(stem, true, true, true, true, true, true);
-  } 
+    StemCopy stemCopy = new StemCopy(this, stem);
+    return stemCopy.copyPrivilegesOfStem(true).copyPrivilegesOfGroup(true)
+        .copyGroupAsPrivilege(true).copyListMembersOfGroup(true)
+        .copyListGroupAsMember(true).copyAttributes(true).save();  
+    } 
   
   private void internal_copyPrivilegesOfStem(GrouperSession session, Stem stem)
     throws UnableToPerformException {

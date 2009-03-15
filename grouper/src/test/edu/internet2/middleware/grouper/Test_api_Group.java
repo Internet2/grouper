@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Group.java,v 1.8 2009-03-15 21:46:51 shilen Exp $
+ * @version $Id: Test_api_Group.java,v 1.9 2009-03-15 23:13:50 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Group extends GrouperTest {
@@ -252,7 +252,10 @@ public class Test_api_Group extends GrouperTest {
     R r = R.populateRegistry(0, 0, 11);
 
     group_copy_setup(r, false);
-    Group newGroup = child_group.copy(top, true, true, true, true, true);
+    GroupCopy groupCopy = new GroupCopy(child_group, top);
+    Group newGroup = groupCopy.copyPrivilegesOfGroup(true).copyGroupAsPrivilege(true)
+        .copyListMembersOfGroup(true).copyListGroupAsMember(true).copyAttributes(true)
+        .save();
     verify_copy(r, newGroup, true, true, true, true, true);
     
     r.rs.stop();
@@ -265,7 +268,8 @@ public class Test_api_Group extends GrouperTest {
     R r = R.populateRegistry(0, 0, 11);
 
     group_copy_setup(r, false);
-    Group newGroup = child_group.copy(top, false, false, false, false, false);
+    GroupCopy groupCopy = new GroupCopy(child_group, top);
+    Group newGroup = groupCopy.save();
     verify_copy(r, newGroup, false, false, false, false, false);
     
     r.rs.stop();
@@ -278,7 +282,10 @@ public class Test_api_Group extends GrouperTest {
     R r = R.populateRegistry(0, 0, 11);
 
     group_copy_setup(r, false);
-    Group newGroup = child_group.copy(top, false, false, true, true, false);
+    GroupCopy groupCopy = new GroupCopy(child_group, top);
+    Group newGroup = groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(false)
+        .copyListMembersOfGroup(true).copyListGroupAsMember(true).copyAttributes(false)
+        .save();    
     verify_copy(r, newGroup, false, false, true, true, false);
     
     r.rs.stop();
@@ -291,7 +298,10 @@ public class Test_api_Group extends GrouperTest {
     R r = R.populateRegistry(0, 0, 11);
 
     group_copy_setup(r, false);
-    Group newGroup = child_group.copy(top, true, true, false, false, false);
+    GroupCopy groupCopy = new GroupCopy(child_group, top);
+    Group newGroup = groupCopy.copyPrivilegesOfGroup(true).copyGroupAsPrivilege(true)
+        .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(false)
+        .save();
     verify_copy(r, newGroup, true, true, false, false, false);
     
     r.rs.stop();
@@ -304,7 +314,10 @@ public class Test_api_Group extends GrouperTest {
     R r = R.populateRegistry(0, 0, 11);
 
     group_copy_setup(r, false);
-    Group newGroup = child_group.copy(top, false, false, false, false, true);
+    GroupCopy groupCopy = new GroupCopy(child_group, top);
+    Group newGroup = groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(false)
+        .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(true)
+        .save();
     verify_copy(r, newGroup, false, false, false, false, true);
     
     r.rs.stop();
@@ -393,7 +406,10 @@ public class Test_api_Group extends GrouperTest {
     // subject can create in top stem but cannot read child_group
     nrs = GrouperSession.start(b);
     try {
-      child_group.copy(top, false, false, false, false, false);
+      GroupCopy groupCopy = new GroupCopy(child_group, top);
+      groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(false)
+          .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(
+              false).save();
       fail("failed to throw InsufficientPrivilegeException");
     } catch (InsufficientPrivilegeException eExpected) {
       assertTrue(true);
@@ -417,7 +433,10 @@ public class Test_api_Group extends GrouperTest {
     nrs = GrouperSession.start(e);
 
     try {
-      child_group.copy(top, false, false, false, false, false);
+      GroupCopy groupCopy = new GroupCopy(child_group, top);
+      groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(false)
+          .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(
+              false).save();
       fail("failed to throw InsufficientPrivilegeException");
     } catch (InsufficientPrivilegeException eExpected) {
       assertTrue(true);
@@ -440,7 +459,10 @@ public class Test_api_Group extends GrouperTest {
 
     // subject can read child_group and can create in top stem
     nrs = GrouperSession.start(k);
-    Group newGroup = child_group.copy(top, false, false, false, false, false);
+    GroupCopy groupCopy = new GroupCopy(child_group, top);
+    Group newGroup = groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(false)
+        .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(
+            false).save();    
     nrs.stop();
     
     nrs = GrouperSession.start(SubjectFinder.findRootSubject());
@@ -474,7 +496,10 @@ public class Test_api_Group extends GrouperTest {
     child_group.store();
     
     nrs = GrouperSession.start(a);
-    child_group.copy(top, true, true, true, true, true);
+    GroupCopy groupCopy = new GroupCopy(child_group, top);
+    groupCopy.copyPrivilegesOfGroup(true).copyGroupAsPrivilege(true)
+        .copyListMembersOfGroup(true).copyListGroupAsMember(true).copyAttributes(true)
+        .save();
     nrs.stop();
     
     r.rs.stop();
@@ -495,7 +520,10 @@ public class Test_api_Group extends GrouperTest {
     
     // subject can read child_group and can create in top stem, but cannot read privileges of group.
     try {
-      child_group.copy(top, true, false, false, false, false);
+      GroupCopy groupCopy = new GroupCopy(child_group, top);
+      groupCopy.copyPrivilegesOfGroup(true).copyGroupAsPrivilege(false)
+          .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(
+              false).save();
       fail("failed to throw exception");
     } catch (Exception eExpected) {
       if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
@@ -512,7 +540,10 @@ public class Test_api_Group extends GrouperTest {
     nrs.stop();
     nrs = GrouperSession.start(a);
     try {
-      child_group.copy(top, false, true, false, false, false);
+      GroupCopy groupCopy = new GroupCopy(child_group, top);
+      groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(true)
+          .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(
+              false).save();
       fail("failed to throw exception");
     } catch (Exception eExpected) {
       if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
@@ -531,7 +562,10 @@ public class Test_api_Group extends GrouperTest {
     nrs.stop();
     nrs = GrouperSession.start(a);
     try {
-      child_group.copy(top, false, true, false, false, false);
+      GroupCopy groupCopy = new GroupCopy(child_group, top);
+      groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(true)
+          .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(
+              false).save();
       fail("failed to throw exception");
     } catch (Exception eExpected) {
       if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
@@ -551,7 +585,10 @@ public class Test_api_Group extends GrouperTest {
     nrs.stop();
     nrs = GrouperSession.start(a);
     try {
-      child_group.copy(top, false, true, false, false, false);
+      GroupCopy groupCopy = new GroupCopy(child_group, top);
+      groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(true)
+          .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(
+              false).save();
       fail("failed to throw exception");
     } catch (Exception eExpected) {
       if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
@@ -570,7 +607,10 @@ public class Test_api_Group extends GrouperTest {
     nrs.stop();
     nrs = GrouperSession.start(a);
     try {
-      child_group.copy(top, false, true, false, false, false);
+      GroupCopy groupCopy = new GroupCopy(child_group, top);
+      groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(true)
+          .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(
+              false).save();
       fail("failed to throw exception");
     } catch (Exception eExpected) {
       if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
@@ -590,7 +630,10 @@ public class Test_api_Group extends GrouperTest {
     nrs.stop();
     nrs = GrouperSession.start(a);
     try {
-      child_group.copy(top, false, false, true, false, false);
+      GroupCopy groupCopy = new GroupCopy(child_group, top);
+      groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(false)
+          .copyListMembersOfGroup(true).copyListGroupAsMember(false).copyAttributes(
+              false).save();
       fail("failed to throw exception");
     } catch (Exception eExpected) {
       if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
@@ -610,7 +653,10 @@ public class Test_api_Group extends GrouperTest {
     nrs.stop();
     nrs = GrouperSession.start(a);
     try {
-      child_group.copy(top, false, false, true, false, false);
+      GroupCopy groupCopy = new GroupCopy(child_group, top);
+      groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(false)
+          .copyListMembersOfGroup(true).copyListGroupAsMember(false).copyAttributes(
+              false).save();
       fail("failed to throw exception");
     } catch (Exception eExpected) {
       if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
@@ -630,7 +676,10 @@ public class Test_api_Group extends GrouperTest {
     nrs.stop();
     nrs = GrouperSession.start(a);
     try {
-      child_group.copy(top, false, false, false, true, false);
+      GroupCopy groupCopy = new GroupCopy(child_group, top);
+      groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(false)
+          .copyListMembersOfGroup(false).copyListGroupAsMember(true).copyAttributes(
+              false).save();
       fail("failed to throw exception");
     } catch (InsufficientPrivilegeException eExpected) {
       assertTrue(true);
@@ -643,7 +692,10 @@ public class Test_api_Group extends GrouperTest {
     nrs.stop();
     nrs = GrouperSession.start(a);
     try {
-      child_group.copy(top, false, false, false, true, false);
+      GroupCopy groupCopy = new GroupCopy(child_group, top);
+      groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(false)
+          .copyListMembersOfGroup(false).copyListGroupAsMember(true).copyAttributes(
+              false).save();
       fail("failed to throw exception");
     } catch (InsufficientPrivilegeException eExpected) {
       assertTrue(true);
@@ -659,15 +711,20 @@ public class Test_api_Group extends GrouperTest {
     nrs.stop();
     nrs = GrouperSession.start(a);
     try {
-      child_group.copy(top, false, false, false, false, true);
+      GroupCopy groupCopy = new GroupCopy(child_group, top);
+      groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(false)
+          .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(
+              true).save();
       fail("failed to throw exception");
     } catch (InsufficientPrivilegeException eExpected) {
       assertTrue(true);
     }
     
     // this should work now
-    child_group.copy(top, false, false, false, false, false);
-    
+    GroupCopy groupCopy = new GroupCopy(child_group, top);
+    groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(false)
+        .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(
+            false).save();    
     nrs.stop();
     
     r.rs.stop();
