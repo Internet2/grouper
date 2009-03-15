@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Group.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: Test_api_Group.java,v 1.8 2009-03-15 21:46:51 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Group extends GrouperTest {
@@ -497,8 +497,12 @@ public class Test_api_Group extends GrouperTest {
     try {
       child_group.copy(top, true, false, false, false, false);
       fail("failed to throw exception");
-    } catch (InsufficientPrivilegeException eExpected) {
-      assertTrue(true);
+    } catch (Exception eExpected) {
+      if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
+        assertTrue(true);
+      } else {
+        fail("failed to throw exception whose cause is InsufficientPrivilegeException");
+      }
     }
     
     // subject can read child_group and can create in top stem, but cannot read privileges of top_group.
@@ -510,8 +514,12 @@ public class Test_api_Group extends GrouperTest {
     try {
       child_group.copy(top, false, true, false, false, false);
       fail("failed to throw exception");
-    } catch (InsufficientPrivilegeException eExpected) {
-      assertTrue(true);
+    } catch (Exception eExpected) {
+      if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
+        assertTrue(true);
+      } else {
+        fail("failed to throw exception whose cause is InsufficientPrivilegeException");
+      }
     }
     
     // subject can read child_group and can create in top stem, but cannot write privileges to top_group.
@@ -525,8 +533,12 @@ public class Test_api_Group extends GrouperTest {
     try {
       child_group.copy(top, false, true, false, false, false);
       fail("failed to throw exception");
-    } catch (InsufficientPrivilegeException eExpected) { 
-      assertTrue(true);
+    } catch (Exception eExpected) {
+      if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
+        assertTrue(true);
+      } else {
+        fail("failed to throw exception whose cause is InsufficientPrivilegeException");
+      }
     }
     
     // subject can read child_group and can create in top stem, but cannot read privileges of top.
@@ -541,8 +553,12 @@ public class Test_api_Group extends GrouperTest {
     try {
       child_group.copy(top, false, true, false, false, false);
       fail("failed to throw exception");
-    } catch (InsufficientPrivilegeException eExpected) { 
-      assertTrue(true);
+    } catch (Exception eExpected) {
+      if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
+        assertTrue(true);
+      } else {
+        fail("failed to throw exception whose cause is InsufficientPrivilegeException");
+      }
     }
     
     // subject can read child_group and can create in top stem, but cannot write privileges to top.
@@ -556,8 +572,12 @@ public class Test_api_Group extends GrouperTest {
     try {
       child_group.copy(top, false, true, false, false, false);
       fail("failed to throw exception");
-    } catch (InsufficientPrivilegeException eExpected) { 
-      assertTrue(true);
+    } catch (Exception eExpected) {
+      if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
+        assertTrue(true);
+      } else {
+        fail("failed to throw exception whose cause is InsufficientPrivilegeException");
+      }
     }
     
     // subject can read child_group and can create in top stem, but cannot read custom list members of group.
@@ -572,8 +592,12 @@ public class Test_api_Group extends GrouperTest {
     try {
       child_group.copy(top, false, false, true, false, false);
       fail("failed to throw exception");
-    } catch (InsufficientPrivilegeException eExpected) { 
-      assertTrue(true);
+    } catch (Exception eExpected) {
+      if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
+        assertTrue(true);
+      } else {
+        fail("failed to throw exception whose cause is InsufficientPrivilegeException");
+      }
     }
     
     // subject can read child_group and can create in top stem, but cannot read default list members of group.
@@ -588,8 +612,12 @@ public class Test_api_Group extends GrouperTest {
     try {
       child_group.copy(top, false, false, true, false, false);
       fail("failed to throw exception");
-    } catch (InsufficientPrivilegeException eExpected) { 
-      assertTrue(true);
+    } catch (Exception eExpected) {
+      if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
+        assertTrue(true);
+      } else {
+        fail("failed to throw exception whose cause is InsufficientPrivilegeException");
+      }
     }
     
     // subject can read child_group and can create in top stem, but cannot read members of top_group.
