@@ -25,6 +25,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -33,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MyMembershipsRepositoryBrowser.java,v 1.7 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: MyMembershipsRepositoryBrowser.java,v 1.8 2009-03-15 08:14:12 mchyzer Exp $
  */
 
 public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
@@ -72,11 +74,21 @@ public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
 	 */
 	protected Map getValidStems() throws Exception{
 		Map validStems = savedValidStems;
-		if(validStems !=null) return validStems;
-		Set groups = null;
-		GrouperSession s = getGrouperSession();
-		Member member = MemberFinder.findBySubject(s,s.getSubject(), true);
-		groups = member.getGroups();
+    if (validStems != null)
+      return validStems;
+    GrouperSession s = GrouperSession.startRootSession(false);
+    Set groups = (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        Subject curSubj = getGrouperSession().getSubject();
+        Member member = MemberFinder.findBySubject(grouperSession, curSubj, true);
+        Set groupSet = member.getGroups();
+        return groupSet;
+      }
+      
+    });
+    s.stop();
 
 		return getStems(groups);
 	}

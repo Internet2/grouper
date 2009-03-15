@@ -30,7 +30,7 @@ public class WsSampleHasMemberRest implements WsSampleRest {
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
   @SuppressWarnings("deprecation")
-  public static void hasMemberLite(WsSampleRestType wsSampleRestType) {
+  public static void hasMember(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -126,14 +126,14 @@ public class WsSampleHasMemberRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    hasMemberLite(WsSampleRestType.xhtml);
+    hasMember(WsSampleRestType.xhtml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    hasMemberLite(wsSampleRestType);
+    hasMember(wsSampleRestType);
   }
 
   /**

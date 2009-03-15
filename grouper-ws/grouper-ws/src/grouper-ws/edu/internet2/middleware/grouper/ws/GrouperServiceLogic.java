@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.23 2009-03-15 06:41:45 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.24 2009-03-15 08:15:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -217,7 +218,7 @@ public class GrouperServiceLogic {
 
               int resultIndex = 0;
 
-              Set<Subject> newSubjects = new HashSet<Subject>();
+              Set<MultiKey> newSubjects = new HashSet<MultiKey>();
               wsAddMemberResults.setResults(new WsAddMemberResult[subjectLength]);
 
               //get existing members if replacing
@@ -250,7 +251,7 @@ public class GrouperServiceLogic {
 
                   // keep track
                   if (replaceAllExisting) {
-                    newSubjects.add(subject);
+                    newSubjects.add(new MultiKey(subject.getId(), subject.getSource().getId()));
                   }
 
                   try {
@@ -281,7 +282,7 @@ public class GrouperServiceLogic {
                   try {
                     subject = member.getSubject();
 
-                    if (!newSubjects.contains(subject)) {
+                    if (!newSubjects.contains(new MultiKey(subject.getId(), subject.getSource().getId()))) {
                       if (fieldName == null) {
                         group.deleteMember(subject);
                       } else {
@@ -310,7 +311,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsAddMemberResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
 
@@ -418,7 +419,7 @@ public class GrouperServiceLogic {
       final WsGroupLookup wsGroupLookup, final WsSubjectLookup[] subjectLookups,
       final WsSubjectLookup actAsSubjectLookup, final Field fieldName,
       GrouperTransactionType txType, final boolean includeGroupDetail, 
-      final boolean includeSubjectDetail, final String[] subjectAttributeNames, 
+      final boolean includeSubjectDetail, String[] subjectAttributeNames, 
       final WsParam[] params) {
   
     final WsDeleteMemberResults wsDeleteMemberResults = new WsDeleteMemberResults();
@@ -438,6 +439,11 @@ public class GrouperServiceLogic {
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
       
       final String THE_SUMMARY = theSummary;
+  
+      final String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
+        .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
+  
+      wsDeleteMemberResults.setSubjectAttributeNames(subjectAttributeNamesToRetrieve);
   
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
@@ -476,7 +482,7 @@ public class GrouperServiceLogic {
                 try {
   
                   Subject subject = wsSubjectLookup.retrieveSubject();
-                  wsDeleteMemberResult.processSubject(wsSubjectLookup, subjectAttributeNames);
+                  wsDeleteMemberResult.processSubject(wsSubjectLookup, subjectAttributeNamesToRetrieve);
   
                   if (subject == null) {
                     continue;
@@ -526,7 +532,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsDeleteMemberResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -661,7 +667,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsFindGroupsResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -795,7 +801,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsFindStemsResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -916,6 +922,11 @@ public class GrouperServiceLogic {
           + includeGroupDetail + ", actAsSubject: " + actAsSubjectLookup
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
   
+      subjectAttributeNames = GrouperServiceUtils
+        .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
+
+      wsGetGroupsResults.setSubjectAttributeNames(subjectAttributeNames);
+  
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
@@ -927,9 +938,13 @@ public class GrouperServiceLogic {
       wsGetGroupsResults.setResults(new WsGetGroupsResult[subjectLength]);
 
       //convert the options to a map for easy access, and validate them
-      @SuppressWarnings("unused")
-      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
-          params);
+      Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(params);
+      String fieldName = paramMap.get("fieldName");
+      Field field = null;
+      if (!StringUtils.isBlank(fieldName)) {
+        field = GrouperServiceUtils.retrieveField(fieldName);
+        theSummary += ", field: " + field.getName();
+      }
   
       for (WsSubjectLookup wsSubjectLookup : subjectLookups) {
         WsGetGroupsResult wsGetGroupsResult = new WsGetGroupsResult();
@@ -941,7 +956,16 @@ public class GrouperServiceLogic {
           Subject subject = wsSubjectLookup.retrieveSubject("subjectLookup");
           wsGetGroupsResult.setWsSubject(new WsSubject(subject, subjectAttributeNames, wsSubjectLookup));
           Member member = MemberFinder.internal_findBySubject(subject, false);
-          Set<Group> groups = member == null ? new HashSet<Group>() : memberFilter.getGroups(member);
+          Set<Group> groups = null;
+          if (member == null) {
+            groups = new HashSet<Group>();
+          } else {
+            if (field == null) {
+              groups = memberFilter.getGroups(member);
+            } else {
+              groups = memberFilter.getGroups(member, field);
+            }
+          }
           wsGetGroupsResult.assignGroupResult(groups, includeGroupDetail);
         } catch (Exception e) {
           wsGetGroupsResult.assignResultCodeException(null, null,wsSubjectLookup,  e);
@@ -954,7 +978,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsGetGroupsResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -1090,6 +1114,7 @@ public class GrouperServiceLogic {
       
       String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
         .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
+      wsGetMembersResults.setSubjectAttributeNames(subjectAttributeNamesToRetrieve);
       
       int groupLookupsLength = GrouperUtil.length(wsGroupLookups);
       wsGetMembersResults.setResults(new WsGetMembersResult[groupLookupsLength]);
@@ -1133,7 +1158,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsGetMembersResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -1470,7 +1495,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsGroupDeleteResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -1638,7 +1663,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsGroupSaveResults.assignResultCodeException(null, theSummary, e, clientVersion);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -1714,6 +1739,8 @@ public class GrouperServiceLogic {
       String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
           .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
   
+      wsHasMemberResults.setSubjectAttributeNames(subjectAttributeNamesToRetrieve);
+  
       int subjectLength = GrouperServiceUtils.arrayLengthAtLeastOne(subjectLookups,
           GrouperWsConfig.WS_HAS_MEMBER_SUBJECTS_MAX, 1000000, "subjectLookups");
   
@@ -1750,7 +1777,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsHasMemberResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -1954,6 +1981,10 @@ public class GrouperServiceLogic {
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
+      final String[] subjectAttributeNamesToRetrieve = GrouperServiceUtils
+        .calculateSubjectAttributes(subjectAttributeNames, includeSubjectDetail);
+      wsMemberChangeSubjectResults.setSubjectAttributeNames(subjectAttributeNamesToRetrieve);
+  
       //start a transaction (or not if none)
       GrouperTransaction.callbackGrouperTransaction(txType,
           new GrouperTransactionHandler() {
@@ -1980,14 +2011,14 @@ public class GrouperServiceLogic {
                 try {
   
                   Member oldMember = wsMemberChangeSubject.getOldSubjectLookup().retrieveMember();
-                  wsMemberChangeSubjectResult.processMemberOld(wsMemberChangeSubject.getOldSubjectLookup(), subjectAttributeNames);
+                  wsMemberChangeSubjectResult.processMemberOld(wsMemberChangeSubject.getOldSubjectLookup(), subjectAttributeNamesToRetrieve);
                   if (oldMember == null) {
                     continue;
                   }
                   Subject newSubject = wsMemberChangeSubject.getNewSubjectLookup().retrieveSubject();
                   
                   wsMemberChangeSubjectResult.processSubjectNew(wsMemberChangeSubject.getNewSubjectLookup(), 
-                      subjectAttributeNames);
+                      subjectAttributeNamesToRetrieve);
   
                   //make sure we have the right data, if not, then keep going
                   if (newSubject == null) {
@@ -2019,7 +2050,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsMemberChangeSubjectResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -2137,7 +2168,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsStemDeleteResults.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -2292,7 +2323,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsStemSaveResults.assignResultCodeException(null, theSummary, e, clientVersion);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -2854,6 +2885,11 @@ public class GrouperServiceLogic {
           + actAsSubjectLookup 
           + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
         
+      subjectAttributeArray = GrouperServiceUtils
+        .calculateSubjectAttributes(subjectAttributeArray, includeSubjectDetail);
+
+      wsGetGrouperPrivilegesLiteResult.setSubjectAttributeNames(subjectAttributeArray);
+      
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
 
@@ -2988,7 +3024,7 @@ public class GrouperServiceLogic {
     } catch (Exception e) {
       wsGetGrouperPrivilegesLiteResult.assignResultCodeException(null, theSummary, e);
     } finally {
-      GrouperWsVersion.assignCurrentClientVersion(null);
+      GrouperWsVersion.assignCurrentClientVersion(null, true);
       GrouperSession.stopQuietly(session);
     }
   
@@ -3416,6 +3452,11 @@ public class GrouperServiceLogic {
             + actAsSubjectLookup 
             + "\n, params: " + GrouperUtil.toStringForLog(params, 100);
           
+        subjectAttributeArray = GrouperServiceUtils
+          .calculateSubjectAttributes(subjectAttributeArray, includeSubjectDetail);
+
+        wsAssignGrouperPrivilegesLiteResult.setSubjectAttributeNames(subjectAttributeArray);
+          
         //start session based on logged in user or the actAs passed in
         session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
   
@@ -3526,7 +3567,7 @@ public class GrouperServiceLogic {
       } catch (Exception e) {
         wsAssignGrouperPrivilegesLiteResult.assignResultCodeException(null, theSummary, e);
       } finally {
-        GrouperWsVersion.assignCurrentClientVersion(null);
+        GrouperWsVersion.assignCurrentClientVersion(null, true);
         GrouperSession.stopQuietly(session);
       }
     

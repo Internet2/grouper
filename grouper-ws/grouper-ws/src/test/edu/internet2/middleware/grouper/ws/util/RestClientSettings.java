@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: RestClientSettings.java,v 1.12 2009-03-15 06:41:44 mchyzer Exp $
+ * @author mchyzer $Id: RestClientSettings.java,v 1.13 2009-03-15 08:15:38 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.util;
 
@@ -8,6 +8,7 @@ import java.io.StringWriter;
 
 import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
@@ -98,15 +99,27 @@ public class RestClientSettings {
 
         String userGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME);
         GrouperSession grouperSession = GrouperSession.startRootSession();
-        Group wsUserGroup = Group.saveGroup(grouperSession, userGroupName, null, userGroupName, null, null, null, true);
+        
         Subject userSubject = SubjectFinder.findByIdOrIdentifier(loginUserString, true);
+
+        if (StringUtils.isBlank(userGroupName)) {
+          throw new RuntimeException("Set a " + GrouperWsConfig.WS_CLIENT_USER_GROUP_NAME + " in grouper-ws.properties");
+        }
+        Group wsUserGroup = Group.saveGroup(grouperSession, userGroupName, null, userGroupName, null, null, null, true);
         wsUserGroup.addMember(userSubject, false);
 
         String actAsGroupName = GrouperWsConfig.getPropertyString(GrouperWsConfig.WS_ACT_AS_GROUP);
+        
+        if (StringUtils.isBlank(actAsGroupName)) {
+          throw new RuntimeException("Set a " + GrouperWsConfig.WS_ACT_AS_GROUP + " in grouper-ws.properties");
+        }
         Group actAsGroup = Group.saveGroup(grouperSession, actAsGroupName, null, actAsGroupName, null, null, null, true);
         actAsGroup.addMember(userSubject, false);
         
         String wheelGroupName = GrouperConfig.getProperty(GrouperConfig.PROP_WHEEL_GROUP);
+        if (StringUtils.isBlank(wheelGroupName)) {
+          throw new RuntimeException("Set a " + GrouperWsConfig.WS_ACT_AS_GROUP + " in grouper-ws.properties");
+        }
         Group wheelGroup = Group.saveGroup(grouperSession, wheelGroupName, null, wheelGroupName, null, null, null, true);
         if (loginIsWheel) {
           wheelGroup.addMember(userSubject, false);

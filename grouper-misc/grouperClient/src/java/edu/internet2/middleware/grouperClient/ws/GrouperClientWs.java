@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWs.java,v 1.8 2008-12-08 05:36:31 mchyzer Exp $
+ * $Id: GrouperClientWs.java,v 1.9 2009-03-15 08:16:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws;
 
@@ -32,6 +32,8 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.m
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.StringRequestEntity;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.params.DefaultHttpParams;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.params.HttpMethodParams;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.protocol.Protocol;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
@@ -141,7 +143,7 @@ public class GrouperClientWs {
     Header successHeader = this.method.getResponseHeader("X-Grouper-success");
     String successString = successHeader == null ? null : successHeader.getValue();
     if (GrouperClientUtils.isBlank(successString)) {
-      throw new RuntimeException("Web service did not even respond!");
+      throw new RuntimeException("Web service did not even respond! " + webServiceUrl(urlSuffix));
     }
     this.success = "T".equals(successString);
     this.resultCode = this.method.getResponseHeader("X-Grouper-resultCode").getValue();
@@ -240,73 +242,86 @@ public class GrouperClientWs {
   
   
   /**
-     * http client
-     * @return the http client
-     */
-    private static HttpClient httpClient() {
-      HttpClient httpClient = new HttpClient();
+   * http client
+   * @return the http client
+   */
+  @SuppressWarnings({ "deprecation", "unchecked" })
+  private static HttpClient httpClient() {
+    
+    //see if invalid SSL
+    String httpsSocketFactoryName = GrouperClientUtils.propertiesValue("grouperClient.https.customSocketFactory", false);
+    
+    //is there overhead here?  should only do this once?
+    //perhaps give a custom factory
+    if (!GrouperClientUtils.isBlank(httpsSocketFactoryName)) {
+      Class<? extends SecureProtocolSocketFactory> httpsSocketFactoryClass = GrouperClientUtils.forName(httpsSocketFactoryName);
+      SecureProtocolSocketFactory httpsSocketFactoryInstance = GrouperClientUtils.newInstance(httpsSocketFactoryClass);
+      Protocol easyhttps = new Protocol("https", httpsSocketFactoryInstance, 443);
+      Protocol.registerProtocol("https", easyhttps);
+    }
+    
+    HttpClient httpClient = new HttpClient();
 
-      DefaultHttpParams.getDefaultParams().setParameter(
-          HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
+    DefaultHttpParams.getDefaultParams().setParameter(
+        HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
 
-      httpClient.getParams().setAuthenticationPreemptive(true);
-      
-      int soTimeoutMillis = GrouperClientUtils.propertiesValueInt(
-          "grouperClient.webService.httpSocketTimeoutMillis", 90000, true);
-      
-      httpClient.getParams().setSoTimeout(soTimeoutMillis);
-      httpClient.getParams().setParameter(HttpMethodParams.HEAD_BODY_CHECK_TIMEOUT, soTimeoutMillis);
-      
-      int connectionManagerMillis = GrouperClientUtils.propertiesValueInt(
-          "grouperClient.webService.httpConnectionManagerTimeoutMillis", 90000, true);
-      
-      httpClient.getParams().setConnectionManagerTimeout(connectionManagerMillis);
+    httpClient.getParams().setAuthenticationPreemptive(true);
+    
+    int soTimeoutMillis = GrouperClientUtils.propertiesValueInt(
+        "grouperClient.webService.httpSocketTimeoutMillis", 90000, true);
+    
+    httpClient.getParams().setSoTimeout(soTimeoutMillis);
+    httpClient.getParams().setParameter(HttpMethodParams.HEAD_BODY_CHECK_TIMEOUT, soTimeoutMillis);
+    
+    int connectionManagerMillis = GrouperClientUtils.propertiesValueInt(
+        "grouperClient.webService.httpConnectionManagerTimeoutMillis", 90000, true);
+    
+    httpClient.getParams().setConnectionManagerTimeout(connectionManagerMillis);
 
-      String userLabel = GrouperClientUtils.propertiesValue("grouperClient.webService.user.label", true);
-      String user = GrouperClientUtils.propertiesValue("grouperClient.webService." + userLabel, true);
+    String userLabel = GrouperClientUtils.propertiesValue("grouperClient.webService.user.label", true);
+    String user = GrouperClientUtils.propertiesValue("grouperClient.webService." + userLabel, true);
+    
+    LOG.debug("WebService: connecting as user: '" + user + "'");
+    
+    boolean disableExternalFileLookup = GrouperClientUtils.propertiesValueBoolean(
+        "encrypt.disableExternalFileLookup", false, true);
+    
+    //lets lookup if file
+    String wsPass = GrouperClientUtils.propertiesValue("grouperClient.webService.password", true);
+    String wsPassFromFile = GrouperClientUtils.readFromFileIfFile(wsPass, disableExternalFileLookup);
+
+    String passPrefix = null;
+
+    if (!GrouperClientUtils.equals(wsPass, wsPassFromFile)) {
+
+      passPrefix = "WebService pass: reading encrypted value from file: " + wsPass;
+
+      String encryptKey = GrouperClientUtils.propertiesValue("encrypt.key", true);
       
-      LOG.debug("WebService: connecting as user: '" + user + "'");
+      wsPass = new Crypto(encryptKey).decrypt(wsPassFromFile);
       
-      boolean disableExternalFileLookup = GrouperClientUtils.propertiesValueBoolean(
-          "encrypt.disableExternalFileLookup", false, true);
-      
-      //lets lookup if file
-      String wsPass = GrouperClientUtils.propertiesValue("grouperClient.webService.password", true);
-      String wsPassFromFile = GrouperClientUtils.readFromFileIfFile(wsPass, disableExternalFileLookup);
-
-      String passPrefix = null;
-
-      if (!GrouperClientUtils.equals(wsPass, wsPassFromFile)) {
-
-        passPrefix = "WebService pass: reading encrypted value from file: " + wsPass;
-
-        String encryptKey = GrouperClientUtils.propertiesValue("encrypt.key", true);
-        
-        wsPass = new Crypto(encryptKey).decrypt(wsPassFromFile);
-        
-      } else {
-        passPrefix = "WebService pass: reading scalar value from grouper.client.properties";
-      }
-      
-      if (GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.logMaskedPassword", false, false)) {
-        LOG.debug(passPrefix + ": " + GrouperClientUtils.repeat("*", wsPass.length()));
-      }
-
-      Credentials defaultcreds = new UsernamePasswordCredentials(user, wsPass);
-  
-      //set auth scope to null and negative so it applies to all hosts and ports
-      httpClient.getState().setCredentials(new AuthScope(null, -1), defaultcreds);
-  
-      return httpClient;
+    } else {
+      passPrefix = "WebService pass: reading scalar value from grouper.client.properties";
+    }
+    
+    if (GrouperClientUtils.propertiesValueBoolean("grouperClient.logging.logMaskedPassword", false, false)) {
+      LOG.debug(passPrefix + ": " + GrouperClientUtils.repeat("*", wsPass.length()));
     }
 
+    Credentials defaultcreds = new UsernamePasswordCredentials(user, wsPass);
+
+    //set auth scope to null and negative so it applies to all hosts and ports
+    httpClient.getState().setCredentials(new AuthScope(null, -1), defaultcreds);
+
+    return httpClient;
+  }
+
   /**
-   * @param suffix e.g. groups/aStem:aGroup/members
-   * @param clientVersion
-   * @return the method
+   * 
+   * @param suffix of the url
+   * @return the url
    */
-  private PostMethod postMethod(String suffix, String clientVersion) {
-    
+  private String webServiceUrl(String suffix) {
     suffix = GrouperClientUtils.trimToEmpty(suffix);
     
     suffix = GrouperClientUtils.stripStart(suffix, "/");
@@ -314,6 +329,17 @@ public class GrouperClientWs {
     String url = GrouperClientUtils.propertiesValue("grouperClient.webService.url", true);
     
     url = GrouperClientUtils.stripEnd(url, "/");
+    return url;
+  }
+    
+  /**
+   * @param suffix e.g. groups/aStem:aGroup/members
+   * @param clientVersion
+   * @return the method
+   */
+  private PostMethod postMethod(String suffix, String clientVersion) {
+    
+    String url = webServiceUrl(suffix);
     
     String webServiceVersion = GrouperClientUtils.propertiesValue("grouperClient.webService.client.version", true);
 
@@ -383,7 +409,7 @@ public class GrouperClientWs {
       StringBuilder headers = new StringBuilder();
 //      POST /grouperWs/servicesRest/v1_4_000/subjects HTTP/1.1
 //      Connection: close
-//      Authorization: Basic bWNoeXplcjpEaTlyZWRwbw==
+//      Authorization: Basic bWNoeXplcjpEaxxxxxxxxxx==
 //      User-Agent: Jakarta Commons-HttpClient/3.1
 //      Host: localhost:8090
 //      Content-Length: 226

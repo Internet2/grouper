@@ -118,7 +118,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.225 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: Group.java,v 1.226 2009-03-15 08:18:10 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -2414,8 +2414,8 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @return  Set of removable group types.
    * @since   1.0
    */
-  public Set getRemovableTypes() {
-    Set types = new LinkedHashSet();
+  public Set<GroupType> getRemovableTypes() {
+    Set<GroupType> types = new LinkedHashSet<GroupType>();
     // Must have ADMIN to remove types.
     if (PrivilegeHelper.canAdmin(GrouperSession.staticGrouperSession(), this, GrouperSession.staticGrouperSession().getSubject())) {
       GroupType t;
@@ -3576,12 +3576,33 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
    */
   public Set<String> dbVersionDifferentFields() {
+    return dbVersionDifferentFields(true);
+    
+  }
+  
+
+  
+  /**
+   * @param renameCommonAttributes is true if these are massaged so that name, extension, etc look like normal fields.
+   * access with fieldValue()
+   * @param failIfNull 
+   * @return the set of different fields
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
+   */
+  public Set<String> dbVersionDifferentFields(boolean failIfNull) {
     if (this.dbVersion == null) {
-      throw new RuntimeException("State was never stored from db");
+      if (failIfNull) {
+        throw new RuntimeException("State was never stored from db");
+      }
+      //just return all attributes, but put them in the right format
+      Set<String> attributes = this.getAttributesDb().keySet();
+      return attributes;
+
     }
     //easier to unit test if everything is ordered
     Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
         DB_VERSION_FIELDS, ATTRIBUTE_PREFIX);
+
     return result;
   }
 
@@ -3647,7 +3668,10 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   }
 
   /**
-   * save the state when retrieving from DB
+   * save the state when retrieving from DB.
+   * note, if you are checking attributes from the dbVersion, you should get the attributes
+   * from the original Group object first, this will lazy load them, and set the dbVersion
+   * attribute to the correct values...
    * @return the dbVersion
    */
   @Override

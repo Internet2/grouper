@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsStemQueryFilter.java,v 1.1 2008-12-04 07:51:39 mchyzer Exp $
+ * @author mchyzer $Id: WsStemQueryFilter.java,v 1.2 2009-03-15 08:16:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.ws.beans;
 
@@ -76,7 +76,7 @@ public class WsStemQueryFilter {
 
   /**
    * findStemType is the WsFindStemType enum for which type of find is happening: 
-   * e.g. FIND_BY_STEM_UUID, FIND_BY_STEM_NAME, FIND_BY_STEM_NAME, 
+   * e.g. FIND_BY_STEM_UUID, FIND_BY_STEM_NAME, FIND_BY_STEM_NAME_APPROXIMATE, 
    * FIND_BY_APPROXIMATE_ATTRIBUTE, FIND_BY_ATTRIBUTE, 
    * FIND_BY_TYPE, AND, OR, MINUS; 
    * @param findStemType1 the findStemType to set

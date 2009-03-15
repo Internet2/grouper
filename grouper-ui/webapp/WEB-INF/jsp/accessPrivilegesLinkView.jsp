@@ -2,11 +2,11 @@
 			Displays link to show access privileges for given subject on given group
 --%><%--
   @author Gary Brown.
-  @version $Id: accessPrivilegesLinkView.jsp,v 1.3 2008-03-25 16:30:18 mchyzer Exp $
+  @version $Id: accessPrivilegesLinkView.jsp,v 1.4 2009-03-15 08:14:12 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
-<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.assign.title">
+<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.assign.title" tooltipDisable="true">
 	<grouper:param value="${viewObject.subject.desc}"/>
 	<grouper:param value="${browseParent.desc}"/>
 </grouper:message></c:set>

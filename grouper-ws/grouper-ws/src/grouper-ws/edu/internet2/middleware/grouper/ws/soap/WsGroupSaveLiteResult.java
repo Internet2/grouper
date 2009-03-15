@@ -88,6 +88,9 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
     /** either overall exception, or one or more groups had exceptions (lite http status code 500) (success: F) */
     EXCEPTION(500),
 
+    /** problem, group already exists (lite http status code 500) (success: F) */
+    GROUP_ALREADY_EXISTS(500),
+    
     /** problem deleting existing groups (lite http status code 500) (success: F) */
     PROBLEM_DELETING_GROUPS(500),
 
@@ -276,8 +279,21 @@ public class WsGroupSaveLiteResult implements WsResponseBean {
         .firstInArrayOfOne(wsGroupSaveResults.getResults());
     if (wsGroupSaveResult != null) {
       this.getResultMetadata().copyFields(wsGroupSaveResult.getResultMetadata());
-      this.getResultMetadata().assignResultCode(
-          wsGroupSaveResult.resultCode().convertToLiteCode());
+
+      try {
+        this.getResultMetadata().assignResultCode(
+            wsGroupSaveResult.resultCode().convertToLiteCode());
+      } catch (RuntimeException re) {
+        GrouperWsVersion clientVersion = GrouperWsVersion.retrieveCurrentClientVersion();
+        //before 1.4 we had SUCCESS and nothing more descriptive, which isnt a real enum anymore
+        if (clientVersion != null && clientVersion.lessThanArg(GrouperWsVersion.v1_4_000)) {
+          this.getResultMetadata().setResultCode(wsGroupSaveResult.getResultMetadata().getResultCode());
+        } else {
+          throw re;
+        }
+        
+      }
+
       this.setWsGroup(wsGroupSaveResult.getWsGroup());
     }
   }

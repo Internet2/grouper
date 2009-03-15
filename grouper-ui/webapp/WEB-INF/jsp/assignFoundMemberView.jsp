@@ -3,12 +3,12 @@
 		  which can be selected for privilege assignment.
 --%><%--
   @author Gary Brown.
-  @version $Id: assignFoundMemberView.jsp,v 1.5 2008-04-26 17:22:40 mchyzer Exp $
+  @version $Id: assignFoundMemberView.jsp,v 1.6 2009-03-15 08:14:12 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
  <%--  Use params to make link title descriptive for accessibility --%>		
-<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.to.subject.summary">
+<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.to.subject.summary" tooltipDisable="true">
 		 		<grouper:param value="${viewObject.description}"/>
 		</grouper:message></c:set>
 	<input type="hidden" name="subjectType:<c:out value="${viewObject.id}"/>" value="<c:out value="${viewObject.subjectType}"/>" />

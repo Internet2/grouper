@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: WsQueryFilterType.java,v 1.5 2008-07-21 05:16:05 mchyzer Exp $
+ * @author mchyzer $Id: WsQueryFilterType.java,v 1.6 2009-03-15 08:15:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.query;
 
@@ -357,7 +357,7 @@ public enum WsQueryFilterType {
      */
     @Override
     public QueryFilter retrieveQueryFilter(WsQueryFilter wsQueryFilter) {
-      return new UnionFilter(wsQueryFilter.getQueryFilter0().retrieveQueryFilter(),
+      return new IntersectionFilter(wsQueryFilter.getQueryFilter0().retrieveQueryFilter(),
           wsQueryFilter.getQueryFilter1().retrieveQueryFilter());
     }
 
@@ -396,7 +396,7 @@ public enum WsQueryFilterType {
      */
     @Override
     public QueryFilter retrieveQueryFilter(WsQueryFilter wsQueryFilter) {
-      return new IntersectionFilter(
+      return new UnionFilter(
           wsQueryFilter.getQueryFilter0().retrieveQueryFilter(), wsQueryFilter
               .getQueryFilter1().retrieveQueryFilter());
     }

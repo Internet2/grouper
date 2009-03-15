@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperRestServlet.java,v 1.10 2008-12-06 20:39:32 mchyzer Exp $
+ * @author mchyzer $Id: GrouperRestServlet.java,v 1.11 2009-03-15 08:15:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -34,6 +34,18 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  */
 public class GrouperRestServlet extends HttpServlet {
 
+  /** keep track of if this is a rest request vs soap */
+  private static ThreadLocal<Boolean> restRequest = new ThreadLocal<Boolean>();
+
+  /**
+   * return if this is a rest request
+   * @return true if rest request
+   */
+  public static boolean isRestRequest() {
+    Boolean isRestRequest = restRequest.get();
+    return isRestRequest != null && isRestRequest;
+  }
+  
   /**
    * response header for if this is a success or not T or F
    */
@@ -66,6 +78,7 @@ public class GrouperRestServlet extends HttpServlet {
       throws ServletException, IOException {
 
     GrouperServiceJ2ee.assignHttpServlet(this);
+    restRequest.set(true);
     List<String> urlStrings = null;
     StringBuilder warnings = new StringBuilder();
     WsResponseBean wsResponseBean = null;
@@ -213,6 +226,7 @@ public class GrouperRestServlet extends HttpServlet {
 
       IOUtils.closeQuietly(response.getWriter());
       GrouperWsVersion.assignCurrentClientVersion(null);
+      restRequest.set(null);
     }
     
     HttpSession httpSession = request.getSession(false);

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.21 2008-12-08 07:36:04 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.22 2009-03-15 08:16:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -91,6 +91,48 @@ public class GrouperClient {
   /** ldap operations from config file */
   private static Map<String, GcLdapSearchAttributeConfig> ldapOperations = null;
 
+  /** custom operations from config file */
+  private static Map<String, Class<ClientOperation>> customOperations = null;
+
+  /**
+   * get custom operation classes configured in the grouper.client.properties
+   * @return the map of operations
+   */
+  @SuppressWarnings({ "unchecked", "cast" })
+  private static Map<String, Class<ClientOperation>> customOperations() {
+    
+    if (customOperations == null) {
+      
+      customOperations = new LinkedHashMap<String, Class<ClientOperation>>();
+      
+      int i=0;
+      String operationName = null;
+      while (true) {
+        operationName = null;
+        operationName = GrouperClientUtils.propertiesValue("customOperation.name." + i, false);
+        if (GrouperClientUtils.isBlank(operationName)) {
+          break;
+        }
+        if (customOperations.containsKey(operationName)) {
+          throw new RuntimeException("There is an ldap operation defined twice in grouper.client.properties: '" + operationName + "'");
+        }
+        try {
+
+          String operationClassName = GrouperClientUtils.propertiesValue("customOperation.class." + i, true);
+          Class<ClientOperation> operationClass = (Class<ClientOperation>)GrouperClientUtils.forName(operationClassName);
+          customOperations.put(operationName, operationClass);
+
+        } catch (RuntimeException re) {
+          throw new RuntimeException("Problem with custom operation: " + operationName, re);
+        }
+        i++;
+      }
+    }
+    
+    return customOperations;
+    
+  }
+  
   /**
    * lazy load the ldap operations
    * @return the ldap operations
@@ -169,6 +211,8 @@ public class GrouperClient {
    * @param args
    */
   public static void main(String[] args) {
+    
+    String operation = null;
     try {
       if (GrouperClientUtils.length(args) == 0) {
         usage();
@@ -195,7 +239,7 @@ public class GrouperClient {
       //see if the message about where it came from is
       //log.debug(callingLog.toString());
       
-      String operation = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "operation", true);
+      operation = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "operation", true);
       
       //where results should go if file
       String saveResultsToFile = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "saveResultsToFile", false);
@@ -207,7 +251,19 @@ public class GrouperClient {
       
       String result = null;
       
-      if (GrouperClientUtils.equals(operation, "encryptPassword")) {
+      if (customOperations().containsKey(operation)) {
+        
+        Class<ClientOperation> operationClass = customOperations().get(operation);
+        ClientOperation clientOperation = GrouperClientUtils.newInstance(operationClass);
+        
+        OperationParams operationParams = new OperationParams();
+        operationParams.setArgMap(argMap);
+        operationParams.setArgMapNotUsed(argMapNotUsed);
+        operationParams.setShouldSaveResultsToFile(shouldSaveResultsToFile);
+        
+        result = clientOperation.operate(operationParams);
+        
+      } else if (GrouperClientUtils.equals(operation, "encryptPassword")) {
         
         result = encryptText(argMap, argMapNotUsed, shouldSaveResultsToFile);
         
@@ -292,6 +348,7 @@ public class GrouperClient {
       } catch (Exception e) {}
       GrouperClientLog.assignDebugToConsole(false);
     }
+    
   }
 
   /**
@@ -346,7 +403,7 @@ public class GrouperClient {
    * @param operation
    * @return the output
    */
-  private static String ldapSearchAttribute(Map<String, String> argMap,
+  public static String ldapSearchAttribute(Map<String, String> argMap,
       Map<String, String> argMapNotUsed, String operation) {
     //ldap operation
     GcLdapSearchAttributeConfig gcLdapSearchAttributeConfig = ldapOperations().get(operation);
@@ -1409,6 +1466,7 @@ public class GrouperClient {
         substituteMap.put("wsSubject", wsHasMemberResult.getWsSubject());
         String resultCode = wsHasMemberResult.getResultMetadata().getResultCode();
         substituteMap.put("hasMember", GrouperClientUtils.equals("IS_MEMBER", resultCode));
+        substituteMap.put("resultMetadata", wsHasMemberResult.getResultMetadata());
 //            result.append("Index " + index + ": success: " + wsHasMemberResult.getResultMetadata().getSuccess()
 //                + ": code: " + resultCode + ": " 
 //                + wsHasMemberResult.getWsSubject().getId() + "\n");
@@ -1488,6 +1546,7 @@ public class GrouperClient {
       substituteMap.put("wsDeleteMemberResults", wsDeleteMemberResults);
       substituteMap.put("grouperClientUtils", new GrouperClientUtils());
       substituteMap.put("wsGroup", wsDeleteMemberResults.getWsGroup());
+      substituteMap.put("resultMetadata", wsDeleteMemberResults.getResultMetadata());
       
       String outputTemplate = null;
   
@@ -1505,7 +1564,6 @@ public class GrouperClient {
         substituteMap.put("index", index);
         substituteMap.put("wsDeleteMemberResult", wsDeleteMemberResult);
         substituteMap.put("wsSubject", wsDeleteMemberResult.getWsSubject());
-        substituteMap.put("resultMetadata", wsDeleteMemberResult.getResultMetadata());
         
   //          result.append("Index " + index + ": success: " + wsDeleteMemberResult.getResultMetadata().getSuccess()
   //              + ": code: " + wsDeleteMemberResult.getResultMetadata().getResultCode() + ": " 
@@ -1684,7 +1742,7 @@ public class GrouperClient {
       substituteMap.put("wsFindGroupsResults", wsFindGroupsResults);
       substituteMap.put("resultMetadata", wsFindGroupsResults.getResultMetadata());
       substituteMap.put("grouperClientUtils", new GrouperClientUtils());
-      
+
       String outputTemplate = null;
     
       if (argMap.containsKey("outputTemplate")) {

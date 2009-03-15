@@ -32,7 +32,7 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
    * @param wsSampleRestType is the type of rest (xml, xhtml, etc)
    */
   @SuppressWarnings("deprecation")
-  public static void groupSaveLite(WsSampleRestType wsSampleRestType) {
+  public static void groupSave(WsSampleRestType wsSampleRestType) {
 
     try {
       HttpClient httpClient = new HttpClient();
@@ -138,14 +138,14 @@ public class WsSampleGroupSaveRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    groupSaveLite(WsSampleRestType.xhtml);
+    groupSave(WsSampleRestType.xml);
   }
 
   /**
    * @see edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest#executeSample(edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType)
    */
   public void executeSample(WsSampleRestType wsSampleRestType) {
-    groupSaveLite(wsSampleRestType);
+    groupSave(wsSampleRestType);
   }
 
   /**

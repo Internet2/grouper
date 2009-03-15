@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcGetGroups.java,v 1.4 2008-12-08 02:55:52 mchyzer Exp $
+ * $Id: GcGetGroups.java,v 1.5 2009-03-15 08:16:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -12,7 +12,9 @@ import java.util.Set;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.GrouperClientWs;
 import edu.internet2.middleware.grouperClient.ws.WsMemberFilter;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetGroupsResults;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGroup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsParam;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
@@ -224,6 +226,19 @@ public class GcGetGroups {
   public GcGetGroups assignMemberFilter(WsMemberFilter theMemberFilter) {
     this.memberFilter = theMemberFilter;
     return this;
+  }
+  
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    WsGetGroupsResults wsGetGroupsResults = new GcGetGroups()
+      .addSubjectLookup(new WsSubjectLookup("10021368", null, null)).execute();
+    WsGetGroupsResult wsGroupsResult = wsGetGroupsResults.getResults()[0];
+    for (WsGroup wsGroup : GrouperClientUtils.nonNull(wsGroupsResult.getWsGroups(), WsGroup.class)) {
+      System.out.println(wsGroup.getName());
+    }
   }
   
 }

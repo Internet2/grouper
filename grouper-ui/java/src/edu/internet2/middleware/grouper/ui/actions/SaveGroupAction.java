@@ -141,7 +141,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.19 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: SaveGroupAction.java,v 1.20 2009-03-15 08:14:12 mchyzer Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -208,10 +208,14 @@ public class SaveGroupAction extends GrouperCapableAction {
 		Subject grouperAll = SubjectFinder.findById("GrouperAll", true);
 		if (groupExists) {
 			group = GroupFinder.findByUuid(grouperSession, curNode, true);
-			doTypes(group,request);
+      Set<GroupType> removableTypes = group.getRemovableTypes();
 			group.setDisplayExtension(displayExtension);
 			group.setExtension(extension);
 			group.store();
+
+			//do this after the store, in case there were types added in the hook...
+			doTypes(group,request, removableTypes);
+
 			Map selectedPrivs = GrouperHelper.getImmediateHas(grouperSession,GroupOrStem.findByGroup(grouperSession,group),MemberFinder.findBySubject(grouperSession,grouperAll, true));
 			assignedPrivs=new HashMap();
 			Map.Entry entry;
@@ -245,7 +249,7 @@ public class SaveGroupAction extends GrouperCapableAction {
 							"groups.message.error.add-problem",new String[] {e.getMessage()}, true));
 				return mapping.findForward(FORWARD_CreateAgain);
 			}
-			doTypes(group,request);
+			doTypes(group,request, new HashSet<GroupType>());
 			groupForm.set("groupId", group.getUuid());
 			assignedPrivs = GrouperHelper.getDefaultAccessPrivsForGrouperAPI();
 		}
@@ -310,8 +314,8 @@ public class SaveGroupAction extends GrouperCapableAction {
 
 	}
 	
-	private void doTypes(Group group,HttpServletRequest request) throws Exception {
-		Set curGroupTypes = group.getRemovableTypes();
+	private void doTypes(Group group,HttpServletRequest request, Set<GroupType> curGroupTypes) throws Exception {
+		
 		String[] selectedGroupTypes = request.getParameterValues("groupTypes");
 		Set selected = new HashSet();
 		GroupType type;

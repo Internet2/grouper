@@ -1,8 +1,8 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientLdapTest.java,v 1.2 2008-12-01 07:40:28 mchyzer Exp $
+ * $Id: GrouperClientLdapTest.java,v 1.2 2009-03-15 08:16:35 mchyzer Exp $
  */
-package edu.internet2.middleware.grouperClient;
+package edu.internet2.middleware.grouperClient.poc;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouperClient.GrouperClient;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 

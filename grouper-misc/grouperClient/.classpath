@@ -4,6 +4,8 @@
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="src" path="src/java"/>
 	<classpathentry kind="src" path="src/ext"/>
+	<classpathentry kind="src" path="src/custom"/>
+	<classpathentry kind="src" path="src/extCustom"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/xstream/jdom-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/jettison-1.0-RC2.jar"/>
@@ -21,7 +23,7 @@
 	<classpathentry kind="lib" path="lib/xstream/commons-lang.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/dom4j.jar"/>
 	<classpathentry kind="lib" path="lib/xstream/jakarta-oro.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/grouper"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/grouper-ws_HEAD"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouper_HEAD"/>
 	<classpathentry kind="output" path="build/eclipseBin"/>
 </classpath>

@@ -6,7 +6,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
@@ -39,9 +39,9 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
-      PutMethod method = new PutMethod(
+      PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + RestClientSettings.VERSION  
-            + "/groups/aStem%3AaGroup/members/10021368");
+            + "/groups/aStem%3AaGroup/members");
 
       httpClient.getParams().setAuthenticationPreemptive(true);
       Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
@@ -61,6 +61,9 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
       // set the act as id
       addMemberLite.setActAsSubjectId("GrouperSystem");
 
+      addMemberLite.setGroupName("aStem:aGroup");
+      addMemberLite.setSubjectId("10021368");
+      
       //get the xml / json / xhtml / paramString
       String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(addMemberLite);
       
@@ -115,7 +118,7 @@ public class WsSampleAddMemberRestLite2 implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    addMemberLite(WsSampleRestType.xhtml);
+    addMemberLite(WsSampleRestType.xml);
   }
 
   /**

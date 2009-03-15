@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: StemSave.java,v 1.3 2009-03-15 06:37:21 mchyzer Exp $
+ * $Id: StemSave.java,v 1.4 2009-03-15 08:18:10 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -270,7 +270,7 @@ public class StemSave {
                 
                 Stem theStem = null;
                 //see if update
-                boolean isUpdate = SAVE_MODE.isUpdate(stemNameToEdit);
+                boolean isUpdate = SAVE_MODE.isUpdate(stemNameToEdit, name);
 
                 if (isUpdate) {
                   String parentStemNameLookup = GrouperUtil.parentStemNameFromName(stemNameToEdit);

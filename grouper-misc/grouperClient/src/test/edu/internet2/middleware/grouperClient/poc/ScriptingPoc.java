@@ -1,8 +1,8 @@
 /*
  * @author mchyzer
- * $Id: ScriptingPoc.java,v 1.1 2008-11-30 10:57:31 mchyzer Exp $
+ * $Id: ScriptingPoc.java,v 1.2 2009-03-15 08:16:36 mchyzer Exp $
  */
-package edu.internet2.middleware.grouperClient;
+package edu.internet2.middleware.grouperClient.poc;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

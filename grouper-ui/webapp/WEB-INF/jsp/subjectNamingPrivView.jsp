@@ -3,7 +3,7 @@
 		  render naming privileges from subject perspecive
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectNamingPrivView.jsp,v 1.5 2008-04-03 13:30:21 isgwb Exp $
+  @version $Id: subjectNamingPrivView.jsp,v 1.6 2009-03-15 08:14:12 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -21,7 +21,7 @@
 <c:set target="${pagerParams}" property="contextSourceId" value="${viewObject.sourceId}"/> 
 
  <%--  Use params to make link title descriptive for accessibility --%>		
-<c:set var="linkTitle"><grouper:message bundle="${nav}" key="stems.access.chain.title">
+<c:set var="linkTitle"><grouper:message bundle="${nav}" key="stems.access.chain.title" tooltipDisable="true">
 		 		<grouper:param value="${SubjectFormBean.map.namingPriv}"/>
 				<grouper:param value="${viewObject.desc}"/>
 				<grouper:param value="${viewObject.memberOfGroup.desc}"/>

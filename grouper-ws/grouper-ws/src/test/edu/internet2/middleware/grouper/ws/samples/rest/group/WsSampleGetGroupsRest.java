@@ -59,9 +59,7 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
       //your request document in whatever language or way you want
       WsRestGetGroupsRequest getGroups = new WsRestGetGroupsRequest();
 
-      // set the act as id
-      WsSubjectLookup actAsSubject = new WsSubjectLookup("GrouperSystem", null, null);
-      getGroups.setActAsSubjectLookup(actAsSubject);
+      getGroups.setSubjectAttributeNames(new String[]{"description"});
 
       // seeif two subjects are in the group
       WsSubjectLookup[] subjectLookups = new WsSubjectLookup[2];
@@ -126,7 +124,7 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    getGroupsLite(WsSampleRestType.xhtml);
+    getGroupsLite(WsSampleRestType.xml);
   }
 
   /**

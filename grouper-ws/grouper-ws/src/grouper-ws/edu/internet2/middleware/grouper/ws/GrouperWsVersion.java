@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperWsVersion.java,v 1.10 2008-12-06 20:39:33 mchyzer Exp $
+ * @author mchyzer $Id: GrouperWsVersion.java,v 1.11 2009-03-15 08:15:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.rest.GrouperRestServlet;
 import edu.internet2.middleware.grouper.ws.soap.WsAddMemberResult.WsAddMemberResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -16,19 +17,29 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 public enum GrouperWsVersion {
 
   /**
-   * grouper version 1.3.1, second build
+   * grouper version 1.4.2, second build
    */
-  v1_4_000(true, 2),
+  v1_4_002(true),
+
+  /**
+   * grouper version 1.4.1, second build
+   */
+  v1_4_001(false),
 
   /**
    * grouper version 1.3.1, second build
    */
-  v1_3_001(false, 2),
+  v1_4_000(false),
+
+  /**
+   * grouper version 1.3.1, second build
+   */
+  v1_3_001(false),
   
   /**
    * grouper version 1.3, first build
    */
-  v1_3_000(false, 1);
+  v1_3_000(false);
   
   /**
    * regex pattern for ws version
@@ -104,10 +115,6 @@ public enum GrouperWsVersion {
   /** current version */
   private static GrouperWsVersion currentVersion = null;
 
-  /** ordered version number to know which is more recent etc */
-  @SuppressWarnings("unused")
-  private int revision;
-
   /** 
    * the actual string of the version, not the "name" of the enum
    * typcially will be whatever grouper is, then a build number for
@@ -120,10 +127,9 @@ public enum GrouperWsVersion {
    * @param theCurrentVersion
    * @param theRevision 
    */
-  private GrouperWsVersion(boolean theCurrentVersion, int theRevision) {
+  private GrouperWsVersion(boolean theCurrentVersion) {
 
     this.currentVersionBoolean = theCurrentVersion;
-    this.revision = theRevision;
 
   }
 
@@ -136,6 +142,21 @@ public enum GrouperWsVersion {
    */
   public static void assignCurrentClientVersion(GrouperWsVersion clientVersion) {
     currentClientVersion.set(clientVersion);
+  }
+  
+  /**
+   * put the current client version
+   * @param clientVersion
+   * @param soapOnly true if only doing this for rest
+   */
+  public static void assignCurrentClientVersion(GrouperWsVersion clientVersion, boolean soapOnly) {
+    if (soapOnly) {
+      if (!GrouperRestServlet.isRestRequest()) {
+        assignCurrentClientVersion(clientVersion);
+      }
+    } else {
+      assignCurrentClientVersion(clientVersion);
+    }
   }
   
   /**

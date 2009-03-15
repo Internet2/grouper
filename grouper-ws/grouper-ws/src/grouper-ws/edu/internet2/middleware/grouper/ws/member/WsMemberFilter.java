@@ -80,6 +80,18 @@ public enum WsMemberFilter {
     public Set<Group> getGroups(Member member) {
       return GrouperUtil.nonNull(member.getGroups());
     }
+
+    /**
+     * get groups for subject
+     * 
+     * @param member
+     * @return the set of members (non null)
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Set<Group> getGroups(Member member, Field field) {
+      return GrouperUtil.nonNull(member.getGroups(field));
+    }
   },
 
   /** retrieve non direct (non immediate) members */
@@ -140,6 +152,19 @@ public enum WsMemberFilter {
     @Override
     public Set<Group> getGroups(Member member) {
       return GrouperUtil.nonNull(member.getEffectiveGroups());
+    }
+
+    /**
+     * get groups for subject
+     * 
+     * @param member
+     * @param field
+     * @return the set of members (non null)
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Set<Group> getGroups(Member member, Field field) {
+      return GrouperUtil.nonNull(member.getEffectiveGroups(field));
     }
   },
 
@@ -202,6 +227,19 @@ public enum WsMemberFilter {
     @Override
     public Set<Group> getGroups(Member member) {
       return GrouperUtil.nonNull(member.getImmediateGroups());
+    }
+
+    /**
+     * get groups for subject
+     * 
+     * @param member
+     * @param field
+     * @return the set of members (non null)
+     */
+    @SuppressWarnings("unchecked")
+    @Override
+    public Set<Group> getGroups(Member member, Field field) {
+      return GrouperUtil.nonNull(member.getImmediateGroups(field));
     }
   },
 
@@ -268,6 +306,18 @@ public enum WsMemberFilter {
               + member.getSubjectId());
     }
 
+    /**
+     * get groups for subject
+     * 
+     * @param member
+     * @return the set of members (non null)
+     */
+    @Override
+    public Set<Group> getGroups(Member member, Field field) {
+      throw new RuntimeException(
+          "getGroups with composite is not supported: member subject id: "
+              + member.getSubjectId());
+    }
   };
 
   /**
@@ -363,6 +413,16 @@ public enum WsMemberFilter {
    * @return the set of members (non null)
    */
   public abstract Set<Group> getGroups(Member member);
+
+  /**
+   * get groups for subject based on field
+   * 
+   * @param member
+   * @param field
+   * @param field to check with membership
+   * @return the set of members (non null)
+   */
+  public abstract Set<Group> getGroups(Member member, Field field);
 
   /**
    * do a case-insensitive matching
