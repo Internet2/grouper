@@ -37,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.19 2009-03-15 21:46:51 shilen Exp $
+ * @version $Id: Test_api_Stem.java,v 1.20 2009-03-15 23:13:50 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Stem extends GrouperTest {
@@ -761,7 +761,10 @@ public class Test_api_Stem extends GrouperTest {
     R r = R.populateRegistry(0, 0, 11);
 
     stem_copy_setup(r);
-    Stem newStem = stem_copy_source.copy(stem_copy_target, true, true, true, true, true, true);
+    StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+    Stem newStem = stemCopy.copyPrivilegesOfStem(true).copyPrivilegesOfGroup(true)
+        .copyGroupAsPrivilege(true).copyListMembersOfGroup(true)
+        .copyListGroupAsMember(true).copyAttributes(true).save();  
     verify_copy(r, newStem, true, true, true, true, true, true);
     
     r.rs.stop();
@@ -774,7 +777,10 @@ public class Test_api_Stem extends GrouperTest {
     R r = R.populateRegistry(0, 0, 11);
 
     stem_copy_setup(r);
-    Stem newStem = stem_copy_source.copy(stem_copy_target, true, false, false, false, false, false);
+    StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+    Stem newStem = stemCopy.copyPrivilegesOfStem(true).copyPrivilegesOfGroup(false)
+        .copyGroupAsPrivilege(false).copyListMembersOfGroup(false)
+        .copyListGroupAsMember(false).copyAttributes(false).save();  
     verify_copy(r, newStem, true, false, false, false, false, false);
     
     r.rs.stop();
@@ -787,7 +793,10 @@ public class Test_api_Stem extends GrouperTest {
     R r = R.populateRegistry(0, 0, 11);
 
     stem_copy_setup(r);
-    Stem newStem = stem_copy_source.copy(stem_copy_target, false, true, true, false, false, false);
+    StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+    Stem newStem = stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(true)
+        .copyGroupAsPrivilege(true).copyListMembersOfGroup(false)
+        .copyListGroupAsMember(false).copyAttributes(false).save();  
     verify_copy(r, newStem, false, true, true, false, false, false);
     
     r.rs.stop();
@@ -800,7 +809,10 @@ public class Test_api_Stem extends GrouperTest {
     R r = R.populateRegistry(0, 0, 11);
 
     stem_copy_setup(r);
-    Stem newStem = stem_copy_source.copy(stem_copy_target, false, false, false, true, true, false);
+    StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+    Stem newStem = stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(false)
+        .copyGroupAsPrivilege(false).copyListMembersOfGroup(true)
+        .copyListGroupAsMember(true).copyAttributes(false).save();  
     verify_copy(r, newStem, false, false, false, true, true, false);
     
     r.rs.stop();
@@ -813,7 +825,10 @@ public class Test_api_Stem extends GrouperTest {
     R r = R.populateRegistry(0, 0, 11);
 
     stem_copy_setup(r);
-    Stem newStem = stem_copy_source.copy(stem_copy_target, false, false, false, false, false, true);
+    StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+    Stem newStem = stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(false)
+        .copyGroupAsPrivilege(false).copyListMembersOfGroup(false)
+        .copyListGroupAsMember(false).copyAttributes(true).save();  
     verify_copy(r, newStem, false, false, false, false, false, true);
     
     r.rs.stop();
@@ -831,7 +846,10 @@ public class Test_api_Stem extends GrouperTest {
 
     nrs = GrouperSession.start(c);
 
-    stem_copy_source.copy(stem_copy_target, false, false, false, false, false, false);
+    StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+    stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(false)
+        .copyGroupAsPrivilege(false).copyListMembersOfGroup(false)
+        .copyListGroupAsMember(false).copyAttributes(false).save();  
     assertTrue(true);
     
     nrs.stop();
@@ -851,7 +869,10 @@ public class Test_api_Stem extends GrouperTest {
 
     nrs = GrouperSession.start(c);
     try {
-      stem_copy_source.copy(stem_copy_target, false, true, false, false, true, false);
+      StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+      stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(true)
+          .copyGroupAsPrivilege(false).copyListMembersOfGroup(false)
+          .copyListGroupAsMember(true).copyAttributes(false).save();  
       fail("failed to throw InsufficientPrivilegeException");
     } catch (InsufficientPrivilegeException eExpected) {
       assertTrue(true);
@@ -864,7 +885,10 @@ public class Test_api_Stem extends GrouperTest {
     nrs.stop();
         
     nrs = GrouperSession.start(c);
-    stem_copy_source.copy(stem_copy_target, false, true, false, false, true, false);
+    StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+    stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(true)
+        .copyGroupAsPrivilege(false).copyListMembersOfGroup(false)
+        .copyListGroupAsMember(true).copyAttributes(false).save();  
     assertTrue(true);
     nrs.stop();
     
@@ -884,7 +908,10 @@ public class Test_api_Stem extends GrouperTest {
 
     nrs = GrouperSession.start(c);
     try {
-      stem_copy_source.copy(stem_copy_target, false, true, true, false, false, false);
+      StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+      stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(true)
+          .copyGroupAsPrivilege(true).copyListMembersOfGroup(false)
+          .copyListGroupAsMember(false).copyAttributes(false).save();  
       fail("failed to throw exception");
     } catch (Exception eExpected) {
       if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
@@ -901,7 +928,10 @@ public class Test_api_Stem extends GrouperTest {
     nrs.stop();
         
     nrs = GrouperSession.start(c);
-    stem_copy_source.copy(stem_copy_target, false, true, true, false, false, false);
+    StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+    stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(true)
+        .copyGroupAsPrivilege(true).copyListMembersOfGroup(false)
+        .copyListGroupAsMember(false).copyAttributes(false).save();  
     assertTrue(true);
     nrs.stop();
     
@@ -921,7 +951,10 @@ public class Test_api_Stem extends GrouperTest {
 
     nrs = GrouperSession.start(c);
     try {
-      stem_copy_source.copy(stem_copy_target, false, true, true, false, false, false);
+      StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+      stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(true)
+          .copyGroupAsPrivilege(true).copyListMembersOfGroup(false)
+          .copyListGroupAsMember(false).copyAttributes(false).save();  
       fail("failed to throw exception");
     } catch (Exception eExpected) {
       if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
@@ -938,7 +971,10 @@ public class Test_api_Stem extends GrouperTest {
     nrs.stop();
         
     nrs = GrouperSession.start(c);
-    stem_copy_source.copy(stem_copy_target, false, true, true, false, false, false);
+    StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+    stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(true)
+        .copyGroupAsPrivilege(true).copyListMembersOfGroup(false)
+        .copyListGroupAsMember(false).copyAttributes(false).save();  
     assertTrue(true);
     nrs.stop();
     
@@ -958,7 +994,10 @@ public class Test_api_Stem extends GrouperTest {
     nrs = GrouperSession.start(e);
 
     try {
-      stem_copy_source.copy(stem_copy_target, false, false, false, false, false, false);
+      StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+      stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(false)
+          .copyGroupAsPrivilege(false).copyListMembersOfGroup(false)
+          .copyListGroupAsMember(false).copyAttributes(false).save();  
       fail("failed to throw InsufficientPrivilegeException");
     } catch (InsufficientPrivilegeException eExpected) {
       assertTrue(true);
@@ -996,7 +1035,10 @@ public class Test_api_Stem extends GrouperTest {
     
     nrs = GrouperSession.start(a);
     try {
-      stem_copy_source.copy(stem_copy_target, false, false, false, false, false, false);
+      StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+      stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(false)
+          .copyGroupAsPrivilege(false).copyListMembersOfGroup(false)
+          .copyListGroupAsMember(false).copyAttributes(false).save();  
       fail("failed to throw InsufficientPrivilegeException");
     } catch (InsufficientPrivilegeException ex) {
       assertTrue(true);
@@ -1004,7 +1046,10 @@ public class Test_api_Stem extends GrouperTest {
     nrs.stop();
          
     nrs = GrouperSession.start(b);
-    stem_copy_source.copy(stem_copy_target, false, false, false, false, false, false);
+    StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+    stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(false)
+        .copyGroupAsPrivilege(false).copyListMembersOfGroup(false)
+        .copyListGroupAsMember(false).copyAttributes(false).save();  
     assertTrue(true);
     nrs.stop();
             
@@ -1035,7 +1080,10 @@ public class Test_api_Stem extends GrouperTest {
     
     nrs = GrouperSession.start(a);
     try {
-      stem_copy_source.copy(stem_copy_target, false, false, false, false, false, false);
+      StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+      stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(false)
+          .copyGroupAsPrivilege(false).copyListMembersOfGroup(false)
+          .copyListGroupAsMember(false).copyAttributes(false).save();  
       fail("failed to throw InsufficientPrivilegeException");
     } catch (InsufficientPrivilegeException ex) {
       assertTrue(true);
@@ -1043,7 +1091,10 @@ public class Test_api_Stem extends GrouperTest {
     nrs.stop();
          
     nrs = GrouperSession.start(b);
-    stem_copy_source.copy(stem_copy_target, false, false, false, false, false, false);
+    StemCopy stemCopy = new StemCopy(stem_copy_source, stem_copy_target);
+    stemCopy.copyPrivilegesOfStem(false).copyPrivilegesOfGroup(false)
+        .copyGroupAsPrivilege(false).copyListMembersOfGroup(false)
+        .copyListGroupAsMember(false).copyAttributes(false).save();  
     assertTrue(true);
     nrs.stop();
             
