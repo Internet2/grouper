@@ -37,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.17 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: Test_api_Stem.java,v 1.18 2009-03-15 20:20:46 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_Stem extends GrouperTest {
@@ -68,8 +68,8 @@ public class Test_api_Stem extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new Test_api_Stem("test_getChildGroups_PrivilegeArrayAndScope_viewPrivAndOneScope"));
-    TestRunner.run(Test_api_Stem.class);
+    TestRunner.run(new Test_api_Stem("test_copy_insufficient_privilege_groupAsPrivilege_access"));
+    //TestRunner.run(Test_api_Stem.class);
   }
 
   /** size before getting started */
