@@ -37,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.18 2009-03-15 20:20:46 mchyzer Exp $
+ * @version $Id: Test_api_Stem.java,v 1.19 2009-03-15 21:46:51 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Stem extends GrouperTest {
@@ -885,9 +885,13 @@ public class Test_api_Stem extends GrouperTest {
     nrs = GrouperSession.start(c);
     try {
       stem_copy_source.copy(stem_copy_target, false, true, true, false, false, false);
-      fail("failed to throw InsufficientPrivilegeException");
-    } catch (InsufficientPrivilegeException eExpected) {
-      assertTrue(true);
+      fail("failed to throw exception");
+    } catch (Exception eExpected) {
+      if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
+        assertTrue(true);
+      } else {
+        fail("failed to throw exception whose cause is InsufficientPrivilegeException");
+      }
     }
         
     nrs.stop();
@@ -918,9 +922,13 @@ public class Test_api_Stem extends GrouperTest {
     nrs = GrouperSession.start(c);
     try {
       stem_copy_source.copy(stem_copy_target, false, true, true, false, false, false);
-      fail("failed to throw InsufficientPrivilegeException");
-    } catch (InsufficientPrivilegeException eExpected) {
-      assertTrue(true);
+      fail("failed to throw exception");
+    } catch (Exception eExpected) {
+      if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
+        assertTrue(true);
+      } else {
+        fail("failed to throw exception whose cause is InsufficientPrivilegeException");
+      }
     }
         
     nrs.stop();
