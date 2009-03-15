@@ -57,7 +57,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.93 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.94 2009-03-15 08:18:10 mchyzer Exp $
  */
 public class GrouperSession {
 
@@ -228,7 +228,8 @@ public class GrouperSession {
    * </pre>
    * @param   subject   Start session as this {@link Subject}.
    * @param addToThreadLocal true to add this to the grouper session
-   * threadlocal which replaces the current one
+   * threadlocal which replaces the current one.  Though if in the context of a callback,
+   * the callback has precedence, and you should use an inner callback to preempt it (callbackGrouperSession)
    * @return  A Grouper API session.
    * @throws  SessionException
    */

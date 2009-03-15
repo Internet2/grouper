@@ -23,14 +23,21 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AddGroupValidator.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: AddGroupValidator.java,v 1.3 2009-03-15 08:18:11 mchyzer Exp $
  * @since   1.2.0
  */
 public class AddGroupValidator extends GrouperValidator {
 
-  // PROTECTED CLASS METHODS //
+  /** */
+  public static final String GROUP_ALREADY_EXISTS_WITH_NAME_PREFIX = "group already exists with name: '";
 
-  // @since   1.2.0
+  /**
+   * 
+   * @param parent
+   * @param extn
+   * @param dExtn
+   * @return self for chaining
+   */
   public static AddGroupValidator validate(Stem parent, String extn, String dExtn) {
     AddGroupValidator  v   = new AddGroupValidator();
     NamingValidator   nv  = NamingValidator.validate(extn);
@@ -50,7 +57,7 @@ public class AddGroupValidator extends GrouperValidator {
       try {
         String groupName = U.constructName( parent.getName(), extn );
         GrouperDAOFactory.getFactory().getGroup().findByName( groupName, true );
-        v.setErrorMessage("group already exists with name: '" + groupName + "'");
+        v.setErrorMessage(GROUP_ALREADY_EXISTS_WITH_NAME_PREFIX + groupName + "'");
       }
       catch (GroupNotFoundException eGNF) {
         v.setIsValid(true); // group does not exist, which is what we want

@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
  * and Stems from NamingPrivilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Privilege.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: Privilege.java,v 1.8 2009-03-15 08:18:11 mchyzer Exp $
  */
 public class Privilege implements Serializable {
 
@@ -160,21 +160,21 @@ public class Privilege implements Serializable {
 
   public static Set getNamingPrivs() {
     return NAMING;
-  } // pubilc static Set getNamingPrivs()
+  }
 
   public static boolean isAccess(Privilege p) {
     if (ACCESS.contains(p)) {
       return true;
     }
     return false;
-  } // public static boolean isAccess(p)
+  }
 
   public static boolean isNaming(Privilege p) {
     if (NAMING.contains(p)) {
       return true;
     }
     return false;
-  } // public static boolean isNaming(p)
+  }
 
 
   // PUBLIC INSTANCE METHODS //

@@ -65,7 +65,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.29 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.30 2009-03-15 08:18:10 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -830,7 +830,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * <ol>
    * <li>Hibernate caching is enabled.</li>
    * </ol>
-   * @see     GroupDAO#findByUuid(String)
+   * @see     GroupDAO#findByUuid(String, boolean)
    * @since   @HEAD@
    */
   public Group findByUuid(String uuid, boolean exceptionIfNotFound)

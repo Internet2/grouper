@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
+import edu.internet2.middleware.grouper.exception.GroupAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -95,7 +96,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.181 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.182 2009-03-15 08:18:10 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -1531,10 +1532,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
             } 
             GrouperValidator v = AddStemValidator.validate(Stem.this, extn, dExtn);
             if (v.isInvalid()) {
-              throw new StemAddException( "Problem with stem extension: '" 
-                  + extn 
-                  + "', displayExtension: '" + dExtn + "', child of: " + GrouperUtil.toStringSafe(Stem.this) 
-                  + v.getErrorMessage() );
+              String errorMessage = StringUtils.defaultString(v.getErrorMessage());
+              if (errorMessage.startsWith(AddGroupValidator.GROUP_ALREADY_EXISTS_WITH_NAME_PREFIX)) {
+                throw new GrouperDAOException(null, new GroupAddAlreadyExistsException(errorMessage));
+              }
+              throw new GrouperDAOException(null, new GroupAddException( errorMessage ));
             }
             try {
               Stem _ns = new Stem();
