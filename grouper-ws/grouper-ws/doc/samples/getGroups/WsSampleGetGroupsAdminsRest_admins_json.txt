@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRest, manually written lite/rest, format: xml, for version: v1_4_002
+Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRest, manually written lite/rest, type: _admins, format: json, for version: v1_4_002
 
 
 #########################################
@@ -14,22 +14,33 @@ Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
-Content-Length: 289
-Content-Type: text/xml; charset=UTF-8
+Content-Length: 231
+Content-Type: text/x-json; charset=UTF-8
 
-<WsRestGetGroupsRequest>
-  <subjectLookups>
-    <WsSubjectLookup>
-      <subjectId>10021368</subjectId>
-    </WsSubjectLookup>
-    <WsSubjectLookup>
-      <subjectId>10039438</subjectId>
-    </WsSubjectLookup>
-  </subjectLookups>
-  <subjectAttributeNames>
-    <string>description</string>
-  </subjectAttributeNames>
-</WsRestGetGroupsRequest>
+{
+  "WsRestGetGroupsRequest":{
+    "subjectLookups":{
+      "WsSubjectLookup":[
+        {
+          "subjectId":10021368
+        },
+        {
+          "subjectId":10039438
+        }
+      ]
+      
+    },
+    "subjectAttributeNames":{
+      "string":"description"
+    },
+    "params":{
+      "WsParam":{
+        "paramName":"fieldName",
+        "paramValue":"admins"
+      }
+    }
+  }
+}
 
 
 #########################################
@@ -46,117 +57,62 @@ Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml
-Date: Thu, 05 Mar 2009 06:25:35 GMT
+Content-Type: text/x-json
+Date: Thu, 05 Mar 2009 06:26:21 GMT
 Connection: close
 
-<WsGetGroupsResults>
-  <results>
-    <WsGetGroupsResult>
-      <wsGroups>
-        <WsGroup>
-          <extension>aGroup2</extension>
-          <displayExtension>a group2</displayExtension>
-          <description>a group description2</description>
-          <displayName>a stem:a group2</displayName>
-          <name>aStem:aGroup2</name>
-          <uuid>11716b0f-e03b-4b1c-928c-02a80e840607</uuid>
-        </WsGroup>
-        <WsGroup>
-          <extension>sysadmingroup</extension>
-          <displayExtension>sysadmingroup</displayExtension>
-          <displayName>etc:sysadmingroup</displayName>
-          <name>etc:sysadmingroup</name>
-          <uuid>60ce9e23-c173-408b-b105-69097eae4d3e</uuid>
-        </WsGroup>
-        <WsGroup>
-          <extension>webServiceActAsGroup</extension>
-          <displayExtension>webServiceActAsGroup</displayExtension>
-          <displayName>etc:webServiceActAsGroup</displayName>
-          <name>etc:webServiceActAsGroup</name>
-          <uuid>06c4250f-f9e5-4ecd-984b-58d4d3c79ecb</uuid>
-        </WsGroup>
-        <WsGroup>
-          <extension>aGroup</extension>
-          <displayExtension>a group</displayExtension>
-          <description>a group description</description>
-          <displayName>a stem:a group</displayName>
-          <name>aStem:aGroup</name>
-          <uuid>38a3532c-cb82-4b90-bb50-d57b67b31967</uuid>
-        </WsGroup>
-        <WsGroup>
-          <extension>webServiceClientUsers</extension>
-          <displayExtension>webServiceClientUsers</displayExtension>
-          <displayName>etc:webServiceClientUsers</displayName>
-          <name>etc:webServiceClientUsers</name>
-          <uuid>5ac9dc4a-7d97-4411-9817-91d3d63f4fbd</uuid>
-        </WsGroup>
-      </wsGroups>
-      <resultMetadata>
-        <resultCode>SUCCESS</resultCode>
-        <success>T</success>
-      </resultMetadata>
-      <wsSubject>
-        <resultCode>SUCCESS</resultCode>
-        <success>T</success>
-        <id>10021368</id>
-        <sourceId>pennperson</sourceId>
-        <attributeValues>
-          <string>Chris Hyzer</string>
-        </attributeValues>
-      </wsSubject>
-    </WsGetGroupsResult>
-    <WsGetGroupsResult>
-      <wsGroups>
-        <WsGroup>
-          <extension>aGroup</extension>
-          <displayExtension>a group</displayExtension>
-          <description>a group description</description>
-          <displayName>a stem:a group</displayName>
-          <name>aStem:aGroup</name>
-          <uuid>38a3532c-cb82-4b90-bb50-d57b67b31967</uuid>
-        </WsGroup>
-        <WsGroup>
-          <extension>aGroup2</extension>
-          <displayExtension>a group2</displayExtension>
-          <description>a group description2</description>
-          <displayName>a stem:a group2</displayName>
-          <name>aStem:aGroup2</name>
-          <uuid>11716b0f-e03b-4b1c-928c-02a80e840607</uuid>
-        </WsGroup>
-      </wsGroups>
-      <resultMetadata>
-        <resultCode>SUCCESS</resultCode>
-        <success>T</success>
-      </resultMetadata>
-      <wsSubject>
-        <resultCode>SUCCESS</resultCode>
-        <success>T</success>
-        <id>10039438</id>
-        <sourceId>pennperson</sourceId>
-        <attributeValues>
-          <string>John Smith</string>
-        </attributeValues>
-      </wsSubject>
-    </WsGetGroupsResult>
-  </results>
-  <resultMetadata>
-    <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_4_002, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]
-[1]: WsSubjectLookup[subjectId=10039438]
-
-memberFilter: All, includeGroupDetail: false, actAsSubject: null
-, params: null</resultMessage>
-    <success>T</success>
-  </resultMetadata>
-  <subjectAttributeNames>
-    <string>description</string>
-  </subjectAttributeNames>
-  <responseMetadata>
-    <millis>281</millis>
-    <serverVersion>v1_4_002</serverVersion>
-  </responseMetadata>
-</WsGetGroupsResults>
+{
+  "WsGetGroupsResults":{
+    "results":{
+      "WsGetGroupsResult":[
+        {
+          "resultMetadata":{
+            "resultCode":"SUCCESS",
+            "success":"T"
+          },
+          "wsSubject":{
+            "resultCode":"SUCCESS",
+            "success":"T",
+            "id":"10021368",
+            "sourceId":"pennperson",
+            "attributeValues":{
+              "string":"Chris Hyzer"
+            }
+          }
+          
+        },
+        {
+          "resultMetadata":{
+            "resultCode":"SUCCESS",
+            "success":"T"
+          },
+          "wsSubject":{
+            "resultCode":"SUCCESS",
+            "success":"T",
+            "id":"10039438",
+            "sourceId":"pennperson",
+            "attributeValues":{
+              "string":"John Smith"
+            }
+          }
+        }
+      ]
+      
+    },
+    "resultMetadata":{
+      "resultCode":"SUCCESS",
+      "resultMessage":"Success for: clientVersion: v1_4_002, subjectLookups: Array size: 2: [0]: WsSubjectLookup[subjectId=10021368]\n[1]: WsSubjectLookup[subjectId=10039438]\n\nmemberFilter: All, includeGroupDetail: false, actAsSubject: null\n, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]\n, field: admins",
+      "success":"T"
+    },
+    "subjectAttributeNames":{
+      "string":"description"
+    },
+    "responseMetadata":{
+      "millis":"47",
+      "serverVersion":"v1_4_002"
+    }
+  }
+}
 
 
 #########################################
@@ -188,13 +144,14 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsResults;
+import edu.internet2.middleware.grouper.ws.soap.WsParam;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 
 /**
  * @author mchyzer
  */
-public class WsSampleGetGroupsRest implements WsSampleRest {
+public class WsSampleGetGroupsAdminsRest implements WsSampleRest {
 
   /**
    * get groups lite web service with REST
@@ -239,6 +196,8 @@ public class WsSampleGetGroupsRest implements WsSampleRest {
       subjectLookups[1] = new WsSubjectLookup("10039438", null, null);
 
       getGroups.setSubjectLookups(subjectLookups);
+      
+      getGroups.setParams(new WsParam[] {new WsParam("fieldName", "admins")});
       
       //get the xml / json / xhtml / paramString
       String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getGroups);
@@ -326,4 +285,5 @@ Server version: v1_4_002, result code: SUCCESS, result message: Success for: cli
 [1]: WsSubjectLookup[subjectId=10039438]
 
 memberFilter: All, includeGroupDetail: false, actAsSubject: null
-, params: null
+, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
+, field: admins

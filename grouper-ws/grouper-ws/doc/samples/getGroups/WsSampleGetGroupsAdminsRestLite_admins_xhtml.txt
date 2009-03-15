@@ -1,4 +1,4 @@
-Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, manually written lite/rest, format: xml, for version: v1_4_002
+Grouper web service sample of service: getGroups, WsSampleGetGroupsAdminsRestLite, manually written lite/rest, type: _admins, format: xhtml, for version: v1_4_002
 
 
 #########################################
@@ -9,11 +9,40 @@ Grouper web service sample of service: getGroups, WsSampleGetGroupsRestLite, man
 #########################################
 
 
-GET /grouperWs/servicesRest/xml/v1_4_002/subjects/10021368/groups HTTP/1.1
+POST /grouperWs/servicesRest/xhtml/v1_4_002/subjects/10021368/groups HTTP/1.1
 Connection: close
 Authorization: Basic xxxxxxxxxxxxxxxxx==
 User-Agent: Jakarta Commons-HttpClient/3.1
 Host: localhost:8092
+Content-Length: 814
+Content-Type: application/xhtml+xml; charset=UTF-8
+
+<?xml version='1.0' encoding='iso-8859-1'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>WsRestGetGroupsLiteRequest</title>
+  </head>
+  <body>
+    <div title="WsRestGetGroupsLiteRequest">
+      <p class="subjectSourceId" />
+      <p class="subjectId" />
+      <p class="clientVersion" />
+      <p class="memberFilter" />
+      <p class="includeGroupDetail">T</p>
+      <p class="includeSubjectDetail">T</p>
+      <p class="subjectAttributeNames" />
+      <p class="subjectIdentifier" />
+      <p class="actAsSubjectId">GrouperSystem</p>
+      <p class="actAsSubjectSourceId" />
+      <p class="actAsSubjectIdentifier" />
+      <p class="paramName0">fieldName</p>
+      <p class="paramValue0">admins</p>
+      <p class="paramName1" />
+      <p class="paramValue1" />
+    </div>
+  </body>
+</html>
 
 
 #########################################
@@ -26,76 +55,48 @@ Host: localhost:8092
 
 HTTP/1.1 200 OK
 Server: Apache-Coyote/1.1
-Pragma: No-cache
-Cache-Control: no-cache
-Expires: Wed, 31 Dec 1969 19:00:00 EST
 Set-Cookie: JSESSIONID=xxxxxxxxxxxxxxxxxxxxxxxx; Path=/grouperWs
 X-Grouper-resultCode: SUCCESS
 X-Grouper-success: T
 X-Grouper-resultCode2: NONE
-Content-Type: text/xml
-Date: Thu, 05 Mar 2009 06:26:04 GMT
+Content-Type: application/xhtml+xml
+Date: Thu, 05 Mar 2009 06:26:35 GMT
 Connection: close
 
-<WsGetGroupsLiteResult>
-  <resultMetadata>
-    <resultCode>SUCCESS</resultCode>
-    <resultMessage>Success for: clientVersion: v1_4_002, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
+<?xml version='1.0' encoding='iso-8859-1'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+  <head>
+    <title>WsGetGroupsLiteResult</title>
+  </head>
+  <body>
+    <div title="WsGetGroupsLiteResult">
+      <div class="resultMetadata" title="WsResultMeta">
+        <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
+        <p class="resultMessage">Success for: clientVersion: v1_4_002, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
-memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]
-, params: null</resultMessage>
-    <success>T</success>
-  </resultMetadata>
-  <responseMetadata>
-    <millis>156</millis>
-    <serverVersion>v1_4_002</serverVersion>
-  </responseMetadata>
-  <wsGroups>
-    <WsGroup>
-      <extension>webServiceActAsGroup</extension>
-      <displayExtension>webServiceActAsGroup</displayExtension>
-      <displayName>etc:webServiceActAsGroup</displayName>
-      <name>etc:webServiceActAsGroup</name>
-      <uuid>ad1fc77c-1c9b-4e41-8da6-e0f12c5d82df</uuid>
-    </WsGroup>
-    <WsGroup>
-      <extension>aGroup2</extension>
-      <displayExtension>a group2</displayExtension>
-      <description>a group description2</description>
-      <displayName>a stem:a group2</displayName>
-      <name>aStem:aGroup2</name>
-      <uuid>b55f230f-a95a-4e34-9ffb-bdb4e41e10af</uuid>
-    </WsGroup>
-    <WsGroup>
-      <extension>webServiceClientUsers</extension>
-      <displayExtension>webServiceClientUsers</displayExtension>
-      <displayName>etc:webServiceClientUsers</displayName>
-      <name>etc:webServiceClientUsers</name>
-      <uuid>b4cad75a-285e-46a5-abf0-fe5b38d156f5</uuid>
-    </WsGroup>
-    <WsGroup>
-      <extension>sysadmingroup</extension>
-      <displayExtension>sysadmingroup</displayExtension>
-      <displayName>etc:sysadmingroup</displayName>
-      <name>etc:sysadmingroup</name>
-      <uuid>b4468584-a538-47f7-a58f-524e2aba137f</uuid>
-    </WsGroup>
-    <WsGroup>
-      <extension>aGroup</extension>
-      <displayExtension>a group</displayExtension>
-      <description>a group description</description>
-      <displayName>a stem:a group</displayName>
-      <name>aStem:aGroup</name>
-      <uuid>11233f0c-c051-478b-bddb-840f04589adc</uuid>
-    </WsGroup>
-  </wsGroups>
-  <wsSubject>
-    <resultCode>SUCCESS</resultCode>
-    <success>T</success>
-    <id>10021368</id>
-    <sourceId>pennperson</sourceId>
-  </wsSubject>
-</WsGetGroupsLiteResult>
+memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
+, field: admins</p>
+        <p class="resultCode2" />
+      </div>
+      <div class="responseMetadata" title="WsResponseMeta">
+        <p class="resultWarnings" />
+        <p class="serverVersion">v1_4_002</p>
+        <p class="millis">3885</p>
+      </div>
+      <div class="wsSubject" title="WsSubject">
+        <p class="resultCode">SUCCESS</p>
+        <p class="success">T</p>
+        <p class="identifierLookup" />
+        <p class="sourceId">pennperson</p>
+        <p class="name" />
+        <p class="id">10021368</p>
+      </div>
+    </div>
+  </body>
+</html>
 
 
 #########################################
@@ -116,11 +117,14 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ws.rest.WsRestResultProblem;
+import edu.internet2.middleware.grouper.ws.rest.group.WsRestGetGroupsLiteRequest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRestType;
 import edu.internet2.middleware.grouper.ws.soap.WsGetGroupsLiteResult;
@@ -129,7 +133,7 @@ import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
 /**
  * @author mchyzer
  */
-public class WsSampleGetGroupsRestLite implements WsSampleRest {
+public class WsSampleGetGroupsAdminsRestLite implements WsSampleRest {
 
   /**
    * get groups lite web service with REST
@@ -146,7 +150,7 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
 
       //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
       //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
-      GetMethod method = new GetMethod(
+      PostMethod method = new PostMethod(
           RestClientSettings.URL + "/" + wsSampleRestType.getWsLiteResponseContentType().name()
             + "/" + RestClientSettings.VERSION  
             + "/subjects/10021368/groups");
@@ -162,6 +166,27 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
       httpClient.getState()
           .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
 
+      //Make the body of the request, in this case with beans and marshaling, but you can make
+      //your request document in whatever language or way you want
+      WsRestGetGroupsLiteRequest getGroupsLite = new WsRestGetGroupsLiteRequest();
+
+      // set the act as id
+      getGroupsLite.setActAsSubjectId("GrouperSystem");
+
+      getGroupsLite.setIncludeGroupDetail("T");
+      getGroupsLite.setIncludeSubjectDetail("T");
+      
+      getGroupsLite.setParamName0("fieldName");
+      getGroupsLite.setParamValue0("admins");
+      
+      //get the xml / json / xhtml / paramString
+      String requestDocument = wsSampleRestType.getWsLiteRequestContentType().writeString(getGroupsLite);
+      
+      //make sure right content type is in request (e.g. application/xhtml+xml
+      String contentType = wsSampleRestType.getWsLiteRequestContentType().getContentType();
+      
+      method.setRequestEntity(new StringRequestEntity(requestDocument, contentType, "UTF-8"));
+      
       httpClient.executeMethod(method);
 
       //make sure a request came back
@@ -175,9 +200,15 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
       
       String response = RestClientSettings.responseBodyAsString(method);
 
+      Object resultObject = wsSampleRestType.getWsLiteResponseContentType().parseString(response);
+    
+      //see if problem
+      if (resultObject instanceof WsRestResultProblem) {
+        throw new RuntimeException(((WsRestResultProblem)resultObject).getResultMetadata().getResultMessage());
+      }
+
       //convert to object (from xhtml, xml, json, etc)
-      WsGetGroupsLiteResult wsGetGroupsLiteResult = (WsGetGroupsLiteResult)wsSampleRestType
-        .getWsLiteResponseContentType().parseString(response);
+      WsGetGroupsLiteResult wsGetGroupsLiteResult = (WsGetGroupsLiteResult)resultObject;
       
       String resultMessage = wsGetGroupsLiteResult.getResultMetadata().getResultMessage();
 
@@ -202,7 +233,7 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    getGroupsLite(WsSampleRestType.xhtml);
+    getGroupsLite(WsSampleRestType.xml);
   }
 
   /**
@@ -230,5 +261,6 @@ public class WsSampleGetGroupsRestLite implements WsSampleRest {
 
 Server version: v1_4_002, result code: SUCCESS, result message: Success for: clientVersion: v1_4_002, subjectLookups: Array size: 1: [0]: WsSubjectLookup[subjectId=10021368]
 
-memberFilter: All, includeGroupDetail: false, actAsSubject: WsSubjectLookup[]
-, params: null
+memberFilter: All, includeGroupDetail: true, actAsSubject: WsSubjectLookup[subjectId=GrouperSystem]
+, params: Array size: 1: [0]: WsParam[paramName=fieldName,paramValue=admins]
+, field: admins
