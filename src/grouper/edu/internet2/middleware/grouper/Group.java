@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -116,7 +117,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.229 2009-03-16 05:50:39 mchyzer Exp $
+ * @version $Id: Group.java,v 1.230 2009-03-16 15:43:56 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -3887,6 +3888,43 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
 
   }
 
+  /**
+   * when the last member has changed, used by hibernate
+   */
+  private Long lastMembershipChangeDb;
+  
+  /**
+   * when the last member has changed, used by hibernate
+   * @return when
+   */
+  public Long getLastMembershipChangeDb() {
+    return this.lastMembershipChangeDb;
+  }
+  
+  /**
+   * when the last member has changed, used by hibernate
+   * @param theMembershipLastChange
+   */
+  public void setLastMembershipChangeDb(Long theMembershipLastChange) {
+    this.lastMembershipChangeDb = theMembershipLastChange;
+  }
+  
+  /**
+   * when the last member has changed
+   * @return the membership last change timestamp
+   */
+  public Timestamp getLastMembershipChange() {
+    return this.lastMembershipChangeDb == null ? null : new Timestamp(this.lastMembershipChangeDb);
+  }
+
+  /**
+   * when the last member has changed
+   * @param membershipLastChange
+   */
+  public void setLastMembershipChange(Timestamp membershipLastChange) {
+    this.lastMembershipChangeDb = membershipLastChange == null ? null : membershipLastChange.getTime();
+  }
+  
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */

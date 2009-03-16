@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -96,7 +97,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.185 2009-03-16 05:50:39 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.186 2009-03-16 15:43:56 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -2693,15 +2694,53 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    * @throws UnableToPerformException
    */
   private void internal_copyPrivilegesOfStem(GrouperSession session, Stem stem)
-    throws UnableToPerformException {
-  Set<Privilege> privileges = Privilege.getNamingPrivs();
-
-  Iterator<Privilege> iter = privileges.iterator();
-  while (iter.hasNext()) {
-    Privilege priv = iter.next();
-    session.getNamingResolver().privilegeCopy(stem, this, priv);      
-  }  
-}
+      throws UnableToPerformException {
+    Set<Privilege> privileges = Privilege.getNamingPrivs();
   
-} // public class Stem extends GrouperAPI implements Owner
+    Iterator<Privilege> iter = privileges.iterator();
+    while (iter.hasNext()) {
+      Privilege priv = iter.next();
+      session.getNamingResolver().privilegeCopy(stem, this, priv);      
+    }  
+  }
+  
+  /**
+   * when the last member has changed, used by hibernate
+   */
+  private Long lastMembershipChangeDb;
+  
+  /**
+   * when the last member has changed, used by hibernate
+   * @return when
+   */
+  public Long getLastMembershipChangeDb() {
+    return this.lastMembershipChangeDb;
+  }
+  
+  /**
+   * when the last member has changed, used by hibernate
+   * @param theMembershipLastChange
+   */
+  public void setLastMembershipChangeDb(Long theMembershipLastChange) {
+    this.lastMembershipChangeDb = theMembershipLastChange;
+  }
+  
+  /**
+   * when the last member has changed
+   * @return the membership last change timestamp
+   */
+  public Timestamp getLastMembershipChange() {
+    return this.lastMembershipChangeDb == null ? null : new Timestamp(this.lastMembershipChangeDb);
+  }
+
+  /**
+   * when the last member has changed
+   * @param membershipLastChange
+   */
+  public void setLastMembershipChange(Timestamp membershipLastChange) {
+    this.lastMembershipChangeDb = membershipLastChange == null ? null : membershipLastChange.getTime();
+  }
+
+  
+}
 
