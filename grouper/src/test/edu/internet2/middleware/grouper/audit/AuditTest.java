@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTest.java,v 1.12 2009-03-16 05:52:00 mchyzer Exp $
+ * $Id: AuditTest.java,v 1.13 2009-03-16 14:46:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -145,7 +145,7 @@ public class AuditTest extends GrouperTest {
     assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
   
     List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
     AuditEntry auditEntry2 = auditEntries.get(1);
 
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry2.getContextId()));
@@ -220,7 +220,7 @@ public class AuditTest extends GrouperTest {
     assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
   
     List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
     AuditEntry auditEntry2 = auditEntries.get(1);
   
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry2.getContextId()));
@@ -270,7 +270,7 @@ public class AuditTest extends GrouperTest {
     assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
     
     List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
     
     AuditEntry auditEntry2 = auditEntries.get(1);
     
@@ -296,7 +296,7 @@ public class AuditTest extends GrouperTest {
     assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
   
     auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
     AuditEntry auditEntry3 = auditEntries.get(2);
 
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
@@ -346,7 +346,7 @@ public class AuditTest extends GrouperTest {
     assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
     
     List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
     
     AuditEntry auditEntry2 = auditEntries.get(1);
     
@@ -372,7 +372,7 @@ public class AuditTest extends GrouperTest {
     assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
   
     auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
     AuditEntry auditEntry3 = auditEntries.get(2);
 
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
@@ -428,7 +428,7 @@ public class AuditTest extends GrouperTest {
     assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
     
     List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
     
     AuditEntry auditEntry2 = auditEntries.get(1);
     
@@ -451,7 +451,7 @@ public class AuditTest extends GrouperTest {
     assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
   
     auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
     AuditEntry auditEntry3 = auditEntries.get(2);
 
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
@@ -508,7 +508,7 @@ public class AuditTest extends GrouperTest {
     assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
     
     List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
     
     AuditEntry auditEntry2 = auditEntries.get(1);
     
@@ -531,7 +531,7 @@ public class AuditTest extends GrouperTest {
     assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
   
     auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
     AuditEntry auditEntry3 = auditEntries.get(2);
   
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
@@ -587,7 +587,7 @@ public class AuditTest extends GrouperTest {
     assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
     
     List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
     
     AuditEntry auditEntry2 = auditEntries.get(1);
     
@@ -610,7 +610,7 @@ public class AuditTest extends GrouperTest {
     assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
   
     auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
     AuditEntry auditEntry3 = auditEntries.get(2);
 
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
@@ -668,7 +668,7 @@ public class AuditTest extends GrouperTest {
     assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
     
     List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
     
     AuditEntry auditEntry2 = auditEntries.get(1);
     
@@ -691,7 +691,7 @@ public class AuditTest extends GrouperTest {
     assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
   
     auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
     AuditEntry auditEntry3 = auditEntries.get(2);
 
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
@@ -755,7 +755,7 @@ public class AuditTest extends GrouperTest {
     assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
   
     List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
     AuditEntry auditEntry2 = auditEntries.get(1);
   
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry2.getContextId()));
@@ -780,7 +780,7 @@ public class AuditTest extends GrouperTest {
     assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
   
      auditEntries = HibernateSession.byHqlStatic()
-      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+      .createQuery("from AuditEntry order by createdOnDb").list(AuditEntry.class);
     AuditEntry auditEntry3 = auditEntries.get(2);
   
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));

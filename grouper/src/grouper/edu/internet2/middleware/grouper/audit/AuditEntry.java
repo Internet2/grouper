@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditEntry.java,v 1.5 2009-02-09 21:36:43 mchyzer Exp $
+ * $Id: AuditEntry.java,v 1.6 2009-03-16 14:46:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -231,12 +231,12 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
   /**
    * when this record was created 
    */
-  private Timestamp createdOn;
+  private Long createdOnDb;
 
   /**
    * when this record was last updated 
    */
-  private Timestamp lastUpdated;
+  private Long lastUpdatedDb;
   
   /**
    * foreign key to the type of audit entry this is
@@ -611,7 +611,7 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
    * @return timestamp
    */
   public Timestamp getCreatedOn() {
-    return this.createdOn;
+    return this.createdOnDb == null ? null : new Timestamp(this.createdOnDb);
   }
 
   /**
@@ -619,7 +619,23 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
    * @return timestamp
    */
   public Timestamp getLastUpdated() {
-    return this.lastUpdated;
+    return this.lastUpdatedDb == null ? null : new Timestamp(this.lastUpdatedDb);
+  }
+
+  /**
+   * when created
+   * @return timestamp
+   */
+  public Long getCreatedOnDb() {
+    return this.createdOnDb;
+  }
+
+  /**
+   * when last updated
+   * @return timestamp
+   */
+  public Long getLastUpdatedDb() {
+    return this.lastUpdatedDb;
   }
 
   /**
@@ -627,7 +643,7 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
    * @param createdOn1
    */
   public void setCreatedOn(Timestamp createdOn1) {
-    this.createdOn = createdOn1;
+    this.createdOnDb = createdOn1 == null ? null : createdOn1.getTime();
   }
 
   /**
@@ -635,7 +651,7 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
    * @param lastUpdated1
    */
   public void setLastUpdated(Timestamp lastUpdated1) {
-    this.lastUpdated = lastUpdated1;
+    this.lastUpdatedDb = lastUpdated1 == null ? null : lastUpdated1.getTime();
   }
 
   /**
@@ -711,7 +727,12 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
   @Override
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
-    this.setLastUpdated(new Timestamp(System.currentTimeMillis()));
+    if (this.lastUpdatedDb == null) {
+      this.lastUpdatedDb = System.currentTimeMillis();
+    }
+    if (this.createdOnDb == null) {
+      this.createdOnDb = System.currentTimeMillis();
+    }
   }
 
   /**
@@ -721,7 +742,7 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
   @Override
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
-    this.setLastUpdated(new Timestamp(System.currentTimeMillis()));
+    this.setLastUpdatedDb(System.currentTimeMillis());
   }
 
   /**
@@ -756,4 +777,21 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
     this.serverUserName = serverUserName1;
   }
 
+  /**
+   * when created
+   * @param createdOn1
+   */
+  public void setCreatedOnDb(Long createdOn1) {
+    this.createdOnDb = createdOn1;
+  }
+
+  /**
+   * when last updated
+   * @param lastUpdated1
+   */
+  public void setLastUpdatedDb(Long lastUpdated1) {
+    this.lastUpdatedDb = lastUpdated1;
+  }
+
+  
 }
