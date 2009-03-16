@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTest.java,v 1.11 2009-03-15 21:30:29 mchyzer Exp $
+ * $Id: AuditTest.java,v 1.12 2009-03-16 05:52:00 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -12,22 +12,28 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperTest;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.SessionHelper;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemHelper;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupTypeTupleDAO;
 import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -48,7 +54,7 @@ public class AuditTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AuditTest("testMemberships"));
+    TestRunner.run(new AuditTest("testStemPrivileges"));
   }
   
   /**
@@ -460,18 +466,18 @@ public class AuditTest extends GrouperTest {
    * @throws Exception 
    */
   public void testMemberships() throws Exception {
-
+  
     Group group = this.edu.addChildGroup("test1", "test1");
     Group group2 = this.edu.addChildGroup("test2", "test2");
     Subject subject = SubjectFinder.findRootSubject();
     
     HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
-
+  
     int auditCount = HibernateSession.bySqlStatic().select(int.class, 
         "select count(1) from grouper_audit_entry");
     
     group.addMember(subject);
-
+  
     int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
     
@@ -490,11 +496,90 @@ public class AuditTest extends GrouperTest {
     
     //make sure date is different
     GrouperUtil.sleep(1000);
-
+  
     group2.addMember(subject);
-
+  
     Membership membership2 = MembershipFinder.findImmediateMembership(this.grouperSession, group2, subject, 
         Group.getDefaultList(), true);
+    
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
+    
+    List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+    
+    AuditEntry auditEntry2 = auditEntries.get(1);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry2.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry2.getContextId()));
+    
+    assertEquals("Context id's should match: ", auditEntry2.getContextId(), membership2.getContextId());
+  
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry2.getDescription()));
+  
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+    
+    group.deleteMember(subject);
+  
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+  
+    assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
+  
+    auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+    AuditEntry auditEntry3 = auditEntries.get(2);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry3.getContextId()));
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry3.getDescription()));
+  }
+
+  /**
+   */
+  public void testGroupPrivileges() {
+
+    Group group = this.edu.addChildGroup("test1", "test1");
+    Group group2 = this.edu.addChildGroup("test2", "test2");
+    Subject subject = SubjectFinder.findRootSubject();
+    
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+    
+    group.grantPriv(subject, AccessPrivilege.OPTIN);
+
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+    
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+    
+    Membership membership = MembershipFinder.findImmediateMembership(this.grouperSession, group, subject, 
+        FieldFinder.find("optins", true), true);
+    
+    assertEquals("Context id's should match", auditEntry.getContextId(), membership.getContextId());
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry.getDescription()));
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+
+    group2.grantPriv(subject, AccessPrivilege.OPTIN);
+
+    Membership membership2 = MembershipFinder.findImmediateMembership(this.grouperSession, group2, subject, 
+        FieldFinder.find("optins", true), true);
     
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
@@ -517,7 +602,88 @@ public class AuditTest extends GrouperTest {
     //make sure date is different
     GrouperUtil.sleep(1000);
     
-    group.deleteMember(subject);
+    group.revokePriv(subject, AccessPrivilege.OPTIN);
+
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+  
+    assertEquals("Should have added exactly three audits", auditCount+3, newAuditCount);
+  
+    auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+    AuditEntry auditEntry3 = auditEntries.get(2);
+
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry3.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry3.getContextId()));
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry3.getDescription()));
+  }
+
+  /**
+   */
+  public void testStemPrivileges() {
+
+    Stem stem = this.edu.addChildStem("test1", "test1");
+    Stem stem2 = this.edu.addChildStem("test2", "test2");
+    Subject subject = SubjectTestHelper.SUBJ0;
+    
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+    
+    stem.grantPriv(subject, NamingPrivilege.CREATE);
+
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+    
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+    
+    Member member = MemberFinder.findBySubject(this.grouperSession, subject, false);
+    
+    Membership membership = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(stem.getUuid(), 
+        member.getUuid(), FieldFinder.find("creators", true), "immediate", true);
+    
+    assertEquals("Context id's should match", auditEntry.getContextId(), membership.getContextId());
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry.getDescription()));
+    
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+
+    stem2.grantPriv(subject, NamingPrivilege.CREATE);
+
+    Membership membership2 = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(stem2.getUuid(), 
+        member.getUuid(), FieldFinder.find("creators", true), "immediate", true);
+    
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly two audits", auditCount+2, newAuditCount);
+    
+    List<AuditEntry> auditEntries = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry order by createdOn").list(AuditEntry.class);
+    
+    AuditEntry auditEntry2 = auditEntries.get(1);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry2.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry2.getContextId()));
+    
+    assertEquals("Context id's should match: ", auditEntry2.getContextId(), membership2.getContextId());
+
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry2.getDescription()));
+
+    //make sure date is different
+    GrouperUtil.sleep(1000);
+    
+    stem.revokePriv(subject, NamingPrivilege.CREATE);
 
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");

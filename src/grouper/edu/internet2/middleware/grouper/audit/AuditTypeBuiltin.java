@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTypeBuiltin.java,v 1.2 2009-02-09 21:36:43 mchyzer Exp $
+ * $Id: AuditTypeBuiltin.java,v 1.3 2009-03-16 05:50:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -96,6 +96,21 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
    * delete membership
    */
   MEMBERSHIP_DELETE(new AuditType("membership", "deleteMembership", null, "id", "fieldId", "fieldName", "memberId", "membershipType", "ownerType", "ownerId", "ownerName")),
+
+  /**
+   * add privilege
+   */
+  PRIVILEGE_ADD(new AuditType("privilege", "addPrivilege", null, "privilegeName", "memberId", "privilegeType", "ownerType", "ownerId", "ownerName")),
+  
+  /**
+   * update privilege
+   */
+  PRIVILEGE_UPDATE(new AuditType("privilege", "updatePrivilege", null,"privilegeName", "memberId", "privilegeType", "ownerType", "ownerId", "ownerName")),
+
+  /**
+   * delete privilege
+   */
+  PRIVILEGE_DELETE(new AuditType("privilege", "deletePrivilege", null, "privilegeName", "memberId", "privilegeType", "ownerType", "ownerId", "ownerName")),
 
   /**
    * add group

@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.60 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: MemberFinder.java,v 1.61 2009-03-16 05:50:39 mchyzer Exp $
  */
 public class MemberFinder {
 	
@@ -194,7 +194,7 @@ public class MemberFinder {
    * find a member, perhaps create a new one if not there
    * @param subj
    * @param createIfNotExist 
-   * @return the member
+   * @return the member or null if not found
    */
   public static Member internal_findBySubject(Subject subj, boolean createIfNotExist) {
     if (subj == null) {
