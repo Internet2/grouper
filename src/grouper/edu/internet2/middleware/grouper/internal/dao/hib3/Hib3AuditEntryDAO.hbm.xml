@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3AuditEntryDAO.hbm.xml,v 1.7 2009-02-09 05:33:30 mchyzer Exp $ -->
+<!-- $Id: Hib3AuditEntryDAO.hbm.xml,v 1.8 2009-03-16 14:46:27 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.audit">
   <class name="AuditEntry" table="grouper_audit_entry">
@@ -37,7 +37,7 @@
     <property name="actAsMemberId" column="act_as_member_id"/>
     <property name="auditTypeId" column="audit_type_id"/>
     <property name="contextId" column="context_id"/>
-    <property name="createdOn" column="created_on"/>
+    <property name="createdOnDb" column="created_on"/>
     <property name="description" column="description"/>
     <property name="envName" column="env_name"/>
     <property name="grouperEngine" column="grouper_engine"/>
@@ -47,7 +47,7 @@
     <property name="int03" column="int03"/>
     <property name="int04" column="int04"/>
     <property name="int05" column="int05"/>
-    <property name="lastUpdated" column="last_updated"/>
+    <property name="lastUpdatedDb" column="last_updated"/>
     <property name="loggedInMemberId" column="logged_in_member_id"/>
     <property name="serverHost" column="server_host"/>
     <property name="string01" column="string01"/>

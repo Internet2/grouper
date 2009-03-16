@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.39 2009-03-16 05:50:39 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.40 2009-03-16 14:46:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -3304,7 +3304,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "128", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "created_on", 
-          Types.TIMESTAMP, null, false, false); 
+          Types.BIGINT, "20", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "hibernate_version_number", 
           Types.INTEGER, null, false, false); 
@@ -3352,7 +3352,7 @@ public enum GrouperDdl implements DdlVersionable {
           Types.VARCHAR, "50", false, false); 
     
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditTypeTable, "last_updated", 
-          Types.TIMESTAMP, null, false, false); 
+          Types.BIGINT, "20", false, false); 
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperAuditTypeTable.getName(), 
           "audit_type_category_type_idx", true, "audit_category", "action_name");
@@ -3373,7 +3373,7 @@ public enum GrouperDdl implements DdlVersionable {
           "context_id", Types.VARCHAR, "128", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "created_on", Types.TIMESTAMP, null, false, false); 
+          "created_on", Types.BIGINT, "20", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "description", Types.VARCHAR, "4000", false, false); 
@@ -3409,7 +3409,7 @@ public enum GrouperDdl implements DdlVersionable {
           "int05", Types.INTEGER, null, false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
-          "last_updated", Types.TIMESTAMP, null, false, false); 
+          "last_updated", Types.BIGINT, "20", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperAuditEntryTable, 
           "logged_in_member_id", Types.VARCHAR, "128", false, false); 
