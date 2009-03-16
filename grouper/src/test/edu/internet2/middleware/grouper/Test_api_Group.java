@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Group.java,v 1.9 2009-03-15 23:13:50 shilen Exp $
+ * @version $Id: Test_api_Group.java,v 1.10 2009-03-16 23:22:53 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Group extends GrouperTest {
@@ -145,11 +145,47 @@ public class Test_api_Group extends GrouperTest {
   }
   
   /**
+   * @throws Exception
+   */
+  public void test_move2() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+
+    child_group.addMember(a);
+    child_group.grantPriv(a, AccessPrivilege.UPDATE);
+    new GroupMove(child_group, top).save();
+    
+
+    child_group = GroupFinder.findByName(s, "top:child group", true);
+    assertGroupName(child_group, "top:child group");
+    assertGroupDisplayName(child_group, "top display name:child group display name");
+    assertGroupHasMember(child_group, a, true);
+    assertGroupHasMember(child_group, b, false);
+    assertGroupHasUpdate(child_group, a, true);
+    assertTrue(child_group.getParentStem().getUuid().equals(top.getUuid()));
+    
+    r.rs.stop();
+  }
+  
+  /**
    * @throws InsufficientPrivilegeException 
    */
   public void test_move_toRootStem() throws InsufficientPrivilegeException {
     try {
       top_group.move(root);
+      fail("failed to throw GroupModifyException");
+    } catch (GroupModifyException e) {
+      assertTrue(true);
+    }
+  }
+  
+  /**
+   * @throws InsufficientPrivilegeException 
+   */
+  public void test_move_toRootStem2() throws InsufficientPrivilegeException {
+    try {
+      new GroupMove(top_group, root).save();
       fail("failed to throw GroupModifyException");
     } catch (GroupModifyException e) {
       assertTrue(true);

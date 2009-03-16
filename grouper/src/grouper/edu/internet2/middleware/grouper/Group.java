@@ -117,7 +117,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.230 2009-03-16 15:43:56 mchyzer Exp $
+ * @version $Id: Group.java,v 1.231 2009-03-16 23:22:52 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -4189,13 +4189,19 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   }
 
   /**
-   * Move this group to another Stem.
+   * Move this group to another Stem.  This will not add an old name to the group.
+   * If you would like to specify options for the move, use GroupMove instead.
    * @param stem 
    * @throws GroupModifyException 
    * @throws InsufficientPrivilegeException 
    */
   public void move(Stem stem) throws GroupModifyException,
       InsufficientPrivilegeException {
+    
+    internal_move(stem, false);
+  }
+  
+  protected void internal_move(Stem stem, boolean assignOldName) {
     
     GrouperSession.validate(GrouperSession.staticGrouperSession());
     
@@ -4222,9 +4228,8 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
         + this.getDisplayExtension());
     
     GrouperDAOFactory.getFactory().getGroup().update(this);
-
-    // TODO populate name history
-    // TODO add alias support
+    
+    // TODO add old name support
   }
   
   /**

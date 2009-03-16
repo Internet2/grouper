@@ -97,7 +97,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.186 2009-03-16 15:43:56 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.187 2009-03-16 23:22:52 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -2469,13 +2469,21 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   }
 
   /**
-   * Move this stem to another Stem.
+   * Move this stem to another Stem.  This will not add an old name to the affected groups.
+   * If you would like to specify options for the move, use StemMove instead.
    * @param stem 
    * @throws StemModifyException 
    * @throws InsufficientPrivilegeException 
    */
   public void move(Stem stem) throws StemModifyException,
       InsufficientPrivilegeException {
+    
+    internal_move(stem, false);
+  }
+  
+  
+  protected void internal_move(Stem stem, boolean assignOldName) throws StemModifyException,
+    InsufficientPrivilegeException {
 
     GrouperSession.validate(GrouperSession.staticGrouperSession());
     
@@ -2532,9 +2540,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     
     this.store();
     
-    // TODO populate name history
-    // TODO add alias support
-
+    // TODO add old name support
   }
   
   
