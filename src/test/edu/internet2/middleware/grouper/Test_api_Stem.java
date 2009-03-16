@@ -37,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.20 2009-03-15 23:13:50 shilen Exp $
+ * @version $Id: Test_api_Stem.java,v 1.21 2009-03-16 23:22:53 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Stem extends GrouperTest {
@@ -716,6 +716,74 @@ public class Test_api_Stem extends GrouperTest {
 
     // second move to a root stem
     top.move(root);
+
+    top = StemFinder.findByName(s, "top", true);
+    child = StemFinder.findByName(s, "top:child", true);
+    child_group = GroupFinder.findByName(s, "top:child:child group", true);
+    assertStemName(top, "top");
+    assertStemDisplayName(top, "top display name");
+    assertStemName(child, "top:child");
+    assertStemDisplayName(child, "top display name:child display name");
+    assertGroupName(child_group, "top:child:child group");
+    assertGroupDisplayName(child_group,
+        "top display name:child display name:child group display name");
+    assertGroupHasMember(child_group, a, true);
+    assertGroupHasMember(child_group, b, false);
+    assertGroupHasUpdate(child_group, a, true);
+    assertStemHasCreate(child, a, false);
+    assertStemHasCreate(child, b, true);
+    assertStemHasCreate(top, b, true);
+    assertTrue(child_group.getParentStem().getUuid().equals(child.getUuid()));
+    assertTrue(child.getParentStem().getUuid().equals(top.getUuid()));
+    assertTrue(top.getParentStem().getUuid().equals(root.getUuid()));
+    assertTrue(top_new.getChildStems().size() == 0);
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_move2() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+
+    this.top_new = this.root.addChildStem("top new", "top new display name");
+
+    child_group.addMember(a);
+    child_group.grantPriv(a, AccessPrivilege.UPDATE);
+    child.grantPriv(b, NamingPrivilege.CREATE);
+    top.grantPriv(b, NamingPrivilege.CREATE);
+
+    // first move to a non-root stem
+    new StemMove(top, top_new).save();
+
+    top = StemFinder.findByName(s, "top new:top", true);
+    child = StemFinder.findByName(s, "top new:top:child", true);
+    child_group = GroupFinder.findByName(s, "top new:top:child:child group", true);
+    assertStemName(top, "top new:top");
+    assertStemDisplayName(top, "top new display name:top display name");
+    assertStemName(child, "top new:top:child");
+    assertStemDisplayName(child,
+        "top new display name:top display name:child display name");
+    assertGroupName(child_group, "top new:top:child:child group");
+    assertGroupDisplayName(
+        child_group,
+        "top new display name:top display name:child display name:child group display name");
+    assertGroupHasMember(child_group, a, true);
+    assertGroupHasMember(child_group, b, false);
+    assertGroupHasUpdate(child_group, a, true);
+    assertStemHasCreate(child, a, false);
+    assertStemHasCreate(child, b, true);
+    assertStemHasCreate(top, b, true);
+    assertTrue(child_group.getParentStem().getUuid().equals(child.getUuid()));
+    assertTrue(child.getParentStem().getUuid().equals(top.getUuid()));
+    assertTrue(top.getParentStem().getUuid().equals(top_new.getUuid()));
+    assertTrue(top_new.getChildStems().size() == 1);
+
+    // second move to a root stem
+    new StemMove(top, root).save();
 
     top = StemFinder.findByName(s, "top", true);
     child = StemFinder.findByName(s, "top:child", true);
