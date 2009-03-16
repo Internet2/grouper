@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.38 2009-03-02 07:33:25 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.39 2009-03-16 05:50:39 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -2779,6 +2779,7 @@ public enum GrouperDdl implements DdlVersionable {
             "STEM_DISPLAYNAME", 
             "SUBJECT_ID", 
             "SUBJECT_SOURCE", 
+            "MEMBER_ID",
             "LIST_TYPE", 
             "LIST_NAME", 
             "MEMBERSHIP_TYPE", 
@@ -2799,6 +2800,7 @@ public enum GrouperDdl implements DdlVersionable {
             "STEM_DISPLAYNAME: display name of the stems if this is a stem privilege, e.g. My school:The stem1", 
             "SUBJECT_ID: e.g. a school id of a person in the membership e.g. 12345", 
             "SUBJECT_SOURCE: source where the subject in the membership is from e.g. mySchoolPeople", 
+            "MEMBER_ID: id in the grouper_members table", 
             "LIST_TYPE: list: members of a group, access: privilege of a group, naming: privilege of a stem", 
             "LIST_NAME: subset of list type.  which list if a list membership.  which privilege if a privilege.  e.g. members", 
             "MEMBERSHIP_TYPE: either immediate (direct membership or privilege), of effective (membership due to a composite or a group being a member of another group)", 
@@ -2823,7 +2825,7 @@ public enum GrouperDdl implements DdlVersionable {
             + "where gs.ID = gms.owner_stem_id) as stem_name,  "
             + "(select gs.display_NAME from grouper_stems gs  "
             + "where gs.ID = gms.owner_stem_id) as stem_displayname,  "
-            + "gm.SUBJECT_ID, gm.subject_source,  "
+            + "gm.subject_id, gm.subject_source, gms.member_id, "
             + "gf.TYPE as list_type,  "
             + "gf.NAME as list_name,  "
             + "gms.MSHIP_TYPE as membership_type,  "
@@ -2836,9 +2838,9 @@ public enum GrouperDdl implements DdlVersionable {
             + "gms.PARENT_MEMBERSHIP as parent_membership_id,  "
             + "(select gs.id from grouper_stems gs where gs.ID = gms.owner_stem_id) as stem_id,  "
             + "(select gg.id from grouper_groups gg where gg.id = gms.owner_group_id) as group_id,  "
-            + "gms.CREATE_TIME,  "
-            + "gms.CREATOR_ID,  "
-            + "gms.FIELD_ID, gms.context_id  "
+            + "gms.create_time,  "
+            + "gms.creator_id,  "
+            + "gms.field_id, gms.context_id  "
             + " from grouper_memberships gms, grouper_members gm, grouper_fields gf  "
             + " where gms.MEMBER_ID = gm.ID and gms.field_id = gf.id  ");
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_stems_v",

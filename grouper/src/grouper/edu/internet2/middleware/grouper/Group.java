@@ -116,7 +116,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.228 2009-03-15 23:13:50 shilen Exp $
+ * @version $Id: Group.java,v 1.229 2009-03-16 05:50:39 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -2592,28 +2592,58 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @throws  SchemaException
    * @return false if it already existed, true if it didnt already exist
    */
-  public boolean grantPriv(Subject subj, Privilege priv, boolean exceptionIfAlreadyMember)
+  public boolean grantPriv(final Subject subj, final Privilege priv, final boolean exceptionIfAlreadyMember)
     throws  GrantPrivilegeException,
             InsufficientPrivilegeException,
             SchemaException {
-    StopWatch sw = new StopWatch();
+    final StopWatch sw = new StopWatch();
     sw.start();
-    boolean assignedPrivilege = false;
-    try {
-      GrouperSession.staticGrouperSession().getAccessResolver().grantPrivilege(this, subj, priv);
-      assignedPrivilege = true;
-    } catch (UnableToPerformAlreadyExistsException eUTP) {
-      if (exceptionIfAlreadyMember) {
-        throw new GrantPrivilegeAlreadyExistsException(eUTP.getMessage(), eUTP);
-      }
-    } catch (UnableToPerformException eUTP) {
-      throw new GrantPrivilegeException( eUTP.getMessage(), eUTP );
-    }
-    sw.stop();
-    if (assignedPrivilege) {
-      EVENT_LOG.groupGrantPriv(GrouperSession.staticGrouperSession(), this.getName(), subj, priv, sw);
-    }
-    return assignedPrivilege;
+
+    final String errorMessageSuffix = ", group name: " + this.name 
+      + ", subject: " + GrouperUtil.subjectToString(subj) + ", privilege: " + (priv == null ? null : priv.getName());
+
+    return (Boolean)HibernateSession.callbackHibernateSession(
+      GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+      new HibernateHandler() {
+
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+
+          boolean assignedPrivilege = false;
+          try {
+            
+            GrouperSession.staticGrouperSession().getAccessResolver().grantPrivilege(Group.this, subj, priv);
+            assignedPrivilege = true;
+
+            if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+              
+              Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj, false);
+              
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_ADD, "privilegeName", 
+                  priv.getName(),  "memberId",  member.getUuid(),
+                      "privilegeType", "access", "ownerType", "group", 
+                      "ownerId", Group.this.getUuid(), "ownerName", Group.this.getName());
+                      
+              auditEntry.setDescription("Added privilege: group: " + Group.this.getName()
+                  + ", subject: " + subj.getSource().getId() + "." + subj.getId() + ", privilege: "
+                  + priv.getName());
+              auditEntry.saveOrUpdate(true);
+            }
+
+          } catch (UnableToPerformAlreadyExistsException eUTP) {
+            if (exceptionIfAlreadyMember) {
+              throw new GrantPrivilegeAlreadyExistsException(eUTP.getMessage() + errorMessageSuffix, eUTP);
+            }
+          } catch (UnableToPerformException eUTP) {
+            throw new GrantPrivilegeException( eUTP.getMessage() + errorMessageSuffix, eUTP );
+          }
+          sw.stop();
+          if (assignedPrivilege) {
+            EVENT_LOG.groupGrantPriv(GrouperSession.staticGrouperSession(), Group.this.getName(), subj, priv, sw);
+          }
+          return assignedPrivilege;
+        }
+      });
   } 
   
   /**
@@ -3052,31 +3082,62 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @throws  RevokePrivilegeException
    * @throws  SchemaException
    */
-  public boolean revokePriv(Subject subj, Privilege priv, 
-      boolean exceptionIfAlreadyRevoked) 
+  public boolean revokePriv(final Subject subj, final Privilege priv, 
+      final boolean exceptionIfAlreadyRevoked) 
     throws  InsufficientPrivilegeException,
             RevokePrivilegeException, SchemaException {
-    boolean wasntAlreadyRevoked = true;
-    StopWatch sw = new StopWatch();
+
+    final StopWatch sw = new StopWatch();
     sw.start();
-    if ( Privilege.isNaming(priv) ) {
-      throw new SchemaException("attempt to use naming privilege");
-    }
-    try {
-      GrouperSession.staticGrouperSession().getAccessResolver().revokePrivilege(this, subj, priv);
-    } catch (UnableToPerformAlreadyExistsException eUTP) {
-      if (exceptionIfAlreadyRevoked) {
-        throw new RevokePrivilegeAlreadyRevokedException( eUTP.getMessage(), eUTP );
+
+    final String errorMessageSuffix = ", group name: " + this.name 
+    + ", subject: " + GrouperUtil.subjectToString(subj) + ", privilege: " + (priv == null ? null : priv.getName());
+
+    return (Boolean)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+          new HibernateHandler() {
+
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+    
+    
+        boolean wasntAlreadyRevoked = true;
+        try {
+          if ( Privilege.isNaming(priv) ) {
+            throw new SchemaException("attempt to use naming privilege");
+          }
+          GrouperSession.staticGrouperSession().getAccessResolver().revokePrivilege(Group.this, subj, priv);
+
+          if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+            
+            Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj, false);
+            
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_DELETE, "privilegeName", 
+                priv.getName(),  "memberId",  member.getUuid(),
+                    "privilegeType", "access", "ownerType", "group", 
+                    "ownerId", Group.this.getUuid(), "ownerName", Group.this.getName());
+                    
+            auditEntry.setDescription("Deleted privilege: group: " + Group.this.getName()
+                + ", subject: " + subj.getSource().getId() + "." + subj.getId() + ", privilege: "
+                + priv.getName());
+            auditEntry.saveOrUpdate(true);
+          }
+
+        } catch (UnableToPerformAlreadyExistsException eUTP) {
+          if (exceptionIfAlreadyRevoked) {
+            throw new RevokePrivilegeAlreadyRevokedException( eUTP.getMessage() + errorMessageSuffix, eUTP );
+          }
+          wasntAlreadyRevoked = false;
+        } catch (UnableToPerformException eUTP) {
+          throw new RevokePrivilegeException( eUTP.getMessage() + errorMessageSuffix, eUTP );
+        }
+        sw.stop();
+        if (wasntAlreadyRevoked) {
+          EVENT_LOG.groupRevokePriv(GrouperSession.staticGrouperSession(), Group.this.getName(), subj, priv, sw);
+        }
+        return wasntAlreadyRevoked;
       }
-      wasntAlreadyRevoked = false;
-    } catch (UnableToPerformException eUTP) {
-      throw new RevokePrivilegeException( eUTP.getMessage(), eUTP );
-    }
-    sw.stop();
-    if (wasntAlreadyRevoked) {
-      EVENT_LOG.groupRevokePriv(GrouperSession.staticGrouperSession(), this.getName(), subj, priv, sw);
-    }
-    return wasntAlreadyRevoked;
+    });
   } 
 
   /**
