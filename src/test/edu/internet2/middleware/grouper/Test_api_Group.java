@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Group.java,v 1.10 2009-03-16 23:22:53 shilen Exp $
+ * @version $Id: Test_api_Group.java,v 1.11 2009-03-18 20:39:47 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Group extends GrouperTest {
@@ -85,6 +85,24 @@ public class Test_api_Group extends GrouperTest {
     super.tearDown();
   }
 
+  
+  public void test_delete_which_causes_membership_add() throws Exception {
+    R r = R.populateRegistry(0, 0, 1);
+    Subject a = r.getSubject("a");
+    
+    Group left = top.addChildGroup("left", "left");
+    Group right = top.addChildGroup("right", "right");
+    
+    right.addMember(child_group.toSubject());
+    top_group.addCompositeMember(CompositeType.COMPLEMENT, left, right);
+    
+    child_group.addMember(a);
+    left.addMember(a);
+    assertTrue(top_group.getMembers().size() == 0);
+    
+    child_group.delete();
+    assertTrue(top_group.getMembers().size() == 1);
+  }
 
 
   /**
