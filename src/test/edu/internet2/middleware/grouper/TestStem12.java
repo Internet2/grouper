@@ -29,7 +29,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem12.java,v 1.6 2008-10-27 10:03:36 mchyzer Exp $
+ * @version $Id: TestStem12.java,v 1.7 2009-03-18 18:51:58 shilen Exp $
  * @since   1.2.0
  */
 public class TestStem12 extends GrouperTest {
@@ -79,10 +79,13 @@ public class TestStem12 extends GrouperTest {
       long    pre   = new java.util.Date().getTime();
       assertTrue(nsA.grantPriv(subjA, NamingPrivilege.STEM, true));
       long    post  = new java.util.Date().getTime();
+      nsA = StemFinder.findByName(r.rs, nsA.getName(), true);
       long    mtime = nsA.getModifyTime().getTime();
-      assertTrue( "nsA modify time updated (" + mtime + " >= " + orig + ")", mtime >= orig );
-      assertTrue( "nsA modify time >= pre (" + mtime + " >= " + pre + ")", mtime >= pre );
-      assertTrue( "nsA modify time <= post (" + mtime + " <= " + post + ")", mtime <= post );
+      long    mtime_mem = nsA.getLastMembershipChange().getTime();
+
+      assertTrue( "nsA modify time not updated (" + mtime + " == " + orig + ")", mtime == orig );
+      assertTrue( "nsA last membership time >= pre (" + mtime_mem + " >= " + pre + ")", mtime_mem >= pre );
+      assertTrue( "nsA last membership time <= post (" + mtime_mem + " <= " + post + ")", mtime_mem <= post );
 
       try {
         nsA.grantPriv(subjA, NamingPrivilege.STEM);
@@ -123,13 +126,16 @@ public class TestStem12 extends GrouperTest {
       }
 
       nsA.revokePriv(subjA, NamingPrivilege.STEM, false);
+      nsA = StemFinder.findByName(r.rs, nsA.getName(), true);
 
       Thread.sleep(1); // TODO 20070430 hack!
       long    post  = new java.util.Date().getTime();
       long    mtime = nsA.getModifyTime().getTime();
-      assertTrue( "nsA modify time updated (" + mtime + " >= " + orig + ")", mtime >= orig );
-      assertTrue( "nsA modify time >= pre (" + mtime + " >= " + pre + ")", mtime >= pre );
-      assertTrue( "nsA modify time <= post (" + mtime + " <= " + post + ")", mtime <= post );
+      long    mtime_mem = nsA.getLastMembershipChange().getTime();
+
+      assertTrue( "nsA modify time not updated (" + mtime + " == " + orig + ")", mtime == orig );
+      assertTrue( "nsA membership change time >= pre (" + mtime_mem + " >= " + pre + ")", mtime_mem >= pre );
+      assertTrue( "nsA membership change time <= post (" + mtime_mem + " <= " + post + ")", mtime_mem <= post );
 
       r.rs.stop();
     }

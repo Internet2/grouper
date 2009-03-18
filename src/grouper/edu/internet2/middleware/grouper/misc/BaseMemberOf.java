@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.Stem;
 /** 
  * <p/>
  * @author  blair christensen.
- * @version $Id: BaseMemberOf.java,v 1.4 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: BaseMemberOf.java,v 1.5 2009-03-18 18:51:58 shilen Exp $
  * @since   1.2.0
  */
 public abstract class BaseMemberOf implements MemberOf {
@@ -64,6 +64,10 @@ public abstract class BaseMemberOf implements MemberOf {
   private String          ownerStemId;  
   /** */
   private Set<GrouperAPI> saves           = new LinkedHashSet<GrouperAPI>();
+  /** */
+  private Set<String> groupIdsWithNewMemberships = new LinkedHashSet<String>();
+  /** */
+  private Set<String> stemIdsWithNewMemberships = new LinkedHashSet<String>();
 
 
   // CONSTRUCTORS //
@@ -240,6 +244,23 @@ public abstract class BaseMemberOf implements MemberOf {
     this.setOwnerStemId( ns.getUuid() );
     return this;
   }
-
+  
+  protected MemberOf setGroupIdsWithNewMemberships(Set<String> ids) {
+    this.groupIdsWithNewMemberships = ids;
+    return this;
+  }
+  
+  protected MemberOf setStemIdsWithNewMemberships(Set<String> ids) {
+    this.stemIdsWithNewMemberships = ids;
+    return this;
+  }
+  
+  public Set<String> getGroupIdsWithNewMemberships() {
+    return this.groupIdsWithNewMemberships;
+  }
+  
+  public Set<String> getStemIdsWithNewMemberships() {
+    return this.stemIdsWithNewMemberships;
+  }
 }
 

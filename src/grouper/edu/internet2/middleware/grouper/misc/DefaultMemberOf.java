@@ -60,7 +60,7 @@ import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.12 2009-03-15 06:37:24 mchyzer Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.13 2009-03-18 18:51:58 shilen Exp $
  * @since   1.2.0
  */
 @GrouperIgnoreDbVersion
@@ -286,96 +286,6 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     this.setStem(ns);
     this._evaluateDeleteImmediateMembership(s, _ms, _m);
   } 
-
-  /**
-   * m->{ "group" | "stems" } = { group or stem uuid = group or stem object }
-   * @since   1.2.0 
-   * @param m 
-   * @param it 
-   * @return  map
-   * @throws IllegalStateException 
-   * 
-   */
-  public Map identifyGroupsAndStemsToMarkAsModified(Map m, Iterator it) 
-    throws  IllegalStateException
-  {
-    // This method is still a lot bigger and more hackish than I'd like but...
-
-    // So that everything has the same modify time within here
-    String        modifierUuid  = GrouperSession.staticGrouperSession().getMember().getUuid();
-    long          modifyTime    = new java.util.Date().getTime();
-
-    // TODO 20070531 this is horribly ugly.
-    Map<String, Group> groups = new HashMap<String, Group>();
-    if (m.containsKey("groups")) {
-      groups = (Map) m.get("groups");
-    }
-    Map<String, Stem> stems = new HashMap<String, Stem>();
-    if (m.containsKey("stems")) {
-      stems = (Map) m.get("stems");
-    }
-    
-    Membership _ms;
-    String        ownerGroupId;
-    String        ownerStemId;
-    Group      _g;
-    Stem       _ns;
-    try {
-      GroupDAO  gDAO  = GrouperDAOFactory.getFactory().getGroup();
-      StemDAO   nsDAO = GrouperDAOFactory.getFactory().getStem();
-      while (it.hasNext()) {
-        _ms = (Membership) it.next();
-        ownerGroupId   = _ms.getOwnerGroupId();
-        ownerStemId   = _ms.getOwnerStemId();
-        if      ( _ms.getListType().equals(FieldType.LIST.toString()) || _ms.getListType().equals(FieldType.ACCESS.toString()) ) {
-          if ( !groups.containsKey(ownerGroupId) ) {
-            _g = gDAO.findByUuid(ownerGroupId, true);
-            _g.setModifierUuid(modifierUuid);
-            _g.setModifyTimeLong(modifyTime);
-            _g.setDontSetModified(true);
-            groups.put(ownerGroupId, _g);
-          }
-        }
-        else if ( _ms.getListType().equals(FieldType.NAMING.toString()) ) {
-          if ( !stems.containsKey(ownerStemId) ) {
-            _ns = nsDAO.findByUuid(ownerStemId, true);
-            _ns.setModifierUuid(modifierUuid);
-            _ns.setModifyTimeLong(modifyTime);
-            stems.put(ownerStemId, _ns);
-          }
-        }
-        else {
-          throw new IllegalStateException( "unknown membership type: " + _ms.getListType() );
-        }
-      }
-    }
-    catch (GroupNotFoundException eGNF) {
-      throw new IllegalStateException( "attempt to modify a group that cannot be found: " + eGNF.getMessage() );
-    }
-    catch (StemNotFoundException eNSNF) {
-      throw new IllegalStateException( "attempt to modify a stem that cannot be found: " + eNSNF.getMessage() );
-    }
-    // add the owner
-    if      ( this.getGroup() != null ) {
-      _g = this.getGroup();
-      _g.setModifierUuid(modifierUuid);
-      _g.setModifyTimeLong(modifyTime);
-      groups.put( _g.getUuid(), _g );
-    }
-    else if ( this.getStem() != null )  {
-      _ns = this.getStem();
-      _ns.setModifierUuid(modifierUuid);
-      _ns.setModifyTimeLong(modifyTime);
-      stems.put( _ns.getUuid(), _ns );
-    }
-    else {
-      throw new IllegalStateException("MemberOf has no group or stem as owner");
-    }
-    // assemble the map
-    m.put("groups", groups);
-    m.put("stems", stems);
-    return m;
-  }
 
   /**
    * Add m's hasMembers to o
@@ -771,8 +681,13 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
 
     this.addSaves( this.getEffectiveSaves() );
     DefaultMemberOf.this.fixComposites(this.getSaves(), new LinkedHashSet());
+    
+    Set<Group> modifiedGroups = new LinkedHashSet<Group>();
+    modifiedGroups.add(this.getGroup());
+    
+    this.setModifiedGroups(modifiedGroups);
 
-    this._identifyGroupsAndStemsToMarkAsModified();
+    this._identifyGroupsAndStemsToWithMembershipChanges();
   } 
 
   /**
@@ -908,7 +823,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
           DefaultMemberOf.this.fixComposites(DefaultMemberOf.this.getSaves(), new LinkedHashSet());
         }
 
-        DefaultMemberOf.this._identifyGroupsAndStemsToMarkAsModified();
+        DefaultMemberOf.this._identifyGroupsAndStemsToWithMembershipChanges();
         return null;
       }
       
@@ -1123,7 +1038,13 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     }
 
     this.fixComposites(new LinkedHashSet(), this.getDeletes());
-    this._identifyGroupsAndStemsToMarkAsModified();
+    
+    Set<Group> modifiedGroups = new LinkedHashSet<Group>();
+    modifiedGroups.add(this.getGroup());
+    
+    this.setModifiedGroups(modifiedGroups);
+    
+    this._identifyGroupsAndStemsToWithMembershipChanges();
   } // private void _evalulateDeleteCompositeMembership()
 
   /**
@@ -1170,7 +1091,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
           DefaultMemberOf.this.fixComposites(new LinkedHashSet(), DefaultMemberOf.this.getDeletes());
         }
 
-        DefaultMemberOf.this._identifyGroupsAndStemsToMarkAsModified();
+        DefaultMemberOf.this._identifyGroupsAndStemsToWithMembershipChanges();
         return null;
       }
       
@@ -1218,15 +1139,33 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   /**
    * 
    */
-  private void _identifyGroupsAndStemsToMarkAsModified() {
-    Map modified  = new HashMap();
-    modified      = this.identifyGroupsAndStemsToMarkAsModified( modified, this.getEffectiveSaves().iterator() );
-    modified      = this.identifyGroupsAndStemsToMarkAsModified( modified, this.getEffectiveDeletes().iterator() );
-    Map groups    = (Map) modified.get("groups");
-    Map stems     = (Map) modified.get("stems");
-    this.setModifiedGroups( new LinkedHashSet( groups.values() ) );
-    this.setModifiedStems( new LinkedHashSet( stems.values() ) );
-  } 
+  private void _identifyGroupsAndStemsToWithMembershipChanges() {
+    Set<String> groupChanges = new LinkedHashSet<String>();
+    Set<String> stemChanges = new LinkedHashSet<String>();
+    
+    Set<GrouperAPI> changes = new LinkedHashSet<GrouperAPI>();
+    changes.addAll(this.getSaves());
+    changes.addAll(this.getDeletes());
+    
+    Iterator<GrouperAPI> changesIterator = changes.iterator();
+    while (changesIterator.hasNext()) {
+      GrouperAPI change = changesIterator.next();
+      if (change instanceof Membership) {
+        Membership ms = (Membership) change;
+        if (ms.getListType().equals(FieldType.LIST.toString()) || 
+            ms.getListType().equals(FieldType.ACCESS.toString())) {
+          groupChanges.add(ms.getOwnerGroupId());
+        } else if (ms.getListType().equals(FieldType.NAMING.toString())) {
+          stemChanges.add(ms.getOwnerStemId());
+        } else {
+          throw new IllegalStateException( "unknown membership type: " + ms.getListType() );
+        }
+      }
+    }
+    
+    this.setGroupIdsWithNewMemberships(groupChanges);
+    this.setStemIdsWithNewMemberships(stemChanges);
+  }
 
 } 
 

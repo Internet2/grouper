@@ -55,7 +55,7 @@ import edu.internet2.middleware.subject.Subject;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.77 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.78 2009-03-18 18:51:58 shilen Exp $
  */
 public class GrouperAccessAdapter implements AccessAdapter {
 
@@ -302,7 +302,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
       throw new InsufficientPrivilegeException();
     }
     try {
-      GrouperDAOFactory.getFactory().getGroup().revokePriv( g, Membership.internal_deleteAllField(s, g, f) );
+      Membership.internal_deleteAllField(s, g, f);
     }
     catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );
@@ -348,7 +348,7 @@ public class GrouperAccessAdapter implements AccessAdapter {
     }
     try {
       DefaultMemberOf mof = Membership.internal_delImmediateMembership(s, g, subj, f);
-      GrouperDAOFactory.getFactory().getGroup().revokePriv( g, mof);
+      GrouperDAOFactory.getFactory().getMembership().update(mof);
     } catch (MemberDeleteAlreadyDeletedException eMD) {
       throw new RevokePrivilegeAlreadyRevokedException( eMD.getMessage(), eMD );
     } catch (MemberDeleteException eMD) {

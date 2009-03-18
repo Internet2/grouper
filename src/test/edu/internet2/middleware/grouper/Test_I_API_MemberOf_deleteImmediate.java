@@ -25,7 +25,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_I_API_MemberOf_deleteImmediate.java,v 1.8 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: Test_I_API_MemberOf_deleteImmediate.java,v 1.9 2009-03-18 18:51:58 shilen Exp $
  * @since   1.2.0
  */
 public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
@@ -94,7 +94,7 @@ public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
 
     assertEquals( "mof deletes",        1, mof.getDeletes().size() );
     assertEquals( "mof saves",          0, mof.getSaves().size() );
-    assertEquals( "mof modifiedGroups", 1, mof.getModifiedGroups().size() );
+    assertEquals( "mof modifiedGroups", 0, mof.getModifiedGroups().size() );
     assertEquals( "mof modifiedStems",  0, mof.getModifiedStems().size() );
   }
 
@@ -129,7 +129,7 @@ public class Test_I_API_MemberOf_deleteImmediate extends GrouperTest {
     assertEquals( "mof deletes",        3, mof.getDeletes().size() );
     assertEquals( "mof saves",          0, mof.getSaves().size() );
     // membership owner gA (1)
-    assertEquals( "mof modifiedGroups", 3, mof.getModifiedGroups().size() );
+    assertEquals( "mof modifiedGroups", 0, mof.getModifiedGroups().size() );
     assertEquals( "mof modifiedStems",  0, mof.getModifiedStems().size() );
   }
 

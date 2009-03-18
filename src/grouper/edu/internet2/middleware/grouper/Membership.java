@@ -46,9 +46,12 @@ import edu.internet2.middleware.grouper.exception.MembershipAlreadyExistsExcepti
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipBean;
@@ -79,7 +82,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.116 2009-03-15 21:28:31 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.117 2009-03-18 18:51:58 shilen Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -768,20 +771,18 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * @throws MemberDeleteException
    * @throws SchemaException
    */
-  public static Set<GrouperAPI> internal_deleteAllField(GrouperSession s, final Group g, final Field f)
+  public static Set<GrouperAPI> internal_deleteAllField(final GrouperSession s, final Group g, final Field f)
     throws  MemberDeleteException,
             SchemaException
   {
     GrouperSession.validate(s);
     try {
-      return (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
-  
-        public Object callback(GrouperSession grouperSession)
-            throws GrouperSessionException {
-          try {
-  
+      return (Set<GrouperAPI>)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+        public Object callback(HibernateHandlerBean hibernateHandlerBean)
+            throws GrouperDAOException {
+          try {          
             Set           deletes = new LinkedHashSet();
-            DefaultMemberOf      mof;
             Membership    ms;
             MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
   
@@ -789,14 +790,15 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
             Iterator itIs = g.toMember().getImmediateMemberships(f).iterator();
             while (itIs.hasNext()) {
               ms   = (Membership) itIs.next();
-              mof  = new DefaultMemberOf();
+              DefaultMemberOf mof  = new DefaultMemberOf();
               mof.deleteImmediate(
-                grouperSession, ms.getGroup(),
+                s, ms.getGroup(),
                 dao.findByGroupOwnerAndMemberAndFieldAndType( 
                   ms.getGroup().getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE, true
                 ),
                  ms.getMember()
               );
+              GrouperDAOFactory.getFactory().getMembership().update(mof);
               deletes.addAll( mof.getDeletes() );
             }
   
@@ -804,16 +806,17 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
             Iterator itHas = dao.findAllByGroupOwnerAndFieldAndType( g.getUuid(), f, IMMEDIATE ).iterator();
             while (itHas.hasNext()) {
               ms = (Membership)itHas.next() ;
-              mof = new DefaultMemberOf();
+              DefaultMemberOf mof = new DefaultMemberOf();
               mof.deleteImmediate(
-                grouperSession, g,
+                s, g,
                 dao.findByGroupOwnerAndMemberAndFieldAndType(
                   g.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE, true
                 ), ms.getMember()
               );
+              GrouperDAOFactory.getFactory().getMembership().update(mof);
               deletes.addAll( mof.getDeletes() );
             }
-  
+        
             return deletes;
           } catch (SchemaException se) {
             throw new GrouperSessionException(se);
@@ -846,18 +849,18 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * @return the set
    * @throws MemberDeleteException
    */
-  public static Set<GrouperAPI>  internal_deleteAllField(GrouperSession s, final Stem ns, final Field f)
+  public static Set<GrouperAPI>  internal_deleteAllField(final GrouperSession s, final Stem ns, final Field f)
     throws  MemberDeleteException
   {
     GrouperSession.validate(s);
-    return (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+    return (Set<GrouperAPI>)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
-      public Object callback(GrouperSession grouperSession)
-          throws GrouperSessionException {
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
         try {
 
           Set<GrouperAPI>            deletes = new LinkedHashSet<GrouperAPI> ();
-          DefaultMemberOf      mof;
           Membership    ms;
           MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
 
@@ -865,15 +868,16 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           Iterator itHas = dao.findAllByStemOwnerAndFieldAndType( ns.getUuid(), f, IMMEDIATE ).iterator();
           while (itHas.hasNext()) {
             ms = (Membership) itHas.next() ;
-            mof = new DefaultMemberOf();
+            DefaultMemberOf mof = new DefaultMemberOf();
             mof.deleteImmediate(
-              grouperSession, ns,
+              s, ns,
               dao.findByStemOwnerAndMemberAndFieldAndType(
                 ns.getUuid(), ms.getMember().getUuid(), ms.getList(), IMMEDIATE, true
               ), ms.getMember());
+            GrouperDAOFactory.getFactory().getMembership().update(mof);
             deletes.addAll( mof.getDeletes() );
           }
-
+          
           return deletes;
         }
         catch (MemberNotFoundException eMNF) {

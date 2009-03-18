@@ -65,7 +65,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.30 2009-03-15 08:18:10 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.31 2009-03-18 18:51:58 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -140,7 +140,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public void delete(final Group _g, final Set mships)
+  public void delete(final Group _g)
     throws  GrouperDAOException {
 
     
@@ -152,9 +152,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               throws GrouperDAOException {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             ByObject byObject = hibernateSession.byObject();
-            // delete memberships
-            byObject.delete(mships);
-            hibernateSession.misc().flush();
             
             // delete attributes
             ByHql byHql = hibernateSession.byHql();
@@ -933,58 +930,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
     return resultGroups;
   }
-
-  /**
-   * @param _g
-   * @param mof
-   * @throws GrouperDAOException
-   * @since   @HEAD@
-   */
-  public void revokePriv(final Group _g, final DefaultMemberOf mof)
-    throws  GrouperDAOException {
-    HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-        new HibernateHandler() {
-
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-            
-            ByObject byObject = hibernateSession.byObject();
-            byObject.delete(mof.getDeletes());
-            hibernateSession.misc().flush();
-            
-            byObject.saveOrUpdate(mof.getSaves());
-            hibernateSession.misc().flush();
-            
-            byObject.update( _g );
-            return null;
-          }
-    });
-  } 
-
-  /**
-   * @param _g
-   * @param toDelete
-   * @throws GrouperDAOException
-   * @since   @HEAD@
-   */
-  public void revokePriv(final Group _g, final Set toDelete)
-    throws  GrouperDAOException {
-    HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-        new HibernateHandler() {
-
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-            ByObject byObject = hibernateSession.byObject();
-            byObject.delete(toDelete);
-            byObject.update( _g );
-            return null;
-          }
-    });
-  } 
 
   /**
    * @param _g

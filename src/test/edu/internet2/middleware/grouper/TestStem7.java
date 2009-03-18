@@ -33,7 +33,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem7.java,v 1.13 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestStem7.java,v 1.14 2009-03-18 18:51:58 shilen Exp $
  */
 public class TestStem7 extends TestCase {
 
@@ -59,20 +59,20 @@ public class TestStem7 extends TestCase {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    // Possibly a bug.  The modify* attrs get set when granting STEM at creation.
+    edu = StemFinder.findByName(s, edu.getName(), true);
+    
     try {
       Subject modifier = edu.getModifySubject();
-      Assert.assertNotNull("modifier !null", modifier);
-      Assert.assertTrue(
-        "modifier", SubjectHelper.eq(modifier, s.getSubject())
-      );
+      Assert.fail("no exception thrown");
     }
     catch (SubjectNotFoundException eSNF) {
-      Assert.fail("no modify subject");
     }
     Date  d       = edu.getModifyTime();
-    Assert.assertNotNull("modify time !null", d);
-    Assert.assertTrue("modify time instanceof Date", d instanceof Date);
+    Assert.assertTrue("modify time null", d.getTime() == 0);
+    
+    d = edu.getLastMembershipChange();
+    Assert.assertNotNull("last membership change !null", d);
+    Assert.assertTrue("last membership change instanceof Date", d instanceof Date);
     long  modify  = d.getTime();
     long  epoch   = new Date(0).getTime();
     Assert.assertFalse(
