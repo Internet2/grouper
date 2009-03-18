@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3StemDAO.hbm.xml,v 1.10 2009-03-16 15:43:56 mchyzer Exp $ -->
+<!-- $Id: Hib3StemDAO.hbm.xml,v 1.11 2009-03-18 18:51:58 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
   <class name="Stem" table="grouper_stems">
@@ -159,7 +159,7 @@
     </property>
     <!-- description -->
 
-    <property name="lastMembershipChangeDb" column="last_membership_change"/>
+    <property name="lastMembershipChangeDb" column="last_membership_change" update="false"/>
 
   </class>
 </hibernate-mapping>

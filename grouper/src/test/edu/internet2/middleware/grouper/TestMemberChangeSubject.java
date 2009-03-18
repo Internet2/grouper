@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: TestMemberChangeSubject.java,v 1.6 2009-03-15 06:37:22 mchyzer Exp $
+ * $Id: TestMemberChangeSubject.java,v 1.7 2009-03-18 18:51:58 shilen Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -300,7 +300,7 @@ public class TestMemberChangeSubject extends GrouperTest {
     String stemCreatorId = this.edu.getCreatorUuid();
     assertEquals("existing uuid", member0uuid, stemCreatorId);
     String stemModifierId = this.edu.getModifierUuid();
-    assertEquals("existing uuid", member0uuid, stemModifierId);
+    assertEquals("existing uuid", null, stemModifierId);
     
     //grouper_types.creator_uuid
     String groupTypeId = this.groupType.getCreatorUuid();
@@ -374,7 +374,7 @@ public class TestMemberChangeSubject extends GrouperTest {
     stemCreatorId = this.edu.getCreatorUuid();
     assertEquals("new uuid", member1uuid, stemCreatorId);
     stemModifierId = this.edu.getModifierUuid();
-    assertEquals("new uuid", member1uuid, stemModifierId);
+    assertEquals("new uuid", null, stemModifierId);
     
     //grouper_types.creator_uuid
     this.groupType = GroupTypeFinder.find(this.groupType.getName(), true);

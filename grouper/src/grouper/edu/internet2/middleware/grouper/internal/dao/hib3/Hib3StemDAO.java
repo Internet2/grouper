@@ -46,7 +46,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.22 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.23 2009-03-18 18:51:58 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -648,41 +648,6 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     }
   }
 
-  /** 
-   * @since   @HEAD@
-   */
-  public void revokePriv(final Stem _ns, final DefaultMemberOf mof)
-    throws  GrouperDAOException {
-    try {
-      HibernateSession.callbackHibernateSession(
-          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-          new HibernateHandler() {
-
-            public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                throws GrouperDAOException {
-              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-
-              ByObject byObject = hibernateSession.byObject();
-              byObject.delete(mof.getDeletes());
-              hibernateSession.misc().flush();
-              
-              byObject.saveOrUpdate(mof.getSaves());
-              hibernateSession.misc().flush();
-              
-              byObject.update( _ns );
-              return null;
-            }
-        
-      });
-    }
-    catch (GrouperDAOException e) {
-      String error = "Problem revoking priv: " + GrouperUtil.toStringSafe(_ns)
-      + ", defaultMemberOf: " + GrouperUtil.toStringSafe(mof) + ", " + e.getMessage();
-
-      throw new GrouperDAOException( error, e );
-    }
-  } 
-
   /**
    * @since   @HEAD@
    */
@@ -707,36 +672,6 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     catch (GrouperDAOException e) {
       String error = "Problem revoking priv: " + GrouperUtil.toStringSafe(_ns)
         + ", children: " + GrouperUtil.toStringSafe(children) + ", " + e.getMessage();
-      throw new GrouperDAOException( error, e );
-    }
-  } 
-  
-  /**
-   * @since   @HEAD@
-   */
-  public void revokePriv(final Stem _ns, final Set toDelete)
-    throws  GrouperDAOException
-  {
-    try {
-      HibernateSession.callbackHibernateSession(
-          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-          new HibernateHandler() {
-
-            public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                throws GrouperDAOException {
-              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-
-              ByObject byObject = hibernateSession.byObject();
-              byObject.delete(toDelete);
-              byObject.update( _ns );
-              return null;
-            }
-        
-      });
-    }
-    catch (GrouperDAOException e) {
-      String error = "Problem revoking priv: " + GrouperUtil.toStringSafe(_ns)
-        + ", privs: " + GrouperUtil.toStringSafe(toDelete) + ", " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
   } 

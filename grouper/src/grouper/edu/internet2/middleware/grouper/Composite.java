@@ -42,7 +42,6 @@ import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.CompositeType;
-import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
@@ -58,7 +57,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.66 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: Composite.java,v 1.67 2009-03-18 18:51:58 shilen Exp $
  * @since   1.0
  */
 @SuppressWarnings("serial")
@@ -234,27 +233,6 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
 
   // PROTECTED CLASS METHODS //
 
-  /**
-   * Identify memberships (composites and not) where updated need to be performed.
-   * @param g 
-   * @since   1.2.0
-   */
-  protected static void internal_update(Group g) {
-    Set factorOwners = _updateWhereGroupIsFactor(g);
-    try {
-      _updateWhereFactorOwnersAreImmediateMembers(g, factorOwners);
-    }
-    catch (GroupNotFoundException eShouldNotHappen) {
-      LOG.fatal("error processing composite updates: " + eShouldNotHappen.getMessage() );  
-    }
-    catch (StemNotFoundException eShouldNotHappen) {
-      LOG.fatal("error processing composite updates: " + eShouldNotHappen.getMessage() );  
-    }
-    catch (SchemaException eShouldNotHappen) {
-      LOG.fatal("error processing composite updates: " + eShouldNotHappen.getMessage() );  
-    }
-  }
-
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(Composite.class);
 
@@ -295,104 +273,6 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
   }
 
   /**
-   * Update effective memberships where a) the modified group b) is a factor and c) the factor owner
-   * is an immediate member elsewhere.
-   * @param   g     The original modified group.
-   * @param factorOwners 
-   * @throws  GroupNotFoundException
-   * @throws SchemaException 
-   * @throws StemNotFoundException 
-   * @since   1.2.0
-   */
-  private static void _updateWhereFactorOwnersAreImmediateMembers(Group g, Set factorOwners) 
-    throws  GroupNotFoundException, SchemaException, StemNotFoundException
-  {
-    Group           factorOwner;
-    String          factorOwnerUuid;
-
-    Iterator it = factorOwners.iterator();
-      while (it.hasNext()) {
-        factorOwnerUuid = (String) it.next();
-        factorOwner     = GrouperDAOFactory.getFactory().getGroup().findByUuid(factorOwnerUuid, true) ;
-        _updateWhereFactorOwnerIsImmediateMember(factorOwner);
-      }
-  }
-
-  /**
-   * Update effective memberships where the factor owner is an immediate member.
-   * @param factorOwner 
-   * @throws  GroupNotFoundException
-   * @throws SchemaException 
-   * @throws StemNotFoundException 
-   * @since   1.2.0
-   */
-  private static void _updateWhereFactorOwnerIsImmediateMember(Group factorOwner)
-    throws  GroupNotFoundException, SchemaException, StemNotFoundException
-  {
-    Member       _m        = (Member) factorOwner.toMember();
-    DefaultMemberOf mof;
-    Membership   _ms;
-
-    // Find everywhere where the factor owner is an immediate member, delete the
-    // membership and then recreate it.
-    Iterator it = GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMember(
-      factorOwner.toMember().getUuid()).iterator();
-    while (it.hasNext()) {
-      _ms     = (Membership) it.next();
-      Field f = FieldFinder.find(_ms.getListName(), true);
-      if (!FieldType.NAMING.equals(f.getType())) {
-        Group msOwner =  _ms.getGroup() ;
-
-        // TODO 20070524 ideally i wouldn't delete and then re-add the membership.  bad programmer.  
-        //               i *should* identify where there have been changes and then only
-        //               update *those* memberships.
-        mof = new DefaultMemberOf();
-        mof.deleteImmediate( GrouperSession.staticGrouperSession(), msOwner, _ms, _m );
-        GrouperDAOFactory.getFactory().getMembership().update(mof);
-
-        mof = new DefaultMemberOf();
-        mof.addImmediate( GrouperSession.staticGrouperSession(), msOwner, f, _m );
-        GrouperDAOFactory.getFactory().getMembership().update(mof);
-
-        // TODO 20070524 do i need to call "Composite.internal_update(msOwner)"?  i
-        //               certainly hope not and so far the tests suggest no. 
-
-        // 20080813 - Looks like we do need to call this actually....
-        Composite.internal_update(msOwner);
-      } else {
-        Stem msOwner = _ms.getStem();
-
-        mof = new DefaultMemberOf();
-        mof.deleteImmediate(GrouperSession.staticGrouperSession(), msOwner, _ms, _m);
-        GrouperDAOFactory.getFactory().getMembership().update(mof);
-
-        mof = new DefaultMemberOf();
-        mof.addImmediate(GrouperSession.staticGrouperSession(), msOwner, f, _m);
-        GrouperDAOFactory.getFactory().getMembership().update(mof);
-      }
-    }
-  }
-
-  /**
-   * Update composites where modified group is a factor.
-   * @param g 
-   * @return  <i>Set</i> of factor owner UUIDs for use by {@link #_updateWhereFactorOwnersAreImmediateMembers(Group, Set)}.
-   * @since   1.2.0
-   */
-  private static Set _updateWhereGroupIsFactor(Group g) {
-    Composite c;
-    Set       factorOwners  = new LinkedHashSet();
-    Iterator  it            = GrouperDAOFactory.getFactory().getComposite().findAsFactor( g ).iterator();
-    while (it.hasNext()) {
-      c =  (Composite)it.next() ;
-      factorOwners.add( c.getFactorOwnerUuid() );
-      c._update();
-    }
-    return factorOwners; // TODO 20070524 aesthetically this is inappropriate
-  }
-
-
-  /**
    * 
    * @param uuid
    * @return group
@@ -422,69 +302,6 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
       return GrouperConfig.EMPTY_STRING;
     }
   } 
-
-  /**
-   * 
-   */
-  private void _update() {
-    //  TODO  20070321 Assuming this is actually correct I am sure it can be
-    //        improved upon.  At least it isn't as bad as the first
-    //        (functional) approach taken.  Or even the second, third
-    //        or fourth approaches!
-    try {
-      StopWatch sw  = new StopWatch();
-      sw.start();
-
-      Group     g   = GrouperDAOFactory.getFactory().getGroup().findByUuid( this.getFactorOwnerUuid(), true ) ;
-      DefaultMemberOf  mof = new DefaultMemberOf();
-      mof.addComposite( GrouperSession.staticGrouperSession(), g, this );
-  
-      Set cur       = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndField( 
-        g.getUuid(), Group.getDefaultList()  // current mships
-      );
-      Set shouldBeforeFilter = mof.getEffectiveSaves();    // What mships should be before filtering
-
-      Set<Membership> should = new LinkedHashSet();    // What mships should be after filtering
-
-      // filter out memberships that have a different owner than the composite group.
-      Iterator<Membership> shouldIterator = shouldBeforeFilter.iterator();
-      while (shouldIterator.hasNext()) {
-        Membership shouldMembership = shouldIterator.next();
-        if (shouldMembership.getOwnerGroupId().equals(this.getFactorOwnerUuid()) &&
-          shouldMembership.getType().equals(Membership.COMPOSITE)) {
-          should.add(shouldMembership);
-        }
-      }
-
-      Set<Membership> deletes   = new LinkedHashSet(cur);     // deletes  = cur - should
-      deletes.removeAll(should);
-
-      Set<Membership> adds      = new LinkedHashSet(should);  // adds     = should - cur
-      adds.removeAll(cur);
-      Map modified  = new HashMap();
-      modified      = mof.identifyGroupsAndStemsToMarkAsModified( modified, adds.iterator() );
-      modified      = mof.identifyGroupsAndStemsToMarkAsModified( modified, deletes.iterator() );
-      Set modGroups = new LinkedHashSet( ( (Map) modified.get("groups") ).values() );
-      Set modStems  = new LinkedHashSet( ( (Map) modified.get("stems") ).values() );
-
-      if ( adds.size() > 0 || deletes.size() > 0 || modGroups.size() > 0 || modStems.size() > 0 ) {
-        GrouperDAOFactory.getFactory().getComposite().update(adds, deletes, modGroups, modStems);
-        sw.stop();
-        //EventLog.compositeUpdate(this, adds, deletes, sw);
-        //_updateComposites( GrouperSession.staticGrouperSession(), deletes);
-        //_updateComposites( GrouperSession.staticGrouperSession(), adds);
-        Composite.internal_update(g);
-      }
-    }
-    catch (GroupNotFoundException eGNF) {
-      String msg = E.COMP_UPDATE + eGNF.getMessage();
-      LOG.error(msg);
-    }
-    catch (IllegalStateException eIS)   {
-      String msg = E.COMP_UPDATE + eIS.getMessage();
-      LOG.error(msg);
-    }
-  }
 
   /**
    * @param other 

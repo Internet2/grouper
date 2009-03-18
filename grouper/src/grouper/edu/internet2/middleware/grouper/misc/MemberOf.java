@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.Stem;
  * <b>THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b> 
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.1 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: MemberOf.java,v 1.2 2009-03-18 18:51:58 shilen Exp $
  * @since   1.2.0
  */
 public interface MemberOf {
@@ -140,5 +140,15 @@ public interface MemberOf {
    * @since   1.2.0
    */
   Set getDeletes();
+  
+  /**
+   * @return set of group ids that have modified memberships
+   */
+  Set<String> getGroupIdsWithNewMemberships();
+  
+  /**
+   * @return set of stem ids that have modified memberships
+   */
+  Set<String> getStemIdsWithNewMemberships();
   
 }

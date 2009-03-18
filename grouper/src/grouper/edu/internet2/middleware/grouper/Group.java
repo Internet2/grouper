@@ -117,7 +117,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.231 2009-03-16 23:22:52 shilen Exp $
+ * @version $Id: Group.java,v 1.232 2009-03-18 18:51:58 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -1002,10 +1002,10 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
               Set deletes = new LinkedHashSet(
                 Membership.internal_deleteAllFieldType( 
                     GrouperSession.staticGrouperSession().internal_getRootSession(), Group.this, FieldType.LIST )
-              );
+             );
               //deletes.add(this);            // ... And add the group last for good luck    
               String name = Group.this.getName(); // Preserve name for logging
-              GrouperDAOFactory.getFactory().getGroup().delete( Group.this, deletes );
+              GrouperDAOFactory.getFactory().getGroup().delete(Group.this);
 
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                 AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_DELETE, "id", 

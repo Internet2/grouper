@@ -28,7 +28,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup43.java,v 1.16 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: TestGroup43.java,v 1.17 2009-03-18 18:51:58 shilen Exp $
  * @since   1.2.0
  */
 public class TestGroup43 extends GrouperTest {
@@ -74,10 +74,11 @@ public class TestGroup43 extends GrouperTest {
 
       gA.addMember(subjA);
       long    post  = new java.util.Date().getTime();
-      assertTrue( "gA modify time updated: " + gA.getModifyTime().getTime() 
-          + ", " + orig, gA.getModifyTime().getTime() > orig );
-      assertTrue( "gA modifyTime >= pre",    gA.getModifyTime().getTime() >= pre );
-      assertTrue( "gA modifyTime <= post",   gA.getModifyTime().getTime() <= post );
+      gA = GroupFinder.findByUuid(r.rs, gA.getUuid(), true);
+      assertTrue( "gA modify time not updated: " + gA.getModifyTime().getTime() 
+          + ", " + orig, gA.getModifyTime().getTime() == orig );
+      assertTrue( "gA last membership time >= pre",    gA.getLastMembershipChange().getTime() >= pre );
+      assertTrue( "gA last membership time <= post",   gA.getLastMembershipChange().getTime() <= post );
 
       r.rs.stop();
     }
@@ -101,10 +102,13 @@ public class TestGroup43 extends GrouperTest {
       gA.deleteMember(subjA);
       Thread.sleep(1); // TODO 20070430 hack
       long    post  = new java.util.Date().getTime();
+      gA = GroupFinder.findByUuid(r.rs, gA.getUuid(), true);
       long    mtime = gA.getModifyTime().getTime();
-      assertTrue( "gA modify time updated (" + mtime + " >= " + orig + ")", mtime >= orig );
-      assertTrue( "gA modify time >= pre (" + mtime + " >= " + pre + ")", mtime >= pre );
-      assertTrue( "gA modify time <= post (" + mtime + " <= " + post + ")", mtime <= post );
+      long    mtime_mem = gA.getLastMembershipChange().getTime();
+
+      assertTrue( "gA modify time not updated (" + mtime + " == " + orig + ")", mtime == orig );
+      assertTrue( "gA last membership time >= pre (" + mtime_mem + " >= " + pre + ")", mtime_mem >= pre );
+      assertTrue( "gA last membership time <= post (" + mtime_mem + " <= " + post + ")", mtime_mem <= post );
 
       r.rs.stop();
     }
@@ -133,8 +137,9 @@ public class TestGroup43 extends GrouperTest {
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
       Group g = GroupFinder.findByUuid( s, gA.getUuid(), true );
-      assertTrue( "gA modifyTime >= pre",  g.getModifyTime().getTime() >= pre );
-      assertTrue( "gA modifyTime <= post", g.getModifyTime().getTime() <= post );
+      assertTrue( "gA modifyTime <= pre",  g.getModifyTime().getTime() <= pre );
+      assertTrue( "gA getLastMembershipChange >= pre", g.getLastMembershipChange().getTime() >= pre );
+      assertTrue( "gA getLastMembershipChange <= post", g.getLastMembershipChange().getTime() <= post );
 
       s.stop();
       r.rs.stop();
@@ -164,8 +169,9 @@ public class TestGroup43 extends GrouperTest {
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
       Group g = GroupFinder.findByUuid( s, gA.getUuid(), true );
-      assertTrue( "gA modifyTime >= pre",  g.getModifyTime().getTime() >= pre );
-      assertTrue( "gA modifyTime <= post", g.getModifyTime().getTime() <= post );
+      assertTrue( "gA modifyTime <= pre",  g.getModifyTime().getTime() <= pre );
+      assertTrue( "gA getLastMembershipChange >= pre", g.getLastMembershipChange().getTime() >= pre );
+      assertTrue( "gA getLastMembershipChange <= post", g.getLastMembershipChange().getTime() <= post );
 
       s.stop();
       r.rs.stop();
@@ -203,10 +209,10 @@ public class TestGroup43 extends GrouperTest {
       // load group in new session so we don't (potentially) get stale data
       GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
       Group           g     = GroupFinder.findByUuid( s, gC.getUuid(), true );
-      long            mtime = g.getModifyTime().getTime();
 
-      assertTrue( "gC modifyTime >= pre",  mtime >= pre );
-      assertTrue( "gC modifyTime <= post", mtime <= post );
+      assertTrue( "gC modifyTime <= pre",  g.getModifyTime().getTime() <= pre );
+      assertTrue( "gC getLastMembershipChange >= pre", g.getLastMembershipChange().getTime() >= pre );
+      assertTrue( "gC getLastMembershipChange <= post", g.getLastMembershipChange().getTime() <= post );
 
       s.stop();
       r.rs.stop();
@@ -232,10 +238,14 @@ public class TestGroup43 extends GrouperTest {
 
       gA.grantPriv(subjA, AccessPrivilege.ADMIN);
       long    post  = new java.util.Date().getTime();
+      gA = GroupFinder.findByUuid(r.rs, gA.getUuid(), true);
+
       long    mtime = gA.getModifyTime().getTime();
-      assertTrue( "gA modify time updated (" + mtime + " >= " + orig + ")", mtime >= orig );
-      assertTrue( "gA modify time >= pre (" + mtime + " >= " + pre + ")", mtime >= pre );
-      assertTrue( "gA modify time <= post (" + mtime + " <= " + post + ")", mtime <= post );
+      long    mtime_mem = gA.getLastMembershipChange().getTime();
+
+      assertTrue( "gA modify time not updated (" + mtime + " == " + orig + ")", mtime == orig );
+      assertTrue( "gA last membership time >= pre (" + mtime_mem + " >= " + pre + ")", mtime_mem >= pre );
+      assertTrue( "gA last membership time <= post (" + mtime_mem + " <= " + post + ")", mtime_mem <= post );
 
       r.rs.stop();
     }
@@ -259,10 +269,14 @@ public class TestGroup43 extends GrouperTest {
 
       gA.revokePriv(subjA, AccessPrivilege.ADMIN);
       long    post  = new java.util.Date().getTime();
+      gA = GroupFinder.findByUuid(r.rs, gA.getUuid(), true);
+
       long    mtime = gA.getModifyTime().getTime();
-      assertTrue( "gA modify time updated (" + mtime + " >= " + orig + ")", mtime >= orig );
-      assertTrue( "gA modify time >= pre (" + mtime + " >= " + pre + ")", mtime >= pre );
-      assertTrue( "gA modify time <= post (" + mtime + " <= " + post + ")", mtime <= post );
+      long    mtime_mem = gA.getLastMembershipChange().getTime();
+
+      assertTrue( "gA modify time not updated (" + mtime + " == " + orig + ")", mtime == orig );
+      assertTrue( "gA last membership time >= pre (" + mtime_mem + " >= " + pre + ")", mtime_mem >= pre );
+      assertTrue( "gA last membership time <= post (" + mtime_mem + " <= " + post + ")", mtime_mem <= post );
       r.rs.stop();
     }
     catch (Exception e) {

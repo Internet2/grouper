@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.17 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: GroupDAO.java,v 1.18 2009-03-18 18:51:58 shilen Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -67,7 +67,7 @@ public interface GroupDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  void delete(Group _g, Set mships)
+  void delete(Group _g)
     throws  GrouperDAOException;
 
   /**
@@ -274,18 +274,6 @@ public interface GroupDAO extends GrouperDAO {
    * @since   1.4.0
    */
   Set<Group> getImmediateChildren(Stem stem)
-    throws  GrouperDAOException;
-
-  /**
-   * @since   1.2.0
-   */
-  void revokePriv(Group _g, DefaultMemberOf mof)
-    throws  GrouperDAOException;
-
-  /**
-   * @since   1.2.0
-   */
-  void revokePriv(Group _g, Set toDelete)
     throws  GrouperDAOException;
 
   /**

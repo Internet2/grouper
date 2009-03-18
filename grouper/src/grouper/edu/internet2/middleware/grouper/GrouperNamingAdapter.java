@@ -56,7 +56,7 @@ import edu.internet2.middleware.subject.Subject;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.77 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.78 2009-03-18 18:51:58 shilen Exp $
  */
 public class GrouperNamingAdapter implements NamingAdapter {
 
@@ -304,9 +304,8 @@ public class GrouperNamingAdapter implements NamingAdapter {
     if (!f.getType().equals(FieldType.NAMING)) {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }  
-    ns.internal_setModified();
     try {
-      GrouperDAOFactory.getFactory().getStem().revokePriv( ns, Membership.internal_deleteAllField(s, ns, f) );
+      Membership.internal_deleteAllField(s, ns, f);
     }
     catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );
@@ -350,8 +349,7 @@ public class GrouperNamingAdapter implements NamingAdapter {
     }  
     try {
       DefaultMemberOf mof = Membership.internal_delImmediateMembership(s, ns, subj, f);
-      ns.internal_setModified();
-      GrouperDAOFactory.getFactory().getStem().revokePriv( ns, mof );
+      GrouperDAOFactory.getFactory().getMembership().update(mof);
     } catch (MemberDeleteAlreadyDeletedException eMD) {
       throw new RevokePrivilegeAlreadyRevokedException( eMD.getMessage(), eMD );
     } catch (MemberDeleteException eMD) {
