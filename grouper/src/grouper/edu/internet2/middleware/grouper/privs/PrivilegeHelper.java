@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.Subject;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.3 2008-12-15 07:09:37 mchyzer Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.3.2.1 2009-03-18 21:15:34 mchyzer Exp $
  * @since   1.2.1
  */
 public class PrivilegeHelper {
@@ -234,7 +234,7 @@ public class PrivilegeHelper {
         
       }
       catch (Exception e) {
-        LOG.error("canViewMemberships: " + e.getMessage() );
+        LOG.error("canViewMemberships: " + e.getMessage(), e );
       }
     }
     return mships;
