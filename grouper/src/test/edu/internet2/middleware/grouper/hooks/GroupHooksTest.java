@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksTest.java,v 1.9 2009-01-28 22:02:33 mchyzer Exp $
+ * $Id: GroupHooksTest.java,v 1.10 2009-03-19 13:46:23 shilen Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -52,15 +52,6 @@ public class GroupHooksTest extends GrouperTest {
     super(name);
   }
   
-  /**
-   * 
-   */
-  public void testPoc() {
-    HibernateSession.bySqlStatic().executeSql(
-        "update grouper_stems set last_membership_change = ? where id = ?", 
-        GrouperUtil.toList((Object)new Timestamp(System.currentTimeMillis()), "94edceeb-95d3-4047-9b3d-fb2b42412556"));
-  }
-
   /**
    * 
    */

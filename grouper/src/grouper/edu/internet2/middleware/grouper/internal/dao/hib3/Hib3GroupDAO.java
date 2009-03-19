@@ -65,7 +65,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.31 2009-03-18 18:51:58 shilen Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.32 2009-03-19 13:46:23 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -655,6 +655,54 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Set<Group> findAllByModifiedBefore(final Date d, final String scope)
     throws  GrouperDAOException {
     return this._internal_findAllByDateHelper(d, true, scope, false, "modifyTimeLong");
+  }
+
+  /**
+   * @param d
+   * @return set
+   * @throws GrouperDAOException
+   * @since   @HEAD@
+   */
+  public Set<Group> findAllByLastMembershipBefore(final Date d) 
+    throws  GrouperDAOException {
+    return this._internal_findAllByDateHelper(d, false, null, false, "lastMembershipChangeDb");
+  } 
+
+  /**
+   * @param d
+   * @param scope
+   * @return set
+   * @throws GrouperDAOException
+   * @since   @HEAD@
+   */
+  public Set<Group> findAllByLastMembershipBefore(final Date d, final String scope)
+    throws  GrouperDAOException {
+    return this._internal_findAllByDateHelper(d, true, scope, false, "lastMembershipChangeDb");
+  }
+  
+  /**
+   * @param d
+   * @return set
+   * @throws GrouperDAOException
+   * @since   @HEAD@
+   */
+  public Set<Group> findAllByLastMembershipAfter(final Date d) 
+    throws  GrouperDAOException {
+    
+    return this._internal_findAllByDateHelper(d, false, null, true, "lastMembershipChangeDb");
+  }
+
+  /**
+   * @param d
+   * @param scope
+   * @return set
+   * @throws GrouperDAOException
+   * @since   @HEAD@
+   */
+  public Set<Group> findAllByLastMembershipAfter(final Date d, final String scope)
+    throws  GrouperDAOException {
+
+    return this._internal_findAllByDateHelper(d, true, scope, true, "lastMembershipChangeDb");
   }
 
 

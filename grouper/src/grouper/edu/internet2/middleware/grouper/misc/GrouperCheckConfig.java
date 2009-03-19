@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.20 2009-03-15 06:37:24 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.21 2009-03-19 13:46:23 shilen Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -515,7 +515,7 @@ public class GrouperCheckConfig {
             null, "grouper.properties key: " + allowedGroupName, null);        
       }
       
-      // security.stem.groupAllowedToMoveStem
+      // security.stem.groupAllowedToCopyStem
       allowedGroupName = "security.stem.groupAllowedToCopyStem";
       String groupAllowedToCopyStem = GrouperUtil.propertiesValue(properties, allowedGroupName);
       if (StringUtils.isNotBlank(groupAllowedToCopyStem)) {
