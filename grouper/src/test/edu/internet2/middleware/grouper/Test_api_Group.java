@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -35,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Group.java,v 1.11 2009-03-18 20:39:47 shilen Exp $
+ * @version $Id: Test_api_Group.java,v 1.12 2009-03-19 20:47:50 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Group extends GrouperTest {
@@ -84,7 +85,6 @@ public class Test_api_Group extends GrouperTest {
   public void tearDown() {
     super.tearDown();
   }
-
   
   public void test_delete_which_causes_membership_add() throws Exception {
     R r = R.populateRegistry(0, 0, 1);
@@ -988,6 +988,50 @@ public class Test_api_Group extends GrouperTest {
     
     // parent checks
     assertTrue(newGroup.getParentStem().getUuid().equals(top.getUuid()));
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_option_to_disable_last_membership_change() throws Exception {
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "false");
+    
+    R r = R.populateRegistry(0, 0, 2);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+    
+    Group owner = top.addChildGroup("owner", "owner");
+    Group first = top.addChildGroup("first", "first");
+    Group second = top.addChildGroup("second", "second");
+    Stem test = top.addChildStem("test", "test");
+    
+    owner.addCompositeMember(CompositeType.UNION, first, second);
+    
+    first.addMember(second.toSubject());
+    first.grantPriv(second.toSubject(), AccessPrivilege.UPDATE);
+    
+    second.addMember(a);
+    second.addMember(b);
+    second.deleteMember(a);
+    
+    second.grantPriv(a, AccessPrivilege.ADMIN);
+    second.grantPriv(b, AccessPrivilege.ADMIN);
+    second.grantPriv(b, AccessPrivilege.UPDATE);
+    second.revokePriv(AccessPrivilege.UPDATE);
+    second.revokePriv(a, AccessPrivilege.ADMIN);
+
+    owner.deleteCompositeMember();
+    
+    // after all this, the last_membership_change should still be null for all groups
+    owner = GroupFinder.findByName(r.rs, "top:owner", true);
+    first = GroupFinder.findByName(r.rs, "top:first", true);
+    second = GroupFinder.findByName(r.rs, "top:second", true);
+    test = StemFinder.findByName(r.rs, "top:test", true);
+
+    assertNull(owner.getLastMembershipChange());
+    assertNull(first.getLastMembershipChange());
+    assertNull(second.getLastMembershipChange());
+    assertNotNull(test.getLastMembershipChange());
   }
   
 }
