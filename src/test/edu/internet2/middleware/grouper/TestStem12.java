@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -29,7 +30,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestStem12.java,v 1.7 2009-03-18 18:51:58 shilen Exp $
+ * @version $Id: TestStem12.java,v 1.8 2009-03-19 20:47:50 shilen Exp $
  * @since   1.2.0
  */
 public class TestStem12 extends GrouperTest {
@@ -143,6 +144,98 @@ public class TestStem12 extends GrouperTest {
       T.e(e);
     }
   } 
+  
+  public void testStemModifyAttributesUpdatedAfterGrantingEffectivePriv() {
+    LOG.info("testStemModifyAttributesUpdatedAfterGrantingEffectivePriv");
+    try {
+      R       r     = R.populateRegistry(1, 1, 1);
+      Stem    nsA   = r.getStem("a");
+      Subject subjA = r.getSubject("a");
+      Group   gA    = r.getGroup("a", "a");
+
+      nsA.grantPriv(gA.toSubject(), NamingPrivilege.STEM);
+      
+      Thread.sleep(1);
+      long    orig  = nsA.getModifyTime().getTime();
+      long    pre   = new java.util.Date().getTime();
+      Thread.sleep(1);
+      gA.addMember(subjA);
+      Thread.sleep(1);
+      long    post  = new java.util.Date().getTime();
+      nsA = StemFinder.findByName(r.rs, nsA.getName(), true);
+      long    mtime = nsA.getModifyTime().getTime();
+      long    mtime_mem = nsA.getLastMembershipChange().getTime();
+
+      assertTrue( "nsA modify time not updated (" + mtime + " == " + orig + ")", mtime == orig );
+      assertTrue( "nsA last membership time >= pre (" + mtime_mem + " >= " + pre + ")", mtime_mem >= pre );
+      assertTrue( "nsA last membership time <= post (" + mtime_mem + " <= " + post + ")", mtime_mem <= post );
+      
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  }
+  
+  public void testStemModifyAttributesUpdatedAfterRevokingEffectivePriv() {
+    LOG.info("testStemModifyAttributesUpdatedAfterRevokingEffectivePriv");
+    try {
+      R       r     = R.populateRegistry(1, 1, 1);
+      Stem    nsA   = r.getStem("a");
+      Subject subjA = r.getSubject("a");
+      Group   gA    = r.getGroup("a", "a");
+
+      nsA.grantPriv(gA.toSubject(), NamingPrivilege.STEM);
+      gA.addMember(subjA);
+      
+      Thread.sleep(1);
+      long    orig  = nsA.getModifyTime().getTime();
+      long    pre   = new java.util.Date().getTime();
+      Thread.sleep(1);
+      gA.deleteMember(subjA);
+      Thread.sleep(1);
+      long    post  = new java.util.Date().getTime();
+      nsA = StemFinder.findByName(r.rs, nsA.getName(), true);
+      long    mtime = nsA.getModifyTime().getTime();
+      long    mtime_mem = nsA.getLastMembershipChange().getTime();
+
+      assertTrue( "nsA modify time not updated (" + mtime + " == " + orig + ")", mtime == orig );
+      assertTrue( "nsA last membership time >= pre (" + mtime_mem + " >= " + pre + ")", mtime_mem >= pre );
+      assertTrue( "nsA last membership time <= post (" + mtime_mem + " <= " + post + ")", mtime_mem <= post );
+      
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  }
+  
+  public void testStemModifyAttributesAfterUpdatingAttributes() {
+    LOG.info("testStemModifyAttributesAfterUpdatingAttributes");
+    try {
+      R       r     = R.populateRegistry(1, 1, 1);
+      Stem    nsA   = r.getStem("a");
+      
+      Thread.sleep(1);
+      long    orig  = nsA.getModifyTime().getTime();
+      long    pre   = new java.util.Date().getTime();
+      Thread.sleep(1);
+      nsA.setDescription("test");
+      nsA.store();
+      Thread.sleep(1);
+      nsA = StemFinder.findByName(r.rs, nsA.getName(), true);
+      long    mtime = nsA.getModifyTime().getTime();
+      long    mtime_mem = nsA.getLastMembershipChange().getTime();
+
+      assertTrue( "nsA modify time updated (" + mtime + " > " + orig + ")", mtime > orig );
+      assertTrue( "nsA last membership time < pre (" + mtime_mem + " < " + pre + ")", mtime_mem < pre );
+      
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  }
 
 } 
 

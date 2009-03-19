@@ -37,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.21 2009-03-16 23:22:53 shilen Exp $
+ * @version $Id: Test_api_Stem.java,v 1.22 2009-03-19 20:47:50 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Stem extends GrouperTest {
@@ -1431,6 +1431,42 @@ public class Test_api_Stem extends GrouperTest {
     } else {
       assertTrue(level3Group3.getAttribute("type1attr1").equals(""));
     }
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_option_to_disable_last_membership_change() throws Exception {
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "false");
+    
+    R r = R.populateRegistry(0, 0, 2);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+    
+    Group first = top.addChildGroup("first", "first");
+    Group second = top.addChildGroup("second", "second");
+    Stem test = top.addChildStem("test", "test");
+    
+    test.grantPriv(first.toSubject(), NamingPrivilege.STEM);
+    test.grantPriv(a, NamingPrivilege.CREATE);
+    test.grantPriv(b, NamingPrivilege.CREATE);
+    test.revokePriv(a, NamingPrivilege.CREATE);
+    test.revokePriv(NamingPrivilege.CREATE);
+    
+    first.addMember(second.toSubject());
+    
+    second.addMember(a);
+    second.addMember(b);
+    second.deleteMember(a);
+
+    // after all this, the last_membership_change should still be null for the stem
+    first = GroupFinder.findByName(r.rs, "top:first", true);
+    second = GroupFinder.findByName(r.rs, "top:second", true);
+    test = StemFinder.findByName(r.rs, "top:test", true);
+
+    assertNotNull(first.getLastMembershipChange());
+    assertNotNull(second.getLastMembershipChange());
+    assertNull(test.getLastMembershipChange());
   }
 }
 
