@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
@@ -49,7 +50,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.31 2009-03-18 18:51:58 shilen Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.32 2009-03-19 13:46:23 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -1021,24 +1022,29 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             
             long now = System.currentTimeMillis();
             
-            Iterator<String> membershipChanges = mof.getGroupIdsWithNewMemberships().iterator();
-            while (membershipChanges.hasNext()) {
-              String groupId = membershipChanges.next();
-              
-              HibernateSession.bySqlStatic().executeSql(
-                  "update grouper_groups set last_membership_change = ? where id = ?",
-                  GrouperUtil.toList((Object)now, groupId));
+            if (GrouperConfig.getPropertyBoolean("groups.updateLastMembershipTime", false)) {
+              Iterator<String> membershipChanges = mof.getGroupIdsWithNewMemberships()
+                  .iterator();
+              while (membershipChanges.hasNext()) {
+                String groupId = membershipChanges.next();
+
+                HibernateSession.bySqlStatic().executeSql(
+                    "update grouper_groups set last_membership_change = ? where id = ?",
+                    GrouperUtil.toList((Object) now, groupId));
+              }
             }
             
-            membershipChanges = mof.getStemIdsWithNewMemberships().iterator();
-            while (membershipChanges.hasNext()) {
-              String stemId = membershipChanges.next();
-              
-              HibernateSession.bySqlStatic().executeSql(
-                  "update grouper_stems set last_membership_change = ? where id = ?",
-                  GrouperUtil.toList((Object)now, stemId));
+            if (GrouperConfig.getPropertyBoolean("stems.updateLastMembershipTime", false)) {
+              Iterator<String> membershipChanges = mof.getStemIdsWithNewMemberships()
+                  .iterator();
+              while (membershipChanges.hasNext()) {
+                String stemId = membershipChanges.next();
+
+                HibernateSession.bySqlStatic().executeSql(
+                    "update grouper_stems set last_membership_change = ? where id = ?",
+                    GrouperUtil.toList((Object) now, stemId));
+              }
             }
-            
             return null;
           }
       

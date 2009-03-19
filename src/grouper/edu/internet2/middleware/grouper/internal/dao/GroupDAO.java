@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.18 2009-03-18 18:51:58 shilen Exp $
+ * @version $Id: GroupDAO.java,v 1.19 2009-03-19 13:46:23 shilen Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -201,6 +201,30 @@ public interface GroupDAO extends GrouperDAO {
    * @since   1.4.0
    */
   Set<Group> findAllByModifiedBefore(Date d, String scope) 
+    throws  GrouperDAOException;
+  
+  /**
+   * @since   1.5.0
+   */
+  Set<Group> findAllByLastMembershipAfter(Date d) 
+    throws  GrouperDAOException;
+
+  /**
+   * @since   1.5.0
+   */
+  Set<Group> findAllByLastMembershipAfter(Date d, String scope) 
+    throws  GrouperDAOException;
+
+  /**
+   * @since   1.5.0
+   */
+  Set<Group> findAllByLastMembershipBefore(Date d) 
+    throws  GrouperDAOException;
+
+  /**
+   * @since   1.5.0
+   */
+  Set<Group> findAllByLastMembershipBefore(Date d, String scope) 
     throws  GrouperDAOException;
 
   /**
