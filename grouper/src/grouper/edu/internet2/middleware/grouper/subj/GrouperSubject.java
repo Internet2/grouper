@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: GrouperSubject.java,v 1.2.2.1 2009-03-19 19:24:49 mchyzer Exp $
  */
 public class GrouperSubject implements Subject {
 
@@ -59,15 +59,29 @@ public class GrouperSubject implements Subject {
   private String                name    = null;
   private SubjectType           type    = SubjectTypeEnum.valueOf("group");
 
-
+  /** during security checks, not doing this causes an endless loop */
+  private static final ThreadLocal<Boolean> ignoreGroupAttributeSecurityOnNewSubject = new ThreadLocal<Boolean>();
+  
+  /**
+   * 
+   * @param ifIgnore
+   */
+  public static void ignoreGroupAttributeSecurityOnNewSubject(boolean ifIgnore) {
+    ignoreGroupAttributeSecurityOnNewSubject.set(ifIgnore);
+  }
+  
   // CONSTRUCTORS //
   public GrouperSubject(Group g) 
-    throws  SourceUnavailableException
-  {
+    throws  SourceUnavailableException {
     this.id       = g.getUuid();
-    this.name     = (String) g.getAttributes().get(GrouperConfig.ATTR_NAME);
+    Boolean ignorePermissions = ignoreGroupAttributeSecurityOnNewSubject.get();
+    if (ignorePermissions != null && ignorePermissions) {
+      this.name = g.getAttributesDb().get(GrouperConfig.ATTR_NAME);
+    } else {
+      this.name     = (String) g.getAttributes().get(GrouperConfig.ATTR_NAME);
+    }
     this.adapter  = (GrouperSourceAdapter) SubjectFinder.internal_getGSA();
-  } // protected GrouperSubject(g, sa)
+  }
 
 
   // PUBLIC INSTANCE METHODS //

@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.Owner;
+import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -47,7 +48,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.4 2008-10-23 04:48:57 mchyzer Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.4.2.1 2009-03-19 19:24:49 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperPrivilegeAdapter {
@@ -123,11 +124,20 @@ public class GrouperPrivilegeAdapter {
           }
           if ( ms.getViaUuid() != null ) {
             try {
-              owner   = ms.getViaGroup().toSubject();
+              //dont have an endless loop checking privs
+              GrouperSubject.ignoreGroupAttributeSecurityOnNewSubject(true);
+              Group viaGroup = ms.getViaGroup();
+              if (LOG.isDebugEnabled()) {
+                //temporary log message to try privilege
+                LOG.debug("finding group subject: " + viaGroup.getAttributesDb().get("name"));
+              }
+              owner   = viaGroup.toSubject();
               revoke  = false;
             }
             catch (GroupNotFoundException eGNF) {
               LOG.error(eGNF.getMessage() );
+            } finally {
+              GrouperSubject.ignoreGroupAttributeSecurityOnNewSubject(false);
             }
           }
           
