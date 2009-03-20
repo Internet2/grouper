@@ -18,7 +18,7 @@
 package edu.internet2.middleware.grouper.app.gsh;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**

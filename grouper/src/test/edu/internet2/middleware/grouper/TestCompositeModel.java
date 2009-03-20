@@ -20,11 +20,12 @@ import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeModel.java,v 1.1 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: TestCompositeModel.java,v 1.2 2009-03-20 19:56:40 mchyzer Exp $
  */
 public class TestCompositeModel extends GrouperTest {
 

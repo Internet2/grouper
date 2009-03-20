@@ -84,7 +84,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.123 2009-03-20 14:32:43 mchyzer Exp $
+ * @version $Id: Member.java,v 1.124 2009-03-20 19:56:42 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -163,19 +163,19 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   private String  subjectTypeID;
 
   /** change a subject to the same subject (for testing) */
-  static int changeSubjectSameSubject = 0;
+  public static int changeSubjectSameSubject = 0;
   
   /** change a subject to a subject which didnt exist */
-  static int changeSubjectDidntExist = 0;
+  public static int changeSubjectDidntExist = 0;
 
   /** change a subject to a subject which did exist */
-  static int changeSubjectExist = 0;
+  public static int changeSubjectExist = 0;
   
   /** number of memberships edited */
-  static int changeSubjectMembershipAddCount = 0;
+  public static int changeSubjectMembershipAddCount = 0;
   
   /** number of memberships deleted due to duplicates */
-  static int changeSubjectMembershipDeleteCount = 0;
+  public static int changeSubjectMembershipDeleteCount = 0;
   
   
   /**

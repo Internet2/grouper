@@ -20,15 +20,15 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupHelper;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.SessionHelper;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemHelper;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.filter.GroupNameFilter;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
+import edu.internet2.middleware.grouper.helper.GroupHelper;
+import edu.internet2.middleware.grouper.helper.SessionHelper;
+import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 
@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * Test {@link GroupNameFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQGroupName.java,v 1.1 2009-03-20 15:11:32 mchyzer Exp $
+ * @version $Id: TestGQGroupName.java,v 1.2 2009-03-20 19:56:41 mchyzer Exp $
  */
 public class TestGQGroupName extends TestCase {
 

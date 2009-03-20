@@ -1,11 +1,11 @@
 /*
  * @author mchyzer
- * $Id: LifecycleHooksTest.java,v 1.1 2008-07-10 00:46:53 mchyzer Exp $
+ * $Id: LifecycleHooksTest.java,v 1.2 2009-03-20 19:56:41 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 
 
 /**

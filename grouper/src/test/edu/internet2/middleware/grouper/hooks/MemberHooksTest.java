@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MemberHooksTest.java,v 1.7 2009-03-15 06:37:23 mchyzer Exp $
+ * $Id: MemberHooksTest.java,v 1.8 2009-03-20 19:56:41 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -9,18 +9,18 @@ import java.util.Set;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperTest;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.SessionHelper;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemHelper;
-import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SessionHelper;
+import edu.internet2.middleware.grouper.helper.StemHelper;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
@@ -220,7 +220,7 @@ public class MemberHooksTest extends GrouperTest {
   private Stem root; 
 
   /**
-   * @see edu.internet2.middleware.grouper.GrouperTest#tearDown()
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#tearDown()
    */
   @Override
   protected void tearDown() {
@@ -237,7 +237,7 @@ public class MemberHooksTest extends GrouperTest {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.GrouperTest#setUp()
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#setUp()
    */
   protected void setUp () {
     overrideHooksAdd();

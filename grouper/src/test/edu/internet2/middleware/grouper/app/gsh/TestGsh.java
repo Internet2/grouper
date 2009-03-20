@@ -23,8 +23,8 @@ import java.io.PrintStream;
 import java.net.URL;
 
 import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.GrouperTest;
 import edu.internet2.middleware.grouper.filter.ChildGroupFilter;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Test {@link ChildGroupFilter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestGsh.java,v 1.8 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: TestGsh.java,v 1.9 2009-03-20 19:56:42 mchyzer Exp $
  * @since   1.2.1
  */
 public class TestGsh extends GrouperTest {

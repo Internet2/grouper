@@ -57,7 +57,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.94 2009-03-15 08:18:10 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.95 2009-03-20 19:56:42 mchyzer Exp $
  */
 public class GrouperSession {
 
@@ -457,7 +457,7 @@ public class GrouperSession {
    * @throws  IllegalArgumentException if <i>property</i> is null.
    * @since   1.2.1
    */
-  protected void setConfig(String property, String value) 
+  public void setConfig(String property, String value) 
     throws  IllegalArgumentException
   {
     this.cfg.setProperty(property, value);
@@ -517,7 +517,7 @@ public class GrouperSession {
   } 
 
 
-  // PROTECTED INSTANCE METHODS //
+  // public INSTANCE METHODS //
 
   // @since   1.2.0
   public GrouperSession internal_getRootSession() 
@@ -710,7 +710,7 @@ public class GrouperSession {
    * clear the threadlocal grouper session (dont really need to call this, just
    * stop the session, but this is here for testing)
    */
-  static void clearGrouperSession() {
+  public static void clearGrouperSession() {
     staticGrouperSession.remove();
   }
   

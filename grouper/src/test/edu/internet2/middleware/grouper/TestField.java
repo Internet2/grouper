@@ -22,6 +22,7 @@ import java.util.Set;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.helper.FieldHelper;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -30,7 +31,7 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.10 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: TestField.java,v 1.11 2009-03-20 19:56:41 mchyzer Exp $
  */
 public class TestField extends TestCase {
 

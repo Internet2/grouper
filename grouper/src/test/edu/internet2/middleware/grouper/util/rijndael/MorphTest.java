@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: MorphTest.java,v 1.4 2008-10-03 15:00:00 mchyzer Exp $
+ * $Id: MorphTest.java,v 1.5 2009-03-20 19:56:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util.rijndael;
 
@@ -8,8 +8,8 @@ import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.GrouperTest;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.morphString.Morph;
 
 

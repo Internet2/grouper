@@ -24,6 +24,9 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.R;
+import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -31,7 +34,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeI.java,v 1.1 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: TestCompositeI.java,v 1.2 2009-03-20 19:56:41 mchyzer Exp $
  * @since   1.0
  */
 public class TestCompositeI extends GrouperTest {

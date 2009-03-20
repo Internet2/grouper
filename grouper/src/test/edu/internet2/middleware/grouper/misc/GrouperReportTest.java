@@ -1,10 +1,10 @@
 /*
  * @author mchyzer
- * $Id: GrouperReportTest.java,v 1.2 2008-12-11 16:28:11 mchyzer Exp $
+ * $Id: GrouperReportTest.java,v 1.3 2009-03-20 19:56:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
-import edu.internet2.middleware.grouper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 
 
 /**

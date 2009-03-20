@@ -1,9 +1,10 @@
 /*
  * @author mchyzer
- * $Id: AllUtilTests.java,v 1.3 2008-06-21 04:16:12 mchyzer Exp $
+ * $Id: AllUtilTests.java,v 1.4 2009-03-20 19:56:41 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
+import edu.internet2.middleware.grouper.util.rijndael.AllRijndaelTests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -24,6 +25,7 @@ public class AllUtilTests {
     suite.addTestSuite(XmlIndenterTest.class);
     suite.addTestSuite(JsonIndenterTest.class);
     //$JUnit-END$
+    suite.addTest(AllRijndaelTests.suite());
     return suite;
   }
 

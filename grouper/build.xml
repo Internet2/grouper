@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.219 2009-01-31 16:46:41 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.220 2009-03-20 19:56:42 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -760,7 +760,7 @@
       <jvmarg value="-Dgrouper.home=${grouper.home}"/>
       <classpath  refid="test.classpath"/>
       <formatter  type="xml"/>
-      <test       name="edu.internet2.middleware.grouper.SuiteDefault"
+      <test       name="edu.internet2.middleware.grouper.AllTests"
                   todir="${dist.dir.test}" 
       />
     </junit>

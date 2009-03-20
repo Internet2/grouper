@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.12 2009-02-09 05:33:31 mchyzer Exp $
+ * @version $Id: GrouperShell.java,v 1.13 2009-03-20 19:56:42 mchyzer Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -52,7 +52,7 @@ public class GrouperShell {
 			  "edu.internet2.middleware.grouper.xml.XmlExporter");
 	  
 	  mainLookups.put("-test",      
-			  "edu.internet2.middleware.grouper.SuiteDefault");
+			  "edu.internet2.middleware.grouper.AllTests");
 	  
 	  mainLookups.put("-loader",    
 			  "edu.internet2.middleware.grouper.app.loader.GrouperLoader");

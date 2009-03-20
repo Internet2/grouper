@@ -1,13 +1,13 @@
 /*
  * @author mchyzer
- * $Id: MembershipHooksImpl5.java,v 1.4 2008-07-23 06:41:30 mchyzer Exp $
+ * $Id: MembershipHooksImpl5.java,v 1.5 2009-03-20 19:56:41 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipBean;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;

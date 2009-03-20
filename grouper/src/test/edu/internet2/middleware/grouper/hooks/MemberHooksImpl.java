@@ -1,13 +1,13 @@
 /*
  * @author mchyzer
- * $Id: MemberHooksImpl.java,v 1.3 2008-10-17 12:06:37 mchyzer Exp $
+ * $Id: MemberHooksImpl.java,v 1.4 2009-03-20 19:56:41 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMemberBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksMemberChangeSubjectBean;
