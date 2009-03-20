@@ -34,6 +34,8 @@ import org.hibernate.classic.Lifecycle;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -58,6 +60,7 @@ import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -81,9 +84,9 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.122 2009-03-15 08:18:10 mchyzer Exp $
+ * @version $Id: Member.java,v 1.123 2009-03-20 14:32:43 mchyzer Exp $
  */
-public class Member extends GrouperAPI implements Hib3GrouperVersioned {
+public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
   /** grouper_members table in the DB */
   public static final String TABLE_GROUPER_MEMBERS = "grouper_members";
@@ -182,7 +185,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * the member_id updated to the new member_id, and the old member_id will be removed.
    * 
    * @param newSubject
-   * @throws InsufficientPrivilegeRuntimeException if not a root user
+   * @throws InsufficientPrivilegeException if not a root user
    */
   public void changeSubject(Subject newSubject) throws InsufficientPrivilegeException {
     this.changeSubject(newSubject, true);
@@ -198,7 +201,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @param deleteOldMember is only applicable if the new member exists.  If true, it will delete the old one.
    * Generally you want this as true, and only set to false if there is a foreign key violation, and you want to 
    * get as far as you can.
-   * @throws InsufficientPrivilegeRuntimeException if not a root user
+   * @throws InsufficientPrivilegeException if not a root user
    */
   public void changeSubject(final Subject newSubject, final boolean deleteOldMember) 
       throws InsufficientPrivilegeException {
@@ -241,10 +244,15 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * Generally you want this as true, and only set to false if there is a foreign key violation, and you want to 
    * get as far as you can.
    * @param report pass in report if only a dry run, dont actually do anything...
-   * @throws InsufficientPrivilegeRuntimeException if not a root user
+   * @throws InsufficientPrivilegeException if not a root user
    */
   private void changeSubjectHelper(final Subject newSubject, final boolean deleteOldMember, 
       final StringBuilder report) throws InsufficientPrivilegeException {
+    
+    final String errorMessageSuffix = ", this subject: " + GrouperUtil.subjectToString(this.subj)
+      + ", new subject: " + GrouperUtil.subjectToString(newSubject) + ", deleteOldMember: " + deleteOldMember
+      + ", report? " + (report != null);
+
     
     //make sure root session
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
@@ -256,6 +264,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
     
     final String thisSubjectId = this.getSubjectId();
     final String thisSourceId = this.getSubjectSourceId();
+    final String thisMemberId = this.getUuid();
     
     final String newSubjectId = newSubject.getId();
     final String newSourceId = newSubject.getSource().getId();
@@ -290,9 +299,11 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
     final boolean memberDidntExist = theMemberDidntExist;
     final Member newMember = theNewMember;
     
+    AuditControl auditControl = report == null ? AuditControl.WILL_AUDIT : AuditControl.WILL_NOT_AUDIT;
+    
     //this needs to run in a transaction
     HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, auditControl,
         new HibernateHandler() {
 
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -309,6 +320,8 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
                 MemberHooks.METHOD_MEMBER_PRE_CHANGE_SUBJECT, 
                 hooksMemberChangeSubjectBean, VetoTypeGrouper.MEMBER_PRE_CHANGE_SUBJECT);
           }
+          
+          String newMemberUuid = null;
           
           if (memberDidntExist) {
             changeSubjectDidntExist++;
@@ -329,7 +342,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
             }
           } else {
             changeSubjectExist++;
-            final String newMemberUuid = newMember.getUuid();
+            newMemberUuid = newMember.getUuid();
             {
               //grouper_composites.creator_id
               Set<Composite> composites = GrouperDAOFactory.getFactory().getComposite().findByCreator(Member.this);
@@ -507,6 +520,21 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
             }
           }        
           if (report == null) {
+            
+            if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBER_CHANGE_SUBJECT, "oldMemberId", 
+                  thisMemberId, "oldSubjectId", thisSubjectId,
+                      "oldSourceId", thisSourceId, "newMemberId",  newMemberUuid,
+                      "newSubjectId", newSubjectId, "newSourceId", newSourceId, 
+                      "deleteOldMember", deleteOldMember ? "T" : "F", "memberIdChanged", (!memberDidntExist) ? "T" : "F");
+                      
+              auditEntry.setDescription("Member change subject: old subject: " + thisSourceId
+                  + "." + thisSubjectId + ", new subject: " + newSourceId + "." + newSubjectId
+                  + ", delete old member: " + deleteOldMember + ", member id changed: " + !memberDidntExist);
+              auditEntry.saveOrUpdate(true);
+            }
+            
             hibernateSession.getSession().flush();          
           
             GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBER, 
@@ -519,8 +547,9 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
           }  
           
           return null;
-        } catch (GroupNotFoundException gnfe) {
-          throw new GrouperDAOException(gnfe);
+        } catch (RuntimeException re) {
+          GrouperUtil.injectInException(re, errorMessageSuffix);
+          throw re;
         }
       }
       
@@ -2209,6 +2238,24 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
     return GrouperUtil.clone(this, CLONE_FIELDS);
   }
 
+  /** context id of the transaction */
+  private String contextId;
+
+  /**
+   * context id of the transaction
+   * @return context id
+   */
+  public String getContextId() {
+    return this.contextId;
+  }
+
+  /**
+   * context id of the transaction
+   * @param contextId1
+   */
+  public void setContextId(String contextId1) {
+    this.contextId = contextId1;
+  }
 
 } 
 
