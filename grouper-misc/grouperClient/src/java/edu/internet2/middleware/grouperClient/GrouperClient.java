@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.21.2.2 2009-03-05 04:32:36 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.21.2.3 2009-03-20 21:18:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -778,7 +778,8 @@ public class GrouperClient {
     log.debug("Output template: " + outputTemplate + ", available variables: wsGetGrouperPrivilegesLiteResult, " +
       "grouperClientUtils, resultMetadata, index, wsGrouperPrivilegeResult, wsSubject, wsGroup, wsStem, objectType, objectName");
   
-    for (WsGrouperPrivilegeResult wsGrouperPrivilegeResult : wsGetGrouperPrivilegesLiteResult.getPrivilegeResults()) {
+    for (WsGrouperPrivilegeResult wsGrouperPrivilegeResult : GrouperClientUtils.nonNull( 
+        wsGetGrouperPrivilegesLiteResult.getPrivilegeResults(), WsGrouperPrivilegeResult.class)) {
       
       substituteMap.put("index", index);
       substituteMap.put("wsGrouperPrivilegeResult", wsGrouperPrivilegeResult);

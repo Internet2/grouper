@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.1.2.3 2009-02-20 07:22:57 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.1.2.4 2009-03-20 21:18:11 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.poc;
 
@@ -10,6 +10,8 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
@@ -44,7 +46,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testGroupSaveInsertAlreadyExists"));
+    TestRunner.run(new GrouperClientWsTest("testGetGrouperPrivilegeLite"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -879,6 +881,23 @@ public class GrouperClientWsTest extends GrouperTest {
 
       assertEquals(GrouperClientUtils.length(outputLines), 2);
       assertTrue(outputLines[0], matcher.matches());
+
+      // #####################################################
+      // run again, with stem with no results
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient
+          .main(GrouperClientUtils
+              .splitTrim(
+                  "--operation=getGrouperPrivilegesLiteWs --stemName=aStem --pennKey=id.test.subject.6",
+                  " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      assertTrue(outputLines[0], StringUtils.isBlank(output));
 
       // Index 0: success: T: code: SUCCESS: stem: aStem: subject:
       // test.subject.0: naming: create
