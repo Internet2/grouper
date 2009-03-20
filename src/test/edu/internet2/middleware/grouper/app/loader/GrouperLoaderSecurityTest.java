@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderSecurityTest.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
+ * $Id: GrouperLoaderSecurityTest.java,v 1.3 2009-03-20 19:56:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -10,9 +10,9 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperTest;
-import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeSecurityHook;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
@@ -43,7 +43,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
   
   /**
    * 
-   * @see edu.internet2.middleware.grouper.GrouperTest#setUp()
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#setUp()
    */
   @Override
   protected void setUp() {
@@ -120,7 +120,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
   
   /**
    * 
-   * @see edu.internet2.middleware.grouper.GrouperTest#tearDown()
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#tearDown()
    */
   @Override
   protected void tearDown() {

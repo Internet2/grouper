@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksDbVersionTest.java,v 1.2 2009-03-15 08:24:48 mchyzer Exp $
+ * $Id: GroupHooksDbVersionTest.java,v 1.3 2009-03-20 19:56:41 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -9,10 +9,10 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperTest;
-import edu.internet2.middleware.grouper.SessionHelper;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemHelper;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SessionHelper;
+import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -50,7 +50,7 @@ public class GroupHooksDbVersionTest extends GrouperTest {
   private GrouperSession grouperSession; 
 
   /**
-   * @see edu.internet2.middleware.grouper.GrouperTest#tearDown()
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#tearDown()
    */
   @Override
   protected void tearDown() {
@@ -68,7 +68,7 @@ public class GroupHooksDbVersionTest extends GrouperTest {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.GrouperTest#setUp()
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#setUp()
    */
   protected void setUp () {
     super.setUp();

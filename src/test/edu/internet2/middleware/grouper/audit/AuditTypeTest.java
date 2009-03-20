@@ -1,11 +1,11 @@
 /*
  * @author mchyzer
- * $Id: AuditTypeTest.java,v 1.3 2009-02-06 16:33:18 mchyzer Exp $
+ * $Id: AuditTypeTest.java,v 1.4 2009-03-20 19:56:41 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
 import junit.textui.TestRunner;
-import edu.internet2.middleware.grouper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;

@@ -24,6 +24,9 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.R;
+import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -32,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU.java,v 1.1 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: TestCompositeU.java,v 1.2 2009-03-20 19:56:40 mchyzer Exp $
  * @since   1.0
  */
 public class TestCompositeU extends GrouperTest {
@@ -1621,7 +1624,7 @@ public class TestCompositeU extends GrouperTest {
       }
       catch (MemberDeleteException eMD) {
         Assert.assertTrue("OK: cannot del member from composite mship", true);
-        T.string("error message", E.GROUP_DMFC, eMD.getMessage());
+        assertContains("error message", eMD.getMessage(), E.GROUP_DMFC);
       }
       finally {
         r.rs.stop();

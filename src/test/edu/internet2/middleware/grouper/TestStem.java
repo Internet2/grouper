@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -24,20 +25,38 @@ import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
+import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
+import edu.internet2.middleware.grouper.exception.StemDeleteException;
 import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.helper.GroupHelper;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.PrivHelper;
+import edu.internet2.middleware.grouper.helper.R;
+import edu.internet2.middleware.grouper.helper.SessionHelper;
+import edu.internet2.middleware.grouper.helper.StemHelper;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.helper.T;
+import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.validator.NamingValidator;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.22 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.23 2009-03-20 19:56:40 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -56,18 +75,6 @@ public class TestStem extends GrouperTest {
   public TestStem(String name) {
     super(name);
   }
-
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.internal_resetRegistryAndAddTestSubjects();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
-  }
-
-
-  // Tests
 
   public void testRoot() {
     LOG.info("testRoot");
@@ -467,9 +474,8 @@ public class TestStem extends GrouperTest {
       while (iter.hasNext()) {
         Stem child  = (Stem) iter.next();
         Set  stems  = child.getChildStems();
-        Assert.assertTrue(
-          "child of parent has child stems", stems.size() == 1
-        );
+        assertEquals(
+          "child of parent has child stems", 1, stems.size());
         Iterator childIter = stems.iterator();
         while (childIter.hasNext()) {
           Stem c = (Stem) childIter.next();
@@ -591,6 +597,702 @@ public class TestStem extends GrouperTest {
       Assert.fail(e.getMessage());
     }
   } // public void testSetBadStemDisplayExtension()
+
+  /**
+   * test delete
+   */
+  public void testDeleteEmptyStem() {
+    LOG.info("testDeleteEmptyStem");
+    try {
+      R r = R.populateRegistry(0, 0, 0);
+      r.ns.delete();
+      Assert.assertTrue("deleted stem", true);
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testDeleteEmptyStem()
+
+  public void testDeleteEmptyStemInNewSession() {
+    LOG.info("testDeleteEmptyStemInNewSession");
+    try {
+      R       r     = R.populateRegistry(0, 0, 0);
+      String  name  = r.ns.getName();
+      Subject subj  = r.rs.getSubject();
+      r.rs.stop();
+  
+      // Now reload and delete
+      GrouperSession  s   = GrouperSession.start(subj);
+      Stem            ns  = StemFinder.findByName(s, name, true);
+      ns.delete();
+      Assert.assertTrue("no lazy initialization error", true);
+      s.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testDeleteEmptyStemInNewSession()
+
+  public void testFailToDeleteRootStem() {
+    LOG.info("testFailToDeleteRootStem");
+    try {
+      R r = R.populateRegistry(0, 0, 0);
+      r.root.delete();
+      r.rs.stop();
+      Assert.fail("deleted root stem");
+    }
+    catch (StemDeleteException eSD) {
+      Assert.assertTrue("OK: failed to delete root stem", true);
+    }
+    catch (Exception e) {
+      Assert.fail("unexpected exception: " + e.getMessage());
+    }
+  } // public void testFailToDeleteRootStem()
+
+  public void testFailToDeleteStemWithChildGroups() {
+    LOG.info("testFailToDeleteStemWithChildGroups");
+    try {
+      R r = R.populateRegistry(1, 1, 0);
+      Stem ns = r.getStem("a");
+      ns.delete();
+      Assert.fail("deleted stem with child groups");
+      r.rs.stop();
+    }
+    catch (StemDeleteException eSD) {
+      Assert.assertTrue("OK: failed to delete stem with child groups", true);
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testFailToDeleteStemWithChildGroups()
+
+  public void testFailToDeleteStemWithChildStems() {
+    LOG.info("testFailToDeleteStemWithChildStems");
+    try {
+      R r = R.populateRegistry(1, 0, 0);
+      r.ns.delete();
+      Assert.fail("deleted stem with child stems");
+      r.rs.stop();
+    }
+    catch (StemDeleteException eSD) {
+      Assert.assertTrue("OK: failed to delete stem with child stems", true);
+    }
+    catch (Exception e) {
+      Assert.fail("unexpected exception: " + e.getMessage());
+    }
+  } // public void testFailToDeleteStemWithChildStems()
+
+  public void testFailToDeleteStemWithoutSTEM() {
+    LOG.info("testFailToDeleteStemWithoutSTEM");
+    try {
+      R               r     = R.populateRegistry(1, 0, 1);
+      Subject         subj  = r.getSubject("a");
+      GrouperSession  s     = GrouperSession.start(subj);
+      r.ns.delete();
+      s.stop();
+      r.rs.stop();
+      Assert.fail("deleted stem without STEM");
+    }
+    catch (InsufficientPrivilegeException eIP) {
+      Assert.assertTrue("OK: failed to delete stem without STEM", true);
+    }
+    catch (Exception e) {
+      Assert.fail("unexpected exception: " + e.getMessage());
+    }
+  } // public void testFailToDeleteStemWithoutSTEM()
+
+  public void testGetCreateAttrs() {
+    LOG.info("testGetCreateAttrs");
+    try {
+      GrouperSession  s     = SessionHelper.getRootSession();
+      Stem            root  = StemHelper.findRootStem(s);
+      Stem            edu   = root.addChildStem("edu", "education");
+      try {
+        Subject creator = edu.getCreateSubject();
+        Assert.assertNotNull("creator !null", creator);
+        Assert.assertTrue("creator", creator.equals(s.getSubject()));
+      }
+      catch (SubjectNotFoundException eSNF) {
+        Assert.fail("no create subject");
+      }
+      Date  d       = edu.getCreateTime();
+      Assert.assertNotNull("create time !null", d);
+      Assert.assertTrue("create time instanceof Date", d instanceof Date);
+      long  create  = d.getTime();
+      long  epoch   = new Date(0).getTime();
+      Assert.assertFalse(
+        "create[" + create + "] != epoch[" + epoch + "]",
+        create == epoch
+      );
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testGetCreateAttrs()
+
+  public void testGetModifyAttrsModified() {
+    LOG.info("testGetModifyAttrsModified");
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    StemHelper.addChildGroup(edu, "i2", "internet2");
+    edu = StemFinder.findByName(s, edu.getName(), true);
+  
+    
+    try {
+      Subject modifier = edu.getModifySubject();
+      Assert.fail("no exception thrown");
+    }
+    catch (SubjectNotFoundException eSNF) {
+    }
+    
+    Date  d       = edu.getModifyTime();
+    Assert.assertTrue("modify time null", d.getTime() == 0);
+    
+    d = edu.getLastMembershipChange();
+    Assert.assertNotNull("last membership change !null: " + d, d);
+    Assert.assertTrue("last membership change instanceof Date", d instanceof Date);
+    
+    long  modify  = d.getTime();
+    long  epoch   = new Date(0).getTime();
+    Assert.assertFalse(
+      "modify[" + modify + "] != epoch[" + epoch + "]",
+      modify == epoch
+    );
+  } // public void testGetModifyAttrsModified()
+
+  public void testGetModifyAttrsNotModified() {
+    LOG.info("testGetModifyAttrsNotModified");
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    edu = StemFinder.findByName(s, edu.getName(), true);
+    
+    try {
+      Subject modifier = edu.getModifySubject();
+      Assert.fail("no exception thrown");
+    }
+    catch (SubjectNotFoundException eSNF) {
+    }
+    Date  d       = edu.getModifyTime();
+    Assert.assertTrue("modify time null", d.getTime() == 0);
+    
+    d = edu.getLastMembershipChange();
+    Assert.assertNotNull("last membership change !null: " + d, d);
+    Assert.assertTrue("last membership change instanceof Date", d instanceof Date);
+    long  modify  = d.getTime();
+    long  epoch   = new Date(0).getTime();
+    Assert.assertFalse(
+      "modify[" + modify + "] != epoch[" + epoch + "]",
+      modify == epoch
+    );
+  } // public void testGetModifyAttrsNotModified()
+
+  // BUGFIX:GCODE:10
+  public void testGetPrivsStemmersAndCreatorsAsNonRoot() {
+    LOG.info("testGetPrivsStemmersAndCreatorsAsNonRoot");
+    try {
+      final R r = R.populateRegistry(0, 0, 1);
+      final Subject subjA = r.getSubject("a");
+      GrouperSession s = GrouperSession.start(subjA);
+  
+  
+      T.amount("privs before grant"   , 0, r.ns.getPrivs(subjA).size());
+      T.amount("stemmers before grant", 1, r.ns.getStemmers().size()  );
+      T.amount("creators before grant", 0, r.ns.getCreators().size()  );
+  
+      GrouperSession.callbackGrouperSession(r.rs, new GrouperSessionHandler() {
+  
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          try {
+            r.ns.grantPriv(subjA, NamingPrivilege.STEM);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+          return null;
+        }
+        
+      });
+  
+      T.amount("privs after grant"    , 1, r.ns.getPrivs(subjA).size());
+      T.amount("stemmers after grant" , 2, r.ns.getStemmers().size()  );
+      T.amount("creators after grant" , 0, r.ns.getCreators().size()  );
+  
+      s.stop();
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testGetPrivsStemmersAndCreatorsAsNonRoot()
+
+  public void testGetPrivsStemmersAndCreatorsAsRoot() {
+    LOG.info("testGetPrivsStemmersAndCreatorsAsRoot");
+    try {
+      R       r     = R.populateRegistry(0, 0, 1);
+      Subject subjA = r.getSubject("a");
+      T.amount("privs before grant"   , 0, r.ns.getPrivs(subjA).size());
+      T.amount("stemmers before grant", 1, r.ns.getStemmers().size()  );
+      T.amount("stemmers before grant", 1, r.ns.getStemmers().size()  );
+      T.amount("creators before grant", 0, r.ns.getCreators().size()  );
+      r.ns.grantPriv(subjA, NamingPrivilege.STEM);
+      T.amount("privs after grant"    , 1, r.ns.getPrivs(subjA).size());
+      T.amount("stemmers after grant" , 2, r.ns.getStemmers().size()  );
+      T.amount("creators after grant" , 0, r.ns.getCreators().size()  );
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testGetPrivsStemmersAndCreatorsAsRoot()
+
+  /**
+   * test static save stem
+   * @throws Exception if problem
+   */
+  public void testStaticSaveStem() throws Exception {
+    
+    R.populateRegistry(1, 2, 0);
+    
+    String displayExtension = "testing123 display";
+    GrouperSession rootSession = SessionHelper.getRootSession();
+    String stemDescription = "description";
+    try {
+      String stemNameNotExist = "whatever123:whatever:testing123";
+      
+      GrouperTest.deleteAllStemsIfExists(rootSession, stemNameNotExist);
+      
+      Stem.saveStem(rootSession, stemNameNotExist,null,  stemNameNotExist, 
+          displayExtension, stemDescription, 
+          SaveMode.UPDATE, false);
+      fail("this should fail, since stem doesnt exist");
+    } catch (StemNotFoundException e) {
+      //good, caught an exception
+      //e.printStackTrace();
+    }
+    
+    /////////////////////////////////
+    String stemName = "i2:a:testing123";
+    GrouperTest.deleteStemIfExists(rootSession, stemName);
+    
+    //////////////////////////////////
+    //this should insert
+    Stem createdStem = Stem.saveStem(rootSession, null, null, 
+        stemName,displayExtension, stemDescription, 
+        SaveMode.INSERT, false);
+    
+    //now retrieve
+    Stem foundStem = StemFinder.findByName(rootSession, stemName, true);
+    
+    assertEquals(stemName, createdStem.getName());
+    assertEquals(stemName, foundStem.getName());
+    
+    assertEquals(displayExtension, createdStem.getDisplayExtension());
+    assertEquals(displayExtension, foundStem.getDisplayExtension());
+    
+    assertEquals(stemDescription, createdStem.getDescription());
+    assertEquals(stemDescription, foundStem.getDescription());
+    
+    ///////////////////////////////////
+    //this should update by uuid
+    createdStem = Stem.saveStem(rootSession, stemName, createdStem.getUuid(),
+        stemName, displayExtension, stemDescription + "1", 
+         SaveMode.INSERT_OR_UPDATE, false);
+    assertEquals("this should update by uuid", stemDescription + "1", createdStem.getDescription());
+    
+    //this should update by name
+    createdStem = Stem.saveStem(rootSession, stemName, null, stemName, 
+        displayExtension, stemDescription + "2", 
+        SaveMode.UPDATE, false);
+    assertEquals("this should update by name", stemDescription + "2", createdStem.getDescription());
+    
+    /////////////////////////////////////
+    //create a stem that creates a bunch of stems
+    String stemsNotExist = "whatever123:heythere:another";
+    //lets also delete those stems
+    GrouperTest.deleteAllStemsIfExists(rootSession, stemsNotExist);
+    createdStem = Stem.saveStem(rootSession, stemsNotExist, null, 
+        stemsNotExist, displayExtension, stemDescription, 
+        SaveMode.INSERT_OR_UPDATE, true);
+    
+    assertEquals(stemDescription, createdStem.getDescription());
+    //clean up
+    GrouperTest.deleteAllStemsIfExists(rootSession, stemsNotExist);
+    
+    rootSession.stop();
+    
+  }
+
+  public void testStemModifyAttributesAfterUpdatingAttributes() {
+    LOG.info("testStemModifyAttributesAfterUpdatingAttributes");
+    try {
+      R       r     = R.populateRegistry(1, 1, 1);
+      Stem    nsA   = r.getStem("a");
+      
+      Thread.sleep(1);
+      long    orig  = nsA.getModifyTime().getTime();
+      long    pre   = new java.util.Date().getTime();
+      Thread.sleep(1);
+      nsA.setDescription("test");
+      nsA.store();
+      Thread.sleep(1);
+      nsA = StemFinder.findByName(r.rs, nsA.getName(), true);
+      long    mtime = nsA.getModifyTime().getTime();
+      long    mtime_mem = nsA.getLastMembershipChange().getTime();
+  
+      assertTrue( "nsA modify time updated (" + mtime + " > " + orig + ")", mtime > orig );
+      assertTrue( "nsA last membership time < pre (" + mtime_mem + " < " + pre + ")", mtime_mem < pre );
+      
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  }
+
+  public void testStemModifyAttributesUpdatedAfterGrantingEffectivePriv() {
+    LOG.info("testStemModifyAttributesUpdatedAfterGrantingEffectivePriv");
+    try {
+      R       r     = R.populateRegistry(1, 1, 1);
+      Stem    nsA   = r.getStem("a");
+      Subject subjA = r.getSubject("a");
+      Group   gA    = r.getGroup("a", "a");
+  
+      nsA.grantPriv(gA.toSubject(), NamingPrivilege.STEM);
+      
+      Thread.sleep(1);
+      long    orig  = nsA.getModifyTime().getTime();
+      long    pre   = new java.util.Date().getTime();
+      Thread.sleep(1);
+      gA.addMember(subjA);
+      Thread.sleep(1);
+      long    post  = new java.util.Date().getTime();
+      nsA = StemFinder.findByName(r.rs, nsA.getName(), true);
+      long    mtime = nsA.getModifyTime().getTime();
+      long    mtime_mem = nsA.getLastMembershipChange().getTime();
+  
+      assertTrue( "nsA modify time not updated (" + mtime + " == " + orig + ")", mtime == orig );
+      assertTrue( "nsA last membership time >= pre (" + mtime_mem + " >= " + pre + ")", mtime_mem >= pre );
+      assertTrue( "nsA last membership time <= post (" + mtime_mem + " <= " + post + ")", mtime_mem <= post );
+      
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  }
+
+  // NAMING PRIVS //
+  
+  // @since   1.2.0
+  public void testStemModifyAttributesUpdatedAfterGrantingImmediatePriv() {
+    LOG.info("testStemModifyAttributesUpdatedAfterGrantingImmediatePriv");
+    try {
+      R       r     = R.populateRegistry(1, 0, 1);
+      Stem    nsA   = r.getStem("a");
+      Subject subjA = r.getSubject("a");
+  
+      long    orig  = nsA.getModifyTime().getTime();
+      long    pre   = new java.util.Date().getTime();
+      assertTrue(nsA.grantPriv(subjA, NamingPrivilege.STEM, true));
+      long    post  = new java.util.Date().getTime();
+      nsA = StemFinder.findByName(r.rs, nsA.getName(), true);
+      long    mtime = nsA.getModifyTime().getTime();
+      long    mtime_mem = nsA.getLastMembershipChange().getTime();
+  
+      assertTrue( "nsA modify time not updated (" + mtime + " == " + orig + ")", mtime == orig );
+      assertTrue( "nsA last membership time >= pre (" + mtime_mem + " >= " + pre + ")", mtime_mem >= pre );
+      assertTrue( "nsA last membership time <= post (" + mtime_mem + " <= " + post + ")", mtime_mem <= post );
+  
+      try {
+        nsA.grantPriv(subjA, NamingPrivilege.STEM);
+        fail("Should throw already exists exception");
+      } catch (GrantPrivilegeException gpe) {
+        
+      }
+  
+      assertFalse(nsA.grantPriv(subjA, NamingPrivilege.STEM, false));
+      
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  }
+
+  public void testStemModifyAttributesUpdatedAfterRevokingEffectivePriv() {
+    LOG.info("testStemModifyAttributesUpdatedAfterRevokingEffectivePriv");
+    try {
+      R       r     = R.populateRegistry(1, 1, 1);
+      Stem    nsA   = r.getStem("a");
+      Subject subjA = r.getSubject("a");
+      Group   gA    = r.getGroup("a", "a");
+  
+      nsA.grantPriv(gA.toSubject(), NamingPrivilege.STEM);
+      gA.addMember(subjA);
+      
+      Thread.sleep(1);
+      long    orig  = nsA.getModifyTime().getTime();
+      long    pre   = new java.util.Date().getTime();
+      Thread.sleep(1);
+      gA.deleteMember(subjA);
+      Thread.sleep(1);
+      long    post  = new java.util.Date().getTime();
+      nsA = StemFinder.findByName(r.rs, nsA.getName(), true);
+      long    mtime = nsA.getModifyTime().getTime();
+      long    mtime_mem = nsA.getLastMembershipChange().getTime();
+  
+      assertTrue( "nsA modify time not updated (" + mtime + " == " + orig + ")", mtime == orig );
+      assertTrue( "nsA last membership time >= pre (" + mtime_mem + " >= " + pre + ")", mtime_mem >= pre );
+      assertTrue( "nsA last membership time <= post (" + mtime_mem + " <= " + post + ")", mtime_mem <= post );
+      
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  }
+
+  // @since   1.2.0
+  public void testStemModifyAttributesUpdatedAfterRevokingImmediatePriv() {
+    LOG.info("testStemModifyAttributesUpdatedAfterRevokingImmediatePriv");
+    try {
+      R       r     = R.populateRegistry(1, 0, 1);
+      Stem    nsA   = r.getStem("a");
+      Subject subjA = r.getSubject("a");
+      nsA.grantPriv(subjA, NamingPrivilege.STEM);
+  
+      long    orig  = nsA.getModifyTime().getTime();
+      long    pre   = new java.util.Date().getTime();
+      Thread.sleep(1); // TODO 20070430 hack!
+      nsA.revokePriv(subjA, NamingPrivilege.STEM);
+  
+      //try again
+      try {
+        nsA.revokePriv(subjA, NamingPrivilege.STEM);
+        fail("Problem revoking priv");
+      } catch (RevokePrivilegeAlreadyRevokedException rpare) {
+        //good
+      }
+  
+      nsA.revokePriv(subjA, NamingPrivilege.STEM, false);
+      nsA = StemFinder.findByName(r.rs, nsA.getName(), true);
+  
+      Thread.sleep(1); // TODO 20070430 hack!
+      long    post  = new java.util.Date().getTime();
+      long    mtime = nsA.getModifyTime().getTime();
+      long    mtime_mem = nsA.getLastMembershipChange().getTime();
+  
+      assertTrue( "nsA modify time not updated (" + mtime + " == " + orig + ")", mtime == orig );
+      assertTrue( "nsA membership change time >= pre (" + mtime_mem + " >= " + pre + ")", mtime_mem >= pre );
+      assertTrue( "nsA membership change time <= post (" + mtime_mem + " <= " + post + ")", mtime_mem <= post );
+  
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  }
+
+  public void testAddChildGroup() {
+    Stem  root  = StemHelper.findRootStem(
+      SessionHelper.getRootSession()
+    );
+    Stem  edu   = StemHelper.addChildStem(root, "edu", "education");
+    StemHelper.addChildGroup(edu, "i2", "internet2");
+  } // public void testAddChildGroup()
+
+  // Tests
+  
+  public void testAddChildGroupAtRootFail() {
+    Stem  root  = StemHelper.findRootStem(
+      SessionHelper.getRootSession()
+    );
+    StemHelper.addChildGroupFail(root, "i2", "internet2");
+  } // public void testAddChildGroupAtRootFail()
+
+  public void testAddChildStem() {
+    Stem  root  = StemHelper.findRootStem(
+      SessionHelper.getRootSession()
+    );
+    Stem  edu   = StemHelper.addChildStem(root, "edu", "education");
+    StemHelper.addChildStem(edu, "uofc", "uchicago");
+  } // public void testAddChildStem()
+
+  public void testAddChildStemAtRoot() {
+    Stem  root  = StemHelper.findRootStem(
+      SessionHelper.getRootSession()
+    );
+    StemHelper.addChildStem(root, "edu", "education");
+  } // public void testAddChildStemAtRoot()
+
+  public void testAddDuplicateChildGroup() {
+    Stem  root  = StemHelper.findRootStem(
+      SessionHelper.getRootSession()
+    );
+    Stem  edu   = StemHelper.addChildStem(root, "edu", "education");
+    StemHelper.addChildGroup(edu, "i2", "internet2");
+    StemHelper.addChildGroupFail(edu, "i2", "internet2");
+  } // public void testAddDuplicateChildGroup()
+
+  public void testAddDuplicateChildStem() {
+    Stem  root  = StemHelper.findRootStem(
+      SessionHelper.getRootSession()
+    );
+    Stem  edu   = StemHelper.addChildStem(root, "edu", "education");
+    StemHelper.addChildStem(edu, "uofc", "uchicago");
+    StemHelper.addChildStemFail(edu, "uofc", "uchicago");
+  } // public void testAddDuplicateChildStem()
+
+  public void testSetExtension_EmptyValue() {
+    try {
+      LOG.info("testSetExtension_EmptyValue");
+      Stem ns = new Stem();
+      ns.setExtension(GrouperConfig.EMPTY_STRING);
+      ns.store();
+      fail("should have thrown StemModifyException");
+    }
+    catch (StemModifyException eNSM) {
+      assertTrue(true);
+      assertEquals( NamingValidator.E_WS, eNSM.getMessage() );
+    }
+    catch (Exception e) {
+      unexpectedException(e);
+    }
+  } // public void testSetExtension_EmptyValue()
+
+  // TESTS //  
+  
+  public void testSetExtension_NullValue() {
+    try {
+      LOG.info("testSetExtension_NullValue");
+      Stem ns = new Stem();
+      ns.setExtension(null);
+      ns.store();
+      fail("should have thrown StemModifyException");
+    }
+    catch (StemModifyException eNSM) {
+      assertTrue(true);
+      assertEquals( E.ATTR_NULL, eNSM.getMessage() );
+    }
+    catch (Exception e) {
+      unexpectedException(e);
+    }
+  } // public void testSetExtension_NullValue()
+
+  public void testSetExtension_ValueContainsColon() {
+    try {
+      LOG.info("testSetExtension_ValueContainsColon");
+      Stem ns = new Stem();
+      ns.setExtension("co:on");
+      ns.store();
+      fail("should have thrown StemModifyException");
+    }
+    catch (StemModifyException eNSM) {
+      assertTrue(true);
+      assertEquals( E.ATTR_COLON, eNSM.getMessage() );
+    }
+    catch (Exception e) {
+      unexpectedException(e);
+    }
+  } // public void testSetExtension_ValueContainsColon()
+
+  public void testSetExtension_WhitespaceOnlyValue() {
+    try {
+      LOG.info("testSetExtension_WhitespaceOnlyValue");
+      Stem ns = new Stem();
+      ns.setExtension(" ");
+      ns.store();
+      fail("should have thrown StemModifyException");
+    }
+    catch (StemModifyException eNSM) {
+      assertTrue(true);
+      assertEquals( NamingValidator.E_WS, eNSM.getMessage() );
+    }
+    catch (Exception e) {
+      unexpectedException(e);
+    }
+  }
+
+  // TESTS //  
+  
+  public void testIsRootStem_DoNotThrowNullPointerException() {
+    try {
+      LOG.info("testIsRootStem_DoNotThrowNullPointerException");
+      Stem ns = new Stem();
+      assertFalse( ns.isRootStem() );
+    }
+    catch (NullPointerException eNP) {
+      fail( "threw NullPointerException: " + eNP.getMessage() );
+    }
+    catch (Exception e) {
+      unexpectedException(e);
+    }
+  } // public void testSetExtension_NullValue()
+
+  // @source  Gary Brown, 20051221, <B96A40BBB6DC736573C06C6D@cse-gwb.cse.bris.ac.uk>
+  // @status  fixed
+  public void testSetStemDisplayName() {
+    LOG.info("testSetStemDisplayName");
+    // Setup
+    Subject subj0 = SubjectTestHelper.SUBJ0;
+    try {
+      GrouperSession  s     = SessionHelper.getRootSession();
+      Stem            root  = StemFinder.findRootStem(s);
+      Stem            qsuob = root.addChildStem("qsuob", "qsuob");
+      qsuob.grantPriv(subj0, NamingPrivilege.STEM);
+      Stem            cs    = qsuob.addChildStem("cs", "child stem");
+      // These weren't explicitly listed in the test report but I can't
+      // replicate unless I have at least two groups.
+      qsuob.addChildGroup("cg", "child group");
+      cs.addChildGroup("gcg", "grandchild group");
+      s.stop();
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+    // Test
+    try {
+      GrouperSession  nrs   = GrouperSession.start(subj0);
+      Stem            qsuob = StemFinder.findByName(nrs, "qsuob", true);
+      String          de    = "QS University of Bristol";
+      qsuob.setDisplayExtension(de);
+      qsuob.store();
+      String          val   = qsuob.getDisplayExtension();
+      Assert.assertTrue("updated displayExtn: " + val, de.equals(val));
+      val                   = qsuob.getDisplayName();
+      Assert.assertTrue("updated displayName: " + val, de.equals(val));
+      nrs.stop();
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // public void testStemDisplayName()
+
+  // @source  Gary Brown, 20051212, <04A762113806B3F6EDBFD2F8@cse-gwb.cse.bris.ac.uk>>
+  // @status  fixed
+  public void testChildStemsLazyInitializationException() {
+    LOG.info("testChildStemsLazyInitializationException");
+    try {
+      Subject         subj  = SubjectFinder.findById("GrouperSystem", true);
+      GrouperSession  s     = GrouperSession.start(subj);
+      Stem  root  = StemFinder.findRootStem(s);
+      root.addChildStem("qsuob", "qsuob");
+      s.stop();
+  
+      s = GrouperSession.start(subj);
+      Stem  a         = StemFinder.findByName(s,"qsuob", true);
+      a.getChildStems();
+      s.stop();
+  
+      Assert.assertTrue("no exceptions", true);
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+  } // public void testChildStemsLazyInitializationException() 
 
 }
 

@@ -24,6 +24,8 @@ import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -37,7 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  mchyzer
- * @version $Id: TestGroupTypeIncludeExclude.java,v 1.7 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: TestGroupTypeIncludeExclude.java,v 1.8 2009-03-20 19:56:41 mchyzer Exp $
  */
 public class TestGroupTypeIncludeExclude extends GrouperTest {
 
@@ -1376,7 +1378,7 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.GrouperTest#tearDown()
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#tearDown()
    */
   @Override
   protected void tearDown() {

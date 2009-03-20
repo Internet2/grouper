@@ -19,7 +19,7 @@
 package edu.internet2.middleware.ldappcTest;
 
 import junit.framework.TestSuite;
-import edu.internet2.middleware.grouper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappcTest.wrappers.LdapWrapperTestSetup;
 

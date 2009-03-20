@@ -1,12 +1,12 @@
 /*
  * @author mchyzer
- * $Id: AllLoaderTests.java,v 1.1 2008-11-08 08:15:34 mchyzer Exp $
+ * $Id: AllLoaderTests.java,v 1.2 2009-03-20 19:56:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
+import edu.internet2.middleware.grouper.app.loader.db.AllLoaderDbTests;
 
 /**
  *
@@ -22,7 +22,9 @@ public class AllLoaderTests {
         "Test for edu.internet2.middleware.grouper.app.loader");
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperLoaderTest.class);
+    suite.addTestSuite(GrouperLoaderSecurityTest.class);
     //$JUnit-END$
+    suite.addTest(AllLoaderDbTests.suite());
     return suite;
   }
 

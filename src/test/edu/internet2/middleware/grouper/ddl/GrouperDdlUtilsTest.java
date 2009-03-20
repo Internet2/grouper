@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdlUtilsTest.java,v 1.17 2009-03-15 06:37:24 mchyzer Exp $
+ * $Id: GrouperDdlUtilsTest.java,v 1.18 2009-03-20 19:56:41 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -18,16 +18,16 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperTest;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.SessionHelper;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.StemHelper;
-import edu.internet2.middleware.grouper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SessionHelper;
+import edu.internet2.middleware.grouper.helper.StemHelper;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
@@ -110,7 +110,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.GrouperTest#setUp()
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#setUp()
    */
   @Override
   protected void setUp() {
@@ -119,7 +119,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.GrouperTest#setUp()
+   * @see edu.internet2.middleware.grouper.helper.GrouperTest#setUp()
    */
   @Override
   protected void tearDown() {

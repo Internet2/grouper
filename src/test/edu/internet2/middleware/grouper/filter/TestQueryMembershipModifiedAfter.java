@@ -18,28 +18,27 @@ package edu.internet2.middleware.grouper.filter;
 import java.util.Date;
 
 import junit.framework.Assert;
-import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.R;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.T;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.R;
+import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author shilen
  * 
- * @version $Id: TestQueryMembershipModifiedAfter.java,v 1.1 2009-03-20 15:11:32 mchyzer Exp $
+ * @version $Id: TestQueryMembershipModifiedAfter.java,v 1.2 2009-03-20 19:56:41 mchyzer Exp $
  */
-public class TestQueryMembershipModifiedAfter extends TestCase {
+public class TestQueryMembershipModifiedAfter extends GrouperTest {
 
   private static final Log LOG = GrouperUtil
       .getLog(TestQueryMembershipModifiedAfter.class);
@@ -49,15 +48,6 @@ public class TestQueryMembershipModifiedAfter extends TestCase {
    */
   public TestQueryMembershipModifiedAfter(String name) {
     super(name);
-  }
-
-  protected void setUp() {
-    LOG.info("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown() {
-    LOG.debug("tearDown");
   }
 
   /**
