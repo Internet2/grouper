@@ -41,18 +41,18 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.23 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: GroupHelper.java,v 1.24 2009-03-20 15:11:32 mchyzer Exp $
  */
-class GroupHelper {
+public class GroupHelper {
 
   // PRIVATE CLASS CONSTANTS //
   private static final Log LOG = GrouperUtil.getLog(GroupHelper.class);
 
 
-  // PROTECTED CLASS METHODS //
+  // public CLASS METHODS //
 
   // Add a member to a group
-  protected static void addMember(Group g, Subject subj, String list) {
+  public static void addMember(Group g, Subject subj, String list) {
     try {
       Field f = FieldFinder.find(list, true); 
       g.addMember(subj, f);
@@ -61,13 +61,13 @@ class GroupHelper {
     catch (Exception e) {
       T.e(e);
     }
-  } // protected static void addMember(g, subj, list)
+  } // public static void addMember(g, subj, list)
 
 
   // 'Tis more ugly below
 
   // Add a group as a member to a group
-  protected static void addMember(Group g, Group gm) {
+  public static void addMember(Group g, Group gm) {
     try {
       Member m = gm.toMember();
       g.addMember(gm.toSubject());
@@ -78,10 +78,10 @@ class GroupHelper {
     catch (Exception e) {
       throw new RuntimeException(e);
     }
-  } // protected static void addMember(g, gm)
+  } // s static void addMember(g, gm)
 
   // Add a member to a group
-  protected static void addMember(Group g, Subject subj, Member m) {
+  public static void addMember(Group g, Subject subj, Member m) {
     try {
       g.addMember(subj);
       Assert.assertTrue("added member", true);
@@ -93,13 +93,13 @@ class GroupHelper {
     catch (MemberAddException e1) {
       Assert.fail("failed to add member: " + e1.getMessage());
     }
-  } // protected static void addMember(g, subj, m)
+  } // public static void addMember(g, subj, m)
 
   /**
    * TODO 20070813 deprecate
    * @since  1.2.1
    */
-  protected static void addMemberUpdate(Group g, Subject subj) {
+  public static void addMemberUpdate(Group g, Subject subj) {
     LOG.debug("addMemberUpdate.0");
     try {
       g.addMember(subj);
@@ -120,7 +120,7 @@ class GroupHelper {
    * TODO 20070813 deprecate
    * @since  1.2.1
    */
-  protected static void addMemberUpdateFail(GrouperSession grouperSession, 
+  public static void addMemberUpdateFail(GrouperSession grouperSession, 
       final Group g, final Subject subj) {
     GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
 
@@ -143,7 +143,7 @@ class GroupHelper {
   }
 
   // fail to delete a group attribute
-  protected static void delAttrFail(Group g, String attr) {
+  public static void delAttrFail(Group g, String attr) {
     LOG.debug("delAttrFail.0");
     String  err = "delete attribute '" + attr + "'";
     String  msg = "did not " + err + ": ";
@@ -164,10 +164,10 @@ class GroupHelper {
       LOG.debug("delAttrFail.4");
       Assert.assertTrue(msg, true);
     }
-  } // protected static void delAttrFail(g, attr)
+  } // public static void delAttrFail(g, attr)
 
   // Delete a group
-  protected static void delete(GrouperSession s, Group g, String name) {
+  public static void delete(GrouperSession s, Group g, String name) {
     LOG.debug("delete.0");
     try {
       g.delete();
@@ -183,14 +183,14 @@ class GroupHelper {
       LOG.debug("delete.4: " + eIP.getMessage());
       Assert.fail(eIP.getMessage());
     }
-  } // protected static void delete(s, g, name)
+  } // public static void delete(s, g, name)
 
 
   /**
    * TODO 20070813 deprecate
    * @since  1.2.1
    */
-  protected static void deleteFail(Group g) {
+  public static void deleteFail(Group g) {
     try {
       g.delete();
       Assert.fail("deleted group");
@@ -204,7 +204,7 @@ class GroupHelper {
   } 
 
   // Delete a member from a group
-  protected static void deleteMember(Group g, Subject subj, Member m) {
+  public static void deleteMember(Group g, Subject subj, Member m) {
     try {
       g.deleteMember(subj);
       Assert.assertTrue("deleted member", true);
@@ -217,13 +217,13 @@ class GroupHelper {
     catch (MemberDeleteException e1) {
       Assert.fail("failed to delete member: " + e1.getMessage());
     }
-  } // protected static void deleteMember(g, subj, m)
+  } // public static void deleteMember(g, subj, m)
 
   /**
    * TODO 20070813 deprecate
    * @since  1.2.1
    */
-  protected static void delMemberUpdate(Group g, Subject subj) {
+  public static void delMemberUpdate(Group g, Subject subj) {
     try {
       g.deleteMember(subj);
       Assert.assertTrue("deleted member", true);
@@ -240,7 +240,7 @@ class GroupHelper {
    * TODO 20070813 deprecate
    * @since  1.2.1
    */
-  protected static void delMemberUpdateFail(GrouperSession grouperSession, 
+  public static void delMemberUpdateFail(GrouperSession grouperSession, 
       final Group g, final Subject subj) {
     GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
 
@@ -262,7 +262,7 @@ class GroupHelper {
     });
   }
 
-  protected static Group findByName(GrouperSession s, String name) {
+  public static Group findByName(GrouperSession s, String name) {
     LOG.debug("findByName.0 " + name);
     try {
       Group g = GroupFinder.findByName(s, name, true);
@@ -276,9 +276,9 @@ class GroupHelper {
     catch (GroupNotFoundException eGNF) {
       throw new RuntimeException(eGNF);
     }
-  } // protected static Group findByName(s, name)
+  } // public static Group findByName(s, name)
 
-  protected static void findByNameFail(GrouperSession s, String name) {
+  public static void findByNameFail(GrouperSession s, String name) {
     LOG.debug("findByNameFail.0 " + name);
     try {
       LOG.debug("findByNameFail.1 " + name);
@@ -290,9 +290,9 @@ class GroupHelper {
       LOG.debug("findByNameFail.3 " + name);
       Assert.assertTrue("failed to find group: " + name, true);
     }
-  } // protected static void findByNameFail(s, name)
+  } // public static void findByNameFail(s, name)
 
-  protected static Group findByUuid(GrouperSession s, String uuid) {
+  public static Group findByUuid(GrouperSession s, String uuid) {
     LOG.debug("findByUuid.0 " + uuid);
     try {
       Group g = GroupFinder.findByUuid(s, uuid, true);
@@ -308,9 +308,9 @@ class GroupHelper {
       Assert.fail("failed to find group by uuid: " + eGNF.getMessage());
     }
     throw new RuntimeException("failed to find group by uuid");
-  } // protected static Gropu findByUuid(s, name)
+  } // public static Gropu findByUuid(s, name)
 
-  protected static void findByUuidFail(GrouperSession s, String uuid) {
+  public static void findByUuidFail(GrouperSession s, String uuid) {
     LOG.debug("findByUuidFail.0 " + uuid);
     try {
       GroupFinder.findByUuid(s, uuid, true);
@@ -322,9 +322,9 @@ class GroupHelper {
       LOG.debug("findByUuidFail.3 " + uuid);
       Assert.assertTrue("failed to find group: " + uuid, true);
     }
-  } // protected static void findByUuidFail(s, uuid)
+  } // public static void findByUuidFail(s, uuid)
 
-  protected static void setAttr(Group g, String attr, String val) {
+  public static void setAttr(Group g, String attr, String val) {
     LOG.debug("setAttr.0");
     String  msg = "set attribute '" + attr + "'='" + val + "'";
     String  err = "did not " + msg + ": ";
@@ -349,9 +349,9 @@ class GroupHelper {
       LOG.debug("setAttr.6");
       Assert.fail(err + eIP.getMessage());
     }
-  } // protected static void setAttr(g, attr, val)
+  } // public static void setAttr(g, attr, val)
 
-  protected static void setAttrFail(Group g, String attr, String val) {
+  public static void setAttrFail(Group g, String attr, String val) {
     LOG.debug("setAttrFail.0");
     String  err = "set attribute '" + attr + "'='" + val + "'";
     String  msg = "did not " + err + ": ";
@@ -373,14 +373,14 @@ class GroupHelper {
       LOG.debug("setAttrFail.4");
       Assert.assertTrue(msg, true);
     }
-  } // protected static void setAttr(g, attr, val)
+  } // public static void setAttr(g, attr, val)
 
   /**
    * 
    * @param exp
    * @param g
    */
-  protected static void testAttrs(Group exp, Group g) {
+  public static void testAttrs(Group exp, Group g) {
     LOG.debug("testAttrs.0");
     Map attrs = g.getAttributes();
     Assert.assertEquals( attrs.size() + " attributes (exp 5)", 5, attrs.size() );
@@ -431,10 +431,10 @@ class GroupHelper {
       "[d] name", g.getName().equals(exp.getName())
     );
     LOG.debug("testAttrs.19");
-  } // protected static void testAttrs(exp, g)
+  } // public static void testAttrs(exp, g)
 
   // test converting a Group to a Member
-  protected static Member toMember(Group g) {
+  public static Member toMember(Group g) {
     try {
       Member m = g.toMember();
       Assert.assertTrue("converted group to member", true);
@@ -455,7 +455,7 @@ class GroupHelper {
       T.e(e);
     }
     throw new GrouperException();
-  } // protected static Member toMember(g)
+  } // public static Member toMember(g)
 
 } // class GroupHelper
 

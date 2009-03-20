@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import edu.internet2.middleware.grouper.filter.AllGrouperQueryTests;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -23,7 +24,7 @@ import junit.framework.TestSuite;
 /**
  * Test suites that need to be refactored.
  * @author  blair christensen.
- * @version $Id: SuiteRefactor.java,v 1.4 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: SuiteRefactor.java,v 1.5 2009-03-20 15:11:32 mchyzer Exp $
  * @sincd   1.2.1
  */
 public class SuiteRefactor extends TestCase {
@@ -37,7 +38,7 @@ public class SuiteRefactor extends TestCase {
     suite.addTest( SuiteStems.suite()            );
     suite.addTest( SuiteGroupTypes.suite()       );
     suite.addTest( SuiteGroups.suite()           );
-    suite.addTest( SuiteGrouperQuery.suite()     );
+    suite.addTest( AllGrouperQueryTests.suite()     );
     suite.addTest( SuiteGroupFinder.suite()      );
     suite.addTest( SuiteComposites.suite()       );
     suite.addTest( SuiteSubjects.suite()         );

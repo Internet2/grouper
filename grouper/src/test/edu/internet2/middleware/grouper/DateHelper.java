@@ -22,7 +22,7 @@ import java.util.Date;
 * Date-related helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: DateHelper.java,v 1.5 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: DateHelper.java,v 1.6 2009-03-20 15:11:32 mchyzer Exp $
  */
 public class DateHelper {
 
@@ -32,11 +32,11 @@ public class DateHelper {
 
   // Protected Class Methods
 
-  protected static Date getFutureDate() {
+  public static Date getFutureDate() {
     return new Date( new Date().getTime() + OFFSET );
   } // protected static Date getFutureDate()
 
-  protected static Date getPastDate() {
+  public static Date getPastDate() {
     return new Date( new Date().getTime() - OFFSET );
   } // protected static Date getPastDate()
 

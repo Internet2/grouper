@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
  * <a href="http://www.martinfowler.com/bliki/ObjectMother.html">ObjectMother</a> for Grouper testing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: R.java,v 1.26 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: R.java,v 1.27 2009-03-20 15:11:32 mchyzer Exp $
  * @since   1.2.0
  */
 public class R {
@@ -45,10 +45,10 @@ public class R {
   private static final Log LOG = GrouperUtil.getLog(R.class);
 
   
-  // PROTECTED INSTANCE VARIABLES //
-  protected GrouperSession  rs    = null;
-  protected Stem            root  = null;
-  protected Stem            ns    = null;
+  // public INSTANCE VARIABLES //
+  public GrouperSession  rs    = null;
+  public Stem            root  = null;
+  public Stem            ns    = null;
 
 
   // PRIVATE INSTANCE VARIABLES //
@@ -75,7 +75,7 @@ public class R {
    * <p/>
    * @since   1.2.1
    */
-  protected void addSubjects(int number) {
+  public void addSubjects(int number) {
     RegistrySubjectDAO  dao   = GrouperDAOFactory.getFactory().getRegistrySubject();
     RegistrySubject  _subj;
     for (int i=0; i<number; i++) {
@@ -347,9 +347,9 @@ public class R {
     r.addSubjects(nSubjects);
 
     return r;
-  } // protected static R populateRegistry(nStems, nGroups, nSubjects)
+  } // public static R populateRegistry(nStems, nGroups, nSubjects)
 
-  // PROTECTED INSTANCE METHODS //
+  // public INSTANCE METHODS //
   public Group getGroup(String stem, String group) 
     throws  Exception
   {
@@ -358,9 +358,9 @@ public class R {
       return (Group) this.groups.get(key);
     }
     throw new Exception("group not found: " + key);
-  } // protected Group getGroup(stem, group)
+  } // public Group getGroup(stem, group)
 
-  protected Subject getSubject(String id) 
+  public Subject getSubject(String id) 
     throws  Exception
   {
     // Bah.  We stash RegistrySubjects but we need Subjects.  
@@ -368,7 +368,7 @@ public class R {
       return SubjectFinder.findById(id, "person", true);
     }
     throw new Exception("subject not found: " + id);
-  } // protected Subject getSubject(id)
+  } // public Subject getSubject(id)
 
 
   // PRIVATE CLASS METHODS //
