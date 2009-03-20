@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: TestMemberChangeSubject.java,v 1.7 2009-03-18 18:51:58 shilen Exp $
+ * $Id: TestMemberChangeSubject.java,v 1.8 2009-03-20 14:32:43 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -9,6 +9,7 @@ import junit.textui.TestRunner;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
@@ -37,9 +38,9 @@ public class TestMemberChangeSubject extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestMemberChangeSubject("testChangeSubjectDidExist"));
+    TestRunner.run(new TestMemberChangeSubject("testChangeSubjectDidExistAudit"));
     //TestRunner.run(new TestMemberChangeSubject(""));
-    TestRunner.run(TestMemberChangeSubject.class);
+    //TestRunner.run(TestMemberChangeSubject.class);
   }
   
   /**
@@ -117,6 +118,11 @@ public class TestMemberChangeSubject extends GrouperTest {
       
       grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
       edu   = StemHelper.addChildStem(root, "edu", "education");
+      
+      //make it modified
+      edu.setDescription("Education");
+      edu.store();
+      
       edu.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
       group = StemHelper.addChildGroup(this.edu, "group", "the group");
       group.addMember(SubjectTestHelper.SUBJ0);
@@ -300,7 +306,7 @@ public class TestMemberChangeSubject extends GrouperTest {
     String stemCreatorId = this.edu.getCreatorUuid();
     assertEquals("existing uuid", member0uuid, stemCreatorId);
     String stemModifierId = this.edu.getModifierUuid();
-    assertEquals("existing uuid", null, stemModifierId);
+    assertEquals("existing uuid", member0uuid, stemModifierId);
     
     //grouper_types.creator_uuid
     String groupTypeId = this.groupType.getCreatorUuid();
@@ -374,12 +380,87 @@ public class TestMemberChangeSubject extends GrouperTest {
     stemCreatorId = this.edu.getCreatorUuid();
     assertEquals("new uuid", member1uuid, stemCreatorId);
     stemModifierId = this.edu.getModifierUuid();
-    assertEquals("new uuid", null, stemModifierId);
+    assertEquals("new uuid", member1uuid, stemModifierId);
     
     //grouper_types.creator_uuid
     this.groupType = GroupTypeFinder.find(this.groupType.getName(), true);
     groupTypeId = this.groupType.getCreatorUuid();
     assertEquals("new uuid", member1uuid, groupTypeId);
+    
+  }
+
+  /**
+   * test when the member is changing subjects which did not exist as members
+   * @throws Exception 
+   */
+  public void testChangeSubjectDidExistAudit() throws Exception {
+    
+    Member member0 = MemberFinder.findBySubject(this.rootGrouperSession, SubjectTestHelper.SUBJ0, true);
+    
+    //lets set the source so we can see it change
+    member0.setSubjectSourceIdDb("abc");
+    
+    HibernateSession.byObjectStatic().saveOrUpdate(member0);
+    
+    this.rootGrouperSession = GrouperSession.startRootSession();
+    
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+    
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+
+    @SuppressWarnings("unused")
+    String report = member0.changeSubjectReport(SubjectTestHelper.SUBJ1, true);
+    //System.out.println(report);
+  
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("that shouldnt audit", auditCount, newAuditCount);
+    
+    member0.changeSubject(SubjectTestHelper.SUBJ1);
+  
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+  
+    assertEquals("that should audit", auditCount+1, newAuditCount);
+    
+    this.grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ6);
+
+    
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+    
+    assertEquals("Context id's should match", auditEntry.getContextId(), member0.getContextId());
+    
+    assertTrue("description is blank", StringUtils.isNotBlank(auditEntry.getDescription()));
+
+    //grouper_composites.creator_id
+    this.composite = CompositeFinder.findAsOwner(this.groupComposite, true);
+    assertEquals("Context id's should match", auditEntry.getContextId(), this.composite.getContextId());
+    
+    //grouper_groups.creator_id, 
+    //  modifier_id
+    this.group = GroupFinder.findByName(this.grouperSession, this.group.getName(), true);
+    assertEquals("Context id's should match", auditEntry.getContextId(), this.group.getContextId());
+    
+    //grouper_memberships.member_id, 
+    //  creator_id
+    Membership membershipSubj1 = MembershipFinder.findImmediateMembership(grouperSession, 
+        group, SubjectTestHelper.SUBJ1, Group.getDefaultList(), true);
+    assertEquals("Context id's should match", auditEntry.getContextId(), membershipSubj1.getContextId());
+  
+    //grouper_stems.creator_id, 
+    //  modifier_id
+    //refresh the stem
+    this.edu = StemFinder.findByName(this.rootGrouperSession, "edu", true);
+    assertEquals("Context id's should match", auditEntry.getContextId(), this.edu.getContextId());
+    
+    //grouper_types.creator_uuid
+    this.groupType = GroupTypeFinder.find(this.groupType.getName(), true);
+    assertEquals("Context id's should match", auditEntry.getContextId(), this.edu.getContextId());
     
   }
   

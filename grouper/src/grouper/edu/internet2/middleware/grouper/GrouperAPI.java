@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil.FieldValuable;
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.19 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: GrouperAPI.java,v 1.20 2009-03-20 14:32:43 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrouperLifecycle, Lifecycle, GrouperCloneable {
@@ -146,7 +146,6 @@ public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrou
    */
   public void onPreDelete(HibernateSession hibernateSession) {
     
-    //TODO set the context id before deleting, or after deleting... (after)
     if (this instanceof GrouperHasContext) {
       ((GrouperHasContext)this).setContextId(GrouperContext.retrieveContextId(true));
     }

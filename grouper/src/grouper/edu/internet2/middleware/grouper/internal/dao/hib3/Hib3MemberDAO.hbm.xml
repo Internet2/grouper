@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MemberDAO.hbm.xml,v 1.6 2008-07-28 20:12:27 mchyzer Exp $ -->
+<!-- $Id: Hib3MemberDAO.hbm.xml,v 1.7 2009-03-20 14:32:43 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
   <class name="Member" table="grouper_members">
@@ -82,6 +82,8 @@
       />
     </property>
     <!-- subjectTypeId -->
+
+    <property name="contextId" column="context_id"/>
 
   </class>
 
