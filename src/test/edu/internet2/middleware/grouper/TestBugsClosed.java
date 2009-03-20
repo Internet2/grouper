@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.SessionException;
@@ -40,7 +41,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test closed bugs.  
  * <p />
  * @author  blair christensen.
- * @version $Id: TestBugsClosed.java,v 1.13 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: TestBugsClosed.java,v 1.14 2009-03-20 15:11:32 mchyzer Exp $
  */
 public class TestBugsClosed extends GrouperTest {
 
@@ -562,6 +563,51 @@ public class TestBugsClosed extends GrouperTest {
       Assert.fail(e.getMessage());
     }
   } // public void testStemDisplayName()
+
+  public void testChildrenOfViaInMofDeletion() {
+    LOG.info("testChildrenOfViaInMofDeletion");
+    try {
+      R       r     = R.populateRegistry(1, 3, 1);
+      Group   gA    = r.getGroup("a", "a");   
+      Group   gB    = r.getGroup("a", "b");
+      Group   gC    = r.getGroup("a", "c");
+      Subject subjA = r.getSubject("a");
+  
+      gB.addMember( gA.toSubject() );
+      // gA -> gB
+  
+      gC.addMember( gB.toSubject() );
+      // gA -> gB
+      // gB -> gC
+      // gA -> gB -> gC
+  
+      gA.addMember(subjA);
+      // gA -> gB
+      // gB -> gC
+      // gA -> gB -> gC
+      // sA -> gA
+      // sA -> gA -> gB
+      // sA -> gA -> gB -> gC
+  
+      try {
+        gB.deleteMember( gA.toSubject() );
+        // gB -> gC
+        // sA -> gA
+        Assert.assertTrue("no exception thrown", true);
+        T.getMemberships( gA, 1 );
+        T.getMemberships( gB, 0 );
+        T.getMemberships( gC, 1 );
+      }
+      catch (GrouperException eGRT) {
+        Assert.fail("runtime exception thrown: " + eGRT.getMessage());
+      }
+  
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testChildrenOfViaInMofDeletion()
 
 }
 
