@@ -57,7 +57,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -65,7 +64,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.32 2009-03-19 13:46:23 shilen Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.33 2009-03-21 13:35:50 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -136,7 +135,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
   /**
    * @param _g 
-   * @param mships 
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
@@ -769,6 +767,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   /**
    * @param attr
    * @param val
+   * @param exceptionIfNotFound 
    * @return group
    * @throws GrouperDAOException
    * @throws GroupNotFoundException
@@ -1048,7 +1047,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     byHql.setString("uuid", group.getUuid());
     Map                   attrs = new HashMap(group.getAttributesDb());
     String                k;
-    //TODO CH 20080217: replace with query.list() and see if p6spy generates fewer queries
+
     List<Attribute> attributes = checkExisting ? GrouperUtil.nonNull(byHql.list(Attribute.class)) : new ArrayList<Attribute>();
     for (Attribute attribute : attributes) {
       k = attribute.getAttrName();

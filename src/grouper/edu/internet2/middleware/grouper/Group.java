@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -117,7 +118,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.232 2009-03-18 18:51:58 shilen Exp $
+ * @version $Id: Group.java,v 1.233 2009-03-21 13:35:50 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -1681,16 +1682,18 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @throws  AttributeNotFoundException
    */
   public String getAttribute(String attr) 
-    throws  AttributeNotFoundException
-  {
-    String emptyString = GrouperConfig.EMPTY_STRING;
+    throws  AttributeNotFoundException {
 
+    //if (_internal_fieldAttributes.contains(attr)) {
+    //  return _internal_getAttributeBuiltIn(attr);
+    //}
+    
     // check to see if attribute exists in Map returned by getAttributes()
     Map attrs = this.getAttributesDb();
     if (attrs.containsKey(attr)) {
       String val = (String) attrs.get(attr);
       if (val == null) {
-        return emptyString;
+        return "";
       } 
       return val;
     }
@@ -1709,8 +1712,38 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     if (v.isInvalid()) {
       throw new AttributeNotFoundException( v.getErrorMessage() );
     }
-    return emptyString;
-  } // public String getAttribute(attr)
+    return "";
+  }
+
+  /**
+   * @param attr
+   * @return the value
+   */
+  private String _internal_getAttributeBuiltIn(String attr) {
+    if (GrouperConfig.getPropertyBoolean("groups.allow.attribute.access.1.4", false)) {
+      
+      if (StringUtils.equals(FIELD_NAME, attr)) {
+        return this.getName();
+      }
+      if (StringUtils.equals(FIELD_EXTENSION, attr)) {
+        return this.getExtension();
+      }
+      if (StringUtils.equals(FIELD_DISPLAY_NAME, attr)) {
+        return this.getDisplayName();
+      }
+      if (StringUtils.equals(FIELD_DISPLAY_EXTENSION, attr)) {
+        return this.getDisplayExtension();
+      }
+      if (StringUtils.equals(FIELD_DESCRIPTION, attr)) {
+        return this.getDescription();
+      }
+      throw new RuntimeException("Not expecting attribute: " + attr);
+      
+    }
+    throw new RuntimeException("Cannot access built in attribute: " + attr + " from getAttributes anymore, " +
+    		"use getter directly (e.g. getName(), getDisplayName()).  Or you can enable this (deprecated) with " +
+    		"grouper.properties setting groups.allow.attribute.access.1.4=true");
+  }
 
   /**
    * Get all attributes and values.
@@ -1730,43 +1763,47 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
       }
     }
     Subject currentSubject = GrouperSession.staticGrouperSession().getSubject();
-    boolean canReadGroup = this.hasRead(currentSubject);
-    boolean canViewGroup = this.hasView(currentSubject);
     
-    if (canViewGroup) {
-      {
-        String theName = this.getName();
-        if (!StringUtils.isBlank(theName)) {
-          filtered.put("name", theName);
-        }
-      }
-      {
-        String theDisplayName = this.getDisplayName();
-        if (!StringUtils.isBlank(theDisplayName)) {
-          filtered.put("displayName", theDisplayName);
-        }
-      }
-      {
-        String theExtension = this.getExtension();
-        if (!StringUtils.isBlank(theExtension)) {
-          filtered.put("extension", theExtension);
-        }
-      }
-      {
-        String theDisplayExtension = this.getDisplayExtension();
-        if (!StringUtils.isBlank(theDisplayExtension)) {
-          filtered.put("displayExtension", theDisplayExtension);
-        }
-      }
-    }
-    if (canReadGroup) {
-      {
-        String theDescription = this.getDescription();
-        if (!StringUtils.isBlank(theDescription)) {
-          filtered.put("description", theDescription);
-        }
-      }
-    }
+    //if (GrouperConfig.getPropertyBoolean("groups.allow.attribute.access.1.4", false)) {
+    //
+    //  boolean canReadGroup = this.hasRead(currentSubject);
+    //  boolean canViewGroup = this.hasView(currentSubject);
+    //  
+    //  if (canViewGroup) {
+    //    {
+    //      String theName = this.getName();
+    //      if (!StringUtils.isBlank(theName)) {
+    //        filtered.put("name", theName);
+    //      }
+    //    }
+    //    {
+    //      String theDisplayName = this.getDisplayName();
+    //      if (!StringUtils.isBlank(theDisplayName)) {
+    //        filtered.put("displayName", theDisplayName);
+    //      }
+    //    }
+    //    {
+    //      String theExtension = this.getExtension();
+    //      if (!StringUtils.isBlank(theExtension)) {
+    //        filtered.put("extension", theExtension);
+    //     }
+    //    }
+    //    {
+    //      String theDisplayExtension = this.getDisplayExtension();
+    //      if (!StringUtils.isBlank(theDisplayExtension)) {
+    //        filtered.put("displayExtension", theDisplayExtension);
+    //      }
+    //    }
+    //  }
+    //  if (canReadGroup) {
+    //    {
+    //      String theDescription = this.getDescription();
+    //      if (!StringUtils.isBlank(theDescription)) {
+    //        filtered.put("description", theDescription);
+    //      }
+    //    }
+    //  }
+    //}
     return filtered;
   } // public Map getAttributes()
 
@@ -1887,23 +1924,9 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   /**
    * list of internal field attributes, access with method so it can lazy load
    */
-  private static Set<String> _internal_fieldAttributes = null;
-  
-  /**
-   * set of internal field attributes
-   * @return the attributes
-   */
-  private static Set<String> _internalFieldAttributes() {
-    if (_internal_fieldAttributes == null) {
-      _internal_fieldAttributes = new HashSet<String>();
-      _internal_fieldAttributes.add(FIELD_DESCRIPTION);
-      _internal_fieldAttributes.add(FIELD_NAME);
-      _internal_fieldAttributes.add(FIELD_EXTENSION);
-      _internal_fieldAttributes.add(FIELD_DISPLAY_EXTENSION);
-      _internal_fieldAttributes.add(FIELD_DISPLAY_NAME);
-    }
-    return _internal_fieldAttributes;
-  }
+  private static final Set<String> _internal_fieldAttributes = Collections.unmodifiableSet(
+      GrouperUtil.toSet(FIELD_DESCRIPTION, FIELD_NAME, FIELD_EXTENSION, 
+      FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME));
   
   /**
    * see if field attribute (name, description, extension, displayName, displayExtension)
@@ -1911,7 +1934,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @return true if so
    */
   public static boolean _internal_fieldAttribute(String attributeName) {
-    return _internalFieldAttributes().contains(attributeName);
+    return _internal_fieldAttributes.contains(attributeName);
   }
   
   /**
@@ -3266,6 +3289,31 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
       } catch (SchemaException se) {
         throw new AttributeNotFoundException(se.getMessage(), se);
       }
+//      if (_internal_fieldAttribute(attr)) {
+//        if (GrouperConfig.getPropertyBoolean("groups.allow.attribute.access.1.4", false)) {
+//          
+//          if (StringUtils.equals(FIELD_NAME, attr)) {
+//            this.setName(value);
+//          }
+//          if (StringUtils.equals(FIELD_EXTENSION, attr)) {
+//            this.setExtension(value);
+//          }
+//          if (StringUtils.equals(FIELD_DISPLAY_NAME, attr)) {
+//            this.setDisplayName(value);
+//          }
+//          if (StringUtils.equals(FIELD_DISPLAY_EXTENSION, attr)) {
+//            this.setDisplayExtension(value);
+//          }
+//          if (StringUtils.equals(FIELD_DESCRIPTION, attr)) {
+//            this.setDescription(value);
+//          }
+//          throw new RuntimeException("Not expecting attribute: " + attr);
+//          
+//        }
+//        throw new RuntimeException("Cannot access built in attribute: " + attr + " from setAttributes anymore, " +
+//            "use setter directly (e.g. setName(), setDisplayName()).  Or you can enable this (deprecated) with " +
+//            "grouper.properties setting groups.allow.attribute.access.1.4=true");
+//      }      
       Map attrs = this.getAttributesDb();
       attrs.put(attr, value);
       this.setAttributes(attrs);
@@ -3765,6 +3813,30 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   public Map<String, String> getAttributesDb() {
     if (this.attributes == null) {
       this.attributes = GrouperDAOFactory.getFactory().getGroup().findAllAttributesByGroup( this.getUuid() );
+
+//      if (GrouperConfig.getPropertyBoolean("groups.allow.attribute.access.1.4", false)) {
+//        
+//        String theName = this.getName();
+//        if (!StringUtils.isBlank(theName)) {
+//          this.attributes.put("name", theName);
+//        }
+//        String theDisplayName = this.getDisplayName();
+//        if (!StringUtils.isBlank(theDisplayName)) {
+//          this.attributes.put("displayName", theDisplayName);
+//        }
+//        String theExtension = this.getExtension();
+//        if (!StringUtils.isBlank(theExtension)) {
+//          this.attributes.put("extension", theExtension);
+//        }
+//        String theDisplayExtension = this.getDisplayExtension();
+//        if (!StringUtils.isBlank(theDisplayExtension)) {
+//          this.attributes.put("displayExtension", theDisplayExtension);
+//        }
+//        String theDescription = this.getDescription();
+//        if (!StringUtils.isBlank(theDescription)) {
+//          this.attributes.put("description", theDescription);
+//        }
+//      }
     }
     return this.attributes;
   }
@@ -4201,6 +4273,11 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     internal_move(stem, false);
   }
   
+  /**
+   * 
+   * @param stem
+   * @param assignOldName
+   */
   protected void internal_move(Stem stem, boolean assignOldName) {
     
     GrouperSession.validate(GrouperSession.staticGrouperSession());

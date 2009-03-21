@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * @author shilen
  * 
- * @version $Id: TestQueryMembershipModifiedAfter.java,v 1.2 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestQueryMembershipModifiedAfter.java,v 1.3 2009-03-21 13:35:50 mchyzer Exp $
  */
 public class TestQueryMembershipModifiedAfter extends GrouperTest {
 
@@ -55,6 +55,9 @@ public class TestQueryMembershipModifiedAfter extends GrouperTest {
    */
   public void testFindSomething() {
     try {
+
+      ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
+      ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
 
       R r = R.populateRegistry(2, 2, 1);
       Group gA = r.getGroup("a", "a");
@@ -112,6 +115,9 @@ public class TestQueryMembershipModifiedAfter extends GrouperTest {
    */
   public void testFindSomethingScoped() {
     try {
+
+      ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
+      ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
 
       R r = R.populateRegistry(2, 2, 1);
       Group gA = r.getGroup("a", "a");

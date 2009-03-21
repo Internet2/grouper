@@ -1,20 +1,19 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksDbVersionTest.java,v 1.3 2009-03-20 19:56:41 mchyzer Exp $
+ * $Id: GroupHooksDbVersionTest.java,v 1.4 2009-03-21 13:35:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -94,10 +93,12 @@ public class GroupHooksDbVersionTest extends GrouperTest {
    */
   public void testGroupHooksDbVersion() throws Exception {
     
+    //ApiConfig.testConfig.put("groups.allow.attribute.access.1.4", "true");
+    
     //try an insert
     Group group = edu.addChildGroup("myGroup", "myGroup");
     
-    group = GroupFinder.findByName(this.grouperSession, "edu:myGroup");
+    group = GroupFinder.findByName(this.grouperSession, "edu:myGroup", true);
     
     group.setExtension("anotherExt");
     group.store();

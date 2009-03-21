@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHookDbVersion.java,v 1.2 2009-03-15 08:24:48 mchyzer Exp $
+ * $Id: GroupHookDbVersion.java,v 1.3 2009-03-21 13:35:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -56,17 +56,15 @@ public class GroupHookDbVersion extends GroupHooks {
       return false;
     }
 
-    System.out.println(group.dbVersion().getAttributeOrNull(
-        EXTENSION));
+    System.out.println(group.dbVersion().getExtension());
     
-    final String currentExtension = group.getAttributeOrNull(EXTENSION);
+    final String currentExtension = group.getExtension();
     
     int dbDifferentFieldsSize = group.dbVersionDifferentFields().size();
     
     LOGGER
         .debug("isExtensionUpdate (1) => " + group.dbVersionDifferentFields() + ", currentExtension: " + currentExtension);
-    final String previousExtension = group.dbVersion().getAttributeOrNull(
-        EXTENSION);
+    final String previousExtension = group.dbVersion().getExtension();
     LOGGER
         .debug("isExtensionUpdate (2) => " + group.dbVersionDifferentFields() + ", previousExtension: " + previousExtension );
 
@@ -91,9 +89,9 @@ public class GroupHookDbVersion extends GroupHooks {
       final HooksGroupBean postUpdateBean) {
 
     final Group group = postUpdateBean.getGroup();
-    LOGGER.debug("Current extension: " + group.getAttributeOrNull(EXTENSION));
+    LOGGER.debug("Current extension: " + group.getExtension());
     LOGGER.debug("Previous extension: "
-        + group.dbVersion().getAttributeOrNull(EXTENSION));
+        + group.dbVersion().getExtension());
     
     Group dbGroup = (Group)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READONLY_NEW, 
         new GrouperTransactionHandler() {
@@ -104,7 +102,7 @@ public class GroupHookDbVersion extends GroupHooks {
         GrouperSession grouperSession = null;
         try {
           grouperSession = GrouperSession.startRootSession(false);
-          Group dbGroup = GroupFinder.findByUuid(grouperSession, group.getUuid());
+          Group dbGroup = GroupFinder.findByUuid(grouperSession, group.getUuid(), true);
           //load from db
           dbGroup.getExtension();
           return dbGroup;

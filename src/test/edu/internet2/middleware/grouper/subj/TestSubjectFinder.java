@@ -42,7 +42,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Test {@link SubjectFinder.findByIdentifier()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSubjectFinder.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestSubjectFinder.java,v 1.2 2009-03-21 13:35:50 mchyzer Exp $
  */
 public class TestSubjectFinder extends GrouperTest {
 
@@ -60,7 +60,8 @@ public class TestSubjectFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(TestSubjectFinder.class);
+    //TestRunner.run(TestSubjectFinder.class);
+    TestRunner.run(new TestSubjectFinder("testSearchGood"));
   }
   
   public TestSubjectFinder(String name) {
