@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.24 2009-03-21 13:35:50 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.25 2009-03-21 16:51:55 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -70,8 +70,8 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testStemModifyAttributesAfterUpdatingAttributes"));
-    //TestRunner.run(TestStem.class);
+    //TestRunner.run(new TestStem("testStemModifyAttributesAfterUpdatingAttributes"));
+    TestRunner.run(TestStem.class);
   }
 
   public TestStem(String name) {
@@ -973,7 +973,7 @@ public class TestStem extends GrouperTest {
   public void testStemModifyAttributesUpdatedAfterGrantingEffectivePriv() {
     LOG.info("testStemModifyAttributesUpdatedAfterGrantingEffectivePriv");
     
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "false");
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
 
     try {
@@ -1013,7 +1013,7 @@ public class TestStem extends GrouperTest {
     
     LOG.info("testStemModifyAttributesUpdatedAfterGrantingImmediatePriv");
 
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "false");
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
 
     try {
@@ -1052,7 +1052,7 @@ public class TestStem extends GrouperTest {
   public void testStemModifyAttributesUpdatedAfterRevokingEffectivePriv() {
     LOG.info("testStemModifyAttributesUpdatedAfterRevokingEffectivePriv");
 
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "false");
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
 
     try {
@@ -1090,7 +1090,7 @@ public class TestStem extends GrouperTest {
   public void testStemModifyAttributesUpdatedAfterRevokingImmediatePriv() {
     LOG.info("testStemModifyAttributesUpdatedAfterRevokingImmediatePriv");
 
-    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "false");
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
 
     try {
