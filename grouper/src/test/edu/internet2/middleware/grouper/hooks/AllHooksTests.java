@@ -1,9 +1,10 @@
 /*
  * @author mchyzer
- * $Id: AllHooksTests.java,v 1.11 2009-03-15 08:24:48 mchyzer Exp $
+ * $Id: AllHooksTests.java,v 1.12 2009-03-21 19:48:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
+import edu.internet2.middleware.grouper.hooks.examples.AllHooksExamplesTests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
@@ -46,6 +47,7 @@ public class AllHooksTests {
     suite.addTestSuite(GroupHooksTest.class);
     suite.addTestSuite(LifecycleHooksTest.class);
     //$JUnit-END$
+    suite.addTest(AllHooksExamplesTests.suite());
     return suite;
   }
 

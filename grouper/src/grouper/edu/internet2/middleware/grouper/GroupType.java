@@ -66,7 +66,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.83 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.84 2009-03-21 19:48:50 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements GrouperHasContext, Serializable, Hib3GrouperVersioned, Comparable {
 
@@ -274,7 +274,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
     throws  InsufficientPrivilegeException,
             SchemaException {
     return addAttribute(s, name, read, write, required, true);
-  } // public Field addAttribute(s, name, read, write, required)
+  }
 
   /**
    * Add a custom attribute {@link Field} to a custom {@link GroupType}.
@@ -651,6 +651,13 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
     final Privilege write, final boolean required, final boolean exceptionIfExists, final boolean updateIfExists,
     final boolean[] changedArray) throws  InsufficientPrivilegeException, SchemaException {
 
+    //these are reserved words:
+    if (Group.INTERNAL_FIELD_ATTRIBUTES.contains(name)) {
+      throw new RuntimeException("You cannot add a field which is a reserved word '" 
+          + name + "', reserved words are : " + GrouperUtil.toStringForLog(Group.INTERNAL_FIELD_ATTRIBUTES));
+    }
+    
+    
     return (Field)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
 

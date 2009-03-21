@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupAttributeNameValidationHook.java,v 1.4 2009-03-15 08:18:10 mchyzer Exp $
+ * $Id: GroupAttributeNameValidationHook.java,v 1.5 2009-03-21 19:48:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -130,10 +130,11 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
   public void groupPreInsert(HooksContext hooksContext, HooksGroupBean preInsertBean) {
     Group group = preInsertBean.getGroup();
     Map<String, String> attributesDb = GrouperUtil.nonNull(group.getAttributesDb());
-    Set<String> attributesChanged = new HashSet<String>();
-    for (String key: attributesDb.keySet()) {
-      attributesChanged.add(Group.ATTRIBUTE_PREFIX + key);
-    }
+    Set<String> attributesChanged = new HashSet<String>(attributesDb.keySet());
+    
+    //also add name, extension, etc
+    attributesChanged.addAll(Group.INTERNAL_FIELD_ATTRIBUTES);
+    
     groupPreChangeAttribute(group, attributesChanged);
   }
 
@@ -147,23 +148,23 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
     //loop through fields, look for attributes
     for (String fieldName : attributeNamesToCheck) {
 
-      //if attribute then process
-      if (fieldName.startsWith(Group.ATTRIBUTE_PREFIX)) {
+      //if attribute or built-in field then process
+      if (fieldName.startsWith(Group.ATTRIBUTE_PREFIX) || Group.INTERNAL_FIELD_ATTRIBUTES.contains(fieldName)) {
         String value = (String)group.fieldValue(fieldName);
-        String attributeName = fieldName.substring(Group.ATTRIBUTE_PREFIX.length(), fieldName.length());
+        String attributeName = StringUtils.removeStart(fieldName, Group.ATTRIBUTE_PREFIX);
         groupPreChangeAttribute(attributeName, value);
       }
     }
   }
 
   /** cache of attribute names to patterns */
-  private static Map<String, Pattern> attributeNamePatterns = new HashMap<String, Pattern>();
+  static Map<String, Pattern> attributeNamePatterns = new HashMap<String, Pattern>();
 
   /** cache of attribute names to regexs */
-  private static Map<String, String> attributeNameRegexes = new HashMap<String, String>();
+  static Map<String, String> attributeNameRegexes = new HashMap<String, String>();
   
   /** cache of attribute names to error messages when a name doesnt match */
-  private static Map<String, String> attributeNameVetoMessages = new HashMap<String, String>();
+  static Map<String, String> attributeNameVetoMessages = new HashMap<String, String>();
   
   /**
    * check that a new attribute value is ok
@@ -179,7 +180,7 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
             + "'probably didnt compile for attribute: '" 
             + attributeName + "', check logs or grouper.properties");
       }
-      Matcher matcher = pattern.matcher(attributeValue);
+      Matcher matcher = pattern.matcher(StringUtils.defaultString(attributeValue));
       if (!matcher.matches()) {
         
         String attributeNameErrorMessage = attributeNameVetoMessages.get(attributeName);
@@ -199,6 +200,8 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
   public void groupPreUpdate(HooksContext hooksContext, HooksGroupBean preUpdateBean) {
     Group group = preUpdateBean.getGroup();
     Set<String> fieldNames = group.dbVersionDifferentFields(false);
+    
     groupPreChangeAttribute(group, fieldNames);
   }
+  
 }

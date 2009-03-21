@@ -48,7 +48,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: GroupHelper.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: GroupHelper.java,v 1.2 2009-03-21 19:48:50 mchyzer Exp $
  */
 public class GroupHelper {
 
@@ -390,7 +390,7 @@ public class GroupHelper {
   public static void testAttrs(Group exp, Group g) {
     LOG.debug("testAttrs.0");
     Map attrs = g.getAttributes();
-    Assert.assertEquals( attrs.size() + " attributes (exp 5)", 5, attrs.size() );
+    Assert.assertEquals( attrs.size() + " attributes (exp 0)", 0, attrs.size() );
     LOG.debug("testAttrs.2");
     try {
       Assert.assertTrue(

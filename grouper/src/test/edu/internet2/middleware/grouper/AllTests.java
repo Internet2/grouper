@@ -52,9 +52,9 @@ import edu.internet2.middleware.ldappcTest.AllLdappcJunitTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: AllTests.java,v 1.1 2009-03-20 19:56:40 mchyzer Exp $
+ * @version $Id: AllTests.java,v 1.2 2009-03-21 19:48:50 mchyzer Exp $
  */
-public class AllTests {
+public class AllTests extends GrouperTest {
 
   /** logger */
   @SuppressWarnings("unused")

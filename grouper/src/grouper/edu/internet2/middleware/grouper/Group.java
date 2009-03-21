@@ -118,7 +118,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.234 2009-03-21 13:47:10 shilen Exp $
+ * @version $Id: Group.java,v 1.235 2009-03-21 19:48:50 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -1001,7 +1001,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
               
               // ... And delete all memberships - as root
               // Deletes (and saves) now happen within internal_deleteAllFieldType().  See GRP-254.
-              Membership.internal_deleteAllFieldType( 
+                Membership.internal_deleteAllFieldType( 
                   GrouperSession.staticGrouperSession().internal_getRootSession(), Group.this, FieldType.LIST );
 
               //deletes.add(this);            // ... And add the group last for good luck    
@@ -1924,7 +1924,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   /**
    * list of internal field attributes, access with method so it can lazy load
    */
-  private static final Set<String> _internal_fieldAttributes = Collections.unmodifiableSet(
+  public static final Set<String> INTERNAL_FIELD_ATTRIBUTES = Collections.unmodifiableSet(
       GrouperUtil.toSet(FIELD_DESCRIPTION, FIELD_NAME, FIELD_EXTENSION, 
       FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME));
   
@@ -1934,7 +1934,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @return true if so
    */
   public static boolean _internal_fieldAttribute(String attributeName) {
-    return _internal_fieldAttributes.contains(attributeName);
+    return INTERNAL_FIELD_ATTRIBUTES.contains(attributeName);
   }
   
   /**

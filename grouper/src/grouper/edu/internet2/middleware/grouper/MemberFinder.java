@@ -39,17 +39,16 @@ import edu.internet2.middleware.subject.Subject;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.61 2009-03-16 05:50:39 mchyzer Exp $
+ * @version $Id: MemberFinder.java,v 1.62 2009-03-21 19:48:50 mchyzer Exp $
  */
 public class MemberFinder {
 	
-	//Added by Gary Brown 2007-11-02
-	//GouperAll / GrouperSystem ought not to change...
+  /** GouperAll / GrouperSystem ought not to change... */
 	private static Member all;
+	
+  /** GouperAll / GrouperSystem ought not to change... */
 	private static Member root;
 
-  // PUBLIC CLASS METHODS //
-	
 	/**
    * Find all members.
    * <pre class="eg">
@@ -76,7 +75,7 @@ public class MemberFinder {
    * @return  {@link Set} of {@link Member} objects.
    * @throws  GrouperException
    */
-  public static Set findAll(GrouperSession s, Source source)
+  public static Set<Member> findAll(GrouperSession s, Source source)
     throws  GrouperException
   {
     //note, no need for GrouperSession inverse of control
@@ -168,10 +167,13 @@ public class MemberFinder {
     return m;
   }
 
-  
+  /**
+   * 
+   * @return member
+   * @throws GrouperException
+   */
   public static Member internal_findAllMember() 
-    throws  GrouperException
-  {
+    throws  GrouperException {
 	  if(all !=null) return all;
     all= MemberFinder.internal_findBySubject( SubjectFinder.findAllSubject(), true); 
     return all;
@@ -181,10 +183,13 @@ public class MemberFinder {
   @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(MemberFinder.class);
 
-  // @since   1.2.0
+  /**
+   * 
+   * @return member
+   * @throws GrouperException
+   */
   public static Member internal_findRootMember() 
-    throws  GrouperException
-  {
+    throws  GrouperException {
 	if(root != null) return root;
     root= MemberFinder.internal_findBySubject( SubjectFinder.findRootSubject(), true ); 
     return root;
@@ -321,13 +326,12 @@ public class MemberFinder {
     return member;
   }
   
-  // @since   1.2.1
-  public static void clearInternalMembers()
-    
-  {
+  /**
+   * 
+   */
+  public static void clearInternalMembers() {
     all=null;
     root=null;
-    
   } // public static void clearInternalMembers()
 
 } // public class MemberFinder
