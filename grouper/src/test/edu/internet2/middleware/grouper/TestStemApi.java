@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestStemApi.java,v 1.1 2009-03-20 19:56:40 mchyzer Exp $
+ * @version $Id: TestStemApi.java,v 1.2 2009-03-21 13:35:50 mchyzer Exp $
  * @since   1.2.1
  */
 public class TestStemApi extends GrouperTest {
@@ -70,7 +70,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("test_copy_insufficient_privilege_groupAsPrivilege_access"));
+    TestRunner.run(new TestStemApi("test_option_to_disable_last_membership_change"));
     //TestRunner.run(Test_api_Stem.class);
   }
 
@@ -1440,6 +1440,7 @@ public class TestStemApi extends GrouperTest {
    */
   public void test_option_to_disable_last_membership_change() throws Exception {
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "false");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
     
     R r = R.populateRegistry(0, 0, 2);
     Subject a = r.getSubject("a");

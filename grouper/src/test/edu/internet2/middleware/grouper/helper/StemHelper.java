@@ -21,6 +21,7 @@ import junit.framework.Assert;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -36,7 +37,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: StemHelper.java,v 1.2 2009-03-21 13:35:50 mchyzer Exp $
  */
 public class StemHelper {
 
@@ -51,7 +52,13 @@ public class StemHelper {
   public static Group addChildGroup(Stem ns, String extn, String displayExtn) {
     try {
       LOG.debug("addChildGroup.0 " + extn);
-      Group child = ns.addChildGroup(extn, displayExtn);
+      
+      Group child = GroupFinder.findByName(GrouperSession.staticGrouperSession(), ns.getName() + ":" + extn, false);
+
+      if (child == null) {
+        child = ns.addChildGroup(extn, displayExtn);
+      }
+      
       LOG.debug("addChildGroup.1 " + extn);
       Assert.assertNotNull("child !null", child);
       LOG.debug("addChildGroup.2 " + extn);
@@ -113,7 +120,16 @@ public class StemHelper {
   // @return  Created {@link Stem}
   public static Stem addChildStem(Stem ns, String extn, String displayExtn) {
     try {
-      Stem child = ns.addChildStem(extn, displayExtn);
+      
+      String parentPrefix = ns.isRootStem() ? "" : (ns.getName() + ":");
+      
+      Stem child = StemFinder.findByName(GrouperSession.staticGrouperSession(), 
+          parentPrefix + extn, false);
+      
+      if (child == null) {
+        child = ns.addChildStem(extn, displayExtn);
+      }
+      
       Assert.assertNotNull("child !null", child);
       Assert.assertTrue("added child stem", true);
       Assert.assertTrue(
@@ -126,8 +142,6 @@ public class StemHelper {
         "parent stem", child.getParentStem().equals(ns)
       );
       return child;
-    } catch (HookVeto hookVeto) {
-      throw hookVeto;
     } catch (Exception e) {
       T.e(e);
     }

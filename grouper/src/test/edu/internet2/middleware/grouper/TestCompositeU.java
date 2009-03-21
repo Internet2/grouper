@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU.java,v 1.2 2009-03-20 19:56:40 mchyzer Exp $
+ * @version $Id: TestCompositeU.java,v 1.3 2009-03-21 13:35:50 mchyzer Exp $
  * @since   1.0
  */
 public class TestCompositeU extends GrouperTest {
@@ -44,6 +44,7 @@ public class TestCompositeU extends GrouperTest {
 
   public static void main(String[] args) {
     TestRunner.run(TestCompositeU.class);
+    //TestRunner.run(new TestCompositeU("testFailToDeleteMemberWhenHasComposite"));
   }
   
   public TestCompositeU(String name) {

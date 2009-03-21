@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroup.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestGroup.java,v 1.2 2009-03-21 13:35:50 mchyzer Exp $
  */
 public class TestGroup extends GrouperTest {
 
@@ -58,7 +58,7 @@ public class TestGroup extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroup("testGetTypes"));
+    TestRunner.run(new TestGroup("testToMember"));
   }
   
   // Private Class Constants
@@ -78,7 +78,7 @@ public class TestGroup extends GrouperTest {
 
   protected void setUp () {
     LOG.debug("setUp");
-    RegistryReset.internal_resetRegistryAndAddTestSubjects();
+    super.setUp();
     s     = SessionHelper.getRootSession();
     root  = StemHelper.findRootStem(s);
     edu   = StemHelper.addChildStem(root, "edu", "education");

@@ -1,12 +1,13 @@
 /*
  * @author mchyzer
- * $Id: TestPrivileges.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * $Id: TestPrivileges.java,v 1.2 2009-03-21 13:35:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.privs;
 
 import java.util.Set;
 
 import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -18,6 +19,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -40,10 +42,29 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestPrivileges extends GrouperTest {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    //TestRunner.run(TestPrivileges.class);
+    TestRunner.run(new TestPrivileges("testHasAccessPrivButCannotReadPriv"));
+  }
+  
+  /**
+   * @param name
+   */
+  public TestPrivileges(String name) {
+    super(name);
+  }
+
+  /** */
   private static final Log LOG = GrouperUtil.getLog(TestPrivileges.class);
 
-  // @source  Gary Brown, 20051216, <39C7E27B4A5BE4494B39A93F@cse-gwb.cse.bris.ac.uk>>
-  // @status  fixed
+  /**
+   * Gary Brown, 20051216, <39C7E27B4A5BE4494B39A93F@cse-gwb.cse.bris.ac.uk>>
+   * status  fixed
+   */
   public void testGrantAllAccessPriv() {
     LOG.info("testGrantAllAccessPriv");
     try {   
@@ -137,6 +158,17 @@ public class TestPrivileges extends GrouperTest {
             SessionException,
             StemAddException
   {
+
+    Subject         subj  = SubjectTestHelper.SUBJ0;
+    GrouperSession  nrs   = GrouperSession.start(subj);
+    Member          m     = MemberFinder.findBySubject(nrs, subj, true);
+
+    int baseLineViewSize = m.hasView().size();
+    int baseLineReadSize = m.hasRead().size();
+    
+    ApiConfig.testConfig.put("groups.create.grant.all.read", "true");
+    ApiConfig.testConfig.put("groups.create.grant.all.view", "true");
+    
     LOG.info("testHasAccessPrivButCannotReadPriv");
     // Setup
     Subject         all   = SubjectFinder.findAllSubject();
@@ -153,17 +185,17 @@ public class TestPrivileges extends GrouperTest {
     s.stop();
   
     // Test
-    Subject         subj  = SubjectTestHelper.SUBJ0;
-    GrouperSession  nrs   = GrouperSession.start(subj);
-    Member          m     = MemberFinder.findBySubject(nrs, subj, true);
+    nrs   = GrouperSession.start(subj);
+    m     = MemberFinder.findBySubject(nrs, subj, true);
     Group           A     = GroupFinder.findByName(nrs, "edu:a", true);
     Group           B     = GroupFinder.findByName(nrs, "edu:b", true);
     Group           C     = GroupFinder.findByName(nrs, "edu:c", true);
     Group           D     = GroupFinder.findByName(nrs, "edu:d", true);
   
     Set view    = m.hasView();
+    
     assertEquals(
-      "VIEW/4 ("    + view.size()   + ")", 4, view.size() 
+      "VIEW/4 ("    + view.size()   + ")", 4+baseLineViewSize, view.size() 
     );
     Assert.assertTrue("VIEW/A/HAS",   A.hasView(subj)   );
     Assert.assertTrue("VIEW/B/HAS",   B.hasView(subj)   );
@@ -175,8 +207,8 @@ public class TestPrivileges extends GrouperTest {
     Assert.assertTrue("VIEW/D/IS" ,   m.hasView(D)      );
   
     Set read    = m.hasRead();
-    Assert.assertTrue(
-      "READ/4 ("    + read.size()   + ")", read.size()    == 4
+    Assert.assertEquals(
+      "READ/4 ("    + read.size()   + ")", 4 + baseLineReadSize, read.size()
     );
     Assert.assertTrue("READ/A/HAS",   A.hasRead(subj)   );
     Assert.assertTrue("READ/B/HAS",   B.hasRead(subj)   );

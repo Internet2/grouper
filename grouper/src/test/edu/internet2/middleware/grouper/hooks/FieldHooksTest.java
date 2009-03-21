@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: FieldHooksTest.java,v 1.6 2009-03-20 19:56:41 mchyzer Exp $
+ * $Id: FieldHooksTest.java,v 1.7 2009-03-21 13:35:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -42,9 +42,9 @@ public class FieldHooksTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new FieldHooksTest("testBuiltInAttributeValidator"));
+    //TestRunner.run(new FieldHooksTest("testBuiltInAttributeValidator"));
     //TestRunner.run(new FieldHooksTest(""));
-    //TestRunner.run(FieldHooksTest.class);
+    TestRunner.run(FieldHooksTest.class);
   }
   
   /**

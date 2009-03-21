@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.validator.NotNullValidator;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.57 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: GroupFinder.java,v 1.58 2009-03-21 13:35:50 mchyzer Exp $
  */
 public class GroupFinder {
 
@@ -198,6 +198,11 @@ public class GroupFinder {
     GrouperSession.validate(s);
     Group g = null;
     g = GrouperDAOFactory.getFactory().getGroup().findByName(name, exceptionIfNotFound) ;
+    
+    if (g == null) {
+      return g;
+    }
+    
     //2007-10-16: Gary Brown
     //https://bugs.internet2.edu/jira/browse/GRP-36
     //Ugly... and probably breaks the abstraction but quick and easy to 

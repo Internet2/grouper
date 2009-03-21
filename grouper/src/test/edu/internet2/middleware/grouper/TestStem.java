@@ -23,8 +23,10 @@ import java.util.Set;
 import junit.framework.Assert;
 import junit.textui.TestRunner;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -56,7 +58,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.23 2009-03-20 19:56:40 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.24 2009-03-21 13:35:50 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -68,8 +70,8 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestStem("testPropagateDisplayExtensionChangeAsNonRoot"));
-    TestRunner.run(TestStem.class);
+    TestRunner.run(new TestStem("testStemModifyAttributesAfterUpdatingAttributes"));
+    //TestRunner.run(TestStem.class);
   }
 
   public TestStem(String name) {
@@ -450,62 +452,66 @@ public class TestStem extends GrouperTest {
     }
   } // public void testChildStemsAndGroupsLazyInitialization() 
 
-  public void testParentChildStemsAndGroupsLazyInitialization() {
+  public void testParentChildStemsAndGroupsLazyInitialization() throws Exception {
     LOG.info("testParentChildStemsAndGroupsLazyInitialization");
-    try {
-      String          edu   = "edu";
-      String          uofc  = "uofc";
-      String          bsd   = "bsd";
 
-      Subject         subj  = SubjectFinder.findById("GrouperSystem", true);
-      GrouperSession  s     = GrouperSession.start(subj);
-      Stem            root  = StemFinder.findRootStem(s);
-      Stem            ns0   = root.addChildStem(edu, edu);
-      Stem            ns1   = ns0.addChildStem(uofc, uofc);
-      ns1.addChildGroup(bsd, bsd);
-      s.stop();
+    String          eduStemName   = "edu";
+    String          uofcStemName  = "uofc";
+    String          uofcGroupBsdName   = "bsd";
 
-      s = GrouperSession.start(subj);
-      Stem  a         = StemFinder.findByName(s, edu, true);
-      Stem  parent    = a.getParentStem();
-      Set   children  = parent.getChildStems();
-      Assert.assertTrue("parent has child stems", children.size() > 0);
-      Iterator iter = children.iterator();
-      while (iter.hasNext()) {
-        Stem child  = (Stem) iter.next();
-        Set  stems  = child.getChildStems();
-        assertEquals(
-          "child of parent has child stems", 1, stems.size());
-        Iterator childIter = stems.iterator();
-        while (childIter.hasNext()) {
-          Stem c = (Stem) childIter.next();
-          Assert.assertTrue(
-            "child of child of parent has no child stems",
-            c.getChildStems().size() == 0
-          );
-          Assert.assertTrue(
-            "child of child of parent has child groups",
-            c.getChildGroups().size() == 1
-          );
-          Iterator gIter = c.getChildGroups().iterator();
-          while (gIter.hasNext()) {
-            Group g = (Group) gIter.next();
-            Assert.assertNotNull("group name", g.getName());
-          }
-        }
-        Set  groups = child.getChildGroups();
-        Assert.assertTrue(
-          "child of parent has no child groups", groups.size() == 0
-        );
+    Subject         subj  = SubjectFinder.findById("GrouperSystem", true);
+    GrouperSession  grouperSession     = GrouperSession.start(subj);
+    Stem            rootStem  = StemFinder.findRootStem(grouperSession);
+    Stem            eduStem   = rootStem.addChildStem(eduStemName, eduStemName);
+    Stem            uofcStem   = eduStem.addChildStem(uofcStemName, uofcStemName);
+    uofcStem.addChildGroup(uofcGroupBsdName, uofcGroupBsdName);
+    grouperSession.stop();
+
+    grouperSession = GrouperSession.start(subj);
+    Stem  eduStem2         = StemFinder.findByName(grouperSession, eduStemName, true);
+    Stem  rootStem2    = eduStem2.getParentStem();
+    Set   rootStemChildrenStems  = rootStem2.getChildStems();
+    Assert.assertTrue("root stem has child stems", rootStemChildrenStems.size() >= 2);
+    Iterator rootStemChildrenStemsIter = rootStemChildrenStems.iterator();
+    while (rootStemChildrenStemsIter.hasNext()) {
+      
+      Stem rootStemChildStem  = (Stem) rootStemChildrenStemsIter.next();
+      
+      if (!StringUtils.equals(rootStemChildStem.getName(), eduStemName) 
+          && !(StringUtils.equals(rootStemChildStem.getName(), uofcStemName))) {
+        //maybe another stem exists...
+        continue;
       }
-      s.stop();
+      
+      Set  rootStemGrandchildStems  = rootStemChildStem.getChildStems();
+      assertEquals(
+        "root child " + rootStemChildStem.getName() + " shoudl have 1 child stem", 1, rootStemGrandchildStems.size());
+      Iterator grandchildStemIter = rootStemGrandchildStems.iterator();
+      while (grandchildStemIter.hasNext()) {
+        Stem grandchildStem = (Stem) grandchildStemIter.next();
+        Assert.assertEquals(
+          "grandchild " + grandchildStem.getName() + " has no child stems",
+            0, grandchildStem.getChildStems().size()
+          );
+          Assert.assertTrue(
+            "grandchild " + grandchildStem.getName() + " has child groups",
+          grandchildStem.getChildGroups().size() == 1
+        );
+        Iterator gIter = grandchildStem.getChildGroups().iterator();
+        while (gIter.hasNext()) {
+          Group g = (Group) gIter.next();
+          Assert.assertNotNull("group name", g.getName());
+        }
+      }
+      Set  groups = rootStemChildStem.getChildGroups();
+      Assert.assertTrue(
+        "child of parent has no child groups", groups.size() == 0
+      );
+    }
+    grouperSession.stop();
 
-      Assert.assertTrue("no exceptions", true);
-    }
-    catch (Exception e) {
-      Assert.fail(e.getMessage());
-    }
-  } // public void testChildStemsAndGroupsLazyInitialization() 
+    Assert.assertTrue("no exceptions", true);
+  } 
 
   public void testAddChildStemWithBadExtnOrDisplayExtn() {
     LOG.info("testAddChildStemWithBadExtnOrDisplayExtn");
@@ -733,6 +739,9 @@ public class TestStem extends GrouperTest {
 
   public void testGetModifyAttrsModified() {
     LOG.info("testGetModifyAttrsModified");
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -763,7 +772,12 @@ public class TestStem extends GrouperTest {
   } // public void testGetModifyAttrsModified()
 
   public void testGetModifyAttrsNotModified() {
+
     LOG.info("testGetModifyAttrsNotModified");
+
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
@@ -927,6 +941,10 @@ public class TestStem extends GrouperTest {
 
   public void testStemModifyAttributesAfterUpdatingAttributes() {
     LOG.info("testStemModifyAttributesAfterUpdatingAttributes");
+    
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+
     try {
       R       r     = R.populateRegistry(1, 1, 1);
       Stem    nsA   = r.getStem("a");
@@ -954,6 +972,10 @@ public class TestStem extends GrouperTest {
 
   public void testStemModifyAttributesUpdatedAfterGrantingEffectivePriv() {
     LOG.info("testStemModifyAttributesUpdatedAfterGrantingEffectivePriv");
+    
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "false");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+
     try {
       R       r     = R.populateRegistry(1, 1, 1);
       Stem    nsA   = r.getStem("a");
@@ -988,7 +1010,12 @@ public class TestStem extends GrouperTest {
   
   // @since   1.2.0
   public void testStemModifyAttributesUpdatedAfterGrantingImmediatePriv() {
+    
     LOG.info("testStemModifyAttributesUpdatedAfterGrantingImmediatePriv");
+
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "false");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+
     try {
       R       r     = R.populateRegistry(1, 0, 1);
       Stem    nsA   = r.getStem("a");
@@ -1024,6 +1051,10 @@ public class TestStem extends GrouperTest {
 
   public void testStemModifyAttributesUpdatedAfterRevokingEffectivePriv() {
     LOG.info("testStemModifyAttributesUpdatedAfterRevokingEffectivePriv");
+
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "false");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+
     try {
       R       r     = R.populateRegistry(1, 1, 1);
       Stem    nsA   = r.getStem("a");
@@ -1058,6 +1089,10 @@ public class TestStem extends GrouperTest {
   // @since   1.2.0
   public void testStemModifyAttributesUpdatedAfterRevokingImmediatePriv() {
     LOG.info("testStemModifyAttributesUpdatedAfterRevokingImmediatePriv");
+
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "false");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+
     try {
       R       r     = R.populateRegistry(1, 0, 1);
       Stem    nsA   = r.getStem("a");
