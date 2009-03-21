@@ -37,7 +37,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * {@link Stem} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: StemHelper.java,v 1.2 2009-03-21 13:35:50 mchyzer Exp $
+ * @version $Id: StemHelper.java,v 1.3 2009-03-21 19:48:50 mchyzer Exp $
  */
 public class StemHelper {
 
@@ -119,33 +119,27 @@ public class StemHelper {
   // Add and test a child stem
   // @return  Created {@link Stem}
   public static Stem addChildStem(Stem ns, String extn, String displayExtn) {
-    try {
-      
-      String parentPrefix = ns.isRootStem() ? "" : (ns.getName() + ":");
-      
-      Stem child = StemFinder.findByName(GrouperSession.staticGrouperSession(), 
-          parentPrefix + extn, false);
-      
-      if (child == null) {
-        child = ns.addChildStem(extn, displayExtn);
-      }
-      
-      Assert.assertNotNull("child !null", child);
-      Assert.assertTrue("added child stem", true);
-      Assert.assertTrue(
-        "child stem instanceof Stem", 
-        child instanceof Stem
-      );
-      Assert.assertNotNull("child uuid !null", child.getUuid());
-      Assert.assertTrue("child has uuid", !child.getUuid().equals(""));
-      Assert.assertTrue(
-        "parent stem", child.getParentStem().equals(ns)
-      );
-      return child;
-    } catch (Exception e) {
-      T.e(e);
+    String parentPrefix = ns.isRootStem() ? "" : (ns.getName() + ":");
+    
+    Stem child = StemFinder.findByName(GrouperSession.staticGrouperSession(), 
+        parentPrefix + extn, false);
+    
+    if (child == null) {
+      child = ns.addChildStem(extn, displayExtn);
     }
-    throw new GrouperException();
+    
+    Assert.assertNotNull("child !null", child);
+    Assert.assertTrue("added child stem", true);
+    Assert.assertTrue(
+      "child stem instanceof Stem", 
+      child instanceof Stem
+    );
+    Assert.assertNotNull("child uuid !null", child.getUuid());
+    Assert.assertTrue("child has uuid", !child.getUuid().equals(""));
+    Assert.assertTrue(
+      "parent stem", child.getParentStem().equals(ns)
+    );
+    return child;
   } // public static Stem addChildStem(ns, extn, displayExtn)
 
   public static void addChildStemFail(Stem ns, String extn, String displayExtn) {

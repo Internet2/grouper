@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: StemHooksTest.java,v 1.5 2009-03-20 19:56:41 mchyzer Exp $
+ * $Id: StemHooksTest.java,v 1.6 2009-03-21 19:48:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -33,9 +33,9 @@ public class StemHooksTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new StemHooksTest("testStemPreInsert"));
+    //TestRunner.run(new StemHooksTest("testStemPreInsert"));
     //TestRunner.run(new StemHooksTest(""));
-    //TestRunner.run(StemHooksTest.class);
+    TestRunner.run(StemHooksTest.class);
   }
   
   /**

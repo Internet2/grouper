@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper;
 import java.util.Set;
 
 import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -44,10 +45,18 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupType.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestGroupType.java,v 1.2 2009-03-21 19:48:50 mchyzer Exp $
  */
 public class TestGroupType extends GrouperTest {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestGroupType("testAddFieldAttribute"));
+  }
+  
   // Private Static Class Constants
   private static final Log LOG = GrouperUtil.getLog(TestGroupType.class);
 
@@ -391,6 +400,9 @@ public class TestGroupType extends GrouperTest {
     }
   } // public void testAddExistingField()
 
+  /**
+   * 
+   */
   public void testAddFieldAttribute() {
     GrouperSession  s     = null;
     String          type  = "customType.0";
@@ -398,21 +410,49 @@ public class TestGroupType extends GrouperTest {
     Privilege       read  = AccessPrivilege.VIEW;
     Privilege       write = AccessPrivilege.UPDATE;
     boolean         req   = false;
+    s = SessionHelper.getRootSession();
+    GroupType custom = GroupType.createType(s, type);
+    custom.addAttribute(s, name, read, write, req);
+    Assert.assertTrue("added ATTRIBUTE field", true);
+
+    //try to add an attribute with a field name... it should not be allowed
     try {
-      s = SessionHelper.getRootSession();
-      GroupType custom = GroupType.createType(s, type);
-      custom.addAttribute(s, name, read, write, req);
-      Assert.assertTrue("added ATTRIBUTE field", true);
+      custom.addAttribute(s, Group.FIELD_DESCRIPTION, read, write, req);
+      fail("Shouldnt be able to create a built in field attribute");
+    } catch (Exception e) {
+      //good
     }
-    catch (InsufficientPrivilegeException eIP) {
-      Assert.fail("unexpected exception: " + eIP.getMessage());
+    
+    try {
+      custom.addAttribute(s, Group.FIELD_EXTENSION, read, write, req);
+      fail("Shouldnt be able to create a built in field attribute");
+    } catch (Exception e) {
+      //good
     }
-    catch (SchemaException eS) {
-      Assert.fail("unexpected exception: " + eS.getMessage());
+    
+    try {
+      custom.addAttribute(s, Group.FIELD_DISPLAY_EXTENSION, read, write, req);
+      fail("Shouldnt be able to create a built in field attribute");
+    } catch (Exception e) {
+      //good
     }
-    finally {
-      SessionHelper.stop(s);
+    
+    try {
+      custom.addAttribute(s, Group.FIELD_NAME, read, write, req);
+      fail("Shouldnt be able to create a built in field attribute");
+    } catch (Exception e) {
+      //good
     }
+    
+    try {
+      custom.addAttribute(s, Group.FIELD_DISPLAY_NAME, read, write, req);
+      fail("Shouldnt be able to create a built in field attribute");
+    } catch (Exception e) {
+      //good
+    }
+    
+    
+    SessionHelper.stop(s);
   } // public void testAddFieldAttribute()
 
   public void testAddFieldDuplicateName() {

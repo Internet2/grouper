@@ -18,6 +18,9 @@
 package edu.internet2.middleware.grouper.member;
 import java.util.Set;
 
+import junit.textui.TestRunner;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -41,6 +44,14 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class TestMemberFinder extends GrouperTest {
   
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestMemberFinder("testFindAll"));
+  }
+  
   private static final Log LOG = GrouperUtil.getLog(TestMemberFinder.class);
   
   public TestMemberFinder(String name) {
@@ -51,6 +62,19 @@ public class TestMemberFinder extends GrouperTest {
   public void testFindAll() {
     LOG.info("testFindAll");
     try {      
+      
+      int baseline = MemberFinder.findAll(GrouperSession.start(SubjectFinder
+          .findRootSubject())).size();
+      
+      Source gsaSource = SubjectFinder.getSource("g:gsa");
+
+      int gsaBaseline = MemberFinder.findAll(GrouperSession.start(SubjectFinder
+          .findRootSubject()), gsaSource).size();
+      
+      Source jdbcSource = SubjectFinder.getSource("jdbc");
+      int jdbcBaseline = MemberFinder.findAll(GrouperSession.start(SubjectFinder
+          .findRootSubject()), jdbcSource).size();
+      
       R r = R.populateRegistry(1, 3, 2);      
       Group gA = r.getGroup("a", "a");
       Group gB = r.getGroup("a", "b");      
@@ -61,23 +85,29 @@ public class TestMemberFinder extends GrouperTest {
 
       Set members = MemberFinder.findAll(GrouperSession.start(SubjectFinder
           .findRootSubject()));
-      assertTrue("OK: found 6 members", members.size() == 6);
+      assertEquals("OK: found 4 members, 3 for each group, and one subject", 4 + baseline, members.size());
       
-      Source gsaSource = SubjectFinder.getSource("g:gsa");
       Set gsaMembers = MemberFinder.findAll(GrouperSession.start(SubjectFinder
           .findRootSubject()), gsaSource);
-      assertTrue("OK: gsa source has 2 members", gsaMembers.size() == 3);
+      assertEquals("OK: gsa source has 3 members, one for each group", 3 + gsaBaseline, gsaMembers.size());
       
       Source isaSource = SubjectFinder.getSource("g:isa");
       Set isaMembers = MemberFinder.findAll(GrouperSession.start(SubjectFinder
           .findRootSubject()), isaSource);
       assertTrue("OK: isa source has 2 members", isaMembers.size() == 2);
       
-      Source jdbcSource = SubjectFinder.getSource("jdbc");
-      Set jdbcMembers = MemberFinder.findAll(GrouperSession.start(SubjectFinder
+      Set<Member> jdbcMembers = MemberFinder.findAll(GrouperSession.start(SubjectFinder
           .findRootSubject()), jdbcSource);
-      assertTrue("OK: jdbc source has 1 member", jdbcMembers.size() == 1);
-      assertTrue("jdbc source member has id a", ((Member) jdbcMembers.iterator().next()).getSubjectId().equals("a"));
+      assertEquals("OK: jdbc source has 1 member", 1 + jdbcBaseline, jdbcMembers.size());
+      
+      boolean foundA = false;
+      
+      for(Member member : jdbcMembers) {
+        if (StringUtils.equals("a", member.getSubjectId())) {
+          foundA = true;
+        }
+      }
+      assertTrue("jdbc source member has id a", foundA);
             
     } catch (Exception e) {
       T.e(e);

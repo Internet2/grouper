@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestGAttr.java,v 1.2 2009-03-21 19:48:50 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGAttr extends GrouperTest {
@@ -58,27 +58,6 @@ public class TestGAttr extends GrouperTest {
   protected void tearDown () {
     LOG.debug("tearDown");
   }
-
-  public void testGetAttributes() {
-    LOG.info("testGetAttributes");
-    try {
-      R     r   = R.populateRegistry(1, 1, 0);
-      Group gA  = r.getGroup("a", "a");
-
-      Map attrs = gA.getAttributes();
-      Assert.assertTrue("attrs !null", attrs != null);
-      Assert.assertTrue("has extn"        , attrs.containsKey("extension")        );
-      Assert.assertTrue("has displayExtn" , attrs.containsKey("displayExtension") );
-      Assert.assertTrue("has name"        , attrs.containsKey("name")             );
-      Assert.assertTrue("has displayName" , attrs.containsKey("displayName")      );
-      T.amount("default attributes", 4, attrs.size()); 
-
-      r.rs.stop();
-    }
-    catch (Exception e) {
-      T.e(e);
-    }
-  } // public void testGetAttributes()
 
   public void testFailGetAttributeNullAttribute() {
     LOG.info("testFailGetAttributeNullAttribute");
