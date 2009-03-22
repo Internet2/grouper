@@ -17,6 +17,8 @@
 
 package edu.internet2.middleware.grouper.group;
 
+import org.apache.commons.lang.StringUtils;
+
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -29,6 +31,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
@@ -38,6 +41,7 @@ import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -49,7 +53,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Group.java,v 1.2 2009-03-21 19:48:50 mchyzer Exp $
+ * @version $Id: Test_api_Group.java,v 1.3 2009-03-22 05:41:01 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_Group extends GrouperTest {
@@ -63,7 +67,7 @@ public class Test_api_Group extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new Test_api_Group("test_option_to_disable_last_membership_change"));
+    TestRunner.run(new Test_api_Group("testGroupCopyAudit"));
   }
   
   private Group           top_group, child_group;
@@ -322,6 +326,43 @@ public class Test_api_Group extends GrouperTest {
     
     r.rs.stop();
   }
+  
+  /**
+   * test group copy
+   * @throws Exception 
+   */
+  public void testGroupCopyAudit() throws Exception {
+
+    R r = R.populateRegistry(0, 0, 11);
+    group_copy_setup(r, false);
+
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+
+    assertEquals(0, auditCount);
+    
+    Group newGroup = child_group.copy(top);
+    
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+    
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+    assertTrue("durationNanos should exist", auditEntry.getDurationMicroseconds() > 0);
+    assertTrue("query count should exist, and be at least 2: " + auditEntry.getQueryCount(), 2 <= auditEntry.getQueryCount());
+  
+    assertEquals("Context id's should match", auditEntry.getContextId(), newGroup.getContextId());
+
+    r.rs.stop();
+  }
+
+
   
   /**
    * @throws Exception

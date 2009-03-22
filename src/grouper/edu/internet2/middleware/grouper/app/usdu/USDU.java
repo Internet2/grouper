@@ -554,12 +554,12 @@ public class USDU {
       return null;
     }
 
-    public Set<?> getAttributeValues(String arg0) {
+    public Set<String> getAttributeValues(String arg0) {
 
       return null;
     }
 
-    public Map<?, ?> getAttributes() {
+    public Map<String, Set<String>> getAttributes() {
 
       return null;
     }

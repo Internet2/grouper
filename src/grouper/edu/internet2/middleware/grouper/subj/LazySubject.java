@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.SubjectType;
  * necessary to instantiate all the Subjects (and Members) 
  * <p/>
  * @author  Gary Brown.
- * @version $Id: LazySubject.java,v 1.6 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: LazySubject.java,v 1.7 2009-03-22 05:41:00 mchyzer Exp $
  */
 
 public class LazySubject implements Subject {
@@ -99,9 +99,9 @@ public class LazySubject implements Subject {
 public Map getAttributes() {
 	try {
 		return getSubject().getAttributes();
-	}catch(Exception e) {
+	}catch(RuntimeException re) {
 		unresolvable=true;
-		throw new GrouperException(e);
+		throw re;
 	}
 }
 
@@ -111,11 +111,7 @@ public Map getAttributes() {
 	 * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String)
 	 */
 	public String getAttributeValue(String name) {
-		try {
-			return getSubject().getAttributeValue(name);
-		}catch(Exception e) {
-			throw new GrouperException(e);
-		}
+    return getSubject().getAttributeValue(name);
 	}
 	
 	
@@ -124,11 +120,7 @@ public Map getAttributes() {
 	 * @see edu.internet2.middleware.subject.Subject#getAttributeValues(java.lang.String)
 	 */
 	public Set getAttributeValues(String name) {
-		try {
-			return getSubject().getAttributeValues(name);
-		}catch(Exception e) {
-			throw new GrouperException(e);
-		}
+    return getSubject().getAttributeValues(name);
 	}
 	
 	
@@ -289,14 +281,26 @@ public Map getAttributes() {
 		public Subject getSubject(String id) throws SubjectNotFoundException,
 				SubjectNotUniqueException {
 			// TODO Auto-generated method stub
-			return getSource().getSubject(id);
+			return getSource().getSubject(id, true);
 		}
 
 		public Subject getSubjectByIdentifier(String id)
 				throws SubjectNotFoundException, SubjectNotUniqueException {
 			// TODO Auto-generated method stub
-			return getSource().getSubjectByIdentifier(id);
+			return getSource().getSubjectByIdentifier(id, true);
 		}
+
+    public Subject getSubject(String id, boolean exceptionIfNull) throws SubjectNotFoundException,
+      SubjectNotUniqueException {
+      // TODO Auto-generated method stub
+      return getSource().getSubject(id, exceptionIfNull);
+    }
+
+    public Subject getSubjectByIdentifier(String id, boolean exceptionIfNull)
+      throws SubjectNotFoundException, SubjectNotUniqueException {
+      // TODO Auto-generated method stub
+      return getSource().getSubjectByIdentifier(id, exceptionIfNull);
+    }
 
 		public Set getSubjectTypes() {
 			// TODO Auto-generated method stub

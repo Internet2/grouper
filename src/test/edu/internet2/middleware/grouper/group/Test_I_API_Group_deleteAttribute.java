@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 /**
  * Test <code>Group.deleteAttribute()</code>.
  * @author  blair christensen.
- * @version $Id: Test_I_API_Group_deleteAttribute.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: Test_I_API_Group_deleteAttribute.java,v 1.2 2009-03-22 05:41:01 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Group_deleteAttribute extends GrouperTest {
@@ -196,10 +196,10 @@ public class Test_I_API_Group_deleteAttribute extends GrouperTest {
     assertEquals(gA.getName(), groupSubject.getAttributeValue("name"));
     assertFalse(groupSubject.isLoadedGroupAttributes());
     assertFalse(groupSubject.isLoadedModifyCreateSubjects());
-    assertEquals(gA.getName(), groupSubject.getAttributes().get("name"));
+    assertEquals(gA.getName(), groupSubject.getAttributes().get("name").iterator().next());
     assertFalse(groupSubject.isLoadedGroupAttributes());
     assertFalse(groupSubject.isLoadedModifyCreateSubjects());
-    assertEquals("whatever", groupSubject.getAttributes().get(ATTRIBUTE1));
+    assertEquals("whatever", groupSubject.getAttributes().get(ATTRIBUTE1).iterator().next());
     assertTrue(groupSubject.isLoadedGroupAttributes());
     assertTrue(groupSubject.isLoadedModifyCreateSubjects());
     assertEquals("whatever", groupSubject.getAttributeValue(ATTRIBUTE1));

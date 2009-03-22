@@ -118,7 +118,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.235 2009-03-21 19:48:50 mchyzer Exp $
+ * @version $Id: Group.java,v 1.236 2009-03-22 05:41:01 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -4319,6 +4319,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @param attributes
    * @param composite
    * @param addDefaultGroupPrivileges
+   * @param checkSecurity true to check that user can do this operation, false to ignore
    * @return group
    * @throws GroupAddException
    * @throws InsufficientPrivilegeException
@@ -4326,16 +4327,24 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   protected Group internal_copy(final Stem stem, final boolean privilegesOfGroup,
       final boolean groupAsPrivilege, final boolean listMembersOfGroup,
       final boolean listGroupAsMember, final boolean attributes, final boolean composite,
-      final boolean addDefaultGroupPrivileges)
+      final boolean addDefaultGroupPrivileges, final boolean checkSecurity)
       throws GroupAddException, InsufficientPrivilegeException {
     
     return (Group)HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
 
+            if (checkSecurity) {
+              // verify that the subject has read privileges to the group
+              if (!PrivilegeHelper.canRead(GrouperSession.staticGrouperSession(), Group.this,
+                  GrouperSession.staticGrouperSession().getSubject())) {
+                throw new InsufficientPrivilegeException(E.CANNOT_READ);
+              }
+            }
+            
             GrouperSession actAs = null;
             if (addDefaultGroupPrivileges == true) {
               actAs = GrouperSession.staticGrouperSession();
@@ -4431,6 +4440,28 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
             if (listGroupAsMember == true) {
               newGroup.internal_copyGroupAsMember(GrouperSession.staticGrouperSession(), Group.this);
             }
+            
+            //if not a smaller operation of a larger auditable call
+            if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_COPY,
+                  "oldGroupUuid", Group.this.getUuid(), "oldGroupName", 
+                  Group.this.getName(), "newGroupUuid", newGroup.getUuid(), "newGroupName",
+                  newGroup.getName(), 
+                  "privilegesOfGroup", privilegesOfGroup ? "T" : "F", "groupAsPrivilege",
+                  groupAsPrivilege ? "T" : "F", "listMembersOfGroup",
+                  listMembersOfGroup ? "T" : "F", "listGroupAsMember",
+                  listGroupAsMember ? "T" : "F");
+              auditEntry.setInt01(attributes ? 1L : 0L);
+              auditEntry.setDescription("Copy group " + Group.this.getName() + " to group: " + newGroup.getName()
+                  + ", privilegesOfGroup? " + (groupAsPrivilege ? "T" : "F")
+                  + ", groupAsPrivilege? " + (groupAsPrivilege ? "T" : "F") 
+                  + ", listMembersOfGroup? " + (groupAsPrivilege ? "T" : "F") 
+                  + ", listGroupAsMember? " + (groupAsPrivilege ? "T" : "F") 
+                  + ", attributes? " + (groupAsPrivilege ? "T" : "F")); 
+              auditEntry.saveOrUpdate(true);
+            }
+
             
             return newGroup;
           }

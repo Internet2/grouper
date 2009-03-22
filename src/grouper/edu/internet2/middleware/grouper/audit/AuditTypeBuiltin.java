@@ -1,8 +1,9 @@
 /*
  * @author mchyzer
- * $Id: AuditTypeBuiltin.java,v 1.3 2009-03-16 05:50:39 mchyzer Exp $
+ * $Id: AuditTypeBuiltin.java,v 1.4 2009-03-22 05:41:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
+
 
 
 /**
@@ -145,7 +146,31 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   /**
    * member change subject
    */
-  MEMBER_CHANGE_SUBJECT(new AuditType("member", "changeSubject", null, "oldMemberId", "oldSubjectId", "oldSourceId", "newMemberId", "newSubjectId", "newSourceId", "deleteOldMember", "memberIdChanged"));
+  MEMBER_CHANGE_SUBJECT(new AuditType("member", "changeSubject", null, "oldMemberId", "oldSubjectId", "oldSourceId", "newMemberId", "newSubjectId", "newSourceId", "deleteOldMember", "memberIdChanged")),
+  
+  /**
+   * copy a group to another stem
+   */
+  GROUP_COPY(new AuditType("group", "copy", "attributes", "oldGroupUuid", "oldGroupName", "newGroupUuid", "newGroupName", 
+      "privilegesOfGroup", "groupAsPrivilege", "listMembersOfGroup", "listGroupAsMember")),
+  
+  /**
+   * move a group to another stem
+   */
+  GROUP_MOVE(new AuditType("group", "move", null, "groupUuid", "oldGroupName", "newGroupName", "newStemUuid", 
+      "assignOldName")),
+  
+  /**
+   * copy a stem to another stem
+   */
+  STEM_COPY(new AuditType("stem", "copy", "attributes", "oldStemUuid", "oldStemName", "newStemName", "newStemUuid", 
+      "privilegesOfStem", "privilegesOfGroup", "listMembersOfGroup", "listGroupAsMember")),
+  
+  /**
+   * move a stem to another stem
+   */
+  STEM_MOVE(new AuditType("stem", "move", null, "stemUuid", "oldStemName", "newGroupName", "newParentStemUuid", 
+      "assignOldName"));
   
   /**
    * defaults for audit type, though doesnt hold the id

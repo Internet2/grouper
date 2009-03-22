@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.SubjectType;
  * Allows the UI to continue working when, otherwise, a SubjectNotFoundException would cause an error.
  * <p/>
  * @author  Gary Brown.
- * @version $Id: UnresolvableSubject.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: UnresolvableSubject.java,v 1.3 2009-03-22 05:41:00 mchyzer Exp $
  */
 
 public class UnresolvableSubject implements Subject {
@@ -46,7 +46,7 @@ public class UnresolvableSubject implements Subject {
  private String subjectId;
  private String subjectTypeId;
  private String subjectSourceId;
- private Map attributes = new HashMap();
+ private Map<String, Set<String>> attributes = new HashMap<String, Set<String>>();
 
  private SubjectType subjectType = new LazySubjectType();
  private Source subjectSource = new LazySource();
@@ -84,7 +84,7 @@ public Map getAttributes() {
 	 * @see edu.internet2.middleware.subject.Subject#getAttributeValues(java.lang.String)
 	 */
 	public Set getAttributeValues(String name) {
-		return new HashSet();
+		return this.attributes.get(name);
 	}
 	
 	
@@ -206,14 +206,26 @@ public Map getAttributes() {
 		public Subject getSubject(String id) throws SubjectNotFoundException,
 				SubjectNotUniqueException {
 			// TODO Auto-generated method stub
-			return getSource().getSubject(id);
+			return getSource().getSubject(id, true);
 		}
 
 		public Subject getSubjectByIdentifier(String id)
 				throws SubjectNotFoundException, SubjectNotUniqueException {
 			// TODO Auto-generated method stub
-			return getSource().getSubjectByIdentifier(id);
+			return getSource().getSubjectByIdentifier(id, true);
 		}
+
+    public Subject getSubject(String id, boolean exceptionIfNull) throws SubjectNotFoundException,
+        SubjectNotUniqueException {
+      // TODO Auto-generated method stub
+      return getSource().getSubject(id, exceptionIfNull);
+    }
+
+    public Subject getSubjectByIdentifier(String id, boolean exceptionIfNull)
+        throws SubjectNotFoundException, SubjectNotUniqueException {
+      // TODO Auto-generated method stub
+      return getSource().getSubjectByIdentifier(id, exceptionIfNull);
+    }
 
 		public Set getSubjectTypes() {
 			// TODO Auto-generated method stub

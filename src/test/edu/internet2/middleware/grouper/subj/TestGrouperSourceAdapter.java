@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.SubjectType;
  * Test {@link GrouperSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSourceAdapter.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestGrouperSourceAdapter.java,v 1.2 2009-03-22 05:41:01 mchyzer Exp $
  */
 public class TestGrouperSourceAdapter extends GrouperTest {
 
@@ -88,7 +88,7 @@ public class TestGrouperSourceAdapter extends GrouperTest {
 
   public void testAdapterBadSubject() {
     try { 
-      Subject subj = sa.getSubject("i do not exist");
+      Subject subj = sa.getSubject("i do not exist", true);
       Assert.fail("found bad subject: " + subj);
     } 
     catch (SubjectNotFoundException e) {
@@ -101,7 +101,7 @@ public class TestGrouperSourceAdapter extends GrouperTest {
 
   public void testAdapterBadSubjectByIdentifier() {
     try { 
-      Subject subj = sa.getSubjectByIdentifier("i do not exist");
+      Subject subj = sa.getSubjectByIdentifier("i do not exist", true);
       Assert.fail("found bad subject: " + subj);
     } 
     catch (SubjectNotFoundException e) {

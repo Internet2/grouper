@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.SubjectType;
  * Test {@link InternalSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestInternalSourceAdapter.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestInternalSourceAdapter.java,v 1.2 2009-03-22 05:41:01 mchyzer Exp $
  */
 public class TestInternalSourceAdapter extends TestCase {
 
@@ -95,7 +95,7 @@ public class TestInternalSourceAdapter extends TestCase {
     LOG.info("testAdapterBadSubject");
     String id = "i do not exist";
     try { 
-      Subject subj = sa.getSubject(id);
+      Subject subj = sa.getSubject(id, true);
       Assert.fail("found bad subject: " + subj);
     } 
     catch (SubjectNotFoundException e) {
@@ -110,7 +110,7 @@ public class TestInternalSourceAdapter extends TestCase {
     LOG.info("testAdapterBadSubjectByIdentifier");
     String id = "i do not exist";
     try { 
-      Subject subj = sa.getSubjectByIdentifier(id);
+      Subject subj = sa.getSubjectByIdentifier(id, true);
       Assert.fail("found bad subject: " + subj);
     } 
     catch (SubjectNotFoundException e) {
@@ -132,7 +132,7 @@ public class TestInternalSourceAdapter extends TestCase {
     LOG.info("testAdapterGrouperAllSubject");
     String id = SubjectTestHelper.SUBJ_ALL;
     try { 
-      Subject subj = sa.getSubject(id);
+      Subject subj = sa.getSubject(id, true);
       Assert.assertTrue("found subject: " + id, true);
       Assert.assertNotNull("subj !null", subj);
       Assert.assertTrue(
@@ -164,7 +164,7 @@ public class TestInternalSourceAdapter extends TestCase {
     LOG.info("testAdapterGrouperAllSubjectByIdentifier");
     String id = SubjectTestHelper.SUBJ_ALL;
     try { 
-      Subject subj = sa.getSubjectByIdentifier(id);
+      Subject subj = sa.getSubjectByIdentifier(id, true);
       Assert.assertTrue("found subject: " + id, true);
       Assert.assertNotNull("subj !null", subj);
       Assert.assertTrue(
@@ -203,7 +203,7 @@ public class TestInternalSourceAdapter extends TestCase {
     LOG.info("testAdapterGrouperSystemSubject");
     String id = SubjectTestHelper.SUBJ_ROOT;
     try { 
-      Subject subj = sa.getSubject(id);
+      Subject subj = sa.getSubject(id, true);
       Assert.assertTrue("found subject: " + id, true);
       Assert.assertNotNull("subj !null", subj);
       Assert.assertTrue(
@@ -235,7 +235,7 @@ public class TestInternalSourceAdapter extends TestCase {
     LOG.info("testAdapterGrouperSystemSubjectByIdentifier");
     String id = SubjectTestHelper.SUBJ_ROOT;
     try { 
-      Subject subj = sa.getSubjectByIdentifier(id);
+      Subject subj = sa.getSubjectByIdentifier(id, true);
       Assert.assertTrue("found subject: " + id, true);
       Assert.assertNotNull("subj !null", subj);
       Assert.assertTrue(
@@ -274,7 +274,7 @@ public class TestInternalSourceAdapter extends TestCase {
     LOG.info("testGrouperAllAttributes");
     String id = SubjectTestHelper.SUBJ_ALL;
     try { 
-      Subject subj  = sa.getSubject(id);
+      Subject subj  = sa.getSubject(id, true);
       Map     attrs = subj.getAttributes();
       Assert.assertTrue("zero attrs", attrs.size() == 1);
       String  val   = subj.getAttributeValue("foo");

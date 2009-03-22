@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderResultset.java,v 1.6 2009-03-15 06:37:24 mchyzer Exp $
+ * $Id: GrouperLoaderResultset.java,v 1.7 2009-03-22 05:41:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
@@ -213,7 +213,7 @@ public class GrouperLoaderResultset {
       subjectSourceId = StringUtils.defaultString(subjectSourceId, defaultSubjectSourceId);
       try {
         if (!StringUtils.isBlank(subjectSourceId)) {
-          this.subject = SubjectFinder.getSource(subjectSourceId).getSubject(subjectId);
+          this.subject = SubjectFinder.getSource(subjectSourceId).getSubject(subjectId, true);
         } else {
           this.subject = SubjectFinder.findById(subjectId, true);
         }

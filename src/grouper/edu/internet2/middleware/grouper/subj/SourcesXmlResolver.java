@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * Wrapper around Subject sources configured in <code>sources.xml</code>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SourcesXmlResolver.java,v 1.9 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: SourcesXmlResolver.java,v 1.10 2009-03-22 05:41:00 mchyzer Exp $
  * @since   1.2.1
  */
 public class SourcesXmlResolver implements SubjectResolver {
@@ -88,7 +88,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     List<Subject> subjects = new ArrayList();
     for ( Source sa : this.getSources() ) {
       try {
-        subjects.add( sa.getSubject(id) );
+        subjects.add( sa.getSubject(id, true) );
       }
       catch (SubjectNotFoundException eSNF) {
         // ignore.  subject might be in another source.
@@ -109,7 +109,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     List<Subject> subjects = new ArrayList();
     for ( Source sa : this.getSources(type) ) {
       try {
-        subjects.add( sa.getSubject(id) );
+        subjects.add( sa.getSubject(id, true) );
       }
       catch (SubjectNotFoundException eSNF) {
         // ignore.  subject might be in another source.
@@ -128,7 +128,7 @@ public class SourcesXmlResolver implements SubjectResolver {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = this.getSource(source).getSubject(id);
+    Subject subj = this.getSource(source).getSubject(id, true);
     if ( type.equals( subj.getType().getName() ) ) {
       return subj;
     }
@@ -172,7 +172,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     List<Subject> subjects = new ArrayList();
     for ( Source sa : this.getSources() ) {
       try {
-        subjects.add( sa.getSubjectByIdentifier(id) );
+        subjects.add( sa.getSubjectByIdentifier(id, true) );
       }
       catch (SubjectNotFoundException eSNF) {
         // ignore.  subject might be in another source.
@@ -193,7 +193,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     List<Subject> subjects = new ArrayList();
     for ( Source sa : this.getSources(type) ) {
       try {
-        subjects.add( sa.getSubjectByIdentifier(id) );
+        subjects.add( sa.getSubjectByIdentifier(id, true) );
       }
       catch (SubjectNotFoundException eSNF) {
         // ignore.  subject might be in another source.
@@ -212,7 +212,7 @@ public class SourcesXmlResolver implements SubjectResolver {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = this.getSource(source).getSubjectByIdentifier(id);
+    Subject subj = this.getSource(source).getSubjectByIdentifier(id, true);
     if ( type.equals( subj.getType().getName() ) ) {
       return subj;
     }

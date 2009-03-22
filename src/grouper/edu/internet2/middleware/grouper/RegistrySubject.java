@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * <p/>
  * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubject.java,v 1.17 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: RegistrySubject.java,v 1.18 2009-03-22 05:41:01 mchyzer Exp $
  * @since   1.2.0
  */
 public class RegistrySubject extends GrouperAPI implements Subject {
@@ -154,14 +154,14 @@ public class RegistrySubject extends GrouperAPI implements Subject {
   }
   
   /** attributes */
-  private Map<String, String> attributes = new HashMap<String, String>();
+  private Map<String, Set<String>> attributes = new HashMap<String, Set<String>>();
   
   /**
    * Return the subject's attribute.
    * @return  the map
    * @since   1.2.0
    */
-  public Map<String, String> getAttributes() {
+  public Map<String, Set<String>> getAttributes() {
     return this.attributes;
   } // public Map getAttributes()
 
@@ -172,7 +172,8 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    * @since   1.2.0
    */
   public String getAttributeValue(String name) {
-    return this.attributes.get(name);
+    Set<String> set = this.attributes.get(name);
+    return set == null ? null : set.iterator().next();
   } // public String getAttributevalue(name)
 
   /**
@@ -182,8 +183,8 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    * @since   1.2.0
    */
   public Set<String> getAttributeValues(String name) {
-    return new HashSet<String>(this.attributes.values());
-  } // public Set getAttributeValues(name)
+    return this.attributes.get(name);
+  }
 
   /**
    * Return this subject's description.
