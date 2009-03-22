@@ -82,7 +82,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.57 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: GrouperHelper.java,v 1.58 2009-03-22 05:40:57 mchyzer Exp $
  */
 
 
@@ -795,7 +795,7 @@ public class GrouperHelper {
 				subject = (Subject)listItem;
 			}else if(listItem instanceof Group) {
 				
-				Subject subj = SubjectFinder.findById(asMemberOf);
+				Subject subj = SubjectFinder.findById(asMemberOf, true);
 				Map gSubjMap = subject2Map(subj);
 				Map gMap = group2Map(s,(Group)listItem);
 				gSubjMap.put("memberOfGroup",gMap);
@@ -804,7 +804,7 @@ public class GrouperHelper {
 				continue;
 			}else if(listItem instanceof Stem) {
 				
-				Subject subj = SubjectFinder.findById(asMemberOf);
+				Subject subj = SubjectFinder.findById(asMemberOf, true);
 				Map sSubjMap = subject2Map(subj);
 				Map sMap = stem2Map(s,(Stem)listItem);
 				sSubjMap.put("memberOfGroup",sMap);

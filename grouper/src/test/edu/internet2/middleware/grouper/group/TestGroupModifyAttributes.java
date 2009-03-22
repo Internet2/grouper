@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupModifyAttributes.java,v 1.2 2009-03-21 13:35:50 mchyzer Exp $
+ * @version $Id: TestGroupModifyAttributes.java,v 1.3 2009-03-22 05:41:01 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroupModifyAttributes extends GrouperTest {
@@ -335,7 +335,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
       
 
       gB.grantPriv(subjA, AccessPrivilege.ADMIN);
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );

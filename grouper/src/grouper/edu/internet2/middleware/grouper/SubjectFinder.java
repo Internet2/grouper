@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.42 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: SubjectFinder.java,v 1.43 2009-03-22 05:41:01 mchyzer Exp $
  */
 public class SubjectFinder {
 
@@ -116,6 +116,7 @@ public class SubjectFinder {
    * }
    *  </pre>
    * @param   id      Subject ID
+   * @param exceptionIfNull 
    * @return  A {@link Subject} object
    * @throws SubjectNotFoundException
    * @throws SubjectNotUniqueException
@@ -478,6 +479,7 @@ public class SubjectFinder {
    *  </pre>
    * @param   id      Subject ID
    * @param   type    Subject type.
+   * @param exceptionIfNull 
    * @return  A {@link Subject} object
    * @throws SubjectNotFoundException
    * @throws SubjectNotUniqueException
@@ -512,6 +514,7 @@ public class SubjectFinder {
    * @param   id      Subject ID
    * @param   type    Subject type.
    * @param   source  Subject source.
+   * @param exceptionIfNull 
    * @return  Matching subject.
    * @throws  SourceUnavailableException
    * @throws  SubjectNotFoundException
@@ -545,6 +548,7 @@ public class SubjectFinder {
    * }
    *  </pre>
    * @param   id      Subject identifier.
+   * @param exceptionIfNotFound 
    * @return  A {@link Subject} object
    * @throws SubjectNotFoundException
    * @throws SubjectNotUniqueException
@@ -578,6 +582,7 @@ public class SubjectFinder {
    *  </pre>
    * @param   id      Subject identifier.
    * @param   type    Subject type.
+   * @param exceptionIfNull 
    * @return  A {@link Subject} object
    * @throws  SubjectNotFoundException
    * @throws  SubjectNotUniqueException
@@ -613,6 +618,7 @@ public class SubjectFinder {
    * @param   id      Well-known identifier.
    * @param   type    Subject type.
    * @param   source  {@link Source} adapter to search.
+   * @param exceptionIfNull 
    * @return  A {@link Subject} object
    * @throws  SourceUnavailableException
    * @throws  SubjectNotFoundException

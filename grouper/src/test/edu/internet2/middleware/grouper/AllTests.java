@@ -52,7 +52,7 @@ import edu.internet2.middleware.ldappcTest.AllLdappcJunitTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: AllTests.java,v 1.2 2009-03-21 19:48:50 mchyzer Exp $
+ * @version $Id: AllTests.java,v 1.3 2009-03-22 05:41:01 mchyzer Exp $
  */
 public class AllTests extends GrouperTest {
 
@@ -66,6 +66,9 @@ public class AllTests extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
+    
+    GrouperTest.testing = true;
+    
     Test test = null;
     boolean noPrompt = false;
 

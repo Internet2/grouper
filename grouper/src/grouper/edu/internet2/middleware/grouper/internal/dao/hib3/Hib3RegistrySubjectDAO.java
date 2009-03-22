@@ -28,7 +28,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 /**
  * Basic Hibernate <code>RegistrySubject</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3RegistrySubjectDAO.java,v 1.6 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: Hib3RegistrySubjectDAO.java,v 1.7 2009-03-22 05:41:01 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDAO {
@@ -43,7 +43,7 @@ public class Hib3RegistrySubjectDAO extends Hib3DAO implements RegistrySubjectDA
     for (String key : _subj.getAttributes().keySet()) {
       RegistrySubjectAttribute registrySubjectAttribute = new RegistrySubjectAttribute();
       registrySubjectAttribute.setName(key);
-      String value = _subj.getAttributes().get(key);
+      String value = _subj.getAttributeValue(key);
       registrySubjectAttribute.setValue(value);
       registrySubjectAttribute.setSearchValue(value == null ? null : value.toLowerCase());
       registrySubjectAttribute.setSubjectId(_subj.getId());

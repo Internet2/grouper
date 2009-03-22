@@ -45,7 +45,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.4 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: GrouperSubject.java,v 1.5 2009-03-22 05:41:00 mchyzer Exp $
  */
 public class GrouperSubject implements Subject {
   
@@ -190,7 +190,7 @@ public class GrouperSubject implements Subject {
   /** */
   private GrouperSourceAdapter  adapter = null;
   /** */
-  private GrouperSubjectAttributeMap<String, String>   attrs   = new GrouperSubjectAttributeMap<String, String>();
+  private GrouperSubjectAttributeMap<String, Set<String>>   attrs   = new GrouperSubjectAttributeMap<String, Set<String>>();
   /** */
   private String                id      = null;
   /** */
@@ -230,13 +230,13 @@ public class GrouperSubject implements Subject {
     this.name     = g.getName();
     this.adapter  = (GrouperSourceAdapter) SubjectFinder.internal_getGSA();
 
-    this.attrs.put( "name",   g.getName(), false);
-    this.attrs.put( "displayName",   g.getDisplayName(), false);
-    this.attrs.put( "extension",   g.getExtension(), false);
-    this.attrs.put( "displayExtension",   g.getDisplayExtension(), false );
-    this.attrs.put( "description",   g.getDescription(), false);
-    this.attrs.put( "modifyTime",        g.getModifyTime().toString(), false ); 
-    this.attrs.put( "createTime",        g.getCreateTime().toString(), false ); 
+    this.attrs.put( "name",   GrouperUtil.toSet(g.getName()), false);
+    this.attrs.put( "displayName",   GrouperUtil.toSet(g.getDisplayName()), false);
+    this.attrs.put( "extension",   GrouperUtil.toSet(g.getExtension()), false);
+    this.attrs.put( "displayExtension",   GrouperUtil.toSet(g.getDisplayExtension()), false );
+    this.attrs.put( "description",   GrouperUtil.toSet(g.getDescription()), false);
+    this.attrs.put( "modifyTime",        GrouperUtil.toSet(g.getModifyTime().toString()), false ); 
+    this.attrs.put( "createTime",        GrouperUtil.toSet(g.getCreateTime().toString()), false ); 
 
   }
 
@@ -253,7 +253,7 @@ public class GrouperSubject implements Subject {
    * 
    * @see edu.internet2.middleware.subject.Subject#getAttributes()
    */
-  public Map getAttributes() {
+  public Map<String, Set<String>> getAttributes() {
     return this.attrs;
   }
 
@@ -263,7 +263,8 @@ public class GrouperSubject implements Subject {
    */
   public String getAttributeValue(String name) {
     if ( this.attrs.containsKey(name) ) {
-      return this.attrs.get(name);
+      Set<String> values = this.attrs.get(name);
+      return values == null ? null : this.attrs.get(name).iterator().next();
     }
     return GrouperConfig.EMPTY_STRING;
   }
@@ -358,8 +359,8 @@ public class GrouperSubject implements Subject {
       // Don't bother with any of the create* attrs unless we can find
       // the creating subject
       Subject creator = g.getCreateSubject();
-      this.attrs.put( "createSubjectId",   creator.getId(), false);
-      this.attrs.put( "createSubjectType", creator.getType().getName(), false);
+      this.attrs.put( "createSubjectId",   GrouperUtil.toSet(creator.getId()), false);
+      this.attrs.put( "createSubjectType", GrouperUtil.toSet(creator.getType().getName()), false);
     }
     catch (SubjectNotFoundException eSNF0) {
       LOG.error(E.GSUBJ_NOCREATOR + eSNF0.getMessage());
@@ -368,8 +369,8 @@ public class GrouperSubject implements Subject {
       // Don't bother with any of the modify* attrs unless we can find
       // the modifying subject
       Subject modifier = g.getModifySubject();
-      this.attrs.put( "modifySubjectId",   modifier.getId(), false);
-      this.attrs.put( "modifySubjectType", modifier.getType().getName(), false);
+      this.attrs.put( "modifySubjectId",   GrouperUtil.toSet(modifier.getId()), false);
+      this.attrs.put( "modifySubjectType", GrouperUtil.toSet(modifier.getType().getName()), false);
     }
     catch (SubjectNotFoundException eSNF1) {
       // No modifier
@@ -399,7 +400,7 @@ public class GrouperSubject implements Subject {
     int count=0;
     while (it.hasNext()) {
       kv = (Map.Entry<String,String>) it.next();
-      this.attrs.put( kv.getKey(), kv.getValue(), false );
+      this.attrs.put( kv.getKey(), GrouperUtil.toSet(kv.getValue()), false );
       count++;
     }
     this.loadedGroupAttributes = true;

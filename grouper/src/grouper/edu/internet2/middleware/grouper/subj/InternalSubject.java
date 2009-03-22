@@ -27,6 +27,7 @@ import java.util.Set;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
@@ -36,14 +37,14 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * Internal <i>Subject</i> returned by an {@link InternalSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: InternalSubject.java,v 1.3 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: InternalSubject.java,v 1.4 2009-03-22 05:41:00 mchyzer Exp $
  */
 public class InternalSubject implements Subject {
 
   // Private Instance Variables
 
   private Source      adapter = new InternalSourceAdapter();
-  private Map         attrs   = new HashMap();
+  private Map<String, Set<String>>         attrs   = new HashMap<String, Set<String>>();
   private String      desc    = GrouperConfig.EMPTY_STRING;
   private String      id      = GrouperConfig.EMPTY_STRING;
   private String      name    = GrouperConfig.EMPTY_STRING;
@@ -61,11 +62,7 @@ public class InternalSubject implements Subject {
     this.desc     = name;
     this.id       = id;
     this.name     = name;
-    Map values = new HashMap();
-    Set set = new HashSet();
-    set.add(name);
-    values.put("v", set);
-    attrs.put("name", values);
+    attrs.put("name", GrouperUtil.toSet(name));
   } // protected InternalSubject(id, name, adapter)
 
 
@@ -83,15 +80,8 @@ public class InternalSubject implements Subject {
    * </pre>
    * @return  Map of subject attributes.
    */
-  public Map getAttributes() {
-    Map       attrs = new HashMap();
-    String    name;
-    Iterator  iter  = this.attrs.keySet().iterator();
-    while (iter.hasNext()) {
-      name = (String) iter.next();
-      attrs.put( name, this.getAttributeValue(name) );
-    }
-    return attrs;
+  public Map<String, Set<String>> getAttributes() {
+    return this.attrs;
   } // public Map getAttributes()
 
   /**
@@ -106,13 +96,8 @@ public class InternalSubject implements Subject {
    */
   public String getAttributeValue(String name) {
     if (this.attrs.containsKey(name)) {
-      Map       attr  = (Map) this.attrs.get(name);
-      Iterator  iter  = ( (Set) attr.get("v") ).iterator(); 
-      // There may be more than one value but we don't care - return
-      // the first one
-      while (iter.hasNext()) {
-        return (String) iter.next();
-      }  
+      Set<String> set = this.attrs.get(name);
+      return set.iterator().next();
     }
     return GrouperConfig.EMPTY_STRING;
   } // public String getAttributeValue(name)
@@ -127,10 +112,9 @@ public class InternalSubject implements Subject {
    * @param   name  Retrieve values of this attribute.
    * @return  Set of attribute values.
    */
-  public Set getAttributeValues(String name) {
+  public Set<String> getAttributeValues(String name) {
     if (this.attrs.containsKey(name)) {
-      Map attr = (Map) this.attrs.get(name);
-      return (Set) attr.get("v");
+      this.attrs.get(name);
     }
     return new LinkedHashSet();
   } // public Set getAttributeValues(name)
@@ -198,6 +182,7 @@ public class InternalSubject implements Subject {
 
   /**
    * Return a string representation of the object.
+   * @return string
    */
   public String toString() {
     return new ToStringBuilder(this)

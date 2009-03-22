@@ -12,7 +12,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
  * Use this class to copy a group to another stem.
  * 
  * @author shilen
- * $Id: GroupCopy.java,v 1.1 2009-03-15 23:13:50 shilen Exp $
+ * $Id: GroupCopy.java,v 1.2 2009-03-22 05:41:01 mchyzer Exp $
  */
 public class GroupCopy {
 
@@ -102,13 +102,7 @@ public class GroupCopy {
 
     GrouperSession.validate(GrouperSession.staticGrouperSession());
 
-    // verify that the subject has read privileges to the group
-    if (!PrivilegeHelper.canRead(GrouperSession.staticGrouperSession(), group,
-        GrouperSession.staticGrouperSession().getSubject())) {
-      throw new InsufficientPrivilegeException(E.CANNOT_READ);
-    }
-
     return group.internal_copy(stem, privilegesOfGroup, groupAsPrivilege,
-        listMembersOfGroup, listGroupAsMember, attributes, true, true);
+        listMembersOfGroup, listGroupAsMember, attributes, true, true, true);
   }
 }

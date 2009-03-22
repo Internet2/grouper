@@ -97,7 +97,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.187 2009-03-16 23:22:52 shilen Exp $
+ * @version $Id: Stem.java,v 1.188 2009-03-22 05:41:01 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -2635,7 +2635,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
                 .findAllChildGroups(Stem.this, Stem.Scope.SUB)) {
               Group newChild = child.internal_copy(oldStemUuidToNewStem.get(child
                   .getParentUuid()), privilegesOfGroup, groupAsPrivilege,
-                  listMembersOfGroup, listGroupAsMember, attributes, false, false);
+                  listMembersOfGroup, listGroupAsMember, attributes, false, false, false);
               oldGroupUuidToNewGroup.put(child.getUuid(), newChild);
               
               Composite oldComposite = GrouperDAOFactory.getFactory().getComposite()

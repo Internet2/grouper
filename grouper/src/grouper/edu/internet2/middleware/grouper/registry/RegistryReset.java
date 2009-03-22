@@ -16,6 +16,8 @@
 */
 
 package edu.internet2.middleware.grouper.registry;
+import java.util.HashSet;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -39,7 +41,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * know what you are doing.  It <strong>will</strong> delete data.
  * </p>
  * @author  blair christensen.
- * @version $Id: RegistryReset.java,v 1.9 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: RegistryReset.java,v 1.10 2009-03-22 05:41:01 mchyzer Exp $
  */
 public class RegistryReset {
 
@@ -161,9 +163,9 @@ public class RegistryReset {
       registrySubject.setName(name);
       registrySubject.setTypeString(SUBJ_TYPE);
       
-      registrySubject.getAttributes().put("name", "name." + id);
-      registrySubject.getAttributes().put("loginid", "id." + id);
-      registrySubject.getAttributes().put("description", "description." + id);
+      registrySubject.getAttributes().put("name", GrouperUtil.toSet("name." + id));
+      registrySubject.getAttributes().put("loginid", GrouperUtil.toSet("id." + id));
+      registrySubject.getAttributes().put("description", GrouperUtil.toSet("description." + id));
       
       GrouperDAOFactory.getFactory().getRegistrySubject().create(registrySubject);
     }

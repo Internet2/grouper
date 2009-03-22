@@ -55,7 +55,7 @@ public class TestWebappSources {
 			source = (Source)it.next();
 			System.out.println("Attempting to load GrouperSystem from " + source.getId());
 			try {
-				subj = source.getSubject("GrouperSystem");
+				subj = source.getSubject("GrouperSystem", true);
 				System.out.println("...found GrouperSystem");
 			}catch(Exception e) {
 				System.out.println("..." +e.getClass().getName() + ":" + e.getMessage());

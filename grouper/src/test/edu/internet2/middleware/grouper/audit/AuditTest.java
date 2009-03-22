@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTest.java,v 1.14 2009-03-20 19:56:41 mchyzer Exp $
+ * $Id: AuditTest.java,v 1.15 2009-03-22 05:41:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -788,7 +789,6 @@ public class AuditTest extends GrouperTest {
     assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry3.getContextId()));
     
     assertTrue("description is blank", StringUtils.isNotBlank(auditEntry3.getDescription()));
-    
-    
   }
+
 }

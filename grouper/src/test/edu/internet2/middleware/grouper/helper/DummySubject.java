@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: DummySubject.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * $Id: DummySubject.java,v 1.2 2009-03-22 05:41:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.helper;
 
@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
@@ -46,9 +47,9 @@ public class DummySubject implements Subject {
   /**
    * @see edu.internet2.middleware.subject.Subject#getAttributeValues(java.lang.String)
    */
-  public Set getAttributeValues(String arg0) {
+  public Set<String> getAttributeValues(String arg0) {
     
-    Set results =new HashSet();
+    Set<String> results =new HashSet<String>();
     results.add(this.subjectId);
     return results;
   }
@@ -56,11 +57,11 @@ public class DummySubject implements Subject {
   /**
    * @see edu.internet2.middleware.subject.Subject#getAttributes()
    */
-  public Map getAttributes() {
-    Map map = new  HashMap();
-    map.put("loginid", this.subjectId);
-    map.put("name", this.subjectId);
-    map.put("description", this.subjectId);
+  public Map<String, Set<String>> getAttributes() {
+    Map<String, Set<String>> map = new  HashMap<String, Set<String>>();
+    map.put("loginid", GrouperUtil.toSet(this.subjectId));
+    map.put("name", GrouperUtil.toSet(this.subjectId));
+    map.put("description", GrouperUtil.toSet(this.subjectId));
     return map;
   }
 

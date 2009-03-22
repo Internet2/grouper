@@ -40,7 +40,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.19 2009-03-04 10:48:57 isgwb Exp $
+ * @version $Id: SessionInitialiser.java,v 1.20 2009-03-22 05:40:57 mchyzer Exp $
  */
 
 public class SessionInitialiser {
@@ -258,7 +258,7 @@ public class SessionInitialiser {
 				try {
 					attemptedDebuggers=true;
 					GrouperSession root = GrouperSession.startRootSession();
-					debuggers=GroupFinder.findByName(root, debugGroup);
+					debuggers=GroupFinder.findByName(root, debugGroup, true);
 				}catch(Exception e) {
 					LOG.error("debug.group:" + debugGroup + " does not exist",e);
 				}
