@@ -1,6 +1,6 @@
 /*--
-$Id: NullSourceAdapter.java,v 1.3 2008-10-13 09:10:28 mchyzer Exp $
-$Date: 2008-10-13 09:10:28 $
+$Id: NullSourceAdapter.java,v 1.4 2009-03-22 02:49:26 mchyzer Exp $
+$Date: 2009-03-22 02:49:26 $
 
 Copyright (C) 2006 Internet2 and The University Of Chicago.  
 All Rights Reserved.
@@ -9,27 +9,30 @@ See doc/license.txt in this distribution.
 package edu.internet2.middleware.subject.provider;
 
 import edu.internet2.middleware.subject.*;
+
 import java.util.*;
 import org.apache.commons.logging.*;
 
 /**
  * Null {@link Source} which will never return any {@link Subject}s.
  * @author  blair christensen.
- * @version $Id: NullSourceAdapter.java,v 1.3 2008-10-13 09:10:28 mchyzer Exp $
+ * @version $Id: NullSourceAdapter.java,v 1.4 2009-03-22 02:49:26 mchyzer Exp $
  */
 public class NullSourceAdapter extends BaseSourceAdapter {
 
-  // Private Class Constants //
-  private static final Log LOG    = LogFactory.getLog(NullSourceAdapter.class);
-  private static final Set TYPES  = new HashSet();
+  /** */
+  @SuppressWarnings("unused")
+  private static final Log LOG = LogFactory.getLog(NullSourceAdapter.class);
+
+  /** */
+  private static final Set<SubjectType> TYPES = new HashSet<SubjectType>();
 
   static {
-    TYPES.add( SubjectTypeEnum.valueOf( "application" ) );
-    TYPES.add( SubjectTypeEnum.valueOf( "group"       ) );
-    TYPES.add( SubjectTypeEnum.valueOf( "person"      ) );
+    TYPES.add(SubjectTypeEnum.valueOf("application"));
+    TYPES.add(SubjectTypeEnum.valueOf("group"));
+    TYPES.add(SubjectTypeEnum.valueOf("person"));
   } // static
 
-	
   // Constructors //	
 
   /**
@@ -38,59 +41,66 @@ public class NullSourceAdapter extends BaseSourceAdapter {
   public NullSourceAdapter() {
     super();
   } // public NullSourceAdapter()
-	
+
   /**
    * Allocates new {@link NullSourceAdapter}.
-   * @param id    The source id for the new adapter.
-   * @param name  The source name for the new adapter.
+   * @param id1    The source id for the new adapter.
+   * @param name1  The source name for the new adapter.
    */
-  public NullSourceAdapter(String id, String name) {
-    super(id, name);
+  public NullSourceAdapter(String id1, String name1) {
+    super(id1, name1);
   } // public NullSourceAdapter(id, name)
 
-
-  // Public Instance Methods //
-
   /**
-   * {@inheritDoc}
+   * 
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSubject(java.lang.String, boolean)
    */
-  public Subject getSubject(String id)
-    throws SubjectNotFoundException 
-  {
-    throw new SubjectNotFoundException("Subject " + id + " not found.");
-  } // public Subject getSubject(id)
+  @Override
+  public Subject getSubject(String id1, boolean exceptionIfNull) throws SubjectNotFoundException {
+    if (exceptionIfNull) {
+      throw new SubjectNotFoundException("Subject " + id1 + " not found.");
+    }
+    return null;
+  }
 
   /**
-   * {@inheritDoc}
+   * 
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSubjectByIdentifier(java.lang.String, boolean)
    */
-  public Subject getSubjectByIdentifier(String id)
-    throws SubjectNotFoundException 
-  {
-    throw new SubjectNotFoundException("Subject " + id + " not found.");
-  } // public Subject getSubjectByIdentifier(id)
+  @Override
+  public Subject getSubjectByIdentifier(String id1, boolean exceptionIfNull) throws SubjectNotFoundException {
+    if (exceptionIfNull) {
+      throw new SubjectNotFoundException("Subject " + id1 + " not found.");
+    }
+    return null;
+  }
 
   /**
-   * {@inheritDoc}
-   */	
-  public Set getSubjectTypes() {
+   * 
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSubjectTypes()
+   */
+  @Override
+  public Set<SubjectType> getSubjectTypes() {
     return TYPES;
-  } // public Set getSubjectTypes()
+  }
 
   /**
-   * {@inheritDoc}
+   * 
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#init()
    */
-  public void init()
-    throws SourceUnavailableException 
-  {
+  @Override
+  public void init() throws SourceUnavailableException {
     // Nothing
-  } // public void init()
+  }
 
   /**
-   * {@inheritDoc}
+   * 
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#search(java.lang.String)
    */
-  public Set search(String searchValue) {
-    return new HashSet();
-  } // public Set search()
+  @Override
+  public Set<Subject> search(String searchValue) {
+    return new HashSet<Subject>();
+  }
 
   /**
    * @see edu.internet2.middleware.subject.Source#checkConfig()
@@ -106,5 +116,26 @@ public class NullSourceAdapter extends BaseSourceAdapter {
     return message;
   }
 
-}
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSubject(java.lang.String)
+   * @deprecated
+   */
+  @Deprecated
+  @Override
+  public Subject getSubject(String id1) throws SubjectNotFoundException,
+      SubjectNotUniqueException {
+    return this.getSubject(id1, true);
+  }
 
+  /**
+   * @see edu.internet2.middleware.subject.provider.BaseSourceAdapter#getSubjectByIdentifier(java.lang.String)
+   * @deprecated
+   */
+  @Deprecated
+  @Override
+  public Subject getSubjectByIdentifier(String id1) throws SubjectNotFoundException,
+      SubjectNotUniqueException {
+    return this.getSubjectByIdentifier(id1, true);
+  }
+
+}

@@ -40,26 +40,65 @@ public interface Source {
 	
 	/**
 	 * Gets a Subject by its ID.
+	 * @param id 
+	 * @return  subject
+	 * @throws SubjectNotFoundException 
+	 * @throws SubjectNotUniqueException 
+	 * @deprecated use the overload instead
 	 */
+	@Deprecated
 	public Subject getSubject(String id)
 		throws SubjectNotFoundException,SubjectNotUniqueException;
 
 	/**
 	 * Gets a Subject by other well-known identifiers, aside
 	 * from the subject ID, for example, login ID.
+	 * @param id 
+	 * @return subject
+	 * @throws SubjectNotFoundException 
+	 * @throws SubjectNotUniqueException 
+	 * @deprecated use the overload instead
 	 */
+	@Deprecated
 	public Subject getSubjectByIdentifier(String id)
+		throws SubjectNotFoundException,SubjectNotUniqueException;
+	
+	/**
+	 * Gets a Subject by its ID.
+	 * @param id 
+	 * @param exceptionIfNull if SubjectNotFoundException should be 
+	 * throws if the subject is null, or if null should be returned
+	 * @return subject
+	 * @throws SubjectNotFoundException 
+	 * @throws SubjectNotUniqueException 
+	 */
+	public Subject getSubject(String id, boolean exceptionIfNull)
+		throws SubjectNotFoundException,SubjectNotUniqueException;
+
+	/**
+	 * Gets a Subject by other well-known identifiers, aside
+	 * from the subject ID, for example, login ID.
+	 * @param id 
+	 * @param exceptionIfNull 
+	 * @return subject
+	 * @throws SubjectNotFoundException 
+	 * @throws SubjectNotUniqueException 
+	 */
+	public Subject getSubjectByIdentifier(String id, boolean exceptionIfNull)
 		throws SubjectNotFoundException,SubjectNotUniqueException;
 	
 	/**
 	 * Unstructured search for Subjects. Each implementation
 	 * utilizes its own search algorithm tailored to
 	 * the Subject repository and schema.
+	 * @param searchValue 
+	 * @return set
 	 */
 	public Set<Subject> search(String searchValue);
 	
 	/**
 	 * Called by SourceManager when it loads this source.
+	 * @throws SourceUnavailableException 
 	 */
 	public void init()
 		throws SourceUnavailableException;

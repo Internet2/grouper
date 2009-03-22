@@ -13,8 +13,13 @@ import junit.framework.*;
  */
 public class SourceManagerTests extends TestCase {
 
+  /** */
 	private SourceManager mgr;
 	
+	/**
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		junit.textui.TestRunner.run(SourceManagerTests.class);
 	}
@@ -29,7 +34,8 @@ public class SourceManagerTests extends TestCase {
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
-	protected void setUp() throws Exception {
+	@Override
+  protected void setUp() throws Exception {
 		super.setUp();
 		this.mgr = SourceManager.getInstance();
 	}
@@ -57,15 +63,15 @@ public class SourceManagerTests extends TestCase {
     // requirements that might vary **widely** depending upon the
     // circumstances it seems easier to test with **no** configured
     // adapters. 
-    Collection people = mgr.getSources(SubjectTypeEnum.valueOf("person"));
+    Collection people = this.mgr.getSources(SubjectTypeEnum.valueOf("person"));
     Assert.assertNotNull("people !null", people);
     Assert.assertEquals("Person sources == 0", 0, people.size());
 		
-    Collection groups = mgr.getSources(SubjectTypeEnum.valueOf("group"));
+    Collection groups = this.mgr.getSources(SubjectTypeEnum.valueOf("group"));
     Assert.assertNotNull("groups !null", groups);
     Assert.assertEquals("Group sources == 0", 0, groups.size());
 
-    Collection apps   = mgr.getSources(SubjectTypeEnum.valueOf("application"));
+    Collection apps   = this.mgr.getSources(SubjectTypeEnum.valueOf("application"));
     Assert.assertNotNull("apps !null", apps);
     Assert.assertEquals("Application sources == 0", 0, apps.size());
   } // public void testGetSourcesByType()
@@ -75,24 +81,24 @@ public class SourceManagerTests extends TestCase {
    */
   public void testAddNullSourceAdapterAndGetSourcesByType() {
     // Verify we have nothing
-    Assert.assertEquals("sources == 0", 0, mgr.getSources().size());
+    Assert.assertEquals("sources == 0", 0, this.mgr.getSources().size());
 
     // Add the NullSourceAdapter 
     NullSourceAdapter nsa = new NullSourceAdapter("nsa", "null source adapter");
     Assert.assertNotNull("nsa !null", nsa);
-    mgr.loadSource(nsa);
-    Assert.assertEquals("sources == 1", 1, mgr.getSources().size());
+    this.mgr.loadSource(nsa);
+    Assert.assertEquals("sources == 1", 1, this.mgr.getSources().size());
 
     // Now verify that we have an adapter for each type
-    Collection people = mgr.getSources(SubjectTypeEnum.valueOf("person"));
+    Collection people = this.mgr.getSources(SubjectTypeEnum.valueOf("person"));
     Assert.assertNotNull("people !null", people);
     Assert.assertEquals("Person sources == 1", 1, people.size());
 		
-    Collection groups = mgr.getSources(SubjectTypeEnum.valueOf("group"));
+    Collection groups = this.mgr.getSources(SubjectTypeEnum.valueOf("group"));
     Assert.assertNotNull("groups !null", groups);
     Assert.assertEquals("Group sources == 1", 1, groups.size());
 
-    Collection apps   = mgr.getSources(SubjectTypeEnum.valueOf("application"));
+    Collection apps   = this.mgr.getSources(SubjectTypeEnum.valueOf("application"));
     Assert.assertNotNull("apps !null", apps);
     Assert.assertEquals("Application sources == 1", 1, apps.size());
   } // public void testAddNullSourceAdapterAndGetSourcesByType() {

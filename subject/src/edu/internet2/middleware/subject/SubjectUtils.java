@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SubjectUtils.java,v 1.4 2008-10-13 09:10:28 mchyzer Exp $
+ * $Id: SubjectUtils.java,v 1.5 2009-03-22 02:49:27 mchyzer Exp $
  */
 package edu.internet2.middleware.subject;
 
@@ -214,7 +214,7 @@ public class SubjectUtils {
       Object dataToAssign, boolean overrideSecurity, boolean typeCast) {
   
     try {
-      Class fieldType = field.getType();
+      Class<?> fieldType = field.getType();
       // typecast
       if (typeCast) {
         dataToAssign = 
@@ -1201,6 +1201,7 @@ public class SubjectUtils {
    * need to abbreviate when back
    * @param result is where to append to
    */
+  @SuppressWarnings("unchecked")
   private static void toStringForLogHelper(Object object, int maxChars, StringBuilder result) {
     
     try {

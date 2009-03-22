@@ -9,6 +9,7 @@ public abstract class SubjectType {
 
 	/**
 	 * Returns the name of this SubjectType.
+	 * @return name
 	 *
 	 */
 	public abstract String getName();

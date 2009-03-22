@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSubject.java,v 1.4 2006-11-21 18:51:29 ddonn Exp $
-$Date: 2006-11-21 18:51:29 $
+$Id: JDBCSubject.java,v 1.5 2009-03-22 02:49:27 mchyzer Exp $
+$Date: 2009-03-22 02:49:27 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -18,139 +18,152 @@ import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
 
-
 /**
  * JDBC Subject implementation.
  */
-public class JDBCSubject
-        implements Subject {
-    
-    
-    private static Log log = LogFactory.getLog(JDBCSubject.class);
-    
-    protected JDBCSourceAdapter adapter;
-    
-    protected String id;
-    protected String name;
-    protected String description;
-    protected SubjectType type;
-    protected Map attributes;
-    
-    /** Public default constructor. It allows subclassing of JDBCSubject! */
-    public JDBCSubject()
-    {
-    	id = null;
-    	name = null;
-    	description = null;
-    	type = null;
-    	attributes = null;
-    }
+public class JDBCSubject implements Subject {
 
-        /*
-         * Constructor called by SourceManager.
-         */
-    public JDBCSubject(String id, String name, String description,
-            SubjectType type, JDBCSourceAdapter adapter) {
-        log.debug("Name = "  + name);
-        this.id = id;
-        this.name = name;
-        this.type = type;
-        this.description =description;
-        this.adapter = adapter;
-    }
-    
+  /** */
+  private static Log log = LogFactory.getLog(JDBCSubject.class);
 
-    /**
-     * Constructor that takes the subject's attributes. Needed because the
-     * setAttributes() method is protected.
-     * @param id The subject ID
-     * @param name The subject name
-     * @param description The subject description
-     * @param type The subject type
-     * @param adapter The SourceAdapter
-     * @param attributes The subject attributes
-     */
-    public JDBCSubject(String id, String name, String description,
-            SubjectType type, JDBCSourceAdapter adapter,
-            Map attributes)
-    {
-    	this(id, name, description, type, adapter);
-        setAttributes(attributes);
+  /** */
+  protected JDBCSourceAdapter adapter;
+
+  /** */
+  protected String id;
+
+  /** */
+  protected String name;
+
+  /** */
+  protected String description;
+
+  /** */
+  protected SubjectType type;
+
+  /** */
+  protected Map<String, Set<String>> attributes;
+
+  /** Public default constructor. It allows subclassing of JDBCSubject! */
+  public JDBCSubject() {
+    this.id = null;
+    this.name = null;
+    this.description = null;
+    this.type = null;
+    this.attributes = null;
+  }
+
+  /**
+   * Constructor called by SourceManager.
+   * @param id1 
+   * @param name1 
+   * @param description1 
+   * @param type1 
+   * @param adapter1 
+   */
+  public JDBCSubject(String id1, String name1, String description1, SubjectType type1,
+      JDBCSourceAdapter adapter1) {
+    log.debug("Name = " + name1);
+    this.id = id1;
+    this.name = name1;
+    this.type = type1;
+    this.description = description1;
+    this.adapter = adapter1;
+
+  }
+
+  /**
+   * Constructor that takes the subject's attributes. Needed because the
+   * setAttributes() method is protected.
+   * @param id1 The subject ID
+   * @param name1 The subject name
+   * @param description1 The subject description
+   * @param type1 The subject type
+   * @param adapter1 The SourceAdapter
+   * @param attributes1 The subject attributes
+   */
+  public JDBCSubject(String id1, String name1, String description1, SubjectType type1,
+      JDBCSourceAdapter adapter1, Map<String, Set<String>> attributes1) {
+    this(id1, name1, description1, type1, adapter1);
+    setAttributes(attributes1);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public String getId() {
+    return this.id;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public SubjectType getType() {
+    return this.type;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public String getName() {
+    return this.name;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+
+  public String getDescription() {
+    return this.description;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public String getAttributeValue(String name1) {
+    if (this.attributes == null) {
+      log.error("No attributes.");
     }
-    
-    
-    /**
-     * {@inheritDoc}
-     */
-    public String getId() {
-        return this.id;
+    Set<String> values = this.attributes.get(name1);
+    if (values != null) {
+      return values.toArray(new String[0])[0];
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public SubjectType getType() {
-        return this.type;
+    return null;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Set<String> getAttributeValues(String name1) {
+    if (this.attributes == null) {
+      log.error("No attributes.");
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public String getName() {
-        return this.name;
+    return this.attributes.get(name1);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Map<String, Set<String>> getAttributes() {
+    if (this.attributes == null) {
+      //this.adapter.loadAttributes(this);
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    
-    public String getDescription() {
-        return this.description;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public String getAttributeValue(String name) {
-        if (attributes == null) {
-            log.error("No attributes.");
-        }
-        Set values = (Set)this.attributes.get(name);
-        if (values != null) {
-            return ((String[])values.toArray(new String[0]))[0];
-        } else {
-            return null;
-        }
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public Set getAttributeValues(String name) {
-        if (attributes == null) {
-            log.error("No attributes.");
-        }
-        return (Set)this.attributes.get(name);
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public Map getAttributes() {
-        if (attributes == null) {
-            //this.adapter.loadAttributes(this);
-        }
-        return attributes;
-    }
-    
-    /**
-     * {@inheritDoc}
-     */
-    public Source getSource() {
-        return this.adapter;
-    }
-    
-    protected void setAttributes(Map attributes) {
-        this.attributes = attributes;
-    }
+    return this.attributes;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public Source getSource() {
+    return this.adapter;
+  }
+
+  /**
+   * 
+   * @param attributes1
+   */
+  protected void setAttributes(Map<String, Set<String>> attributes1) {
+    this.attributes = attributes1;
+  }
+
 }

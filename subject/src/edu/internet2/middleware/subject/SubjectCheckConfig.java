@@ -1,10 +1,9 @@
 /*
  * @author mchyzer
- * $Id: SubjectCheckConfig.java,v 1.2 2008-10-13 09:10:28 mchyzer Exp $
+ * $Id: SubjectCheckConfig.java,v 1.3 2009-03-22 02:49:27 mchyzer Exp $
  */
 package edu.internet2.middleware.subject;
 
-import java.io.File;
 import java.net.URL;
 import java.util.Collection;
 
@@ -78,7 +77,7 @@ public class SubjectCheckConfig {
       try {
         source.checkConfig();
         
-        source.getSubject("qwqertyuiopsdfasdsdf");
+        source.getSubject("qwqertyuiopsdfasdsdf", true);
 
       } catch (SubjectNotFoundException snfe) {
         //good!
@@ -88,10 +87,10 @@ public class SubjectCheckConfig {
         log.error(theError, e);
         continue;
       }
-
+      
       try {
         
-        source.getSubjectByIdentifier("qwqertyuiopsadfsadfsdf");
+        source.getSubjectByIdentifier("qwqertyuiopsadfsadfsdf", true);
       } catch (SubjectNotFoundException snfe) {
         //good!
       } catch (Exception e) {
