@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.SubjectType;
  * Allows the UI to continue working when, otherwise, a SubjectNotFoundException would cause an error.
  * <p/>
  * @author  Gary Brown.
- * @version $Id: UnresolvableSubject.java,v 1.3 2009-03-22 05:41:00 mchyzer Exp $
+ * @version $Id: UnresolvableSubject.java,v 1.4 2009-03-23 06:00:00 mchyzer Exp $
  */
 
 public class UnresolvableSubject implements Subject {
@@ -203,12 +203,14 @@ public Map getAttributes() {
 			return getSource().getName();
 		}
 
+		@Deprecated
 		public Subject getSubject(String id) throws SubjectNotFoundException,
 				SubjectNotUniqueException {
 			// TODO Auto-generated method stub
 			return getSource().getSubject(id, true);
 		}
 
+		@Deprecated
 		public Subject getSubjectByIdentifier(String id)
 				throws SubjectNotFoundException, SubjectNotUniqueException {
 			// TODO Auto-generated method stub

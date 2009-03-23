@@ -42,7 +42,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Test {@link SubjectFinder.findByIdentifier()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSubjectFinder.java,v 1.2 2009-03-21 13:35:50 mchyzer Exp $
+ * @version $Id: TestSubjectFinder.java,v 1.3 2009-03-23 06:00:00 mchyzer Exp $
  */
 public class TestSubjectFinder extends GrouperTest {
 
@@ -61,7 +61,7 @@ public class TestSubjectFinder extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestSubjectFinder.class);
-    TestRunner.run(new TestSubjectFinder("testSearchGood"));
+    TestRunner.run(new TestSubjectFinder("testFindByIdentifierGoodIdGoodType"));
   }
   
   public TestSubjectFinder(String name) {
@@ -97,7 +97,7 @@ public class TestSubjectFinder extends GrouperTest {
     LOG.info("testFindByIdentifierGoodIdGoodType");
     Subject subj = SubjectTestHelper.getSubjectByIdentifierType(i2.getName(), "group");
     Assert.assertTrue("found subject", true);
-    Map attrs = subj.getAttributes();
+    Map<String, Set<String>> attrs = subj.getAttributes();
     Assert.assertEquals("11 attributes", 11, attrs.size());
     // createSubjectId
     String attr = "createSubjectId";
@@ -106,7 +106,7 @@ public class TestSubjectFinder extends GrouperTest {
       "attr => " + attr, subj.getAttributeValue(attr).equals(val)
     );
     Assert.assertTrue(
-      "attrs => " + attr, attrs.get(attr).equals(val)
+      "attrs => " + attr, attrs.get(attr).iterator().next().equals(val)
     );
     // createSubjectType
     attr = "createSubjectType";
@@ -115,7 +115,7 @@ public class TestSubjectFinder extends GrouperTest {
       "attr => " + attr, subj.getAttributeValue(attr).equals(val)
     );
     Assert.assertTrue(
-      "attrs => " + attr, attrs.get(attr).equals(val)
+      "attrs => " + attr, attrs.get(attr).iterator().next().equals(val)
     );
     // createTime
     attr = "createTime";
@@ -132,7 +132,7 @@ public class TestSubjectFinder extends GrouperTest {
       "attr => " + attr, subj.getAttributeValue(attr).equals(val)
     );
     Assert.assertTrue(
-      "attrs => " + attr, attrs.get(attr).equals(val)
+      "attrs => " + attr, attrs.get(attr).iterator().next().equals(val)
     );
     // displayName
     attr = "displayName";
@@ -141,7 +141,7 @@ public class TestSubjectFinder extends GrouperTest {
       "attr => " + attr, subj.getAttributeValue(attr).equals(val)
     );
     Assert.assertTrue(
-      "attrs => " + attr, attrs.get(attr).equals(val)
+      "attrs => " + attr, attrs.get(attr).iterator().next().equals(val)
     );
     // extension
     attr = "extension";
@@ -150,7 +150,7 @@ public class TestSubjectFinder extends GrouperTest {
       "attr => " + attr, subj.getAttributeValue(attr).equals(val)
     );
     Assert.assertTrue(
-      "attrs => " + attr, attrs.get(attr).equals(val)
+      "attrs => " + attr, attrs.get(attr).iterator().next().equals(val)
     );
     // name
     attr = "name";
@@ -159,7 +159,7 @@ public class TestSubjectFinder extends GrouperTest {
       "attr => " + attr, subj.getAttributeValue(attr).equals(val)
     );
     Assert.assertTrue(
-      "attrs => " + attr, attrs.get(attr).equals(val)
+      "attrs => " + attr, attrs.get(attr).iterator().next().equals(val)
     );
   } // public void testFindByIdentifierGoodIdGoodType()
 
@@ -182,7 +182,7 @@ public class TestSubjectFinder extends GrouperTest {
     LOG.debug("testFindByIdGoodIdGoodType.1");
     Assert.assertTrue("found subject", true);
     LOG.debug("testFindByIdGoodIdGoodType.2");
-    Map attrs = subj.getAttributes();
+    Map<String, Set<String>> attrs = subj.getAttributes();
     LOG.debug("testFindByIdGoodIdGoodType.3");
     Assert.assertEquals("10 attributes", 11, attrs.size());
     LOG.debug("testFindByIdGoodIdGoodType.4");
@@ -194,7 +194,7 @@ public class TestSubjectFinder extends GrouperTest {
     );
     LOG.debug("testFindByIdGoodIdGoodType.5");
     Assert.assertTrue(
-      "attrs => " + attr, attrs.get(attr).equals(val)
+      "attrs => " + attr, attrs.get(attr).iterator().next().equals(val)
     );
     LOG.debug("testFindByIdGoodIdGoodType.6");
     // createSubjectType
@@ -205,7 +205,7 @@ public class TestSubjectFinder extends GrouperTest {
     );
     LOG.debug("testFindByIdGoodIdGoodType.7");
     Assert.assertTrue(
-      "attrs => " + attr, attrs.get(attr).equals(val)
+      "attrs => " + attr, attrs.get(attr).iterator().next().equals(val)
     );
     LOG.debug("testFindByIdGoodIdGoodType.8");
     // createTime
@@ -215,7 +215,7 @@ public class TestSubjectFinder extends GrouperTest {
     );
     LOG.debug("testFindByIdGoodIdGoodType.9");
     Assert.assertNotNull(
-      "attrs => " + attr, attrs.get(attr)
+      "attrs => " + attr, attrs.get(attr).iterator().next()
     );
     LOG.debug("testFindByIdGoodIdGoodType.10");
     // displayExtension
@@ -226,7 +226,7 @@ public class TestSubjectFinder extends GrouperTest {
     );
     LOG.debug("testFindByIdGoodIdGoodType.11");
     Assert.assertTrue(
-      "attrs => " + attr, attrs.get(attr).equals(val)
+      "attrs => " + attr, attrs.get(attr).iterator().next().equals(val)
     );
     LOG.debug("testFindByIdGoodIdGoodType.12");
     // displayName
@@ -237,7 +237,7 @@ public class TestSubjectFinder extends GrouperTest {
     );
     LOG.debug("testFindByIdGoodIdGoodType.13");
     Assert.assertTrue(
-      "attrs => " + attr, attrs.get(attr).equals(val)
+      "attrs => " + attr, attrs.get(attr).iterator().next().equals(val)
     );
     LOG.debug("testFindByIdGoodIdGoodType.14");
     // extension
@@ -248,7 +248,7 @@ public class TestSubjectFinder extends GrouperTest {
     );
     LOG.debug("testFindByIdGoodIdGoodType.15");
     Assert.assertTrue(
-      "attrs => " + attr, attrs.get(attr).equals(val)
+      "attrs => " + attr, attrs.get(attr).iterator().next().equals(val)
     );
     LOG.debug("testFindByIdGoodIdGoodType.16");
     // name
@@ -259,7 +259,7 @@ public class TestSubjectFinder extends GrouperTest {
     );
     LOG.debug("testFindByIdGoodIdGoodType.17");
     Assert.assertTrue(
-      "attrs => " + attr, attrs.get(attr).equals(val)
+      "attrs => " + attr, attrs.get(attr).iterator().next().equals(val)
     );
     LOG.debug("testFindByIdGoodIdGoodType.18");
   } // public void testFindByIdGoodIdGoodType()
