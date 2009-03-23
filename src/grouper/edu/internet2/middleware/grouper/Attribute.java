@@ -31,17 +31,18 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Basic Hibernate <code>Attribute</code> DTO interface.
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.23 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: Attribute.java,v 1.24 2009-03-23 02:59:25 mchyzer Exp $
  * @since   @HEAD@
  */
 @SuppressWarnings("serial")
 @GrouperIgnoreDbVersion
-public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
+public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -321,5 +322,26 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
   
   }
 
+  /** context id of the transaction */
+  private String contextId;
+
+  /**
+   * context id of the transaction
+   * @return context id
+   */
+  public String getContextId() {
+    return this.contextId;
+  }
+
+  /**
+   * context id of the transaction
+   * @param contextId1
+   */
+  public void setContextId(String contextId1) {
+    this.contextId = contextId1;
+  }
+
+
+  
 } 
 

@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Group.java,v 1.3 2009-03-22 05:41:01 mchyzer Exp $
+ * @version $Id: Test_api_Group.java,v 1.4 2009-03-23 02:59:25 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_Group extends GrouperTest {
@@ -67,7 +67,7 @@ public class Test_api_Group extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new Test_api_Group("testGroupCopyAudit"));
+    TestRunner.run(new Test_api_Group("testGroupMoveAudit"));
   }
   
   private Group           top_group, child_group;
@@ -186,6 +186,42 @@ public class Test_api_Group extends GrouperTest {
     assertGroupHasMember(child_group, b, false);
     assertGroupHasUpdate(child_group, a, true);
     assertTrue(child_group.getParentStem().getUuid().equals(top.getUuid()));
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testGroupMoveAudit() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    Subject a = r.getSubject("a");
+
+    child_group.addMember(a);
+    child_group.grantPriv(a, AccessPrivilege.UPDATE);
+
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+
+    assertEquals(0, auditCount);
+    
+    child_group.move(top);
+    
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+    
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+    assertTrue("durationMicros should exist", auditEntry.getDurationMicroseconds() > 0);
+    assertTrue("query count should exist, and be at least 2: " + auditEntry.getQueryCount(), 2 <= auditEntry.getQueryCount());
+  
+    assertEquals("Context id's should match", auditEntry.getContextId(), child_group.getContextId());
     
     r.rs.stop();
   }
@@ -354,7 +390,7 @@ public class Test_api_Group extends GrouperTest {
       .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
     
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
-    assertTrue("durationNanos should exist", auditEntry.getDurationMicroseconds() > 0);
+    assertTrue("durationMicros should exist", auditEntry.getDurationMicroseconds() > 0);
     assertTrue("query count should exist, and be at least 2: " + auditEntry.getQueryCount(), 2 <= auditEntry.getQueryCount());
   
     assertEquals("Context id's should match", auditEntry.getContextId(), newGroup.getContextId());

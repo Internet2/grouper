@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTest.java,v 1.15 2009-03-22 05:41:01 mchyzer Exp $
+ * $Id: AuditTest.java,v 1.16 2009-03-23 02:59:25 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -107,7 +107,7 @@ public class AuditTest extends GrouperTest {
       .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
     
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
-    assertTrue("durationNanos should exist", auditEntry.getDurationMicroseconds() > 0);
+    assertTrue("durationMicros should exist", auditEntry.getDurationMicroseconds() > 0);
     assertTrue("query count should exist, and be at least 2, one for select, one for insert: " + auditEntry.getQueryCount(), 2 <= auditEntry.getQueryCount());
 
     assertEquals("Context id's should match", auditEntry.getContextId(), groupType.getContextId());
@@ -153,7 +153,7 @@ public class AuditTest extends GrouperTest {
     
     assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry2.getContextId()));
     
-    assertTrue("durationNanos should exist", auditEntry2.getDurationMicroseconds() > 0);
+    assertTrue("durationMicros should exist", auditEntry2.getDurationMicroseconds() > 0);
     assertTrue("query count should exist, and be at least 1, one for delete: " + auditEntry2.getQueryCount(), 2 <= auditEntry2.getQueryCount());
   
     assertEquals("Context id's should match", auditEntry2.getContextId(), groupType.getContextId());
@@ -730,7 +730,7 @@ public class AuditTest extends GrouperTest {
       .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
     
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
-    assertTrue("durationNanos should exist", auditEntry.getDurationMicroseconds() > 0);
+    assertTrue("durationMicros should exist", auditEntry.getDurationMicroseconds() > 0);
     assertTrue("query count should exist, and be at least 2, one for select, one for insert: " + auditEntry.getQueryCount(), 2 <= auditEntry.getQueryCount());
   
     assertEquals("Context id's should match", auditEntry.getContextId(), field.getContextId());
@@ -763,7 +763,7 @@ public class AuditTest extends GrouperTest {
     
     assertTrue("contextIds should be different", !StringUtils.equals(auditEntry.getContextId(), auditEntry2.getContextId()));
     
-    assertTrue("durationNanos should exist", auditEntry2.getDurationMicroseconds() > 0);
+    assertTrue("durationMicros should exist", auditEntry2.getDurationMicroseconds() > 0);
   
     assertEquals("Context id's should match", auditEntry2.getContextId(), field.getContextId());
     

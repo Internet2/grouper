@@ -19,6 +19,8 @@ package edu.internet2.middleware.grouper.xml;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 
@@ -26,7 +28,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
  * Create XML representation of the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlWriter.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: XmlWriter.java,v 1.4 2009-03-23 02:59:25 mchyzer Exp $
  * @since   1.1.0
  */
 class XmlWriter {
@@ -84,14 +86,20 @@ class XmlWriter {
   {
     this.w.write(this.newLine);
   } // protected void internal_puts(s)
-
-  // Output string to {@link Writer} with platform-appropriate newline and leading padding.
-  // @since   1.2.0
+  
+  /**
+   * Output string to {@link Writer} with platform-appropriate newline and leading padding.
+   * @param s
+   * @throws IOException
+   */
   protected void internal_puts(String s) 
-    throws  IOException
-  {
+    throws  IOException {
+    //nothing to do if blank, right?
+    if (StringUtils.isBlank(s)) {
+      return;
+    }
     this.internal_put( s + this.newLine );
-  } // protected void internal_puts(s)
+  } 
 
   // @since   1.2.0
   protected void internal_undent() 

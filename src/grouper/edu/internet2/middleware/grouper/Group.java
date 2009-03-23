@@ -118,7 +118,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.236 2009-03-22 05:41:01 mchyzer Exp $
+ * @version $Id: Group.java,v 1.237 2009-03-23 02:59:25 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -1719,6 +1719,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @param attr
    * @return the value
    */
+  @SuppressWarnings("unused")
   private String _internal_getAttributeBuiltIn(String attr) {
     if (GrouperConfig.getPropertyBoolean("groups.allow.attribute.access.1.4", false)) {
       
@@ -1762,7 +1763,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
         filtered.put( (String) kv.getKey(), (String) kv.getValue() );
       }
     }
-    Subject currentSubject = GrouperSession.staticGrouperSession().getSubject();
+    //Subject currentSubject = GrouperSession.staticGrouperSession().getSubject();
     
     //if (GrouperConfig.getPropertyBoolean("groups.allow.attribute.access.1.4", false)) {
     //
@@ -4278,35 +4279,63 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @param stem
    * @param assignOldName
    */
-  protected void internal_move(Stem stem, boolean assignOldName) {
+  protected void internal_move(final Stem stem, final boolean assignOldName) {
+
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+
     
-    GrouperSession.validate(GrouperSession.staticGrouperSession());
-    
-    // cannot move to the root stem
-    if (stem.isRootStem()) {
-      throw new GroupModifyException("Cannot move group to the root stem.");
-    }
-    
-    // verify that the subject has admin privileges to the group
-    if (!PrivilegeHelper.canAdmin(GrouperSession.staticGrouperSession(), this,
-        GrouperSession.staticGrouperSession().getSubject())) {
-      throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
-    }
-    
-    // verify that the subject can create groups in the stem where the group will be moved to.
-    if (!PrivilegeHelper.canCreate(GrouperSession.staticGrouperSession(), stem,
-        GrouperSession.staticGrouperSession().getSubject())) {
-      throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
-    }
-    
-    this.setParentUuid(stem.getUuid());
-    this.setNameDb(stem.getName() + Stem.DELIM + this.getExtension());
-    this.setDisplayNameDb(stem.getDisplayName() + Stem.DELIM 
-        + this.getDisplayExtension());
-    
-    GrouperDAOFactory.getFactory().getGroup().update(this);
-    
-    // TODO add old name support
+            GrouperSession.validate(GrouperSession.staticGrouperSession());
+            
+            // cannot move to the root stem
+            if (stem.isRootStem()) {
+              throw new GroupModifyException("Cannot move group to the root stem.");
+            }
+            
+            // verify that the subject has admin privileges to the group
+            if (!PrivilegeHelper.canAdmin(GrouperSession.staticGrouperSession(), Group.this,
+                GrouperSession.staticGrouperSession().getSubject())) {
+              throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
+            }
+            
+            // verify that the subject can create groups in the stem where the group will be moved to.
+            if (!PrivilegeHelper.canCreate(GrouperSession.staticGrouperSession(), stem,
+                GrouperSession.staticGrouperSession().getSubject())) {
+              throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
+            }
+            
+            String oldName = Group.this.getName();
+            
+            Group.this.setParentUuid(stem.getUuid());
+            Group.this.setNameDb(stem.getName() + Stem.DELIM + Group.this.getExtension());
+            Group.this.setDisplayNameDb(stem.getDisplayName() + Stem.DELIM 
+                + Group.this.getDisplayExtension());
+            
+            GrouperDAOFactory.getFactory().getGroup().update(Group.this);
+            
+            // TODO add old name support
+
+            //if not a smaller operation of a larger auditable call
+            if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_MOVE,
+                  "groupUuid", Group.this.getUuid(), "oldGroupName", 
+                  oldName, "newGroupName", Group.this.getName(), "newStemUuid",
+                  stem.getUuid(), 
+                  "assignOldName", assignOldName ? "T" : "F");
+              auditEntry.setDescription("Move group " + oldName + " to name: " + Group.this.getName()
+                  + ", assignOldName? " + (assignOldName ? "T" : "F")); 
+              auditEntry.saveOrUpdate(true);
+            }
+
+            
+            return null;
+          }
+        });
   }
   
   /**
@@ -4453,15 +4482,14 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
                   listMembersOfGroup ? "T" : "F", "listGroupAsMember",
                   listGroupAsMember ? "T" : "F");
               auditEntry.setInt01(attributes ? 1L : 0L);
-              auditEntry.setDescription("Copy group " + Group.this.getName() + " to group: " + newGroup.getName()
-                  + ", privilegesOfGroup? " + (groupAsPrivilege ? "T" : "F")
+              auditEntry.setDescription("Copy group " + Group.this.getName() + " to name: " + newGroup.getName()
+                  + ", privilegesOfGroup? " + (privilegesOfGroup ? "T" : "F")
                   + ", groupAsPrivilege? " + (groupAsPrivilege ? "T" : "F") 
-                  + ", listMembersOfGroup? " + (groupAsPrivilege ? "T" : "F") 
-                  + ", listGroupAsMember? " + (groupAsPrivilege ? "T" : "F") 
-                  + ", attributes? " + (groupAsPrivilege ? "T" : "F")); 
+                  + ", listMembersOfGroup? " + (listMembersOfGroup ? "T" : "F") 
+                  + ", listGroupAsMember? " + (listGroupAsMember ? "T" : "F") 
+                  + ", attributes? " + (attributes ? "T" : "F")); 
               auditEntry.saveOrUpdate(true);
             }
-
             
             return newGroup;
           }

@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Composite;
@@ -44,7 +45,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
-import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -90,7 +90,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.10 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: XmlExporter.java,v 1.11 2009-03-23 02:59:25 mchyzer Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1065,6 +1065,7 @@ public class XmlExporter {
     this.xml.internal_puts("type="         + Quote.single( f.getType().toString() )       );
     this.xml.internal_puts("readPriv="     + Quote.single( f.getReadPriv().toString() )   );
     this.xml.internal_puts("writePriv="    + Quote.single( f.getWritePriv().toString() )  );
+    this.xml.internal_puts(contextIdAttribute(f.getContextId(), false)  );
     this.xml.internal_undent();
     this.xml.internal_puts("/>");
     this.xml.internal_undent();
@@ -1134,6 +1135,7 @@ public class XmlExporter {
     if(_isUuidAttrsExportEnabled()){
     	this.xml.internal_puts("id="               + Quote.single( XML.escape( g.getUuid() ) )                 );
     }
+    this.xml.internal_puts(contextIdAttribute(g.getContextId(), false));
     this.xml.internal_undent();
     this.xml.internal_puts(">");
     this.xml.internal_indent();
@@ -1263,12 +1265,27 @@ public class XmlExporter {
     }
   } // private void _writeLists(g)
 
+  /**
+   * give an attribute for context id (with space before) if the context id is not blank 
+   * @param contextId
+   * @param includeOpeningSpace true to include an opening space
+   * @return the string or empty string
+   */
+  private static String contextIdAttribute(String contextId, boolean includeOpeningSpace) {
+    if (StringUtils.isBlank(contextId)) {
+      return "";
+    }
+    return (includeOpeningSpace ? " " : "") + "contextId=" + Quote.single(XML.escape(contextId));
+  }
+  
   // @since   1.1.0
   private void _writeGroupType(GroupType gt) 
     throws  IOException
   {
     this.xml.internal_indent();
-    this.xml.internal_puts("<groupTypeDef name=" + Quote.single( XML.escape( gt.getName() ) ) + ">");
+    
+    this.xml.internal_puts("<groupTypeDef name=" + Quote.single( XML.escape( gt.getName() ) )
+    		+ contextIdAttribute(gt.getContextId(), true) + ">");
     Iterator it = gt.getFields().iterator();
     while (it.hasNext()) {
       this._writeFieldMetaData( (Field) it.next() );
@@ -1620,7 +1637,8 @@ public class XmlExporter {
     this.xml.internal_puts("<stem extension="  + Quote.single( XML.escape( ns.getExtension() ) )           );
     this.xml.internal_indent();
     this.xml.internal_puts("displayExtension=" + Quote.single( XML.escape( ns.getDisplayExtension() ) )    );
-    this.xml.internal_puts("name="             + Quote.single( XML.escape( ns.getName()) )                 );
+    this.xml.internal_puts("name="             + Quote.single( XML.escape( ns.getName()) ));
+    this.xml.internal_puts(contextIdAttribute(ns.getContextId(), false));
     this.xml.internal_puts("displayName="      + Quote.single( XML.escape( ns.getDisplayName() ) )         );
     if(_isUuidAttrsExportEnabled()){
     	this.xml.internal_puts("id="           + Quote.single( XML.escape( ns.getUuid() ) )                );

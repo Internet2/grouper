@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
@@ -97,7 +98,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.188 2009-03-22 05:41:01 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.189 2009-03-23 02:59:25 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -2481,66 +2482,102 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     internal_move(stem, false);
   }
   
-  
-  protected void internal_move(Stem stem, boolean assignOldName) throws StemModifyException,
+  /**
+   * 
+   * @param stem
+   * @param assignOldName
+   * @throws StemModifyException
+   * @throws InsufficientPrivilegeException
+   */
+  protected void internal_move(final Stem stem, final boolean assignOldName) throws StemModifyException,
     InsufficientPrivilegeException {
 
-    GrouperSession.validate(GrouperSession.staticGrouperSession());
-    
-    // cannot move the root stem
-    if (this.isRootStem()) {
-      throw new StemModifyException("Cannot move the root stem.");
-    }
-    
-    // the new stem should not be a child of the current stem
-    if (this.isChildStem(stem)) {
-      throw new StemModifyException("Cannot move stem. " + stem.getName()
-          + " is a child of " + this.getName() + ".");
-    }
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
 
-    // verify that the subject has stem privileges to the stem
-    if (!PrivilegeHelper.canStem(this, GrouperSession.staticGrouperSession()
-        .getSubject())) {
-      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
-    }
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
 
-    // verify that the subject can create stems in the stem where this stem will be moved to.
-    if (!PrivilegeHelper.canStem(stem, GrouperSession.staticGrouperSession()
-        .getSubject())) {
-      throw new InsufficientPrivilegeException(E.CANNOT_STEM);
-    }
     
-    // verify that if the property security.stem.groupAllowedToMoveStem is set,
-    // then the user is a member of that group.
-    String allowedGroupName = GrouperConfig
-        .getProperty("security.stem.groupAllowedToMoveStem");
-    if (StringUtils.isNotBlank(allowedGroupName)
-        && !PrivilegeHelper.isRoot(GrouperSession.staticGrouperSession())) {
+            GrouperSession.validate(GrouperSession.staticGrouperSession());
+            
+            String oldName = Stem.this.getName();
+            
+            // cannot move the root stem
+            if (Stem.this.isRootStem()) {
+              throw new StemModifyException("Cannot move the root stem.");
+            }
+            
+            // the new stem should not be a child of the current stem
+            if (Stem.this.isChildStem(stem)) {
+              throw new StemModifyException("Cannot move stem. " + stem.getName()
+                  + " is a child of " + Stem.this.getName() + ".");
+            }
 
-      Group allowedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession()
-          .internal_getRootSession(), allowedGroupName, false);
-      if (allowedGroup == null
-          || !allowedGroup.hasMember(GrouperSession.staticGrouperSession().getSubject())) {
-        throw new InsufficientPrivilegeException("User is not a member of "
-            + allowedGroupName + ".");
-      }
-    }
+            // verify that the subject has stem privileges to the stem
+            if (!PrivilegeHelper.canStem(Stem.this, GrouperSession.staticGrouperSession()
+                .getSubject())) {
+              throw new InsufficientPrivilegeException(E.CANNOT_STEM + ": " + Stem.this.getName());
+            }
 
-    this.setParentUuid(stem.getUuid());
-    this.internal_setModified();
+            // verify that the subject can create stems in the stem where this stem will be moved to.
+            if (!PrivilegeHelper.canStem(stem, GrouperSession.staticGrouperSession()
+                .getSubject())) {
+              throw new InsufficientPrivilegeException(E.CANNOT_STEM + ": " + stem.getName());
+            }
+            
+            // verify that if the property security.stem.groupAllowedToMoveStem is set,
+            // then the user is a member of that group.
+            String allowedGroupName = GrouperConfig
+                .getProperty("security.stem.groupAllowedToMoveStem");
+            if (StringUtils.isNotBlank(allowedGroupName)
+                && !PrivilegeHelper.isRoot(GrouperSession.staticGrouperSession())) {
+
+              Group allowedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession()
+                  .internal_getRootSession(), allowedGroupName, false);
+              if (allowedGroup == null
+                  || !allowedGroup.hasMember(GrouperSession.staticGrouperSession().getSubject())) {
+                throw new InsufficientPrivilegeException("User is not a member of "
+                    + allowedGroupName + ".");
+              }
+            }
+
+            Stem.this.setParentUuid(stem.getUuid());
+            Stem.this.internal_setModified();
+            
+            if (stem.isRootStem()) {
+              Stem.this.setNameDb(Stem.this.getExtension());
+              Stem.this.setDisplayNameDb(Stem.this.getDisplayExtension());
+            } else {
+              Stem.this.setNameDb(stem.getName() + Stem.DELIM + Stem.this.getExtension());
+              Stem.this.setDisplayNameDb(stem.getDisplayName() + Stem.DELIM
+                  + Stem.this.getDisplayExtension());
+            }
+            
+            Stem.this.store();
+
+            // TODO add old name support
+            
+            //if not a smaller operation of a larger auditable call
+            if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_MOVE,
+                  "stemUuid", Stem.this.getUuid(), "oldStemName", 
+                  oldName, "newStemName", Stem.this.getName(), "newParentStemUuid",
+                  stem.getUuid(), 
+                  "assignOldName", assignOldName ? "T" : "F");
+              auditEntry.setDescription("Move stem " + oldName + " to name: " + Stem.this.getName()
+                  + ", assignOldName? " + (assignOldName ? "T" : "F")); 
+              auditEntry.saveOrUpdate(true);
+            }
+
+            
+            return null;
+          }
+        });
+
     
-    if (stem.isRootStem()) {
-      this.setNameDb(this.getExtension());
-      this.setDisplayNameDb(this.getDisplayExtension());
-    } else {
-      this.setNameDb(stem.getName() + Stem.DELIM + this.getExtension());
-      this.setDisplayNameDb(stem.getDisplayName() + Stem.DELIM
-          + this.getDisplayExtension());
-    }
-    
-    this.store();
-    
-    // TODO add old name support
   }
   
   
@@ -2564,7 +2601,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
       final boolean attributes) throws StemAddException, InsufficientPrivilegeException {
 
     return (Stem) HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
@@ -2671,6 +2708,30 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
                   .staticGrouperSession().internal_getRootSession(), oldComposite
                   .getType(), newCompositeLeftGroup, newCompositeRightGroup);
             }
+
+            //if not a smaller operation of a larger auditable call
+            if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+              
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_COPY,
+                  "oldStemUuid", Stem.this.getUuid(), "oldStemName", 
+                  Stem.this.getName(), "newStemName", newStem.getName(), "newStemUuid",
+                  newStem.getUuid(), 
+                  "privilegesOfStem", privilegesOfStem ? "T" : "F", "privilegesOfGroup",
+                      privilegesOfGroup ? "T" : "F", "listMembersOfGroup",
+                  listMembersOfGroup ? "T" : "F", "listGroupAsMember",
+                  listGroupAsMember ? "T" : "F");
+              auditEntry.setInt01(attributes ? 1L : 0L);
+              auditEntry.setDescription("Copy stem " 
+                  + Stem.this.getName() + " to name: " + newStem.getName()
+                  + ", privilegesOfStem? " + (privilegesOfStem ? "T" : "F")
+                  + ", privilegesOfGroup? " + (privilegesOfGroup ? "T" : "F")
+                  + ", groupAsPrivilege? " + (groupAsPrivilege ? "T" : "F") 
+                  + ", listMembersOfGroup? " + (listMembersOfGroup ? "T" : "F") 
+                  + ", listGroupAsMember? " + (listGroupAsMember ? "T" : "F") 
+                  + ", attributes? " + (attributes ? "T" : "F")); 
+              auditEntry.saveOrUpdate(true);
+            }
+
             
             return newStem;
           }
