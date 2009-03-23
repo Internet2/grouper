@@ -18,7 +18,11 @@
 package edu.internet2.middleware.grouper;
 
 import junit.textui.TestRunner;
+
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -28,6 +32,7 @@ import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -39,7 +44,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestStemApi.java,v 1.2 2009-03-21 13:35:50 mchyzer Exp $
+ * @version $Id: TestStemApi.java,v 1.3 2009-03-23 02:59:25 mchyzer Exp $
  * @since   1.2.1
  */
 public class TestStemApi extends GrouperTest {
@@ -49,6 +54,7 @@ public class TestStemApi extends GrouperTest {
   private GrouperSession  s;
   private Stem            child, root, top, top_new, etc, stem_copy_source, stem_copy_target;
   private GroupType       type1;
+  @SuppressWarnings("unused")
   private Field           type1attr1;
 
   /**
@@ -70,7 +76,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("test_option_to_disable_last_membership_change"));
+    TestRunner.run(new TestStemApi("testStemCopyAudit"));
     //TestRunner.run(Test_api_Stem.class);
   }
 
@@ -674,6 +680,49 @@ public class TestStemApi extends GrouperTest {
             
     r.rs.stop();
   }
+
+  /**
+   * @throws Exception
+   */
+  public void testStemMoveAudit() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+
+    this.top_new = this.root.addChildStem("top new", "top new display name");
+
+    child_group.addMember(a);
+
+    child_group.grantPriv(a, AccessPrivilege.UPDATE);
+    child.grantPriv(b, NamingPrivilege.CREATE);
+    top.grantPriv(b, NamingPrivilege.CREATE);
+
+
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+
+    assertEquals(0, auditCount);
+    
+    // first move to a non-root stem
+    top.move(top_new);
+
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+    
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+    assertTrue("durationMicros should exist", auditEntry.getDurationMicroseconds() > 0);
+    assertTrue("query count should exist, and be at least 2: " + auditEntry.getQueryCount(), 2 <= auditEntry.getQueryCount());
+  
+    assertEquals("Context id's should match", auditEntry.getContextId(), top.getContextId());
+  
+  }
   
   /**
    * @throws Exception
@@ -820,6 +869,41 @@ public class TestStemApi extends GrouperTest {
     stem_copy_setup(r);
     Stem newStem = stem_copy_source.copy(stem_copy_target);
     verify_copy(r, newStem, true, true, true, true, true, true);
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testStemCopyAudit() throws Exception {
+    R r = R.populateRegistry(0, 0, 11);
+
+    stem_copy_setup(r);
+    
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+
+    assertEquals(0, auditCount);
+    
+    Stem newStem = stem_copy_source.copy(stem_copy_target);
+    
+    int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_audit_entry");
+    
+    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+    
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+      .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+    
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+    assertTrue("durationMicros should exist", auditEntry.getDurationMicroseconds() > 0);
+    assertTrue("query count should exist, and be at least 2: " + auditEntry.getQueryCount(), 2 <= auditEntry.getQueryCount());
+  
+    assertEquals("Context id's should match", auditEntry.getContextId(), newStem.getContextId());
+    
     
     r.rs.stop();
   }

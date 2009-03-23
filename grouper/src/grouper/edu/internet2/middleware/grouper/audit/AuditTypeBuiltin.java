@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTypeBuiltin.java,v 1.4 2009-03-22 05:41:01 mchyzer Exp $
+ * $Id: AuditTypeBuiltin.java,v 1.5 2009-03-23 02:59:25 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -169,7 +169,7 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   /**
    * move a stem to another stem
    */
-  STEM_MOVE(new AuditType("stem", "move", null, "stemUuid", "oldStemName", "newGroupName", "newParentStemUuid", 
+  STEM_MOVE(new AuditType("stem", "move", null, "stemUuid", "oldStemName", "newStemName", "newParentStemUuid", 
       "assignOldName"));
   
   /**
