@@ -52,7 +52,7 @@ import edu.internet2.middleware.ldappcTest.AllLdappcJunitTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: AllTests.java,v 1.3 2009-03-22 05:41:01 mchyzer Exp $
+ * @version $Id: AllTests.java,v 1.4 2009-03-23 06:00:00 mchyzer Exp $
  */
 public class AllTests extends GrouperTest {
 
@@ -145,6 +145,8 @@ public class AllTests extends GrouperTest {
    */
   public static Test suite() {
 
+    GrouperTest.testing = true;
+    
     //set this and leave it...
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.JUNIT, false, true);
 
