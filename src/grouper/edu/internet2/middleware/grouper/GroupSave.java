@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupSave.java,v 1.7 2009-03-15 08:18:10 mchyzer Exp $
+ * $Id: GroupSave.java,v 1.8 2009-03-24 17:12:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -236,150 +236,139 @@ public class GroupSave {
               public Object callback(GrouperSession grouperSession)
                   throws GrouperSessionException {
                 
-                try {
-                  String groupNameForError = GrouperUtil.defaultIfBlank(groupNameToEdit, GroupSave.this.name);
-                  
-                  int lastColonIndex = GroupSave.this.name.lastIndexOf(':');
-                  boolean topLevelGroup = lastColonIndex < 0;
-          
-                  //empty is root stem
-                  String parentStemNameNew = GrouperUtil.parentStemNameFromName(GroupSave.this.name);
-                  
-                  //note, this might be blank
-                  String parentStemDisplayNameNew = GrouperUtil.parentStemNameFromName(displayName);
-                  String extensionNew = GrouperUtil.extensionFromName(GroupSave.this.name);
-                  
-                  String displayExtensionFromDisplayNameNew = GrouperUtil.extensionFromName(GroupSave.this.displayName);
+                String groupNameForError = GrouperUtil.defaultIfBlank(groupNameToEdit, GroupSave.this.name);
+                
+                int lastColonIndex = GroupSave.this.name.lastIndexOf(':');
+                boolean topLevelGroup = lastColonIndex < 0;
+        
+                //empty is root stem
+                String parentStemNameNew = GrouperUtil.parentStemNameFromName(GroupSave.this.name);
+                
+                //note, this might be blank
+                String parentStemDisplayNameNew = GrouperUtil.parentStemNameFromName(displayName);
+                String extensionNew = GrouperUtil.extensionFromName(GroupSave.this.name);
+                
+                String displayExtensionFromDisplayNameNew = GrouperUtil.extensionFromName(GroupSave.this.displayName);
 
-                  //figure out the display extension from the extension or the name (or both!)
-                  String theDisplayExtension = null;
-                  
-                  //if blank, and display name blank, then, use extension
-                  if (StringUtils.isBlank(GroupSave.this.displayExtension) && StringUtils.isBlank(GroupSave.this.displayName)) {
-                    theDisplayExtension = extensionNew;
-                  } else if (!StringUtils.isBlank(GroupSave.this.displayExtension) && !StringUtils.isBlank(GroupSave.this.displayName)) {
-                    //if neither blank
-                    if (!StringUtils.equals(displayExtensionFromDisplayNameNew, GroupSave.this.displayExtension)) {
-                      throw new RuntimeException("The display extension '" + GroupSave.this.displayExtension 
-                          + "' is not consistent with the last part of the group name '" 
-                          + displayExtensionFromDisplayNameNew + "', display name: " + GroupSave.this.displayName);
-                    }
-                    theDisplayExtension = displayExtensionFromDisplayNameNew;
-                  } else if (!StringUtils.isBlank(GroupSave.this.displayExtension)) {
-                    theDisplayExtension = GroupSave.this.displayExtension;
-                  } else if (!StringUtils.isBlank(GroupSave.this.displayName)) {
-                    theDisplayExtension = displayExtensionFromDisplayNameNew;
-                  } else {
-                    throw new RuntimeException("Shouldnt get here");
+                //figure out the display extension from the extension or the name (or both!)
+                String theDisplayExtension = null;
+                
+                //if blank, and display name blank, then, use extension
+                if (StringUtils.isBlank(GroupSave.this.displayExtension) && StringUtils.isBlank(GroupSave.this.displayName)) {
+                  theDisplayExtension = extensionNew;
+                } else if (!StringUtils.isBlank(GroupSave.this.displayExtension) && !StringUtils.isBlank(GroupSave.this.displayName)) {
+                  //if neither blank
+                  if (!StringUtils.equals(displayExtensionFromDisplayNameNew, GroupSave.this.displayExtension)) {
+                    throw new RuntimeException("The display extension '" + GroupSave.this.displayExtension 
+                        + "' is not consistent with the last part of the group name '" 
+                        + displayExtensionFromDisplayNameNew + "', display name: " + GroupSave.this.displayName);
                   }
-
-                  
-                  //lets find the stem
-                  Stem parentStem = null;
-                  
-                  try {
-                    parentStem = topLevelGroup ? StemFinder.findRootStem(grouperSession) 
-                        : StemFinder.findByName(grouperSession, parentStemNameNew, true);
-                  } catch (StemNotFoundException snfe) {
-                    
-                    //see if we should fix this problem
-                    if (GroupSave.this.createParentStemsIfNotExist) {
-                      
-                      //at this point the stem should be there (and is equal to currentStem), 
-                      //just to be sure, query again
-                      parentStem = Stem._createStemAndParentStemsIfNotExist(grouperSession, parentStemNameNew, parentStemDisplayNameNew);
-                    } else {
-                      throw new GrouperSessionException(new StemNotFoundException("Cant find stem: '" + parentStemNameNew 
-                          + "' (from update on stem name: '" + groupNameForError + "')"));
-                    }
-                  }
-                  
-                  Group theGroup = null;
-                  //see if update
-                  boolean isUpdate = SAVE_MODE.isUpdate(GroupSave.this.groupNameToEdit, GroupSave.this.name);
-          
-                  if (isUpdate) {
-                    String parentStemNameLookup = GrouperUtil.parentStemNameFromName(GroupSave.this.groupNameToEdit);
-                    if (!StringUtils.equals(parentStemNameLookup, parentStemNameNew)) {
-                      throw new GrouperSessionException(new GroupModifyException("Can't move a group.  Existing parentStem: '"
-                          + parentStemNameLookup + "', new stem: '" + parentStemNameNew + "'"));
-                  }    
-                  try {
-                      theGroup = GroupFinder.findByName(grouperSession, GroupSave.this.groupNameToEdit, true);
-                      
-                      //while we are here, make sure uuid's match if passed in
-                      if (!StringUtils.isBlank(GroupSave.this.uuid) && !StringUtils.equals(GroupSave.this.uuid, theGroup.getUuid())) {
-                        throw new RuntimeException("UUID group changes are not supported: new: " + GroupSave.this.uuid + ", old: " 
-                            + theGroup.getUuid() + ", " + groupNameForError);
-                      }
-                      
-                    } catch (GroupNotFoundException gnfe) {
-                      if (SAVE_MODE.equals(SaveMode.INSERT_OR_UPDATE) || SAVE_MODE.equals(SaveMode.INSERT)) {
-                        isUpdate = false;
-                      } else {
-                          throw new GrouperSessionException(gnfe);
-                      }
-                    }
-                  }
-                  //default
-                  GroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
-                  boolean needsSave = false;
-                  //if inserting
-                  if (!isUpdate) {
-                    saveResultType = SaveResultType.INSERT;
-                    if (StringUtils.isBlank(GroupSave.this.uuid)) {
-                      try {
-                        //if no uuid
-                        theGroup = parentStem.addChildGroup(extensionNew, theDisplayExtension);
-                      } catch (GroupAddException gae) {
-                        //here for debugging
-                        throw new GrouperSessionException(gae);
-                      }
-                    } else {
-                      //if uuid
-                      theGroup = parentStem.internal_addChildGroup(extensionNew, theDisplayExtension, GroupSave.this.uuid);
-                    }
-                  } else {
-                    //check if different so it doesnt make unneeded queries
-                    if (!StringUtils.equals(theGroup.getExtension(), extensionNew)) {
-                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
-                      theGroup.setExtension(extensionNew);
-                      needsSave = true;
-                    }
-                    if (!StringUtils.equals(theGroup.getDisplayExtension(), theDisplayExtension)) {
-                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
-                      theGroup.setDisplayExtension(theDisplayExtension);
-                      needsSave = true;
-                    }
-                  }
-                  
-                  //now compare and put all attributes (then store if needed)
-                  //null throws exception? hmmm.  remove attribute if blank
-                  if (!StringUtils.equals(StringUtils.defaultString(theGroup.getDescription()), 
-                      StringUtils.defaultString(StringUtils.trim(GroupSave.this.description)))) {
-                    needsSave = true;
-                    if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
-                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
-                    }
-                    theGroup.setDescription(GroupSave.this.description);
-                  }
-
-                  //only store once
-                  if (needsSave) {
-                    theGroup.store();
-                  }
-                  
-                  return theGroup;
-                  //wrap checked exceptions inside unchecked, and rethrow outside
-                } catch (StemNotFoundException snfe) {
-                  throw new RuntimeException(snfe);
-                } catch (InsufficientPrivilegeException ipe) {
-                  throw new RuntimeException(ipe);
-                } catch (StemAddException sae) {
-                  throw new RuntimeException(sae);
-                } catch (GroupAddException gae) {
-                  throw new RuntimeException(gae);
+                  theDisplayExtension = displayExtensionFromDisplayNameNew;
+                } else if (!StringUtils.isBlank(GroupSave.this.displayExtension)) {
+                  theDisplayExtension = GroupSave.this.displayExtension;
+                } else if (!StringUtils.isBlank(GroupSave.this.displayName)) {
+                  theDisplayExtension = displayExtensionFromDisplayNameNew;
+                } else {
+                  throw new RuntimeException("Shouldnt get here");
                 }
+
+                
+                //lets find the stem
+                Stem parentStem = null;
+                
+                try {
+                  parentStem = topLevelGroup ? StemFinder.findRootStem(grouperSession) 
+                      : StemFinder.findByName(grouperSession, parentStemNameNew, true);
+                } catch (StemNotFoundException snfe) {
+                  
+                  //see if we should fix this problem
+                  if (GroupSave.this.createParentStemsIfNotExist) {
+                    
+                    //at this point the stem should be there (and is equal to currentStem), 
+                    //just to be sure, query again
+                    parentStem = Stem._createStemAndParentStemsIfNotExist(grouperSession, parentStemNameNew, parentStemDisplayNameNew);
+                  } else {
+                    throw new GrouperSessionException(new StemNotFoundException("Cant find stem: '" + parentStemNameNew 
+                        + "' (from update on stem name: '" + groupNameForError + "')"));
+                  }
+                }
+                
+                Group theGroup = null;
+                //see if update
+                boolean isUpdate = SAVE_MODE.isUpdate(GroupSave.this.groupNameToEdit, GroupSave.this.name);
+        
+                if (isUpdate) {
+                  String parentStemNameLookup = GrouperUtil.parentStemNameFromName(GroupSave.this.groupNameToEdit);
+                  if (!StringUtils.equals(parentStemNameLookup, parentStemNameNew)) {
+                    throw new GrouperSessionException(new GroupModifyException("Can't move a group.  Existing parentStem: '"
+                        + parentStemNameLookup + "', new stem: '" + parentStemNameNew + "'"));
+                }    
+                try {
+                    theGroup = GroupFinder.findByName(grouperSession, GroupSave.this.groupNameToEdit, true);
+                    
+                    //while we are here, make sure uuid's match if passed in
+                    if (!StringUtils.isBlank(GroupSave.this.uuid) && !StringUtils.equals(GroupSave.this.uuid, theGroup.getUuid())) {
+                      throw new RuntimeException("UUID group changes are not supported: new: " + GroupSave.this.uuid + ", old: " 
+                          + theGroup.getUuid() + ", " + groupNameForError);
+                    }
+                    
+                  } catch (GroupNotFoundException gnfe) {
+                    if (SAVE_MODE.equals(SaveMode.INSERT_OR_UPDATE) || SAVE_MODE.equals(SaveMode.INSERT)) {
+                      isUpdate = false;
+                    } else {
+                        throw new GrouperSessionException(gnfe);
+                    }
+                  }
+                }
+                //default
+                GroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
+                boolean needsSave = false;
+                //if inserting
+                if (!isUpdate) {
+                  saveResultType = SaveResultType.INSERT;
+                  if (StringUtils.isBlank(GroupSave.this.uuid)) {
+                    try {
+                      //if no uuid
+                      theGroup = parentStem.addChildGroup(extensionNew, theDisplayExtension);
+                    } catch (GroupAddException gae) {
+                      //here for debugging
+                      throw new GrouperSessionException(gae);
+                    }
+                  } else {
+                    //if uuid
+                    theGroup = parentStem.internal_addChildGroup(extensionNew, theDisplayExtension, GroupSave.this.uuid);
+                  }
+                } else {
+                  //check if different so it doesnt make unneeded queries
+                  if (!StringUtils.equals(theGroup.getExtension(), extensionNew)) {
+                    GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                    theGroup.setExtension(extensionNew);
+                    needsSave = true;
+                  }
+                  if (!StringUtils.equals(theGroup.getDisplayExtension(), theDisplayExtension)) {
+                    GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                    theGroup.setDisplayExtension(theDisplayExtension);
+                    needsSave = true;
+                  }
+                }
+                
+                //now compare and put all attributes (then store if needed)
+                //null throws exception? hmmm.  remove attribute if blank
+                if (!StringUtils.equals(StringUtils.defaultString(theGroup.getDescription()), 
+                    StringUtils.defaultString(StringUtils.trim(GroupSave.this.description)))) {
+                  needsSave = true;
+                  if (GroupSave.this.saveResultType == SaveResultType.NO_CHANGE) {
+                    GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                  }
+                  theGroup.setDescription(GroupSave.this.description);
+                }
+
+                //only store once
+                if (needsSave) {
+                  theGroup.store();
+                }
+                
+                return theGroup;
               }
               
             });

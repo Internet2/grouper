@@ -45,7 +45,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupType.java,v 1.2 2009-03-21 19:48:50 mchyzer Exp $
+ * @version $Id: TestGroupType.java,v 1.3 2009-03-24 17:12:09 mchyzer Exp $
  */
 public class TestGroupType extends GrouperTest {
 
@@ -329,23 +329,23 @@ public class TestGroupType extends GrouperTest {
       );         
       Assert.assertTrue(
         "group does not have attribute set - yet",
-        g.getAttribute(attr.getName()).equals(GrouperConfig.EMPTY_STRING)
+        g.getAttributeValue(attr.getName(), false, false).equals(GrouperConfig.EMPTY_STRING)
       );
       try {
         g.setAttribute(attr.getName(), name);
-        g.store();
+
         Assert.assertTrue("set attribute", true);
       }
       catch (Exception e) {
         Assert.fail("exception while setting custom attribute! - " + e.getMessage());
       }
-      T.string("now group has attribute set", name, g.getAttribute(attr.getName()));
+      T.string("now group has attribute set", name, g.getAttributeValue(attr.getName(), false, true));
       s.stop();
   
       // Now make sure it was properly persisted
       GrouperSession  S = GrouperSession.start(subjA);
       Group           G = GroupFinder.findByName(S, name, true);
-      T.string("attribute was persisted", name, G.getAttribute(attr.getName()));
+      T.string("attribute was persisted", name, G.getAttributeValue(attr.getName(), false, true));
       S.stop();
     }
     catch (Exception e) {
@@ -643,7 +643,7 @@ public class TestGroupType extends GrouperTest {
       group.setAttribute(name, "theTest");
       group.deleteType(custom);
       group.addType(custom);
-      String value = group.getAttributeOrNull(name);
+      String value = group.getAttributeValue(name, false, false);
       assertTrue(value, StringUtils.isBlank(value));
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -891,7 +891,7 @@ public class TestGroupType extends GrouperTest {
       Group g     = ns.addChildGroup("g", "g");
       g.addType(custom);
       g.setAttribute(name, name);
-      g.store();
+
       try {
         custom.deleteField(s, name);  
         Assert.fail("deleted in-use ATTRIBUTE");
@@ -1066,7 +1066,7 @@ public class TestGroupType extends GrouperTest {
       }
   
       try {
-        g.getAttribute(f.getName());
+        g.getAttributeValue(f.getName(), false, true);
         Assert.fail("retrieved schema-violating attribute");
       }
       catch (Exception e) {
@@ -1105,8 +1105,8 @@ public class TestGroupType extends GrouperTest {
       Assert.assertTrue("custom type", g.hasType(custom));
   
       g.setAttribute(name, name);
-      g.store();
-      Assert.assertTrue( "has attribute", g.getAttribute(name).equals(name) );
+
+      Assert.assertTrue( "has attribute", g.getAttributeValue(name, false, true).equals(name) );
   
       g.deleteAttribute(name);
   
@@ -1115,7 +1115,7 @@ public class TestGroupType extends GrouperTest {
   
       try {
         g.setAttribute(name, name);
-        g.store();
+
         fail("added field without type");
       }
       catch (AttributeNotFoundException eExpected) { 
@@ -1153,10 +1153,10 @@ public class TestGroupType extends GrouperTest {
         Assert.assertTrue("custom type", g.hasType(custom));
   
         g.setAttribute(name, name);
-        g.store();
+
         Assert.assertTrue(
           "has attribute", 
-          g.getAttribute(name).equals(name)
+          g.getAttributeValue(name, false, true).equals(name)
         );
   
         try {

@@ -40,7 +40,7 @@ import edu.internet2.middleware.morphString.Morph;
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.23 2009-02-01 22:38:48 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.24 2009-03-24 17:12:08 mchyzer Exp $
  * @since   @HEAD@
  */
 public abstract class Hib3DAO {
@@ -71,9 +71,9 @@ public abstract class Hib3DAO {
   }
 
   /**
-   * keep track of if hibernate is initted yet
+   * keep track of if hibernate is initted yet, allow resets... (e.g. for testing)
    */
-  private static boolean hibernateInitted = false;
+  public static boolean hibernateInitted = false;
   
   /**
    * init hibernate if not initted
@@ -98,30 +98,30 @@ public abstract class Hib3DAO {
       
       // And now load all configuration information
       CFG = new Configuration()
-        .addProperties(p)
-        .addResource(resourceNameFromClassName(Hib3AuditEntryDAO.class))
-        .addResource(resourceNameFromClassName(Hib3AuditTypeDAO.class))
-        .addResource(resourceNameFromClassName(Hib3AttributeDAO.class))
-        .addResource(resourceNameFromClassName(Hib3CompositeDAO.class))
-        .addResource(resourceNameFromClassName(Hib3FieldDAO.class))
-        .addResource(resourceNameFromClassName(Hib3GroupDAO.class))
-        .addResource(resourceNameFromClassName(Hib3GroupTypeDAO.class))
-        .addResource(resourceNameFromClassName(Hib3GroupTypeTupleDAO.class))
-        .addResource(resourceNameFromClassName(Hib3MemberDAO.class))
-        .addResource(resourceNameFromClassName(Hib3MembershipDAO.class))
-        .addResource(resourceNameFromClassName(Hib3RegistrySubjectDAO.class))
-        .addResource(resourceNameFromClassName(Hib3RegistrySubjectAttributeDAO.class))
-        .addResource(resourceNameFromClassName(Hib3StemDAO.class))
-        .addResource(resourceNameFromClassName(Hib3GrouperDdl.class))
-        .addResource(resourceNameFromClassName(Hib3GrouperLoaderLog.class))
-            .setInterceptor(new Hib3SessionInterceptor());
+        .addProperties(p);
+      addClass(CFG, Hib3AuditEntryDAO.class);
+      addClass(CFG, Hib3AuditTypeDAO.class);
+      addClass(CFG, Hib3AttributeDAO.class);
+      addClass(CFG, Hib3CompositeDAO.class);
+      addClass(CFG, Hib3FieldDAO.class);
+      addClass(CFG, Hib3GroupDAO.class);
+      addClass(CFG, Hib3GroupTypeDAO.class);
+      addClass(CFG, Hib3GroupTypeTupleDAO.class);
+      addClass(CFG, Hib3MemberDAO.class);
+      addClass(CFG, Hib3MembershipDAO.class);
+      addClass(CFG, Hib3RegistrySubjectDAO.class);
+      addClass(CFG, Hib3RegistrySubjectAttributeDAO.class);
+      addClass(CFG, Hib3StemDAO.class);
+      addClass(CFG, Hib3GrouperDdl.class);
+      addClass(CFG, Hib3GrouperLoaderLog.class);
+      CFG.setInterceptor(new Hib3SessionInterceptor());
       
       //if we are testing, map these classes to the table (which may or may not exist)
       try {
         Class<?> testgrouperLoaderClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperLoader");
-        CFG.addResource(resourceNameFromClassName(testgrouperLoaderClass));
+        addClass(CFG, testgrouperLoaderClass);
         testgrouperLoaderClass = Class.forName("edu.internet2.middleware.grouper.app.loader.TestgrouperLoaderGroups");
-        CFG.addResource(resourceNameFromClassName(testgrouperLoaderClass));
+        addClass(CFG, testgrouperLoaderClass);
       } catch (ClassNotFoundException cnfe) {
         //this is ok
       }
@@ -157,6 +157,35 @@ public abstract class Hib3DAO {
 
   }
   
+  /**
+   * 
+   * @param CFG
+   * @param mappedClass
+   */
+  private static void addClass(Configuration CFG, Class<?> mappedClass) {
+    String resourceName = resourceNameFromClassName(mappedClass);
+    String xml = GrouperUtil.readResourceIntoString(resourceName, false);
+    
+    if (xml.contains("<version")) {
+      
+      //if versioned, then make sure the setting in class is there
+      String optimisiticLockVersion = "optimistic-lock=\"version\"";
+      
+      if (!StringUtils.contains(xml, optimisiticLockVersion)) {
+        throw new RuntimeException("If there is a versioned class, it must contain " +
+        		"the class level attribute: optimistic-lock=\"version\": " + mappedClass.getName() + ", " + resourceName);
+      }
+      
+      //if versioned, then see if we are disabling
+      boolean optimisiticLocking = GrouperConfig.getPropertyBoolean("dao.optimisticLocking", true);
+      
+      if (!optimisiticLocking) {
+        xml = StringUtils.replace(xml, optimisiticLockVersion, "optimistic-lock=\"none\"");
+      }
+    }
+    CFG.addXML(xml);
+
+  }
 
   /**
    * class is e.g. edu.internet2.middleware.grouper.internal.dto.Attribute,

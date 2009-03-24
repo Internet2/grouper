@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
+import edu.internet2.middleware.grouper.internal.dao.AttributeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupTypeTupleDAO;
@@ -39,7 +40,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: Test_Integration_HibernateGroupDAO_delete.java,v 1.2 2009-03-24 17:12:08 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
@@ -85,8 +86,8 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
             AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
       g.addType(groupType, false);
       g.setAttribute(ATTRIBUTE1, "whatever");
-      g.store();
-      GroupDAO dao = GrouperDAOFactory.getFactory().getGroup();
+
+      AttributeDAO dao = GrouperDAOFactory.getFactory().getAttribute();
       assertTrue( 
         "group has attributes in registry before deletion", 
         dao.findAllAttributesByGroup(uuid).size() > 0 
@@ -116,9 +117,8 @@ public class Test_Integration_HibernateGroupDAO_delete extends GrouperTest {
             AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
       g.addType(groupType, false);
       g.setAttribute(ATTRIBUTE1, "whatever");
-      g.store();
 
-      GroupDAO dao = GrouperDAOFactory.getFactory().getGroup();
+      AttributeDAO dao = GrouperDAOFactory.getFactory().getAttribute();
       assertTrue( 
         "group has attributes in registry before reset", 
         dao.findAllAttributesByGroup(uuid).size() > 0 

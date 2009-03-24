@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderSecurityTest.java,v 1.3 2009-03-20 19:56:42 mchyzer Exp $
+ * $Id: GrouperLoaderSecurityTest.java,v 1.4 2009-03-24 17:12:09 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -175,7 +175,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
     GroupTypeSecurityHook.resetCacheSettings();
 
     assertFalse(this.group.hasType(this.groupType));
-    assertFalse(this.group.getAttributes().containsKey(this.field.getName()));
+    assertFalse(this.group.getAttributesMap(true).containsKey(this.field.getName()));
 
     try {
       userEditTypeHelper(SubjectTestHelper.SUBJ0);
@@ -188,10 +188,10 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
     
     //type should not be applied
     assertFalse(this.group.hasType(this.groupType));
-    assertFalse(this.group.getAttributes().containsKey(this.field.getName()));
+    assertFalse(this.group.getAttributesMap(true).containsKey(this.field.getName()));
 
     assertTrue(this.groupWithType.hasType(this.groupType));
-    assertEquals("fieldValue", this.groupWithType.getAttribute(this.field.getName()));
+    assertEquals("fieldValue", this.groupWithType.getAttributeValue(this.field.getName(), false, true));
 
     try {
       userUpdateTypeHelper(SubjectTestHelper.SUBJ0, true);
@@ -203,7 +203,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
     this.groupWithType = GroupFinder.findByName(this.grouperSession, this.groupWithType.getName(), true);
 
     assertTrue(this.groupWithType.hasType(this.groupType));
-    assertEquals("fieldValue", this.groupWithType.getAttribute(this.field.getName()));
+    assertEquals("fieldValue", this.groupWithType.getAttributeValue(this.field.getName(), false, true));
 
   }
 
@@ -243,19 +243,16 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
       group.addType(this.groupType);
       assertTrue(this.group.hasType(this.groupType));
       group.setAttribute(this.field.getName(), "test");
-      group.store();
 
-      assertEquals("test", this.group.getAttribute(this.field.getName()));
+      assertEquals("test", this.group.getAttributeValue(this.field.getName(), false, true));
       
       group.setAttribute(this.field.getName(), "test2");
-      group.store();
 
-      assertEquals("test2", this.group.getAttribute(this.field.getName()));
+      assertEquals("test2", this.group.getAttributeValue(this.field.getName(), false, true));
       
       group.deleteAttribute(this.field.getName());
-      group.store();
 
-      assertFalse(this.group.getAttributes().containsKey(this.field.getName()));
+      assertFalse(this.group.getAttributesMap(true).containsKey(this.field.getName()));
       
       group.deleteType(this.groupType);
       assertFalse(this.group.hasType(this.groupType));
@@ -284,9 +281,8 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
       if (doAttributeFirst) {
         //do some updates and deletes here
         groupWithType.setAttribute(this.field.getName(), "test2");
-        groupWithType.store();
   
-        assertEquals("test2", this.groupWithType.getAttribute(this.field.getName()));
+        assertEquals("test2", this.groupWithType.getAttributeValue(this.field.getName(), false, true));
       }
       
       groupWithType.deleteType(this.groupType);
@@ -326,7 +322,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
     
     //type should not be applied
     assertFalse(this.group.hasType(this.groupType));
-    assertFalse(this.group.getAttributes().containsKey(this.field.getName()));
+    assertFalse(this.group.getAttributesMap(true).containsKey(this.field.getName()));
   
     try {
       userUpdateTypeHelper(SubjectTestHelper.SUBJ0, true);
@@ -338,7 +334,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
     this.groupWithType = GroupFinder.findByName(this.grouperSession, this.groupWithType.getName(), true);
 
     assertTrue(this.groupWithType.hasType(this.groupType));
-    assertEquals("fieldValue", this.groupWithType.getAttribute(this.field.getName()));
+    assertEquals("fieldValue", this.groupWithType.getAttributeValue(this.field.getName(), false, true));
   
   }
 

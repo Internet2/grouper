@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Group.java,v 1.4 2009-03-23 02:59:25 mchyzer Exp $
+ * @version $Id: Test_api_Group.java,v 1.5 2009-03-24 17:12:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_Group extends GrouperTest {
@@ -67,7 +67,7 @@ public class Test_api_Group extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new Test_api_Group("testGroupMoveAudit"));
+    TestRunner.run(new Test_api_Group("test_copy_all_as_nonadmin"));
   }
   
   private Group           top_group, child_group;
@@ -219,7 +219,7 @@ public class Test_api_Group extends GrouperTest {
     
     assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
     assertTrue("durationMicros should exist", auditEntry.getDurationMicroseconds() > 0);
-    assertTrue("query count should exist, and be at least 2: " + auditEntry.getQueryCount(), 2 <= auditEntry.getQueryCount());
+    assertTrue("query count should exist, and be at least 1: " + auditEntry.getQueryCount(), 1 <= auditEntry.getQueryCount());
   
     assertEquals("Context id's should match", auditEntry.getContextId(), child_group.getContextId());
     
@@ -648,7 +648,6 @@ public class Test_api_Group extends GrouperTest {
     child_group.setAttribute("type1attr2", "test");
     child_group.addMember(a, type1list1);
     child_group.addMember(a, type1list2);
-    child_group.store();
     
     nrs = GrouperSession.start(a);
     GroupCopy groupCopy = new GroupCopy(child_group, top);
@@ -862,7 +861,7 @@ public class Test_api_Group extends GrouperTest {
     top_group.deleteMember(child_group.toSubject());
     child_group.addType(type1);
     child_group.setAttribute("type1attr2", "test");
-    child_group.store();
+
     nrs.stop();
     nrs = GrouperSession.start(a);
     try {
@@ -1076,15 +1075,15 @@ public class Test_api_Group extends GrouperTest {
     
     // attribute checks
     if (attributes) {
-      assertTrue(newGroup.getAttribute(type1attr1.getName()).equals("custom attr value 1"));
-      assertTrue(newGroup.getAttribute(type1attr2.getName()).equals(""));
-      assertTrue(newGroup.getAttribute(type2attr1.getName()).equals("custom attr value 2"));
-      assertTrue(newGroup.getAttribute(type2attr2.getName()).equals(""));
+      assertTrue(newGroup.getAttributeValue(type1attr1.getName(), false, false).equals("custom attr value 1"));
+      assertTrue(newGroup.getAttributeValue(type1attr2.getName(), false, false).equals(""));
+      assertTrue(newGroup.getAttributeValue(type2attr1.getName(), false, false).equals("custom attr value 2"));
+      assertTrue(newGroup.getAttributeValue(type2attr2.getName(), false, false).equals(""));
     } else {
-      assertTrue(newGroup.getAttribute(type1attr1.getName()).equals(""));
-      assertTrue(newGroup.getAttribute(type1attr2.getName()).equals(""));
-      assertTrue(newGroup.getAttribute(type2attr1.getName()).equals(""));
-      assertTrue(newGroup.getAttribute(type2attr2.getName()).equals(""));
+      assertTrue(newGroup.getAttributeValue(type1attr1.getName(), false, false).equals(""));
+      assertTrue(newGroup.getAttributeValue(type1attr2.getName(), false, false).equals(""));
+      assertTrue(newGroup.getAttributeValue(type2attr1.getName(), false, false).equals(""));
+      assertTrue(newGroup.getAttributeValue(type2attr2.getName(), false, false).equals(""));
     }
     
     // parent checks

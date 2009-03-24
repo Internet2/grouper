@@ -39,17 +39,13 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
-import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
-import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
-import edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.CompositeMembershipValidator;
 import edu.internet2.middleware.grouper.validator.EffectiveMembershipValidator;
@@ -60,7 +56,7 @@ import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.13 2009-03-18 18:51:58 shilen Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.14 2009-03-24 17:12:08 mchyzer Exp $
  * @since   1.2.0
  */
 @GrouperIgnoreDbVersion
@@ -1038,7 +1034,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     }
 
     this.fixComposites(new LinkedHashSet(), this.getDeletes());
-    
+
     Set<Group> modifiedGroups = new LinkedHashSet<Group>();
     modifiedGroups.add(this.getGroup());
     

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksAddTypeTest.java,v 1.3 2009-03-20 19:56:41 mchyzer Exp $
+ * $Id: GroupHooksAddTypeTest.java,v 1.4 2009-03-24 17:12:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -106,7 +106,7 @@ public class GroupHooksAddTypeTest extends GrouperTest {
     
     assertTrue(group.getTypes().contains(fubGroup));
     
-    assertEquals("2", group.getAttribute("gid"));
+    assertEquals("2", group.getAttributeValue("gid", false, true));
   }
   
 }

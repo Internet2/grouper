@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  mchyzer
- * @version $Id: TestGroupTypeIncludeExclude.java,v 1.8 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestGroupTypeIncludeExclude.java,v 1.9 2009-03-24 17:12:09 mchyzer Exp $
  */
 public class TestGroupTypeIncludeExclude extends GrouperTest {
 
@@ -48,8 +48,8 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestGroupTypeIncludeExclude("testRequireGroup2"));
-    TestRunner.run(TestGroupTypeIncludeExclude.class);
+    TestRunner.run(new TestGroupTypeIncludeExclude("testRequireGroup1"));
+    //TestRunner.run(TestGroupTypeIncludeExclude.class);
   }
   
   /**
@@ -449,7 +449,6 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     aGroup.addType(this.requireGroupsType);
     aGroup.setAttribute("requireActiveEmployee", "true");
     aGroup.setAttribute("requireAlsoInGroups", "aStem:anotherGroup,aStem:yetAnotherGroup");
-    aGroup.store();
   
     //requireGroups3 is composite complement: systemOfRecord complement aStem:activeEmployee
     //requireGroups2 is composite complement: requireGroups3 complement aStem:activeStudent
@@ -548,6 +547,14 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     assertEquals(requireGroups2.getComposite(true).getLeftGroup(), systemOfRecordGroup);
     assertEquals(requireGroups2.getComposite(true).getRightGroup(), activeEmployeeGroup);
   
+    
+    anotherGroup = GroupFinder.findByName(this.grouperSession, "aStem:anotherGroup", true);
+    assertTrue(anotherGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(anotherGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(anotherGroup.hasMember(SubjectTestHelper.SUBJ3));
+    assertTrue(anotherGroup.hasMember(SubjectTestHelper.SUBJ4));
+
+    requireGroups2 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups2", false);
     assertTrue(requireGroups2.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(requireGroups2.hasMember(SubjectTestHelper.SUBJ1));
     assertTrue(requireGroups2.hasMember(SubjectTestHelper.SUBJ2));
@@ -722,12 +729,14 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     aGroup.addType(this.requireGroupsType);
     aGroup.setAttribute("requireActiveEmployee", "true");
     aGroup.setAttribute("requireAlsoInGroups", "aStem:anotherGroup,aStem:yetAnotherGroup");
-    aGroup.store();
+
 
     //requireGroups3 is composite complement: systemOfRecord complement aStem:activeEmployee
     //requireGroups2 is composite complement: requireGroups3 complement aStem:activeStudent
     //requireGroups1 is composite complement: requireGroups2 complement aStem:anotherGroup
     //overallGroup is composite complement: requireGroups1 complement aStem:yetAnotherGroup
+    overallGroup = GroupFinder.findByName(this.grouperSession, overallName, true);
+    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, systemOfRecordIdPath, true);
     requireGroups1 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups1", false);
     requireGroups2 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups2", false);
     requireGroups3 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups3", false);
@@ -736,7 +745,7 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     excludesGroup = GroupFinder.findByName(this.grouperSession, overallName + "_excludes", false);
     systemOfRecordAndIncludesGroup = GroupFinder.findByName(this.grouperSession, overallName + "_systemOfRecordAndIncludes", false);
     includesMinusExcludes = GroupFinder.findByName(this.grouperSession, overallName + "_includesMinusExcludes", false);
-
+    
     assertNotNull(requireGroups1);
     assertNotNull(requireGroups2);
     assertNotNull(requireGroups3);
@@ -806,6 +815,8 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     //requireGroups2 is composite complement: systemOfRecord complement aStem:activeStudent
     //requireGroups1 is composite complement: requireGroups2 complement aStem:anotherGroup
     //overallGroup is composite complement: requireGroups1 complement aStem:yetAnotherGroup
+    overallGroup = GroupFinder.findByName(this.grouperSession, overallName, true);
+    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, systemOfRecordIdPath, true);
     requireGroups1 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups1", false);
     requireGroups2 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups2", false);
     requireGroups3 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups3", false);
@@ -869,6 +880,8 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     //requireGroups2 is composite complement: systemOfRecordAndIncludes complement aStem:activeStudent
     //requireGroups1 is composite complement: requireGroups2 complement aStem:anotherGroup
     //overallGroup is composite complement: requireGroups1 complement aStem:yetAnotherGroup
+    overallGroup = GroupFinder.findByName(this.grouperSession, overallName, true);
+    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, systemOfRecordIdPath, true);
     requireGroups1 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups1", false);
     requireGroups2 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups2", false);
     requireGroups3 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups3", false);
@@ -977,6 +990,8 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     //requireGroups2 is composite complement: systemOfRecordAndIncludes complement aStem:activeStudent
     //requireGroups1 is composite complement: requireGroups2 complement aStem:anotherGroup
     //overallGroup is composite complement: requireGroups1 complement aStem:yetAnotherGroup
+    overallGroup = GroupFinder.findByName(this.grouperSession, overallName, true);
+    systemOfRecordGroup = GroupFinder.findByName(this.grouperSession, systemOfRecordIdPath, true);
     requireGroups1 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups1", false);
     requireGroups2 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups2", false);
     requireGroups3 = GroupFinder.findByName(this.grouperSession, overallName + "_requireGroups3", false);
@@ -1209,7 +1224,6 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     //add an attributes, first one, then two others
     aGroup.setAttribute("requireActiveEmployee", "true");
     aGroup.setAttribute("requireAlsoInGroups", "aStem:anotherGroup,aStem:yetAnotherGroup");
-    aGroup.store();
     
     //refresh this
     Group overallGroup = GroupFinder.findByName(this.grouperSession, overallName, true);
@@ -1314,7 +1328,6 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     //#######################################################################
     //now remove an attribute
     aGroup.deleteAttribute("requireAlsoInGroups");
-    aGroup.store();
     
     //refresh this
     overallGroup = GroupFinder.findByName(this.grouperSession, overallName, true);
@@ -1363,8 +1376,9 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
     
     //lets try to remove that and group too
     aGroup.deleteAttribute("requireActiveEmployee");
-    aGroup.store();
     
+    overallGroup = GroupFinder.findByName(this.grouperSession, overallName, true);
+
     //and lets test the overall membership
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(overallGroup.hasMember(SubjectTestHelper.SUBJ1));

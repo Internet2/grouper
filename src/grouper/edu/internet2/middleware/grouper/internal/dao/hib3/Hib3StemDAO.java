@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -39,14 +40,13 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.StemDAO;
-import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.23 2009-03-18 18:51:58 shilen Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.24 2009-03-24 17:12:08 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -63,7 +63,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
    * @throws GrouperDAOException 
    * @since   
    */
-  public void createChildGroup(final Stem _stem, final Group _group, final Member _member)
+  public void createChildGroup(final Stem _stem, final Group _group, final Member _member, final Map<String, String> attributes)
     throws  GrouperDAOException {
     
     try {
@@ -75,9 +75,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
                 throws GrouperDAOException {
               HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               ByObject byObject = hibernateSession.byObject();
+              
+              //MCH 2009/03/23 remove this for optimistic locking
               byObject.save(_group);
-              hibernateSession.misc().flush();
-
+              
               // add group-type tuples
               Iterator                    it    = _group.getTypesDb().iterator();
               while (it.hasNext()) {
@@ -87,13 +88,19 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
                 //see if that record exists
                 if (null == Hib3GroupTypeTupleDAO.findByGroupAndType(_group, groupType, false)) {
                   GroupTypeTuple tuple = new GroupTypeTuple();
-                  tuple.setGroupUuid( _group.getUuid() );
+                  tuple.assignGroupUuid( _group.getUuid(), _group );
                   tuple.setTypeUuid( groupType.getUuid() );
                   byObject.saveOrUpdate(tuple); // new group-type tuple
                 }
               }
-              //TODO remove this call
-              hibernateSession.byObject().update( _stem );
+              
+              //loop through in case an attribute is set in hook
+              for (String key : attributes.keySet()) {
+                _group.setAttribute(key, attributes.get(key), false);
+              }
+              
+              //MCH 2009/03/23 remove this for optimistic locking
+              //hibernateSession.byObject().update( _stem );
               hibernateSession.misc().flush();
               if ( !GrouperDAOFactory.getFactory().getMember().exists( _member.getUuid() ) ) {
                 byObject.save( _member );

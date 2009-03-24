@@ -90,7 +90,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.11 2009-03-23 02:59:25 mchyzer Exp $
+ * @version $Id: XmlExporter.java,v 1.12 2009-03-24 17:12:09 mchyzer Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -1182,7 +1182,7 @@ public class XmlExporter {
   {
     if ( !f.getType().equals(FieldType.LIST) && g.canReadField(f) ) {
       try {
-        String            val = XML.escape( g.getAttribute( f.getName() ) );
+        String            val = XML.escape( g.getAttributeValue( f.getName(),false, true ) );
         NotNullValidator  v   = NotNullValidator.validate(val);
         if (
           v.isValid() && ":description:extension:displayExtension:".indexOf(":" + f.getName() + ":") == -1
@@ -1455,17 +1455,17 @@ public class XmlExporter {
       }
       Collection members = new ArrayList();
       members.addAll(membersSet);
-      if (
-        ( f.getName().equals("members")   && !this._isGroupMemberImmediateOnlyExportEnabled() )
-        || 
-        ( !f.getName().equals("members")  && !this._isGroupListImmediateOnlyExportEnabled() )
-      )
-      {
+//      if (
+//        ( f.getName().equals("members")   && !this._isGroupMemberImmediateOnlyExportEnabled() )
+//        || 
+//        ( !f.getName().equals("members")  && !this._isGroupListImmediateOnlyExportEnabled() )
+//      )
+//      {
         members.addAll( g.getEffectiveMemberships(f) );
         if (f.getName().equals("members") && g.hasComposite()) {
           members.addAll( g.getCompositeMemberships() );
         }
-      }
+//      }
       if (members.isEmpty() && !isComposite) {
         return;
       }

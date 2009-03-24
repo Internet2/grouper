@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupDataTest.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * $Id: GroupDataTest.java,v 1.2 2009-03-24 17:12:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.group;
 
@@ -83,25 +83,13 @@ public class GroupDataTest extends GrouperTest {
 
     
     assertFalse("Nothing should not be different", a.dbVersionIsDifferent());
-    a.getAttributesDb().put("attribute1", "abc");
-    Set<String> dbVersionDifferentFields = a.dbVersionDifferentFields();
-    assertEquals("Only one field changed", 1, dbVersionDifferentFields.size());
-    String differentField = (String)dbVersionDifferentFields.toArray()[0];
-    assertEquals("Only one field changed", "attribute__attribute1", differentField);
-
-    assertEquals("abc", a.fieldValue(differentField));
-    
-    //this persists, and takes a new snapshot
-    HibernateSession.byObjectStatic().update(a);
-    
-    assertFalse("Nothing should not be different", a.dbVersionIsDifferent());
     
     a.setDescription("hey");
 
     assertTrue("Description should not be different", a.dbVersionIsDifferent());
-    dbVersionDifferentFields = a.dbVersionDifferentFields();
+    Set<String> dbVersionDifferentFields = a.dbVersionDifferentFields();
     assertEquals("Only one field changed", 1, dbVersionDifferentFields.size());
-    differentField = (String)dbVersionDifferentFields.toArray()[0];
+    String differentField = (String)dbVersionDifferentFields.toArray()[0];
     assertEquals("Only one field changed", "description", differentField);
  
     //this persists, and takes a new snapshot

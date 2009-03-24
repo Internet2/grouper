@@ -30,7 +30,7 @@ import  java.util.Set;
  * Decorator that provides <i>GrouperAll</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAllAccessResolver.java,v 1.9 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: GrouperAllAccessResolver.java,v 1.10 2009-03-24 17:12:07 mchyzer Exp $
  * @since   1.2.1
  */
 public class GrouperAllAccessResolver extends AccessResolverDecorator {
@@ -153,20 +153,20 @@ public class GrouperAllAccessResolver extends AccessResolverDecorator {
    * @param subj
    * @return the set, never null
    */
-  private Set<AccessPrivilege> fixPrivs(Set privs,Subject subj) {
+  private Set<AccessPrivilege> fixPrivs(Set<AccessPrivilege> privs,Subject subj) {
 	Set<AccessPrivilege> fixed = new HashSet<AccessPrivilege>();
-	Iterator it = privs.iterator();
+	Iterator<AccessPrivilege> it = privs.iterator();
 	AccessPrivilege oldPriv;
 	AccessPrivilege newPriv;
 	while(it.hasNext()) {
-		oldPriv=(AccessPrivilege)it.next();
+		oldPriv=it.next();
 		newPriv= new AccessPrivilege(
 					oldPriv.getGroup(),
 					subj,
 					oldPriv.getOwner(),
 					Privilege.getInstance(oldPriv.getName()),
 					oldPriv.getImplementationName(),
-					false);
+					false, oldPriv.getContextId());
 		fixed.add(newPriv);
 	}
 	return fixed;

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeTupleIncludeExcludeHook.java,v 1.4 2009-03-15 06:37:23 mchyzer Exp $
+ * $Id: GroupTypeTupleIncludeExcludeHook.java,v 1.5 2009-03-24 17:12:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -209,9 +209,10 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
         return;
       }
         
-      Group typedGroup = GroupFinder.findByUuid(grouperSession, groupUuid, true);
+      //not sure why this would be null, could be a stale state problem if so
+      Group typedGroup = postInsertBean.getGroupTypeTuple().retrieveGroup(true);
 
-      manageIncludesExcludesAndGroups(grouperSession, typedGroup, includeExcludeTypeName + " added to group: " + typedGroup.getExtension());
+      manageIncludesExcludesAndGroups(grouperSession, typedGroup, includeExcludeTypeName + " changed on group: " + typedGroup.getName());
       
     } catch (Exception e) {
       throw new RuntimeException("Error doing include/exclude on group: " + groupUuid, e);
@@ -278,7 +279,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       boolean hasAndGroupsAttributeName = StringUtils.isNotBlank(andGroupsAttributeName);
       
       if (hasRequireGroupsType && hasAndGroupsAttributeName) {
-        String groupNames = typedGroup.getAttributeOrNull(andGroupsAttributeName);
+        String groupNames = typedGroup.getAttributeValue(andGroupsAttributeName, false, false);
         if (!StringUtils.isBlank(groupNames)) {
           String[] andGroupNames = GrouperUtil.splitTrim(groupNames, ",");
           for (String andGroupName: andGroupNames) {
@@ -297,7 +298,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
             continue;
           }
           
-          String valueString = typedGroup.getAttributeOrNull(field.getName());
+          String valueString = typedGroup.getAttributeValue(field.getName(), false, false);
     
           boolean valueBoolean = GrouperUtil.booleanValue(valueString, false);
           
@@ -308,7 +309,6 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
           
         }
       }
-      
       //now try custom types
       //#grouperIncludeExclude.requireGroup.name.0 = requireActiveEmployee
       //#grouperIncludeExclude.requireGroup.attributeOrType.0 = type
@@ -438,7 +438,14 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       String overallName = stemName + ":" + overallExtension;
 
       //create the overall group if not exist already
-      Group overallGroup = GroupFinder.findByName(grouperSession, overallName, false);
+      Group overallGroup = null;
+      
+      if (StringUtils.equals(typedGroup.getName(), overallName)) {
+        overallGroup = typedGroup;
+      } else {
+        overallGroup = GroupFinder.findByName(grouperSession, overallName, false);
+      }
+      
       String overallDescription = overallDescription(overallExtension, overallDisplayExtension);
       if (overallGroup == null) {
         LOG.debug("Adding overall group: " + overallName);
@@ -632,6 +639,11 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
             arrayIndex++;
           }
 
+          //cant assign if has one
+          if (overallGroup.hasComposite()) {
+            overallGroup.deleteCompositeMember();
+          }
+          
           overallGroup.assignCompositeMember(CompositeType.INTERSECTION, previousGroup, andGroupsArray[andGroupsLength-1]);
             
         }

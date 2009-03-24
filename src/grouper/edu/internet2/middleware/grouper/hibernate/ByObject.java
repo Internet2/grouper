@@ -6,6 +6,7 @@ import java.util.Collection;
 import org.apache.commons.logging.Log;
 import org.hibernate.Session;
 
+import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -13,7 +14,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * @version $Id: ByObject.java,v 1.9 2009-02-07 20:16:08 mchyzer Exp $
+ * @version $Id: ByObject.java,v 1.10 2009-03-24 17:12:08 mchyzer Exp $
  * @author harveycg
  */
 public class ByObject extends HibernateDelegate {
@@ -49,6 +50,8 @@ public class ByObject extends HibernateDelegate {
     } catch (HookVeto hookVeto) {
       //just throw, this is ok
       throw hookVeto;
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in delete: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
       throw e;
@@ -92,6 +95,8 @@ public class ByObject extends HibernateDelegate {
     } catch (HookVeto hookVeto) {
       //just throw, this is ok
       throw hookVeto;
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in delete: " + GrouperUtil.classNameCollection(object) + ", " + this, e);
       throw e;
@@ -123,6 +128,8 @@ public class ByObject extends HibernateDelegate {
     } catch (HookVeto hookVeto) {
       //just throw, this is ok
       throw hookVeto;
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in save: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
       throw e;
@@ -160,6 +167,7 @@ public class ByObject extends HibernateDelegate {
 
       GrouperContext.incrementQueryCount();
       Serializable id = session.save(object);
+      session.flush();
       
       if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
         ((HibGrouperLifecycle)object).onPostSave(hibernateSession);
@@ -168,6 +176,8 @@ public class ByObject extends HibernateDelegate {
     } catch (HookVeto hookVeto) {
       //just throw, this is ok
       throw hookVeto;
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in save: " + GrouperUtil.className(object) + ", " + this, e);
       throw e;
@@ -199,6 +209,8 @@ public class ByObject extends HibernateDelegate {
     } catch (HookVeto hookVeto) {
       //just throw, this is ok
       throw hookVeto;
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in saveOrUpdate: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
       throw e;
@@ -231,7 +243,7 @@ public class ByObject extends HibernateDelegate {
 
       Boolean isInsert = null;
       if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
-        isInsert = HibUtilsMapping.isInsert(hibernateSession, object);
+        isInsert = HibUtilsMapping.isInsert(object);
         if (isInsert) {
           ((HibGrouperLifecycle)object).onPreSave(hibernateSession);
         } else {
@@ -257,6 +269,8 @@ public class ByObject extends HibernateDelegate {
     } catch (HookVeto hookVeto) {
       //just throw, this is ok
       throw hookVeto;
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in save: " + GrouperUtil.className(object) + ", " + this, e);
       throw e;
@@ -288,6 +302,8 @@ public class ByObject extends HibernateDelegate {
       
       return result;
 
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in load: " + theClass + ", " 
           + id + ", " + this, e);
@@ -320,6 +336,8 @@ public class ByObject extends HibernateDelegate {
     } catch (HookVeto hookVeto) {
       //just throw, this is ok
       throw hookVeto;
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in update: " + GrouperUtil.classNameCollection(collection) + ", " + this, e);
       throw e;
@@ -355,6 +373,8 @@ public class ByObject extends HibernateDelegate {
     } catch (HookVeto hookVeto) {
       //just throw, this is ok
       throw hookVeto;
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in update: " + GrouperUtil.className(object) + ", " + this, e);
       throw e;

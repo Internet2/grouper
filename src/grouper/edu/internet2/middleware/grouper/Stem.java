@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -98,7 +99,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.189 2009-03-23 02:59:25 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.190 2009-03-24 17:12:08 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -1524,7 +1525,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
               _g.setDisplayExtension(dExtn);
               _g.setExtension(extn);
               _g.setDescription(description);
-              _g.setAttributes(attributes);
               _g.setCreateTimeLong(new Date().getTime());
               _g.setCreatorUuid(session.getMember().getUuid());
               _g.setTypes(types);
@@ -1559,8 +1559,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
               }
         
               //CH 20080220: this will start saving the stem
-              GrouperDAOFactory.getFactory().getStem().createChildGroup( Stem.this, _g, _m );
+              GrouperDAOFactory.getFactory().getStem().createChildGroup( Stem.this, _g, _m, attributes );
                 
+              if (addDefaultGroupPrivileges == true) {
+                _grantDefaultPrivsUponCreate(_g);
+              }
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                 AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ADD, "id", 
                     _g.getUuid(), "name", _g.getName(), "parentStemId", Stem.this.getUuid(), "displayName", 
@@ -1572,9 +1575,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
               sw.stop();
               EventLog.info(session, M.GROUP_ADD + Quote.single(_g.getName()), sw);
               
-              if (addDefaultGroupPrivileges == true) {
-                _grantDefaultPrivsUponCreate(_g);
-              }
               return _g;
             } catch (GrouperDAOException eDAO) {
               throw new GroupAddException( E.CANNOT_CREATE_GROUP + errorMessageSuffix + eDAO.getMessage(), eDAO );

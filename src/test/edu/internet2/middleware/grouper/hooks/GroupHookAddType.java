@@ -27,7 +27,6 @@ public class GroupHookAddType extends
       GroupType fubGroup = GroupTypeFinder.find("fubGroup", true);
       group.addType(fubGroup);
       group.setAttribute("gid", "2");
-      group.store();
       
 //      int sequenceNumber = HibernateSession.bySqlStatic().select(int.class, "select someSeq.nextval from dual");
 //      List<Object> params = GrouperUtil.toList((Object)group.getUuid(), sequenceNumber);

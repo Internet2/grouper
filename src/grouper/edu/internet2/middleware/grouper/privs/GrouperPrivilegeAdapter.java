@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.7 2009-03-02 07:33:25 mchyzer Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.8 2009-03-24 17:12:07 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperPrivilegeAdapter {
@@ -102,12 +102,12 @@ public class GrouperPrivilegeAdapter {
           
             if (Privilege.isAccess(localP))  {
               privs.add(
-                new AccessPrivilege((Group)ownerGroupOrStem, subj, owner, localP, grouperSession.getAccessClass(), revoke)
+                new AccessPrivilege((Group)ownerGroupOrStem, subj, owner, localP, grouperSession.getAccessClass(), revoke, ms.getContextId())
               );
             }
             else{
               privs.add(
-                new NamingPrivilege( (Stem)ownerGroupOrStem, subj, owner, localP, grouperSession.getNamingClass(), revoke )
+                new NamingPrivilege( (Stem)ownerGroupOrStem, subj, owner, localP, grouperSession.getNamingClass(), revoke, ms.getContextId() )
               );
             }
 

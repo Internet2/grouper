@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
 
+import edu.internet2.middleware.grouper.internal.dao.AttributeDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
@@ -36,7 +37,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAOFactory.java,v 1.7 2009-02-01 22:38:48 mchyzer Exp $
+ * @version $Id: Hib3DAOFactory.java,v 1.8 2009-03-24 17:12:08 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3DAOFactory extends GrouperDAOFactory {
@@ -156,6 +157,14 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public Configuration getConfiguration() {
     return Hib3DAO.getConfiguration();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getAttribute()
+   */
+  @Override
+  public AttributeDAO getAttribute() {
+    return new Hib3AttributeDAO();
   }
 
 } 

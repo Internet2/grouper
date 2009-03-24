@@ -31,7 +31,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>GrouperSystem</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSystemAccessResolver.java,v 1.9 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: GrouperSystemAccessResolver.java,v 1.10 2009-03-24 17:12:07 mchyzer Exp $
  * @since   1.2.1
  */
 public class GrouperSystemAccessResolver extends AccessResolverDecorator {
@@ -88,7 +88,7 @@ public class GrouperSystemAccessResolver extends AccessResolverDecorator {
 	      for(Privilege p : privs) {
 	    	//Not happy about the klass but will do for now in the absence of a GrouperSession
 	    	if(!p.equals(AccessPrivilege.OPTIN) && !p.equals(AccessPrivilege.OPTOUT)) {
-	    		ap = new AccessPrivilege(group,subject,subject,p,GrouperConfig.getProperty("privileges.access.interface"),false);
+	    		ap = new AccessPrivilege(group,subject,subject,p,GrouperConfig.getProperty("privileges.access.interface"),false, null);
 	    		accessPrivs.add(ap);
 	    	}
 	      }

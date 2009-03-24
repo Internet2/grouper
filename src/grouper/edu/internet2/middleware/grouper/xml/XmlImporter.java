@@ -101,7 +101,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.16 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.17 2009-03-24 17:12:09 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -1021,7 +1021,7 @@ public class XmlImporter {
         LOG.debug("cannot write (" + name + ") on (" + g.getName() + ")");
         continue;
       }
-      orig                          = g.getAttribute(name); 
+      orig                          = g.getAttributeValue(name, false, false); 
       try {
     	  val                           = ( (Text) elAttr.getFirstChild() ).getData();
       }catch(NullPointerException npe) {
@@ -1031,7 +1031,6 @@ public class XmlImporter {
       NotNullOrEmptyValidator vVal  = NotNullOrEmptyValidator.validate(val);
       if ( vVal.isValid() && !val.equals(orig) && ( vOrig.isInvalid() || this._isUpdatingAttributes() ) ) {
         g.setAttribute(name, val);
-        g.store();
       } 
     }
   } // private void _processAttributesHandleAttributes()

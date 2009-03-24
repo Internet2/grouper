@@ -23,6 +23,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.AttributeHooks;
@@ -37,20 +38,22 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Attribute</code> DTO interface.
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.24 2009-03-23 02:59:25 mchyzer Exp $
+ * @version $Id: Attribute.java,v 1.25 2009-03-24 17:12:07 mchyzer Exp $
  * @since   @HEAD@
  */
 @SuppressWarnings("serial")
-@GrouperIgnoreDbVersion
 public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
-  /** constant for field name for: dbVersion */
-  public static final String FIELD_DB_VERSION = "dbVersion";
+  /** constant for field name for: contextId */
+  public static final String FIELD_CONTEXT_ID = "contextId";
 
   /** constant for field name for: fieldId */
   public static final String FIELD_FIELD_ID = "fieldId";
+
+  /** constant for field name for: group */
+  public static final String FIELD_GROUP = "group";
 
   /** constant for field name for: groupUUID */
   public static final String FIELD_GROUP_UUID = "groupUUID";
@@ -62,10 +65,17 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
   public static final String FIELD_VALUE = "value";
 
   /**
+   * fields which are included in db version
+   */
+  private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
+      FIELD_FIELD_ID, FIELD_GROUP, FIELD_GROUP_UUID, FIELD_ID, 
+      FIELD_VALUE);
+
+  /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_DB_VERSION, FIELD_FIELD_ID, FIELD_GROUP_UUID, FIELD_HIBERNATE_VERSION_NUMBER, 
+      FIELD_FIELD_ID, FIELD_GROUP, FIELD_GROUP_UUID, FIELD_HIBERNATE_VERSION_NUMBER, 
       FIELD_ID, FIELD_VALUE);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
@@ -81,6 +91,77 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
   private String  id;
   /** */
   private String  value;
+
+  /** store a reference to the group for hooks or whatnot */
+  private Group group;
+
+  /**
+   * take a snapshot of the data since this is what is in the db
+   */
+  @Override
+  public void dbVersionReset() {
+    //lets get the state from the db so we know what has changed
+    this.dbVersion = GrouperUtil.clone(this, DB_VERSION_FIELDS);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersion()
+   */
+  @Override
+  public Attribute dbVersion() {
+    return (Attribute)this.dbVersion;
+  }
+
+  /**
+   * @param failIfNull 
+   * @return the set of different fields
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersionDifferentFields()
+   */
+  public Set<String> dbVersionDifferentFields(boolean failIfNull) {
+    if (this.dbVersion == null) {
+      if (failIfNull) {
+        throw new RuntimeException("State was never stored from db");
+      }
+      return null;
+    }
+    //easier to unit test if everything is ordered
+    Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
+        DB_VERSION_FIELDS, null);
+
+    return result;
+  }
+
+  /**
+   * try to get the current group if it is available (if this object
+   * is cloned, then it might be null)
+   * @param retrieveIfNull true to get from DB if null
+   * @return the current group
+   */
+  public Group retrieveGroup(boolean retrieveIfNull) {
+    if (retrieveIfNull && this.group==null) {
+      this.group = GroupFinder.findByUuid(
+          GrouperSession.staticGrouperSession(), this.groupUUID, true);
+    }
+    return this.group;
+  }
+
+  /**
+   * 
+   * @param groupUUID1
+   * @param group1 
+   */
+  public void assignGroupUuid(String groupUUID1, Group group1) {
+    this.groupUUID = groupUUID1;
+    
+    //see if we need to wipe out to null
+    if (group1 == null && this.group != null 
+        && StringUtils.equals(this.group.getUuid(), groupUUID1)) {
+      group1 = this.group;
+    }
+
+    this.group = group1;
+  }
 
   /**
    * 
@@ -182,10 +263,10 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
 
   /**
    * 
-   * @param groupUUID
+   * @param groupUUID1
    */
-  public void setGroupUuid(String groupUUID) {
-    this.groupUUID = groupUUID;
+  public void setGroupUuid(String groupUUID1) {
+    this.assignGroupUuid(groupUUID1, null);
   }
   
   /**
@@ -323,6 +404,8 @@ public class Attribute extends GrouperAPI implements GrouperHasContext, Hib3Grou
   }
 
   /** context id of the transaction */
+  @GrouperIgnoreDbVersion
+  @GrouperIgnoreClone
   private String contextId;
 
   /**

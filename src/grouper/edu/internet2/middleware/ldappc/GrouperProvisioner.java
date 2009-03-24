@@ -478,7 +478,7 @@ public class GrouperProvisioner extends Provisioner
 
         try
         {
-            groupNameString = group.getAttribute(groupNamingAttribute);
+            groupNameString = group.getAttributeValue(groupNamingAttribute, false, true);
             if (groupNameString == null)
             {
                 String errorData = getErrorData(null, null, null);

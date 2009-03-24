@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeTupleDAO.java,v 1.5 2009-02-13 13:51:58 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeTupleDAO.java,v 1.6 2009-03-24 17:12:08 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupTypeTupleDAO extends Hib3DAO {
@@ -60,7 +60,7 @@ public class Hib3GroupTypeTupleDAO extends Hib3DAO {
    */
   public static GroupTypeTuple findByGroupAndType(Group g, GroupType type, boolean exceptionIfNotExist)
     throws  GrouperDAOException {
-    GroupTypeTuple dto = HibernateSession.byHqlStatic()
+    GroupTypeTuple groupTypeTuple = HibernateSession.byHqlStatic()
       .createQuery(
         "from GroupTypeTuple as gtt where"
         + " gtt.groupUuid    = :group"
@@ -70,10 +70,13 @@ public class Hib3GroupTypeTupleDAO extends Hib3DAO {
         .setString( "group", g.getUuid()        )
         .setString( "type",  type.getUuid() )
         .uniqueResult(GroupTypeTuple.class);
-    if (dto == null && exceptionIfNotExist) {
+    if (groupTypeTuple == null && exceptionIfNotExist) {
       throw new GrouperDAOException("GroupTypeTuple not found");       
     }
-    return dto;
+    if (groupTypeTuple != null) {
+      groupTypeTuple.assignGroupUuid(g.getUuid(), g);
+    }
+    return groupTypeTuple;
   }
 
 

@@ -18,11 +18,8 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -32,14 +29,10 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 
-import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
@@ -64,7 +57,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.33 2009-03-21 13:35:50 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.34 2009-03-24 17:12:08 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -112,20 +105,21 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               throws GrouperDAOException {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             GroupTypeTuple groupTypeTuple = new GroupTypeTuple();
-            groupTypeTuple.setGroupUuid( _g.getUuid() );
+            groupTypeTuple.assignGroupUuid( _g.getUuid(), _g );
             groupTypeTuple.setTypeUuid( _gt.getUuid() );
             hibernateSession.byObject().save(groupTypeTuple);
- 
+            
+            //MCH dont save again due to optimistic locking
             //get it again in case it was changed in the hook
-            Group g2 = null;
-            try {
-              g2 = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), _g.getUuid(), true);
-            } catch (GroupNotFoundException gnfe) {
-              throw new RuntimeException("Weird problem getting group: " + _g.getName());
-            }
-
-            //note this used to be saveOrUpdate
-            hibernateSession.byObject().update( g2 ); // modified group
+//            Group g2 = null;
+//            try {
+//              g2 = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), _g.getUuid(), true);
+//            } catch (GroupNotFoundException gnfe) {
+//              throw new RuntimeException("Weird problem getting group: " + _g.getName());
+//            }
+//
+//            //note this used to be saveOrUpdate
+//            hibernateSession.byObject().update( g2 ); // modified group
  
             //let HibernateSession commit or rollback depending on if problem or enclosing transaction
             return groupTypeTuple;
@@ -188,17 +182,14 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
               throws GrouperDAOException {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             
-            GroupTypeTuple groupTypeTuple = Hib3GroupTypeTupleDAO.findByGroupAndType(group, groupType);
-            hibernateSession.byObject().delete( groupTypeTuple );
-            
             //delete all attributes used by the group of this type
             Set<Field> fields = GrouperUtil.nonNull(groupType.getFields());
             
-            Map<String, String> attributes = group.getAttributesDb();
-
+            //remove the attributes first
             for (Field field : fields) {
               
-              if (attributes.containsKey(field.getName())) {
+              //get attributes each time, in case something else removed
+              if (group.getAttributesMap(false).containsKey(field.getName())) {
                 LOG.debug("deleting attribute: " + field.getName() + " from group: " + group.getName()
                      + " since the type was removed");
                 try {
@@ -209,13 +200,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
                 }
               }
             }
+            //take this out for the hook's benefit, then remove the object
             Set types = group.getTypesDb();
             types.remove( groupType );
+            GroupTypeTuple groupTypeTuple = Hib3GroupTypeTupleDAO.findByGroupAndType(group, groupType);
+            hibernateSession.byObject().delete( groupTypeTuple );
 
-            //no need to call group.store, since the below will take care of attribute changes
-            //NOTE: used to be saveOrUpdate
-            hibernateSession.byObject().update( group ); 
-            
             return groupTypeTuple;
           }
     });
@@ -245,27 +235,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     }
     getExistsCache().put(uuid, rv);
     return rv;
-  } 
-
-  /**
-   * @param uuid 
-   * @return map
-   * @throws GrouperDAOException 
-   * @since   @HEAD@
-   */
-  public Map<String, String> findAllAttributesByGroup(final String uuid) throws  GrouperDAOException {
-    final Map attrs = new HashMap();
-
-    List<Attribute> hib3Attributes = HibernateSession.byHqlStatic()
-      .setGrouperTransactionType(GrouperTransactionType.READONLY_OR_USE_EXISTING)
-      .createQuery("from Attribute as a where a.groupUuid = :uuid")
-      .setCacheable(false).setCacheRegion(KLASS + ".FindAllAttributesByGroup")
-      .setString("uuid", uuid).list(Attribute.class);
-    
-    for (Attribute attribute : hib3Attributes) {
-      attrs.put( attribute.getAttrName(), attribute.getValue() );
-    }
-    return attrs;
   } 
 
   /**
@@ -1030,53 +999,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     return types;
   } // private static Set _findAllTypesByGroup(uuid)
 
-
-  /**
-   * update the attributes for a group
-   * @param hibernateSession 
-   * @param checkExisting true if an update, false if insert
-   * @param group
-   */
-  public void _updateAttributes(HibernateSession hibernateSession, boolean checkExisting, Group group) {
-    ByObject byObject = hibernateSession.byObject();
-    // TODO 20070531 split and test
-    ByHql byHql = hibernateSession.byHql();
-    byHql.createQuery("from Attribute as a where a.groupUuid = :uuid");
-    byHql.setCacheable(false);
-    byHql.setCacheRegion(KLASS + "._UpdateAttributes");
-    byHql.setString("uuid", group.getUuid());
-    Map                   attrs = new HashMap(group.getAttributesDb());
-    String                k;
-
-    List<Attribute> attributes = checkExisting ? GrouperUtil.nonNull(byHql.list(Attribute.class)) : new ArrayList<Attribute>();
-    for (Attribute attribute : attributes) {
-      k = attribute.getAttrName();
-      if ( attrs.containsKey(k) ) {
-        // attr both in db and in memory.  compare.
-        if ( !attribute.getValue().equals( (String) attrs.get(k) ) ) {
-          attribute.setValue( (String) attrs.get(k) );
-          byObject.update(attribute);
-        }
-        attrs.remove(k);
-      }
-      else {
-        // attr only in db.
-        byObject.delete(attribute);
-        attrs.remove(k);
-      }
-    }
-    // now handle entries that were only in memory
-    Map.Entry kv;
-    Iterator it = attrs.entrySet().iterator();
-    while (it.hasNext()) {
-      kv = (Map.Entry) it.next();
-      Attribute attributeDto = new Attribute(); 
-      attributeDto.setFieldId( FieldFinder.findFieldIdForAttribute((String) kv.getKey(), true ));
-      attributeDto.setGroupUuid(group.getUuid());
-      attributeDto.setValue( (String) kv.getValue() );
-      byObject.save(attributeDto);
-    }
-  } // private void _updateAttributes(hs)
 
   // @since 1.2.1         
 //  /**

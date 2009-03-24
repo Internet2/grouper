@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * Test {@link GroupAttributeFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQGroupAttribute.java,v 1.2 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestGQGroupAttribute.java,v 1.3 2009-03-24 17:12:08 mchyzer Exp $
  */
 public class TestGQGroupAttribute extends TestCase {
 
@@ -129,8 +129,6 @@ public class TestGQGroupAttribute extends TestCase {
     uofc.addType(custom);
     devclue.setAttribute("customAttribute", "String with i2 within");
     uofc.setAttribute("customAttribute", "String with i2 within");
-    devclue.store();
-    uofc.store();
 
     try {
       GrouperQuery gq = GrouperQuery.createQuery(

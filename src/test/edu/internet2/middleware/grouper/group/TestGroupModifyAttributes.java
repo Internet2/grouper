@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupModifyAttributes.java,v 1.3 2009-03-22 05:41:01 mchyzer Exp $
+ * @version $Id: TestGroupModifyAttributes.java,v 1.4 2009-03-24 17:12:08 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroupModifyAttributes extends GrouperTest {
@@ -105,9 +105,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       long    orig  = gA.getModifyTime().getTime();
       long    pre   = new java.util.Date().getTime();
-      Thread.sleep(1); // TODO 20070430 hack
+      Thread.sleep(100); // TODO 20070430 hack
       gA.deleteMember(subjA);
-      Thread.sleep(1); // TODO 20070430 hack
+      Thread.sleep(100); // TODO 20070430 hack
       long    post  = new java.util.Date().getTime();
       gA = GroupFinder.findByUuid(r.rs, gA.getUuid(), true);
       long    mtime = gA.getModifyTime().getTime();
@@ -138,12 +138,12 @@ public class TestGroupModifyAttributes extends GrouperTest {
       Subject subjA = r.getSubject("a");
 
       gA.addMember( gB.toSubject() );
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
 
       long  orig  = gA.getModifyTime().getTime();
       long  pre   = new java.util.Date().getTime();
       
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
 
       gB.addMember(subjA);
       long  post  = new java.util.Date().getTime();
@@ -177,11 +177,11 @@ public class TestGroupModifyAttributes extends GrouperTest {
       Subject subjA = r.getSubject("a");
       gA.addMember( gB.toSubject() );
       gB.addMember(subjA);
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
 
       long  orig  = gA.getModifyTime().getTime();
       long  pre   = new java.util.Date().getTime();
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
 
       gB.deleteMember(subjA);
       long  post  = new java.util.Date().getTime();
@@ -329,7 +329,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
       Group   gB    = r.getGroup("a", "b");
       Subject subjA = r.getSubject("a");
       gA.addMember( gB.toSubject() );
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
 
       long pre = new java.util.Date().getTime();
       
@@ -369,13 +369,13 @@ public class TestGroupModifyAttributes extends GrouperTest {
       gA.addMember( gB.toSubject() );
       gB.grantPriv(subjA, AccessPrivilege.ADMIN);
 
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
 
       long pre = new java.util.Date().getTime();
 
       
       gB.revokePriv(subjA, AccessPrivilege.ADMIN);
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
@@ -405,13 +405,13 @@ public class TestGroupModifyAttributes extends GrouperTest {
       Group   gB    = r.getGroup("a", "b");
       Subject subjA = r.getSubject("a");
       gA.grantPriv(gB.toSubject(), AccessPrivilege.ADMIN);
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
 
       long pre = new java.util.Date().getTime();
       
 
       gB.addMember(subjA);
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
@@ -444,13 +444,13 @@ public class TestGroupModifyAttributes extends GrouperTest {
       gA.grantPriv(gB.toSubject(), AccessPrivilege.ADMIN);
       gB.addMember(subjA);
 
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
 
       long pre = new java.util.Date().getTime();
 
       
       gB.deleteMember(subjA);
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
@@ -513,9 +513,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
       Group   gB    = r.getGroup("a", "b");
       Group   gC    = r.getGroup("a", "c");
 
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
       long    pre   = new java.util.Date().getTime();
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
       
       gC.addCompositeMember(CompositeType.COMPLEMENT, gA, gB);
 
@@ -550,9 +550,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       gA.addMember(subjA);
 
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
       long    pre   = new java.util.Date().getTime();
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
       
       gC.addCompositeMember(CompositeType.COMPLEMENT, gA, gB);
 
@@ -586,9 +586,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
       gC.addCompositeMember(CompositeType.COMPLEMENT, gA, gB);
 
 
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
       long    pre   = new java.util.Date().getTime();
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
       
       gC.deleteCompositeMember();
 
@@ -622,9 +622,9 @@ public class TestGroupModifyAttributes extends GrouperTest {
       gC.addCompositeMember(CompositeType.COMPLEMENT, gA, gB);
       gA.addMember(subjA);
 
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
       long    pre   = new java.util.Date().getTime();
-      GrouperUtil.sleep(1);
+      GrouperUtil.sleep(100);
       
       gC.deleteCompositeMember();
 

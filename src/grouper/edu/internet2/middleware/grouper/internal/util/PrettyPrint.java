@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  * Utility class for pretty printing objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: PrettyPrint.java,v 1.6 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: PrettyPrint.java,v 1.7 2009-03-24 17:12:08 mchyzer Exp $
  * @since   1.2.0
  */
 public class PrettyPrint {
@@ -68,11 +68,11 @@ public class PrettyPrint {
       Group  _gRight = GrouperDAOFactory.getFactory().getGroup().findByUuid( _c.getRightFactorUuid(), true );
       return _c.getClass().getName() 
         + OPEN
-        + "owner="  + _gOwner.getAttributesDb().get("name")
+        + "owner="  + _gOwner.getAttributesMap(false).get("name")
         + DELIM
-        + "left="   + _gLeft.getAttributesDb().get("name")
+        + "left="   + _gLeft.getAttributesMap(false).get("name")
         + DELIM
-        + "right="  + _gRight.getAttributesDb().get("name")
+        + "right="  + _gRight.getAttributesMap(false).get("name")
         + DELIM
         + "type="   + _c.getTypeDb()
         + DELIM
@@ -95,7 +95,7 @@ public class PrettyPrint {
       Member _m  = GrouperDAOFactory.getFactory().getMember().findByUuid( _ms.getMemberUuid(), true );
       return _ms.getClass().getName()
         + OPEN 
-        + "group="    + _g.getAttributesDb().get("name")
+        + "group="    + _g.getAttributesMap(false).get("name")
         + DELIM
         + "member="   + _m.getSubjectIdDb() + "@" + _m.getSubjectSourceIdDb()
         + DELIM

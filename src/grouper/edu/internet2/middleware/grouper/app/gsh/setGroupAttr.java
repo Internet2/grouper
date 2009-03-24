@@ -20,7 +20,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
  * Set {@link Group} attribute value.
  * <p/>
  * @author  blair christensen.
- * @version $Id: setGroupAttr.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: setGroupAttr.java,v 1.4 2009-03-24 17:12:09 mchyzer Exp $
  * @since   0.0.1
  */
 public class setGroupAttr {
@@ -49,7 +49,6 @@ public class setGroupAttr {
       GrouperSession  s = GrouperShell.getSession(i);
       Group           g = GroupFinder.findByName(s, name, true);
       g.setAttribute(attr, val);
-      g.store();
       return true;
     }
     catch (AttributeNotFoundException eANF)     {

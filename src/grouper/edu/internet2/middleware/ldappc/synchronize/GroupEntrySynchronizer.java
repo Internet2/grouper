@@ -678,7 +678,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
                 //
                 // Get the attribute value from the group
                 //
-                String groupAttributeValue = group.getAttribute(groupAttribute);
+                String groupAttributeValue = group.getAttributeValue(groupAttribute, false, true);
 
                 //
                 // Only storing non-empty string attributes (i.e., lenght > 0)

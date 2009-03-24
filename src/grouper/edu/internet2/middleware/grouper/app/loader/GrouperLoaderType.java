@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.15 2009-03-15 06:37:23 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.16 2009-03-24 17:12:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -633,7 +633,7 @@ public enum GrouperLoaderType {
    */
   public static String attributeValueOrDefaultOrNull(Group group, String attributeName) {
     
-    String attributeValue = group.getAttributeOrNull(attributeName);
+    String attributeValue = group.getAttributeValue(attributeName, false, false);
     
     //if value, go with that
     if (!StringUtils.isBlank(attributeValue)) {
@@ -641,7 +641,7 @@ public enum GrouperLoaderType {
     }
     
     if (StringUtils.equals(GrouperLoader.GROUPER_LOADER_TYPE, attributeName)) {
-      String query = group.getAttributeOrNull(GrouperLoader.GROUPER_LOADER_QUERY);
+      String query = group.getAttributeValue(GrouperLoader.GROUPER_LOADER_QUERY, false, false);
       if (!StringUtils.isBlank(query)) {
         query = query.toLowerCase();
         String preFrom = GrouperUtil.prefixOrSuffix(query, "from", true);
@@ -665,9 +665,9 @@ public enum GrouperLoaderType {
     }
 
     if (StringUtils.equals(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, attributeName)) {
-      String cron = group.getAttributeOrNull(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON);
+      String cron = group.getAttributeValue(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, false, false);
       boolean hasCron = StringUtils.isNotBlank(cron); 
-      String intervalSeconds = group.getAttributeOrNull(GrouperLoader.GROUPER_LOADER_INTERVAL_SECONDS);
+      String intervalSeconds = group.getAttributeValue(GrouperLoader.GROUPER_LOADER_INTERVAL_SECONDS, false, false);
       boolean hasIntervalSeconds = StringUtils.isNotBlank(intervalSeconds);
       
       if (!hasCron && !hasIntervalSeconds) {
@@ -697,7 +697,7 @@ public enum GrouperLoaderType {
    */
   String attributeValueValidateRequired(Group group, String attributeName) {
     
-    String attributeValue = group.getAttributeOrNull(attributeName);
+    String attributeValue = group.getAttributeValue(attributeName, false, false);
     
     boolean hasValue = StringUtils.isNotBlank(attributeValue);
     boolean isRequired = this.attributeRequired(attributeName);
@@ -1080,7 +1080,7 @@ public enum GrouperLoaderType {
           
           groupUuid = group.getUuid();
           //lets get all attribute values
-          grouperLoaderType = group.getAttributeOrNull(GrouperLoader.GROUPER_LOADER_TYPE);
+          grouperLoaderType = group.getAttributeValue(GrouperLoader.GROUPER_LOADER_TYPE, false, false);
 
           GrouperLoaderType grouperLoaderTypeEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderType, true);
   

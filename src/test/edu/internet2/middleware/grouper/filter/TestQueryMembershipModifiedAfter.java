@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * @author shilen
  * 
- * @version $Id: TestQueryMembershipModifiedAfter.java,v 1.3 2009-03-21 13:35:50 mchyzer Exp $
+ * @version $Id: TestQueryMembershipModifiedAfter.java,v 1.4 2009-03-24 17:12:08 mchyzer Exp $
  */
 public class TestQueryMembershipModifiedAfter extends GrouperTest {
 
@@ -69,14 +69,14 @@ public class TestQueryMembershipModifiedAfter extends GrouperTest {
       gA.revokePriv(AccessPrivilege.READ);
       gA.revokePriv(AccessPrivilege.VIEW);
 
-      GrouperUtil.sleep(2);
+      GrouperUtil.sleep(100);
       Date pre = new Date();
-      GrouperUtil.sleep(2);
+      GrouperUtil.sleep(100);
 
       gA.addMember(subjA);
       gB.grantPriv(subjA, AccessPrivilege.UPDATE);
 
-      GrouperUtil.sleep(2);
+      GrouperUtil.sleep(100);
       Date post = new Date();
 
       GrouperQuery gq = GrouperQuery.createQuery(r.rs,
@@ -129,14 +129,14 @@ public class TestQueryMembershipModifiedAfter extends GrouperTest {
       gA.revokePriv(AccessPrivilege.READ);
       gA.revokePriv(AccessPrivilege.VIEW);
 
-      GrouperUtil.sleep(2);
+      GrouperUtil.sleep(100);
       Date pre = new Date();
-      GrouperUtil.sleep(2);
+      GrouperUtil.sleep(100);
 
       gA.addMember(subjA);
       gB.grantPriv(subjA, AccessPrivilege.UPDATE);
 
-      GrouperUtil.sleep(2);
+      GrouperUtil.sleep(100);
       Date post = new Date();
 
       GrouperQuery gq = GrouperQuery.createQuery(r.rs,

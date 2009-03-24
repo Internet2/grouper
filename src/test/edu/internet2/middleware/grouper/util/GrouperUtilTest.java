@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperUtilTest.java,v 1.13 2009-03-20 19:56:41 mchyzer Exp $
+ * $Id: GrouperUtilTest.java,v 1.14 2009-03-24 17:12:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -135,14 +135,12 @@ public class GrouperUtilTest extends TestCase {
     Group groupFrom = new Group();
     Map attributes = new HashMap();
     attributes.put("a", "b");
-    GrouperUtil.assignField(groupFrom, Group.FIELD_ATTRIBUTES, attributes);
     GrouperUtil.assignField(groupFrom, Group.FIELD_CREATOR_UUID, "abc");
     
     Group groupTo = new Group();
     GrouperUtil.cloneFields(groupFrom, groupTo, 
-        GrouperUtil.toSet(Group.FIELD_ATTRIBUTES, Group.FIELD_CREATOR_UUID, Group.FIELD_CREATE_TIME));
+        GrouperUtil.toSet(Group.FIELD_CREATOR_UUID, Group.FIELD_CREATE_TIME));
     
-    assertEquals("b", (String)groupTo.getAttributesDb().get("a"));
     assertEquals("abc", groupTo.getCreatorUuid());
     assertEquals(0, groupTo.getCreateTimeLong());
     

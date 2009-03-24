@@ -1,9 +1,8 @@
 /**
  * 
  */
-package edu.internet2.middleware.grouper;
+package edu.internet2.middleware.grouper.exception;
 
-import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 
 /**
  * @author mchyzer

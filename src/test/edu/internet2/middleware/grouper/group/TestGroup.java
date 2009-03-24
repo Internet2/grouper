@@ -23,15 +23,19 @@ import junit.framework.Assert;
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
+import org.hibernate.StaleObjectStateException;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
 import edu.internet2.middleware.grouper.helper.FieldHelper;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -40,8 +44,12 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -49,7 +57,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroup.java,v 1.2 2009-03-21 13:35:50 mchyzer Exp $
+ * @version $Id: TestGroup.java,v 1.3 2009-03-24 17:12:08 mchyzer Exp $
  */
 public class TestGroup extends GrouperTest {
 
@@ -58,7 +66,8 @@ public class TestGroup extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroup("testToMember"));
+    //TestRunner.run(new TestGroup("testNoLocking"));
+    TestRunner.run(TestGroup.class);
   }
   
   // Private Class Constants
@@ -89,8 +98,127 @@ public class TestGroup extends GrouperTest {
     LOG.debug("tearDown");
   }
 
-  // Tests
+  /**
+   * 
+   */
+  public void testOptimisticLocking() {
+    
+    //lets not assume that hibernate is set a certain way:
+    try {
+      ApiConfig.testConfig.put("dao.optimisticLocking", "true");
+      
+      //re-init
+      Hib3DAO.hibernateInitted = false;
+      Hib3DAO.initHibernateIfNotInitted();
+      
+      final Group group1 = (Group)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READONLY_NEW, new GrouperTransactionHandler() {
 
+        public Object callback(GrouperTransaction grouperTransaction)
+            throws GrouperDAOException {
+          
+          return GroupFinder.findByName(TestGroup.s, TestGroup.i2.getName(), true);
+        }
+        
+      });
+      
+      final Group group2 = (Group)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READONLY_NEW, new GrouperTransactionHandler() {
+
+        public Object callback(GrouperTransaction grouperTransaction)
+            throws GrouperDAOException {
+          
+          return GroupFinder.findByName(TestGroup.s, TestGroup.i2.getName(), true);
+        }
+        
+      });
+
+      //now update one, should be ok
+      group1.setDescription("Hello");
+      group1.store();
+      
+      //now update the other, should not be ok
+      try {
+        group2.setDescription("Good bye");
+        group2.store();
+        fail("Should throw this exception");
+      } catch (GrouperStaleObjectStateException sose) {
+        //good
+      }
+      
+      group1.delete();
+      
+    } finally {
+      
+      //put hibernate back the way it was
+      ApiConfig.testConfig.clear();
+      
+      //re-init
+      Hib3DAO.hibernateInitted = false;
+      Hib3DAO.initHibernateIfNotInitted();
+
+    }
+    
+  }
+
+  /**
+   * 
+   */
+  public void testNoLocking() {
+    
+    //lets not assume that hibernate is set a certain way:
+    try {
+      ApiConfig.testConfig.put("dao.optimisticLocking", "false");
+      
+      //re-init
+      Hib3DAO.hibernateInitted = false;
+      Hib3DAO.initHibernateIfNotInitted();
+      
+      final Group group1 = (Group)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READONLY_NEW, new GrouperTransactionHandler() {
+
+        public Object callback(GrouperTransaction grouperTransaction)
+            throws GrouperDAOException {
+          
+          return GroupFinder.findByName(TestGroup.s, TestGroup.i2.getName(), true);
+        }
+        
+      });
+      
+      final Group group2 = (Group)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READONLY_NEW, new GrouperTransactionHandler() {
+
+        public Object callback(GrouperTransaction grouperTransaction)
+            throws GrouperDAOException {
+          
+          return GroupFinder.findByName(TestGroup.s, TestGroup.i2.getName(), true);
+        }
+        
+      });
+
+      //now update one, should be ok
+      group1.setDescription("Hello");
+      group1.store();
+      
+      //should not throw the stale exception
+      group2.setDescription("Good bye");
+      group2.store();
+      
+      
+    } finally {
+      
+      //put hibernate back the way it was
+      
+      ApiConfig.testConfig.clear();
+      //re-init
+      Hib3DAO.hibernateInitted = false;
+      Hib3DAO.initHibernateIfNotInitted();
+      
+    }
+    
+    
+    
+  }
+
+  /**
+   * 
+   */
   public void testGetParentStem() {
     LOG.info("testGetParentStem");
     Stem parent = i2.getParentStem();

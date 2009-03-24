@@ -41,7 +41,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.20 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.21 2009-03-24 17:12:07 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -149,7 +149,8 @@ public class WheelAccessResolver extends AccessResolverDecorator {
 		    for(Privilege p : privs) {
 			  	//Not happy about the klass but will do for now in the absence of a GrouperSession
 			  	if(!p.equals(AccessPrivilege.OPTIN) && !p.equals(AccessPrivilege.OPTOUT)) {
-			  		ap = new AccessPrivilege(group,subject,SubjectFinder.findRootSubject(),p,GrouperConfig.getProperty("privileges.access.interface"),false);
+			  		ap = new AccessPrivilege(group,subject,SubjectFinder.findRootSubject(),
+			  		    p,GrouperConfig.getProperty("privileges.access.interface"),false, null);
 			  		accessPrivs.add(ap);
 			  	}
 		    }
@@ -188,14 +189,12 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   {
 	//Admin incorporates other privileges - except optin /optout
 	//Which we don't want to assume
-    if (this.useWheel) {
-      if ( isWheelMember(subject) ) {
-    	  if(!AccessPrivilege.OPTOUT.equals(privilege) 
-    			  && !AccessPrivilege.OPTIN.equals(privilege)) {
-    		  return true;
-    	  
-    	  }
-      }
+    if ((this.useWheel && isWheelMember(subject)) || PrivilegeHelper.isSystemSubject(subject) ) {
+  	  if(!AccessPrivilege.OPTOUT.equals(privilege) 
+  			  && !AccessPrivilege.OPTIN.equals(privilege)) {
+  		  return true;
+  	  
+  	  }
     }
     AccessResolver decoratedResolver = super.getDecoratedResolver();
     //System.out.println(decoratedResolver.getClass().getName());

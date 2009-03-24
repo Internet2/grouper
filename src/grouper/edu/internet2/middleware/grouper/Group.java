@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
@@ -66,6 +67,7 @@ import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsEx
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtilsMapping;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -118,7 +120,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.237 2009-03-23 02:59:25 mchyzer Exp $
+ * @version $Id: Group.java,v 1.238 2009-03-24 17:12:07 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -249,7 +251,10 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   // TODO 20070531 review lazy-loading to improve consistency + performance
 
   /** */
-  private Map<String, String>       attributes;
+  @GrouperIgnoreDbVersion 
+  @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
+  private Map<String, Attribute>       attributes;
   /** */
   private long      createTime      = 0; // default to the epoch
   /** */
@@ -270,8 +275,6 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   
   /** */
   private String    uuid;
-  /** constant for prefix of field diffs for attributes: attribute__ */
-  public static final String ATTRIBUTE_PREFIX = "attribute__";
   
   /** name of group, e.g. school:community:students */
   private String name;
@@ -310,9 +313,6 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
 
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
-
-  /** constant for field name for: attributes */
-  public static final String FIELD_ATTRIBUTES = "attributes";
 
   /** constant for field name for: createTime */
   public static final String FIELD_CREATE_TIME = "createTime";
@@ -354,7 +354,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_ATTRIBUTES, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DESCRIPTION, 
+      FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DESCRIPTION, 
       FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_MODIFIER_UUID, 
       FIELD_MODIFY_TIME, FIELD_NAME, FIELD_PARENT_UUID, FIELD_UUID);
 
@@ -362,7 +362,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_ATTRIBUTES, FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, 
+      FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, 
       FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, 
       FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, FIELD_NAME, 
       FIELD_PARENT_UUID, FIELD_UUID);
@@ -1046,53 +1046,77 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    *   // Not privileged to delete this attribute
    * }
    * </pre>
-   * @param   attr  Delete this attribute.
+   * @param   attrName  Delete this attribute.
    * @throws  AttributeNotFoundException
    * @throws  GroupModifyException
    * @throws  InsufficientPrivilegeException
    */
-  public void deleteAttribute(String attr) 
+  public void deleteAttribute(final String attrName) 
     throws  AttributeNotFoundException,
             GroupModifyException, 
-            InsufficientPrivilegeException
-  {
-    try {
-      StopWatch sw = new StopWatch();
-      sw.start();
-      NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(attr);
-      if (v.isInvalid()) {
-        throw new AttributeNotFoundException(E.INVALID_ATTR_NAME + attr);
-      }
-      Field f = FieldFinder.find(attr, true);
-      if (f.getRequired()) {
-        throw new GroupModifyException( E.GROUP_DRA + f.getName() );
-      }
-      if ( !this.canWriteField(f) ) {
-        throw new InsufficientPrivilegeException();
-      }
+            InsufficientPrivilegeException {
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
 
-      Map attrs = this.getAttributesDb();
-      if (attrs.containsKey(attr)) {
-        String val = (String) attrs.get(attr); // for logging
-        attrs.remove(attr);
-        this.setAttributes(attrs);
-        GrouperDAOFactory.getFactory().getGroup().update( this );
-        sw.stop();
-        EVENT_LOG.groupDelAttr(GrouperSession.staticGrouperSession(), this.getName(), attr, val, sw);
-      }
-      else {
-        throw new AttributeNotFoundException();
-      }
-    }
-    catch (GrouperDAOException eDAO) {
-      throw new GroupModifyException( eDAO.getMessage(), eDAO );
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      throw eIP;
-    }
-    catch (SchemaException eS) {
-      throw new AttributeNotFoundException(eS.getMessage(), eS);
-    }
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            try {
+              StopWatch sw = new StopWatch();
+              sw.start();
+              NotNullOrEmptyValidator v = NotNullOrEmptyValidator.validate(attrName);
+              if (v.isInvalid()) {
+                throw new AttributeNotFoundException(E.INVALID_ATTR_NAME + attrName);
+              }
+              Field f = FieldFinder.find(attrName, true);
+              if (f.getRequired()) {
+                throw new GroupModifyException( E.GROUP_DRA + f.getName() );
+              }
+              if ( !Group.this.canWriteField(f) ) {
+                throw new InsufficientPrivilegeException();
+              }
+              //
+              Group.this.getAttributesMap(false);
+              if (Group.this.attributes.containsKey(attrName)) {
+                Attribute attribute = Group.this.attributes.get(attrName);
+                String val = attribute.getValue(); // for logging
+                Group.this.attributes.remove(attrName);
+                attribute.assignGroupUuid(Group.this.getUuid(), Group.this);
+                GrouperDAOFactory.getFactory().getAttribute().delete( attribute );
+                sw.stop();
+                EVENT_LOG.groupDelAttr(GrouperSession.staticGrouperSession(), Group.this.getName(), attrName, val, sw);
+                
+                if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                  
+                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ATTRIBUTE_DELETE, "id", 
+                      Group.this.getUuid(), "name", Group.this.getName(), "groupId", Group.this.getParentUuid(), 
+                      "groupName", Group.this.getDisplayName(), "fieldId", Group.this.getDescription(),
+                      "fieldName", attrName,  "value", attribute.getValue());
+                  
+                  auditEntry.setDescription("Deleted group attribute: " + attrName + " on group: " 
+                      + Group.this.getName() + " value: " + attribute.getValue());
+                  auditEntry.saveOrUpdate(true);
+                }
+
+                
+              }
+              else {
+                throw new AttributeNotFoundException("Attribute not exist: " + attrName);
+              }
+            }
+            catch (GrouperDAOException eDAO) {
+              throw new GroupModifyException( eDAO.getMessage(), eDAO );
+            }
+            catch (InsufficientPrivilegeException eIP) {
+              throw eIP;
+            }
+            catch (SchemaException eS) {
+              throw new AttributeNotFoundException(eS.getMessage(), eS);
+            }
+            return null;
+          }
+        });
+    
   } // public void deleteAttribute(attr)
   
   /**
@@ -1658,13 +1682,66 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * get the value of an attribute, if not there return null
    * @param attributeName
    * @return the attribute value
+   * @deprecated use getAttributeValue()
    */
+  @Deprecated
   public String getAttributeOrNull(String attributeName) {
     try {
       return this.getAttribute(attributeName);
     } catch (AttributeNotFoundException anfe) {
       return null;
     }
+  }
+  
+  /**
+   * get the value of an attribute, if not there return the empty string.
+   * or exception if expected to be there.
+   * 
+   * @param attributeName
+   * @param exceptionIfNotFound
+   * @param checkSecurity
+   * @return the attribute value or null if not there and not expecting exception.
+   */
+  public String getAttributeValue(String attributeName, 
+      boolean checkSecurity, boolean exceptionIfNotFound) {
+
+    //init
+    this.getAttributesMap(false);
+    
+    Attribute attribute = this.attributes.get(attributeName);
+
+    if (attribute == null) {
+
+      // Group does not have attribute.  If attribute is not valid for Group,
+      // throw AttributeNotFoundException.  Otherwise, return an empty string.
+      
+      Field f = FieldFinder.find(attributeName, false); 
+      if (f == null) {
+        throw new AttributeNotFoundException("Cant find attribute: " + attributeName);
+      }
+      if ( !FieldType.ATTRIBUTE.equals( f.getType() ) ) {
+        throw new AttributeNotFoundException( E.FIELD_INVALID_TYPE + f.getType() + ", " + attributeName );
+      }
+      GrouperValidator v = GetGroupAttributeValidator.validate(this, f);
+      if (v.isInvalid()) {
+        throw new AttributeNotFoundException( v.getErrorMessage() );
+      }
+      
+      if (exceptionIfNotFound) {
+        throw new AttributeNotFoundException("Cant find attribute value: " + attributeName);
+      }
+      return "";
+    }
+    
+    if (checkSecurity) {
+      if (! this._canReadField( GrouperSession.staticGrouperSession(), attributeName ) ) {
+        if (exceptionIfNotFound) {
+          throw new AttributeNotFoundException("Cant read attribute: " + attributeName);
+        }
+        return "";
+      }
+    }
+    return StringUtils.defaultString(attribute.getValue());
   }
   
   /**
@@ -1678,9 +1755,12 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * }
    * </pre>
    * @param   attr  Get value of this attribute.
-   * @return  Attribute value.
+   * @return  Attribute value.  or throw AttributeNotFoundException if not there.
+   * The value will be the emprty string if it is null
    * @throws  AttributeNotFoundException
+   * @Deprecated use getAttributeValue
    */
+  @Deprecated
   public String getAttribute(String attr) 
     throws  AttributeNotFoundException {
 
@@ -1752,7 +1832,9 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * Map attributes = g.getAttributes();
    * </pre>
    * @return  A map of attributes and values.
+   * @deprecated use getAttributesMap
    */
+  @Deprecated
   public Map<String, String> getAttributes() {
     Map       filtered  = new HashMap();
     Map.Entry kv;
@@ -3167,8 +3249,6 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
 
   /**
    * Set an attribute value.
-   * Note, you have to call store() at some point to 
-   * make the kick off the sql
    * <pre class="eg">
    * try {
    *   g.attribute(attribute, value);
@@ -3183,19 +3263,169 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    *   // Not privileged to modify this attribute
    * }
    * </pre>
-   * @param   attr  Set this attribute.
+   * @param   attributeName  Set this attribute.
    * @param   value Set to this value.
    * @throws  AttributeNotFoundException
    * @throws  GroupModifyException
    * @throws  InsufficientPrivilegeException
    */
-  public void setAttribute(String attr, String value) 
+  public void setAttribute(final String attributeName, final String value) 
     throws  AttributeNotFoundException, 
             GroupModifyException, 
-            InsufficientPrivilegeException
-  {
-    this.setAttributeHelper(attr, value);
+            InsufficientPrivilegeException {
+    setAttribute(attributeName, value, true);
+  }
 
+  /**
+   * Set an attribute value.
+   * <pre class="eg">
+   * try {
+   *   g.attribute(attribute, value);
+   * } 
+   * catch (AttributeNotFoundException e0) {
+   *   // Attribute doesn't exist
+   * }
+   * catch (GroupModifyException e1) {
+   *   // Unable to modify group
+   * }
+   * catch (InsufficientPrivilegeException e2) {
+   *   // Not privileged to modify this attribute
+   * }
+   * </pre>
+   * @param   attributeName  Set this attribute.
+   * @param   value Set to this value.
+   * @throws  AttributeNotFoundException
+   * @throws  GroupModifyException
+   * @throws  InsufficientPrivilegeException
+   */
+  public void setAttribute(final String attributeName, final String value, final boolean checkPrivileges) 
+    throws  AttributeNotFoundException, 
+            GroupModifyException, 
+            InsufficientPrivilegeException {
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            try {
+              StopWatch sw = new StopWatch();
+              sw.start();
+              Field f = FieldFinder.find(attributeName, false);
+              if (f == null) {
+                throw new AttributeNotFoundException("Cant find attribute: " + attributeName);
+              }
+              if ( !FieldType.ATTRIBUTE.equals( f.getType() ) ) {
+                throw new AttributeNotFoundException( E.FIELD_INVALID_TYPE + f.getType() );
+              }
+        
+              // TODO 20070531 split and test
+              GrouperValidator v = NotNullOrEmptyValidator.validate(attributeName);
+              if (v.isInvalid()) {
+                throw new AttributeNotFoundException(E.INVALID_ATTR_NAME + attributeName);
+              }
+              v = NotNullOrEmptyValidator.validate(value);
+              if (v.isInvalid()) {
+                throw new GroupModifyException(E.INVALID_ATTR_VALUE + value);
+              }
+              if (checkPrivileges) {
+                try { 
+                  if ( !Group.this.canWriteField( FieldFinder.find(attributeName, true) ) ) {
+                    throw new InsufficientPrivilegeException("Cant write field: " + attributeName);
+                  }
+                } catch (SchemaException se) {
+                  throw new AttributeNotFoundException(se.getMessage() + ", " + attributeName, se);
+                }
+              }              
+        //      if (_internal_fieldAttribute(attr)) {
+        //        if (GrouperConfig.getPropertyBoolean("groups.allow.attribute.access.1.4", false)) {
+        //          
+        //          if (StringUtils.equals(FIELD_NAME, attr)) {
+        //            this.setName(value);
+        //          }
+        //          if (StringUtils.equals(FIELD_EXTENSION, attr)) {
+        //            this.setExtension(value);
+        //          }
+        //          if (StringUtils.equals(FIELD_DISPLAY_NAME, attr)) {
+        //            this.setDisplayName(value);
+        //          }
+        //          if (StringUtils.equals(FIELD_DISPLAY_EXTENSION, attr)) {
+        //            this.setDisplayExtension(value);
+        //          }
+        //          if (StringUtils.equals(FIELD_DESCRIPTION, attr)) {
+        //            this.setDescription(value);
+        //          }
+        //          throw new RuntimeException("Not expecting attribute: " + attr);
+        //          
+        //        }
+        //        throw new RuntimeException("Cannot access built in attribute: " + attr + " from setAttributes anymore, " +
+        //            "use setter directly (e.g. setName(), setDisplayName()).  Or you can enable this (deprecated) with " +
+        //            "grouper.properties setting groups.allow.attribute.access.1.4=true");
+        //      }      
+              
+              //if this is not saved, then save it
+              if (HibUtilsMapping.isInsert(Group.this)) {
+                Group.this.store();
+              }
+        
+              //init attributes
+              Group.this.getAttributesMap(false);
+        
+              Attribute attribute = Group.this.attributes.get(attributeName);
+              if (attribute != null && StringUtils.equals(attribute.getValue(), value)) {
+                return null;
+              }
+              
+              AuditTypeBuiltin auditTypeBuiltin = AuditTypeBuiltin.GROUP_ATTRIBUTE_UPDATE;
+              String oldValue = null;
+              String oldValueName = null;
+              String verb = "Updated";
+              if (attribute == null) {
+                attribute = new Attribute();
+                attribute.setFieldId( FieldFinder.findFieldIdForAttribute(attributeName, true ));
+                auditTypeBuiltin = AuditTypeBuiltin.GROUP_ATTRIBUTE_ADD;
+                verb = "inserted";
+              } else {
+                //if update, this is the old value
+                oldValue = attribute.getValue();
+                oldValueName = "oldValue";
+              }
+              
+              attribute.assignGroupUuid(Group.this.getUuid(), Group.this);
+              attribute.setValue( value );
+              
+              Group.this.attributes.put(attributeName, attribute);
+              
+              GrouperDAOFactory.getFactory().getAttribute().createOrUpdate(attribute);
+              
+              sw.stop();
+              EVENT_LOG.groupSetAttr(GrouperSession.staticGrouperSession(), 
+                  Group.this.getName(), attributeName, value, sw);
+
+              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                
+                AuditEntry auditEntry = new AuditEntry(auditTypeBuiltin, "id", 
+                    Group.this.getUuid(), "name", Group.this.getName(), "groupId", Group.this.getParentUuid(), 
+                    "groupName", Group.this.getDisplayName(), "fieldId", Group.this.getDescription(),
+                    "fieldName", attributeName,  "value", attribute.getValue(), oldValueName, oldValue);
+                
+                auditEntry.setDescription(verb + " group attribute: " + attributeName + " on group: " 
+                    + Group.this.getName() + " value: " + attribute.getValue() 
+                    + (auditTypeBuiltin == AuditTypeBuiltin.GROUP_ATTRIBUTE_UPDATE ? (", oldValue: " + oldValue) : ""));
+                auditEntry.saveOrUpdate(true);
+              }
+              
+              return null;
+            }
+            catch (GrouperDAOException eDAO) {
+              throw new GroupModifyException( eDAO.getMessage(), eDAO );
+            }
+            catch (InsufficientPrivilegeException eIP) {
+              throw eIP;
+            }
+          }
+        });
   }
   
   /**
@@ -3235,99 +3465,6 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
           });
       
   }
-  
-  /**
-   * Set an attribute value.
-   * <pre class="eg">
-   * try {
-   *   g.attribute(attribute, value);
-   * } 
-   * catch (AttributeNotFoundException e0) {
-   *   // Attribute doesn't exist
-   * }
-   * catch (GroupModifyException e1) {
-   *   // Unable to modify group
-   * }
-   * catch (InsufficientPrivilegeException e2) {
-   *   // Not privileged to modify this attribute
-   * }
-   * </pre>
-   * @param   attr  Set this attribute.
-   * @param   value Set to this value.
-   * @throws  AttributeNotFoundException
-   * @throws  GroupModifyException
-   * @throws  InsufficientPrivilegeException
-   */
-  private void setAttributeHelper(String attr, String value) 
-    throws  AttributeNotFoundException, 
-            GroupModifyException, 
-            InsufficientPrivilegeException
-  {
-    try {
-      StopWatch sw = new StopWatch();
-      sw.start();
-      Field f = FieldFinder.find(attr, false);
-      if (f == null) {
-        throw new AttributeNotFoundException("Cant find attribute: " + attr);
-      }
-      if ( !FieldType.ATTRIBUTE.equals( f.getType() ) ) {
-        throw new AttributeNotFoundException( E.FIELD_INVALID_TYPE + f.getType() );
-      }
-
-      // TODO 20070531 split and test
-      GrouperValidator v = NotNullOrEmptyValidator.validate(attr);
-      if (v.isInvalid()) {
-        throw new AttributeNotFoundException(E.INVALID_ATTR_NAME + attr);
-      }
-      v = NotNullOrEmptyValidator.validate(value);
-      if (v.isInvalid()) {
-        throw new GroupModifyException(E.INVALID_ATTR_VALUE + value);
-      }
-      try {
-        if ( !this.canWriteField( FieldFinder.find(attr, true) ) ) {
-          throw new InsufficientPrivilegeException();
-        }
-      } catch (SchemaException se) {
-        throw new AttributeNotFoundException(se.getMessage(), se);
-      }
-//      if (_internal_fieldAttribute(attr)) {
-//        if (GrouperConfig.getPropertyBoolean("groups.allow.attribute.access.1.4", false)) {
-//          
-//          if (StringUtils.equals(FIELD_NAME, attr)) {
-//            this.setName(value);
-//          }
-//          if (StringUtils.equals(FIELD_EXTENSION, attr)) {
-//            this.setExtension(value);
-//          }
-//          if (StringUtils.equals(FIELD_DISPLAY_NAME, attr)) {
-//            this.setDisplayName(value);
-//          }
-//          if (StringUtils.equals(FIELD_DISPLAY_EXTENSION, attr)) {
-//            this.setDisplayExtension(value);
-//          }
-//          if (StringUtils.equals(FIELD_DESCRIPTION, attr)) {
-//            this.setDescription(value);
-//          }
-//          throw new RuntimeException("Not expecting attribute: " + attr);
-//          
-//        }
-//        throw new RuntimeException("Cannot access built in attribute: " + attr + " from setAttributes anymore, " +
-//            "use setter directly (e.g. setName(), setDisplayName()).  Or you can enable this (deprecated) with " +
-//            "grouper.properties setting groups.allow.attribute.access.1.4=true");
-//      }      
-      Map attrs = this.getAttributesDb();
-      attrs.put(attr, value);
-      this.setAttributes(attrs);
-      sw.stop();
-      EVENT_LOG.groupSetAttr(GrouperSession.staticGrouperSession(), this.getName(), attr, value, sw);
-    }
-    catch (GrouperDAOException eDAO) {
-      throw new GroupModifyException( eDAO.getMessage(), eDAO );
-    }
-    catch (InsufficientPrivilegeException eIP) {
-      throw eIP;
-    }
-  } // public void setAttribute(attr, value)
 
   /**
    * Set group description.  
@@ -3761,14 +3898,11 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
       if (failIfNull) {
         throw new RuntimeException("State was never stored from db");
       }
-      //just return all attributes, but put them in the right format
-      Set<String> attributes = this.getAttributesDb().keySet();
-      return attributes;
-
+      return null;
     }
     //easier to unit test if everything is ordered
     Set<String> result = GrouperUtil.compareObjectFields(this, this.dbVersion,
-        DB_VERSION_FIELDS, ATTRIBUTE_PREFIX);
+        DB_VERSION_FIELDS, null);
 
     return result;
   }
@@ -3807,13 +3941,42 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   } // public boolean equals(other)
 
   /**
-   * This is a direct access to the attributes (going around security checking etc)
+   * This is a direct access to the attributes (going around security checking etc).
+   * You probably shouldnt be calling this if not on the grouper team.
+   * @param checkSecurity if we should check if the current user can see each attribute
+   * 
+   * @return attributes, will never be null
+   * @since   1.2.0
+   */
+  public Map<String, Attribute> getAttributesMap(boolean checkSecurity) {
+  
+    if (this.attributes == null) {
+      this.attributes = GrouperDAOFactory.getFactory().getAttribute().findAllAttributesByGroup( this.getUuid() );
+    }
+    
+    if (!checkSecurity) {
+      return Collections.unmodifiableMap(this.attributes);
+    }
+    
+    Map<String, Attribute> result = new HashMap<String, Attribute>();
+    
+    for (String key : this.attributes.keySet()) {
+      if ( this._canReadField( GrouperSession.staticGrouperSession(), key ) ) {
+        result.put(key, this.attributes.get(key));
+      }
+    }
+    return result;
+  }
+
+  /**
+   * This is a direct access to the attributes (going around security checking etc).
+   * Use the other get attributes map method
+   * 
    * @return attributes
    * @since   1.2.0
    */
+  @Deprecated
   public Map<String, String> getAttributesDb() {
-    if (this.attributes == null) {
-      this.attributes = GrouperDAOFactory.getFactory().getGroup().findAllAttributesByGroup( this.getUuid() );
 
 //      if (GrouperConfig.getPropertyBoolean("groups.allow.attribute.access.1.4", false)) {
 //        
@@ -3838,8 +4001,14 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
 //          this.attributes.put("description", theDescription);
 //        }
 //      }
+
+    //init
+    this.getAttributesMap(false);
+    Map<String, String> map = new HashMap<String, String>();
+    for (String key : this.attributes.keySet()) {
+      map.put(key, this.attributes.get(key).getValue());
     }
-    return this.attributes;
+    return map;
   }
 
   /**
@@ -3859,11 +4028,8 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   }
 
   /**
-   * save the state when retrieving from DB.
-   * note, if you are checking attributes from the dbVersion, you should get the attributes
-   * from the original Group object first, this will lazy load them, and set the dbVersion
-   * attribute to the correct values...
-   * @return the dbVersion
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#dbVersion()
    */
   @Override
   public Group dbVersion() {
@@ -3923,12 +4089,56 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     return Lifecycle.NO_VETO;
   }
 
+//  /** instance var of attributes to compare, so if a hook does this we are all set */
+//  private Map _internateAttributesToCompare = null;
+//
+//  /**
+//   * update the attributes for a group
+//   * @param hibernateSession 
+//   * @param checkExisting true if an update, false if insert
+//   */
+//  public void _updateAttributes(HibernateSession hibernateSession, boolean checkExisting) {
+//    ByObject byObject = hibernateSession.byObject();
+//
+//    Map                   attrs = new HashMap(this.getAttributesDb());
+//    String                k;
+//asdf
+//    List<Attribute> attributes = checkExisting ? GrouperDAOFactory.getFactory().getGroup()._getAttributes(hibernateSession, this) : null;
+//    for (Attribute attribute : GrouperUtil.nonNull(attributes)) {
+//      k = attribute.getAttrName();
+//      if ( attrs.containsKey(k) ) {
+//        // attr both in db and in memory.  compare.
+//        if ( !attribute.getValue().equals( (String) attrs.get(k) ) ) {
+//          attribute.setValue( (String) attrs.get(k) );
+//          byObject.update(attribute);
+//        }
+//        attrs.remove(k);
+//      }
+//      else {
+//        // attr only in db.
+//        byObject.delete(attribute);
+//        attrs.remove(k);
+//      }
+//    }
+//    // now handle entries that were only in memory
+//    Map.Entry kv;
+//    Iterator it = attrs.entrySet().iterator();
+//    while (it.hasNext()) {
+//      kv = (Map.Entry) it.next();
+//      Attribute attribute = new Attribute(); 
+//      attribute.setFieldId( FieldFinder.findFieldIdForAttribute((String) kv.getKey(), true ));
+//      attribute.assignGroupUuid(this.getUuid(), this);
+//      attribute.setValue( (String) kv.getValue() );
+//      byObject.save(attribute);
+//    }
+//  } // private void _updateAttributes(hs)
+
+
   /**
    * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
-    GrouperDAOFactory.getFactory().getGroup()._updateAttributes(hibernateSession, false, this);
     super.onPostSave(hibernateSession);
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
@@ -3946,7 +4156,6 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(HibernateSession)
    */
   public void onPostUpdate(HibernateSession hibernateSession) {
-    GrouperDAOFactory.getFactory().getGroup()._updateAttributes(hibernateSession, true, this);
     
     super.onPostUpdate(hibernateSession);
     
@@ -4044,9 +4253,24 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * 
    * @param attributes
    */
-  public void setAttributes(Map attributes) {
-    this.attributes = attributes;
-
+  public void setAttributes(Map<String, String> attributes) {
+    
+    attributes = GrouperUtil.nonNull(attributes);
+    
+    //make a copy of existing attributes
+    Set<String> existingAttributeNames = 
+      new HashSet<String>(this.getAttributesMap(false).keySet());
+    
+    //add or change
+    for (String key : attributes.keySet()) {
+      this.setAttribute(key, attributes.get(key));
+      existingAttributeNames.remove(key);
+    }
+    
+    //remove ones not in there
+    for (String key : existingAttributeNames) {
+      this.deleteAttribute(key);
+    }
   }
 
   /**
@@ -4147,13 +4371,6 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @see edu.internet2.middleware.grouper.GrouperAPI#fieldValue(java.lang.String)
    */
   public Object fieldValue(String fieldName) {
-    
-    if (fieldName.startsWith(Group.ATTRIBUTE_PREFIX)) {
-      fieldName = fieldName.substring(Group.ATTRIBUTE_PREFIX.length(), fieldName.length());
-      //take from attributes including common ones
-      return this.getAttributesDb().get(fieldName);
-      
-    }
     
     return super.fieldValue(fieldName);
   }
@@ -4384,12 +4601,12 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
             Map<String, String> attributesMap = new HashMap<String, String>();
             if (attributes == true) {                  
               Map filtered = new HashMap();
-              Map.Entry kv;
-              Iterator it = Group.this.getAttributesDb().entrySet().iterator();
+              Map.Entry<String, Attribute> kv;
+              Iterator<Map.Entry<String, Attribute>> it = Group.this.getAttributesMap(false).entrySet().iterator();
               while (it.hasNext()) {
-                kv = (Map.Entry) it.next();
+                kv = it.next();
                 if (Group.this._canReadField(actAs, (String) kv.getKey())) {
-                  filtered.put((String)kv.getKey(), (String) kv.getValue());
+                  filtered.put((String)kv.getKey(), (String) kv.getValue().getValue());
                 } else {
                   throw new InsufficientPrivilegeException("cannot read attribute on " + Group.this.getName());
                 }

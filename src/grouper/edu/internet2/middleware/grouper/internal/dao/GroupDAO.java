@@ -17,9 +17,11 @@
 
 package edu.internet2.middleware.grouper.internal.dao;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
@@ -32,7 +34,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.19 2009-03-19 13:46:23 shilen Exp $
+ * @version $Id: GroupDAO.java,v 1.20 2009-03-24 17:12:08 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -44,13 +46,6 @@ public interface GroupDAO extends GrouperDAO {
    */
   public Set<GroupType> _findAllTypesByGroup(final String uuid);
   
-  /**
-   * update the attributes for a group
-   * @param hibernateSession 
-   * @param checkExisting true if an update, false if insert
-   */
-  public void _updateAttributes(HibernateSession hibernateSession, boolean checkExisting, Group group);
-
   /**
    * put in cache
    * @param uuid
@@ -80,12 +75,6 @@ public interface GroupDAO extends GrouperDAO {
    * @since   1.2.0
    */
   boolean exists(String uuid)
-    throws  GrouperDAOException;
-
-  /**
-   * @since   1.2.0
-   */
-  Map<String, String> findAllAttributesByGroup(String uuid)
     throws  GrouperDAOException;
 
   /**

@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Grouper-specific JUnit assertions.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperTest.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: GrouperTest.java,v 1.2 2009-03-24 17:12:08 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperTest extends TestCase {
@@ -316,7 +316,7 @@ public class GrouperTest extends TestCase {
   public void assertGroupAttribute(Group g, String attr, String exp) {
     String name = g.getName();
     try {
-      _assertString(G, name, attr, exp, g.getAttribute(attr));
+      _assertString(G, name, attr, exp, g.getAttributeValue(attr, false, true));
     }
     catch (AttributeNotFoundException eANF) {
       fail("group=(" + name + ") attr=(" + attr + "): " + eANF.getMessage());

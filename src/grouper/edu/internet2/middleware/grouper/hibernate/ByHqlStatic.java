@@ -13,6 +13,7 @@ import java.util.Set;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -221,6 +222,8 @@ public class ByHqlStatic {
       });
       
       return result;
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
     } catch (GrouperDAOException e) {
       GrouperUtil.injectInException(e, "Exception in uniqueResult: (" + returnType + "), " + this);
       throw e;
@@ -269,6 +272,8 @@ public class ByHqlStatic {
       });
       
       return result;
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in list: (" + returnType + "), " + this, e);
       throw e;
@@ -328,6 +333,8 @@ public class ByHqlStatic {
         
       });
       
+    } catch (GrouperStaleObjectStateException e) {
+      throw e;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in executeUpdate: " + this, e);
       throw e;

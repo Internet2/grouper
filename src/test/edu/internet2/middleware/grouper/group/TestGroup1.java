@@ -74,7 +74,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup1.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestGroup1.java,v 1.2 2009-03-24 17:12:08 mchyzer Exp $
  */
 public class TestGroup1 extends TestCase {
 
@@ -290,8 +290,6 @@ public class TestGroup1 extends TestCase {
             AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
       a.addType(groupType, false);
       a.setAttribute("theAttribute1", "whatever");
-  
-      a.store();
   
       grouperSession.stop();
   
@@ -651,8 +649,6 @@ public class TestGroup1 extends TestCase {
       a.addType(groupType, false);
       a.setAttribute("theAttribute1", "whatever");
   
-      a.store();
-  
       grouperSession.stop();
       
       try {
@@ -960,14 +956,12 @@ public class TestGroup1 extends TestCase {
       gA.addType(groupType, false);
       gA.setAttribute("theAttribute1", "whatever");
   
-      gA.store();
-  
       
       GrouperSession  s = GrouperSession.start(subjA);
       Group           a = GroupFinder.findByName(s, gA.getName(), true);
       try {
         a.setAttribute("theAttribute1", "new value");
-        a.store();
+
         Assert.fail("FAIL: set theAttribute1 w/out priv");
       }
       catch (InsufficientPrivilegeException eIP) {
@@ -998,7 +992,6 @@ public class TestGroup1 extends TestCase {
       gA.addType(groupType, false);
       gA.setAttribute("theAttribute1", "whatever");
   
-      gA.store();
       Subject   subjA   = r.getSubject("a");
   
       GrouperSession  s = GrouperSession.start(subjA);
