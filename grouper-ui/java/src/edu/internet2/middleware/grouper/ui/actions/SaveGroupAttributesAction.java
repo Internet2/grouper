@@ -103,7 +103,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: SaveGroupAttributesAction.java,v 1.13 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: SaveGroupAttributesAction.java,v 1.14 2009-03-24 17:31:45 mchyzer Exp $
  */
 public class SaveGroupAttributesAction extends GrouperCapableAction {
 
@@ -144,7 +144,7 @@ public class SaveGroupAttributesAction extends GrouperCapableAction {
       	for(int i=0;i<fields.size();i++) {
       		field = (Field)fields.get(i);
       		attr = request.getParameter("attr." + field.getName());
-      		groupAttr = group.getAttribute(field.getName());
+      		groupAttr = group.getAttributeValue(field.getName(), false, false);
       		if(attr!=null && !attr.equals(groupAttr)) {
       			if("".equals(attr)) {
       				try {
@@ -159,7 +159,6 @@ public class SaveGroupAttributesAction extends GrouperCapableAction {
       			else group.setAttribute(field.getName(),attr);
       		}
       	}
-        group.store();
       		
       	
       	

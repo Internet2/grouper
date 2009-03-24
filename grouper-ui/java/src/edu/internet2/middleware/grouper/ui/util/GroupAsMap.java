@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * and works well with JSTL <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupAsMap.java,v 1.14 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: GroupAsMap.java,v 1.15 2009-03-24 17:31:45 mchyzer Exp $
  */
 public class GroupAsMap extends ObjectAsMap {
 	//
@@ -97,7 +97,7 @@ public class GroupAsMap extends ObjectAsMap {
 			}
 			if(obj!=null) return obj;
 			try{
-				obj = group.getAttribute((String)key);
+				obj = group.getAttributeValue((String)key, false, false);
 			}catch(Exception e){}
 			
 		}
