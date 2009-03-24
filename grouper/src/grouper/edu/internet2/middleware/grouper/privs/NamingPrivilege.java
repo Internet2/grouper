@@ -32,7 +32,7 @@ import edu.internet2.middleware.subject.Subject;
  * An instance of a granted naming privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingPrivilege.java,v 1.5 2009-03-02 07:33:25 mchyzer Exp $
+ * @version $Id: NamingPrivilege.java,v 1.6 2009-03-24 17:12:07 mchyzer Exp $
  */
 public class NamingPrivilege implements GrouperPrivilege, Comparable {
 
@@ -132,12 +132,16 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
   private Stem    stem;
   private Subject owner;
   private Subject subj;
+  /**
+   * optionally link the audit id with the low level action 
+   */
+  private String contextId;
 
 
   // Constructors
   public NamingPrivilege(
     Stem      stem, Subject subj,   Subject owner, 
-    Privilege priv, String  klass,  boolean isRevokable
+    Privilege priv, String  klass,  boolean isRevokable, String contextId1
   ) 
   {
     this.isRevokable  = isRevokable;
@@ -146,6 +150,7 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
     this.owner        = owner;
     this.stem         = stem;
     this.subj         = subj;
+    this.contextId = contextId1;
   } // public NamingPrivilege(object, subj, owner, priv, klass, isRevokable)
 
 
@@ -225,6 +230,14 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable {
    */
   public String getType() {
     return "naming";
+  }
+
+  /**
+   * optionally link the audit id with the low level action
+   * @return context id
+   */
+  public String getContextId() {
+    return this.contextId;
   }
 
 }

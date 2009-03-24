@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
  * wrapped by methods in the {@link Group} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: AccessAdapter.java,v 1.3 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: AccessAdapter.java,v 1.4 2009-03-24 17:12:07 mchyzer Exp $
  */
 public interface AccessAdapter {
 
@@ -53,7 +53,7 @@ public interface AccessAdapter {
    * @return  Set of {@link Subject} objects.
    * @throws  SchemaException
    */
-  Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv)
+  Set<Subject> getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv)
     throws  SchemaException;
 
   /**
@@ -74,7 +74,7 @@ public interface AccessAdapter {
    * @return  Set of {@link Group} objects.
    * @throws  SchemaException
    */
-  Set getGroupsWhereSubjectHasPriv(
+  Set<Group> getGroupsWhereSubjectHasPriv(
     GrouperSession s, Subject subj, Privilege priv
   ) 
     throws  SchemaException;
@@ -135,6 +135,7 @@ public interface AccessAdapter {
    * @param   g     Check privilege on this group.
    * @param   subj  Check privilege for this subject.
    * @param   priv  Check this privilege.   
+   * @return if has priv
    * @throws  SchemaException
    */
   boolean hasPriv(GrouperSession s, Group g, Subject subj, Privilege priv)

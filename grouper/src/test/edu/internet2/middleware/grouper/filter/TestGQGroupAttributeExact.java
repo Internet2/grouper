@@ -158,8 +158,6 @@ public class TestGQGroupAttributeExact extends TestCase {
     uofc.addType(custom);
     devclue.setAttribute("customAttribute", "String with i2 within");
     uofc.setAttribute("customAttribute", "String with i2 within");
-    devclue.store();
-    uofc.store();
 
     try {
       GrouperQuery gq = GrouperQuery.createQuery(

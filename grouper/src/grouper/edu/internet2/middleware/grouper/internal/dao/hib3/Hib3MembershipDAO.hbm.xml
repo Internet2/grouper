@@ -20,11 +20,14 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.12 2009-03-15 21:28:31 mchyzer Exp $ -->
+<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.13 2009-03-24 17:12:08 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
+
+  <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
+    based on the grouper.properties, so dont remove that attribute  -->
   <!-- TODO 20070124 revisit the batch-size setting now that i've completely altered this mapping -->
-  <class name="Membership" table="grouper_memberships" batch-size="5">
+  <class name="Membership" table="grouper_memberships" batch-size="5" optimistic-lock="version">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>
@@ -43,9 +46,7 @@
     <!-- id -->
 
     <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
-    <property name="hibernateVersionNumber" column="hibernate_version_number"
-              not-null="true"
-      />
+    <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
 
     <property name="ownerGroupId" type="string" column="owner_group_id" />
 

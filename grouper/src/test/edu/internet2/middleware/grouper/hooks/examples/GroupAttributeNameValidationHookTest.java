@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupAttributeNameValidationHookTest.java,v 1.1 2009-03-21 19:48:50 mchyzer Exp $
+ * $Id: GroupAttributeNameValidationHookTest.java,v 1.2 2009-03-24 17:12:09 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -127,7 +127,6 @@ public class GroupAttributeNameValidationHookTest extends GrouperTest {
       //add the attribute
       group.setAttribute(GroupAttributeNameValidationHook.TEST_ATTRIBUTE_NAME, "whatever");
       
-      group.store();
       fail("Should veto this invalid name");
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
@@ -139,9 +138,7 @@ public class GroupAttributeNameValidationHookTest extends GrouperTest {
     
     //add the attribute
     group.setAttribute(GroupAttributeNameValidationHook.TEST_ATTRIBUTE_NAME, GroupAttributeNameValidationHook.TEST_PATTERN);
-    
-    group.store();
-    
+        
     //this should not veto
   
     //lets test description:

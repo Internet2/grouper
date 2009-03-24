@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test use of the ADMIN {@link AccessPrivilege}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestPrivADMIN.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestPrivADMIN.java,v 1.2 2009-03-24 17:12:09 mchyzer Exp $
  */
 public class TestPrivADMIN extends TestCase {
 
@@ -591,7 +591,6 @@ public class TestPrivADMIN extends TestCase {
           AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
     a.addType(groupType, false);
     a.setAttribute(ATTRIBUTE1, "whatever");
-    a.store();
 
   } // public void testSetAttrsWithADMIN()
 
@@ -632,7 +631,7 @@ public class TestPrivADMIN extends TestCase {
           AccessPrivilege.READ, AccessPrivilege.ADMIN, false, false);
     a.addType(groupType, false);
     a.setAttribute(ATTRIBUTE1, "whatever");
-    a.store();
+
   } // public void testSetAttrsWithAllADMIN()
 
   public void testDelAttrsWithoutADMIN() {

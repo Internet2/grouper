@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr.java,v 1.2 2009-03-21 19:48:50 mchyzer Exp $
+ * @version $Id: TestGAttr.java,v 1.3 2009-03-24 17:12:08 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGAttr extends GrouperTest {
@@ -66,7 +66,7 @@ public class TestGAttr extends GrouperTest {
       Group gA  = r.getGroup("a", "a");
   
       try {
-        gA.getAttribute(null);
+        gA.getAttributeValue(null, false, true);
         T.fail("did not throw exception when retrieving null attribute");
       }
       catch (AttributeNotFoundException eANF) {
@@ -136,13 +136,13 @@ public class TestGAttr extends GrouperTest {
   
   
       gA.setAttribute(theAttribute, theAttribute);
-      gA.store();
+
       gA.deleteAttribute(theAttribute);
       T.ok("deleted attribute");
       T.string(
         "fetch deleted attribute",
         GrouperConfig.EMPTY_STRING,
-        gA.getAttribute(theAttribute)
+        gA.getAttributeValue(theAttribute, false, false)
       );
   
       r.rs.stop();
@@ -165,21 +165,19 @@ public class TestGAttr extends GrouperTest {
       gA.addType(groupType, false);
       String theAttribute = "theAttribute1";
       gA.setAttribute(theAttribute, "whatever");
-  
-      gA.store();
-  
+    
       Subject subjA = r.getSubject("a");
       gA.grantPriv( SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
       grouperSession.stop();
       r.rs.stop();  
       GrouperSession.start(subjA);
       gA.setAttribute(theAttribute, theAttribute);
-      gA.store();
+
       gA.deleteAttribute(theAttribute);
       T.string(
         "fetch deleted attribute",
         GrouperConfig.EMPTY_STRING,
-        gA.getAttribute(theAttribute)
+        gA.getAttributeValue(theAttribute, false, false)
       );
     }
     catch (Exception e) {
@@ -202,9 +200,7 @@ public class TestGAttr extends GrouperTest {
       gA.addType(groupType, false);
       String theAttribute = "theAttribute1";
       gA.setAttribute(theAttribute, "whatever");
-  
-      gA.store();
-  
+    
       gA.grantPriv(subjA, AccessPrivilege.ADMIN);
   
       grouperSession.stop();
@@ -213,12 +209,12 @@ public class TestGAttr extends GrouperTest {
       r.rs.stop();  
       GrouperSession.start(subjA);
       gA.setAttribute(theAttribute, theAttribute);
-      gA.store();
+
       gA.deleteAttribute(theAttribute);
       T.string(
         "fetch deleted attribute",
         GrouperConfig.EMPTY_STRING,
-        gA.getAttribute(theAttribute)
+        gA.getAttributeValue(theAttribute, false, false)
       );
     }
     catch (Exception e) {
@@ -386,7 +382,7 @@ public class TestGAttr extends GrouperTest {
       Group gA  = r.getGroup("a", "a");
   
       try {
-        gA.getAttribute("");
+        gA.getAttributeValue("", false, true);
         T.fail("did not throw exception when retrieving blank attribute");
       }
       catch (AttributeNotFoundException eANF) {
@@ -408,7 +404,7 @@ public class TestGAttr extends GrouperTest {
   
       try {
         gA.setAttribute("", "foo");
-        gA.store();
+
         T.fail("set blank attribute");
       }
       catch (AttributeNotFoundException eANF) {
@@ -436,7 +432,7 @@ public class TestGAttr extends GrouperTest {
   
       try {
         gA.setAttribute(theAttribute, "");
-        gA.store();
+
         T.fail("set blank attribute value");
       }
       catch (GroupModifyException eGM) {
@@ -458,7 +454,7 @@ public class TestGAttr extends GrouperTest {
   
       try {
         gA.setAttribute(null, "foo");
-        gA.store();
+
         T.fail("set null attribute");
       }
       catch (AttributeNotFoundException eANF) {
@@ -486,7 +482,7 @@ public class TestGAttr extends GrouperTest {
   
       try {
         gA.setAttribute(theAttribute, null);
-        gA.store();
+
         T.fail("set null attribute value");
       }
       catch (GroupModifyException eGM) {
@@ -516,7 +512,7 @@ public class TestGAttr extends GrouperTest {
       T.string(
         "theAttribute",  
         "whatever",
-        gA.getAttribute(theAttribute)
+        gA.getAttributeValue(theAttribute, false, true)
       );
   
       r.rs.stop();
@@ -541,7 +537,7 @@ public class TestGAttr extends GrouperTest {
       T.string(
         "unset attribute",  
         GrouperConfig.EMPTY_STRING, 
-        gA.getAttribute(theAttribute)
+        gA.getAttributeValue(theAttribute, false, false)
       );
   
       T.string(
@@ -571,12 +567,12 @@ public class TestGAttr extends GrouperTest {
   
       String  v = "foo";
       gA.setAttribute(theAttribute, v);
-      gA.store();
+
       T.ok("set attr value");
       T.string(
         "updated attr value",
         v,
-        gA.getAttribute(theAttribute)
+        gA.getAttributeValue(theAttribute, false, true)
       );
   
       r.rs.stop();

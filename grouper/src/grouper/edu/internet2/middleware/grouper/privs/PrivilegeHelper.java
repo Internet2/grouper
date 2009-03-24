@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.Subject;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.4 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.5 2009-03-24 17:12:07 mchyzer Exp $
  * @since   1.2.1
  */
 public class PrivilegeHelper {
@@ -388,6 +388,15 @@ public class PrivilegeHelper {
       rv = isWheel(s);
     }
     return rv;
+  }
+
+  /**
+   * see if system subject
+   * @param subject 
+   * @return true if grouper system
+   */
+  public static boolean isSystemSubject(Subject subject) {
+    return SubjectHelper.eq( subject, SubjectFinder.findRootSubject() );
   }
 
   /**

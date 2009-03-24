@@ -18,6 +18,7 @@ package edu.internet2.middleware.grouper.filter;
 import java.util.Date;
 
 import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -36,9 +37,13 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * @author shilen
  * 
- * @version $Id: TestQueryMembershipModifiedBefore.java,v 1.3 2009-03-21 13:35:50 mchyzer Exp $
+ * @version $Id: TestQueryMembershipModifiedBefore.java,v 1.4 2009-03-24 17:12:08 mchyzer Exp $
  */
 public class TestQueryMembershipModifiedBefore extends GrouperTest {
+
+  public static void main(String[] args) {
+    TestRunner.run(new TestQueryMembershipModifiedBefore("testFindSomething"));
+  }
 
   private static final Log LOG = GrouperUtil
       .getLog(TestQueryMembershipModifiedBefore.class);
@@ -60,7 +65,7 @@ public class TestQueryMembershipModifiedBefore extends GrouperTest {
       ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
 
       Date pre = new Date();
-      GrouperUtil.sleep(2);
+      GrouperUtil.sleep(100);
 
       R r = R.populateRegistry(2, 2, 1);
       Group gA = r.getGroup("a", "a");
@@ -72,9 +77,9 @@ public class TestQueryMembershipModifiedBefore extends GrouperTest {
       gC.revokePriv(AccessPrivilege.READ);
       gC.revokePriv(AccessPrivilege.VIEW);
 
-      GrouperUtil.sleep(2);
+      GrouperUtil.sleep(100);
       Date post = new Date();
-      GrouperUtil.sleep(2);
+      GrouperUtil.sleep(100);
 
       gA.addMember(subjA);
       gB.grantPriv(subjA, AccessPrivilege.UPDATE);
@@ -120,7 +125,7 @@ public class TestQueryMembershipModifiedBefore extends GrouperTest {
       ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
 
       Date pre = new Date();
-      GrouperUtil.sleep(2);
+      GrouperUtil.sleep(100);
 
       R r = R.populateRegistry(2, 2, 1);
       Group gA = r.getGroup("a", "a");
@@ -132,9 +137,9 @@ public class TestQueryMembershipModifiedBefore extends GrouperTest {
       gC.revokePriv(AccessPrivilege.READ);
       gC.revokePriv(AccessPrivilege.VIEW);
 
-      GrouperUtil.sleep(2);
+      GrouperUtil.sleep(100);
       Date post = new Date();
-      GrouperUtil.sleep(2);
+      GrouperUtil.sleep(100);
 
       gA.addMember(subjA);
       gB.grantPriv(subjA, AccessPrivilege.UPDATE);

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HibUtilsMapping.java,v 1.4 2008-07-28 20:12:28 mchyzer Exp $
+ * $Id: HibUtilsMapping.java,v 1.5 2009-03-24 17:12:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
@@ -27,11 +27,10 @@ public class HibUtilsMapping {
   /**
    * see if this object would be an insert for hibernate, or if it would be an update.
    * Note this only works if we dont have assigned keys...
-   * @param hibernateSession
    * @param object
    * @return true if insert
    */
-  public static boolean isInsert(HibernateSession hibernateSession,  Object object) {
+  public static boolean isInsert(Object object) {
 //    Session session = hibernateSession.getSession();
 //    AbstractSessionImpl abstractSessionImpl = (AbstractSessionImpl)session;
 //    EntityEntry entityEntry = abstractSessionImpl.getPersistenceContext().getEntry(object);

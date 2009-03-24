@@ -20,10 +20,13 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3GroupDAO.hbm.xml,v 1.13 2009-03-18 18:51:58 shilen Exp $ -->
+<!-- $Id: Hib3GroupDAO.hbm.xml,v 1.14 2009-03-24 17:12:08 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
-  <class name="Group" table="grouper_groups">
+
+  <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
+    based on the grouper.properties, so dont remove that attribute  -->
+  <class name="Group" table="grouper_groups" optimistic-lock="version">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>
@@ -39,11 +42,11 @@
       <generator class="assigned" />
     </id>
     <!-- id -->
-
+    
     <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
-    <property name="hibernateVersionNumber" column="hibernate_version_number"
-              not-null="true"
-      />
+    <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
+
+    <property name="lastMembershipChangeDb" column="last_membership_change" update="false"/>
 
     <!-- parentUuid -->
     <!-- [@since 1.2.0] Refers to parent stem's UUID, not ID -->
@@ -113,7 +116,6 @@
     <property name="displayExtensionDb" column="display_extension"/>
     <property name="descriptionDb" column="description"/>
     <property name="contextId" column="context_id"/>
-    <property name="lastMembershipChangeDb" column="last_membership_change" update="false"/>
   </class>
 </hibernate-mapping>
 

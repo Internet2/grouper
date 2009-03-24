@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -35,7 +36,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DTO implementation.
  * @author  blair christensen.
- * @version $Id: GroupTypeTuple.java,v 1.9 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: GroupTypeTuple.java,v 1.10 2009-03-24 17:12:07 mchyzer Exp $
  * @since   @HEAD@
  */
 @SuppressWarnings("serial")
@@ -86,6 +87,9 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
   /** context id of the transaction */
   private String contextId;
 
+  /** store a reference to the group for hooks or whatnot */
+  private Group group;
+  
   /**
    * context id of the transaction
    * @return context id
@@ -102,6 +106,19 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
     this.contextId = contextId1;
   }
 
+  /**
+   * try to get the current group if it is available (if this object
+   * is cloned, then it might be null)
+   * @param retrieveIfNull true to get from DB if null
+   * @return the current group
+   */
+  public Group retrieveGroup(boolean retrieveIfNull) {
+    if (retrieveIfNull && this.group==null) {
+      this.group = GroupFinder.findByUuid(
+          GrouperSession.staticGrouperSession(), this.groupUUID, true);
+    }
+    return this.group;
+  }
 
 
   // PUBLIC CLASS METHODS //
@@ -178,7 +195,24 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
    * @param groupUUID1
    */
   public void setGroupUuid(String groupUUID1) {
+    this.assignGroupUuid(groupUUID1, null);
+  }
+
+  /**
+   * 
+   * @param groupUUID1
+   * @param group1 
+   */
+  public void assignGroupUuid(String groupUUID1, Group group1) {
     this.groupUUID = groupUUID1;
+    
+    //see if we need to wipe out to null
+    if (group1 == null && this.group != null 
+        && StringUtils.equals(this.group.getUuid(), groupUUID1)) {
+      group1 = this.group;
+    }
+
+    this.group = group1;
   }
 
   /**

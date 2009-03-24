@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AttributeIncludeExcludeHook.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
+ * $Id: AttributeIncludeExcludeHook.java,v 1.4 2009-03-24 17:12:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -8,7 +8,6 @@ import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -98,7 +97,8 @@ public class AttributeIncludeExcludeHook extends AttributeHooks {
         return;
       }
       
-      Group typedGroup = GroupFinder.findByUuid(grouperSession, groupUuid, true);
+      //not sure why this would be null... might get a stale object state
+      Group typedGroup = attribute.retrieveGroup(true);
 
       GroupTypeTupleIncludeExcludeHook.manageIncludesExcludesAndGroups(grouperSession, typedGroup, 
           summaryForLog + " attribute '" + attributeField.getName() + "' for group: " + typedGroup.getExtension());

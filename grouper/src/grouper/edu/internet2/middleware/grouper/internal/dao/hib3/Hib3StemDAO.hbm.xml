@@ -20,10 +20,12 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3StemDAO.hbm.xml,v 1.12 2009-03-20 14:32:43 mchyzer Exp $ -->
+<!-- $Id: Hib3StemDAO.hbm.xml,v 1.13 2009-03-24 17:12:08 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
-  <class name="Stem" table="grouper_stems">
+  <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
+    based on the grouper.properties, so dont remove that attribute  -->
+  <class name="Stem" table="grouper_stems" optimistic-lock="version">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>
@@ -40,9 +42,7 @@
     <!-- id -->
 
     <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
-    <property name="hibernateVersionNumber" column="hibernate_version_number"
-              not-null="true"
-      />
+    <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
 
     <!-- parentUuid -->
     <!-- [@since 1.2.0] Refers to parent stem's UUID, not ID -->

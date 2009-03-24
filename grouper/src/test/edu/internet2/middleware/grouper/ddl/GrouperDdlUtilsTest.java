@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdlUtilsTest.java,v 1.18 2009-03-20 19:56:41 mchyzer Exp $
+ * $Id: GrouperDdlUtilsTest.java,v 1.19 2009-03-24 17:12:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -215,7 +215,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     groupq.hasMember(SubjectTestHelper.SUBJ0);
     assertEquals("edu:testr", groupq.getComposite(true).getLeftGroup().getName());
     groups = GroupFinder.findByName(grouperSession, "edu:tests", true);
-    assertEquals("whatever", groups.getAttribute("test1"));
+    assertEquals("whatever", groups.getAttributeValue("test1", false, true));
     
     //now delete the uuid cols
     ApiConfig.testConfig.put("ddlutils.dropBackupUuidCols", "true");
@@ -235,7 +235,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     groupq.hasMember(SubjectTestHelper.SUBJ0);
     assertEquals("edu:testr", groupq.getComposite(true).getLeftGroup().getName());
     groups = GroupFinder.findByName(grouperSession, "edu:tests", true);
-    assertEquals("whatever", groups.getAttribute("test1"));
+    assertEquals("whatever", groups.getAttributeValue("test1", false, true));
     
     //get ready for final test from scratch...
     ApiConfig.testConfig.remove("ddlutils.dropBackupUuidCols");
@@ -614,7 +614,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     groupq.hasMember(SubjectTestHelper.SUBJ0);
     assertEquals("edu:testr", groupq.getComposite(true).getLeftGroup().getName());
     groups = GroupFinder.findByName(grouperSession, "edu:tests", true);
-    assertEquals("whatever", groups.getAttribute("test1"));
+    assertEquals("whatever", groups.getAttributeValue("test1", false, true));
     
     //now delete the uuid cols
     ApiConfig.testConfig.put("ddlutils.dropBackupFieldNameTypeCols", "true");
@@ -634,7 +634,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     groupq.hasMember(SubjectTestHelper.SUBJ0);
     assertEquals("edu:testr", groupq.getComposite(true).getLeftGroup().getName());
     groups = GroupFinder.findByName(grouperSession, "edu:tests", true);
-    assertEquals("whatever", groups.getAttribute("test1"));
+    assertEquals("whatever", groups.getAttributeValue("test1", false, true));
     
     //get ready for final test from scratch...
     ApiConfig.testConfig.remove("ddlutils.dropBackupFieldNameTypeCols");

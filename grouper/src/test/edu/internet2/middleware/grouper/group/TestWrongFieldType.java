@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test using the wrong field type in various operations.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestWrongFieldType.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestWrongFieldType.java,v 1.2 2009-03-24 17:12:08 mchyzer Exp $
  */
 public class TestWrongFieldType extends TestCase {
 
@@ -80,7 +80,7 @@ public class TestWrongFieldType extends TestCase {
     LOG.info("testGroupAttrs");
     try {
       i2.setAttribute("members", "members");
-      i2.store();
+
       Assert.fail("set list-as-attribute");
     }
     catch (AttributeNotFoundException eANF) {

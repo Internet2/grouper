@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * Test {@link GroupNameFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQGroupName.java,v 1.2 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestGQGroupName.java,v 1.3 2009-03-24 17:12:08 mchyzer Exp $
  */
 public class TestGQGroupName extends TestCase {
 
@@ -329,7 +329,6 @@ public class TestGQGroupName extends TestCase {
 
     uofc.addType(custom);
     uofc.setAttribute("customAttribute", "edu:i2");
-    uofc.store();
 
     try {
       GrouperQuery gq = GrouperQuery.createQuery(

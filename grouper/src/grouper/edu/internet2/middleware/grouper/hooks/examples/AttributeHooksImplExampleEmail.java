@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupHooksImplExampleEmail.java,v 1.4 2009-03-15 06:37:23 mchyzer Exp $
+ * $Id: AttributeHooksImplExampleEmail.java,v 1.1 2009-03-24 17:12:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -8,14 +8,15 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.hooks.GroupHooks;
+import edu.internet2.middleware.grouper.hooks.AttributeHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksAttributeBean;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
-import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -28,18 +29,18 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * test implementation of group hooks for test.  checks to make sure group attribute
  * is not in use by another group, subject, or subject id (for email prefix)
  */
-public class GroupHooksImplExampleEmail extends GroupHooks {
+public class AttributeHooksImplExampleEmail extends AttributeHooks {
 
   /**
    * if there is a changed emailAddress, make sure it doesnt already existin another group or subject
-   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPreUpdate(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean)
+   * @see edu.internet2.middleware.grouper.hooks.AttributeHooks#attributePreUpdate(HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksAttributeBean)
    */
   @Override
-  public void groupPreUpdate(HooksContext hooksContext, HooksGroupBean preUpdateBean) {
+  public void attributePreUpdate(HooksContext hooksContext, HooksAttributeBean preUpdateBean) {
     //if its an update, see if the emailAddress changed
-    Group group = preUpdateBean.getGroup();
-    if (group.dbVersionDifferentFields().contains(Group.ATTRIBUTE_PREFIX+"emailAddress")) {
-      String emailAddress = group.getAttributesDb().get("emailAddress");
+    Attribute attribute = preUpdateBean.getAttribute();
+    if (StringUtils.equals(attribute.getAttrName(), "emailAddress")) {
+      String emailAddress = attribute.getValue();
       if (!StringUtils.isBlank(emailAddress)) {
         checkEmailAddress(emailAddress);
       }
@@ -112,16 +113,17 @@ public class GroupHooksImplExampleEmail extends GroupHooks {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.hooks.GroupHooks#groupPreInsert(edu.internet2.middleware.grouper.hooks.beans.HooksContext, edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean)
+   * @see edu.internet2.middleware.grouper.hooks.AttributeHooks#attributePreInsert(HooksContext, HooksAttributeBean)
    */
   @Override
-  public void groupPreInsert(HooksContext hooksContext, HooksGroupBean preInsertBean) {
-    //if its an insert, always check the attribute if it is there
-    Group group = preInsertBean.getGroup();
-    //getAttributesDb goes around permissions, just get the data
-    String emailAddress = group.getAttributesDb().get("emailAddress");
-    if (!StringUtils.isBlank(emailAddress)) {
-      checkEmailAddress(emailAddress);
+  public void attributePreInsert(HooksContext hooksContext, HooksAttributeBean preInsertBean) {
+    //if its an update, see if the emailAddress changed
+    Attribute attribute = preInsertBean.getAttribute();
+    if (StringUtils.equals(attribute.getAttrName(), "emailAddress")) {
+      String emailAddress = attribute.getValue();
+      if (!StringUtils.isBlank(emailAddress)) {
+        checkEmailAddress(emailAddress);
+      }
     }
   }
 

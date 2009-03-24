@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupAttributeNameValidationHook.java,v 1.5 2009-03-21 19:48:50 mchyzer Exp $
+ * $Id: GroupAttributeNameValidationHook.java,v 1.6 2009-03-24 17:12:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
@@ -116,6 +117,7 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
     if (index > 0) {
       //register this hook
       GrouperHooksUtils.addHookManual(GrouperHookType.GROUP.getPropertyFileKey(), GroupAttributeNameValidationHook.class);
+      GrouperHooksUtils.addHookManual(GrouperHookType.ATTRIBUTE.getPropertyFileKey(), GroupAttributeNameValidationAttrHook.class);
     }
     
     registered = true;
@@ -129,8 +131,8 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
   @Override
   public void groupPreInsert(HooksContext hooksContext, HooksGroupBean preInsertBean) {
     Group group = preInsertBean.getGroup();
-    Map<String, String> attributesDb = GrouperUtil.nonNull(group.getAttributesDb());
-    Set<String> attributesChanged = new HashSet<String>(attributesDb.keySet());
+    Map<String, Attribute> attributesMap = GrouperUtil.nonNull(group.getAttributesMap(false));
+    Set<String> attributesChanged = new HashSet<String>(attributesMap.keySet());
     
     //also add name, extension, etc
     attributesChanged.addAll(Group.INTERNAL_FIELD_ATTRIBUTES);
@@ -146,13 +148,12 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
   private static void groupPreChangeAttribute(Group group, Set<String> attributeNamesToCheck) {
 
     //loop through fields, look for attributes
-    for (String fieldName : attributeNamesToCheck) {
+    for (String fieldName : GrouperUtil.nonNull(attributeNamesToCheck)) {
 
       //if attribute or built-in field then process
-      if (fieldName.startsWith(Group.ATTRIBUTE_PREFIX) || Group.INTERNAL_FIELD_ATTRIBUTES.contains(fieldName)) {
+      if (Group.INTERNAL_FIELD_ATTRIBUTES.contains(fieldName)) {
         String value = (String)group.fieldValue(fieldName);
-        String attributeName = StringUtils.removeStart(fieldName, Group.ATTRIBUTE_PREFIX);
-        groupPreChangeAttribute(attributeName, value);
+        groupPreChangeAttribute(fieldName, value);
       }
     }
   }
@@ -167,11 +168,11 @@ public class GroupAttributeNameValidationHook extends GroupHooks {
   static Map<String, String> attributeNameVetoMessages = new HashMap<String, String>();
   
   /**
-   * check that a new attribute value is ok
+   * check that a new attribute value is ok (either a group field, or an attribute)
    * @param attributeName 
    * @param attributeValue 
    */
-  private static void groupPreChangeAttribute(String attributeName, String attributeValue) {
+  static void groupPreChangeAttribute(String attributeName, String attributeValue) {
     //see if there is a configuration about this attribute
     if (attributeNamePatterns.containsKey(attributeName)) {
       Pattern pattern = attributeNamePatterns.get(attributeName);

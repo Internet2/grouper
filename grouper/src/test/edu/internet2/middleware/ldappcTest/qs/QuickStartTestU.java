@@ -320,7 +320,7 @@ public class QuickStartTestU extends BaseLdappcTestCase
                     try
                     {
                         String grouperAttrValue = group
-                                .getAttribute(grouperAttr);
+                                .getAttributeValue(grouperAttr, false, true);
                         Attribute attribute = attributes.get(ldapAttr);
                         if (attribute != null)
                         {

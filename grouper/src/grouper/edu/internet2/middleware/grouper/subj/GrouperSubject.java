@@ -26,6 +26,7 @@ import java.util.Set;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -45,7 +46,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.5 2009-03-22 05:41:00 mchyzer Exp $
+ * @version $Id: GrouperSubject.java,v 1.6 2009-03-24 17:12:09 mchyzer Exp $
  */
 public class GrouperSubject implements Subject {
   
@@ -388,7 +389,7 @@ public class GrouperSubject implements Subject {
     }
 
     Group g = null;
-    Map.Entry<String,String> kv;
+    Map.Entry<String,Attribute> kv;
     try {
       g = GrouperDAOFactory.getFactory().getGroup().findByUuid( this.getId(), true ) ;
     } catch (GroupNotFoundException eGNF) {
@@ -396,11 +397,11 @@ public class GrouperSubject implements Subject {
           + this.name + ", " + eGNF.getMessage() );
       return;
     }
-    Iterator  it  = g.getAttributes().entrySet().iterator();
+    Iterator<Map.Entry<String, Attribute>>  it  = g.getAttributesMap(true).entrySet().iterator();
     int count=0;
     while (it.hasNext()) {
-      kv = (Map.Entry<String,String>) it.next();
-      this.attrs.put( kv.getKey(), GrouperUtil.toSet(kv.getValue()), false );
+      kv = it.next();
+      this.attrs.put( kv.getKey(), GrouperUtil.toSet(kv.getValue().getValue()), false );
       count++;
     }
     this.loadedGroupAttributes = true;

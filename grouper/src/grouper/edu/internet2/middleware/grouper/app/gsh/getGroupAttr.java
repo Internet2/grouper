@@ -19,7 +19,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Get {@link Group} attribute value.
  * <p/>
  * @author  blair christensen.
- * @version $Id: getGroupAttr.java,v 1.4 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: getGroupAttr.java,v 1.5 2009-03-24 17:12:09 mchyzer Exp $
  * @since   0.0.1
  */
 public class getGroupAttr {
@@ -57,7 +57,7 @@ public class getGroupAttr {
         return g.getModifyTime();
       }
       else {
-        return g.getAttribute(attr);
+        return g.getAttributeValue(attr, false, true);
       }
     }
     catch (AttributeNotFoundException eANF)     {

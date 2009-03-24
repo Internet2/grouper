@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AttributeHooksTest.java,v 1.3 2009-03-20 19:56:41 mchyzer Exp $
+ * $Id: AttributeHooksTest.java,v 1.4 2009-03-24 17:12:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -36,8 +36,8 @@ public class AttributeHooksTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new AttributeHooksTest("testAttributePostCommitInsert"));
-    //TestRunner.run(new AttributeHooksTest("testAttributePostUpdate"));
+    //TestRunner.run(new AttributeHooksTest("testAttributePostInsert"));
+    //TestRunner.run(new AttributeHooksTest("testAttributePreDelete"));
     TestRunner.run(AttributeHooksTest.class);
   }
   
@@ -57,11 +57,9 @@ public class AttributeHooksTest extends GrouperTest {
     //simple case
     AttributeHooksImpl.mostRecentPostCommitInsertAttribute = null;
     
-    this.aGroup.setAttribute(this.field.getName(), "testPostCommitInsert");
-    
     assertNull(AttributeHooksImpl.mostRecentPostCommitInsertAttribute);
-
-    this.aGroup.store();
+    
+    this.aGroup.setAttribute(this.field.getName(), "testPostCommitInsert");
     
     assertEquals("testPostCommitInsert", AttributeHooksImpl.mostRecentPostCommitInsertAttribute.getValue());
     
@@ -74,7 +72,6 @@ public class AttributeHooksTest extends GrouperTest {
   public void testAttributePostCommitUpdate() throws Exception {
     
     this.aGroup.setAttribute(this.field.getName(), "testPostCommitUpdate");
-    this.aGroup.store();
 
     AttributeHooksImpl.mostRecentPostCommitUpdateAttributeValue = null;
     
@@ -87,7 +84,6 @@ public class AttributeHooksTest extends GrouperTest {
         } catch (Exception e) {
           throw new RuntimeException(e);
         }
-        AttributeHooksTest.this.aGroup.store();
         assertNull("shouldnt fire yet", AttributeHooksImpl.mostRecentPostCommitUpdateAttributeValue);
         grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
         assertEquals("testPostCommitUpdate2", AttributeHooksImpl.mostRecentPostCommitUpdateAttributeValue);
@@ -103,7 +99,6 @@ public class AttributeHooksTest extends GrouperTest {
   public void testAttributePostCommitDelete() throws Exception {
     
     this.aGroup.setAttribute(this.field.getName(), "testPostCommitDelete");
-    this.aGroup.store();
 
     AttributeHooksImpl.mostRecentPostCommitDeleteAttributeValue = null;
     
@@ -118,7 +113,7 @@ public class AttributeHooksTest extends GrouperTest {
         }
         assertNull("shouldnt fire yet", AttributeHooksImpl.mostRecentPostCommitDeleteAttributeValue);
         grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
-        assertTrue(StringUtils.isBlank(aGroup.getAttributeOrNull(AttributeHooksTest.this.field.getName())));
+        assertTrue(StringUtils.isBlank(aGroup.getAttributeValue(AttributeHooksTest.this.field.getName(), false, false)));
         assertEquals("testPostCommitDelete", AttributeHooksImpl.mostRecentPostCommitDeleteAttributeValue);
         return null;
       }
@@ -134,9 +129,8 @@ public class AttributeHooksTest extends GrouperTest {
     AttributeHooksImpl.mostRecentPreInsertAttributeValue = null;
     
     this.aGroup.setAttribute(this.field.getName(), "test1");
-    this.aGroup.store();
     
-    assertEquals("test1", GroupFinder.findByUuid(this.grouperSession, this.aGroup.getUuid(), true).getAttribute(this.field.getName()));
+    assertEquals("test1", GroupFinder.findByUuid(this.grouperSession, this.aGroup.getUuid(), true).getAttributeValue(this.field.getName(), false, true));
     assertEquals("test1", AttributeHooksImpl.mostRecentPreInsertAttributeValue);
 
     //delete so we can insert again
@@ -144,7 +138,7 @@ public class AttributeHooksTest extends GrouperTest {
     
     try {
       this.aGroup.setAttribute(this.field.getName(), "test2");
-      this.aGroup.store();
+
       fail("Should veto test2");
     } catch (HookVeto hookVeto) {
       assertEquals("name cannot be test2", hookVeto.getReason());
@@ -161,19 +155,17 @@ public class AttributeHooksTest extends GrouperTest {
     
     
     this.aGroup.setAttribute(this.field.getName(), "test9a");
-    this.aGroup.store();
     
     AttributeHooksImpl.mostRecentPreUpdateAttributeValue = null;
 
     this.aGroup.setAttribute(this.field.getName(), "test9");
-    this.aGroup.store();
 
-    assertEquals("test9", this.aGroup.getAttribute(this.field.getName()));
+    assertEquals("test9", this.aGroup.getAttributeValue(this.field.getName(), false, true));
     assertEquals("test9", AttributeHooksImpl.mostRecentPreUpdateAttributeValue);
 
     try {
       this.aGroup.setAttribute(this.field.getName(), "test10");
-      this.aGroup.store();
+
       fail("Should veto test10");
     } catch (HookVeto hookVeto) {
       assertEquals("name cannot be test10", hookVeto.getReason());
@@ -190,19 +182,17 @@ public class AttributeHooksTest extends GrouperTest {
     
     
     this.aGroup.setAttribute(this.field.getName(), "test11a");
-    this.aGroup.store();
     
     AttributeHooksImpl.mostRecentPostUpdateAttributeValue = null;
 
     this.aGroup.setAttribute(this.field.getName(), "test11");
-    this.aGroup.store();
 
-    assertEquals("test11", this.aGroup.getAttribute(this.field.getName()));
+    assertEquals("test11", this.aGroup.getAttributeValue(this.field.getName(), false, true));
     assertEquals("test11", AttributeHooksImpl.mostRecentPostUpdateAttributeValue);
 
     try {
       this.aGroup.setAttribute(this.field.getName(), "test12");
-      this.aGroup.store();
+
       fail("Should veto test12");
     } catch (HookVeto hookVeto) {
       assertEquals("name cannot be test12", hookVeto.getReason());
@@ -220,9 +210,8 @@ public class AttributeHooksTest extends GrouperTest {
     AttributeHooksImpl.mostRecentPostInsertAttributeValue = null;
     
     this.aGroup.setAttribute(this.field.getName(), "test7");
-    this.aGroup.store();
     
-    assertEquals("test7", this.aGroup.getAttribute(this.field.getName()));
+    assertEquals("test7", this.aGroup.getAttributeValue(this.field.getName(), false, true));
     assertEquals("test7", AttributeHooksImpl.mostRecentPreInsertAttributeValue);
     
     //delete so we can insert again
@@ -230,7 +219,7 @@ public class AttributeHooksTest extends GrouperTest {
 
     try {
       this.aGroup.setAttribute(this.field.getName(), "test8");
-      this.aGroup.store();
+      
       fail("Should veto test8");
     } catch (HookVeto hookVeto) {
       assertEquals("name cannot be test8", hookVeto.getReason());
@@ -246,7 +235,6 @@ public class AttributeHooksTest extends GrouperTest {
   public void testAttributePostDelete() throws Exception {
     
     this.aGroup.setAttribute(this.field.getName(), "test4");
-    this.aGroup.store();
 
     AttributeHooksImpl.mostRecentPostDeleteAttributeValue = null;
 
@@ -255,7 +243,6 @@ public class AttributeHooksTest extends GrouperTest {
     assertEquals("test4", AttributeHooksImpl.mostRecentPostDeleteAttributeValue);
    
     this.aGroup.setAttribute(this.field.getName(), "test3");
-    this.aGroup.store();
 
     try {
       this.aGroup.deleteAttribute(this.field.getName());
@@ -274,7 +261,6 @@ public class AttributeHooksTest extends GrouperTest {
   public void testAttributePreDelete() throws Exception {
     
     this.aGroup.setAttribute(this.field.getName(), "test5");
-    this.aGroup.store();
 
     AttributeHooksImpl.mostRecentPreDeleteAttributeValue = null;
 
@@ -283,7 +269,7 @@ public class AttributeHooksTest extends GrouperTest {
     assertEquals("test5", AttributeHooksImpl.mostRecentPreDeleteAttributeValue);
    
     this.aGroup.setAttribute(this.field.getName(), "test6");
-    this.aGroup.store();
+
     try {
       this.aGroup.deleteAttribute(this.field.getName());
       fail("Should veto test6");

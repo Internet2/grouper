@@ -21,6 +21,8 @@ import java.io.Writer;
 import java.util.Date;
 import java.util.Properties;
 
+import junit.textui.TestRunner;
+
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
@@ -45,11 +47,15 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestXml.java,v 1.1 2009-03-20 19:56:42 mchyzer Exp $
+ * @version $Id: TestXml.java,v 1.2 2009-03-24 17:12:08 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestXml extends GrouperTest {
 
+  public static void main(String[] args) {
+    TestRunner.run(new TestXml("testFullExportFullImportCustomTypes"));
+  }
+  
   private static final Log LOG = GrouperUtil.getLog(TestXml.class);
 
   public TestXml(String name) {
@@ -228,7 +234,7 @@ public class TestXml extends GrouperTest {
       Field     list  = type.addList(r.rs, "custom list", AccessPrivilege.READ, AccessPrivilege.UPDATE);
       gA.addType( type );
       gA.setAttribute( attr.getName(), attr.getName() );
-      gA.store();
+
       gA.addMember( subjA, list );
       r.rs.stop();
   

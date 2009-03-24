@@ -33,7 +33,7 @@ import edu.internet2.middleware.subject.Subject;
  * An instance of a granted access privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.6 2009-03-02 07:33:25 mchyzer Exp $
+ * @version $Id: AccessPrivilege.java,v 1.7 2009-03-24 17:12:07 mchyzer Exp $
  */
 public class AccessPrivilege implements GrouperPrivilege, Comparable {
 
@@ -99,11 +99,13 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
   private Subject owner;
   private Subject subj;
 
+  /** optionally link the audit id with the low level action */
+  private String contextId;
 
   // Constructors
   public AccessPrivilege(
     Group   group , Subject subj,   Subject owner, 
-    Privilege priv, String  klass,  boolean isRevokable
+    Privilege priv, String  klass,  boolean isRevokable, String contextId1
   ) 
   {
     this.group        = group;
@@ -112,6 +114,7 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
     this.name         = priv.toString();
     this.owner        = owner;
     this.subj         = subj;
+    this.contextId = contextId1;
   } // public AccessPrivilege(object, subj, owner, priv, klass, isRevokable)
 
   /**
@@ -247,6 +250,14 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
       .append(thisSubjectId, thatSubjectId)
       .append(this.name, that.name)
       .toComparison();
+  }
+
+  /**
+   * optionally link the audit id with the low level action
+   * @return context id
+   */
+  public String getContextId() {
+    return this.contextId;
   }
   
   

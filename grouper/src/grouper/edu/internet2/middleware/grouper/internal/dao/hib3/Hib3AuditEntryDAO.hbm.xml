@@ -20,10 +20,13 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3AuditEntryDAO.hbm.xml,v 1.8 2009-03-16 14:46:27 mchyzer Exp $ -->
+<!-- $Id: Hib3AuditEntryDAO.hbm.xml,v 1.9 2009-03-24 17:12:08 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.audit">
-  <class name="AuditEntry" table="grouper_audit_entry">
+
+  <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
+    based on the grouper.properties, so dont remove that attribute  -->
+  <class name="AuditEntry" table="grouper_audit_entry" optimistic-lock="version">
 
     <!-- id -->
     <id name="id" unsaved-value="none" column="id" type="string" length="128">
@@ -32,7 +35,7 @@
     <!-- id -->
 
     <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
-    <property name="hibernateVersionNumber" column="hibernate_version_number" not-null="true" />
+    <version name="hibernateVersionNumber" column="hibernate_version_number" type="long"/>
 
     <property name="actAsMemberId" column="act_as_member_id"/>
     <property name="auditTypeId" column="audit_type_id"/>

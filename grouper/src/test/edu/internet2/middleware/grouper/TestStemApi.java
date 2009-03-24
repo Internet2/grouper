@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestStemApi.java,v 1.3 2009-03-23 02:59:25 mchyzer Exp $
+ * @version $Id: TestStemApi.java,v 1.4 2009-03-24 17:12:09 mchyzer Exp $
  * @since   1.2.1
  */
 public class TestStemApi extends GrouperTest {
@@ -76,7 +76,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("testStemCopyAudit"));
+    TestRunner.run(new TestStemApi("test_copy_group_privs_only"));
     //TestRunner.run(Test_api_Stem.class);
   }
 
@@ -1350,7 +1350,6 @@ public class TestStemApi extends GrouperTest {
     
     level3Group3.addType(type1);
     level3Group3.setAttribute("type1attr1", "test");
-    level3Group3.store();
     
     level1Group1.addCompositeMember(CompositeType.UNION, level1Group2, level1Group3);
     level2Group1.addCompositeMember(CompositeType.UNION, level2Group2, level2Group3);
@@ -1513,9 +1512,9 @@ public class TestStemApi extends GrouperTest {
     
     // attribute checks
     if (attributes) {
-      assertTrue(level3Group3.getAttribute("type1attr1").equals("test"));
+      assertTrue(level3Group3.getAttributeValue("type1attr1", false, true).equals("test"));
     } else {
-      assertTrue(level3Group3.getAttribute("type1attr1").equals(""));
+      assertTrue(level3Group3.getAttributeValue("type1attr1", false, false).equals(""));
     }
   }
   

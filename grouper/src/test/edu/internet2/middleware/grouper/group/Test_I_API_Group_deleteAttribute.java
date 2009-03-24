@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 /**
  * Test <code>Group.deleteAttribute()</code>.
  * @author  blair christensen.
- * @version $Id: Test_I_API_Group_deleteAttribute.java,v 1.2 2009-03-22 05:41:01 mchyzer Exp $
+ * @version $Id: Test_I_API_Group_deleteAttribute.java,v 1.3 2009-03-24 17:12:08 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_I_API_Group_deleteAttribute extends GrouperTest {
@@ -160,7 +160,6 @@ public class Test_I_API_Group_deleteAttribute extends GrouperTest {
   {
     // SETUP //
     gA.setAttribute(ATTRIBUTE1, "whatever");
-    gA.store();
 
     // TEST //
     gA.deleteAttribute(ATTRIBUTE1);
@@ -184,7 +183,6 @@ public class Test_I_API_Group_deleteAttribute extends GrouperTest {
   {
     // SETUP //
     gA.setAttribute(ATTRIBUTE1, "whatever");
-    gA.store();
 
     //get the subject, make sure the lazy attributes load correctly (not too early, not too late)
     GrouperSubject groupSubject = (GrouperSubject)SubjectFinder.findById(gA.getUuid(), true);
@@ -208,7 +206,7 @@ public class Test_I_API_Group_deleteAttribute extends GrouperTest {
     
     // TEST //
     gA.deleteAttribute(ATTRIBUTE1);
-    assertEquals( "description is empty string after deletion", GrouperConfig.EMPTY_STRING, gA.getAttribute(ATTRIBUTE1) );
+    assertEquals( "description is empty string after deletion", GrouperConfig.EMPTY_STRING, gA.getAttributeValue(ATTRIBUTE1, false, false) );
   }
 
 } 

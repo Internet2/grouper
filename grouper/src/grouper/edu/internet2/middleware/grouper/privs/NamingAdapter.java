@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
  * wrapped by methods in the {@link Stem} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: NamingAdapter.java,v 1.4 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: NamingAdapter.java,v 1.5 2009-03-24 17:12:07 mchyzer Exp $
  */
 public interface NamingAdapter {
 
@@ -132,6 +132,7 @@ public interface NamingAdapter {
    * @param   ns    Check privilege on this stem.
    * @param   subj     Check privilege for this subject.
    * @param   priv  Check this privilege.   
+   * @return if has priv
    * @throws  SchemaException
    */
   boolean hasPriv(GrouperSession s, Stem ns, Subject subj, Privilege priv)

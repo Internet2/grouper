@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AttributeHooksImpl.java,v 1.2 2009-03-15 06:37:23 mchyzer Exp $
+ * $Id: AttributeHooksImpl.java,v 1.3 2009-03-24 17:12:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -109,7 +109,7 @@ public class AttributeHooksImpl extends AttributeHooks {
 
     Attribute attribute = postInsertBean.getAttribute();
       Group aGroup = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), attribute.getGroupUuid(), true);
-      mostRecentPostInsertAttributeValue = aGroup.getAttributeOrNull(attribute.getAttrName());
+      mostRecentPostInsertAttributeValue = aGroup.getAttributeValue(attribute.getAttrName(), false, false);
       if (StringUtils.equals("test8", mostRecentPostInsertAttributeValue)) {
         throw new HookVeto("hook.veto.attribute.insert.name.not.test8", "name cannot be test8");
       }

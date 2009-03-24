@@ -10,10 +10,12 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.StaleObjectStateException;
 import org.hibernate.Transaction;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -319,6 +321,10 @@ public class HibernateSession {
         LOG.error(errorString);
       }
       throw (GrouperDAOException) e;
+    }
+    // if hibernate state object, repackage, repackage
+    if (e instanceof StaleObjectStateException) {
+      throw new GrouperStaleObjectStateException(errorString, e);
     }
     // if hibernate exception, repackage
     if (e instanceof HibernateException) {

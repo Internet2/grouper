@@ -23,6 +23,7 @@ import org.hibernate.CallbackException;
 import org.hibernate.Session;
 import org.hibernate.classic.Lifecycle;
 
+import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
@@ -38,18 +39,16 @@ import edu.internet2.middleware.grouper.util.GrouperUtil.FieldValuable;
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.20 2009-03-20 14:32:43 mchyzer Exp $
+ * @version $Id: GrouperAPI.java,v 1.21 2009-03-24 17:12:08 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrouperLifecycle, Lifecycle, GrouperCloneable {
 
   /** save the state when retrieving from DB */
   @GrouperIgnoreDbVersion
+  @GrouperIgnoreClone
+  @GrouperIgnoreFieldConstant
   protected Object dbVersion = null;
-
-  /** save the state when retrieving from DB, but this is the db version in the current transaction */
-  @GrouperIgnoreDbVersion
-  protected Object dbVersionTx = null;
 
   /** field name for db version */
   public static final String FIELD_DB_VERSION = "dbVersion";
