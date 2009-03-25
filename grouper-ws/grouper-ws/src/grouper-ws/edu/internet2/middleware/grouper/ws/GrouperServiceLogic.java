@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.22.2.6 2009-03-04 17:08:13 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.22.2.7 2009-03-25 08:17:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -38,11 +38,15 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.GrouperPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingResolver;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.exceptions.WebServiceDoneException;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
@@ -2840,6 +2844,7 @@ public class GrouperServiceLogic {
    *            reserved for future use
    * @return the result of one member query
    */
+  @SuppressWarnings({ "cast", "unchecked" })
   public static WsGetGrouperPrivilegesLiteResult getGrouperPrivilegesLite(final GrouperWsVersion clientVersion, 
       String subjectId, String subjectSourceId, String subjectIdentifier,
       String groupName, String groupUuid, 
@@ -2892,11 +2897,52 @@ public class GrouperServiceLogic {
       //start session based on logged in user or the actAs passed in
       session = GrouperServiceUtils.retrieveGrouperSession(actAsSubjectLookup);
 
-      if (wsGroupLookup.hasData() && wsStemLookup.hasData()) {
+      boolean hasGroup = wsGroupLookup.hasData();
+      boolean hasStem = wsStemLookup.hasData();
+      
+      //cant have both
+      if (hasGroup && hasStem) {
         throw new WsInvalidQueryException("Cant pass both group and stem.  Pass one or the other");
       }
-      if (!wsGroupLookup.hasData() && !wsStemLookup.hasData()) {
-        throw new WsInvalidQueryException("Cant pass neither group nor stem.  Pass one or the other");
+
+      
+      boolean hasSubject = !subjectLookup.blank();
+      boolean hasPrivilege = privilegeName != null;
+      
+      //lets try to assign privilege type if not assigned
+      if (privilegeType == null && hasPrivilege) {
+        if (Privilege.isAccess(privilegeName)) {
+          privilegeType = PrivilegeType.ACCESS;
+        } else if (Privilege.isNaming(privilegeName)) {
+          privilegeType = PrivilegeType.NAMING;
+        } else {
+          throw new RuntimeException("Unexpected privilege, cant find type: " + privilegeName);
+        }
+      }
+
+      if (privilegeType == null) {
+        if (hasGroup) {
+          privilegeType = PrivilegeType.ACCESS;
+        } else if (hasStem) {
+          privilegeType = PrivilegeType.NAMING;
+        }
+      }
+      
+      boolean groupPrivilege = PrivilegeType.ACCESS.equals(privilegeType);
+      boolean stemPrivilege = PrivilegeType.NAMING.equals(privilegeType);
+      
+      //make sure the privilege type matches
+      if (privilegeType != null) {
+        
+        if (hasGroup && !groupPrivilege) {
+          throw new WsInvalidQueryException("If you are querying a group, you need to pass in an " +
+              "access privilege type: '" + privilegeType + "', e.g. admin|view|read|optin|optout|update");
+        }
+
+        if (hasStem && !stemPrivilege) {
+          throw new WsInvalidQueryException("If you are querying a stem, you need to pass in a " +
+              "naming privilege type: '" + privilegeType + "', e.g. stem|create");
+        }
       }
       
       //convert the options to a map for easy access, and validate them
@@ -2904,119 +2950,239 @@ public class GrouperServiceLogic {
       Map<String, String> paramMap = GrouperServiceUtils.convertParamsToMap(
           params);
     
-      Subject subject = subjectLookup.retrieveSubject();
       
-      wsGetGrouperPrivilegesLiteResult.processSubject(subjectLookup, subjectAttributeArray);
+      Subject subject = null;
       
-      //need to check to see status
-      
-      if (subject != null) {
-
-        Set<? extends GrouperPrivilege> privileges = null;
-        if (wsGroupLookup.hasData()) {
-          
-          if (privilegeType != null && !privilegeType.equals(PrivilegeType.ACCESS)) {
-            throw new WsInvalidQueryException("If you are querying a group, you need to pass in an " +
-            		"access privilege type: '" + privilegeType + "'");
-          }
-
-          Group group = wsGroupLookup.retrieveGroupIfNeeded(session, "wsGroupLookup");
-
-          privileges = group.getPrivs(subject);
-
-        } else if (wsStemLookup.hasData()) {
-
-          if (privilegeType != null && !privilegeType.equals(PrivilegeType.NAMING)) {
-            throw new WsInvalidQueryException("If you are querying a stem, you need to pass in a " +
-                "naming privilege type: '" + privilegeType + "'");
-          }
-
-          wsStemLookup.retrieveStemIfNeeded(session, true);
-          Stem stem = wsStemLookup.retrieveStem();
-
-          privileges = stem.getPrivs(subject);
-        }
-
-        //see if we need to remove, if specifying privs, and this doesnt match
-        Iterator<? extends GrouperPrivilege> iterator = privileges.iterator();
-        while (iterator.hasNext()) {
-          GrouperPrivilege current = iterator.next();
-          if (privilegeName != null && !StringUtils.equals(privilegeName.getName(), current.getName())){
-            iterator.remove();
-          }          
-        }
-
-        WsGrouperPrivilegeResult[] privilegeResults = new WsGrouperPrivilegeResult[privileges.size()];
-        if (privileges.size() > 0) {
-          
-          //sort these for unit testing
-          privileges = new TreeSet<GrouperPrivilege>(privileges);
-          
-          wsGetGrouperPrivilegesLiteResult.setPrivilegeResults(privilegeResults);
-        }
+      if (hasSubject) {
+        subject = subjectLookup.retrieveSubject();
+        //need to check to see status      
+        wsGetGrouperPrivilegesLiteResult.processSubject(subjectLookup, subjectAttributeArray);
         
-        int i=0;
-        for (GrouperPrivilege grouperPrivilege : privileges) {
-          
-          WsGrouperPrivilegeResult wsGrouperPrivilegeResult = new WsGrouperPrivilegeResult();
-          privilegeResults[i] = wsGrouperPrivilegeResult;
-          
-          wsGrouperPrivilegeResult.setAllowed("T");
-          Subject owner = grouperPrivilege.getOwner();
-          wsGrouperPrivilegeResult.setOwnerSubject(owner == null ? null : new WsSubject(owner, subjectAttributeArray, null));
-
-          String thePrivilegeName = grouperPrivilege.getName();
-          wsGrouperPrivilegeResult.setPrivilegeName(thePrivilegeName);
-          wsGrouperPrivilegeResult.setPrivilegeType(grouperPrivilege.getType());
-          
-          wsGrouperPrivilegeResult.setRevokable(grouperPrivilege.isRevokable() ? "T" : "F");
-
-          GrouperAPI groupOrStem = grouperPrivilege.getGrouperApi();
-          if (groupOrStem instanceof Group) {
-            Group group = (Group)groupOrStem;
-            wsGrouperPrivilegeResult.setWsGroup(new WsGroup(group, null, includeGroupDetail));
-          } else if (groupOrStem instanceof Stem) {
-            Stem stem = (Stem)groupOrStem;
-            wsGrouperPrivilegeResult.setWsStem(new WsStem(stem));
-          }
-
-          //note, if there is a subejct lookup, it should match here
-          //make sure they match
-          Subject privilegeSubject = grouperPrivilege.getSubject(); 
-          
-          //(granted we should check source too, but it might not be available
-          if (!StringUtils.equals(privilegeSubject.getId(), subject.getId())) {
-            throw new RuntimeException("These subjects should be equal: " 
-                + GrouperUtil.subjectToString(privilegeSubject) + ", " 
-                + GrouperUtil.subjectToString(subject));
-          }
-
-          wsGrouperPrivilegeResult.setWsSubject(new WsSubject(privilegeSubject, subjectAttributeArray, subjectLookup));
-          
-          i++;
+        if (subject == null) {
+          throw new WebServiceDoneException();
         }
-
-        //if the privilege was queried, and group/stem and subject... then it should be one alswer
-        if (privilegeName != null && (wsGroupLookup.hasData() ^ wsStemLookup.hasData()) &&
-            subject != null && (privileges.size() == 1 || privileges.size() == 0)) {
-          
-          if (privileges.size() == 1) {
-            
-            //assign one of 2 success codes
-            wsGetGrouperPrivilegesLiteResult.assignResultCode(WsGetGrouperPrivilegesLiteResultCode.SUCCESS_ALLOWED);
-          } else {
-            
-            //assign one of 2 success codes
-            wsGetGrouperPrivilegesLiteResult.assignResultCode(WsGetGrouperPrivilegesLiteResultCode.SUCCESS_NOT_ALLOWED);
-          }
-          
-          
-        } else {
-        
-          //assign success and the real privs are in the XML
-          wsGetGrouperPrivilegesLiteResult.assignResultCode(WsGetGrouperPrivilegesLiteResultCode.SUCCESS);
+      } else {
+        if (!hasGroup && !hasStem) {
+          //what are we filtering by???
+          throw new RuntimeException("Not enough information in the query, pass in at least a subject or group or stem");
         }
       }
+      
+      AccessResolver accessResolver = session.getAccessResolver();
+      NamingResolver namingResolver = session.getNamingResolver();
+      
+      TreeSet<GrouperPrivilege> privileges = new TreeSet<GrouperPrivilege>();
+      if (hasGroup) {
+        
+        Group group = wsGroupLookup.retrieveGroupIfNeeded(session, "wsGroupLookup");
+        
+        //handle bad stuff
+        if (group == null) {
+          GroupFindResult groupFindResult = wsGroupLookup.retrieveGroupFindResult();
+          if (groupFindResult == GroupFindResult.GROUP_NOT_FOUND) {
+            wsGetGrouperPrivilegesLiteResult.assignResultCode(WsGetGrouperPrivilegesLiteResultCode.GROUP_NOT_FOUND);
+            throw new WebServiceDoneException();
+          }
+          throw new RuntimeException(groupFindResult == null ? null : groupFindResult.toString());
+        }
+
+        if (subject != null) {
+
+          privileges.addAll(GrouperUtil.nonNull(group.getPrivs(subject)));
+        } else {
+          Set<Subject> subjects = new HashSet<Subject>();
+          if (privilegeName == null || AccessPrivilege.ADMIN.equals(privilegeName)) { 
+            subjects.addAll(GrouperUtil.nonNull(accessResolver.getSubjectsWithPrivilege(group, AccessPrivilege.ADMIN)));
+          } 
+          if (privilegeName == null || AccessPrivilege.OPTIN.equals(privilegeName)) { 
+            subjects.addAll(GrouperUtil.nonNull(accessResolver.getSubjectsWithPrivilege(group, AccessPrivilege.OPTIN)));
+          } 
+          if (privilegeName == null || AccessPrivilege.OPTOUT.equals(privilegeName)) { 
+            subjects.addAll(GrouperUtil.nonNull(accessResolver.getSubjectsWithPrivilege(group, AccessPrivilege.OPTOUT)));
+          } 
+          if (privilegeName == null || AccessPrivilege.READ.equals(privilegeName)) {
+            subjects.addAll(GrouperUtil.nonNull(accessResolver.getSubjectsWithPrivilege(group, AccessPrivilege.READ)));
+          } 
+          if (privilegeName == null || AccessPrivilege.UPDATE.equals(privilegeName)) {
+            subjects.addAll(GrouperUtil.nonNull(accessResolver.getSubjectsWithPrivilege(group, AccessPrivilege.UPDATE)));
+          } 
+          if (privilegeName == null || AccessPrivilege.VIEW.equals(privilegeName)) { 
+            subjects.addAll(GrouperUtil.nonNull(accessResolver.getSubjectsWithPrivilege(group, AccessPrivilege.VIEW)));
+          } 
+          //make it a little more efficient, note subjects dont have equals and hashcode, cant just use set
+          SubjectHelper.removeDuplicates(subjects);
+          //add privs
+          for (Subject current : subjects) {
+            privileges.addAll(accessResolver.getPrivileges(group, current));
+          }
+        }
+      } else if (hasStem) {
+
+        wsStemLookup.retrieveStemIfNeeded(session, true);
+        Stem stem = wsStemLookup.retrieveStem();
+        //handle bad stuff
+        if (stem == null) {
+          StemFindResult stemFindResult = wsStemLookup.retrieveStemFindResult();
+          if (stemFindResult == StemFindResult.STEM_NOT_FOUND) {
+            wsGetGrouperPrivilegesLiteResult.assignResultCode(WsGetGrouperPrivilegesLiteResultCode.STEM_NOT_FOUND);
+            throw new WebServiceDoneException();
+          }
+          throw new RuntimeException(stemFindResult == null ? null : stemFindResult.toString());
+        }
+
+        if (subject != null) {
+
+          privileges.addAll(GrouperUtil.nonNull(stem.getPrivs(subject)));
+        } else {
+          Set<Subject> subjects = new HashSet<Subject>();
+          if (privilegeName == null || NamingPrivilege.CREATE.equals(privilegeName)) { 
+            subjects.addAll(GrouperUtil.nonNull(namingResolver.getSubjectsWithPrivilege(stem, NamingPrivilege.CREATE)));
+          } 
+          if (privilegeName == null || NamingPrivilege.STEM.equals(privilegeName)) { 
+            subjects.addAll(GrouperUtil.nonNull(namingResolver.getSubjectsWithPrivilege(stem, NamingPrivilege.STEM)));
+          } 
+          //make it a little more efficient, note subjects dont have equals and hashcode, cant just use set
+          SubjectHelper.removeDuplicates(subjects);
+          //add privs
+          for (Subject current : subjects) {
+            privileges.addAll(namingResolver.getPrivileges(stem, current));
+          }
+        }
+      } else {
+      
+        //if group privilege, then 
+        Member member = subjectLookup.retrieveMember();
+        //if there is no member record, then there is nothing
+        if (member != null) {
+          //this means no group or stem, but has subject
+          if (groupPrivilege || privilegeType == null) {
+          
+            Set<Group> groups = new HashSet<Group>();
+            if (privilegeName == null || AccessPrivilege.ADMIN.equals(privilegeName)) { 
+              groups.addAll(member.hasAdmin());
+            } 
+            if (privilegeName == null || AccessPrivilege.OPTIN.equals(privilegeName)) { 
+              groups.addAll(member.hasOptin());
+            } 
+            if (privilegeName == null || AccessPrivilege.OPTOUT.equals(privilegeName)) { 
+              groups.addAll(member.hasOptout());
+            } 
+            if (privilegeName == null || AccessPrivilege.READ.equals(privilegeName)) { 
+              groups.addAll(member.hasRead());
+            } 
+            if (privilegeName == null || AccessPrivilege.UPDATE.equals(privilegeName)) { 
+              groups.addAll(member.hasUpdate());
+            } 
+            if (privilegeName == null || AccessPrivilege.VIEW.equals(privilegeName)) { 
+              groups.addAll(member.hasView());
+            } 
+            //from there lets get the privilege
+            for (Group group : groups) {
+              privileges.addAll(GrouperUtil.nonNull(group.getPrivs(subject)));
+            }
+          }
+          //this means no group or stem, but has subject
+          if (stemPrivilege || privilegeType == null) {
+          
+            Set<Stem> stems = new HashSet<Stem>();
+            if (privilegeName == null || NamingPrivilege.CREATE.equals(privilegeName)) { 
+              stems.addAll(member.hasCreate());
+            } 
+            if (privilegeName == null || NamingPrivilege.STEM.equals(privilegeName)) { 
+              stems.addAll(member.hasStem());
+            } 
+            //from there lets get the privilege
+            for (Stem stem : stems) {
+              privileges.addAll(GrouperUtil.nonNull(stem.getPrivs(subject)));
+            }
+          }
+          
+        }
+      }
+  
+      //see if we need to remove, if specifying privs, and this doesnt match
+      Iterator<? extends GrouperPrivilege> iterator = privileges.iterator();
+      while (iterator.hasNext()) {
+        GrouperPrivilege current = iterator.next();
+        if (privilegeName != null && !StringUtils.equals(privilegeName.getName(), current.getName())){
+          iterator.remove();
+        }          
+      }
+
+      WsGrouperPrivilegeResult[] privilegeResults = new WsGrouperPrivilegeResult[privileges.size()];
+      if (privileges.size() > 0) {
+        
+        wsGetGrouperPrivilegesLiteResult.setPrivilegeResults(privilegeResults);
+      }
+      
+      int i=0;
+      for (GrouperPrivilege grouperPrivilege : privileges) {
+        
+        WsGrouperPrivilegeResult wsGrouperPrivilegeResult = new WsGrouperPrivilegeResult();
+        privilegeResults[i] = wsGrouperPrivilegeResult;
+        
+        wsGrouperPrivilegeResult.setAllowed("T");
+        Subject owner = grouperPrivilege.getOwner();
+        wsGrouperPrivilegeResult.setOwnerSubject(owner == null ? null : new WsSubject(owner, subjectAttributeArray, null));
+
+        String thePrivilegeName = grouperPrivilege.getName();
+        wsGrouperPrivilegeResult.setPrivilegeName(thePrivilegeName);
+        wsGrouperPrivilegeResult.setPrivilegeType(grouperPrivilege.getType());
+        
+        wsGrouperPrivilegeResult.setRevokable(grouperPrivilege.isRevokable() ? "T" : "F");
+
+        GrouperAPI groupOrStem = grouperPrivilege.getGrouperApi();
+        if (groupOrStem instanceof Group) {
+          Group group = (Group)groupOrStem;
+          wsGrouperPrivilegeResult.setWsGroup(new WsGroup(group, null, includeGroupDetail));
+        } else if (groupOrStem instanceof Stem) {
+          Stem stem = (Stem)groupOrStem;
+          wsGrouperPrivilegeResult.setWsStem(new WsStem(stem));
+        }
+
+        //note, if there is a subejct lookup, it should match here
+        //make sure they match
+        Subject privilegeSubject = grouperPrivilege.getSubject(); 
+        
+        //(granted we should check source too, but it might not be available
+        if (subject != null) {
+          if (!StringUtils.equals(privilegeSubject.getId(), subject.getId())) {
+            throw new RuntimeException("These subjects should be equal: " 
+              + GrouperUtil.subjectToString(privilegeSubject) + ", " 
+              + GrouperUtil.subjectToString(subject));
+          }
+        }
+        
+        //only pass in the subject lookup if it wasnt null
+        wsGrouperPrivilegeResult.setWsSubject(new WsSubject(privilegeSubject, subjectAttributeArray, 
+            subject != null ? subjectLookup : null));
+        
+        i++;
+      }
+
+      //if the privilege was queried, and group/stem and subject... then it should be one alswer
+      if (privilegeName != null && (wsGroupLookup.hasData() ^ wsStemLookup.hasData()) &&
+          subject != null && (privileges.size() == 1 || privileges.size() == 0)) {
+        
+        if (privileges.size() == 1) {
+          
+          //assign one of 2 success codes
+          wsGetGrouperPrivilegesLiteResult.assignResultCode(WsGetGrouperPrivilegesLiteResultCode.SUCCESS_ALLOWED);
+        } else {
+          
+          //assign one of 2 success codes
+          wsGetGrouperPrivilegesLiteResult.assignResultCode(WsGetGrouperPrivilegesLiteResultCode.SUCCESS_NOT_ALLOWED);
+        }
+        
+        
+      } else {
+      
+        //assign success and the real privs are in the XML
+        wsGetGrouperPrivilegesLiteResult.assignResultCode(WsGetGrouperPrivilegesLiteResultCode.SUCCESS);
+      }
+      
+    } catch (WebServiceDoneException wsde) {
+      //ignore this
     } catch (InsufficientPrivilegeRuntimeException ipe) {
       wsGetGrouperPrivilegesLiteResult
           .assignResultCode(WsGetGrouperPrivilegesLiteResultCode.INSUFFICIENT_PRIVILEGES);

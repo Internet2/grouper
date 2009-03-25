@@ -81,7 +81,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.116.2.1 2009-02-23 18:39:52 mchyzer Exp $
+ * @version $Id: Member.java,v 1.116.2.2 2009-03-25 08:17:30 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -1259,7 +1259,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Stem} objects.
    * @throws  GrouperRuntimeException
    */
-  public Set<Group> hasCreate() 
+  public Set<Stem> hasCreate() 
     throws  GrouperRuntimeException
   {
     Set privs = new LinkedHashSet();
@@ -1456,7 +1456,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Group} objects.
    * @throws  GrouperRuntimeException
    */
-  public Set hasUpdate() 
+  public Set<Group> hasUpdate() 
     throws  GrouperRuntimeException
   {
     Set privs = new LinkedHashSet();

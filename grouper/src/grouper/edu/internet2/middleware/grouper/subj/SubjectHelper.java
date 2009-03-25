@@ -16,6 +16,11 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.subject.Subject;
@@ -24,14 +29,17 @@ import edu.internet2.middleware.subject.Subject;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.2 2008-09-10 05:45:59 mchyzer Exp $
+ * @version $Id: SubjectHelper.java,v 1.2.2.1 2009-03-25 08:17:30 mchyzer Exp $
  */
 public class SubjectHelper {
 
+  /** */
   private static final String SUBJECT_DELIM = "/";
 
 
   /**
+   * @param a 
+   * @param b 
    * @return  True if both objects are <code>Subject</code>s and equal.
    * @since   1.2.1
    */
@@ -58,8 +66,12 @@ public class SubjectHelper {
     }
     return false;
   } 
- 
-  // @since   1.2.0
+
+  /**
+   * 
+   * @param _m
+   * @return string
+   */
   public static String getPretty(Member _m) {
     
     return  Quote.single( _m.getSubjectId() ) // don't bother grabbing the name.  names aren't consistent, after all.
@@ -68,8 +80,12 @@ public class SubjectHelper {
             + SUBJECT_DELIM
             + Quote.single( _m.getSubjectSourceId() );
   } // protected static String getPretty(_m)
- 
-  // @since   1.2.0
+
+  /**
+   * 
+   * @param subj
+   * @return string
+   */
   public static String getPretty(Subject subj) {
     if (subj instanceof LazySubject) {
       return subj.toString();
@@ -79,7 +95,49 @@ public class SubjectHelper {
             + Quote.single( subj.getType().getName() ) 
             + SUBJECT_DELIM
             + Quote.single( subj.getSource().getId() );
-  } // protected static String getPretty(subj)
+  }
 
+  
+  /**
+   * remove duplicates from a set
+   * @param subjects
+   */
+  public static void removeDuplicates(Collection<Subject> subjects) {
+    if (subjects == null) {
+      return;
+    }
+    Set<Subject> tempList = new HashSet<Subject>();
+    Iterator<Subject> iterator = subjects.iterator();
+    while(iterator.hasNext()) {
+      Subject subject = iterator.next();
+
+      //see if in tempList
+      if (inList(tempList, subject)) {
+        iterator.remove();
+      } else {
+        //if not, keep track
+        tempList.add(subject);
+      }
+    }
+  }
+
+  /**
+   * see if a subject is in a list
+   * @param collection
+   * @param subject
+   * @return true if in list
+   */
+  public static boolean inList(Collection<Subject> collection, Subject subject) {
+    if (collection == null) {
+      return false;
+    }
+    for (Subject current : collection) {
+      if (eq(current, subject)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
 } // class SubjectHelper
  
