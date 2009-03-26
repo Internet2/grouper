@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.8.2.1 2009-03-26 06:26:17 mchyzer Exp $
+ * @version $Id: TestField.java,v 1.8.2.2 2009-03-26 07:25:02 mchyzer Exp $
  */
 public class TestField extends TestCase {
 
@@ -181,6 +181,23 @@ public class TestField extends TestCase {
   
       assertTrue(theLastRefreshed < FieldFinder.lastTimeRefreshed);
       
+      theLastRefreshed = FieldFinder.lastTimeRefreshed;
+      
+      Field field = FieldFinder.find("updaters");
+      FieldFinder.findById(field.getUuid());
+      
+      assertEquals(theLastRefreshed, FieldFinder.lastTimeRefreshed);
+      
+      //find one not there, should refresh cache
+      try {
+        FieldFinder.findById("abc");
+        fail("Should throw exception");
+      } catch (RuntimeException re) {
+        //good
+      }
+
+      assertTrue(theLastRefreshed < FieldFinder.lastTimeRefreshed);
+
       int allFieldsSize = FieldFinder.findAll().size();
       assertTrue(allFieldsSize > 5);
       
