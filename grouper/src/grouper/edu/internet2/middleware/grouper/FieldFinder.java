@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.42.2.2 2009-03-26 06:26:17 mchyzer Exp $
+ * @version $Id: FieldFinder.java,v 1.42.2.3 2009-03-26 12:33:38 mchyzer Exp $
  */
 public class FieldFinder {
 
@@ -74,7 +74,7 @@ public class FieldFinder {
           defaultFieldCacheSeconds, defaultFieldCacheSeconds, false);
     }
     Map<String,Field> theFieldCache = fieldCache.get(Boolean.TRUE);
-    if (theFieldCache == null) {
+    if (theFieldCache == null || theFieldCache.size() == 0) {
       internal_updateKnownFields();
     }
     return fieldCache.get(Boolean.TRUE);

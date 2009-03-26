@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -33,7 +34,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Field</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3FieldDAO.java,v 1.11.2.1 2009-03-26 06:26:17 mchyzer Exp $
+ * @version $Id: Hib3FieldDAO.java,v 1.11.2.2 2009-03-26 12:33:38 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
@@ -157,6 +158,7 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
    */
   public void createOrUpdate(Field field) {
     HibernateSession.byObjectStatic().saveOrUpdate(field);    
+    FieldFinder.clearCache();
   }
 
 } 

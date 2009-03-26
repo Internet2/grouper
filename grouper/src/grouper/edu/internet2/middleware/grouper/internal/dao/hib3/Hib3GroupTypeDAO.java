@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -38,7 +39,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeDAO.java,v 1.10 2008-11-04 07:17:56 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeDAO.java,v 1.10.2.1 2009-03-26 12:33:38 mchyzer Exp $
  */
 public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
 
@@ -96,6 +97,7 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
    */
   public void deleteField(Field _f) throws  GrouperDAOException {
     HibernateSession.byObjectStatic().delete(_f);
+    FieldFinder.clearCache();
   } 
 
   /**
