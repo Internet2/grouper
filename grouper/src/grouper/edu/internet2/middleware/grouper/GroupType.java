@@ -59,7 +59,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.73 2008-11-13 20:26:10 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.73.2.1 2009-03-26 06:26:17 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVersioned, Comparable {
 
@@ -756,7 +756,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
    */ 
   public Set<Field> getFields() {
     if (this.fields == null) {
-      this.fields = GrouperDAOFactory.getFactory().getField().findAllFieldsByGroupType( this.getUuid() );
+      this.fields = FieldFinder.findAllByGroupType(this);
     }
     return this.fields;
   }

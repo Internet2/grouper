@@ -26,7 +26,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 /** 
  * Basic <code>Field</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: FieldDAO.java,v 1.7 2008-11-04 07:17:56 mchyzer Exp $
+ * @version $Id: FieldDAO.java,v 1.7.2.1 2009-03-26 06:26:17 mchyzer Exp $
  * @since   1.2.0
  */
 public interface FieldDAO extends GrouperDAO {
@@ -58,7 +58,9 @@ public interface FieldDAO extends GrouperDAO {
    * @return set of fields
    * @throws GrouperDAOException 
    * @since   1.2.0
+   * @deprecated use the FieldFinder method instead
    */
+  @Deprecated
   Set<Field> findAllFieldsByGroupType(String uuid)
     throws  GrouperDAOException;
 
@@ -67,7 +69,9 @@ public interface FieldDAO extends GrouperDAO {
    * @return set of fields
    * @throws GrouperDAOException 
    * @since   1.2.0
+   * @deprecated use the FieldFinder instead
    */
+  @Deprecated
   Set<Field> findAllByType(FieldType type) 
     throws  GrouperDAOException;
 

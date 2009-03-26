@@ -17,7 +17,9 @@
 
 package edu.internet2.middleware.grouper;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -26,6 +28,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -35,20 +38,48 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.42.2.1 2009-02-13 04:19:06 mchyzer Exp $
+ * @version $Id: FieldFinder.java,v 1.42.2.2 2009-03-26 06:26:17 mchyzer Exp $
  */
 public class FieldFinder {
+
+  /** cache name */
+  static String cacheName = FieldFinder.class.getName() + ".fieldCache";
 
   /**
    * logger 
    */
+  @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(FieldFinder.class);
+  
+  /** default field cache seconds */
+  static int defaultFieldCacheSeconds = 1*60;
+  
+  /** last time refreshed, for testing */
+  static long lastTimeRefreshed = -1;
+  
   /** 
-   * every 10 minutes, get new elements
+   * every X minutes, get new elements.  access this with fieldCache() so it is not null
+   * store this as a complete map in the cache so that elements dont disappear
    */
-  private static GrouperCache<String, Field> fieldCache = new GrouperCache<String, Field>(
-      FieldFinder.class.getName() + ".fieldCache", 10000, false, 60*10, 60*10, false);
+  static GrouperCache<Boolean, Map<String,Field>> fieldCache;
 
+  /**
+   * init and return the cache
+   * @return the cache
+   */
+  private synchronized static Map<String,Field> fieldCache() {
+    if (fieldCache == null) {
+      fieldCache = new GrouperCache<Boolean, Map<String,Field>>(
+          cacheName, 10000, false, 
+          defaultFieldCacheSeconds, defaultFieldCacheSeconds, false);
+    }
+    Map<String,Field> theFieldCache = fieldCache.get(Boolean.TRUE);
+    if (theFieldCache == null) {
+      internal_updateKnownFields();
+    }
+    return fieldCache.get(Boolean.TRUE);
+  }
+  
   /**
    * 
    * @param name
@@ -96,15 +127,12 @@ public class FieldFinder {
    * @throws  SchemaException
    */
   public static Field find(String name) 
-    throws  SchemaException
-  {
-    if ( fieldCache.containsKey(name) ) {
-      return fieldCache.get(name);
+    throws  SchemaException {
+    Map<String, Field> theFieldCache = fieldCache();
+    if ( theFieldCache.containsKey(name) ) {
+      return theFieldCache.get(name);
     }
-    internal_updateKnownFields();
-    if ( fieldCache.containsKey(name) ) {
-      return fieldCache.get(name);
-    }
+    //dont refresh more than 2 minutes (or whatever it is set for)
     throw new SchemaException("field not found: " + name + ", expecting one of: "
         + GrouperUtil.stringValue(fieldCache.keySet()));
   } 
@@ -115,16 +143,20 @@ public class FieldFinder {
    * @return the field or null if fieldId is blank.  will throw runtime exception if the field is not found
    */
   public static Field findById(String fieldId) {
+    
     if (StringUtils.isBlank(fieldId)) {
       return null;
     }
-    for (Field field : fieldCache.values()) {
+    Map<String, Field> theFieldCache = fieldCache();
+
+    for (Field field : theFieldCache.values()) {
       if (StringUtils.equals(fieldId, field.getUuid())) {
         return field;
       }
     }
+    //update cache if not found
     internal_updateKnownFields();
-    for (Field field : fieldCache.values()) {
+    for (Field field : theFieldCache.values()) {
       if (StringUtils.equals(fieldId, field.getUuid())) {
         return field;
       }
@@ -140,32 +172,65 @@ public class FieldFinder {
    * @return  {@link Set} of {@link Field} objects.
    * @throws  GrouperRuntimeException
    */
-  public static Set findAll() 
-    throws  GrouperRuntimeException
-  {
-    Set       fields  = new LinkedHashSet();
-    Iterator  it      = GrouperDAOFactory.getFactory().getField().findAll().iterator();
-    while (it.hasNext()) {
-      fields.add( (Field) it.next() ) ;
-    }
+  public static Set<Field> findAll() 
+    throws  GrouperRuntimeException {
+    Set<Field> fields  = new LinkedHashSet(fieldCache().values());
     return fields;
   }
 
+  /**
+   * 
+   * @return all fields
+   * @throws GrouperRuntimeException
+   */
+  private static Set findAllFromDb() throws GrouperRuntimeException {
+    Set fields = new LinkedHashSet();
+    Iterator it = GrouperDAOFactory.getFactory().getField().findAll()
+        .iterator();
+    while (it.hasNext()) {
+      fields.add((Field) it.next());
+    }
+    return fields;
+  }
+  
+  /** 
+   * @param groupType 
+   * @return set of fields
+   * @throws GrouperDAOException 
+   */
+  public static Set<Field> findAllByGroupType(GroupType groupType)
+      throws  GrouperDAOException {
+    Set<Field> fields  = new LinkedHashSet();
+    
+    for (Field field : fieldCache().values()) {
+      if (StringUtils.equals(groupType.getUuid(),field.getGroupTypeUuid())) {
+        fields.add(field);
+      }
+    }
+    
+    return fields;
+
+  }
+  
   /**
    * Find all fields of the specified type.
    * <pre class="eg">
    * Set types = FieldFinder.findAllByType(type);
    * </pre>
    */
-  public static Set findAllByType(FieldType type) 
-    throws  SchemaException
-  {
-    Set       fields  = new LinkedHashSet();
-    Iterator  it      = GrouperDAOFactory.getFactory().getField().findAllByType(type).iterator();
-    while (it.hasNext()) {
-      fields.add( (Field) it.next() ) ;
+  public static Set<Field> findAllByType(FieldType type) 
+    throws  SchemaException {
+    
+    Set<Field> fields  = new LinkedHashSet();
+    
+    for (Field field : fieldCache().values()) {
+      if (StringUtils.equals(type.getType(),field.getTypeString())) {
+        fields.add(field);
+      }
     }
+    
     return fields;
+    
   }
 
 
@@ -173,33 +238,24 @@ public class FieldFinder {
 
   // @since   1.2.0
   // TODO 20070531 split and test.
-  public static void internal_updateKnownFields() {
+  public static synchronized void internal_updateKnownFields() {
 
     GrouperStartup.startup();
+    Map<String, Field> theFieldCache = new LinkedHashMap<String, Field>();
+
     Field f;
-    Set   fieldsInRegistry = findAll();
+    Set   fieldsInRegistry = findAllFromDb();
     
     // find fields to add to the cache
     Iterator it = fieldsInRegistry.iterator();
     while (it.hasNext()) {
       f = (Field) it.next();
-      if ( !fieldCache.containsKey( f.getName() ) ) {
-        fieldCache.put( f.getName(), f );
-      }
+      theFieldCache.put( f.getName(), f );
     }
 
-    // find fields to remove from the cache
-    Set toDel = new LinkedHashSet();
-    for ( String key : fieldCache.keySet() ) {
-      if ( !fieldsInRegistry.contains( (Field) fieldCache.get(key) ) ) {
-        toDel.add( key );
-      }
-    }
-    // and now remove the fields
-    it = toDel.iterator();
-    while (it.hasNext()) {
-      fieldCache.remove( (String) it.next() );
-    }
+    fieldCache.put(Boolean.TRUE, theFieldCache);
+    
+    FieldFinder.lastTimeRefreshed = System.currentTimeMillis();
   } 
 
   /**

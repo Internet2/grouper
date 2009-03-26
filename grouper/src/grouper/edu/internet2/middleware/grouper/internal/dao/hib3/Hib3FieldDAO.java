@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Field</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3FieldDAO.java,v 1.11 2008-11-04 07:17:56 mchyzer Exp $
+ * @version $Id: Hib3FieldDAO.java,v 1.11.2.1 2009-03-26 06:26:17 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
@@ -93,7 +93,9 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
    * @return set of fields
    * @throws GrouperDAOException 
    * @since   @HEAD@
+   * @deprecated use the FieldFinder method instead
    */
+  @Deprecated
   public Set<Field> findAllFieldsByGroupType(String uuid)
     throws  GrouperDAOException
   {
@@ -109,7 +111,9 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
    * @return set of fields
    * @throws GrouperDAOException 
    * @since   @HEAD@
+   * @deprecated use the FieldFinder instead
    */
+  @Deprecated
   public Set<Field> findAllByType(FieldType type) 
     throws  GrouperDAOException
   {

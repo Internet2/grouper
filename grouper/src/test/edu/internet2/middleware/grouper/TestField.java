@@ -21,15 +21,18 @@ import java.util.Set;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.8 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestField.java,v 1.8.2.1 2009-03-26 06:26:17 mchyzer Exp $
  */
 public class TestField extends TestCase {
 
@@ -37,6 +40,10 @@ public class TestField extends TestCase {
     super(name);
   }
 
+  public static void main(String[] args) {
+    TestRunner.run(new TestField("testCache"));
+  }
+  
   protected void setUp () {
     try {
       FieldFinder.find("viewers");
@@ -129,5 +136,63 @@ public class TestField extends TestCase {
     );
   } // public void testFields()
 
+  /**
+   * 
+   */
+  public void testCache() throws Exception {
+    
+    int originalFieldCacheSeconds = FieldFinder.defaultFieldCacheSeconds;
+    String originalFieldCacheName = FieldFinder.cacheName;
+    
+    try {
+    
+      FieldFinder.defaultFieldCacheSeconds = 3;
+      FieldFinder.cacheName = TestField.class.getName() + ".testFieldCache";
+      FieldFinder.fieldCache = null;
+
+      try {
+        FieldFinder.find("sadfasdf");
+      } catch (SchemaException se) {
+        
+      }
+  
+      //refreshed in last second
+      long theLastRefreshed = FieldFinder.lastTimeRefreshed;
+      assertTrue(System.currentTimeMillis() - theLastRefreshed < 1000);
+  
+      GrouperUtil.sleep(100);
+      
+      try {
+        FieldFinder.find("sadfasdf");
+      } catch (SchemaException se) {
+        
+      }
+  
+      assertEquals(theLastRefreshed, FieldFinder.lastTimeRefreshed);
+      
+      //wait 3 seconds
+      GrouperUtil.sleep(3000);
+      
+      try {
+        FieldFinder.find("sadfasdf");
+      } catch (SchemaException se) {
+        
+      }
+  
+      assertTrue(theLastRefreshed < FieldFinder.lastTimeRefreshed);
+      
+      int allFieldsSize = FieldFinder.findAll().size();
+      assertTrue(allFieldsSize > 5);
+      
+      int accessFieldsSize = FieldFinder.findAllByType(FieldType.ACCESS).size();
+      
+      assertTrue(accessFieldsSize > 1 && allFieldsSize > accessFieldsSize);
+    } finally {
+      FieldFinder.cacheName = originalFieldCacheName;
+      FieldFinder.defaultFieldCacheSeconds = originalFieldCacheSeconds;
+      FieldFinder.fieldCache = null;
+    }
+  }
+  
 }
 
