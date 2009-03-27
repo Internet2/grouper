@@ -18,37 +18,31 @@
 package edu.internet2.middleware.grouper.filter;
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.QueryException;
-import edu.internet2.middleware.grouper.filter.GroupNameFilter;
 import edu.internet2.middleware.grouper.filter.GrouperQuery;
-import edu.internet2.middleware.grouper.helper.GroupHelper;
+import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.subject.Subject;
 
 /**
- * Test {@link GroupNameFilter}.
+ * Test {@link GroupAlternateNameFilter}.
  * <p />
- * @author  blair christensen.
- * @version $Id: TestGQGroupName.java,v 1.4 2009-03-27 23:28:53 shilen Exp $
+ * @author shilen
+ * @version $Id: TestGQGroupAlternateNameFilter.java,v 1.1 2009-03-27 23:28:53 shilen Exp $
  */
-public class TestGQGroupName extends TestCase {
+public class TestGQGroupAlternateNameFilter extends TestCase {
 
-  /**
-   * 
-   * @param args
-   */
-  public static void main(String[] args) {
-    TestRunner.run(new TestGQGroupName("testGroupNameFilterSomethingNameScoped"));
-  }
   
-  public TestGQGroupName(String name) {
+  /**
+   * @param name
+   */
+  public TestGQGroupAlternateNameFilter(String name) {
     super(name);
   }
 
@@ -62,303 +56,48 @@ public class TestGQGroupName extends TestCase {
 
   // Tests
 
-  public void testGroupNameFilterNothing() {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    StemHelper.addChildGroup(com, "devclue", "devclue");
-    GroupHelper.addMember(i2, uofc);
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("nothing", root)
-      );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
-      Assert.assertTrue("members", gq.getMembers().size()     == 0);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
-    }
-    catch (QueryException eQ) {
-      Assert.fail("unable to query: " + eQ.getMessage());
-    }
-  } // public void testGroupNameFilterNothing()
 
-  public void testGroupNameFilterSomethingDisplayExtension() {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    StemHelper.addChildGroup(com, "devclue", "devclue");
-    GroupHelper.addMember(i2, uofc);
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("uchicago", root)
-      );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
-      Assert.assertTrue("members", gq.getMembers().size()     == 0);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
-    }
-    catch (QueryException eQ) {
-      Assert.fail("unable to query: " + eQ.getMessage());
-    }
-  } // public void testGroupNameFilterSomethingDisplayExtension()
-
-  public void testGroupNameFilterSomethingDisplayName() {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    StemHelper.addChildGroup(com, "devclue", "devclue");
-    GroupHelper.addMember(i2, uofc);
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("internet2", root)
-      );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
-      Assert.assertTrue("members", gq.getMembers().size()     == 1);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 1);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
-    }
-    catch (QueryException eQ) {
-      Assert.fail("unable to query: " + eQ.getMessage());
-    }
-  } // public void testGroupNameFilterSomethingDisplayName()
-
-  public void testGroupNameFilterSomethingExtension() {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    StemHelper.addChildGroup(com, "devclue", "devclue");
-    GroupHelper.addMember(i2, uofc);
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("UOFC", root)
-      );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
-      Assert.assertTrue("members", gq.getMembers().size()     == 0);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
-    }
-    catch (QueryException eQ) {
-      Assert.fail("unable to query: " + eQ.getMessage());
-    }
-  } // public void testGroupNameFilterSomethingExtension()
-
-  public void testGroupNameFilterSomethingName() {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    StemHelper.addChildGroup(com, "devclue", "devclue");
-    GroupHelper.addMember(i2, uofc);
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("edu:i2", root)
-      );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
-      Assert.assertTrue("members", gq.getMembers().size()     == 1);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 1);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
-    }
-    catch (QueryException eQ) {
-      Assert.fail("unable to query: " + eQ.getMessage());
-    }
-  } // public void testGroupNameFilterSomethingName()
-
-  public void testGroupNameFilterSomethingDisplayExtensionScoped() {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    StemHelper.addChildGroup(com, "devclue", "devclue");
-    GroupHelper.addMember(i2, uofc);
-
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("uchicago", com)
-      );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
-      Assert.assertTrue("members", gq.getMembers().size()     == 0);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
-    }
-    catch (QueryException eQ) {
-      Assert.fail("unable to query: " + eQ.getMessage());
-    }
-
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("uchicago", edu)
-      ); 
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
-      Assert.assertTrue("members", gq.getMembers().size()     == 0);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
-    }
-    catch (QueryException eQ) {
-      Assert.fail("unable to query: " + eQ.getMessage());
-    }
-  } // public void testGroupNameFilterSomethingDisplayExtensionScoped()
-
-  public void testGroupNameFilterSomethingDisplayNameScoped() {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    StemHelper.addChildGroup(com, "devclue", "devclue");
-    GroupHelper.addMember(i2, uofc);
-
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("internet2", com)
-      );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
-      Assert.assertTrue("members", gq.getMembers().size()     == 0);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
-    }
-    catch (QueryException eQ) {
-      Assert.fail("unable to query: " + eQ.getMessage());
-    }
-
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("education", edu)
-      );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 2);
-      Assert.assertTrue("members", gq.getMembers().size()     == 1);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 1);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
-    }
-    catch (QueryException eQ) {
-      Assert.fail("unable to query: " + eQ.getMessage());
-    }
-
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("education:internet2", edu)
-      );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
-      Assert.assertTrue("members", gq.getMembers().size()     == 1);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 1);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
-    }
-    catch (QueryException eQ) {
-      Assert.fail("unable to query: " + eQ.getMessage());
-    }
-  } // public void testGroupNameFilterSomethingDisplayNameScoped()
-
-  public void testGroupNameFilterSomethingExtensionScoped() {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    StemHelper.addChildGroup(com, "devclue", "devclue");
-    GroupHelper.addMember(i2, uofc);
-
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("UOFC", com)
-      );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
-      Assert.assertTrue("members", gq.getMembers().size()     == 0);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
-    }
-    catch (QueryException eQ) {
-      Assert.fail("unable to query: " + eQ.getMessage());
-    }
-
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("UOFC", edu)
-      );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
-      Assert.assertTrue("members", gq.getMembers().size()     == 0);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
-    }
-    catch (QueryException eQ) {
-      Assert.fail("unable to query: " + eQ.getMessage());
-    }
-  } // public void testGroupNameFilterSomethingExtensionScoped()
-
-  public void testGroupNameFilterSomethingNameScoped() throws Exception {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    StemHelper.addChildGroup(com, "devclue", "devclue");
-    GroupHelper.addMember(i2, uofc);
-
-    GroupType custom = GroupType.createType(s, "customType");
-    custom.addAttribute(s, "customAttribute", AccessPrivilege.VIEW, AccessPrivilege.UPDATE, false);
-
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("edu:i2", com)
-      );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
-      Assert.assertTrue("members", gq.getMembers().size()     == 0);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
-    }
-    catch (QueryException eQ) {
-      Assert.fail("unable to query: " + eQ.getMessage());
-    }
-
-    uofc.addType(custom);
-    uofc.setAttribute("customAttribute", "edu:i2");
-
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("edu:i", edu)
-      );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
-      Assert.assertTrue("members", gq.getMembers().size()     == 1);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 1);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
-    }
-    catch (QueryException eQ) {
-      Assert.fail("unable to query: " + eQ.getMessage());
-    }
-  } // public void testGroupNameFilterSomethingNameScoped()
-  
   /**
-   * @throws Exception
+   * search on display name
    */
-  public void testGroupNameFilterAlternateName() throws Exception {
+  public void testDisplayName() {
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemHelper.findRootStem(s);
     Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "Internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "UofC", "UChicago");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
     Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
     Group           dev   = StemHelper.addChildGroup(com, "devclue", "devclue");
-   
+
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("edu:i2 alt", root)
+        s, new GroupAlternateNameFilter("education:internet2", root)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+  } 
+  
+  /**
+   * search on display name
+   */
+  public void testDisplayNameScoped() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
+    Group           dev   = StemHelper.addChildGroup(com, "devclue", "devclue");
+
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new GroupAlternateNameFilter("education:internet2", edu)
       );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
@@ -369,13 +108,131 @@ public class TestGQGroupName extends TestCase {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
     
-    i2.addAlternateName("EDU:i2 alt name");
-    i2.store();
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new GroupAlternateNameFilter("education:internet2", com)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+  } 
+
+  /**
+   * Test search on name
+   */
+  public void testName() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
+    Group           dev   = StemHelper.addChildGroup(com, "devclue", "devclue");
 
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-          s, new GroupNameFilter("edu:i2 alt", root)
-        );
+        s, new GroupAlternateNameFilter("edu:i2", root)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+    
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new GroupAlternateNameFilter("DU:I", root)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+  } 
+  
+  /**
+   * Test search on name
+   */
+  public void testNameScoped() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
+    Group           dev   = StemHelper.addChildGroup(com, "devclue", "devclue");
+
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new GroupAlternateNameFilter("edu:i2", edu)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+    
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new GroupAlternateNameFilter("DU:I", edu)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+    
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new GroupAlternateNameFilter("edu:i2", com)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+  } 
+  
+  /**
+   * Test search on alternate name.
+   * @throws Exception
+   */
+  public void testAlternateName() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
+    Group           dev   = StemHelper.addChildGroup(com, "devclue", "devclue");
+
+    i2.addAlternateName("education:internet2alt");
+    i2.store();
+    
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new GroupAlternateNameFilter("education:internet2alt", root)
+      );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
       Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
@@ -384,30 +241,23 @@ public class TestGQGroupName extends TestCase {
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
-  }
-  
-  /**
-   * @throws Exception
-   */
-  public void testGroupNameFilterAlternateNameScoped() throws Exception {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Stem            edu2  = StemHelper.addChildStem(root, "2edu", "education");
-    Stem            edu3  = StemHelper.addChildStem(root, "ed", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "Internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "UofC", "UChicago");
-    Group           uofc2  = StemHelper.addChildGroup(edu2, "UofC", "UChicago");
-    Group           uofc3  = StemHelper.addChildGroup(edu3, "UofC", "UChicago");
-    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dev   = StemHelper.addChildGroup(com, "devclue", "devclue");
-   
-    dev.addAlternateName("EDU:i2 alt name");
-    dev.store();
     
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupNameFilter("edu:i2 Alt", edu)
+        s, new GroupAlternateNameFilter("ucation:Internet2", root)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+    
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new GroupAlternateNameFilter("ucation:Internet2x", root)
       );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
@@ -417,26 +267,29 @@ public class TestGQGroupName extends TestCase {
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
-    
-    i2.addAlternateName("EDU:i2 alt name2");
+  } 
+  
+  /**
+   * Test search on alternate name.
+   * @throws Exception
+   */
+  public void testAlternateNameScoped() {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
+    Group           dev   = StemHelper.addChildGroup(com, "devclue", "devclue");
+
+    i2.addAlternateName("education:internet2alt");
     i2.store();
     
-    uofc.addAlternateName("something:edu:i2 ALT name");
-    uofc.store();
-    
-    // uofc2 matches the search criteria but is not in scope
-    uofc2.addAlternateName("something:edu:i2 ALT name2");
-    uofc2.store();
-    
-    // uofc3 matches the search criteria but is not in scope
-    uofc3.addAlternateName("something:edu:i2 ALT name3");
-    uofc3.store();
-
     try {
       GrouperQuery gq = GrouperQuery.createQuery(
-          s, new GroupNameFilter("edu:i2 Alt", edu)
-        );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 2);
+        s, new GroupAlternateNameFilter("education:internet2alt", edu)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
       Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
       Assert.assertTrue("stems",   gq.getStems().size()       == 0);
@@ -444,7 +297,92 @@ public class TestGQGroupName extends TestCase {
     catch (QueryException eQ) {
       Assert.fail("unable to query: " + eQ.getMessage());
     }
-  }
-
+    
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+        s, new GroupAlternateNameFilter("education:internet2alt", com)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+  } 
+  
+  /**
+   * Should return nothing if cannot view group.
+   * @throws Exception 
+   */
+  public void testSecurity() throws Exception {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
+    Group           dev   = StemHelper.addChildGroup(com, "devclue", "devclue");
+    
+    i2.addAlternateName("education:internet2alt");
+    i2.store();
+    
+    i2.revokePriv(AccessPrivilege.READ);
+    i2.revokePriv(AccessPrivilege.VIEW);
+    
+    R r = R.populateRegistry(0, 0, 1);
+    Subject subjA = r.getSubject("a");
+    GrouperSession subjASession = GrouperSession.start(subjA);
+    
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+          subjASession, new GroupAlternateNameFilter("education:internet2alt", root)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+  } 
+  
+  /**
+   * Should return nothing if cannot view group.
+   * @throws Exception 
+   */
+  public void testSecurityScoped() throws Exception {
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemHelper.findRootStem(s);
+    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
+    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
+    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
+    Group           dev   = StemHelper.addChildGroup(com, "devclue", "devclue");
+    
+    i2.addAlternateName("education:internet2alt");
+    i2.store();
+    
+    i2.revokePriv(AccessPrivilege.READ);
+    i2.revokePriv(AccessPrivilege.VIEW);
+    
+    R r = R.populateRegistry(0, 0, 1);
+    Subject subjA = r.getSubject("a");
+    GrouperSession subjASession = GrouperSession.start(subjA);
+    
+    try {
+      GrouperQuery gq = GrouperQuery.createQuery(
+          subjASession, new GroupAlternateNameFilter("education:internet2alt", edu)
+      );
+      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
+      Assert.assertTrue("members", gq.getMembers().size()     == 0);
+      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
+      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
+    }
+    catch (QueryException eQ) {
+      Assert.fail("unable to query: " + eQ.getMessage());
+    }
+  } 
 }
-
