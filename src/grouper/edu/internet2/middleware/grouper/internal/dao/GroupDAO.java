@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.21 2009-03-27 15:38:21 shilen Exp $
+ * @version $Id: GroupDAO.java,v 1.22 2009-03-27 19:32:41 shilen Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -131,16 +131,14 @@ public interface GroupDAO extends GrouperDAO {
    * @since   1.2.0
    */
   Set<Group> findAllByApproximateName(String name) 
-    throws  GrouperDAOException,
-            IllegalStateException
+    throws  GrouperDAOException
             ;
 
   /**
    * @since   1.4.0
    */
   Set<Group> findAllByApproximateName(String name, String scope) 
-    throws  GrouperDAOException,
-            IllegalStateException
+    throws  GrouperDAOException
             ;
 
 
@@ -310,7 +308,8 @@ public interface GroupDAO extends GrouperDAO {
    * @throws GrouperDAOException
    * @throws GroupNotFoundException
    */
-  Group findByAlternateName(String name, boolean exceptionIfNotFound);
+  Group findByAlternateName(String name, boolean exceptionIfNotFound)
+      throws GrouperDAOException, GroupNotFoundException;
   
   /**
    * Find a group by its current name only.
@@ -320,6 +319,46 @@ public interface GroupDAO extends GrouperDAO {
    * @throws GrouperDAOException
    * @throws GroupNotFoundException
    */
-  Group findByCurrentName(String name, boolean exceptionIfNotFound);
+  Group findByCurrentName(String name, boolean exceptionIfNotFound)
+      throws GrouperDAOException, GroupNotFoundException;
+  
+
+  /**
+   * Find groups using an approximate string for the current name,
+   * display name, extension, display extension.
+   * @param name
+   * @return set
+   * @throws GrouperDAOException
+   */
+  Set<Group> findAllByApproximateCurrentName(String name) throws GrouperDAOException;
+
+  /**
+   * Find groups using an approximate string for the current name,
+   * display name, extension, display extension.
+   * @param name
+   * @param scope
+   * @return set
+   * @throws GrouperDAOException
+   */
+  Set<Group> findAllByApproximateCurrentName(String name, String scope)
+      throws GrouperDAOException;
+  
+  /**
+   * Find groups using an approximate string for the alternate name.
+   * @param name
+   * @return set
+   * @throws GrouperDAOException
+   */
+  Set<Group> findAllByApproximateAlternateName(String name) throws GrouperDAOException;
+
+  /**
+   * Find groups using an approximate string for the alternate name.
+   * @param name
+   * @param scope
+   * @return set
+   * @throws GrouperDAOException
+   */
+  Set<Group> findAllByApproximateAlternateName(String name, String scope)
+      throws GrouperDAOException;
 } 
 

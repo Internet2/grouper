@@ -28,12 +28,12 @@ import edu.internet2.middleware.grouper.exception.QueryException;
 
 
 /** 
- * Query by exact group name or alternate name.
+ * Query by exact group name (current group name only).
  * <p/>
- * @author  blair christensen.
- * @version $Id: GroupNameExactFilter.java,v 1.3 2009-03-27 19:32:41 shilen Exp $
+ * @author shilen
+ * @version $Id: GroupCurrentNameExactFilter.java,v 1.1 2009-03-27 19:32:41 shilen Exp $
  */
-public class GroupNameExactFilter extends BaseQueryFilter {
+public class GroupCurrentNameExactFilter extends BaseQueryFilter {
 
   // Private Instance Variables
   /** exact name of group to find */
@@ -41,10 +41,10 @@ public class GroupNameExactFilter extends BaseQueryFilter {
 
   /**
    * {@link QueryFilter} that returns groups matching the specified
-   * name or alternate name exactly.
+   * name exactly.
    * @param   name1  Find groups matching this name.
    */
-  public GroupNameExactFilter(String name1) {
+  public GroupCurrentNameExactFilter(String name1) {
     this.name = name1;
   }
 
@@ -63,7 +63,7 @@ public class GroupNameExactFilter extends BaseQueryFilter {
     Set candidates  = new HashSet<Group>();
     Group group = null;
     try {
-      group = GroupFinder.findByName(s, this.name, true);
+      group = GroupFinder.findByCurrentName(s, this.name, true);
       candidates.add(group);
     } catch (GroupNotFoundException gnfe) {
       return candidates;
