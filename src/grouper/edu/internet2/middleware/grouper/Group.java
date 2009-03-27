@@ -100,6 +100,7 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.validator.AddAlternateGroupNameValidator;
 import edu.internet2.middleware.grouper.validator.AddCompositeMemberValidator;
 import edu.internet2.middleware.grouper.validator.CanOptinValidator;
 import edu.internet2.middleware.grouper.validator.CanOptoutValidator;
@@ -120,7 +121,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.238 2009-03-24 17:12:07 mchyzer Exp $
+ * @version $Id: Group.java,v 1.239 2009-03-27 15:38:20 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -142,6 +143,9 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   
   /** timestamp of the last membership change for this group */
   public static final String COLUMN_LAST_MEMBERSHIP_CHANGE = "last_membership_change";
+  
+  /** an alternate name for this group */
+  public static final String COLUMN_ALTERNATE_NAME = "alternate_name";
   
   /**
    * if this is a composite group, get the composite object for this group
@@ -279,6 +283,9 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   /** name of group, e.g. school:community:students */
   private String name;
   
+  /** alternate name of group */
+  private String alternateNameDb;
+  
   /** displayName of group, e.g. My School:Community Groups:All Students */
   private String displayName;
   
@@ -314,6 +321,9 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
+  /** constant for field name for: alternateNameDb */
+  public static final String FIELD_ALTERNATE_NAME_DB = "alternateNameDb";
+  
   /** constant for field name for: createTime */
   public static final String FIELD_CREATE_TIME = "createTime";
 
@@ -334,6 +344,9 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
 
   /** constant for field name for: extension */
   public static final String FIELD_EXTENSION = "extension";
+  
+  /** constant for field name for: lastMembershipChangeDb */
+  public static final String FIELD_LAST_MEMBERSHIP_CHANGE_DB = "lastMembershipChangeDb";
 
   /** constant for field name for: modifierUUID */
   public static final String FIELD_MODIFIER_UUID = "modifierUUID";
@@ -356,7 +369,8 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DESCRIPTION, 
       FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_MODIFIER_UUID, 
-      FIELD_MODIFY_TIME, FIELD_NAME, FIELD_PARENT_UUID, FIELD_UUID);
+      FIELD_MODIFY_TIME, FIELD_NAME, FIELD_PARENT_UUID, FIELD_UUID, FIELD_ALTERNATE_NAME_DB, 
+      FIELD_LAST_MEMBERSHIP_CHANGE_DB);
 
   /**
    * fields which are included in clone method
@@ -365,7 +379,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, 
       FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, 
       FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, FIELD_NAME, 
-      FIELD_PARENT_UUID, FIELD_UUID);
+      FIELD_PARENT_UUID, FIELD_UUID, FIELD_LAST_MEMBERSHIP_CHANGE_DB, FIELD_ALTERNATE_NAME_DB);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -3432,6 +3446,10 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * store this object to the DB.
    */
   public void store() {
+    store(true);
+  }
+  
+  protected void store(final boolean checkSecurity) {
     
       HibernateSession.callbackHibernateSession(
           GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
@@ -3439,13 +3457,24 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
 
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
                 throws GrouperDAOException {
-
     
-              Subject subject = GrouperSession.staticGrouperSession().getSubject();
-              if (!Group.this.hasAdmin(subject)) {
-                throw new InsufficientPrivilegeException(GrouperUtil.subjectToString(subject)
-                    + " is not admin on group: " + Group.this.getName());
+              if (checkSecurity) {
+                Subject subject = GrouperSession.staticGrouperSession().getSubject();
+                if (!Group.this.hasAdmin(subject)) {
+                  throw new InsufficientPrivilegeException(GrouperUtil
+                      .subjectToString(subject)
+                      + " is not admin on group: " + Group.this.getName());
+                }
+                
+                if (Group.this.dbVersionDifferentFields().contains(FIELD_ALTERNATE_NAME_DB)) {
+                  Stem stem = GrouperUtil.getFirstParentStemOfName(Group.this.getAlternateNameDb());
+                  if (!stem.hasCreate(subject)) {
+                    throw new InsufficientPrivilegeException(GrouperUtil.subjectToString(subject)
+                        + " cannot create in stem: " + stem.getName());
+                  }
+                }
               }
+              
               String differences = GrouperUtil.dbVersionDescribeDifferences(Group.this.dbVersion(), 
                   Group.this, Group.this.dbVersion() != null ? Group.this.dbVersionDifferentFields() : Group.CLONE_FIELDS);
 
@@ -4198,14 +4227,78 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   public Timestamp getLastMembershipChange() {
     return this.lastMembershipChangeDb == null ? null : new Timestamp(this.lastMembershipChangeDb);
   }
+  
+  /**
+   * Returns the alternate name for the group.  Used by hibernate.
+   * @return the alternate name
+   */
+  public String getAlternateNameDb() {
+    return this.alternateNameDb;
+  }
+  
+  /**
+   * Set the group's alternate name  Used by hibernate.
+   * @param alternateName
+   */
+  public void setAlternateNameDb(String alternateName) {
+    this.alternateNameDb = alternateName;
+  }
+  
+  /**
+   * Returns the alternate names for the group.  Only one alternate name is supported
+   * currently, so a Set of size 0 or 1 will be returned.
+   * @return Set of alternate names.
+   */
+  public Set<String> getAlternateNames() {
+    Set<String> alternateNames = new LinkedHashSet<String>();
+    if (alternateNameDb != null) {
+      alternateNames.add(this.alternateNameDb);
+    }
+    return alternateNames;
+  }
 
   /**
-   * when the last member has changed
-   * @param membershipLastChange
+   * Add an alternate name for this group.  Only one alternate name is supported
+   * currently, so this will replace any existing alternate name.
+   * This won't get saved until you call store().
+   * @param alternateName
    */
-  public void setLastMembershipChange(Timestamp membershipLastChange) {
-    this.lastMembershipChangeDb = membershipLastChange == null ? null : membershipLastChange.getTime();
+  public void addAlternateName(String alternateName) {
+    internal_addAlternateName(alternateName, true);
   }
+  
+  /**
+   * Add an alternate name for this group.  Only one alternate name is supported
+   * currently, so this will replace any existing alternate name.
+   * This won't get saved until you call store().
+   * @param alternateName
+   * @param checkIfNameInUse
+   */
+  protected void internal_addAlternateName(String alternateName, boolean checkIfNameInUse) {
+    GrouperValidator v = AddAlternateGroupNameValidator.validate(alternateName,
+        checkIfNameInUse);
+    
+    if (v.isInvalid()) {
+      throw new GroupModifyException(v.getErrorMessage() + ": " + alternateName);
+    }
+
+    this.alternateNameDb = alternateName;
+  }
+  
+  /**
+   * Delete the specified alternate name.  This won't get saved until you call store().
+   * @param alternateName
+   * @return false if the group does not have the specified alternate name
+   */
+  public boolean deleteAlternateName(String alternateName) {
+    if (alternateName.equals(this.alternateNameDb)) {
+      this.alternateNameDb = null;
+      return true;
+    }
+    
+    return false;
+  }
+  
   
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
@@ -4479,7 +4572,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   }
 
   /**
-   * Move this group to another Stem.  This will not add an old name to the group.
+   * Move this group to another Stem.  This will add an alternate name to the new group.
    * If you would like to specify options for the move, use GroupMove instead.
    * @param stem 
    * @throws GroupModifyException 
@@ -4488,7 +4581,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   public void move(Stem stem) throws GroupModifyException,
       InsufficientPrivilegeException {
     
-    internal_move(stem, false);
+    internal_move(stem, true);
   }
   
   /**

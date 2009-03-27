@@ -99,7 +99,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.190 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.191 2009-03-27 15:38:20 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -166,6 +166,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
 
   /** constant for field name for: uuid */
   public static final String FIELD_UUID = "uuid";
+  
+  /** constant for field name for: lastMembershipChangeDb */
+  public static final String FIELD_LAST_MEMBERSHIP_CHANGE_DB = "lastMembershipChangeDb";
 
   /**
    * fields which are included in db version
@@ -174,7 +177,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DESCRIPTION, 
       FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_MODIFIER_UUID, 
       FIELD_MODIFY_TIME, FIELD_NAME, FIELD_PARENT_UUID, 
-      FIELD_UUID);
+      FIELD_UUID, FIELD_LAST_MEMBERSHIP_CHANGE_DB);
 
   /**
    * fields which are included in clone method
@@ -183,7 +186,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, 
       FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, 
       FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, 
-      FIELD_NAME, FIELD_PARENT_UUID, FIELD_UUID);
+      FIELD_NAME, FIELD_PARENT_UUID, FIELD_UUID, FIELD_LAST_MEMBERSHIP_CHANGE_DB);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -2470,7 +2473,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   }
 
   /**
-   * Move this stem to another Stem.  This will not add an old name to the affected groups.
+   * Move this stem to another Stem.  This will add an alternate name to the affected groups.
    * If you would like to specify options for the move, use StemMove instead.
    * @param stem 
    * @throws StemModifyException 
@@ -2479,7 +2482,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   public void move(Stem stem) throws StemModifyException,
       InsufficientPrivilegeException {
     
-    internal_move(stem, false);
+    internal_move(stem, true);
   }
   
   /**
@@ -2798,14 +2801,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    */
   public Timestamp getLastMembershipChange() {
     return this.lastMembershipChangeDb == null ? null : new Timestamp(this.lastMembershipChangeDb);
-  }
-
-  /**
-   * when the last member has changed
-   * @param membershipLastChange
-   */
-  public void setLastMembershipChange(Timestamp membershipLastChange) {
-    this.lastMembershipChangeDb = membershipLastChange == null ? null : membershipLastChange.getTime();
   }
 
   

@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.validator.NotNullValidator;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.58 2009-03-21 13:35:50 mchyzer Exp $
+ * @version $Id: GroupFinder.java,v 1.59 2009-03-27 15:38:20 shilen Exp $
  */
 public class GroupFinder {
 
@@ -220,6 +220,96 @@ public class GroupFinder {
     throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by name: " + name);
   } 
 
+  /**
+   * Find a group within the registry by its current name.
+   * <pre class="eg">
+   * try {
+   *   Group g = GroupFinder.findByCurrentName(name, true);
+   * }
+   * catch (GroupNotFoundException e) {
+   *   // Group not found
+   * }
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   name  Name of group to find.
+   * @param exceptionIfNotFound 
+   * @return  A {@link Group}
+   * @throws  GroupNotFoundException
+   */
+  public static Group findByCurrentName(GrouperSession s, String name, boolean exceptionIfNotFound) 
+    throws GroupNotFoundException {
+    
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(s);
+    Group g = null;
+    g = GrouperDAOFactory.getFactory().getGroup().findByCurrentName(name, exceptionIfNotFound) ;
+    
+    if (g == null) {
+      return g;
+    }
+    
+    //2007-10-16: Gary Brown
+    //https://bugs.internet2.edu/jira/browse/GRP-36
+    //Ugly... and probably breaks the abstraction but quick and easy to 
+    //remove when a more elegant solution found.
+    if(s.getSubject().equals(SubjectFinder.findRootSubject()))
+      return g;
+    
+    if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
+      return g;
+    }
+    LOG.error(E.GF_FBNAME + E.CANNOT_VIEW);
+    if (!exceptionIfNotFound) {
+      return null;
+    }
+    throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by name: " + name);
+  } 
+  
+  /**
+   * Find a group within the registry by its alternate name.
+   * <pre class="eg">
+   * try {
+   *   Group g = GroupFinder.findByAlternateName(name, true);
+   * }
+   * catch (GroupNotFoundException e) {
+   *   // Group not found
+   * }
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   name  Name of group to find.
+   * @param exceptionIfNotFound 
+   * @return  A {@link Group}
+   * @throws  GroupNotFoundException
+   */
+  public static Group findByAlternateName(GrouperSession s, String name, boolean exceptionIfNotFound) 
+    throws GroupNotFoundException {
+    
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(s);
+    Group g = null;
+    g = GrouperDAOFactory.getFactory().getGroup().findByAlternateName(name, exceptionIfNotFound) ;
+    
+    if (g == null) {
+      return g;
+    }
+    
+    //2007-10-16: Gary Brown
+    //https://bugs.internet2.edu/jira/browse/GRP-36
+    //Ugly... and probably breaks the abstraction but quick and easy to 
+    //remove when a more elegant solution found.
+    if(s.getSubject().equals(SubjectFinder.findRootSubject()))
+      return g;
+    
+    if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
+      return g;
+    }
+    LOG.error(E.GF_FBNAME + E.CANNOT_VIEW);
+    if (!exceptionIfNotFound) {
+      return null;
+    }
+    throw new GroupNotFoundException(E.GROUP_NOTFOUND + " by alternate name: " + name);
+  } 
+  
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GroupFinder.class);
 

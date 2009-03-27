@@ -76,6 +76,9 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
@@ -8530,6 +8533,38 @@ public class GrouperUtil {
       return EMPTY;
     }
     return str.substring(pos + separator.length());
+  }
+  
+  /**
+   * Returns the first existing parent stem of a given name.
+   * So if the following stems exist:
+   *   i2
+   *   i2:test
+   *   
+   * And you run getFirstParentStemOfName("i2:test:mystem:mygroup"),
+   * you will get back the stem for i2:test.
+   * 
+   * If you run getFirstParentStemOfName("test1:test2"),
+   * you will get back the root stem.
+   * 
+   * @param name
+   * @return Stem
+   */
+  public static Stem getFirstParentStemOfName(String name) {
+    String parent = GrouperUtil.parentStemNameFromName(name);
+
+    if (parent == null || parent.equals(name)) {
+      return StemFinder.findRootStem(GrouperSession.staticGrouperSession()
+          .internal_getRootSession());
+    }
+
+    Stem stem = StemFinder.findByName(GrouperSession.staticGrouperSession()
+        .internal_getRootSession(), parent, false);
+    if (stem != null) {
+      return stem;
+    }
+
+    return getFirstParentStemOfName(parent);
   }
   
 }

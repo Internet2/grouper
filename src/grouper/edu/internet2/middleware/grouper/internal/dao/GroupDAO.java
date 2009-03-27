@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.20 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: GroupDAO.java,v 1.21 2009-03-27 15:38:21 shilen Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -301,5 +301,25 @@ public interface GroupDAO extends GrouperDAO {
    * @return the groups
    */
   Set<Group> findByCreatorOrModifier(Member member);
+  
+  /**
+   * Find a group by its alternate name only.
+   * @param name
+   * @param exceptionIfNotFound
+   * @return group
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   */
+  Group findByAlternateName(String name, boolean exceptionIfNotFound);
+  
+  /**
+   * Find a group by its current name only.
+   * @param name
+   * @param exceptionIfNotFound
+   * @return group
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   */
+  Group findByCurrentName(String name, boolean exceptionIfNotFound);
 } 
 

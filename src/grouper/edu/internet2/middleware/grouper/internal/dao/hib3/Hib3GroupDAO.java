@@ -57,7 +57,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.34 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.35 2009-03-27 15:38:21 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -436,6 +436,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             Set<Group> groups = hibernateSession.byHql().createQuery(
                 "select g from Group as g where lower(g.nameDb) like  :value " +
+                  "or lower(g.alternateNameDb) like :value " +
                   "or lower(g.displayNameDb) like :value " +
                   "or lower(g.extensionDb) like :value " +
                   "or lower(g.displayExtensionDb) like :value  "
@@ -471,6 +472,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
             Set<Group> groups = hibernateSession.byHql().createQuery(
                 "select g from Group as g where (lower(g.nameDb) like  :value " +
+                "or lower(g.alternateNameDb) like :value " +
                 "or lower(g.displayNameDb) like :value " +
                 "or lower(g.extensionDb) like :value " +
                 "or lower(g.displayExtensionDb) like :value) and g.nameDb like :scope "
@@ -797,7 +799,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Group findByName(String name, boolean exceptionIfNotFound)
       throws GrouperDAOException, GroupNotFoundException {
     Group group = HibernateSession.byHqlStatic()
-      .createQuery("select g from Group as g where g.nameDb = :value")
+      .createQuery("select g from Group as g where g.nameDb = :value or g.alternateNameDb = :value")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByName")
       .setString("value", name).uniqueResult(Group.class);
@@ -805,6 +807,52 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     //handle exceptions out of data access method...
     if (group == null && exceptionIfNotFound) {
       throw new GroupNotFoundException("Cannot find group with name: '" + name + "'");
+    }
+    return group;
+  }
+  
+  /**
+   * Find a group by its current name only.
+   * @param name
+   * @param exceptionIfNotFound
+   * @return group
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   */
+  public Group findByCurrentName(String name, boolean exceptionIfNotFound)
+      throws GrouperDAOException, GroupNotFoundException {
+    Group group = HibernateSession.byHqlStatic()
+      .createQuery("select g from Group as g where g.nameDb = :value")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindByCurrentName")
+      .setString("value", name).uniqueResult(Group.class);
+
+    //handle exceptions out of data access method...
+    if (group == null && exceptionIfNotFound) {
+      throw new GroupNotFoundException("Cannot find group with name: '" + name + "'");
+    }
+    return group;
+  }
+  
+  /**
+   * Find a group by its alternate name only.
+   * @param name
+   * @param exceptionIfNotFound
+   * @return group
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   */
+  public Group findByAlternateName(String name, boolean exceptionIfNotFound)
+      throws GrouperDAOException, GroupNotFoundException {
+    Group group = HibernateSession.byHqlStatic()
+      .createQuery("select g from Group as g where g.alternateNameDb = :value")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindByAlternateName")
+      .setString("value", name).uniqueResult(Group.class);
+
+    //handle exceptions out of data access method...
+    if (group == null && exceptionIfNotFound) {
+      throw new GroupNotFoundException("Cannot find group with alternate name: '" + name + "'");
     }
     return group;
   }

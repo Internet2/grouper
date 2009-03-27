@@ -56,7 +56,7 @@ import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.14 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.15 2009-03-27 15:38:21 shilen Exp $
  * @since   1.2.0
  */
 @GrouperIgnoreDbVersion
@@ -683,7 +683,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     
     this.setModifiedGroups(modifiedGroups);
 
-    this._identifyGroupsAndStemsToWithMembershipChanges();
+    this._identifyGroupsAndStemsWithMembershipChanges();
   } 
 
   /**
@@ -819,7 +819,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
           DefaultMemberOf.this.fixComposites(DefaultMemberOf.this.getSaves(), new LinkedHashSet());
         }
 
-        DefaultMemberOf.this._identifyGroupsAndStemsToWithMembershipChanges();
+        DefaultMemberOf.this._identifyGroupsAndStemsWithMembershipChanges();
         return null;
       }
       
@@ -1040,7 +1040,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     
     this.setModifiedGroups(modifiedGroups);
     
-    this._identifyGroupsAndStemsToWithMembershipChanges();
+    this._identifyGroupsAndStemsWithMembershipChanges();
   } // private void _evalulateDeleteCompositeMembership()
 
   /**
@@ -1087,7 +1087,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
           DefaultMemberOf.this.fixComposites(new LinkedHashSet(), DefaultMemberOf.this.getDeletes());
         }
 
-        DefaultMemberOf.this._identifyGroupsAndStemsToWithMembershipChanges();
+        DefaultMemberOf.this._identifyGroupsAndStemsWithMembershipChanges();
         return null;
       }
       
@@ -1135,7 +1135,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   /**
    * 
    */
-  private void _identifyGroupsAndStemsToWithMembershipChanges() {
+  private void _identifyGroupsAndStemsWithMembershipChanges() {
     Set<String> groupChanges = new LinkedHashSet<String>();
     Set<String> stemChanges = new LinkedHashSet<String>();
     
