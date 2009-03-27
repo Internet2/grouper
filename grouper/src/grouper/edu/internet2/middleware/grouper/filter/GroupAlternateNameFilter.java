@@ -27,12 +27,12 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 
 
 /** 
- * Query by group name.
+ * Query by approximate group alternate name.
  * <p/>
- * @author  blair christensen.
- * @version $Id: GroupNameFilter.java,v 1.4 2009-03-27 19:32:41 shilen Exp $
+ * @author shilen
+ * @version $Id: GroupAlternateNameFilter.java,v 1.1 2009-03-27 19:32:41 shilen Exp $
  */
-public class GroupNameFilter extends BaseQueryFilter {
+public class GroupAlternateNameFilter extends BaseQueryFilter {
 
   // Private Instance Variables
   private String  name;
@@ -43,19 +43,17 @@ public class GroupNameFilter extends BaseQueryFilter {
 
   /**
    * {@link QueryFilter} that returns groups matching the specified
-   * name.
+   * alternate name.
    * <p>
-   * This performs a substring, lowercased query against <i>name</i>, <i>alternateName</i>,
-   * <i>displayName</i>, <i>extension</i> and <i>displayExtension</i>.
+   * This performs a substring, lowercased query against <i>alternateName</i>.
    * </p>
-   * <p><b>NOTE:</b> This query will perform a full table scan.</p>
-   * @param   name  Find groups matching this name.
+   * @param   name  Find groups matching this alternate name.
    * @param   ns    Restrict results to within this stem.
    */
-  public GroupNameFilter(String name, Stem ns) {
+  public GroupAlternateNameFilter(String name, Stem ns) {
     this.name = name;
     this.ns   = ns;
-  } // public GroupNameFilter(name, ns)
+  }
 
 
   // Public Instance Methods
@@ -69,10 +67,10 @@ public class GroupNameFilter extends BaseQueryFilter {
   
     if (ns.isRootStem()) {
       results = PrivilegeHelper.canViewGroups(
-        s, GrouperDAOFactory.getFactory().getGroup().findAllByApproximateName(this.name));
+        s, GrouperDAOFactory.getFactory().getGroup().findAllByApproximateAlternateName(this.name));
     } else {
       results = PrivilegeHelper.canViewGroups(
-        s, GrouperDAOFactory.getFactory().getGroup().findAllByApproximateName(this.name, getStringForScope(ns)));
+        s, GrouperDAOFactory.getFactory().getGroup().findAllByApproximateAlternateName(this.name, getStringForScope(ns)));
     }
     return results;
   } // public Set getResults(s)

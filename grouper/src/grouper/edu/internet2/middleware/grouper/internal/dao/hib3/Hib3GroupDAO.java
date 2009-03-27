@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 
@@ -57,7 +58,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.35 2009-03-27 15:38:21 shilen Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.36 2009-03-27 19:32:41 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -423,30 +424,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @see     GroupDAO#findAllByApproximateName(String)
    * @since   @HEAD@
    */
-  public Set<Group> findAllByApproximateName(final String name) 
-    throws  GrouperDAOException,
-            IllegalStateException
-  {
-    Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-        new HibernateHandler() {
-
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-            Set<Group> groups = hibernateSession.byHql().createQuery(
-                "select g from Group as g where lower(g.nameDb) like  :value " +
-                  "or lower(g.alternateNameDb) like :value " +
-                  "or lower(g.displayNameDb) like :value " +
-                  "or lower(g.extensionDb) like :value " +
-                  "or lower(g.displayExtensionDb) like :value  "
-              ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByApproximateName")
-              .setString( "value", "%" + name.toLowerCase() + "%" ).listSet(Group.class);
-
-            return groups;
-          }
-    });
-    return resultGroups;
+  public Set<Group> findAllByApproximateName(final String name)
+      throws GrouperDAOException {
+    return findAllByApproximateNameHelper(name, null, true, true);
   } 
 
   /**
@@ -460,31 +440,112 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    * @since   @HEAD@
    */
   public Set<Group> findAllByApproximateName(final String name, final String scope)
-    throws  GrouperDAOException,
-            IllegalStateException
-  {
+      throws GrouperDAOException {
+    return findAllByApproximateNameHelper(name, scope, true, true);
+  }
+  
+  /**
+   * Find groups using an approximate string for the current name,
+   * display name, extension, display extension.
+   * @param name
+   * @return set
+   * @throws GrouperDAOException
+   */
+  public Set<Group> findAllByApproximateCurrentName(final String name)
+      throws GrouperDAOException {
+    return findAllByApproximateNameHelper(name, null, true, false);
+  }
+
+  /**
+   * Find groups using an approximate string for the current name,
+   * display name, extension, display extension.
+   * @param name
+   * @param scope
+   * @return set
+   * @throws GrouperDAOException
+   */
+  public Set<Group> findAllByApproximateCurrentName(final String name, final String scope)
+      throws GrouperDAOException {
+    return findAllByApproximateNameHelper(name, scope, true, false);
+  }
+  
+  /**
+   * Find groups using an approximate string for the alternate name.
+   * @param name
+   * @return set
+   * @throws GrouperDAOException
+   */
+  public Set<Group> findAllByApproximateAlternateName(final String name)
+      throws GrouperDAOException {
+    return findAllByApproximateNameHelper(name, null, false, true);
+  }
+
+  
+  /**
+   * Find groups using an approximate string for the alternate name.
+   * @param name
+   * @param scope
+   * @return set
+   * @throws GrouperDAOException
+   */
+  public Set<Group> findAllByApproximateAlternateName(final String name,
+      final String scope) throws GrouperDAOException {
+    return findAllByApproximateNameHelper(name, scope, false, true);
+  }
+
+  
+  /**
+   * Helper for find by approximate name queries
+   * @param name
+   * @param scope
+   * @param currentNames
+   * @param alternateNames
+   * @return set
+   * @throws GrouperDAOException
+   * @throws IllegalStateException
+   */
+  private Set<Group> findAllByApproximateNameHelper(final String name, final String scope,
+      final boolean currentNames, final boolean alternateNames)
+      throws GrouperDAOException {
     Set resultGroups = (Set)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READONLY_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
         new HibernateHandler() {
 
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-            Set<Group> groups = hibernateSession.byHql().createQuery(
-                "select g from Group as g where (lower(g.nameDb) like  :value " +
-                "or lower(g.alternateNameDb) like :value " +
-                "or lower(g.displayNameDb) like :value " +
-                "or lower(g.extensionDb) like :value " +
-                "or lower(g.displayExtensionDb) like :value) and g.nameDb like :scope "
-              ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByApproximateName")
-              .setString("value", "%" + name.toLowerCase() + "%").setString("scope", scope + "%").listSet(Group.class);
 
+            List<Criterion> criterionList = new ArrayList<Criterion>();
+            Junction nameFieldsOr = Restrictions.disjunction();
+            
+            if (currentNames) {
+              nameFieldsOr.add(Restrictions.ilike("nameDb", name, MatchMode.ANYWHERE));
+              nameFieldsOr.add(Restrictions.ilike("displayNameDb", name, MatchMode.ANYWHERE));
+              nameFieldsOr.add(Restrictions.ilike("extensionDb", name, MatchMode.ANYWHERE));
+              nameFieldsOr.add(Restrictions.ilike("displayExtensionDb", name, MatchMode.ANYWHERE));
+            } 
+
+            if (alternateNames) {
+              nameFieldsOr.add(Restrictions.ilike("alternateNameDb", name, MatchMode.ANYWHERE));
+            }
+            
+            criterionList.add(nameFieldsOr);
+            
+            if (scope != null) {
+              criterionList.add(Restrictions.like("nameDb", scope, MatchMode.START));
+            }
+            HibernateSession.byCriteriaStatic().setCacheable(false);
+            HibernateSession.byCriteriaStatic().setCacheRegion(KLASS + ".FindAllByApproximateName");
+            
+            Set<Group> groups = HibernateSession.byCriteriaStatic().listSet(Group.class, 
+                HibUtils.listCrit(criterionList));
+            
             return groups;
           }
     });
     return resultGroups;
   }
 
+  
 
   /**
    * @param d
