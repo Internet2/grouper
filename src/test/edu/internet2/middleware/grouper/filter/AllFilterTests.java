@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AllFilterTests.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * $Id: AllFilterTests.java,v 1.2 2009-03-27 23:28:53 shilen Exp $
  */
 package edu.internet2.middleware.grouper.filter;
 
@@ -34,6 +34,11 @@ public class AllFilterTests {
     suite.addTestSuite(TestGQGroupCreatedBefore.class);
     suite.addTestSuite(TestGQStemCreatedBefore.class);
     suite.addTestSuite(TestQueryMembershipModifiedBefore.class);
+    suite.addTestSuite(TestGQGroupExactName.class);
+    suite.addTestSuite(TestGQGroupCurrentNameExactFilter.class);
+    suite.addTestSuite(TestGQGroupCurrentNameFilter.class);
+    suite.addTestSuite(TestGQGroupAlternateNameExactFilter.class);
+    suite.addTestSuite(TestGQGroupAlternateNameFilter.class);
     //$JUnit-END$
     return suite;
   }
