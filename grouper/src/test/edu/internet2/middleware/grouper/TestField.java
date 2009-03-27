@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.8.2.2 2009-03-26 07:25:02 mchyzer Exp $
+ * @version $Id: TestField.java,v 1.8.2.3 2009-03-27 06:19:43 mchyzer Exp $
  */
 public class TestField extends TestCase {
 
@@ -148,7 +148,7 @@ public class TestField extends TestCase {
     
       FieldFinder.defaultFieldCacheSeconds = 3;
       FieldFinder.cacheName = TestField.class.getName() + ".testFieldCache";
-      FieldFinder.fieldCache = null;
+      FieldFinder.fieldGrouperCache = null;
 
       try {
         FieldFinder.find("sadfasdf");
@@ -207,7 +207,7 @@ public class TestField extends TestCase {
     } finally {
       FieldFinder.cacheName = originalFieldCacheName;
       FieldFinder.defaultFieldCacheSeconds = originalFieldCacheSeconds;
-      FieldFinder.fieldCache = null;
+      FieldFinder.fieldGrouperCache = null;
     }
   }
   

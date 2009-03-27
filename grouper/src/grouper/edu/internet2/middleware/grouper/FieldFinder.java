@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.42.2.3 2009-03-26 12:33:38 mchyzer Exp $
+ * @version $Id: FieldFinder.java,v 1.42.2.4 2009-03-27 06:19:43 mchyzer Exp $
  */
 public class FieldFinder {
 
@@ -61,23 +61,32 @@ public class FieldFinder {
    * every X minutes, get new elements.  access this with fieldCache() so it is not null
    * store this as a complete map in the cache so that elements dont disappear
    */
-  static GrouperCache<Boolean, Map<String,Field>> fieldCache;
+  static GrouperCache<Boolean, Map<String,Field>> fieldGrouperCache;
 
+  /**
+   * return the field cache
+   * @return cache
+   */
+  private static GrouperCache<Boolean, Map<String,Field>> fieldGrouperCache() {
+    if (fieldGrouperCache == null) {
+      fieldGrouperCache = new GrouperCache<Boolean, Map<String,Field>>(
+          cacheName, 10000, false, 
+          defaultFieldCacheSeconds, defaultFieldCacheSeconds, false);
+    }
+    return fieldGrouperCache;
+  }
+  
   /**
    * init and return the cache
    * @return the cache
    */
   private synchronized static Map<String,Field> fieldCache() {
-    if (fieldCache == null) {
-      fieldCache = new GrouperCache<Boolean, Map<String,Field>>(
-          cacheName, 10000, false, 
-          defaultFieldCacheSeconds, defaultFieldCacheSeconds, false);
-    }
-    Map<String,Field> theFieldCache = fieldCache.get(Boolean.TRUE);
+
+    Map<String,Field> theFieldCache = fieldGrouperCache().get(Boolean.TRUE);
     if (theFieldCache == null || theFieldCache.size() == 0) {
       internal_updateKnownFields();
     }
-    return fieldCache.get(Boolean.TRUE);
+    return fieldGrouperCache().get(Boolean.TRUE);
   }
   
   /**
@@ -134,7 +143,7 @@ public class FieldFinder {
     }
     //dont refresh more than 2 minutes (or whatever it is set for)
     throw new SchemaException("field not found: " + name + ", expecting one of: "
-        + GrouperUtil.stringValue(fieldCache.keySet()));
+        + GrouperUtil.stringValue(fieldCache().keySet()));
   } 
 
   /**
@@ -253,7 +262,7 @@ public class FieldFinder {
       theFieldCache.put( f.getName(), f );
     }
 
-    fieldCache.put(Boolean.TRUE, theFieldCache);
+    fieldGrouperCache().put(Boolean.TRUE, theFieldCache);
     
     FieldFinder.lastTimeRefreshed = System.currentTimeMillis();
   } 
@@ -262,7 +271,10 @@ public class FieldFinder {
    * clear cache (e.g. if schema export)
    */
   public static void clearCache() {
-    fieldCache.clear();
+    Map<String, Field> theFieldCache = fieldCache();
+    if (theFieldCache != null) {
+      theFieldCache.clear();
+    }
   }
   
   /**
