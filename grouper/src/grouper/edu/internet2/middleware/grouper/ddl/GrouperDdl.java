@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.41 2009-03-16 15:32:47 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.42 2009-03-27 15:38:21 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -378,6 +378,31 @@ public enum GrouperDdl implements DdlVersionable {
       
       addAuditTables(ddlVersionBean, database);
       
+    }
+  },
+  
+  /**
+   * <pre>
+   * add alternate name
+   * </pre>
+   */
+  V20 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+
+      Table groupsTable = GrouperDdlUtils.ddlutilsFindTable(database, 
+          Group.TABLE_GROUPER_GROUPS);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_ALTERNATE_NAME, Types.VARCHAR, "1024", false, false); 
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
+          "group_alternate_name_idx", false, Group.COLUMN_ALTERNATE_NAME);
     }
   },
 
@@ -1219,6 +1244,12 @@ public enum GrouperDdl implements DdlVersionable {
   
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_LAST_MEMBERSHIP_CHANGE, 
             Types.BIGINT, "20", false, false); 
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupsTable, Group.COLUMN_ALTERNATE_NAME, 
+            Types.VARCHAR, "1024", false, false); 
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
+            "group_alternate_name_idx", false, Group.COLUMN_ALTERNATE_NAME);
         
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS,
             "group_last_membership_idx", false, Group.COLUMN_LAST_MEMBERSHIP_CHANGE);
@@ -2168,6 +2199,9 @@ public enum GrouperDdl implements DdlVersionable {
     
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
         Group.COLUMN_LAST_MEMBERSHIP_CHANGE, "If configured to keep track, this is the last membership change for this group");
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
+        Group.COLUMN_ALTERNATE_NAME, "An alternate name for this group");
     
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
         COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
