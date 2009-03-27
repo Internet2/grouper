@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /**
  * @author shilen
+ * @version $Id: AddAlternateGroupNameValidator.java,v 1.2 2009-03-27 17:10:40 shilen Exp $
  */
 public class AddAlternateGroupNameValidator extends GrouperValidator {
 
