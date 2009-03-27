@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -112,9 +113,9 @@ public class BySqlStatic {
    */
   @SuppressWarnings("deprecation")
   public <T> T select(final Class<T> returnClassType, final String sql, final List<Object> params) {
-  
+    //TODO incorporate this with the listSelect
     T theResult = (T)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
-
+  
       public Object callback(HibernateSession hibernateSession)
           throws GrouperDAOException {
         PreparedStatement preparedStatement = null;
@@ -159,6 +160,69 @@ public class BySqlStatic {
           }
           
           return result;
+  
+        } catch (Exception e) {
+          throw new RuntimeException("Problem with query: " + sql, e);
+        } finally {
+          GrouperUtil.closeQuietly(preparedStatement);
+        }
+      }
+    });
+    return theResult;
+  
+  }
+
+  /**
+   * select one object from sql (one row, one col
+   * @param returnClassType type to be returned (currnetly supports string and int
+   * @param <T> the type
+   * @param sql can be insert, update, delete, or ddl
+   * @param params prepared statement params
+   * @return the number of rows affected or 0 for ddl
+   */
+  @SuppressWarnings("deprecation")
+  public <T> List<T> listSelect(final Class<T> returnClassType, final String sql, final List<Object> params) {
+  
+    List<T> theResult = (List<T>)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
+
+      public Object callback(HibernateSession hibernateSession)
+          throws GrouperDAOException {
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        List<Object> resultList = new ArrayList<Object>();
+        try {
+          
+          //we dont close this connection or anything since could be pooled
+          Connection connection = hibernateSession.getSession().connection();
+          preparedStatement = connection.prepareStatement(sql);
+      
+          attachParams(preparedStatement, params);
+          
+          resultSet = preparedStatement.executeQuery();
+
+          while (resultSet.next()) {
+          
+            T result = null;
+            boolean isInt = int.class.equals(returnClassType);
+            boolean isPrimitive = isInt;
+            if (isInt || Integer.class.equals(returnClassType)) {
+              BigDecimal bigDecimal = resultSet.getBigDecimal(1);
+              if (bigDecimal != null) {
+                result = (T)(Object)bigDecimal.intValue();
+              }
+            } else if (String.class.equals(returnClassType)) {
+              result = (T)resultSet.getString(1);
+            } else {
+              throw new RuntimeException("Unexpected type: " + returnClassType);
+            }
+            
+            if (result == null && isPrimitive) {
+              throw new NullPointerException("expecting primitive (" + returnClassType.getSimpleName() 
+                  + "), but received null");
+            }
+            resultList.add(result);
+          }          
+          return resultList;
 
         } catch (Exception e) {
           throw new RuntimeException("Problem with query: " + sql, e);

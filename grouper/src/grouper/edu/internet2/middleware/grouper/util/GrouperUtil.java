@@ -29,6 +29,8 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.CodeSource;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -75,6 +77,8 @@ import org.dom4j.io.SAXReader;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+
+import sun.misc.BASE64Encoder;
 
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -610,6 +614,39 @@ public class GrouperUtil {
     }
   }
   
+  /**
+   * 
+   * @param seconds
+   */
+  public static void sleepWithStdoutCountdown(int seconds) {
+    for (int i=seconds;i>0;i--) {
+      System.out.println("Sleeping: " + i);
+      sleep(1000);
+    }
+  }
+  
+  /**
+   * encrypt a message to SHA
+   * @param plaintext
+   * @return the hash
+   */
+  public synchronized static String encryptSha(String plaintext) {
+    MessageDigest md = null;
+    try {
+      md = MessageDigest.getInstance("SHA"); //step 2
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
+    try {
+      md.update(plaintext.getBytes("UTF-8")); //step 3
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+    }
+    byte raw[] = md.digest(); //step 4
+    String hash = (new BASE64Encoder()).encode(raw); //step 5
+    return hash; //step 6
+  }
+
   /**
    * If we can, inject this into the exception, else return false
    * @param t
@@ -8444,4 +8481,21 @@ public class GrouperUtil {
     return str.substring(pos + separator.length());
   }
   
+  /**
+   * wait for input
+   */
+  public static void waitForInput() {
+    System.out.print("Press enter to continue: ");
+    BufferedReader stdin = null;
+
+    try {
+      stdin = new BufferedReader(new InputStreamReader(System.in));
+      stdin.readLine();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+  
+
 }
