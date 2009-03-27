@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.app.loader.db.AllLoaderDbTests;
 import edu.internet2.middleware.grouper.app.usdu.AllUsduTests;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.AllDdlTests;
+import edu.internet2.middleware.grouper.hibernate.AllHibernateTests;
 import edu.internet2.middleware.grouper.hooks.AllHooksTests;
 import edu.internet2.middleware.grouper.misc.AllMiscTests;
 import edu.internet2.middleware.grouper.util.AllUtilTests;
@@ -42,7 +43,7 @@ import edu.internet2.middleware.ldappcTest.AllLdappcJunitTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: SuiteDefault.java,v 1.53.2.2 2009-02-24 18:30:17 mchyzer Exp $
+ * @version $Id: SuiteDefault.java,v 1.53.2.3 2009-03-27 21:23:25 mchyzer Exp $
  */
 public class SuiteDefault extends TestCase {
 
@@ -190,6 +191,7 @@ public class SuiteDefault extends TestCase {
     suite.addTest(AllLoaderDbTests.suite());
     suite.addTest(AllUsduTests.suite());
     suite.addTest(AllHooksTests.suite());
+    suite.addTest(AllHibernateTests.suite());
     suite.addTest(AllUtilTests.suite());
     suite.addTest(AllRijndaelTests.suite());
     suite.addTest(AllMiscTests.suite());

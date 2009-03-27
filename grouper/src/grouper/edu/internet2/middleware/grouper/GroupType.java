@@ -59,7 +59,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.73.2.1 2009-03-26 06:26:17 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.73.2.2 2009-03-27 21:23:25 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVersioned, Comparable {
 
@@ -430,7 +430,14 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
       }
       // Now delete the type
       String typeName = this.getName(); // For logging purposes
-      GrouperDAOFactory.getFactory().getGroupType().delete( this, this.getFields() );
+      Set<Field> fields2 = this.getFields();
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Deleting type: " + this.getName() + " and fields: " 
+            + Field.fieldNames(fields2));
+      }
+      
+      GrouperDAOFactory.getFactory().getGroupType().delete( this, fields2 );
       sw.stop();
       EventLog.info(s, M.GROUPTYPE_DEL + Quote.single(typeName), sw);
       // Now update the cached types + fields
@@ -674,6 +681,7 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
           changedArray[0] = false;
         }
       }
+      FieldFinder.internal_updateKnownFields();
       return field;
     }
     if (GrouperUtil.length(changedArray) > 0) {
@@ -705,6 +713,8 @@ public class GroupType extends GrouperAPI implements Serializable, Hib3GrouperVe
         + " gtype=" + Quote.single( this.getName() ),
         sw
       );
+      FieldFinder.internal_updateKnownFields();
+
       return field;
     }
     catch (GrouperDAOException eDAO) {

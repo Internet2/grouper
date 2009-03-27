@@ -26,6 +26,8 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -34,7 +36,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Field</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3FieldDAO.java,v 1.11.2.2 2009-03-26 12:33:38 mchyzer Exp $
+ * @version $Id: Hib3FieldDAO.java,v 1.11.2.3 2009-03-27 21:23:25 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
@@ -156,8 +158,19 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.FieldDAO#createOrUpdate(edu.internet2.middleware.grouper.Field)
    */
-  public void createOrUpdate(Field field) {
-    HibernateSession.byObjectStatic().saveOrUpdate(field);    
+  public void createOrUpdate(final Field field) {
+    
+    //do this in its own tx so we can be sure it is done and move on to refreshing cache
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, new HibernateHandler() {
+
+      public Object callback(HibernateSession hibernateSession)
+          throws GrouperDAOException {
+        hibernateSession.byObject().saveOrUpdate(field);    
+        return null;
+      }
+      
+    });
+    
     FieldFinder.clearCache();
   }
 
