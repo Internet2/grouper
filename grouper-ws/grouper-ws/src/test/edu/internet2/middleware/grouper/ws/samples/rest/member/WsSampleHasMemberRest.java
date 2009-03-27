@@ -126,7 +126,7 @@ public class WsSampleHasMemberRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    hasMember(WsSampleRestType.xhtml);
+    hasMember(WsSampleRestType.xml);
   }
 
   /**

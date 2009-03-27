@@ -2627,6 +2627,8 @@ public class GrouperService {
       String includeSubjectDetail, String subjectAttributeNames, String paramName0,
       String paramValue0, String paramName1, String paramValue1) {
     
+    LOG.debug("entering addMemberLite");
+    
     WsAddMemberLiteResult wsAddMemberLiteResult = new WsAddMemberLiteResult();
 
     try {
