@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Group.java,v 1.5 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: Test_api_Group.java,v 1.6 2009-03-28 01:05:57 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Group extends GrouperTest {
@@ -1135,5 +1135,335 @@ public class Test_api_Group extends GrouperTest {
     assertNotNull(test.getLastMembershipChange());
   }
   
+  /**
+   * @throws Exception
+   */
+  public void test_alternateName() throws Exception {
+    assertTrue(top_group.getAlternateNames().size() == 0);
+
+    // add invalid group name
+    try {
+      top_group.addAlternateName(null);
+      fail("failed to throw GroupModifyException");
+    } catch (GroupModifyException e) {
+      assertTrue(true);
+    }
+    
+    // add invalid group name
+    try {
+      top_group.addAlternateName("");
+      fail("failed to throw GroupModifyException");
+    } catch (GroupModifyException e) {
+      assertTrue(true);
+    }
+    
+    // add invalid group name
+    try {
+      top_group.addAlternateName("top");
+      fail("failed to throw GroupModifyException");
+    } catch (GroupModifyException e) {
+      assertTrue(true);
+    }
+    
+    // add invalid group name
+    try {
+      top_group.addAlternateName("top:top group2:");
+      fail("failed to throw GroupModifyException");
+    } catch (GroupModifyException e) {
+      assertTrue(true);
+    }
+    
+    // add invalid group name
+    try {
+      top_group.addAlternateName("top::top group2");
+      fail("failed to throw GroupModifyException");
+    } catch (GroupModifyException e) {
+      assertTrue(true);
+    }
+    
+    // add invalid group name
+    try {
+      top_group.addAlternateName("top:  :top group2");
+      fail("failed to throw GroupModifyException");
+    } catch (GroupModifyException e) {
+      assertTrue(true);
+    }
+    
+    assertTrue(top_group.getAlternateNames().size() == 0);
+    
+    // add an alternate name and verify it gets stored in the db
+    top_group.addAlternateName("top:top group2");
+    top_group.store();
+    assertTrue(top_group.getAlternateNames().size() == 1);
+    assertTrue(top_group.getAlternateNames().contains("top:top group2"));
+    top_group = GroupFinder.findByName(s, "top:top group", true);
+    assertTrue(top_group.getAlternateNames().size() == 1);
+    assertTrue(top_group.getAlternateNames().contains("top:top group2"));
+    
+    // add another alternate name.  it should overwrite the last one.
+    top_group.addAlternateName("top:top group3");
+    top_group.store();
+    assertTrue(top_group.getAlternateNames().size() == 1);
+    assertTrue(top_group.getAlternateNames().contains("top:top group3"));
+    top_group = GroupFinder.findByName(s, "top:top group", true);
+    assertTrue(top_group.getAlternateNames().size() == 1);
+    assertTrue(top_group.getAlternateNames().contains("top:top group3"));
+    
+    // try deleting first alternate name
+    assertFalse(top_group.deleteAlternateName("top:top group2"));
+    top_group.store();
+    assertTrue(top_group.getAlternateNames().size() == 1);
+    assertTrue(top_group.getAlternateNames().contains("top:top group3"));
+    top_group = GroupFinder.findByName(s, "top:top group", true);
+    assertTrue(top_group.getAlternateNames().size() == 1);
+    assertTrue(top_group.getAlternateNames().contains("top:top group3"));
+    
+    // delete alternate name
+    assertTrue(top_group.deleteAlternateName("top:top group3"));
+    top_group.store();
+    assertTrue(top_group.getAlternateNames().size() == 0);
+    top_group = GroupFinder.findByName(s, "top:top group", true);
+    assertTrue(top_group.getAlternateNames().size() == 0);
+    
+    // add an alternate name using a location that doesn't exist.
+    top_group.addAlternateName("top2:top3:top group2");
+    top_group.store();
+    assertTrue(top_group.getAlternateNames().size() == 1);
+    assertTrue(top_group.getAlternateNames().contains("top2:top3:top group2"));
+    top_group = GroupFinder.findByName(s, "top:top group", true);
+    assertTrue(top_group.getAlternateNames().size() == 1);
+    assertTrue(top_group.getAlternateNames().contains("top2:top3:top group2"));
+    
+    // delete alternate name
+    assertTrue(top_group.deleteAlternateName("top2:top3:top group2"));
+    top_group.store();
+    assertTrue(top_group.getAlternateNames().size() == 0);
+    top_group = GroupFinder.findByName(s, "top:top group", true);
+    assertTrue(top_group.getAlternateNames().size() == 0);
+    
+    // add alternate name again so we can verify that the name cannot be used again for a group.
+    top_group.addAlternateName("top:top group2");
+    top_group.store();
+    assertTrue(top_group.getAlternateNames().size() == 1);
+    assertTrue(top_group.getAlternateNames().contains("top:top group2"));
+    top_group = GroupFinder.findByName(s, "top:top group", true);
+    assertTrue(top_group.getAlternateNames().size() == 1);
+    assertTrue(top_group.getAlternateNames().contains("top:top group2"));
+    
+    // add alternate name that already exists
+    try {
+      assertTrue(child_group.getAlternateNames().size() == 0);
+      child_group.addAlternateName("top:top group2");
+      fail("failed to throw GroupModifyException");
+    } catch (GroupModifyException e) {
+      assertTrue(true);
+    }
+    
+    // add group name that already exists
+    try {
+      top.addChildGroup("top group2", "test");
+      fail("failed to throw GroupAddException");
+    } catch (GroupAddException e) {
+      assertTrue(true);
+    }
+    
+    // but we should be able to add a stem with this name
+    top.addChildStem("top group2", "test");
+    assertTrue(true);
+    
+    // if we delete the alternate name, we can add the group.
+    assertTrue(top_group.deleteAlternateName("top:top group2"));
+    top_group.store();
+    top.addChildGroup("top group2", "test");
+    assertTrue(true);
+    
+    // now try adding an alternate name where the name is an existing group name
+    try {
+      top_group.addAlternateName("top:child:child group");
+      fail("failed to throw GroupModifyException");
+    } catch (GroupModifyException e) {
+      assertTrue(true);
+    }
+    
+    // if we delete the group, we can add the alternate name
+    child_group.delete();
+    top_group.addAlternateName("top:child:child group");
+    top_group.store();
+    assertTrue(true);
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_alternateNameSecurityCheck() throws Exception {
+    GrouperSession session;
+    R r = R.populateRegistry(0, 0, 1);
+    Subject subjA = r.getSubject("a");
+
+    session = GrouperSession.start(subjA);
+
+    // subjA doesn't have admin access to group and doesn't have create access on stem.
+    try {
+      top_group.addAlternateName("top:top group2");
+      top_group.store();
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    top_group.grantPriv(subjA, AccessPrivilege.ADMIN);
+    session.stop();
+    session = GrouperSession.start(subjA);
+
+    // subjA doesn't have create access on stem
+    try {
+      top_group.addAlternateName("top:top group2");
+      top_group.store();
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    top_group.revokePriv(subjA, AccessPrivilege.ADMIN);
+    top.grantPriv(subjA, NamingPrivilege.CREATE);
+    session.stop();
+    session = GrouperSession.start(subjA);
+
+    // subjA doesn't have admin access on group
+    try {
+      top_group.addAlternateName("top:top group2");
+      top_group.store();
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    top_group.grantPriv(subjA, AccessPrivilege.ADMIN);
+    session.stop();
+    session = GrouperSession.start(subjA);
+
+    // subjA has the appropriate privileges now
+    top_group.addAlternateName("top:top group2");
+    top_group.store();
+    assertTrue(true);
+
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    top_group.revokePriv(subjA, AccessPrivilege.ADMIN);
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA doesn't have access to delete the alternate name
+    try {
+      top_group.deleteAlternateName("top:top group2");
+      top_group.store();
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    top_group.grantPriv(subjA, AccessPrivilege.ADMIN);
+    top.revokePriv(subjA, NamingPrivilege.CREATE);
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA can delete the alternate name now
+    top_group.deleteAlternateName("top:top group2");
+    top_group.store();
+    assertTrue(true);
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    Stem test1 = root.addChildStem("test1", "test1");
+    Stem test2 = test1.addChildStem("test2", "test2");
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA doesn't have create access on test1:test2
+    try {
+      top_group.addAlternateName("test1:test2:group");
+      top_group.store();
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    test2.grantPriv(subjA, NamingPrivilege.CREATE);
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA has create access on test1:test2
+    top_group.addAlternateName("test1:test2:group");
+    top_group.store();
+    top_group.deleteAlternateName("test1:test2:group");
+    top_group.store();
+    assertTrue(true);
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    test2.delete();
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA doesn't have create access on test1
+    try {
+      top_group.addAlternateName("test1:test2:group");
+      top_group.store();
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    test1.grantPriv(subjA, NamingPrivilege.CREATE);
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA has create access on test1
+    top_group.addAlternateName("test1:test2:group");
+    top_group.store();
+    top_group.deleteAlternateName("test1:test2:group");
+    top_group.store();
+    assertTrue(true);
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    test1.delete();
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA doesn't have create access on the root stem
+    try {
+      top_group.addAlternateName("test1:test2:group");
+      top_group.store();
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException e) {
+      assertTrue(true);
+    }
+    
+    session.stop();
+    session = GrouperSession.start(SubjectFinder.findRootSubject());
+    root.grantPriv(subjA, NamingPrivilege.CREATE);
+    session.stop();
+    session = GrouperSession.start(subjA);
+    
+    // subjA has create access on the root stem
+    top_group.addAlternateName("test1:test2:group");
+    top_group.store();
+    top_group.deleteAlternateName("test1:test2:group");
+    top_group.store();
+    assertTrue(true);
+  }
 }
 
