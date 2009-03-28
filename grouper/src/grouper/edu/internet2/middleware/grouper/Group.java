@@ -121,7 +121,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.239 2009-03-27 15:38:20 shilen Exp $
+ * @version $Id: Group.java,v 1.240 2009-03-28 01:05:57 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -3466,7 +3466,8 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
                       + " is not admin on group: " + Group.this.getName());
                 }
                 
-                if (Group.this.dbVersionDifferentFields().contains(FIELD_ALTERNATE_NAME_DB)) {
+                if (Group.this.dbVersionDifferentFields().contains(FIELD_ALTERNATE_NAME_DB) &&
+                    Group.this.getAlternateNameDb() != null) {
                   Stem stem = GrouperUtil.getFirstParentStemOfName(Group.this.getAlternateNameDb());
                   if (!stem.hasCreate(subject)) {
                     throw new InsufficientPrivilegeException(GrouperUtil.subjectToString(subject)
