@@ -15,7 +15,7 @@ import bsh.Interpreter;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.18 2008-11-14 07:38:03 mchyzer Exp $
+ * @version $Id: help.java,v 1.19 2009-03-29 21:17:21 shilen Exp $
  * @since   0.0.1
  */
 public class help {
@@ -63,6 +63,119 @@ public class help {
           + "gsh 5% xmlExport.grouperSession(grouperSession);\n"
           + "\n"
           + "gsh 6% xmlExport.exportToFile(new File(\"c:\\\\temp\\\\export.xml\"))\n"
+          );
+      return;
+    }
+    if (StringUtils.equalsIgnoreCase(helpOn, "GroupCopy") ) {
+      interpreter.println("GroupCopy help:\n"
+          + "There is an object: GroupCopy which has various chaining methods, \n" +
+              "which should be ended with a save() method.\n\n"
+          + "GroupCopy groupCopy = new GroupCopy(group, stem)  Create a new instance.\n"
+          + "GroupCopy groupCopy.copyPrivilegesOfGroup(boolean)  Whether to copy privileges of the group.  Default is true.\n"
+          + "GroupCopy groupCopy.copyGroupAsPrivilege(boolean)  Whether to copy privileges where this group is a member.  Default is true.\n"
+          + "GroupCopy groupCopy.copyListMembersOfGroup(boolean)  Whether to copy the list memberships of the group.  Default is true.\n"
+          + "GroupCopy groupCopy.copyListGroupAsMember(boolean)  Whether to copy list memberships where this group is a member.  Default is true.\n"
+          + "GroupCopy groupCopy.copyAttributes(boolean)  Whether to copy attributes.  Default is true.\n"
+          + "Group groupCopy.save()  Copies the group.\n"
+          + "\n"
+          + " Examples:\n"
+          + "\n"
+          + "gsh 1% new GroupCopy(group, stem).copyAttributes(false).save()\n"
+          + "\n"
+          + " -or- (without chaining)\n"
+          + "\n"
+          + "gsh 2% groupCopy = new GroupCopy(group, stem);\n"
+          + "\n"
+          + "gsh 3% groupCopy.copyAttributes(false);\n"
+          + "\n"
+          + "gsh 4% groupCopy.save();\n"
+          + "\n"
+          + " -or- (if you want to use the default options)\n"
+          + "\n"
+          + "gsh 5% group.copy(stem);\n"
+          );
+      return;
+    }
+    if (StringUtils.equalsIgnoreCase(helpOn, "GroupMove") ) {
+      interpreter.println("GroupMove help:\n"
+          + "There is an object: GroupMove which has various chaining methods, \n" +
+              "which should be ended with a save() method.\n\n"
+          + "GroupMove groupMove = new GroupMove(group, stem)  Create a new instance.\n"
+          + "GroupMove groupMove.assignAlternateName(boolean)  Whether to add the current name of the group to the group's alternate names list.  Default is true.\n"
+          + "void groupMove.save()  Moves the group.\n"
+          + "\n"
+          + " Examples:\n"
+          + "\n"
+          + "gsh 1% new GroupMove(group, stem).assignAlternateName(false).save()\n"
+          + "\n"
+          + " -or- (without chaining)\n"
+          + "\n"
+          + "gsh 2% groupMove = new GroupMove(group, stem);\n"
+          + "\n"
+          + "gsh 3% groupMove.assignAlternateName(false);\n"
+          + "\n"
+          + "gsh 4% groupMove.save();\n"
+          + "\n"
+          + " -or- (if you want to use the default options)\n"
+          + "\n"
+          + "gsh 5% group.move(stem);\n"
+          );
+      return;
+    }
+    if (StringUtils.equalsIgnoreCase(helpOn, "StemCopy") ) {
+      interpreter.println("StemCopy help:\n"
+          + "There is an object: StemCopy which has various chaining methods, \n" +
+              "which should be ended with a save() method.\n\n"
+          + "StemCopy stemCopy = new StemCopy(stemToCopy, destinationStem)  Create a new instance.\n"
+          + "StemCopy stemCopy.copyPrivilegesOfStem(boolean)  Whether to copy privileges of stems.  Default is true.\n"
+          + "StemCopy stemCopy.copyPrivilegesOfGroup(boolean)  Whether to copy privileges of groups.  Default is true.\n"
+          + "StemCopy stemCopy.copyGroupAsPrivilege(boolean)  Whether to copy privileges where groups are a member.  Default is true.\n"
+          + "StemCopy stemCopy.copyListMembersOfGroup(boolean)  Whether to copy the list memberships of groups.  Default is true.\n"
+          + "StemCopy stemCopy.copyListGroupAsMember(boolean)  Whether to copy list memberships where groups are a member.  Default is true.\n"
+          + "StemCopy stemCopy.copyAttributes(boolean)  Whether to copy attributes.  Default is true.\n"
+          + "Stem stemCopy.save()  Copies the stem.\n"
+          + "\n"
+          + " Examples:\n"
+          + "\n"
+          + "gsh 1% new StemCopy(stemToCopy, destinationStem).copyAttributes(false).save()\n"
+          + "\n"
+          + " -or- (without chaining)\n"
+          + "\n"
+          + "gsh 2% stemCopy = new StemCopy(stemToCopy, destinationStem);\n"
+          + "\n"
+          + "gsh 3% stemCopy.copyAttributes(false);\n"
+          + "\n"
+          + "gsh 4% stemCopy.save();\n"
+          + "\n"
+          + " -or- (if you want to use the default options)\n"
+          + "\n"
+          + "gsh 5% stem.copy(destinationStem);\n"
+          );
+      return;
+    }
+    if (StringUtils.equalsIgnoreCase(helpOn, "StemMove") ) {
+      interpreter.println("StemMove help:\n"
+          + "There is an object: StemMove which has various chaining methods, \n" +
+              "which should be ended with a save() method.\n\n"
+          + "StemMove stemMove = new StemMove(stemToMove, destinationStem)  Create a new instance.\n"
+          + "StemMove stemMove.assignAlternateName(boolean)  Whether to add the current names of the affected groups to the groups' alternate names list.  Default is true.\n"
+          + "void stemMove.save()  Moves the stem.\n"
+          + "\n"
+          + " Examples:\n"
+          + "\n"
+          + "gsh 1% new StemMove(stemToMove, destinationStem).assignAlternateName(false).save()\n"
+          + "\n"
+          + " -or- (without chaining)\n"
+          + "\n"
+          + "gsh 2% stemMove = new StemMove(stemToMove, destinationStem);\n"
+          + "\n"
+          + "gsh 3% stemMove.assignAlternateName(false);\n"
+          + "\n"
+          + "gsh 4% stemMove.save();\n"
+          + "\n"
+          + " -or- (if you want to use the default options)\n"
+          + "\n"
+          + "gsh 5% stem.move(destinationStem);\n"
           );
       return;
     }
@@ -214,15 +327,24 @@ public class help {
     i.println("* findSubject(id, type, source)"                       );
     i.println("* getGroupAttr(stem, attr)"                            );
     i.println("* getGroups(name)"                                     );
-    i.println("* GroupFinder.findByName(grouperSession, name)");
+    i.println("* GroupCopy: type   help(\"GroupCopy\")   for info on copying a group");
+    i.println("* GroupMove: type   help(\"GroupMove\")   for info on moving a group");
+    i.println("* GroupFinder.findByAlternateName(grouperSession, name, exceptionIfNotFound)");
+    i.println("* GroupFinder.findByCurrentName(grouperSession, name, exceptionIfNotFound)");
+    i.println("* GroupFinder.findByName(grouperSession, name, exceptionIfNotFound)");
     i.println("* GroupFinder.findByUuid(grouperSession, uuid)");
     i.println("* getMembers(group)"                                   );
     i.println("* getSources()"                                        );
     i.println("* getStemAttr(stem, attr)"                             );
     i.println("* getStems(name)"                                      );
+    i.println("* group.addAlternateName(name)");
+    i.println("* group.getAlternateNames()");
+    i.println("* group.deleteAlternateName(name)");
     i.println("* group.manageIncludesExcludes(grouperSession, isIncludeExclude)");
     i.println("* group.manageIncludesExcludes(grouperSession, isIncludeExclude, groupThatMembersMustAlsoBeIn)");
     i.println("* group.manageIncludesExcludes(grouperSession, isIncludeExclude, setOfGroupsThatMembersMustAlsoBeIn)");
+    i.println("* StemCopy: type   help(\"StemCopy\")   for info on copying a stem");
+    i.println("* StemMove: type   help(\"StemMove\")   for info on moving a stem");
     i.println("* stem = StemFinder.findByName(grouperSession, name)");
     i.println("* stem = StemFinder.findByUuid(grouperSession, uuid)");
     i.println("* grantPriv(name, subject id, Privilege)"              );

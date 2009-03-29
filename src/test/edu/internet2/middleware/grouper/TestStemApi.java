@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestStemApi.java,v 1.4 2009-03-24 17:12:09 mchyzer Exp $
+ * @version $Id: TestStemApi.java,v 1.5 2009-03-29 21:17:21 shilen Exp $
  * @since   1.2.1
  */
 public class TestStemApi extends GrouperTest {
@@ -863,6 +863,272 @@ public class TestStemApi extends GrouperTest {
   /**
    * @throws Exception
    */
+  public void test_move_alternate_name() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+    Stem top2 = root.addChildStem("top2", "top2");
+
+    // verify alternate name gets added
+    top.grantPriv(a, NamingPrivilege.STEM);
+    top2.grantPriv(a, NamingPrivilege.STEM);
+    nrs = GrouperSession.start(a);
+    top.move(top2);
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    child_group = GroupFinder.findByName(s, "top2:top:child:child group", true);
+    top_group = GroupFinder.findByName(s, "top2:top:top group", true);
+    assertTrue(top_group.getAlternateNameDb().equals("top:top group"));
+    assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_move_no_alternate_name() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+    Stem top2 = root.addChildStem("top2", "top2");
+
+    // verify alternate name does not get added
+    top.grantPriv(a, NamingPrivilege.STEM);
+    top2.grantPriv(a, NamingPrivilege.STEM);
+    nrs = GrouperSession.start(a);
+    new StemMove(top, top2).assignAlternateName(false).save();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    child_group = GroupFinder.findByName(s, "top2:top:child:child group", true);
+    top_group = GroupFinder.findByName(s, "top2:top:top group", true);
+    assertNull(top_group.getAlternateNameDb());
+    assertNull(child_group.getAlternateNameDb());
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_move_alternate_name_when_alternate_name_already_exists() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+    Stem top2 = root.addChildStem("top2", "top2");
+    child_group.addAlternateName("test1:test2");
+    child_group.store();
+    top_group.addAlternateName("test1a:test2a");
+    top_group.store();
+
+    // verify alternate name gets replaced
+    top.grantPriv(a, NamingPrivilege.STEM);
+    top2.grantPriv(a, NamingPrivilege.STEM);
+    nrs = GrouperSession.start(a);
+    new StemMove(top, top2).assignAlternateName(true).save();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    child_group = GroupFinder.findByName(s, "top2:top:child:child group", true);
+    top_group = GroupFinder.findByName(s, "top2:top:top group", true);
+    assertTrue(top_group.getAlternateNameDb().equals("top:top group"));
+    assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_move_no_alternate_name_when_alternate_name_already_exists() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+    Stem top2 = root.addChildStem("top2", "top2");
+    child_group.addAlternateName("test1:test2");
+    child_group.store();
+    top_group.addAlternateName("test1a:test2a");
+    top_group.store();
+
+    // verify alternate name doesn't get replaced
+    top.grantPriv(a, NamingPrivilege.STEM);
+    top2.grantPriv(a, NamingPrivilege.STEM);
+    nrs = GrouperSession.start(a);
+    new StemMove(top, top2).assignAlternateName(false).save();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    child_group = GroupFinder.findByName(s, "top2:top:child:child group", true);
+    top_group = GroupFinder.findByName(s, "top2:top:top group", true);
+    assertTrue(top_group.getAlternateNameDb().equals("test1a:test2a"));
+    assertTrue(child_group.getAlternateNameDb().equals("test1:test2"));
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_rename_alternate_name() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+
+    // verify alternate name gets added
+    top.grantPriv(a, NamingPrivilege.STEM);
+    nrs = GrouperSession.start(a);
+    top.setExtension("top2");
+    top.store();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    child_group = GroupFinder.findByName(s, "top2:child:child group", true);
+    top_group = GroupFinder.findByName(s, "top2:top group", true);
+    assertTrue(top_group.getAlternateNameDb().equals("top:top group"));
+    assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_rename_and_displayname_alternate_name() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+
+    // verify alternate name gets added
+    top.grantPriv(a, NamingPrivilege.STEM);
+    nrs = GrouperSession.start(a);
+    top.setExtension("top2");
+    top.setDisplayExtension("top2 display name");
+    top.store();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    child_group = GroupFinder.findByCurrentName(s, "top2:child:child group", true);
+    top_group = GroupFinder.findByCurrentName(s, "top2:top group", true);
+    assertTrue(top_group.getAlternateNameDb().equals("top:top group"));
+    assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
+    assertTrue(top_group.getDisplayName().equals("top2 display name:top group display name"));
+    assertTrue(child_group.getDisplayName().equals("top2 display name:child display name:child group display name"));
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_rename_and_displayname_no_alternate_name() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+
+    // verify alternate name gets added
+    top.grantPriv(a, NamingPrivilege.STEM);
+    nrs = GrouperSession.start(a);
+    top.setExtension("top2", false);
+    top.setDisplayExtension("top2 display name");
+    top.store();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    child_group = GroupFinder.findByCurrentName(s, "top2:child:child group", true);
+    top_group = GroupFinder.findByCurrentName(s, "top2:top group", true);
+    assertNull(top_group.getAlternateNameDb());
+    assertNull(child_group.getAlternateNameDb());
+    assertTrue(top_group.getDisplayName().equals("top2 display name:top group display name"));
+    assertTrue(child_group.getDisplayName().equals("top2 display name:child display name:child group display name"));
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_rename_no_alternate_name() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+
+    // verify alternate name doesn't get added
+    top.grantPriv(a, NamingPrivilege.STEM);
+    nrs = GrouperSession.start(a);
+    top.setExtension("top2", false);
+    top.store();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    child_group = GroupFinder.findByName(s, "top2:child:child group", true);
+    top_group = GroupFinder.findByName(s, "top2:top group", true);
+    assertNull(top_group.getAlternateNameDb());
+    assertNull(child_group.getAlternateNameDb());
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_rename_alternate_name_when_alternate_name_already_exists() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+    child_group.addAlternateName("test1:test2");
+    child_group.store();
+    top_group.addAlternateName("test1a:test2a");
+    top_group.store();
+
+    // verify alternate name gets replaced
+    top.grantPriv(a, NamingPrivilege.STEM);
+    nrs = GrouperSession.start(a);
+    top.setExtension("top2", true);
+    top.store();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    child_group = GroupFinder.findByName(s, "top2:child:child group", true);
+    top_group = GroupFinder.findByName(s, "top2:top group", true);
+    assertTrue(top_group.getAlternateNameDb().equals("top:top group"));
+    assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_rename_no_alternate_name_when_alternate_name_already_exists() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+    child_group.addAlternateName("test1:test2");
+    child_group.store();
+    top_group.addAlternateName("test1a:test2a");
+    top_group.store();
+
+    // verify alternate name doesn't get replaced
+    top.grantPriv(a, NamingPrivilege.STEM);
+    nrs = GrouperSession.start(a);
+    top.setExtension("top2", false);
+    top.store();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    child_group = GroupFinder.findByName(s, "top2:child:child group", true);
+    top_group = GroupFinder.findByName(s, "top2:top group", true);
+    assertTrue(top_group.getAlternateNameDb().equals("test1a:test2a"));
+    assertTrue(child_group.getAlternateNameDb().equals("test1:test2"));
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
   public void test_copy_all() throws Exception {
     R r = R.populateRegistry(0, 0, 11);
 
@@ -871,6 +1137,22 @@ public class TestStemApi extends GrouperTest {
     verify_copy(r, newStem, true, true, true, true, true, true);
     
     r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_copy_should_not_copy_alternate_name() throws Exception {
+    child_group.addAlternateName("test1:test2");
+    child_group.store();
+    
+    child.copy(root);
+    
+    Group existingGroup = GroupFinder.findByName(s, "top:child:child group", true);
+    assertTrue(existingGroup.getAlternateNameDb().equals("test1:test2"));
+    
+    Group newGroup = GroupFinder.findByName(s, "child:child group", true);
+    assertNull(newGroup.getAlternateNameDb());
   }
   
   /**

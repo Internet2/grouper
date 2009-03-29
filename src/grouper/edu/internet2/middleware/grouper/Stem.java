@@ -35,7 +35,6 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
-import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
@@ -99,7 +98,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.191 2009-03-27 15:38:20 shilen Exp $
+ * @version $Id: Stem.java,v 1.192 2009-03-29 21:17:21 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -1280,6 +1279,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     EL.stemSetAttr(GrouperSession.staticGrouperSession(), this.getName(), "displayExtension", value, sw);
   } // public void setDisplayExtension(value)
 
+  
   /**
    * Set <i>extension</i>.
    * <p>This will also update the <i>name</i> of all child stems and groups.</p>
@@ -1298,6 +1298,31 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    * @throws  StemModifyException
    */
   public void setExtension(String value) 
+    throws  InsufficientPrivilegeException,
+            StemModifyException {
+     setExtension(value, true);
+  }
+  
+  /**
+   * Set <i>extension</i>.
+   * <p>This will also update the <i>name</i> of all child stems and groups.</p>
+   * <pre class="eg">
+   * try {
+   *  ns.setExtension(value, true);
+   * }
+   * catch (InsufficientPrivilegeException eIP) {
+   *   // Not privileged to set "extension"
+   * catch (StemModifyException eNSM) {
+   *   // Error setting "extension"
+   * }
+   * </pre>
+   * @param   value   Set <i>extension</i> to this value.
+   * @param   assignAlternateName   Whether to add the old group names as 
+   *                                alternate names for any renamed groups.
+   * @throws  InsufficientPrivilegeException
+   * @throws  StemModifyException
+   */
+  public void setExtension(String value, boolean assignAlternateName) 
     throws  InsufficientPrivilegeException,
             StemModifyException
   {
@@ -1360,6 +1385,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
       value = ROOT_NAME;
     }
     EL.stemSetAttr( GrouperSession.staticGrouperSession(), this.getName(), "extension", value, sw );
+    
+    this.setAlternateNameOnMovesAndRenames = assignAlternateName;
   } // public void setExtension(value)
 
   /**
@@ -1824,9 +1851,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    * @param attr
    * @param modifier
    * @param modifyTime
+   * @param setAlternateName
    * @return the set of Group's
    */
-  private Set _renameChildGroups(String attr, String modifier, long modifyTime) {
+  private Set _renameChildGroups(String attr, String modifier, long modifyTime, 
+      boolean setAlternateName) {
     Group            _g;
     Set                 groups  = new LinkedHashSet();
     Iterator            it      = GrouperDAOFactory.getFactory().getStem().findAllChildGroups( this, Stem.Scope.ONE ).iterator();
@@ -1838,6 +1867,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
         
       }
       else if ( attr.equals("name") )   {
+        if (setAlternateName) {
+          _g.internal_addAlternateName(_g.getNameDb(), false);
+        }
+        
         _g.setNameDb(U.constructName( this.getName(), _g.getExtension()));
       }
       else {
@@ -1855,17 +1888,18 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    * rename children.
    * @since   1.2.0
    * @param attr attr
+   * @param setAlternateName
    * @return the set of Stems
    * @throws StemModifyException if problem
    */
-  private Set _renameChildren(String attr) 
+  private Set _renameChildren(String attr, boolean setAlternateName) 
     throws  StemModifyException
   {
     Set     children    = new LinkedHashSet();
     String  modifier    = GrouperSession.staticGrouperSession().getMember().getUuid();
     long    modifyTime  = new Date().getTime();
-    children.addAll( this._renameChildStemsAndGroups(attr, modifier, modifyTime) );
-    children.addAll( this._renameChildGroups(attr, modifier, modifyTime) );
+    children.addAll( this._renameChildStemsAndGroups(attr, modifier, modifyTime, setAlternateName) );
+    children.addAll( this._renameChildGroups(attr, modifier, modifyTime, setAlternateName) );
     return children;
   } 
 
@@ -1874,10 +1908,12 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    * @param attr sttr
    * @param modifier modifier
    * @param modifyTime modify time
+   * @param setAlternateName
    * @return the set of Stem's
    * @throws IllegalStateException if problem
    */
-  private Set _renameChildStemsAndGroups(String attr, String modifier, long modifyTime) 
+  private Set _renameChildStemsAndGroups(String attr, String modifier, long modifyTime,
+      boolean setAlternateName) 
     throws  IllegalStateException
   {
     Set       children  = new LinkedHashSet();
@@ -1900,11 +1936,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
         throw new IllegalStateException( "attempt to update invalid naming attribute: " + attr);
       }
 
-      children.addAll( child._renameChildGroups(attr, modifier, modifyTime) );
+      children.addAll( child._renameChildGroups(attr, modifier, modifyTime, setAlternateName) );
       child.setModifierUuid(modifier);
       child.setModifyTimeLong(modifyTime);
       children.add(child);
-      children.addAll( child._renameChildStemsAndGroups(attr, modifier, modifyTime) );
+      children.addAll( child._renameChildStemsAndGroups(attr, modifier, modifyTime, setAlternateName) );
     }
     return children;
   } 
@@ -2282,6 +2318,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   /** see if already in onPreUpdate, dont go in again */
   private static ThreadLocal<Boolean> inOnPreUpdate = new ThreadLocal<Boolean>();
   
+  /** whether we should be setting alternate names for groups during moves and renames */
+  private boolean setAlternateNameOnMovesAndRenames;
+    
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
@@ -2299,17 +2338,17 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
         Set<String> dbVersionDifferentFields = Stem.this.dbVersionDifferentFields();
         if (dbVersionDifferentFields.contains(FIELD_EXTENSION) || 
             dbVersionDifferentFields.contains(FIELD_NAME)) {
-          
+
           // Now iterate through all child groups and stems, renaming each.
           GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( Stem.this, 
-              Stem.this._renameChildren("name") );
+              Stem.this._renameChildren("name", Stem.this.setAlternateNameOnMovesAndRenames) );
         }
         if (dbVersionDifferentFields.contains(FIELD_DISPLAY_EXTENSION) ||
             dbVersionDifferentFields.contains(FIELD_DISPLAY_NAME)) {
           
           // Now iterate through all child groups and stems, renaming each.
           GrouperDAOFactory.getFactory().getStem().renameStemAndChildren( Stem.this, 
-              Stem.this._renameChildren("displayName") );
+              Stem.this._renameChildren("displayName", false) );
         }
         //if its description, just store, we are all good
       }
@@ -2473,8 +2512,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   }
 
   /**
-   * Move this stem to another Stem.  This will add an alternate name to the affected groups.
-   * If you would like to specify options for the move, use StemMove instead.
+   * Move this stem to another Stem.  If you would like to specify options for the move, 
+   * use StemMove instead.  This will use the default options.
    * @param stem 
    * @throws StemModifyException 
    * @throws InsufficientPrivilegeException 
@@ -2482,17 +2521,17 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   public void move(Stem stem) throws StemModifyException,
       InsufficientPrivilegeException {
     
-    internal_move(stem, true);
+    new StemMove(this, stem).save();
   }
   
   /**
    * 
    * @param stem
-   * @param assignOldName
+   * @param assignAlternateName
    * @throws StemModifyException
    * @throws InsufficientPrivilegeException
    */
-  protected void internal_move(final Stem stem, final boolean assignOldName) throws StemModifyException,
+  protected void internal_move(final Stem stem, final boolean assignAlternateName) throws StemModifyException,
     InsufficientPrivilegeException {
 
     HibernateSession.callbackHibernateSession(
@@ -2558,9 +2597,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
                   + Stem.this.getDisplayExtension());
             }
             
+            Stem.this.setAlternateNameOnMovesAndRenames = assignAlternateName;
+            
             Stem.this.store();
-
-            // TODO add old name support
             
             //if not a smaller operation of a larger auditable call
             if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
@@ -2569,9 +2608,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
                   "stemUuid", Stem.this.getUuid(), "oldStemName", 
                   oldName, "newStemName", Stem.this.getName(), "newParentStemUuid",
                   stem.getUuid(), 
-                  "assignOldName", assignOldName ? "T" : "F");
+                  "assignAlternateName", assignAlternateName ? "T" : "F");
               auditEntry.setDescription("Move stem " + oldName + " to name: " + Stem.this.getName()
-                  + ", assignOldName? " + (assignOldName ? "T" : "F")); 
+                  + ", assignAlternateName? " + (assignAlternateName ? "T" : "F")); 
               auditEntry.saveOrUpdate(true);
             }
 
@@ -2744,7 +2783,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
 
   /**
    * Copy this stem to another Stem.  If you want to specify options
-   * for the copy, use StemCopy.
+   * for the copy, use StemCopy.  This will use the default options.
    * @param stem
    * @return the new stem
    * @throws StemAddException 
@@ -2752,9 +2791,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    */
   public Stem copy(Stem stem) throws StemAddException, InsufficientPrivilegeException {
     StemCopy stemCopy = new StemCopy(this, stem);
-    return stemCopy.copyPrivilegesOfStem(true).copyPrivilegesOfGroup(true)
-        .copyGroupAsPrivilege(true).copyListMembersOfGroup(true)
-        .copyListGroupAsMember(true).copyAttributes(true).save();  
+    return stemCopy.save();  
   } 
   
   /**

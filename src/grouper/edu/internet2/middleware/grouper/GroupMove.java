@@ -10,7 +10,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
  * Use this class to move a group to another stem.
  * 
  * @author shilen
- * $Id: GroupMove.java,v 1.2 2009-03-27 15:38:20 shilen Exp $
+ * $Id: GroupMove.java,v 1.3 2009-03-29 21:17:21 shilen Exp $
  */
 public class GroupMove {
 
@@ -18,7 +18,7 @@ public class GroupMove {
 
   private Stem stem;
 
-  private boolean assignOldName = true;
+  private boolean assignAlternateName = true;
 
   /**
    * Create a new instance of this class if you would like to specify
@@ -41,8 +41,8 @@ public class GroupMove {
    * @param value
    * @return GroupMove
    */
-  public GroupMove assignOldName(boolean value) {
-    this.assignOldName = value;
+  public GroupMove assignAlternateName(boolean value) {
+    this.assignAlternateName = value;
     return this;
   }
 
@@ -53,6 +53,6 @@ public class GroupMove {
    */
   public void save() throws GroupModifyException, InsufficientPrivilegeException {
 
-    group.internal_move(stem, assignOldName);
+    group.internal_move(stem, assignAlternateName);
   }
 }

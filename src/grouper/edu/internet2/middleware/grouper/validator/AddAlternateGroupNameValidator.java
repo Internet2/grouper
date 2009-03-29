@@ -21,18 +21,16 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /**
  * @author shilen
- * @version $Id: AddAlternateGroupNameValidator.java,v 1.2 2009-03-27 17:10:40 shilen Exp $
+ * @version $Id: AddAlternateGroupNameValidator.java,v 1.3 2009-03-29 21:17:21 shilen Exp $
  */
 public class AddAlternateGroupNameValidator extends GrouperValidator {
 
   /**
    * Checks to see if a name can be used as a new alternate name of a group.
    * @param name
-   * @param checkIfNameInUse 
    * @return AddAlternateGroupNameValidator
    */
-  public static AddAlternateGroupNameValidator validate(String name,
-      boolean checkIfNameInUse) {
+  public static AddAlternateGroupNameValidator validate(String name) {
     AddAlternateGroupNameValidator v = new AddAlternateGroupNameValidator();
 
     NotNullOrEmptyValidator nnev = NotNullOrEmptyValidator.validate(name);
@@ -54,12 +52,10 @@ public class AddAlternateGroupNameValidator extends GrouperValidator {
       }
     }
 
-    if (checkIfNameInUse) {
-      Group check = GrouperDAOFactory.getFactory().getGroup().findByName(name, false);
-      if (check != null) {
-        v.setErrorMessage("group already exists");
-        return v;
-      }
+    Group check = GrouperDAOFactory.getFactory().getGroup().findByName(name, false);
+    if (check != null) {
+      v.setErrorMessage("group already exists");
+      return v;
     }
 
     v.setIsValid(true);
