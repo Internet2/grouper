@@ -298,8 +298,11 @@ public class ByHql extends HibernateDelegate {
       
       //see if we already know the total size (if less than page size and first page)
       int resultSize = list.size();
-      if (resultSize >= this.paging.getPageSize() || this.paging.getPageNumber() != 1) {
+      if (resultSize >= this.paging.getPageSize()) {
         resultSize = -1;
+      } else {
+        //we are on the last page, see how many records came before us, add those in
+        resultSize += (this.paging.getPageSize() * (this.paging.getPageNumber() - 1)); 
       }
       
       //do this if we dont have a total, or if we are not caching the total
