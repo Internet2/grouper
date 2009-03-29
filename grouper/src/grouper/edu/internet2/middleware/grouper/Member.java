@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -81,9 +82,26 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.116.2.2 2009-03-25 08:17:30 mchyzer Exp $
+ * @version $Id: Member.java,v 1.116.2.3 2009-03-29 03:56:38 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Hib3GrouperVersioned {
+
+  /**
+   * print out a collection of members
+   * @param collection
+   * @return the subject ids comma separated
+   */
+  public static String subjectIds(Collection<Member> collection) {
+    StringBuilder result = new StringBuilder();
+    for (Member member : GrouperUtil.nonNull(collection)) {
+      result.append(member.getSubjectId()).append(", ");
+    }
+    if (result.length() >= 2) {
+      //take off the last comma and space
+      result.delete(result.length()-2, result.length());
+    }
+    return result.toString();
+  }
 
   /** grouper_members table in the DB */
   public static final String TABLE_GROUPER_MEMBERS = "grouper_members";

@@ -10,8 +10,13 @@ import org.apache.commons.logging.Log;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
+import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -75,6 +80,12 @@ public class ByCriteriaStatic {
       .append("', cacheable: ").append(this.cacheable);
     result.append(", cacheRegion: ").append(this.cacheRegion);
     result.append(", tx type: ").append(this.grouperTransactionType);
+    if (this.sort != null) {
+      result.append(", sort: ").append(this.sort.sortString(false));
+    }
+    if (this.paging != null) {
+      result.append(", ").append(this.paging.toString());
+    }
     return result.toString();
   }
   
@@ -92,6 +103,32 @@ public class ByCriteriaStatic {
    * class to execute criteria on
    */
   private Class<?> persistentClass = null;
+
+  /** if we are sorting */
+  private QuerySort sort = null;
+
+  /**
+   * add a sort to the query
+   * @param querySort1
+   * @return this for chaining
+   */
+  public ByCriteriaStatic sort(QuerySort querySort1) {
+    this.sort = querySort1;
+    return this;
+  }
+
+  /** paging */
+  private QueryPaging paging = null;
+
+  /**
+   * add a paging to the query
+   * @param queryPaging1
+   * @return this for chaining
+   */
+  public ByCriteriaStatic paging(QueryPaging queryPaging1) {
+    this.paging = queryPaging1;
+    return this;
+  }
 
   /**
    * cache region for cache
@@ -154,7 +191,10 @@ public class ByCriteriaStatic {
     }
     
   }
-  
+
+  /** query count exec queries, used for testing */
+  public static int queryCountQueries = 0;
+
   /**
    * <pre>
    * call hql unique result (returns one or null)
@@ -190,9 +230,46 @@ public class ByCriteriaStatic {
               //not sure this can ever be null, but make sure not to make iterating results easier
               List<Object> list = GrouperUtil.nonNull(criteria.list());
               HibUtils.evict(hibernateSession, list, true);
+              
+              //now see if we should get the query count
+              if (ByCriteriaStatic.this.paging != null && ByCriteriaStatic.this.paging.isDoTotalCount()) {
+                
+                //see if we already know the total size (if less than page size and first page)
+                int resultSize = list.size();
+                if (resultSize >= ByCriteriaStatic.this.paging.getPageSize() 
+                    || ByCriteriaStatic.this.paging.getPageNumber() != 1) {
+                  resultSize = -1;
+                }
+                
+                //do this if we dont have a total, or if we are not caching the total
+                if (ByCriteriaStatic.this.paging.getTotalRecordCount() < 0 
+                    || !ByCriteriaStatic.this.paging.isCacheTotalCount() || resultSize > -1) {
+
+                  //if we dont already know the size
+                  if (resultSize == -1) {
+
+                    queryCountQueries++;
+
+                    Criteria countQuery = session.createCriteria(ByCriteriaStatic.this.persistentClass);
+
+                    //turn it into a row count
+                    countQuery.setProjection( Projections.projectionList()
+                        .add( Projections.rowCount()));
+
+                    //add criterions
+                    if (ByCriteriaStatic.this.criterions != null) {
+                      countQuery.add(ByCriteriaStatic.this.criterions);
+                    }
+                    resultSize = (Integer)countQuery.list().get(0);
+                  }
+                  ByCriteriaStatic.this.paging.setTotalRecordCount(resultSize);
+                  //calculate the page stuff like how many pages etc
+                  ByCriteriaStatic.this.paging.calculateIndexes();
+                }
+              }
+
               return list;
             }
-        
       });
       
       return result;
@@ -223,6 +300,23 @@ public class ByCriteriaStatic {
     if (ByCriteriaStatic.this.cacheRegion != null) {
       query.setCacheRegion(ByCriteriaStatic.this.cacheRegion);
     }
+    
+    if (this.sort != null) {
+      List<QuerySortField> sorts = this.sort.getQuerySortFields();
+      
+      for (QuerySortField theSort : GrouperUtil.nonNull(sorts)) {
+        
+        Order order = theSort.isAscending() ? Order.asc(theSort.getColumn()) : Order.desc(theSort.getColumn());
+        
+        query.addOrder(order);
+        
+      }
+    }
+    if (this.paging != null) {
+      query.setFirstResult(this.paging.getFirstIndexOnPage());
+      query.setMaxResults(this.paging.getPageSize());
+    }
+
     return query;
     
   }

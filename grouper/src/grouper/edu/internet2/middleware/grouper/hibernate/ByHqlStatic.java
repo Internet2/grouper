@@ -14,6 +14,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -43,7 +45,33 @@ public class ByHqlStatic {
    * assign if this query is cacheable or not.
    */
   private Boolean cacheable = null;
+
+  /** if we are sorting */
+  private QuerySort sort = null;
   
+  /**
+   * add a sort to the query
+   * @param querySort1
+   * @return this for chaining
+   */
+  public ByHqlStatic sort(QuerySort querySort1) {
+    this.sort = querySort1;
+    return this;
+  }
+
+  /** paging */
+  private QueryPaging paging = null;
+
+  /**
+   * add a paging to the query
+   * @param queryPaging1
+   * @return this for chaining
+   */
+  public ByHqlStatic paging(QueryPaging queryPaging1) {
+    this.paging = queryPaging1;
+    return this;
+  }
+
   /**
    * assign a different grouperTransactionType (e.g. for autonomous transactions)
    * @param theGrouperTransactionType
@@ -75,6 +103,13 @@ public class ByHqlStatic {
     StringBuilder result = new StringBuilder("ByHqlStatic, query: '");
     result.append(this.query).append("', cacheable: ").append(this.cacheable);
     result.append(", cacheRegion: ").append(this.cacheRegion);
+    result.append(", tx type: ").append(this.grouperTransactionType);
+    if (this.sort != null) {
+      result.append(", sort: ").append(this.sort.sortString(false));
+    }
+    if (this.paging != null) {
+      result.append(", ").append(this.paging.toString());
+    }
     result.append(", tx type: ").append(this.grouperTransactionType);
     //dont use bindVarParams() method so it doesnt lazy load
     if (this.bindVarNameParams != null) {
@@ -256,6 +291,8 @@ public class ByHqlStatic {
             public Object callback(HibernateSession hibernateSession) {
               
               ByHql byHql = ByHqlStatic.this.byHql(hibernateSession);
+              byHql.sort(ByHqlStatic.this.sort);
+              byHql.paging(ByHqlStatic.this.paging);
               List<R> list = byHql.list(returnType);
               return list;
             }
@@ -263,9 +300,6 @@ public class ByHqlStatic {
       });
       
       return result;
-    } catch (GrouperDAOException e) {
-      LOG.error("Exception in list: (" + returnType + "), " + this, e);
-      throw e;
     } catch (RuntimeException e) {
       LOG.error("Exception in list: (" + returnType + "), " + this, e);
       throw e;

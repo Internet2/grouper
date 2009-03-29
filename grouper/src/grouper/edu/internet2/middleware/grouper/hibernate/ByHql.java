@@ -10,11 +10,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.Query;
 import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -58,6 +61,33 @@ public class ByHql extends HibernateDelegate {
    */
   private Boolean cacheable = null;
   
+  /** if we are sorting */
+  private QuerySort sort = null;
+
+  /**
+   * add a sort to the query
+   * @param querySort1
+   * @return this for chaining
+   */
+  public ByHql sort(QuerySort querySort1) {
+    this.sort = querySort1;
+    return this;
+  }
+  
+  /** paging */
+  private QueryPaging paging = null;
+
+  /**
+   * add a paging to the query
+   * @param queryPaging1
+   * @return this for chaining
+   */
+  public ByHql paging(QueryPaging queryPaging1) {
+    this.paging = queryPaging1;
+    return this;
+  }
+
+
   /**
    * assign a different grouperTransactionType (e.g. for autonomous transactions)
    * @param theGrouperTransactionType
@@ -90,6 +120,12 @@ public class ByHql extends HibernateDelegate {
     result.append(this.query).append("', cacheable: ").append(this.cacheable);
     result.append(", cacheRegion: ").append(this.cacheRegion);
     result.append(", tx type: ").append(this.grouperTransactionType);
+    if (this.sort != null) {
+      result.append(", sort: ").append(this.sort.sortString(false));
+    }
+    if (this.paging != null) {
+      result.append(", ").append(this.paging.toString());
+    }
     //dont use bindVarParams() method so it doesnt lazy load
     if (this.bindVarNameParams != null) {
       int index = 0;
@@ -228,6 +264,9 @@ public class ByHql extends HibernateDelegate {
     query.executeUpdate();
   }
   
+  /** query count exec queries, used for testing */
+  public static int queryCountQueries = 0;
+  
   /**
    * <pre>
    * call hql list result
@@ -249,9 +288,40 @@ public class ByHql extends HibernateDelegate {
     HibernateSession hibernateSession = this.getHibernateSession();
     Session session  = hibernateSession.getSession();
     Query query = ByHql.this.attachQueryInfo(session);
+    
     //not sure this can ever be null, but make sure not to make iterating results easier
     List<T> list = GrouperUtil.nonNull(query.list());
     HibUtils.evict(hibernateSession,  list, true);
+    
+    //now see if we should get the query count
+    if (this.paging != null && this.paging.isDoTotalCount()) {
+      
+      //see if we already know the total size (if less than page size and first page)
+      int resultSize = list.size();
+      if (resultSize >= this.paging.getPageSize() || this.paging.getPageNumber() != 1) {
+        resultSize = -1;
+      }
+      
+      //do this if we dont have a total, or if we are not caching the total
+      if (this.paging.getTotalRecordCount() < 0 || !this.paging.isCacheTotalCount() 
+          || resultSize > -1) {
+        
+        //if we dont already know the size
+        if (resultSize == -1) {
+          queryCountQueries++;
+          String countQueryHql = HibUtils.convertHqlToCountHql(this.query);
+          Query countQuery = session.createQuery(countQueryHql);
+          attachBindValues(countQuery);
+          Long theCount = (Long)countQuery.iterate().next();
+          resultSize = theCount.intValue();
+        }
+        this.paging.setTotalRecordCount(resultSize);
+
+        //calculate the page stuff like how many pages etc
+        this.paging.calculateIndexes();
+      }
+    }
+
     return list;
     
   }
@@ -285,13 +355,42 @@ public class ByHql extends HibernateDelegate {
    * @return the query
    */
   private Query attachQueryInfo(Session session) {
-    Query   query = session.createQuery(this.query);
+
+    String theHql = this.query;
+    
+    if (this.sort != null) {
+      String sortString = this.sort.sortString(false);
+      if (!StringUtils.isBlank(sortString)) {
+        theHql += " order by " + sortString;
+      }
+    }
+    
+    Query query = session.createQuery(theHql);
+
+    if (this.paging != null) {
+      query.setFirstResult(this.paging.getFirstIndexOnPage());
+      query.setMaxResults(this.paging.getPageSize());
+    }
+
     if (this.cacheable != null) {
       query.setCacheable(this.cacheable);
     }
+
     if (this.cacheRegion != null) {
       query.setCacheRegion(this.cacheRegion);
     }
+
+    attachBindValues(query);
+    return query;
+    
+  }
+
+
+  /**
+   * attach bind values to query
+   * @param query
+   */
+  private void attachBindValues(Query query) {
     //note, dont call the method bindVarNameParams() so it doesnt lazyload...
     if (this.bindVarNameParams != null) {
       for (HibernateParam hibernateParam : this.bindVarNameParams()) {
@@ -310,8 +409,6 @@ public class ByHql extends HibernateDelegate {
         }
       }
     }
-    return query;
-    
   }
 
 

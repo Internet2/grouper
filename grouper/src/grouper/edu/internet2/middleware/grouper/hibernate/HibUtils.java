@@ -12,6 +12,8 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.Hibernate;
@@ -32,6 +34,35 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class HibUtils {
 
+  /**
+   * pattern to detect if a query starts with "from".  e.g. from Field
+   */
+  private static Pattern startsWithFrom = Pattern.compile("^\\s*from.*$", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+  
+  /**
+   * pattern to detect if a query has a select and "from".  e.g. select field from Field field
+   */
+  private static Pattern hasSelectAndFrom = Pattern.compile("^\\s*select(.*?)(from.*)$", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+  
+  /**
+   * convert an hql to a count hql
+   * @param hql
+   * @return the hql of the count query
+   */
+  public static String convertHqlToCountHql(String hql) {
+    
+    if (startsWithFrom.matcher(hql).matches()) {
+      return "select count(*) " + hql;
+    }
+    Matcher selectAndFromMatcher = hasSelectAndFrom.matcher(hql);
+    if (selectAndFromMatcher.matches()) {
+      String selectPart = selectAndFromMatcher.group(1);
+      String endOfQuery = selectAndFromMatcher.group(2);
+      return "select count( " + selectPart + " ) " + endOfQuery;
+    }
+
+    throw new RuntimeException("Cant convert query to count query: " + hql);
+  }
   
   /**
    * find the property index based on property name

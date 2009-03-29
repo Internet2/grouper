@@ -28,9 +28,6 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -41,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.42.2.5 2009-03-27 21:23:25 mchyzer Exp $
+ * @version $Id: FieldFinder.java,v 1.42.2.6 2009-03-29 03:56:38 mchyzer Exp $
  */
 public class FieldFinder {
 
@@ -274,6 +271,11 @@ public class FieldFinder {
    * clear cache (e.g. if schema export)
    */
   public static void clearCache() {
+
+    //if not there dont worry
+    if (fieldGrouperCache == null) {
+      return;
+    }
     Map<String, Field> theFieldCache = fieldCache();
     if (theFieldCache != null) {
       theFieldCache.clear();
