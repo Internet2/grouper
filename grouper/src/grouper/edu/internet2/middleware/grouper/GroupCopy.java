@@ -12,7 +12,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
  * Use this class to copy a group to another stem.
  * 
  * @author shilen
- * $Id: GroupCopy.java,v 1.2 2009-03-22 05:41:01 mchyzer Exp $
+ * $Id: GroupCopy.java,v 1.3 2009-03-29 21:17:21 shilen Exp $
  */
 public class GroupCopy {
 
@@ -20,15 +20,15 @@ public class GroupCopy {
 
   private Stem stem;
 
-  private boolean privilegesOfGroup = false;
+  private boolean privilegesOfGroup = true;
 
-  private boolean groupAsPrivilege = false;
+  private boolean groupAsPrivilege = true;
 
-  private boolean listMembersOfGroup = false;
+  private boolean listMembersOfGroup = true;
 
-  private boolean listGroupAsMember = false;
+  private boolean listGroupAsMember = true;
 
-  private boolean attributes = false;
+  private boolean attributes = true;
 
   /**
    * Create a new instance of this class if you would like to specify
@@ -43,7 +43,7 @@ public class GroupCopy {
   }
 
   /**
-   * Whether to copy privileges of the group.  Default is false.
+   * Whether to copy privileges of the group.  Default is true.
    * @param value
    * @return GroupCopy
    */
@@ -53,7 +53,7 @@ public class GroupCopy {
   }
 
   /**
-   * Whether to copy privileges where this group is a member.  Default is false.
+   * Whether to copy privileges where this group is a member.  Default is true.
    * @param value
    * @return GroupCopy
    */
@@ -63,7 +63,7 @@ public class GroupCopy {
   }
 
   /**
-   * Whether to copy the list memberships of the group.  Default is false.
+   * Whether to copy the list memberships of the group.  Default is true.
    * @param value
    * @return GroupCopy
    */
@@ -73,7 +73,7 @@ public class GroupCopy {
   }
 
   /**
-   * Whether to copy list memberships where this group is a member.  Default is false.
+   * Whether to copy list memberships where this group is a member.  Default is true.
    * @param value
    * @return GroupCopy
    */
@@ -83,7 +83,7 @@ public class GroupCopy {
   }
 
   /**
-   * Whether to copy attributes.  Default is false.
+   * Whether to copy attributes.  Default is true.
    * @param value
    * @return GroupCopy
    */

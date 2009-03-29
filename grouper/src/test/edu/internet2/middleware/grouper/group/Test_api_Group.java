@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Group.java,v 1.6 2009-03-28 01:05:57 shilen Exp $
+ * @version $Id: Test_api_Group.java,v 1.7 2009-03-29 21:17:21 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Group extends GrouperTest {
@@ -251,6 +251,198 @@ public class Test_api_Group extends GrouperTest {
   }
   
   /**
+   * @throws Exception
+   */
+  public void test_move_alternate_name() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+
+    // verify alternate name gets added
+    child_group.grantPriv(a, AccessPrivilege.ADMIN);
+    top.grantPriv(a, NamingPrivilege.CREATE);
+    nrs = GrouperSession.start(a);
+    child_group.move(top);
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
+    child_group = GroupFinder.findByName(s, "top:child group", true);
+    assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_move_no_alternate_name() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+
+    // verify alternate name does not get added
+    child_group.grantPriv(a, AccessPrivilege.ADMIN);
+    top.grantPriv(a, NamingPrivilege.CREATE);
+    nrs = GrouperSession.start(a);
+    new GroupMove(child_group, top).assignAlternateName(false).save();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    assertNull(child_group.getAlternateNameDb());
+    child_group = GroupFinder.findByName(s, "top:child group", true);
+    assertNull(child_group.getAlternateNameDb());
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_move_alternate_name_when_alternate_name_already_exists() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+
+    // verify alternate name gets added when the group already has an alternate name
+    child_group.addAlternateName("test1:test2");
+    child_group.store();
+    child_group.grantPriv(a, AccessPrivilege.ADMIN);
+    top.grantPriv(a, NamingPrivilege.CREATE);
+    nrs = GrouperSession.start(a);
+    child_group.move(top);
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
+    child_group = GroupFinder.findByName(s, "top:child group", true);
+    assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_move_no_alternate_name_when_alternate_name_already_exists() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+
+    // verify alternate name doesn't get replaced
+    child_group.addAlternateName("test1:test2");
+    child_group.store();
+    child_group.grantPriv(a, AccessPrivilege.ADMIN);
+    top.grantPriv(a, NamingPrivilege.CREATE);
+    nrs = GrouperSession.start(a);
+    new GroupMove(child_group, top).assignAlternateName(false).save();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    assertTrue(child_group.getAlternateNameDb().equals("test1:test2"));
+    child_group = GroupFinder.findByName(s, "top:child group", true);
+    assertTrue(child_group.getAlternateNameDb().equals("test1:test2"));
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_rename_alternate_name() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+
+    // verify alternate name gets added
+    child_group.grantPriv(a, AccessPrivilege.ADMIN);
+    nrs = GrouperSession.start(a);
+    child_group.setExtension("child group2");
+    child_group.store();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
+    child_group = GroupFinder.findByName(s, "top:child:child group2", true);
+    assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_rename_no_alternate_name() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+
+    // verify alternate name does not get added
+    child_group.grantPriv(a, AccessPrivilege.ADMIN);
+    nrs = GrouperSession.start(a);
+    child_group.setExtension("child group2", false);
+    child_group.store();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    assertNull(child_group.getAlternateNameDb());
+    child_group = GroupFinder.findByName(s, "top:child:child group2", true);
+    assertNull(child_group.getAlternateNameDb());
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_rename_alternate_name_when_alternate_name_already_exists() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+    child_group.addAlternateName("test1:test2");
+    child_group.store();
+
+    // verify alternate name gets replaced
+    child_group.grantPriv(a, AccessPrivilege.ADMIN);
+    nrs = GrouperSession.start(a);
+    child_group.setExtension("child group2", true);
+    child_group.store();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
+    child_group = GroupFinder.findByName(s, "top:child:child group2", true);
+    assertTrue(child_group.getAlternateNameDb().equals("top:child:child group"));
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_rename_no_alternate_name_when_alternate_name_already_exists() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    GrouperSession nrs;
+    Subject a = r.getSubject("a");
+    child_group.addAlternateName("test1:test2");
+    child_group.store();
+
+    // verify alternate name does not get replaced
+    child_group.grantPriv(a, AccessPrivilege.ADMIN);
+    nrs = GrouperSession.start(a);
+    child_group.setExtension("child group2", false);
+    child_group.store();
+    nrs.stop();
+    nrs = GrouperSession.startRootSession();
+    assertTrue(child_group.getAlternateNameDb().equals("test1:test2"));
+    child_group = GroupFinder.findByName(s, "top:child:child group2", true);
+    assertTrue(child_group.getAlternateNameDb().equals("test1:test2"));
+    nrs.stop();
+    
+    r.rs.stop();
+  }
+  
+  /**
    * @throws InsufficientPrivilegeException 
    */
   public void test_move_toRootStem() throws InsufficientPrivilegeException {
@@ -364,6 +556,22 @@ public class Test_api_Group extends GrouperTest {
   }
   
   /**
+   * @throws Exception
+   */
+  public void test_copy_should_not_copy_alternate_name() throws Exception {
+    child_group.addAlternateName("test1:test2");
+    child_group.store();
+    Group newGroup = child_group.copy(top);
+    
+    Group existingGroup = GroupFinder.findByName(s, "top:child:child group", true);
+    assertTrue(existingGroup.getAlternateNameDb().equals("test1:test2"));
+    
+    assertNull(newGroup.getAlternateNameDb());
+    newGroup = GroupFinder.findByName(s, "top:child group", true);
+    assertNull(newGroup.getAlternateNameDb());
+  }
+  
+  /**
    * test group copy
    * @throws Exception 
    */
@@ -424,7 +632,8 @@ public class Test_api_Group extends GrouperTest {
 
     group_copy_setup(r, false);
     GroupCopy groupCopy = new GroupCopy(child_group, top);
-    Group newGroup = groupCopy.save();
+    Group newGroup = groupCopy.copyPrivilegesOfGroup(false).copyGroupAsPrivilege(false)
+    .copyListMembersOfGroup(false).copyListGroupAsMember(false).copyAttributes(false).save();
     verify_copy(r, newGroup, false, false, false, false, false);
     
     r.rs.stop();
@@ -1302,38 +1511,7 @@ public class Test_api_Group extends GrouperTest {
 
     session = GrouperSession.start(subjA);
 
-    // subjA doesn't have admin access to group and doesn't have create access on stem.
-    try {
-      top_group.addAlternateName("top:top group2");
-      top_group.store();
-      fail("failed to throw InsufficientPrivilegeException");
-    } catch (InsufficientPrivilegeException e) {
-      assertTrue(true);
-    }
-    
-    session.stop();
-    session = GrouperSession.start(SubjectFinder.findRootSubject());
-    top_group.grantPriv(subjA, AccessPrivilege.ADMIN);
-    session.stop();
-    session = GrouperSession.start(subjA);
-
-    // subjA doesn't have create access on stem
-    try {
-      top_group.addAlternateName("top:top group2");
-      top_group.store();
-      fail("failed to throw InsufficientPrivilegeException");
-    } catch (InsufficientPrivilegeException e) {
-      assertTrue(true);
-    }
-    
-    session.stop();
-    session = GrouperSession.start(SubjectFinder.findRootSubject());
-    top_group.revokePriv(subjA, AccessPrivilege.ADMIN);
-    top.grantPriv(subjA, NamingPrivilege.CREATE);
-    session.stop();
-    session = GrouperSession.start(subjA);
-
-    // subjA doesn't have admin access on group
+    // subjA doesn't have admin access to group
     try {
       top_group.addAlternateName("top:top group2");
       top_group.store();
@@ -1371,7 +1549,6 @@ public class Test_api_Group extends GrouperTest {
     session.stop();
     session = GrouperSession.start(SubjectFinder.findRootSubject());
     top_group.grantPriv(subjA, AccessPrivilege.ADMIN);
-    top.revokePriv(subjA, NamingPrivilege.CREATE);
     session.stop();
     session = GrouperSession.start(subjA);
     

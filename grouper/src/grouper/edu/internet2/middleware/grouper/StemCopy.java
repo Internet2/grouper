@@ -11,7 +11,7 @@ import edu.internet2.middleware.grouper.exception.StemAddException;
  * Use this class to copy a stem to another stem.
  * 
  * @author shilen
- * $Id: StemCopy.java,v 1.1 2009-03-15 23:13:50 shilen Exp $
+ * $Id: StemCopy.java,v 1.2 2009-03-29 21:17:21 shilen Exp $
  */
 public class StemCopy {
 
@@ -19,17 +19,17 @@ public class StemCopy {
 
   private Stem destinationStem;
 
-  private boolean privilegesOfStem = false;
+  private boolean privilegesOfStem = true;
   
-  private boolean privilegesOfGroup = false;
+  private boolean privilegesOfGroup = true;
 
-  private boolean groupAsPrivilege = false;
+  private boolean groupAsPrivilege = true;
 
-  private boolean listMembersOfGroup = false;
+  private boolean listMembersOfGroup = true;
 
-  private boolean listGroupAsMember = false;
+  private boolean listGroupAsMember = true;
 
-  private boolean attributes = false;
+  private boolean attributes = true;
 
   /**
    * Create a new instance of this class if you would like to specify
@@ -44,7 +44,7 @@ public class StemCopy {
   }
   
   /**
-   * Whether to copy privileges of stems.  Default is false.
+   * Whether to copy privileges of stems.  Default is true.
    * @param value
    * @return StemCopy
    */
@@ -54,7 +54,7 @@ public class StemCopy {
   }
 
   /**
-   * Whether to copy privileges of groups.  Default is false.
+   * Whether to copy privileges of groups.  Default is true.
    * @param value
    * @return StemCopy
    */
@@ -64,7 +64,7 @@ public class StemCopy {
   }
 
   /**
-   * Whether to copy privileges where groups are a member.  Default is false.
+   * Whether to copy privileges where groups are a member.  Default is true.
    * @param value
    * @return StemCopy
    */
@@ -74,7 +74,7 @@ public class StemCopy {
   }
 
   /**
-   * Whether to copy the list memberships of groups.  Default is false.
+   * Whether to copy the list memberships of groups.  Default is true.
    * @param value
    * @return StemCopy
    */
@@ -84,7 +84,7 @@ public class StemCopy {
   }
 
   /**
-   * Whether to copy list memberships where groups are a member.  Default is false.
+   * Whether to copy list memberships where groups are a member.  Default is true.
    * @param value
    * @return StemCopy
    */
@@ -94,7 +94,7 @@ public class StemCopy {
   }
 
   /**
-   * Whether to copy attributes.  Default is false.
+   * Whether to copy attributes.  Default is true.
    * @param value
    * @return StemCopy
    */

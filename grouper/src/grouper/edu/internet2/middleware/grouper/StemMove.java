@@ -10,7 +10,7 @@ import edu.internet2.middleware.grouper.exception.StemModifyException;
  * Use this class to move a stem to another stem.
  * 
  * @author shilen
- * $Id: StemMove.java,v 1.2 2009-03-27 15:38:21 shilen Exp $
+ * $Id: StemMove.java,v 1.3 2009-03-29 21:17:21 shilen Exp $
  */
 public class StemMove {
 
@@ -18,7 +18,7 @@ public class StemMove {
 
   private Stem destinationStem;
 
-  private boolean assignOldName = true;
+  private boolean assignAlternateName = true;
 
   /**
    * Create a new instance of this class if you would like to specify
@@ -41,8 +41,8 @@ public class StemMove {
    * @param value
    * @return StemMove
    */
-  public StemMove assignOldName(boolean value) {
-    this.assignOldName = value;
+  public StemMove assignAlternateName(boolean value) {
+    this.assignAlternateName = value;
     return this;
   }
 
@@ -53,6 +53,6 @@ public class StemMove {
    */
   public void save() throws StemModifyException, InsufficientPrivilegeException {
 
-    stemToMove.internal_move(destinationStem, assignOldName);
+    stemToMove.internal_move(destinationStem, assignAlternateName);
   }
 }

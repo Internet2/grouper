@@ -121,7 +121,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.240 2009-03-28 01:05:57 shilen Exp $
+ * @version $Id: Group.java,v 1.241 2009-03-29 21:17:21 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -3308,6 +3308,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * </pre>
    * @param   attributeName  Set this attribute.
    * @param   value Set to this value.
+   * @param   checkPrivileges 
    * @throws  AttributeNotFoundException
    * @throws  GroupModifyException
    * @throws  InsufficientPrivilegeException
@@ -3468,10 +3469,18 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
                 
                 if (Group.this.dbVersionDifferentFields().contains(FIELD_ALTERNATE_NAME_DB) &&
                     Group.this.getAlternateNameDb() != null) {
-                  Stem stem = GrouperUtil.getFirstParentStemOfName(Group.this.getAlternateNameDb());
-                  if (!stem.hasCreate(subject)) {
-                    throw new InsufficientPrivilegeException(GrouperUtil.subjectToString(subject)
-                        + " cannot create in stem: " + stem.getName());
+                  
+                  // We're only checking create privilege on the stem if the alternate name
+                  // is for another stem since prior to this, users could rename a group
+                  // without having create privileges.
+                  String parentStemName = GrouperUtil.parentStemNameFromName(Group.this.getAlternateNameDb());
+                  if (parentStemName == null || !parentStemName.equals(Group.this.getParentStem().getName())) {
+                    Stem stem = GrouperUtil.getFirstParentStemOfName(Group.this.getAlternateNameDb());
+
+                    if (!stem.hasCreate(subject)) {
+                      throw new InsufficientPrivilegeException(GrouperUtil.subjectToString(subject)
+                          + " cannot create in stem: " + stem.getName());
+                    }
                   }
                 }
               }
@@ -3524,7 +3533,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   public void setDescriptionDb(String value) {
     this.description = value;
   }
- 
+  
   /**
    * Set group <i>extension</i>.
    * Note, you have to call store() at some point to 
@@ -3535,11 +3544,29 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @param   value   Set <i>extension</i> to this value.
    */
   public void setExtension(String value) {
+    setExtension(value, true);
+  }
+ 
+  /**
+   * Set group <i>extension</i>.
+   * Note, you have to call store() at some point to 
+   * make the kick off the sql
+   * <pre class="eg">
+   *   g.setExtension(value, true);
+   * </pre>
+   * @param   value   Set <i>extension</i> to this value.
+   * @param assignAlternateName Whether to add the old group name as an 
+   *                            alternate name for the renamed group.
+   */
+  public void setExtension(String value, boolean assignAlternateName) {
     NamingValidator v = NamingValidator.validate(value);
     if (v.isInvalid()) {
       throw new GroupModifyException( v.getErrorMessage() );
     }
 
+    if (assignAlternateName) {
+      internal_addAlternateName(this.name, false);
+    }
     this.extension = value;
     this.setNameDb(U.constructName( this.getParentStem().getName(), value ) );
 
@@ -4273,14 +4300,16 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * currently, so this will replace any existing alternate name.
    * This won't get saved until you call store().
    * @param alternateName
-   * @param checkIfNameInUse
+   * @param validateName
    */
-  protected void internal_addAlternateName(String alternateName, boolean checkIfNameInUse) {
-    GrouperValidator v = AddAlternateGroupNameValidator.validate(alternateName,
-        checkIfNameInUse);
+  protected void internal_addAlternateName(String alternateName, boolean validateName) {
     
-    if (v.isInvalid()) {
-      throw new GroupModifyException(v.getErrorMessage() + ": " + alternateName);
+    if (validateName) {
+      GrouperValidator v = AddAlternateGroupNameValidator.validate(alternateName);
+    
+      if (v.isInvalid()) {
+        throw new GroupModifyException(v.getErrorMessage() + ": " + alternateName);
+      }
     }
 
     this.alternateNameDb = alternateName;
@@ -4573,8 +4602,8 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   }
 
   /**
-   * Move this group to another Stem.  This will add an alternate name to the new group.
-   * If you would like to specify options for the move, use GroupMove instead.
+   * Move this group to another Stem.  If you would like to specify options for the move, 
+   * use GroupMove instead.  This will use the default options.
    * @param stem 
    * @throws GroupModifyException 
    * @throws InsufficientPrivilegeException 
@@ -4582,15 +4611,15 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   public void move(Stem stem) throws GroupModifyException,
       InsufficientPrivilegeException {
     
-    internal_move(stem, true);
+    new GroupMove(this, stem).save();
   }
   
   /**
    * 
    * @param stem
-   * @param assignOldName
+   * @param assignAlternateName
    */
-  protected void internal_move(final Stem stem, final boolean assignOldName) {
+  protected void internal_move(final Stem stem, final boolean assignAlternateName) {
 
     HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
@@ -4626,10 +4655,12 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
             Group.this.setDisplayNameDb(stem.getDisplayName() + Stem.DELIM 
                 + Group.this.getDisplayExtension());
             
+            if (assignAlternateName) {
+              Group.this.internal_addAlternateName(oldName, false);
+            }
+            
             GrouperDAOFactory.getFactory().getGroup().update(Group.this);
             
-            // TODO add old name support
-
             //if not a smaller operation of a larger auditable call
             if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
 
@@ -4637,9 +4668,9 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
                   "groupUuid", Group.this.getUuid(), "oldGroupName", 
                   oldName, "newGroupName", Group.this.getName(), "newStemUuid",
                   stem.getUuid(), 
-                  "assignOldName", assignOldName ? "T" : "F");
+                  "assignAlternateName", assignAlternateName ? "T" : "F");
               auditEntry.setDescription("Move group " + oldName + " to name: " + Group.this.getName()
-                  + ", assignOldName? " + (assignOldName ? "T" : "F")); 
+                  + ", assignAlternateName? " + (assignAlternateName ? "T" : "F")); 
               auditEntry.saveOrUpdate(true);
             }
 
@@ -4903,7 +4934,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
 
   /**
    * Copy this group to another Stem.  If you want to specify options
-   * for the copy, use GroupCopy.
+   * for the copy, use GroupCopy.  This will use the default options.
    * @param stem
    * @return the new group
    * @throws InsufficientPrivilegeException 
@@ -4911,8 +4942,6 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    */
   public Group copy(Stem stem) throws GroupAddException, InsufficientPrivilegeException {
     GroupCopy groupCopy = new GroupCopy(this, stem);
-    return groupCopy.copyPrivilegesOfGroup(true).copyGroupAsPrivilege(true)
-        .copyListMembersOfGroup(true).copyListGroupAsMember(true).copyAttributes(true)
-        .save();
+    return groupCopy.save();
   } 
 }
