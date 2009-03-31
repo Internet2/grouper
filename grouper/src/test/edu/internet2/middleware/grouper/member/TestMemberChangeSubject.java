@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: TestMemberChangeSubject.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * $Id: TestMemberChangeSubject.java,v 1.2 2009-03-31 06:58:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.member;
 
@@ -238,7 +238,7 @@ public class TestMemberChangeSubject extends GrouperTest {
     String eduStemCreateUuid = this.edu.getCreatorUuid();
     Member member2 = null;
     //lets delete this member
-    member2 = MemberFinder.internal_findBySubject(SubjectTestHelper.SUBJ2, false);
+    member2 = MemberFinder.internal_findBySubject(SubjectTestHelper.SUBJ2, null, false);
     if (member2 != null) {
       HibernateSession.byObjectStatic().delete(member2);
     }

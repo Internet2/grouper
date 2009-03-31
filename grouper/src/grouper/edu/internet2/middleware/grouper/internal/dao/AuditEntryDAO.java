@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditEntryDAO.java,v 1.2 2009-02-06 16:33:18 mchyzer Exp $
+ * $Id: AuditEntryDAO.java,v 1.3 2009-03-31 06:58:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -17,5 +17,12 @@ public interface AuditEntryDAO extends GrouperDAO {
    * @param auditEntry 
    */
   public void saveOrUpdate(AuditEntry auditEntry);
+  
+  /**
+   * 
+   * @param id
+   * @return the entry or null if not there
+   */
+  public AuditEntry retrieveById(String id);
   
 }

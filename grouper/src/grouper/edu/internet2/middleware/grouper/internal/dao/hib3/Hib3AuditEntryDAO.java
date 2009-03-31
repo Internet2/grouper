@@ -6,7 +6,7 @@ import edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO;
 /**
  * Data Access Object for audit entry
  * @author  mchyzer
- * @version $Id: Hib3AuditEntryDAO.java,v 1.2 2009-02-06 16:33:17 mchyzer Exp $
+ * @version $Id: Hib3AuditEntryDAO.java,v 1.3 2009-03-31 06:58:28 mchyzer Exp $
  */
 public class Hib3AuditEntryDAO extends Hib3DAO implements AuditEntryDAO {
   
@@ -30,6 +30,15 @@ public class Hib3AuditEntryDAO extends Hib3DAO implements AuditEntryDAO {
    */
   static void reset(HibernateSession hibernateSession) {
     hibernateSession.byHql().createQuery("delete from AuditEntry").executeUpdate();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO#retrieveById(java.lang.String)
+   */
+  public AuditEntry retrieveById(String id) {
+    AuditEntry auditEntry = HibernateSession.byHqlStatic().createQuery("from AuditEntry where id = :theId")
+      .setString("theId", id).uniqueResult(AuditEntry.class);
+    return auditEntry;
   }
 
 } 

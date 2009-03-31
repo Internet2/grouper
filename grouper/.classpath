@@ -68,5 +68,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/shared-ldap-0.9.5.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/slf4j-api-1.5.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/slf4j-log4j12-1.5.2.jar"/>
+	<classpathentry kind="lib" path="lib/grouper/xstream.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

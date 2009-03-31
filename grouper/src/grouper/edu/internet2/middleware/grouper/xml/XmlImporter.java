@@ -16,6 +16,7 @@
  */
 
 package edu.internet2.middleware.grouper.xml;
+import java.io.File;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -48,7 +49,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
-import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -86,6 +86,7 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
+import edu.internet2.middleware.grouper.xml.userAudit.XmlUserAuditImport;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -101,7 +102,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.17 2009-03-24 17:12:09 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.18 2009-03-31 06:58:28 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -420,8 +421,10 @@ public class XmlImporter {
   private static String _getUsage() {
     return  "Usage:"                                                                + GrouperConfig.NL
             + "args: -h,            Prints this message"                            + GrouperConfig.NL
-            + "args: subjectIdentifier [(-id <id> | -name <name> | -list)]"         + GrouperConfig.NL
-            + "      [-ignoreInternal] [-noprompt] filename [properties]"                       + GrouperConfig.NL
+            + "args: subjectIdentifier "             + GrouperConfig.NL
+            + "      [-userAuditFilename <fileName>] [-userAuditOnly]"              + GrouperConfig.NL 
+            + "      [(-id <id> | -name <name> | -list)]"                           + GrouperConfig.NL
+            + "      [-ignoreInternal] [-noprompt] filename [properties]"           + GrouperConfig.NL
             +                                                                         GrouperConfig.NL
             + "  subjectIdentifier, Identifies a Subject 'who' will create a"       + GrouperConfig.NL
             + "                     GrouperSession"                                 + GrouperConfig.NL
@@ -457,6 +460,20 @@ public class XmlImporter {
   public static void _handleArgs(final XmlImporter importer, final Properties rc) 
     throws  GrouperException {
     try {
+      
+      String userAuditFilename = rc.getProperty("userAuditFilename");
+      if (!StringUtils.isBlank(userAuditFilename)) {
+        
+        new XmlUserAuditImport().readUserAudits(new File(userAuditFilename));
+        
+      }
+
+      String userAuditOnly = rc.getProperty("userAuditOnly");
+      if (!StringUtils.equalsIgnoreCase("true", userAuditOnly)) {
+        //we are done
+        return;
+      }
+
       importer.ignoreInternal = Boolean.parseBoolean( rc.getProperty(XmlArgs.RC_IGNORE) );
       GrouperSession.callbackGrouperSession(importer.s, new GrouperSessionHandler() {
   

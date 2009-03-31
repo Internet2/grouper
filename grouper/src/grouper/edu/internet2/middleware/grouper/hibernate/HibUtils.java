@@ -14,8 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
+import org.hibernate.ScrollableResults;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Criterion;
@@ -24,6 +26,7 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.xml.userAudit.XmlUserAuditExport;
 
 /**
  * @author mchyzer
@@ -31,6 +34,26 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class HibUtils {
 
+  /**
+   * logger 
+   */
+  @SuppressWarnings("unused")
+  private static final Log LOG = GrouperUtil.getLog(HibUtils.class);
+
+  /**
+   * 
+   * @param scrollableResults
+   */
+  public static void closeQuietly(ScrollableResults scrollableResults) {
+    if (scrollableResults != null) {
+      try {
+        scrollableResults.close();
+      } catch (Exception e) {
+        //just log, something bad is happening
+        LOG.info("Problem closing scrollable results", e);
+      }
+    }
+  }
   
   /**
    * find the property index based on property name

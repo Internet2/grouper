@@ -1,21 +1,13 @@
 /*
  * @author mchyzer
- * $Id: AuditEntry.java,v 1.7 2009-03-31 06:58:28 mchyzer Exp $
+ * $Id: XmlAuditEntry.java,v 1.1 2009-03-31 06:58:28 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.audit;
+package edu.internet2.middleware.grouper.xml.userAudit;
 
 import java.sql.Timestamp;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.EqualsBuilder;
-
-import edu.internet2.middleware.grouper.GrouperAPI;
-import edu.internet2.middleware.grouper.hibernate.GrouperContext;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
-import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -24,7 +16,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * contain multiple operations.
  */
 @SuppressWarnings("serial")
-public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
+public class XmlAuditEntry {
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -117,143 +109,58 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
-  /** to string deep fields */
-  private static final Set<String> TO_STRING_DEEP_FIELDS = GrouperUtil.toSet(
-      FIELD_ACT_AS_MEMBER_ID, FIELD_AUDIT_TYPE_ID, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, 
-      FIELD_DESCRIPTION, FIELD_DURATION_MICROSECONDS, FIELD_ENV_NAME, FIELD_GROUPER_ENGINE, 
-      FIELD_GROUPER_VERSION, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_INT01, 
-      FIELD_INT02, FIELD_INT03, FIELD_INT04, FIELD_INT05, 
-      FIELD_LAST_UPDATED_DB, FIELD_LOGGED_IN_MEMBER_ID, FIELD_QUERY_COUNT, FIELD_SERVER_HOST, 
-      FIELD_SERVER_USER_NAME, FIELD_STRING01, FIELD_STRING02, FIELD_STRING03, 
-      FIELD_STRING04, FIELD_STRING05, FIELD_STRING06, FIELD_STRING07, 
-      FIELD_STRING08, FIELD_USER_IP_ADDRESS);
-
   /**
-   * see if one audit type is the same as another (not looking at last update, id, etc)
+   * construct based on xml audit type
    * @param auditEntry
-   * @return true if equals, false if not
    */
-  public boolean equalsDeep(AuditEntry auditEntry) {
+  public XmlAuditEntry(AuditEntry auditEntry) {
     
-    return new EqualsBuilder().append(this.actAsMemberId, auditEntry.actAsMemberId)
-      .append(this.auditTypeId, auditEntry.auditTypeId)
-      .append(this.contextId, auditEntry.contextId)
-      .append(this.createdOnDb, auditEntry.createdOnDb)
-      .append(this.description, auditEntry.description)
-      .append(this.durationMicroseconds, auditEntry.durationMicroseconds)
-      .append(this.envName, auditEntry.envName)
-      .append(this.grouperEngine, auditEntry.grouperEngine)
-      .append(this.grouperVersion, auditEntry.grouperVersion)
-      .append(this.id, auditEntry.id)
-      .append(this.int01, auditEntry.int01)
-      .append(this.int02, auditEntry.int02)
-      .append(this.int03, auditEntry.int03)
-      .append(this.int04, auditEntry.int04)
-      .append(this.int05, auditEntry.int05)
-      //not last updated
-      .append(this.loggedInMemberId, auditEntry.loggedInMemberId)
-      .append(this.queryCount, auditEntry.queryCount)
-      .append(this.serverHost, auditEntry.serverHost)
-      .append(this.serverUserName, auditEntry.serverUserName)
-      .append(this.string01, auditEntry.string01)
-      .append(this.string02, auditEntry.string02)
-      .append(this.string03, auditEntry.string03)
-      .append(this.string04, auditEntry.string04)
-      .append(this.string05, auditEntry.string05)
-      .append(this.string06, auditEntry.string06)
-      .append(this.string07, auditEntry.string07)
-      .append(this.string08, auditEntry.string08)
-      .append(this.userIpAddress, auditEntry.userIpAddress)
-      .isEquals();
-      
-  }
-
-  /**
-   * 
-   * @see java.lang.Object#toString()
-   */
-  public String toString() {
-    return "Audit entry: " + StringUtils.substring(this.description, 0, 30);
+    //go through each field, and copy data over
+    
+    for (String fieldName : COPY_FIELDS) {
+      Object auditEntryValue = GrouperUtil.fieldValue(auditEntry, fieldName);
+      GrouperUtil.assignField(this, fieldName, auditEntryValue);
+    }
+    
   }
   
+  /**
+   * construct based on xml audit entry
+   * @return the audit entry with all this data in there
+   */
+  public AuditEntry toAuditEntry() {
+    
+    AuditEntry auditEntry = new AuditEntry();
+    
+    //go through each field, and copy data over
+    
+    for (String fieldName : COPY_FIELDS) {
+      Object auditTypeValue = GrouperUtil.fieldValue(this, fieldName);
+      GrouperUtil.assignField(auditEntry, fieldName, auditTypeValue);
+    }
+    return auditEntry;
+  }
+
+
+  /**
+   * fields which are included in copy method
+   */
+  private static final Set<String> COPY_FIELDS = GrouperUtil.toSet(
+      FIELD_ACT_AS_MEMBER_ID, FIELD_AUDIT_TYPE_ID, FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, 
+      FIELD_DESCRIPTION, FIELD_DURATION_MICROSECONDS, FIELD_ENV_NAME, FIELD_GROUPER_ENGINE, 
+      FIELD_GROUPER_VERSION, FIELD_ID, FIELD_INT01, FIELD_INT02, 
+      FIELD_INT03, FIELD_INT04, FIELD_INT05, FIELD_LAST_UPDATED_DB, 
+      FIELD_LOGGED_IN_MEMBER_ID, FIELD_QUERY_COUNT, FIELD_SERVER_HOST, FIELD_SERVER_USER_NAME, 
+      FIELD_STRING01, FIELD_STRING02, FIELD_STRING03, FIELD_STRING04, 
+      FIELD_STRING05, FIELD_STRING06, FIELD_STRING07, FIELD_STRING08, 
+      FIELD_USER_IP_ADDRESS);
+
   /**
    * construct
    */
-  public AuditEntry() {
+  public XmlAuditEntry() {
     
   }
-
-  /**
-   * save or update this object
-   * @param copyContextData 
-   */
-  public void saveOrUpdate(boolean copyContextData) {
-    if (copyContextData) {
-      GrouperContext.assignAuditEntryFields(this);
-    }
-    GrouperDAOFactory.getFactory().getAuditEntry().saveOrUpdate(this);
-  }
-  
-  /**
-   * construct, assign an id
-   * @param auditTypeIdentifier points to audit type
-   * @param labelNamesAndValues alternate label name and value
-   */
-  public AuditEntry(AuditTypeIdentifier auditTypeIdentifier, 
-      String... labelNamesAndValues) {
-    
-    this.id = GrouperUuid.getUuid();
-    
-    AuditType auditType = AuditTypeFinder.find(auditTypeIdentifier.getAuditCategory(),
-        auditTypeIdentifier.getActionName(), true);
-    
-    this.auditTypeId = auditType.getId();
-    
-    int labelNamesAndValuesLength = GrouperUtil.length(labelNamesAndValues);
-    
-    if (labelNamesAndValuesLength % 2 != 0) {
-      throw new RuntimeException("labelNamesAndValuesLength must be divisible by 2: " 
-          + labelNamesAndValuesLength);
-    }
-    
-    for (int i=0;i<labelNamesAndValuesLength;i+=2) {
-      String label = labelNamesAndValues[i];
-      String value = labelNamesAndValues[i+1];
-
-      assignStringValue(auditType, label, value);
-    }
-  }
-
-  /**
-   * @param auditType
-   * @param label
-   * @param value
-   */
-  public void assignStringValue(AuditType auditType, String label, String value) {
-    if (StringUtils.equals(label, auditType.getLabelString01())) {
-      this.string01 = value;
-    } else if (StringUtils.equals(label, auditType.getLabelString02())) {
-      this.string02 = value;
-    } else if (StringUtils.equals(label, auditType.getLabelString03())) {
-      this.string03 = value;
-    } else if (StringUtils.equals(label, auditType.getLabelString04())) {
-      this.string04 = value;
-    } else if (StringUtils.equals(label, auditType.getLabelString05())) {
-      this.string05 = value;
-    } else if (StringUtils.equals(label, auditType.getLabelString06())) {
-      this.string06 = value;
-    } else if (StringUtils.equals(label, auditType.getLabelString07())) {
-      this.string07 = value;
-    } else if (StringUtils.equals(label, auditType.getLabelString08())) {
-      this.string08 = value;
-    } else {
-      throw new RuntimeException("Cant find string label: " + label 
-          + " in audit type: " + auditType.getAuditCategory() + " - " + auditType.getActionName());
-    }
-  }
-  
-  /** name of the grouper audit entry table in the db */
-  public static final String TABLE_GROUPER_AUDIT_ENTRY = "grouper_audit_entry";
 
   /** primary key uuid of this record */
   private String id;
@@ -807,32 +714,6 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
-   * make sure this object will fit in the DB
-   */
-  public void truncate() {
-    this.actAsMemberId = GrouperUtil.truncateAscii(this.actAsMemberId, 128);
-    this.auditTypeId = GrouperUtil.truncateAscii(this.auditTypeId, 128);
-    this.contextId = GrouperUtil.truncateAscii(this.contextId, 128);
-    this.description = GrouperUtil.truncateAscii(this.description, 4000);
-    this.envName = GrouperUtil.truncateAscii(this.envName, 50);
-    this.grouperEngine = GrouperUtil.truncateAscii(this.grouperEngine, 50);
-    this.grouperVersion = GrouperUtil.truncateAscii(this.grouperVersion, 20);
-    this.id = GrouperUtil.truncateAscii(this.id, 128);
-    this.loggedInMemberId = GrouperUtil.truncateAscii(this.loggedInMemberId, 128);
-    this.serverHost = GrouperUtil.truncateAscii(this.serverHost, 50);
-    this.serverUserName = GrouperUtil.truncateAscii(this.serverUserName, 50);
-    this.string01 = GrouperUtil.truncateAscii(this.string01, 4000);
-    this.string02 = GrouperUtil.truncateAscii(this.string02, 4000);
-    this.string03 = GrouperUtil.truncateAscii(this.string03, 4000);
-    this.string04 = GrouperUtil.truncateAscii(this.string04, 4000);
-    this.string05 = GrouperUtil.truncateAscii(this.string05, 4000);
-    this.string06 = GrouperUtil.truncateAscii(this.string06, 4000);
-    this.string07 = GrouperUtil.truncateAscii(this.string07, 4000);
-    this.string08 = GrouperUtil.truncateAscii(this.string08, 4000);
-    this.userIpAddress = GrouperUtil.truncateAscii(this.userIpAddress, 50);
-  }
-
-  /**
    * version of the grouper API, e.g. 1.4.0
    * @return version
    */
@@ -849,14 +730,6 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.GrouperAPI#clone()
-   */
-  @Override
-  public GrouperAPI clone() {
-    throw new RuntimeException("not implemented");
-  }
-
-  /**
    * number of nanos that the duration of the context took
    * @return duration nanos
    */
@@ -870,31 +743,6 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public void setDurationMicroseconds(long durationMicroseconds1) {
     this.durationMicroseconds = durationMicroseconds1;
-  }
-
-  /**
-   * 
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreSave(HibernateSession hibernateSession) {
-    super.onPreSave(hibernateSession);
-    if (this.lastUpdatedDb == null) {
-      this.lastUpdatedDb = System.currentTimeMillis();
-    }
-    if (this.createdOnDb == null) {
-      this.createdOnDb = System.currentTimeMillis();
-    }
-  }
-
-  /**
-   * 
-   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
-   */
-  @Override
-  public void onPreUpdate(HibernateSession hibernateSession) {
-    super.onPreUpdate(hibernateSession);
-    this.setLastUpdatedDb(System.currentTimeMillis());
   }
 
   /**
@@ -945,12 +793,5 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
     this.lastUpdatedDb = lastUpdated1;
   }
 
-  /**
-   * the string repre
-   * @return string 
-   */
-  public String toStringDeep() {
-    return GrouperUtil.toStringFields(this, TO_STRING_DEEP_FIELDS);
-  }
-
+  
 }

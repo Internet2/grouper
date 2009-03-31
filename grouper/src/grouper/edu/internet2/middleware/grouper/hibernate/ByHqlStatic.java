@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -303,6 +304,25 @@ public class ByHqlStatic {
   public <S> Set<S> listSet(final Class<S> returnType) throws GrouperDAOException {
     Set<S> result = new LinkedHashSet<S>(this.list(returnType));
     return result;
+  }
+
+  /**
+   * <pre>
+   * call hql list result, and put the results in map with the key as one of the fields
+   * 
+   * </pre>
+   * @param valueClass type of the result (can typecast)
+   * @param keyClass is the type of the key of the map
+   * @param <K> is the template of the key of the map
+   * @param <V> is the template of the value of the map
+   * @param keyPropertyName name of the javabeans property for the key in the map
+   * @return the ordered set or the empty set if not found (never null)
+   * @throws GrouperDAOException
+   */
+  public <K, V> Map<K, V> listMap(final Class<K> keyClass, final Class<V> valueClass, String keyPropertyName) throws GrouperDAOException {
+    List<V> list = this.list(valueClass);
+    Map<K,V> map = GrouperUtil.listToMap(list, keyClass, valueClass, keyPropertyName);
+    return map;
   }
 
   /**
