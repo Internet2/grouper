@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -39,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.62 2009-03-21 19:48:50 mchyzer Exp $
+ * @version $Id: MemberFinder.java,v 1.63 2009-03-31 06:58:28 mchyzer Exp $
  */
 public class MemberFinder {
 	
@@ -119,7 +120,7 @@ public class MemberFinder {
   public static Member findBySubject(GrouperSession s, Subject subj, boolean createIfNotExist) {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Member m = internal_findBySubject(subj, createIfNotExist && !(subj instanceof UnresolvableSubject));
+    Member m = internal_findBySubject(subj, null, createIfNotExist && !(subj instanceof UnresolvableSubject));
     return m;
   }
 
@@ -175,7 +176,7 @@ public class MemberFinder {
   public static Member internal_findAllMember() 
     throws  GrouperException {
 	  if(all !=null) return all;
-    all= MemberFinder.internal_findBySubject( SubjectFinder.findAllSubject(), true); 
+    all= MemberFinder.internal_findBySubject( SubjectFinder.findAllSubject(), null, true); 
     return all;
   } // public static Member internal_findAllMember()
 
@@ -191,17 +192,18 @@ public class MemberFinder {
   public static Member internal_findRootMember() 
     throws  GrouperException {
 	if(root != null) return root;
-    root= MemberFinder.internal_findBySubject( SubjectFinder.findRootSubject(), true ); 
+    root= MemberFinder.internal_findBySubject( SubjectFinder.findRootSubject(), null, true ); 
     return root;
   }
   
   /**
    * find a member, perhaps create a new one if not there
    * @param subj
+   * @param uuidIfCreate uuid to use if creating
    * @param createIfNotExist 
    * @return the member or null if not found
    */
-  public static Member internal_findBySubject(Subject subj, boolean createIfNotExist) {
+  public static Member internal_findBySubject(Subject subj, String uuidIfCreate, boolean createIfNotExist) {
     if (subj == null) {
       throw new NullPointerException("Subject is null");
     }
@@ -212,7 +214,7 @@ public class MemberFinder {
     } else {
       sourceId = subj.getSource().getId();
     }
-    Member m = internal_findOrCreateBySubject( subj.getId(), sourceId, subj.getType().getName(), createIfNotExist ) ;
+    Member m = internal_findOrCreateBySubject( subj.getId(), sourceId, subj.getType().getName(), uuidIfCreate, createIfNotExist ) ;
     
     //Member m = internal_findOrCreateBySubject( subj.getId(), subj.getSource().getId(), subj.getType().getName() ) ;
     return m;
@@ -226,7 +228,7 @@ public class MemberFinder {
    * @return the member 
    */
   public static Member internal_findOrCreateBySubject(String id, String src, String type) {
-    return internal_findOrCreateBySubject(id, src, type, true);
+    return internal_findOrCreateBySubject(id, src, type, null, true);
   }
   
   /**
@@ -234,20 +236,27 @@ public class MemberFinder {
    * @param id
    * @param src
    * @param type
+   * @param memberUuidIfCreate 
    * @param createIfNotExist 
    * @return the member or null
    */
-  private static Member internal_findOrCreateBySubject(String id, String src, String type, boolean createIfNotExist) {
+  private static Member internal_findOrCreateBySubject(String id, String src, String type, 
+      String memberUuidIfCreate, boolean createIfNotExist) {
     try {
       return GrouperDAOFactory.getFactory().getMember().findBySubject(id, src, type, true);
     }
     catch (MemberNotFoundException eMNF) {
       if (createIfNotExist) {
+        Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberUuidIfCreate, false);
+        if (member != null) {
+          throw new RuntimeException("That uuid already exists: " + memberUuidIfCreate + ", " + member);
+        }
+        
         Member _m = new Member();
         _m.setSubjectIdDb(id);
         _m.setSubjectSourceIdDb(src);
         _m.setSubjectTypeId(type);
-        _m.setUuid( GrouperUuid.getUuid() );
+        _m.setUuid( StringUtils.isEmpty(memberUuidIfCreate) ? GrouperUuid.getUuid() : memberUuidIfCreate);
         
         GrouperDAOFactory.getFactory().getMember().create(_m);
         return _m;

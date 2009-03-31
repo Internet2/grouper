@@ -23,7 +23,7 @@ import  java.util.Properties;
  * XML Command Line Argument Processing.
  * <p/>
  * @author  blair christensen.
- * @version $Id: XmlArgs.java,v 1.3 2008-11-06 17:04:01 isgwb Exp $
+ * @version $Id: XmlArgs.java,v 1.4 2009-03-31 06:58:28 mchyzer Exp $
  * @since   1.1.0
  */
 public class XmlArgs {
@@ -77,6 +77,16 @@ public class XmlArgs {
           pos += 2;
           continue;
         } 
+        else if (arg.equals("-userAuditFilename")) {
+          rc.setProperty("userAuditFilename", args[pos + 1]);
+          pos += 2;
+          continue;
+        }  
+        else if (arg.equals("-userAuditOnly")) {
+          rc.setProperty("userAuditOnly", "true");
+          pos += 1;
+          continue;
+        }  
         else if (arg.equals("-relative"))       {
           rc.setProperty(RC_RELATIVE, "true");
           pos++;
@@ -125,6 +135,16 @@ public class XmlArgs {
           pos += 2;
           continue;
         } 
+        else if (arg.equals("-userAuditFilename")) {
+          rc.setProperty("userAuditFilename", args[pos + 1]);
+          pos += 2;
+          continue;
+        }  
+        else if (arg.equals("-userAuditOnly")) {
+          rc.setProperty("userAuditOnly", "true");
+          pos += 1;
+          continue;
+        }  
         else if (arg.equals("-list"))           {
           rc.setProperty(RC_UPDATELIST, "true");
           pos++;

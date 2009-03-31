@@ -149,6 +149,20 @@ public class GrouperUtil {
   }
   
   /**
+   * Delete a file, throw exception if cannot
+   * @param file
+   */
+  public static void deleteFile(File file) {
+    //delete and create
+    if (file.exists()) {
+      if (!file.delete()) {
+        throw new RuntimeException("Couldnt delete file: " + file.toString());
+      }
+    }
+  }
+
+
+  /**
    * return the arg after the argBefore, or null if not there, or exception
    * if argBefore is not found
    * @param args
@@ -1248,6 +1262,36 @@ public class GrouperUtil {
     }
   }
 
+  /**
+   * print out an object by fields
+   * @param object
+   * @param fieldNames
+   * @return the string representation or null if null
+   */
+  public static String toStringFields(Object object, Set<String> fieldNames) {
+    
+    if (object == null) {
+      return null;
+    }
+    
+    StringBuilder result = new StringBuilder(object.getClass().getSimpleName() + ": ");
+    
+    //loop through fields
+    for (String fieldName : nonNull(fieldNames)) {
+      
+      Object value = fieldValue(object, fieldName);
+      if (value != null) {
+        result.append(fieldName).append(": '").append(value).append("', ");
+      }
+      
+    }
+    
+    //take off last comma (assume there was at least one field)
+    result.delete(result.length()-2, result.length());
+    return result.toString();
+    
+  }
+  
   /**
    * convert a set to a string (comma separate)
    * @param set
@@ -3021,6 +3065,28 @@ public class GrouperUtil {
      }
   }
   
+  /**
+   * <pre>
+   * turn a list into map
+   * </pre>
+   * @param list is the list to convert
+   * @param valueClass type of the result (can typecast)
+   * @param keyClass is the type of the key of the map
+   * @param <K> is the template of the key of the map
+   * @param <V> is the template of the value of the map
+   * @param keyPropertyName name of the javabeans property for the key in the map
+   * @return the ordered set or the empty set if not found (never null)
+   */
+  public static <K, V> Map<K, V> listToMap(List<V> list, final Class<K> keyClass, 
+      final Class<V> valueClass, String keyPropertyName)  {
+    Map<K,V> result = new LinkedHashMap<K, V>();
+    for (V value : nonNull(list)) {
+      K key = (K)GrouperUtil.propertyValue(value, keyPropertyName);
+      result.put(key, value);
+    }
+    return result;
+  }
+
   /**
    * helper method for calling a method
    * 

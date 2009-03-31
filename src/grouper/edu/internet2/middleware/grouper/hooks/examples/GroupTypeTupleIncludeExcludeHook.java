@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeTupleIncludeExcludeHook.java,v 1.5 2009-03-24 17:12:08 mchyzer Exp $
+ * $Id: GroupTypeTupleIncludeExcludeHook.java,v 1.6 2009-03-31 06:58:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -808,7 +808,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
       Group group = GroupFinder.findByName(grouperSession, overallName, false);
       if (group != null) {
         
-        Member member = MemberFinder.internal_findBySubject(SubjectFinder.findById(group.getUuid(), true), false);
+        Member member = MemberFinder.internal_findBySubject(SubjectFinder.findById(group.getUuid(), true), null, false);
         
         if (member != null) {
           //get any membership

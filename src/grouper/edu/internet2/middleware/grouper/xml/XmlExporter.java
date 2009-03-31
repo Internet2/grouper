@@ -16,6 +16,7 @@
  */
 
 package edu.internet2.middleware.grouper.xml;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -70,6 +71,7 @@ import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
+import edu.internet2.middleware.grouper.xml.userAudit.XmlUserAuditExport;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -90,7 +92,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.12 2009-03-24 17:12:09 mchyzer Exp $
+ * @version $Id: XmlExporter.java,v 1.13 2009-03-31 06:58:28 mchyzer Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -584,11 +586,14 @@ public class XmlExporter {
   private static String _getUsage() {
     return  "Usage:"                                                                + GrouperConfig.NL
             + "args: -h,            Prints this message"                            + GrouperConfig.NL
-            + "args: subjectIdentifier [(-id <id>] | [-name <name>)] [-relative]"   + GrouperConfig.NL
+            + "args: subjectIdentifier "             + GrouperConfig.NL
+            + "      [-userAuditFilename <fileName>] [-userAuditOnly]"              + GrouperConfig.NL 
+            + "      [(-id <id>] | [-name <name>)] [-relative]"                     + GrouperConfig.NL
             + "      [-includeParent] [-childrenOnly] fileName [properties]"        + GrouperConfig.NL
             +                                                                         GrouperConfig.NL
             + "  subjectIdentifier, Identifies a Subject 'who' will create a"       + GrouperConfig.NL
             + "                     GrouperSession"                                 + GrouperConfig.NL
+            + "  -userAuditFilename,The file name where user audits should go"      + GrouperConfig.NL
             + "  -id,               The UUID of a Group or Stem to export"          + GrouperConfig.NL
             + "  -name,             The name of a Group or Stem to export"          + GrouperConfig.NL
             + "  -relative,         If id or name specified do not export parent"   + GrouperConfig.NL
@@ -609,8 +614,21 @@ public class XmlExporter {
 
   // @since   1.1.0
   private static void _handleArgs(XmlExporter exporter, Properties rc) 
-    throws  Exception
-  {
+    throws  Exception {
+    
+    String userAuditFilename = rc.getProperty("userAuditFilename");
+    if (!StringUtils.isBlank(userAuditFilename)) {
+      
+      XmlUserAuditExport.writeUserAudits(new File(userAuditFilename));
+      
+    }
+    
+    String userAuditOnly = rc.getProperty("userAuditOnly");
+    if (!StringUtils.equalsIgnoreCase("true", userAuditOnly)) {
+      //we are done
+      return;
+    }
+    
     Writer writer = new PrintWriter( new FileWriter( rc.getProperty(XmlArgs.RC_EFILE) ));
     if (rc.getProperty(XmlArgs.RC_UUID) == null && rc.getProperty(XmlArgs.RC_NAME) == null) {
       exporter.export(writer);

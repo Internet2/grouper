@@ -1,9 +1,10 @@
 /*
  * @author mchyzer
- * $Id: AllXmlTests.java,v 1.1 2009-03-20 19:56:42 mchyzer Exp $
+ * $Id: AllXmlTests.java,v 1.2 2009-03-31 06:58:28 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.xml;
 
+import edu.internet2.middleware.grouper.xml.userAudit.AllXmlUserAuditTests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -24,6 +25,9 @@ public class AllXmlTests {
     suite.addTestSuite(TestXmlImport.class);
     suite.addTestSuite(Test_U_Util_XML_escape.class);
     //$JUnit-END$
+    
+    suite.addTest(AllXmlUserAuditTests.suite());
+    
     return suite;
   }
 

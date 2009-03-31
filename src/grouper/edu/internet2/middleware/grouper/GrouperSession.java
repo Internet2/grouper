@@ -57,7 +57,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.95 2009-03-20 19:56:42 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.96 2009-03-31 06:58:28 mchyzer Exp $
  */
 public class GrouperSession {
 
@@ -247,7 +247,7 @@ public class GrouperSession {
     sw.start();
 
     //  this will create the member if it doesn't already exist
-    m   = MemberFinder.internal_findBySubject(subject, true); 
+    m   = MemberFinder.internal_findBySubject(subject, null, true); 
     GrouperSession    s   =  new GrouperSession();
       s.setMemberUuid( m.getUuid() );
       s.setStartTimeLong( new Date().getTime() );
