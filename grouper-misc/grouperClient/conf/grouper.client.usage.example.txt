@@ -30,25 +30,25 @@ Send file to web service:
 NOTE: CHANGE THIS OR REMOVE IN grouper.client.usage.txt FOR YOUR SCHOOOL'S LDAP QUERIES
 pennname to pennid usage: 
   java -jar grouperClient.jar --operation=pennnameToPennid --pennnameToDecode=pennname [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--debug=true]
-  e.g.: java -jar grouperClient --operation=pennnameToPennid --pennnameToDecode=jsmith
+  e.g.: java -jar grouperClient.jar --operation=pennnameToPennid --pennnameToDecode=jsmith
   output: pennid: 12341234
 
 NOTE: CHANGE THIS OR REMOVE IN grouper.client.usage.txt FOR YOUR SCHOOOL'S LDAP QUERIES
 pennid to pennname usage: 
   java -jar grouperClient.jar --operation=pennidToPennkey --pennidToDecode=pennid [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--debug=true]
-  e.g.: java -jar grouperClient --operation=pennidToPennkey --pennidToDecode=12341234
+  e.g.: java -jar grouperClient.jar --operation=pennidToPennkey --pennidToDecode=12341234
   output: pennname: jsmith
 
 NOTE: CHANGE THIS OR REMOVE IN grouper.client.usage.txt FOR YOUR SCHOOOL'S LDAP QUERIES
 hasMember ldap usage: 
   java -jar grouperClient.jar --operation=hasMemberLdap --groupName=a:b:c --pennnameToCheck=pennkey [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--debug=true]
-  e.g.: java -jar grouperClient --operation=hasMemberLdap --groupName=penn:myfolder:mygroup --pennnameToCheck=jsmith
+  e.g.: java -jar grouperClient.jar --operation=hasMemberLdap --groupName=penn:myfolder:mygroup --pennnameToCheck=jsmith
   output: hasMemberLdap: true
 
 NOTE: CHANGE THIS OR REMOVE IN grouper.client.usage.txt FOR YOUR SCHOOOL'S LDAP QUERIES
 getMembers ldap usage: 
   java -jar grouperClient.jar --operation=getMembersLdap --groupName=a:b:c [--saveResultsToFile=fileName] [--outputTemplate=somePattern] [--debug=true]
-  e.g.: java -jar grouperClient --operation=getMembersLdap --groupName=penn:myfolder:mygroup
+  e.g.: java -jar grouperClient.jar --operation=getMembersLdap --groupName=penn:myfolder:mygroup
   output: groupList: jsmith, tsmith, msmith
   note: extremely large group lists might not display fully (e.g. over 1000 members)
 
