@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: WsGrouperKerberosAuthentication.java,v 1.1.4.1 2009-03-27 05:24:42 mchyzer Exp $
+ * $Id: WsGrouperKerberosAuthentication.java,v 1.1.4.2 2009-04-03 04:21:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.security;
 
@@ -75,7 +75,7 @@ public class WsGrouperKerberosAuthentication implements WsCustomAuthentication {
   private static final Log LOG = LogFactory.getLog(WsGrouperKerberosAuthentication.class);
 
   /**
-   * this should be something like: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+   * this should be something like: Basic QWxhZGRabcdefGVuIHNlc2FtZQ==
    * ^\\s*Basic\\s+([^\\s]+)$
    * "^\\s*       Start of string and optional whitespace
    * Basic\\s+    Must be basic auth, and have some whitespace after this

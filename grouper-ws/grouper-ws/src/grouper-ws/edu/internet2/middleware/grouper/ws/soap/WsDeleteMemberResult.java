@@ -313,6 +313,9 @@ public class WsDeleteMemberResult  implements ResultMetadataHolder {
         deleteMemberResultCode == null ? null : deleteMemberResultCode.name());
     this.getResultMetadata().assignSuccess(
         GrouperServiceUtils.booleanToStringOneChar(deleteMemberResultCode.isSuccess()));
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Set result code to : " + this.getResultMetadata().getResultCode() + ", " + this.getResultMetadata().getSuccess());
+    }
   }
 
   /**

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.22.2.7 2009-03-25 08:17:26 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.22.2.8 2009-04-03 04:21:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -509,7 +509,9 @@ public class GrouperServiceLogic {
                         group.deleteMember(subject, fieldName);
                       }
                     }
-  
+                    if (LOG.isDebugEnabled()) {
+                      LOG.debug("deleteMember: " + group.getName() + ", " + subject.getId() + ", eff? " + hasEffective + ", imm? " + hasImmediate);
+                    }
                     //assign one of 4 success codes
                     wsDeleteMemberResult.assignResultCodeSuccess(hasImmediate,
                         hasEffective);
