@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.1.2.4 2009-03-20 21:18:11 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.1.2.5 2009-04-03 04:23:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.poc;
 
@@ -46,7 +46,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testGetGrouperPrivilegeLite"));
+    TestRunner.run(new GrouperClientWsTest("testDeleteMember"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -1748,8 +1748,9 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
+      //try with name with slash
       GrouperClient.main(GrouperClientUtils.splitTrim(
-          "--operation=groupSaveWs --name=aStem:newGroup0", " "));
+          "--operation=groupSaveWs --name=aStem:newGroup0/1", " "));
       System.out.flush();
       String output = new String(baos.toByteArray());
 
@@ -1759,6 +1760,29 @@ public class GrouperClientWsTest extends GrouperTest {
 
       Pattern pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
       Matcher matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals("SUCCESS_INSERTED", matcher.group(1));
+      assertEquals("aStem:newGroup0/1", matcher.group(2));
+
+      // #####################################################
+      // run again, with clientVersion
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=groupSaveWs --name=aStem:newGroup0", " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
+      matcher = pattern.matcher(outputLines[0]);
 
       assertTrue(outputLines[0], matcher.matches());
 
@@ -3376,9 +3400,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     try {
 
-      GrouperClient
-          .main(GrouperClientUtils
-              .splitTrim(
+      GrouperClient.main(GrouperClientUtils.splitTrim(
                   "--operation=deleteMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1",
                   " "));
       System.out.flush();
@@ -3411,8 +3433,7 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
-      GrouperClient
-          .main(GrouperClientUtils
+      GrouperClient.main(GrouperClientUtils
               .splitTrim(
                   "--operation=deleteMemberWs --groupName=aStem:aGroup --pennIds=test.subject.0,test.subject.1",
                   " "));
@@ -3427,9 +3448,9 @@ public class GrouperClientWsTest extends GrouperTest {
 
       assertTrue(outputLines[0], matcher.matches());
 
-      assertEquals("0", matcher.group(1));
-      assertEquals("SUCCESS_WASNT_IMMEDIATE", matcher.group(2));
-      assertEquals("test.subject.0", matcher.group(3));
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], "SUCCESS_WASNT_IMMEDIATE", matcher.group(2));
+      assertEquals(outputLines[0], "test.subject.0", matcher.group(3));
 
       matcher = pattern.matcher(outputLines[1]);
 
@@ -4540,6 +4561,97 @@ public class GrouperClientWsTest extends GrouperTest {
 
   }
 
+  /** 
+   * try get members with a slash
+   * @throws Exception
+   */
+  public void testGetMembersSlash() throws Exception {
+    // make sure group exists
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group group = Group.saveGroup(grouperSession, "aStem:aGroup/1", null,
+        "aStem:aGroup/1", "aGroup", null, null, true);
+
+    // give permissions
+    String wsUserLabel = GrouperClientUtils.propertiesValue(
+        "grouperClient.webService.user.label", true);
+    String wsUserString = GrouperClientUtils.propertiesValue(
+        "grouperClient.webService." + wsUserLabel, true);
+    Subject wsUser = SubjectFinder.findByIdOrIdentifier(wsUserString, true);
+
+    group.grantPriv(wsUser, AccessPrivilege.READ, false);
+    group.grantPriv(wsUser, AccessPrivilege.VIEW, false);
+    group.grantPriv(wsUser, AccessPrivilege.ADMIN, false);
+
+    // add some subjects
+    //group.addMember(SubjectTestHelper.SUBJ0, false);
+
+    PrintStream systemOut = System.out;
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(baos));
+
+    try {
+
+      //add member
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+              "--operation=addMemberWs --groupName=aStem:aGroup/1 --subjectIds=test.subject.0 --outputTemplate=Index${index}:success:${resultMetadata.success}:code:${resultMetadata.resultCode}:${wsSubject.id}:${wsAddMemberResults.wsGroupAssigned.name}$newline$${index}",
+              " "));
+      System.out.flush();
+      String output = new String(baos.toByteArray());
+    
+      System.setOut(systemOut);
+    
+      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+    
+      //match this: Index0:success:T:code:SUCCESS:test.subject.0:aStem:aGroup/1
+      Pattern pattern = Pattern
+          .compile("^Index(\\d+):success:T:code:([A-Z_]+?):(.+?):(.*+)$");
+      Matcher matcher = pattern.matcher(outputLines[0]);
+    
+      assertTrue(outputLines[0], matcher.matches());
+    
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], "SUCCESS", matcher.group(2));
+      assertEquals(outputLines[0], "test.subject.0", matcher.group(3));
+      assertEquals(outputLines[0], "aStem:aGroup/1", matcher.group(4));
+    
+      
+      //get members
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+      
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=getMembersWs --groupNames=aStem:aGroup/1",
+          " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+
+      // match: ^GroupIndex (\d+)\: success\: ([TF])\: code: ([A-Z_]+)\: group\:
+      // (.*)\: subjectIndex\: (\d+)\: (.*)$
+      pattern = Pattern
+          .compile("^GroupIndex (\\d+)\\: success\\: ([TF])\\: code: ([A-Z_]+)\\: group\\: (.*)\\: subjectIndex\\: (\\d+)\\: (.*)$");
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals(outputLines[0], "0", matcher.group(1));
+      assertEquals(outputLines[0], "T", matcher.group(2));
+      assertEquals(outputLines[0], "SUCCESS", matcher.group(3));
+      assertEquals(outputLines[0], "aStem:aGroup/1", matcher.group(4));
+      assertEquals(outputLines[0], "0", matcher.group(5));
+      String subjectId = matcher.group(6);
+      assertTrue(outputLines[0], GrouperClientUtils.equals("test.subject.0",
+          subjectId));
+    } finally {
+      System.setOut(systemOut);
+    }
+  }
+  
   /**
    * @throws Exception
    */

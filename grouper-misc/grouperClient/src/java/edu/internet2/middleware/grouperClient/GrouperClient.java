@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClient.java,v 1.21.2.3 2009-03-20 21:18:11 mchyzer Exp $
+ * $Id: GrouperClient.java,v 1.21.2.4 2009-04-03 04:23:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient;
 
@@ -685,6 +685,7 @@ public class GrouperClient {
       }
       
       try {
+        //assume the url suffix is already escaped...
         String results = (String)grouperClientWs.executeService(urlSuffix, fileContents, labelForLog, clientVersion);
 
         if (indentOutput) {
@@ -1547,7 +1548,6 @@ public class GrouperClient {
       substituteMap.put("wsDeleteMemberResults", wsDeleteMemberResults);
       substituteMap.put("grouperClientUtils", new GrouperClientUtils());
       substituteMap.put("wsGroup", wsDeleteMemberResults.getWsGroup());
-      substituteMap.put("resultMetadata", wsDeleteMemberResults.getResultMetadata());
       
       String outputTemplate = null;
   
@@ -1565,6 +1565,7 @@ public class GrouperClient {
         substituteMap.put("index", index);
         substituteMap.put("wsDeleteMemberResult", wsDeleteMemberResult);
         substituteMap.put("wsSubject", wsDeleteMemberResult.getWsSubject());
+        substituteMap.put("resultMetadata", wsDeleteMemberResult.getResultMetadata());
         
   //          result.append("Index " + index + ": success: " + wsDeleteMemberResult.getResultMetadata().getSuccess()
   //              + ": code: " + wsDeleteMemberResult.getResultMetadata().getResultCode() + ": " 

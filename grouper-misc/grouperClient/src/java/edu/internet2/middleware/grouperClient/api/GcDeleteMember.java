@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcDeleteMember.java,v 1.3 2008-12-08 02:55:52 mchyzer Exp $
+ * $Id: GcDeleteMember.java,v 1.3.2.1 2009-04-03 04:23:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -248,8 +248,9 @@ public class GcDeleteMember {
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       
       //kick off the web service
+      String urlSuffix = "groups/" + GrouperClientUtils.escapeUrlEncode(this.groupName) + "/members";
       wsDeleteMemberResults = (WsDeleteMemberResults)
-        grouperClientWs.executeService("groups/" + this.groupName + "/members", deleteMember, "deleteMember", this.clientVersion);
+        grouperClientWs.executeService(urlSuffix, deleteMember, "deleteMember", this.clientVersion);
       
       String resultMessage = wsDeleteMemberResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsDeleteMemberResults, wsDeleteMemberResults.getResults(), resultMessage);
