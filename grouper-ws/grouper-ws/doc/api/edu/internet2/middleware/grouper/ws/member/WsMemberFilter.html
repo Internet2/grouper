@@ -123,26 +123,26 @@ member filter for retrieving members.
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH#All">All</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve all members (immediate and effective)</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve all members (immediate, effective and composite)</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH#Composite">Composite</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a composite group, then return the two groups which make up
- the composition (and the group math operator (union, minus, etc)</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a composite group, then return all the memberships that match the 
+ composite operator (union, intersection, minus)</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH#Effective">Effective</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve non direct (non immediate) members</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve members which exist due a group as a member of another group</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH#Immediate">Immediate</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return only direct members, not indirect</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return only direct members of a group</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -161,6 +161,15 @@ member filter for retrieving members.
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get groups for subject</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>abstract &nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH" title="class or interface in java.util">Set</A>&lt;edu.internet2.middleware.grouper.Group&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../../edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH#getGroups(edu.internet2.middleware.grouper.Member, edu.internet2.middleware.grouper.Field)">getGroups</A></B>(edu.internet2.middleware.grouper.Member&nbsp;member,
+          edu.internet2.middleware.grouper.Field&nbsp;field)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;get groups for subject based on field</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -252,7 +261,7 @@ All</H3>
 <PRE>
 public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH" title="enum in edu.internet2.middleware.grouper.ws.member">WsMemberFilter</A> <B>All</B></PRE>
 <DL>
-<DD>retrieve all members (immediate and effective)
+<DD>retrieve all members (immediate, effective and composite)
 <P>
 <DL>
 </DL>
@@ -264,7 +273,7 @@ Effective</H3>
 <PRE>
 public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH" title="enum in edu.internet2.middleware.grouper.ws.member">WsMemberFilter</A> <B>Effective</B></PRE>
 <DL>
-<DD>retrieve non direct (non immediate) members
+<DD>retrieve members which exist due a group as a member of another group
 <P>
 <DL>
 </DL>
@@ -276,7 +285,7 @@ Immediate</H3>
 <PRE>
 public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH" title="enum in edu.internet2.middleware.grouper.ws.member">WsMemberFilter</A> <B>Immediate</B></PRE>
 <DL>
-<DD>return only direct members, not indirect
+<DD>return only direct members of a group
 <P>
 <DL>
 </DL>
@@ -288,8 +297,8 @@ Composite</H3>
 <PRE>
 public static final <A HREF="../../../../../../edu/internet2/middleware/grouper/ws/member/WsMemberFilter.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH" title="enum in edu.internet2.middleware.grouper.ws.member">WsMemberFilter</A> <B>Composite</B></PRE>
 <DL>
-<DD>if this is a composite group, then return the two groups which make up
- the composition (and the group math operator (union, minus, etc)
+<DD>if this is a composite group, then return all the memberships that match the 
+ composite operator (union, intersection, minus)
 <P>
 <DL>
 </DL>
@@ -405,6 +414,21 @@ public abstract <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.h
 <P>
 <DD><DL>
 <DT><B>Parameters:</B><DD><CODE>member</CODE> - <DD><CODE>field</CODE> - to check with membership
+<DT><B>Returns:</B><DD>the set of members (non null)</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getGroups(edu.internet2.middleware.grouper.Member, edu.internet2.middleware.grouper.Field)"><!-- --></A><H3>
+getGroups</H3>
+<PRE>
+public abstract <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Set.html?root=I2MI&view=co&pathrev=GROUPER_1_4_BRANCH" title="class or interface in java.util">Set</A>&lt;edu.internet2.middleware.grouper.Group&gt; <B>getGroups</B>(edu.internet2.middleware.grouper.Member&nbsp;member,
+                                                                      edu.internet2.middleware.grouper.Field&nbsp;field)</PRE>
+<DL>
+<DD>get groups for subject based on field
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>member</CODE> - <DD><CODE>field</CODE> - <DD><CODE>field</CODE> - to check with membership
 <DT><B>Returns:</B><DD>the set of members (non null)</DL>
 </DD>
 </DL>

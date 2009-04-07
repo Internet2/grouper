@@ -50,7 +50,7 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/GrouperClientWs.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/SaveMode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouperClient.ws"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/WsRestClassLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;
@@ -123,26 +123,26 @@ member filter for retrieving members.
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD#All">All</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve all members (immediate and effective)</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve all members (immediate, effective and composite)</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD#Composite">Composite</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a composite group, then return the two groups which make up
- the composition (and the group math operator (union, minus, etc)</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if this is a composite group, then return all the memberships that match the 
+ composite operator (union, intersection, minus)</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD#Effective">Effective</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve non direct (non immediate) members</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;retrieve members which exist due a group as a member of another group</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD#Immediate">Immediate</A></B></CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return only direct members, not indirect</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return only direct members of a group</TD>
 </TR>
 </TABLE>
 &nbsp;
@@ -216,7 +216,7 @@ All</H3>
 <PRE>
 public static final <A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouperClient.ws">WsMemberFilter</A> <B>All</B></PRE>
 <DL>
-<DD>retrieve all members (immediate and effective)
+<DD>retrieve all members (immediate, effective and composite)
 <P>
 <DL>
 </DL>
@@ -228,7 +228,7 @@ Effective</H3>
 <PRE>
 public static final <A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouperClient.ws">WsMemberFilter</A> <B>Effective</B></PRE>
 <DL>
-<DD>retrieve non direct (non immediate) members
+<DD>retrieve members which exist due a group as a member of another group
 <P>
 <DL>
 </DL>
@@ -240,7 +240,7 @@ Immediate</H3>
 <PRE>
 public static final <A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouperClient.ws">WsMemberFilter</A> <B>Immediate</B></PRE>
 <DL>
-<DD>return only direct members, not indirect
+<DD>return only direct members of a group
 <P>
 <DL>
 </DL>
@@ -252,8 +252,8 @@ Composite</H3>
 <PRE>
 public static final <A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouperClient.ws">WsMemberFilter</A> <B>Composite</B></PRE>
 <DL>
-<DD>if this is a composite group, then return the two groups which make up
- the composition (and the group math operator (union, minus, etc)
+<DD>if this is a composite group, then return all the memberships that match the 
+ composite operator (union, intersection, minus)
 <P>
 <DL>
 </DL>
@@ -352,7 +352,7 @@ public static <A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/GrouperClientWs.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/SaveMode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouperClient.ws"><B>PREV CLASS</B></A>&nbsp;
 &nbsp;<A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/WsRestClassLookup.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;

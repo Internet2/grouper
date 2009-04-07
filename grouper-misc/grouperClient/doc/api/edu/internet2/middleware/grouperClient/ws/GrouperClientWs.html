@@ -50,8 +50,8 @@ function windowTitle()
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/GcTransactionType.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouperClient.ws"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouperClient.ws"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/GcWebServiceError.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/SaveMode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouperClient.ws"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="GrouperClientWs.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>NO FRAMES</B></A>  &nbsp;
@@ -151,10 +151,19 @@ Class GrouperClientWs</H2>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/GrouperClientWs.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws">GrouperClientWs</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/GrouperClientWs.html?root=I2MI&view=co&pathrev=HEAD#assignContentType(java.lang.String)">assignContentType</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;theContentType)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;assign the content type, defaults to xml</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Object</A></CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/GrouperClientWs.html?root=I2MI&view=co&pathrev=HEAD#executeService(java.lang.String, java.lang.Object, java.lang.String)">executeService</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;urlSuffix,
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/GrouperClientWs.html?root=I2MI&view=co&pathrev=HEAD#executeService(java.lang.String, java.lang.Object, java.lang.String, java.lang.String)">executeService</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;urlSuffix,
                <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Object</A>&nbsp;toSend,
-               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;labelForLog)</CODE>
+               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;labelForLog,
+               <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;clientVersion)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
@@ -162,7 +171,9 @@ Class GrouperClientWs</H2>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;void</CODE></FONT></TD>
-<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/GrouperClientWs.html?root=I2MI&view=co&pathrev=HEAD#handleFailure(java.lang.String)">handleFailure</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resultMessage)</CODE>
+<TD><CODE><B><A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/GrouperClientWs.html?root=I2MI&view=co&pathrev=HEAD#handleFailure(java.lang.Object, edu.internet2.middleware.grouperClient.ws.beans.ResultMetadataHolder[], java.lang.String)">handleFailure</A></B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Object</A>&nbsp;responseContainer,
+              <A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/beans/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouperClient.ws.beans">ResultMetadataHolder</A>[]&nbsp;resultMetadataHolders,
+              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resultMessage)</CODE>
 
 <BR>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if failure, handle it</TD>
@@ -240,18 +251,33 @@ public <B>GrouperClientWs</B>()</PRE>
 </TR>
 </TABLE>
 
-<A NAME="executeService(java.lang.String, java.lang.Object, java.lang.String)"><!-- --></A><H3>
+<A NAME="assignContentType(java.lang.String)"><!-- --></A><H3>
+assignContentType</H3>
+<PRE>
+public <A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/GrouperClientWs.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws">GrouperClientWs</A> <B>assignContentType</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;theContentType)</PRE>
+<DL>
+<DD>assign the content type, defaults to xml
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>theContentType</CODE> - 
+<DT><B>Returns:</B><DD>this for chaining</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="executeService(java.lang.String, java.lang.Object, java.lang.String, java.lang.String)"><!-- --></A><H3>
 executeService</H3>
 <PRE>
 public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Object</A> <B>executeService</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;urlSuffix,
                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Object</A>&nbsp;toSend,
-                             <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;labelForLog)
+                             <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;labelForLog,
+                             <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;clientVersion)
                       throws <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/io/UnsupportedEncodingException.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.io">UnsupportedEncodingException</A>,
                              HttpException,
                              <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/io/IOException.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.io">IOException</A></PRE>
 <DL>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>urlSuffix</CODE> - e.g. groups/aStem:aGroup/members<DD><CODE>toSend</CODE> - <DD><CODE>labelForLog</CODE> - label if the request is logged to file
+<DT><B>Parameters:</B><DD><CODE>urlSuffix</CODE> - e.g. groups/aStem:aGroup/members<DD><CODE>toSend</CODE> - is the bean which will transform into XML, or just a string of XML to send...<DD><CODE>labelForLog</CODE> - label if the request is logged to file<DD><CODE>clientVersion</CODE> - 
 <DT><B>Returns:</B><DD>the response object
 <DT><B>Throws:</B>
 <DD><CODE><A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/io/UnsupportedEncodingException.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.io">UnsupportedEncodingException</A></CODE>
@@ -261,15 +287,19 @@ public <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?ro
 </DL>
 <HR>
 
-<A NAME="handleFailure(java.lang.String)"><!-- --></A><H3>
+<A NAME="handleFailure(java.lang.Object, edu.internet2.middleware.grouperClient.ws.beans.ResultMetadataHolder[], java.lang.String)"><!-- --></A><H3>
 handleFailure</H3>
 <PRE>
-public void <B>handleFailure</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resultMessage)</PRE>
+public void <B>handleFailure</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/Object.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">Object</A>&nbsp;responseContainer,
+                          <A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/beans/ResultMetadataHolder.html?root=I2MI&view=co&pathrev=HEAD" title="interface in edu.internet2.middleware.grouperClient.ws.beans">ResultMetadataHolder</A>[]&nbsp;resultMetadataHolders,
+                          <A HREF="http://java.sun.com/j2se/1.4.2/docs/api/java/lang/String.html?root=I2MI&view=co&pathrev=HEAD" title="class or interface in java.lang">String</A>&nbsp;resultMessage)</PRE>
 <DL>
 <DD>if failure, handle it
 <P>
 <DD><DL>
-<DT><B>Parameters:</B><DD><CODE>resultMessage</CODE> - </DL>
+<DT><B>Parameters:</B><DD><CODE>responseContainer</CODE> - is the object that everything marshaled to<DD><CODE>resultMetadataHolders</CODE> - <DD><CODE>resultMessage</CODE> - 
+<DT><B>Throws:</B>
+<DD><CODE><A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/GcWebServiceError.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws">GcWebServiceError</A></CODE> - if there is a problem</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
@@ -302,8 +332,8 @@ public void <B>handleFailure</B>(<A HREF="http://java.sun.com/j2se/1.4.2/docs/ap
 
 <TR>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
-&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/GcTransactionType.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouperClient.ws"><B>PREV CLASS</B></A>&nbsp;
-&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/WsMemberFilter.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouperClient.ws"><B>NEXT CLASS</B></A></FONT></TD>
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/GcWebServiceError.html?root=I2MI&view=co&pathrev=HEAD" title="class in edu.internet2.middleware.grouperClient.ws"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../../../edu/internet2/middleware/grouperClient/ws/SaveMode.html?root=I2MI&view=co&pathrev=HEAD" title="enum in edu.internet2.middleware.grouperClient.ws"><B>NEXT CLASS</B></A></FONT></TD>
 <TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
   <A HREF="../../../../../index.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>FRAMES</B></A>  &nbsp;
 &nbsp;<A HREF="GrouperClientWs.html?root=I2MI&view=co&pathrev=HEAD" target="_top"><B>NO FRAMES</B></A>  &nbsp;

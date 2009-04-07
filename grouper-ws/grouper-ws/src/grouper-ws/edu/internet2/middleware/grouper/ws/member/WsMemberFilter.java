@@ -22,7 +22,8 @@ import edu.internet2.middleware.subject.Subject;
  * 
  */
 public enum WsMemberFilter {
-  /** retrieve all members (immediate and effective) */
+
+  /** retrieve all members (immediate, effective and composite) */
   All {
 
     /**
@@ -94,7 +95,7 @@ public enum WsMemberFilter {
     }
   },
 
-  /** retrieve non direct (non immediate) members */
+  /** retrieve members which exist due a group as a member of another group */
   Effective {
 
     /**
@@ -168,7 +169,7 @@ public enum WsMemberFilter {
     }
   },
 
-  /** return only direct members, not indirect */
+  /** return only direct members of a group */
   Immediate {
 
     /**
@@ -244,8 +245,8 @@ public enum WsMemberFilter {
   },
 
   /**
-   * if this is a composite group, then return the two groups which make up
-   * the composition (and the group math operator (union, minus, etc)
+   * if this is a composite group, then return all the memberships that match the 
+   * composite operator (union, intersection, minus)
    */
   Composite {
 
