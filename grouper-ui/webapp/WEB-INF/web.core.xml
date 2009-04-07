@@ -20,11 +20,15 @@
   	<filter-class>edu.internet2.middleware.grouper.ui.LoginCheckFilter</filter-class>
   	<init-param>    
   		<param-name>failureUrl</param-name>    
-  		<param-value>/</param-value>  
+  		<param-value>/index.jsp</param-value>  
   	</init-param>
 	 	<init-param>    
   	<param-name>ignore</param-name>    
   		<param-value>:/populateIndex.do:/callLogin.do:/error.do:/logout.do:</param-value>  
+  	</init-param>
+  	<init-param>    
+  		<param-name>grouperRole</param-name>    
+  		<param-value>@grouper.role@</param-value>  
   	</init-param>
   </filter>
   <filter>
@@ -135,7 +139,7 @@
     </web-resource-collection>
     <auth-constraint>
        <!-- NOTE:  This role is not present in the default users file -->
-       <role-name>grouper_user</role-name>
+       <role-name>@grouper.role@</role-name>
     </auth-constraint>
   </security-constraint>
 
@@ -148,8 +152,8 @@
   <!-- Security roles referenced by this web application -->
   <security-role>
     <description>
-      The role that is required to log in to the Manager Application
+      The role that is required to log in to teh Grouper UI
     </description>
-    <role-name>grouper_user</role-name>
+    <role-name>@grouper.role@</role-name>
   </security-role>
 </web-app>

@@ -374,7 +374,7 @@
 		Merge any xml files in temp directory with web.core.xml 
 	-->
 	<target name="-merge-xmls" unless="web.xmls.isempty">
-	<copy file="${ui.folder}/webapp/WEB-INF/web.core.xml" tofile="${temp.dir}/50.web.core.xml"/>
+	<copy file="${ui.folder}/webapp/WEB-INF/web.core.xml" tofile="${temp.dir}/50.web.core.xml" filtering="true"/>
 	
 	<path id="final.web.xml.files">
 			<fileset dir="${temp.dir}">
@@ -403,7 +403,7 @@
 		 If nothing to merge just copy core file
 	-->
 	<target name="-copy-core-web-xml" if="web.xmls.isempty">
-		<copy file="${ui.folder}/webapp/WEB-INF/web.core.xml" tofile="${webapp.folder}/WEB-INF/web.xml" overwrite="true"/>
+		<copy file="${ui.folder}/webapp/WEB-INF/web.core.xml" tofile="${webapp.folder}/WEB-INF/web.xml" overwrite="true" filtering="true"/>
 	</target>
 	
 	<!--

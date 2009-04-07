@@ -1,7 +1,7 @@
 <html>
 <%
 String location=null;
-if(request.getRemoteUser()==null) {
+if(request.getRemoteUser()==null || "y".equals(request.getParameter("badRole"))) {
 	location="populateIndex.do";
 }else{
 	location="home.do";
