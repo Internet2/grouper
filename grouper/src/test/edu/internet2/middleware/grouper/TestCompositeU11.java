@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -28,24 +29,23 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU11.java,v 1.13 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestCompositeU11.java,v 1.13.2.1 2009-04-07 20:40:01 mchyzer Exp $
  */
 public class TestCompositeU11 extends GrouperTest {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestCompositeU11("testAddUnionWithOneChildAndNoParents"));
+  }
+  
   // Private Static Class Constants
   private static final Log LOG = GrouperUtil.getLog(TestCompositeU11.class);
 
   public TestCompositeU11(String name) {
     super(name);
-  }
-
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
   }
 
   public void testAddUnionWithOneChildAndNoParents() {

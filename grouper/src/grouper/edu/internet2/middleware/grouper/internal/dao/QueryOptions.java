@@ -1,11 +1,34 @@
 /*
  * @author mchyzer
- * $Id: QueryOptions.java,v 1.1.2.1 2009-04-07 16:21:08 mchyzer Exp $
+ * $Id: QueryOptions.java,v 1.1.2.2 2009-04-07 20:40:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
 /**
+ * <pre>
  * options on a query (e.g. sorting, paging, total result size, etc)
+ * 
+ * Sorting example:
+ *    queryOptions = new QueryOptions().sortAsc("m.subjectIdDb");
+ *
+ *    Set&lt;Member&gt; members = group.getImmediateMembers(field, queryOptions);
+ *
+ * Paging example:
+ *    QueryPaging queryPaging = new QueryPaging();
+ *    queryPaging.setPageSize(pageSize);
+ *    queryPaging.setPageNumber(pageNumberOneIndexed);
+ *    -or- queryPaging.setFirstIndexOnPage(startZeroIndexed);
+ *    queryOptions = new QueryOptions().paging(queryPaging);
+ *
+ *    Set&lt;Member&gt; members = group.getImmediateMembers(field, queryOptions);
+ *
+ * Query count example:
+ * 
+ *    QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+ *    group.getImmediateMembers(field, queryOptions);
+ *    int totalSize = queryOptions.getCount().intValue();
+ * 
+ * </pre>
  */
 public class QueryOptions {
 
