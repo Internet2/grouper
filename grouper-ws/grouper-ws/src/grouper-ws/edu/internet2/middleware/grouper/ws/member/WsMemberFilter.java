@@ -95,7 +95,10 @@ public enum WsMemberFilter {
     }
   },
 
-  /** retrieve members which exist due a group as a member of another group */
+  /**
+   * retrieve members which exist due a group as a member of another group (for composite
+   * groups, this will not return anything) 
+   */
   Effective {
 
     /**
@@ -168,8 +171,9 @@ public enum WsMemberFilter {
       return GrouperUtil.nonNull(member.getEffectiveGroups(field));
     }
   },
-
-  /** return only direct members of a group */
+  /**
+   * return only direct members of a group (for composite groups this will not return anything) 
+   */
   Immediate {
 
     /**
@@ -246,7 +250,8 @@ public enum WsMemberFilter {
 
   /**
    * if this is a composite group, then return all the memberships that match the 
-   * composite operator (union, intersection, minus)
+   * composite operator (union, intersection, complement).  This will be the same as
+   * All for composite groups.
    */
   Composite {
 
