@@ -51,7 +51,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.24.2.1 2009-04-07 16:21:08 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.24.2.2 2009-04-07 18:26:43 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -465,17 +465,14 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         "select ms, m from Membership as ms, Member as m where  "
         + "     ms.ownerUuid  = :owner            "
         + "and  ms.memberUuid = :member           "
-        + "and  ms.fieldId = field.uuid "
-        + "and  field.name   = :fname            "
-        + "and  field.typeString       = :ftype             "
+        + "and  ms.fieldId = :fuuid "
         + "and  ms.type       = :type             "
         + "and  ms.memberUuid = m.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByOwnerAndMemberAndFieldAndType")
       .setString( "owner",  ownerUUID              )
       .setString( "member", memberUUID             )
-      .setString( "fname",  f.getName()            )
-      .setString( "ftype",  f.getType().toString() ) 
+      .setString( "fuuid",  f.getUuid()            )
       .setString( "type",   type                   )
       .uniqueResult(Object[].class);
     if (result==null || result[0]==null) {
