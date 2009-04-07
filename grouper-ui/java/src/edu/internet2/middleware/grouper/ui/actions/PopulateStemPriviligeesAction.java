@@ -172,7 +172,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateStemPriviligeesAction.java,v 1.8 2008-04-15 13:56:37 isgwb Exp $
+ * @version $Id: PopulateStemPriviligeesAction.java,v 1.8.6.1 2009-04-07 16:21:04 mchyzer Exp $
  */
 
 public class PopulateStemPriviligeesAction extends GrouperCapableAction {
@@ -234,7 +234,7 @@ public class PopulateStemPriviligeesAction extends GrouperCapableAction {
 		//Retrieve privilegees
 		Set subjects = GrouperHelper.getSubjectsWithPriv(stem,privilege);
 		List subjectPrivilegeMaps = GrouperHelper.subjects2SubjectPrivilegeMaps(
-					grouperSession,sort(subjects,request,"privilegees"),stem,privilege);
+					grouperSession,sort(subjects,request,"privilegees", -1),stem,privilege);
 		
 
 		//Set up CollectionPager for view

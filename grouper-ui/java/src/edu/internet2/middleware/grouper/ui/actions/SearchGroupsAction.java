@@ -155,7 +155,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table> 
  * @author Gary Brown.
- * @version $Id: SearchGroupsAction.java,v 1.9 2007-09-30 08:58:18 isgwb Exp $
+ * @version $Id: SearchGroupsAction.java,v 1.9.8.1 2009-04-07 16:21:04 mchyzer Exp $
  */
 
 public class SearchGroupsAction extends GrouperCapableAction {
@@ -218,7 +218,7 @@ public class SearchGroupsAction extends GrouperCapableAction {
 			}else{
 				session.setAttribute("subtitle", "groups.action.search");
 			}
-			groupRes=sort(groupRes,request,sortContext);
+			groupRes=sort(groupRes,request,sortContext, -1);
 		}catch(IllegalArgumentException e) {
 			request.setAttribute("message",new Message("find.results.empty-search",true));
 			return new ActionForward("/populate" + getBrowseMode(session) + "Groups.do");

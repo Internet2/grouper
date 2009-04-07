@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: RepositoryBrowser.java,v 1.8 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: RepositoryBrowser.java,v 1.8.8.1 2009-04-07 16:21:04 mchyzer Exp $
  */
 
 public interface RepositoryBrowser {
@@ -52,7 +52,7 @@ public interface RepositoryBrowser {
 	/**
 	 * Given a node return children as appropriate for browse mode
 	 * @param node
-	 * @param start
+	 * @param start 0 based start index
 	 * @param pageSize
 	 * @param totalCount
 	 * @param isFlat

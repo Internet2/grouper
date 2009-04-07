@@ -76,7 +76,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.20 2008-09-09 20:03:41 mchyzer Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.20.2.1 2009-04-07 16:21:04 mchyzer Exp $
  */
 
 /**
@@ -481,7 +481,7 @@ public abstract class LowLevelGrouperCapableAction
 		if(field !=null) {
 			sortContext="search:" + field;
 		}
-		savedAsMaps=sort(savedAsMaps,request,sortContext);
+		savedAsMaps=sort(savedAsMaps,request,sortContext, -1);
 		request.setAttribute("savedSubjects",new ArrayList(savedAsMaps));
 		request.setAttribute("savedSubjectsSize",new Integer(savedAsMaps.size()));	
 	}
@@ -494,7 +494,7 @@ public abstract class LowLevelGrouperCapableAction
 			sortContext="search:" + field;
 		}
 		List savedAsMaps =  GrouperHelper.subjects2Maps(getSavedSubjects(session).toArray());
-		savedAsMaps=sort(savedAsMaps,request,sortContext);
+		savedAsMaps=sort(savedAsMaps,request,sortContext, -1);
 		request.setAttribute("savedSubjects",new ArrayList(savedAsMaps));
 		request.setAttribute("savedSubjectsSize",new Integer(savedAsMaps.size()));	
 	}
@@ -534,9 +534,11 @@ public abstract class LowLevelGrouperCapableAction
 	 * @param input the Collection to sort
 	 * @param request the current request object
 	 * @param context the context in which sorting is taking place
+	 * @param collectionSize is the total size of the collection, or -1 if the collection is the entire thing
 	 * @return the input Collection as a sorted List
 	 */
-	public static List sort(Collection input,HttpServletRequest request,String context) {
+	public static List sort(Collection input,HttpServletRequest request,
+	    String context, int collectionSize) {
 		HttpSession session = request.getSession();
 		GrouperComparator gc = (GrouperComparator)session.getAttribute("GrouperComparator");
 		ResourceBundle config = getMediaResources(request);
@@ -565,7 +567,8 @@ public abstract class LowLevelGrouperCapableAction
 		}else{
 			toSort=new ArrayList(input);
 		}
-		if(toSort.size()<=max) Collections.sort(toSort,gc);
+		int toSortSize = collectionSize == -1 ? toSort.size() : collectionSize;
+    if(toSortSize<=max) Collections.sort(toSort,gc);
 		return toSort;
 	}
 	

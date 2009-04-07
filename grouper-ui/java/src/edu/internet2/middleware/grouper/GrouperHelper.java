@@ -77,7 +77,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.54 2008-12-15 15:31:53 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.54.2.1 2009-04-07 16:21:04 mchyzer Exp $
  */
 
 
@@ -683,7 +683,7 @@ public class GrouperHelper {
 	 *  
 	 * @param s GrouperSession for authenticated user
 	 * @param members List of GrouperLists or GrouperMembers
-	 * @param start of sublist
+	 * @param start 0 based start index
 	 * @param pageSize number of results to return
 	 * @return List of Subjects wrapped as Maps
 	 */
@@ -2320,7 +2320,7 @@ public class GrouperHelper {
 	 * @throws MemberNotFoundException
 	 * @throws GroupNotFoundException
 	 */
-	public static List getOneMembershipPerSubjectOrGroup(Set memberships,String type,Map count,Map sources,int membersFilterLimit) 
+	public static List<Membership> getOneMembershipPerSubjectOrGroup(Set memberships,String type,Map count,Map sources,int membersFilterLimit) 
 		throws MemberNotFoundException,GroupNotFoundException{
 		//won't pass back values but will give 'unique' list
 		if(count==null) count=new HashMap();

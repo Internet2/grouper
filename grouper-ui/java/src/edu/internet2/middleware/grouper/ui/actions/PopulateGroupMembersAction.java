@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +48,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
@@ -270,7 +272,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.23 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.23.2.1 2009-04-07 16:21:04 mchyzer Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(PopulateGroupMembersAction.class);
@@ -289,6 +291,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			HttpServletRequest request, HttpServletResponse response,
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
+	  	  
 		NavExceptionHelper neh=getExceptionHelper(session);
 		if(!isEmpty(request.getParameter("submit.addMembers"))) return mapping.findForward(FORWARD_AddGroupMembers);
 		if(!isEmpty(request.getParameter("submit.import"))) {
@@ -376,12 +379,29 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		request.setAttribute("listFields",listFields);
 		request.setAttribute("listFieldsSize",new Integer(listFields.size()));
 		
-		Set members = null;
+		Set<Membership> members = null;
+		
+    //Set up CollectionPager for view
+    String startStr = request.getParameter("start");
+    if (startStr == null || "".equals(startStr))
+      startStr = "0";
+
+    int start = Integer.parseInt(startStr);
+    int pageSize = getPageSize(session);
+    int end = start + pageSize;
+
+    ResourceBundle resourceBundle = LowLevelGrouperCapableAction.getMediaResources(request);
+    String sortLimitString=resourceBundle.getString("comparator.sort.limit");
+    int sortLimit=Integer.parseInt(sortLimitString);
+
+    int[] numberOfRecords = new int[1];
+
 		if ("imm".equals(membershipListScope)) {
 			if(group.hasComposite()&& "members".equals(membershipField)) {
 				members=new HashSet();
 			}else{
-				members = group.getImmediateMemberships(mField);
+				members = MembershipFinder.internal_findAllImmediateByGroupAndFieldAndPage(
+				    group, mField, start, pageSize, sortLimit, numberOfRecords);
 			}
 			if("members".equals(membershipField)) {
 				noResultsKey="groups.list-members.imm.none";
@@ -390,9 +410,11 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			}
 		} else if ("eff".equals(membershipListScope)) {
 			if(group.hasComposite()&& membershipField.equals("members")) {
-				members = group.getCompositeMemberships();
+				members = MembershipFinder.internal_findAllCompositeByGroupAndPage(group,
+				    start, pageSize, sortLimit, numberOfRecords);
 			}else{
-				members = group.getEffectiveMemberships(mField);
+				members = MembershipFinder.internal_findAllEffectiveByGroupAndFieldAndPage(group,
+				    mField, start, pageSize, sortLimit, numberOfRecords);
 			}
 			if("members".equals(membershipField)) {
 				noResultsKey="groups.list-members.eff.none";
@@ -400,7 +422,8 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 				noResultsKey="groups.list-members.custom.eff.none";
 			}
 		} else {
-			members = group.getMemberships(mField);
+			members = MembershipFinder.internal_findAllByGroupAndFieldAndPage(
+			    group, mField, start, pageSize, sortLimit, numberOfRecords);
 			if("members".equals(membershipField)) {
 				noResultsKey="groups.list-members.all.none";
 			}else{
@@ -432,14 +455,15 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			}catch(Exception e){}
 		}
 		
-		List uniqueMemberships = null;
-		if("imm".equals(membershipListScope) && membersFilterLimit<members.size()) {
-			uniqueMemberships=new ArrayList(members);
+		List<Membership> uniqueMemberships = null;
+		int membershipCount = numberOfRecords[0];
+    if("imm".equals(membershipListScope) && membersFilterLimit<membershipCount) {
+			uniqueMemberships=new ArrayList<Membership>(members);
 		}else{
 			uniqueMemberships=GrouperHelper.getOneMembershipPerSubjectOrGroup(members,"group",countMap,sources,membersFilterLimit);
 		}
 		
-		uniqueMemberships=sort(uniqueMemberships,request,"members");
+		uniqueMemberships=sort(uniqueMemberships,request,"members", membershipCount);
 		Map.Entry entry = null;
 		Iterator sIterator = sources.entrySet().iterator();
 		String lookupKey=null;
@@ -451,7 +475,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			}catch(Exception e){}
 		}
 		if("_void_".equals(selectedSource)) selectedSource=null;
-		if(!isEmpty(selectedSource) && sources.get(selectedSource)!=null && members.size()<membersFilterLimit) {
+		if(!isEmpty(selectedSource) && sources.get(selectedSource)!=null && membershipCount<membersFilterLimit) {
 			Iterator it = uniqueMemberships.iterator();
 			Membership mShip=null;
 			while(it.hasNext()) {
@@ -472,20 +496,15 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		}
 		
 		
-		//Set up CollectionPager for view
-		String startStr = request.getParameter("start");
-		if (startStr == null || "".equals(startStr))
-			startStr = "0";
-
-		int start = Integer.parseInt(startStr);
-		int pageSize = getPageSize(session);
-		int end = start + pageSize;
 		if (end > uniqueMemberships.size())
 			end = uniqueMemberships.size();
 		
-		List membershipMaps = GrouperHelper.memberships2Maps(
-				grouperSession, uniqueMemberships.subList(start, end));
-		int uniqueMembershipCount = uniqueMemberships.size();
+		//only get sublist of the list is big
+		List<Membership> subList = uniqueMemberships.size() > end 
+		  ? uniqueMemberships.subList(start, end) : uniqueMemberships;
+    List membershipMaps = GrouperHelper.memberships2Maps(
+				grouperSession, subList);
+		int uniqueMembershipCount = membershipCount;
 		GrouperHelper.setMembershipCountPerSubjectOrGroup(membershipMaps,"group",countMap);
 		if(compMap!=null) {
 			membershipMaps.add(0,compMap);
@@ -511,7 +530,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		
 		request.setAttribute("groupMembership", membership);
 		request.setAttribute("noResultsKey", noResultsKey);
-		request.setAttribute("removableMembers",new Boolean("imm".equals(membershipListScope) && resolver.canManageField(mField.getName()) && !group.isComposite() && members.size()>0));
+		request.setAttribute("removableMembers",new Boolean("imm".equals(membershipListScope) && resolver.canManageField(mField.getName()) && !group.isComposite() && membershipCount>0));
 		
 		return mapping.findForward(FORWARD_GroupMembers);
 
