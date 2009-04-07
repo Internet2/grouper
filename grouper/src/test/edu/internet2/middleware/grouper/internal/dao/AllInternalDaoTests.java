@@ -1,9 +1,10 @@
 /*
  * @author mchyzer
- * $Id: AllInternalDaoTests.java,v 1.1.2.1 2009-03-29 03:56:38 mchyzer Exp $
+ * $Id: AllInternalDaoTests.java,v 1.1.2.2 2009-04-07 16:21:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
+import edu.internet2.middleware.grouper.internal.dao.hib3.AllDaoHib3Tests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
@@ -23,6 +24,8 @@ public class AllInternalDaoTests {
     suite.addTestSuite(QuerySortTest.class);
     suite.addTestSuite(QueryPagingTest.class);
     //$JUnit-END$
+    
+    suite.addTest(AllDaoHib3Tests.suite());
     return suite;
   }
 

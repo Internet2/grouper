@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -73,6 +74,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
@@ -112,7 +114,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.214.2.4 2009-02-24 20:16:11 mchyzer Exp $
+ * @version $Id: Group.java,v 1.214.2.5 2009-04-07 16:21:08 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -1540,9 +1542,29 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * @return  A set of {@link Member} objects.
    * @since   1.0
    */
-  public Set getCompositeMembers() {
-    return MembershipFinder.internal_findMembersByType(
-      GrouperSession.staticGrouperSession(), this, Group.getDefaultList(), Membership.COMPOSITE
+  public Set<Member> getCompositeMembers() {
+    return this.getCompositeMembers(null);
+  } // public Set getCompositeMembers()
+
+  /**
+   * Get {@link Composite} {@link Member}s of this group.
+   * 
+   * A composite group is composed of two groups and a set operator 
+   * (stored in grouper_composites table)
+   * (e.g. union, intersection, etc).  A composite group has no immediate members.
+   * All subjects in a composite group are effective members.
+   * 
+   * <pre class="eg">
+   * Set members = g.getCompositeMembers();
+   * </pre>
+   * @param queryOptions 
+   * @return  A set of {@link Member} objects.
+   * @since   1.0
+   */
+  public Set<Member> getCompositeMembers(QueryOptions queryOptions) {
+    return MemberFinder.internal_findMembersByType(
+      GrouperSession.staticGrouperSession(), this, Group.getDefaultList(), 
+      Membership.COMPOSITE, queryOptions
     );
   } // public Set getCompositeMembers()
 
@@ -1738,7 +1760,35 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
   public Set getEffectiveMembers(Field f) 
     throws  SchemaException
   {
-    return MembershipFinder.internal_findMembersByType(GrouperSession.staticGrouperSession(), this, f, Membership.EFFECTIVE);
+    return this.getEffectiveMembers(f, null);
+  }  // public Set getEffectiveMembers(f)
+
+  /**
+   * Get effective members of this group.
+   * 
+   * An effective member has an indirect membership to a group
+   * (e.g. in a group within a group).  All subjects in a
+   * composite group are effective members (since the composite
+   * group has two groups and a set operator and no other immediate
+   * members).  Note that a member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * 'group within a group' can be nested to any level so long as it does 
+   * not become circular.  A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * Set effectives = g.getEffectiveMembers(f);
+   * </pre>
+   * @param   f Get members in this list field.
+   * @param queryOptions 
+   * @return  A set of {@link Member} objects.
+   * @throws  SchemaException
+   */
+  public Set getEffectiveMembers(Field f, QueryOptions queryOptions) 
+    throws  SchemaException
+  {
+    return MemberFinder.internal_findMembersByType(
+        GrouperSession.staticGrouperSession(), this, f, Membership.EFFECTIVE, queryOptions);
   }  // public Set getEffectiveMembers(f)
 
   /**
@@ -1869,11 +1919,33 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * @return  A set of {@link Member} objects.
    * @throws  SchemaException
    */
-  public Set getImmediateMembers(Field f) 
-    throws  SchemaException
-  {
-    return MembershipFinder.internal_findMembersByType(
-      GrouperSession.staticGrouperSession(), this, f, Membership.IMMEDIATE
+  public Set<Member> getImmediateMembers(Field f) 
+    throws  SchemaException {
+    return getImmediateMembers(f, null);
+  }
+
+  /**
+   * Get immediate members of this group.  
+   * 
+   * An immediate member is directly assigned to a group.
+   * A composite group has no immediate members.  Note that a 
+   * member can have 0 to 1 immediate memberships
+   * to a single group, and 0 to many effective memberships to a group.
+   * A group can have potentially unlimited effective 
+   * memberships
+   * 
+   * <pre class="eg">
+   * Set immediates = g.getImmediateMembers(f);
+   * </pre>
+   * @param   f Get members in this list field.
+   * @param queryOptions 
+   * @return  A set of {@link Member} objects.
+   * @throws  SchemaException
+   */
+  public Set<Member> getImmediateMembers(Field f, QueryOptions queryOptions) 
+    throws  SchemaException {
+    return MemberFinder.internal_findMembersByType(
+      GrouperSession.staticGrouperSession(), this, f, Membership.IMMEDIATE, queryOptions
     );
   } // public Set getImmediateMembers(f)
 
@@ -1930,7 +2002,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * @return  A set of {@link Membership} objects.
    * @throws  SchemaException
    */
-  public Set getImmediateMemberships(Field f) 
+  public Set<Membership> getImmediateMemberships(Field f) 
     throws  SchemaException
   {
     GrouperSession.validate(GrouperSession.staticGrouperSession());
@@ -1971,9 +2043,23 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * @throws  SchemaException
    */
   public Set<Member> getMembers(Field f) 
-    throws  SchemaException
-  {
-    return MembershipFinder.findMembers(this, f);
+    throws  SchemaException {
+    return this.getMembers(f, null);
+  } 
+
+  /**
+   * Get members of this group.
+   * <pre class="eg">
+   * Set members = g.getMembers(f);
+   * </pre>
+   * @param   f Get members in this list field.
+   * @param queryOptions paging, sorting, count, etc
+   * @return  A set of {@link Member} objects.
+   * @throws  SchemaException
+   */
+  public Set<Member> getMembers(Field f, QueryOptions queryOptions)
+    throws  SchemaException {
+    return MembershipFinder.findMembers(this, f, queryOptions);
   } 
 
   /**
@@ -2026,6 +2112,98 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
       )
     );
   } // public Set getMemberships(f)
+
+  /**
+   * Get memberships of this group, for a certain collection of members
+   * 
+   * A membership is the object which represents a join of member
+   * and group.  Has metadata like type and creator,
+   * and, if an effective membership, the parent membership
+   * 
+   * <pre class="eg">
+   * Set memberships = g.getMemberships(f);
+   * </pre>
+   * @param   f Get memberships in this list field.
+   * @param members 
+   * @return  A set of {@link Membership} objects.
+   * @throws  SchemaException
+   */
+  public Set<Membership> getMemberships(Field f, Collection<Member> members) 
+    throws  SchemaException {
+    return PrivilegeHelper.canViewMemberships( 
+        GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership()
+          .findAllByOwnerAndFieldAndMembers( this.getUuid(), f, members )
+      );
+  }
+
+  /**
+   * Get memberships of this group, for a certain collection of members
+   * 
+   * A membership is the object which represents a join of member
+   * and group.  Has metadata like type and creator,
+   * and, if an effective membership, the parent membership
+   * 
+   * <pre class="eg">
+   * Set memberships = g.getMemberships(f);
+   * </pre>
+   * @param   f Get memberships in this list field.
+   * @param members 
+   * @return  A set of {@link Membership} objects.
+   * @throws  SchemaException
+   */
+  public Set<Membership> getImmediateMemberships(Field f, Collection<Member> members) 
+    throws  SchemaException {
+    return PrivilegeHelper.canViewMemberships( 
+        GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership()
+          .findAllByOwnerAndFieldAndMembersAndType( this.getUuid(), f, members, "immediate" )
+      );
+  }
+
+  /**
+   * Get memberships of this group, for a certain collection of members
+   * 
+   * A membership is the object which represents a join of member
+   * and group.  Has metadata like type and creator,
+   * and, if an effective membership, the parent membership
+   * 
+   * <pre class="eg">
+   * Set memberships = g.getMemberships(f);
+   * </pre>
+   * @param   f Get memberships in this list field.
+   * @param members 
+   * @return  A set of {@link Membership} objects.
+   * @throws  SchemaException
+   */
+  public Set<Membership> getEffectiveMemberships(Field f, Collection<Member> members) 
+    throws  SchemaException {
+    return PrivilegeHelper.canViewMemberships( 
+        GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership()
+          .findAllByOwnerAndFieldAndMembersAndType( this.getUuid(), f, members, "effective" )
+      );
+  }
+
+  /**
+   * Get memberships of this group, for a certain collection of members
+   * 
+   * A membership is the object which represents a join of member
+   * and group.  Has metadata like type and creator,
+   * and, if an effective membership, the parent membership
+   * 
+   * <pre class="eg">
+   * Set memberships = g.getMemberships(f);
+   * </pre>
+   * @param   f Get memberships in this list field.
+   * @param members 
+   * @return  A set of {@link Membership} objects.
+   * @throws  SchemaException
+   */
+  public Set<Membership> getCompositeMemberships(Collection<Member> members) 
+    throws  SchemaException {
+    return PrivilegeHelper.canViewMemberships( 
+        GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership()
+          .findAllByOwnerAndCompositeAndMembers( this.getUuid(), members )
+      );
+  }
 
   /**
    * Get subject that last modified this group.

@@ -82,7 +82,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.116.2.3 2009-03-29 03:56:38 mchyzer Exp $
+ * @version $Id: Member.java,v 1.116.2.4 2009-04-07 16:21:08 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -149,6 +149,9 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
       FIELD_SUBJECT_SOURCE_ID, FIELD_SUBJECT_TYPE_ID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+  
+  /** javabeans property for uuid */
+  public static final String PROPERTY_UUID = "uuid";
   
   /**  */
   @GrouperIgnoreFieldConstant 

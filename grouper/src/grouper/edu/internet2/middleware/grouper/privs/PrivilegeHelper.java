@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -44,7 +45,7 @@ import edu.internet2.middleware.subject.Subject;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.3.2.1 2009-03-18 21:15:34 mchyzer Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.3.2.2 2009-04-07 16:21:09 mchyzer Exp $
  * @since   1.2.1
  */
 public class PrivilegeHelper {
@@ -238,6 +239,27 @@ public class PrivilegeHelper {
       }
     }
     return mships;
+  } 
+
+
+  /**
+   * @param grouperSession 
+   * @param group 
+   * @param field 
+   * @return true or false
+   */
+  public static boolean canViewMembers(GrouperSession grouperSession, Group group, Field field) {
+    try {
+      dispatch( grouperSession, group, grouperSession.getSubject(), field.getReadPriv() );
+      return true;
+    } catch (InsufficientPrivilegeException e) {
+      return false;
+    } catch (SchemaException e) {
+      throw new RuntimeException("Problem viewing members: " 
+          + (grouperSession == null ? null : GrouperUtil.subjectToString(grouperSession.getSubject())) 
+          + ", " + (group == null ? null : group.getName())
+          + ", " + (field == null ? null : field.getName()), e);
+    }
   } 
 
   /** logger */

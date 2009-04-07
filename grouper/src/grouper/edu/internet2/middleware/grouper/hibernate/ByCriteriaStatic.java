@@ -14,6 +14,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.internal.dao.QuerySortField;
@@ -80,11 +81,8 @@ public class ByCriteriaStatic {
       .append("', cacheable: ").append(this.cacheable);
     result.append(", cacheRegion: ").append(this.cacheRegion);
     result.append(", tx type: ").append(this.grouperTransactionType);
-    if (this.sort != null) {
-      result.append(", sort: ").append(this.sort.sortString(false));
-    }
-    if (this.paging != null) {
-      result.append(", ").append(this.paging.toString());
+    if (this.queryOptions != null) {
+      result.append(", options: ").append(this.queryOptions.toString());
     }
     return result.toString();
   }
@@ -104,29 +102,16 @@ public class ByCriteriaStatic {
    */
   private Class<?> persistentClass = null;
 
-  /** if we are sorting */
-  private QuerySort sort = null;
+  /** if we are sorting, paging, resultSize, etc */
+  private QueryOptions queryOptions = null;
 
   /**
-   * add a sort to the query
-   * @param querySort1
+   * add a paging/sorting/resultSetSize, etc to the query
+   * @param queryOptions1
    * @return this for chaining
    */
-  public ByCriteriaStatic sort(QuerySort querySort1) {
-    this.sort = querySort1;
-    return this;
-  }
-
-  /** paging */
-  private QueryPaging paging = null;
-
-  /**
-   * add a paging to the query
-   * @param queryPaging1
-   * @return this for chaining
-   */
-  public ByCriteriaStatic paging(QueryPaging queryPaging1) {
-    this.paging = queryPaging1;
+  public ByCriteriaStatic options(QueryOptions queryOptions1) {
+    this.queryOptions = queryOptions1;
     return this;
   }
 
@@ -226,31 +211,43 @@ public class ByCriteriaStatic {
             public Object callback(HibernateSession hibernateSession) {
               
               Session session  = hibernateSession.getSession();
-              Criteria criteria = ByCriteriaStatic.this.attachCriteriaInfo(session);
-              //not sure this can ever be null, but make sure not to make iterating results easier
-              List<Object> list = GrouperUtil.nonNull(criteria.list());
-              HibUtils.evict(hibernateSession, list, true);
+              List<T> list = null;
+              
+              //see if we are even retrieving the results
+              if (ByCriteriaStatic.this.queryOptions == null || ByCriteriaStatic.this.queryOptions.isRetrieveResults()) {
+                Criteria criteria = ByCriteriaStatic.this.attachCriteriaInfo(session);
+                //not sure this can ever be null, but make sure not to make iterating results easier
+                list = GrouperUtil.nonNull(criteria.list());
+                HibUtils.evict(hibernateSession, list, true);
+              }
+              //no nulls
+              list = GrouperUtil.nonNull(list);
+              QueryPaging queryPaging = ByCriteriaStatic.this.queryOptions == null ? null : ByCriteriaStatic.this.queryOptions.getQueryPaging();
               
               //now see if we should get the query count
-              if (ByCriteriaStatic.this.paging != null && ByCriteriaStatic.this.paging.isDoTotalCount()) {
+              boolean retrieveQueryCountNotForPaging = ByCriteriaStatic.this.queryOptions != null && ByCriteriaStatic.this.queryOptions.isRetrieveCount();
+              boolean findQueryCount = (queryPaging != null && queryPaging.isDoTotalCount()) 
+                || (retrieveQueryCountNotForPaging);
+              if (findQueryCount) {
                 
-                //see if we already know the total size (if less than page size and first page)
-                int resultSize = list.size();
-                if (resultSize >= ByCriteriaStatic.this.paging.getPageSize()) {
-                  resultSize = -1;
-                } else {
-                  //we are on the last page, see how many records came before us, add those in
-                  resultSize += (ByCriteriaStatic.this.paging.getPageSize() * (ByCriteriaStatic.this.paging.getPageNumber() - 1)); 
+                int resultSize = -1;
+                if (queryPaging != null) {
+                  //see if we already know the total size (if less than page size and first page)
+                  resultSize = GrouperUtil.length(list);
+                  if (resultSize >= queryPaging.getPageSize()) {
+                    resultSize = -1;
+                  } else {
+                    //we are on the last page, see how many records came before us, add those in
+                    resultSize += (queryPaging.getPageSize() * (queryPaging.getPageNumber() - 1)); 
+                  }
                 }
-
                 
                 //do this if we dont have a total, or if we are not caching the total
-                if (ByCriteriaStatic.this.paging.getTotalRecordCount() < 0 
-                    || !ByCriteriaStatic.this.paging.isCacheTotalCount() || resultSize > -1) {
-
+                if ((queryPaging != null && (queryPaging.getTotalRecordCount() < 0 || !queryPaging.isCacheTotalCount())) 
+                    || resultSize > -1 || retrieveQueryCountNotForPaging) {
+                  
                   //if we dont already know the size
                   if (resultSize == -1) {
-
                     queryCountQueries++;
 
                     Criteria countQuery = session.createCriteria(ByCriteriaStatic.this.persistentClass);
@@ -265,9 +262,16 @@ public class ByCriteriaStatic {
                     }
                     resultSize = (Integer)countQuery.list().get(0);
                   }
-                  ByCriteriaStatic.this.paging.setTotalRecordCount(resultSize);
-                  //calculate the page stuff like how many pages etc
-                  ByCriteriaStatic.this.paging.calculateIndexes();
+                  
+                  if (queryPaging != null) {
+                    queryPaging.setTotalRecordCount(resultSize);
+            
+                    //calculate the page stuff like how many pages etc
+                    queryPaging.calculateIndexes();
+                  }
+                  if (retrieveQueryCountNotForPaging) {
+                    ByCriteriaStatic.this.queryOptions.setCount((long)resultSize);
+                  }
                 }
               }
 
@@ -303,9 +307,9 @@ public class ByCriteriaStatic {
     if (ByCriteriaStatic.this.cacheRegion != null) {
       query.setCacheRegion(ByCriteriaStatic.this.cacheRegion);
     }
-    
-    if (this.sort != null) {
-      List<QuerySortField> sorts = this.sort.getQuerySortFields();
+    QuerySort querySort = this.queryOptions == null ? null : this.queryOptions.getQuerySort();
+    if (querySort != null) {
+      List<QuerySortField> sorts = querySort.getQuerySortFields();
       
       for (QuerySortField theSort : GrouperUtil.nonNull(sorts)) {
         
@@ -315,9 +319,10 @@ public class ByCriteriaStatic {
         
       }
     }
-    if (this.paging != null) {
-      query.setFirstResult(this.paging.getFirstIndexOnPage());
-      query.setMaxResults(this.paging.getPageSize());
+    QueryPaging queryPaging = this.queryOptions == null ? null : this.queryOptions.getQueryPaging();
+    if (queryPaging != null) {
+      query.setFirstResult(queryPaging.getFirstIndexOnPage());
+      query.setMaxResults(queryPaging.getPageSize());
     }
 
     return query;

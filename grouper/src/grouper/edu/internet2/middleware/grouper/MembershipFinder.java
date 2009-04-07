@@ -30,8 +30,11 @@ import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.Owner;
@@ -49,7 +52,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * and, if an effective membership, the parent membership
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.98 2008-11-11 22:08:33 mchyzer Exp $
+ * @version $Id: MembershipFinder.java,v 1.98.2.1 2009-04-07 16:21:08 mchyzer Exp $
  */
 public class MembershipFinder {
   
@@ -244,6 +247,19 @@ public class MembershipFinder {
    * @since   1.2.1
    */
   public static Set<Member> findMembers(Group group, Field field)
+    throws  IllegalArgumentException {
+    return findMembers(group, field, null);
+  }
+
+  /** 
+   * @param group 
+   * @param field 
+   * @param queryOptions 
+   * @return  A set of all <code>Member</code>'s in <i>group</i>'s list <i>field</i>.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @since   1.2.1
+   */
+  public static Set<Member> findMembers(Group group, Field field, QueryOptions queryOptions)
     throws  IllegalArgumentException
   {
     //note, no need for GrouperSession inverse of control
@@ -253,20 +269,18 @@ public class MembershipFinder {
     if (field == null) { // TODO 20070814 ParameterHelper
       throw new IllegalArgumentException("null Field");
     }
-    Set<Member> members = new LinkedHashSet();
+    Set<Member> members = null;
     try {
       GrouperSession  s   = GrouperSession.staticGrouperSession();
       PrivilegeHelper.dispatch( s, group, s.getSubject(), field.getReadPriv() );
-      for ( Member m : GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndField( group.getUuid(), field ) ) {
-       
-        members.add(m);
-      }
+      members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndField( group.getUuid(), field, queryOptions );
     }
     catch (InsufficientPrivilegeException eIP) {
       // ignore  
     }
     catch (SchemaException eSchema) {
-      // ignore  
+      //MCH 20090405: Shouldnt this rethrow?
+      LOG.warn("Error retrieving members", eSchema);
     }
     return members;
   } 
@@ -439,6 +453,177 @@ public class MembershipFinder {
     }
     return PrivilegeHelper.canViewMemberships(s, mships);
   } // public static Set internal_findMemberships(s, m, f)
+
+  /**
+   * @param start
+   * @param pageSize
+   * @param group
+   * @param field
+   * @param sortLimit
+   * @param numberOfRecords (pass in array of size one to get the result size back)
+   * @return the set of membership
+   * @throws SchemaException
+   */
+  public static Set<Membership> internal_findAllImmediateByGroupAndFieldAndPage(Group group,
+      Field field, int start, int pageSize, int sortLimit, int[] numberOfRecords) throws SchemaException {
+    Set<Membership> allChildren;
+    //get the size
+    QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+    group.getImmediateMembers(field, queryOptions);
+    int totalSize = queryOptions.getCount().intValue();
+    
+    if (GrouperUtil.length(numberOfRecords) > 0) {
+      numberOfRecords[0] = totalSize;
+    }
+
+    //if there are less than the sort limit, then just get all, no problem
+    if (totalSize <= sortLimit) {
+      allChildren = group.getImmediateMemberships(field);
+    } else {
+      //get the members that we will display, sorted by subjectId
+      //TODO in 1.5 sort by subject sort string when under a certain limit, huge resultsets
+      //are slow for mysql
+      
+      QueryPaging queryPaging = new QueryPaging();
+      queryPaging.setPageSize(pageSize);
+      queryPaging.setFirstIndexOnPage(start);
+
+      //.sortAsc("m.subjectIdDb")   this kills performance
+      queryOptions = new QueryOptions().paging(queryPaging);
+
+      Set<Member> members = group.getImmediateMembers(field, queryOptions);
+      allChildren = group.getImmediateMemberships(field, members);
+    }
+    return allChildren;
+  }
+
+  /**
+   * @param start
+   * @param pageSize
+   * @param group
+   * @param sortLimit
+   * @param numberOfRecords (pass in array of size one to get the result size back)
+   * @return the set of membership
+   * @throws SchemaException
+   */
+  public static Set<Membership> internal_findAllCompositeByGroupAndPage(Group group,
+      int start, int pageSize, int sortLimit, int[] numberOfRecords) throws SchemaException {
+    Set<Membership> allChildren;
+    //get the size
+    QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+    group.getCompositeMembers(queryOptions);
+    int totalSize = queryOptions.getCount().intValue();
+    
+    if (GrouperUtil.length(numberOfRecords) > 0) {
+      numberOfRecords[0] = totalSize;
+    }
+
+    //if there are less than the sort limit, then just get all, no problem
+    if (totalSize <= sortLimit) {
+      allChildren = group.getCompositeMemberships();
+    } else {
+      //get the members that we will display, sorted by subjectId
+      //TODO in 1.5 sort by subject sort string when under a certain limit, huge resultsets
+      //are slow for mysql
+      
+      QueryPaging queryPaging = new QueryPaging();
+      queryPaging.setPageSize(pageSize);
+      queryPaging.setFirstIndexOnPage(start);
+
+      //.sortAsc("m.subjectIdDb")   this kills performance
+      queryOptions = new QueryOptions().paging(queryPaging);
+
+      Set<Member> members = group.getCompositeMembers(queryOptions);
+      allChildren = group.getCompositeMemberships(members);
+    }
+    return allChildren;
+  }
+
+  /**
+   * @param start
+   * @param pageSize
+   * @param group
+   * @param field
+   * @param sortLimit
+   * @param numberOfRecords (pass in array of size one to get the result size back)
+   * @return the set of membership
+   * @throws SchemaException
+   */
+  public static Set<Membership> internal_findAllEffectiveByGroupAndFieldAndPage(Group group,
+      Field field, int start, int pageSize, int sortLimit, int[] numberOfRecords) throws SchemaException {
+    Set<Membership> allChildren;
+    //get the size
+    QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+    group.getImmediateMembers(field, queryOptions);
+    int totalSize = queryOptions.getCount().intValue();
+    
+    if (GrouperUtil.length(numberOfRecords) > 0) {
+      numberOfRecords[0] = totalSize;
+    }
+
+    //if there are less than the sort limit, then just get all, no problem
+    if (totalSize <= sortLimit) {
+      allChildren = group.getEffectiveMemberships(field);
+    } else {
+      //get the members that we will display, sorted by subjectId
+      //TODO in 1.5 sort by subject sort string when under a certain limit, huge resultsets
+      //are slow for mysql
+      
+      QueryPaging queryPaging = new QueryPaging();
+      queryPaging.setPageSize(pageSize);
+      queryPaging.setFirstIndexOnPage(start);
+
+      //.sortAsc("m.subjectIdDb")   this kills performance
+      queryOptions = new QueryOptions().paging(queryPaging);
+
+      Set<Member> members = group.getEffectiveMembers(field, queryOptions);
+      allChildren = group.getEffectiveMemberships(field, members);
+    }
+    return allChildren;
+  }
+
+  /**
+   * @param start
+   * @param pageSize
+   * @param group
+   * @param field
+   * @param sortLimit
+   * @param numberOfRecords (pass in array of size one to get the result size back)
+   * @return the set of membership
+   * @throws SchemaException
+   */
+  public static Set<Membership> internal_findAllByGroupAndFieldAndPage(Group group,
+      Field field, int start, int pageSize, int sortLimit, int[] numberOfRecords) throws SchemaException {
+    Set<Membership> allChildren;
+    //get the size
+    QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+    group.getImmediateMembers(field, queryOptions);
+    int totalSize = queryOptions.getCount().intValue();
+    
+    if (GrouperUtil.length(numberOfRecords) > 0) {
+      numberOfRecords[0] = totalSize;
+    }
+    
+    //if there are less than the sort limit, then just get all, no problem
+    if (totalSize <= sortLimit) {
+      allChildren = group.getMemberships(field);
+    } else {
+      //get the members that we will display, sorted by subjectId
+      //TODO in 1.5 sort by subject sort string when under a certain limit, huge resultsets
+      //are slow for mysql
+      
+      QueryPaging queryPaging = new QueryPaging();
+      queryPaging.setPageSize(pageSize);
+      queryPaging.setFirstIndexOnPage(start);
+
+      //.sortAsc("m.subjectIdDb")   this kills performance
+      queryOptions = new QueryOptions().paging(queryPaging);
+
+      Set<Member> members = group.getMembers(field, queryOptions);
+      allChildren = group.getMemberships(field, members);
+    }
+    return allChildren;
+  }
 
 } // public class MembershipFinder
 

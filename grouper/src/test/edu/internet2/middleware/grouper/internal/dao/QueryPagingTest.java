@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: QueryPagingTest.java,v 1.1.2.1 2009-03-29 03:56:38 mchyzer Exp $
+ * $Id: QueryPagingTest.java,v 1.1.2.2 2009-04-07 16:21:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -93,24 +93,24 @@ public class QueryPagingTest extends GrouperTest {
     //admins, optins, optouts, readers, updaters, viewers
     //viewers, updaters, readers, optouts, optins, admins
     List<Field> fields = HibernateSession.byHqlStatic().createQuery(
-        "from Field where typeString = 'access'").sort(QuerySort.asc("name")).paging(QueryPaging.page(2,1, false)).list(Field.class);
+        "from Field where typeString = 'access'").options(new QueryOptions().sortAsc("name").paging(2,1, false)).list(Field.class);
     assertEquals("admins, optins", Field.fieldNames(fields));
     
     fields = HibernateSession.byHqlStatic().createQuery(
-      "from Field where typeString = 'access'").sort(QuerySort.asc("name")).paging(QueryPaging.page(2,2, false)).list(Field.class);
+      "from Field where typeString = 'access'").options(new QueryOptions().sortAsc("name").paging(2,2, false)).list(Field.class);
     assertEquals("optouts, readers", Field.fieldNames(fields));
     
     fields = HibernateSession.byHqlStatic().createQuery(
-      "from Field where typeString = 'access'").sort(QuerySort.desc("name")).paging(QueryPaging.page(3,2, false)).list(Field.class);
+      "from Field where typeString = 'access'").options(new QueryOptions().sortDesc("name").paging(3,2, false)).list(Field.class);
     assertEquals("optouts, optins, admins", Field.fieldNames(fields));
 
     //try with criteria
-    fields = HibernateSession.byCriteriaStatic().sort(QuerySort.asc("name")).paging(QueryPaging.page(2,1, false))
+    fields = HibernateSession.byCriteriaStatic().options(new QueryOptions().sortAsc("name").paging(2,1, false))
         .list(Field.class, HibUtils.listCrit(Restrictions.eq("typeString", "access")));
     assertEquals("admins, optins", 
         Field.fieldNames(fields));
 
-    fields = HibernateSession.byCriteriaStatic().sort(QuerySort.desc("name")).paging(QueryPaging.page(2,2, false))
+    fields = HibernateSession.byCriteriaStatic().options(new QueryOptions().sortDesc("name").paging(2,2, false))
       .list(Field.class, HibUtils.listCrit(Restrictions.eq("typeString", "access")));
     assertEquals("readers, optouts", 
         Field.fieldNames(fields));
@@ -118,7 +118,7 @@ public class QueryPagingTest extends GrouperTest {
     //page size of 2, first page, and get the total record count retrieval.  
     QueryPaging queryPaging = new QueryPaging(2, 1, true);
     fields = HibernateSession.byHqlStatic().createQuery(
-        "from Field where typeString = 'access'").sort(QuerySort.asc("name")).paging(queryPaging).list(Field.class);
+        "from Field where typeString = 'access'").options(new QueryOptions().sortAsc("name").paging(queryPaging)).list(Field.class);
     assertEquals("admins, optins", Field.fieldNames(fields));
     
     assertEquals(6, queryPaging.getTotalRecordCount());
@@ -126,7 +126,7 @@ public class QueryPagingTest extends GrouperTest {
     
     //try it with criteria
     queryPaging = new QueryPaging(2, 1, true);
-    fields = HibernateSession.byCriteriaStatic().sort(QuerySort.asc("name")).paging(queryPaging)
+    fields = HibernateSession.byCriteriaStatic().options(new QueryOptions().sortAsc("name").paging(queryPaging))
       .list(Field.class, HibUtils.listCrit(Restrictions.eq("typeString", "access")));
     assertEquals("admins, optins", Field.fieldNames(fields));
     
@@ -139,7 +139,8 @@ public class QueryPagingTest extends GrouperTest {
     queryPaging = new QueryPaging(2, 1, true);
     fields = HibernateSession.byHqlStatic().createQuery(
         "select field\n from Field field where field.typeString = 'access'")
-        .sort(QuerySort.asc("name")).paging(queryPaging).list(Field.class);
+        .options(new QueryOptions().sortAsc("name").paging(queryPaging))
+        .list(Field.class);
     assertEquals("admins, optins", Field.fieldNames(fields));
     
     assertEquals(6, queryPaging.getTotalRecordCount());
@@ -151,7 +152,8 @@ public class QueryPagingTest extends GrouperTest {
     queryPaging = new QueryPaging(2, 1, false);
     fields = HibernateSession.byHqlStatic().createQuery(
         "select field\n from Field field where field.typeString = 'access'")
-        .sort(QuerySort.asc("name")).paging(queryPaging).list(Field.class);
+        .options(new QueryOptions().sortAsc("name").paging(queryPaging))
+        .list(Field.class);
 
     assertEquals(-1, queryPaging.getTotalRecordCount());
     assertEquals(queryCount, ByHql.queryCountQueries);
@@ -159,7 +161,7 @@ public class QueryPagingTest extends GrouperTest {
     queryPaging = new QueryPaging(20, 1, true);
     fields = HibernateSession.byHqlStatic().createQuery(
         "select field\n from Field field where field.typeString = 'access'")
-        .sort(QuerySort.asc("name")).paging(queryPaging).list(Field.class);
+        .options(new QueryOptions().sortAsc("name").paging(queryPaging)).list(Field.class);
 
     assertEquals(6, queryPaging.getTotalRecordCount());
     assertEquals(1, queryPaging.getNumberOfPages());
@@ -169,7 +171,8 @@ public class QueryPagingTest extends GrouperTest {
     //try it with criteria
     queryCount = ByCriteriaStatic.queryCountQueries;
     queryPaging = new QueryPaging(2, 1, true);
-    fields = HibernateSession.byCriteriaStatic().sort(QuerySort.asc("name")).paging(queryPaging)
+    fields = HibernateSession.byCriteriaStatic()
+      .options(new QueryOptions().sortAsc("name").paging(queryPaging))
       .list(Field.class, HibUtils.listCrit(Restrictions.eq("typeString", "access")));
     assertEquals("admins, optins", Field.fieldNames(fields));
     
@@ -179,7 +182,8 @@ public class QueryPagingTest extends GrouperTest {
 
     queryCount = ByCriteriaStatic.queryCountQueries;
     queryPaging = new QueryPaging(2, 1, false);
-    fields = HibernateSession.byCriteriaStatic().sort(QuerySort.asc("name")).paging(queryPaging)
+    fields = HibernateSession.byCriteriaStatic()
+      .options(new QueryOptions().sortAsc("name").paging(queryPaging))
       .list(Field.class, HibUtils.listCrit(Restrictions.eq("typeString", "access")));
     
     assertEquals(-1, queryPaging.getTotalRecordCount());
@@ -188,7 +192,8 @@ public class QueryPagingTest extends GrouperTest {
 
     queryCount = ByCriteriaStatic.queryCountQueries;
     queryPaging = new QueryPaging(20, 1, true);
-    fields = HibernateSession.byCriteriaStatic().sort(QuerySort.asc("name")).paging(queryPaging)
+    fields = HibernateSession.byCriteriaStatic()
+    .options(new QueryOptions().sortAsc("name").paging(queryPaging))
       .list(Field.class, HibUtils.listCrit(Restrictions.eq("typeString", "access")));
     
     assertEquals(6, queryPaging.getTotalRecordCount());

@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -29,7 +30,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.15 2008-10-22 23:24:12 shilen Exp $
+ * @version $Id: MembershipDAO.java,v 1.15.2.1 2009-04-07 16:21:08 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
@@ -71,6 +72,24 @@ public interface MembershipDAO extends GrouperDAO {
     throws  GrouperDAOException;
   
   /**
+   */
+  Set<Membership> findAllByOwnerAndFieldAndMembers(String ownerUUID, Field f, 
+      Collection<Member> members) 
+    throws  GrouperDAOException;
+  
+  /**
+   */
+  Set<Membership> findAllByOwnerAndFieldAndMembersAndType(String ownerUUID, Field f, 
+      Collection<Member> members, String type) 
+    throws  GrouperDAOException;
+  
+  /**
+   */
+  Set<Membership> findAllByOwnerAndCompositeAndMembers(String ownerUUID, 
+      Collection<Member> members) 
+    throws  GrouperDAOException;
+  
+  /**
    * @since   1.2.1
    */
   Set<Membership> findAllByOwnerAndMember(String ownerUUID, String memberUUID) 
@@ -95,6 +114,24 @@ public interface MembershipDAO extends GrouperDAO {
    * @since   1.2.1
    */
   Set<Member> findAllMembersByOwnerAndField(String ownerUUID, Field f)
+    throws  GrouperDAOException;
+    
+  /**
+   * @return  Members.
+   * @throws  GrouperDAOException if any DAO errors occur.
+   * @see     MembershipDAO#findAllMembersByOwnerAndField(String, Field)
+   * @since   1.2.1
+   */
+  Set<Member> findAllMembersByOwnerAndField(String ownerUUID, Field f, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+    
+  /**
+   * @return  Members.
+   * @throws  GrouperDAOException if any DAO errors occur.
+   * @see     MembershipDAO#findAllMembersByOwnerAndField(String, Field)
+   * @since   1.2.1
+   */
+  Set<Member> findAllMembersByOwnerAndFieldAndType(String ownerUUID, Field f, String type, QueryOptions queryOptions)
     throws  GrouperDAOException;
     
   /**

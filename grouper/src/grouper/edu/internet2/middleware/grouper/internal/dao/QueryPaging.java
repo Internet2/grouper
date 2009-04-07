@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: QueryPaging.java,v 1.1.2.1 2009-03-29 03:56:38 mchyzer Exp $
+ * $Id: QueryPaging.java,v 1.1.2.2 2009-04-07 16:21:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -228,6 +228,21 @@ public class QueryPaging {
     return (this.getPageNumber() - 1) * this.getPageSize();
   }
 
+  /**
+   * <pre>
+   * set the first index on the page, 0 indexed
+   * 0 -> 1, pageSize -> 2, 2*pageSize -> 3
+   * </pre>
+   * @param startIndex
+   */
+  public void setFirstIndexOnPage(int startIndex) {
+    if (this.pageSize <= 0) {
+      throw new RuntimeException("Problem, pagesize must be greater than 0: " + this.pageSize);
+    }
+    //lets calculate the start index.  0 -> 1, pageSize -> 2, 2*pageSize -> 3
+    this.pageNumber = (startIndex / pageSize) + 1;
+  }
+  
   /**
    * return the last index on page (0 indexed)
    * @return the last index on page 0 indexed

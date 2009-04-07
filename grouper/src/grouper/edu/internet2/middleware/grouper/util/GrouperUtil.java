@@ -4427,6 +4427,34 @@ public class GrouperUtil {
     //return the lower appended with the rest
     return fourthCharLower + methodName.substring(expectedLength+1, length);
   }
+  
+  /**
+   * take a collection of beans, and go through and get all the values
+   * of one of the javabean properties, and make a list of those values.
+   * @param <T>
+   * @param collection
+   * @param propertyName
+   * @param fieldType
+   * @return the list
+   */
+  public static <T> List<T> propertyList(Collection<?> collection, 
+      String propertyName, Class<?> fieldType) {
+    
+    if (collection == null) {
+      return null;
+    }
+    
+    List<T> list = new ArrayList<T>();
+    
+    for (Object object : collection) {
+      T value = (T)propertyValue(object, propertyName);
+      list.add(value);
+    }
+    
+    return list;
+    
+  }
+      
 
   /**
    * use reflection to get a property type based on getter or setter or field

@@ -5,6 +5,7 @@ package edu.internet2.middleware.grouper.hibernate;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -14,8 +15,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
-import edu.internet2.middleware.grouper.internal.dao.QuerySort;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author mchyzer
  *
  */
-public class ByHqlStatic {
+public class ByHqlStatic implements Scalarable {
   
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(ByHqlStatic.class);
@@ -45,32 +45,6 @@ public class ByHqlStatic {
    * assign if this query is cacheable or not.
    */
   private Boolean cacheable = null;
-
-  /** if we are sorting */
-  private QuerySort sort = null;
-  
-  /**
-   * add a sort to the query
-   * @param querySort1
-   * @return this for chaining
-   */
-  public ByHqlStatic sort(QuerySort querySort1) {
-    this.sort = querySort1;
-    return this;
-  }
-
-  /** paging */
-  private QueryPaging paging = null;
-
-  /**
-   * add a paging to the query
-   * @param queryPaging1
-   * @return this for chaining
-   */
-  public ByHqlStatic paging(QueryPaging queryPaging1) {
-    this.paging = queryPaging1;
-    return this;
-  }
 
   /**
    * assign a different grouperTransactionType (e.g. for autonomous transactions)
@@ -104,11 +78,8 @@ public class ByHqlStatic {
     result.append(this.query).append("', cacheable: ").append(this.cacheable);
     result.append(", cacheRegion: ").append(this.cacheRegion);
     result.append(", tx type: ").append(this.grouperTransactionType);
-    if (this.sort != null) {
-      result.append(", sort: ").append(this.sort.sortString(false));
-    }
-    if (this.paging != null) {
-      result.append(", ").append(this.paging.toString());
+    if (this.queryOptions != null) {
+      result.append(", options: ").append(this.queryOptions.toString());
     }
     result.append(", tx type: ").append(this.grouperTransactionType);
     //dont use bindVarParams() method so it doesnt lazy load
@@ -141,6 +112,11 @@ public class ByHqlStatic {
    * query to execute
    */
   private String query = null;
+
+  /**
+   * if we are sorting, paging, resultSize, etc 
+   */
+  private QueryOptions queryOptions = null;
 
   /**
    * set the query to run
@@ -218,6 +194,81 @@ public class ByHqlStatic {
   }
 
   /**
+   * assign data to the bind var
+   * @param bindVarName
+   * @param value is long, primitive so not null
+   * @return this object for chaining
+   */
+  public ByHqlStatic setScalar(String bindVarName, Object value) {
+    
+    if (value instanceof Integer) {
+      this.setInteger(bindVarName, (Integer)value);
+    } else if (value instanceof String) {
+      this.setString(bindVarName, (String)value);
+    } else if (value instanceof Long) {
+      this.setLong(bindVarName, (Long)value);
+    } else if (value instanceof Date) {
+      this.setTimestamp(bindVarName, (Date)value);
+    } else {
+      throw new RuntimeException("Unexpected value: " + value + ", " + (value == null ? null : value.getClass()));
+    }
+    
+    return this;
+  }
+
+  /**
+   * append a certain number of params, and commas, and attach
+   * the data.  Note any params before the in clause need to be already attached, since these will
+   * attach now (ordering issue)
+   * @param query
+   * @param params collection of params, note, this is for an inclause, so it cant be null
+   * @return this for chaining
+   */
+  public ByHqlStatic setCollectionInClause(StringBuilder query, Collection<?> params) {
+    collectionInClauseHelper(this, query, params);
+    return this;
+  }
+
+  /**
+   * helper method for collection in calue method
+   * @param scalarable
+   * @param query
+   * @param params
+   */
+  static void collectionInClauseHelper(Scalarable scalarable, StringBuilder query, Collection<?> params) {
+    int numberOfParams = params.size();
+    
+    if (numberOfParams == 0) {
+      throw new RuntimeException("Cant have 0 params for an in clause");
+    }
+    
+    int index = 0;
+    
+    String paramPrefix = GrouperUtil.uniqueId();
+    
+    for (Object param : params) {
+      
+      String paramName = paramPrefix + index;
+      
+      query.append(":").append(paramName);
+      
+      if (index < numberOfParams - 1) {
+        query.append(", ");
+      }
+      
+      //cant have an in clause with something which is null
+      if (param == null) {
+        throw new RuntimeException("Param cannot be null: " + query);
+      }
+      
+      scalarable.setScalar(paramName, param);
+      
+      index++;
+    }
+
+  }
+  
+  /**
    * <pre>
    * call hql unique result (returns one or null)
    * 
@@ -291,8 +342,7 @@ public class ByHqlStatic {
             public Object callback(HibernateSession hibernateSession) {
               
               ByHql byHql = ByHqlStatic.this.byHql(hibernateSession);
-              byHql.sort(ByHqlStatic.this.sort);
-              byHql.paging(ByHqlStatic.this.paging);
+              byHql.options(ByHqlStatic.this.queryOptions);
               List<R> list = byHql.list(returnType);
               return list;
             }
@@ -324,7 +374,8 @@ public class ByHqlStatic {
    * @throws GrouperDAOException
    */
   public <S> Set<S> listSet(final Class<S> returnType) throws GrouperDAOException {
-    Set<S> result = new LinkedHashSet<S>(this.list(returnType));
+    List<S> list = this.list(returnType);
+    Set<S> result = new LinkedHashSet<S>(list);
     return result;
   }
 
@@ -380,6 +431,16 @@ public class ByHqlStatic {
     
   }
   
+  /**
+   * add a paging/sorting/resultSetSize, etc to the query
+   * @param queryOptions1
+   * @return this for chaining
+   */
+  public ByHqlStatic options(QueryOptions queryOptions1) {
+    this.queryOptions = queryOptions1;
+    return this;
+  }
+
   /**
    * constructor
    *

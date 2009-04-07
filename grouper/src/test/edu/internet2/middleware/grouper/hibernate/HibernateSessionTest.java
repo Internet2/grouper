@@ -1,17 +1,16 @@
 /*
  * @author mchyzer
- * $Id: HibernateSessionTest.java,v 1.1.2.3 2009-03-29 05:13:03 mchyzer Exp $
+ * $Id: HibernateSessionTest.java,v 1.1.2.4 2009-04-07 16:21:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.GrouperSession; 
 import edu.internet2.middleware.grouper.GrouperTest;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -20,8 +19,8 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemHelper;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
-import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -35,7 +34,7 @@ public class HibernateSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new HibernateSessionTest("testPagingSorting"));
+    TestRunner.run(new HibernateSessionTest("testResultSize"));
   }
   
 
@@ -46,6 +45,54 @@ public class HibernateSessionTest extends GrouperTest {
     super(name);
   }
 
+  /**
+   * test paging/sorting
+   * @throws Exception 
+   */
+  public void testResultSize() throws Exception {
+    
+    //lets add some members
+    GrouperSession grouperSession = SessionHelper.getRootSession();
+    Stem root = StemHelper.findRootStem(grouperSession);
+    Stem edu = StemHelper.addChildStem(root, "edu", "education");
+    Group i2 = StemHelper.addChildGroup(edu, "i2", "internet2");
+    Group i3 = StemHelper.addChildGroup(edu, "i3", "internet2");
+    Group i4 = StemHelper.addChildGroup(edu, "i4", "internet2");
+    Group i5 = StemHelper.addChildGroup(edu, "i5", "internet2");
+    Group i6 = StemHelper.addChildGroup(edu, "i6", "internet2");
+    Group i7 = StemHelper.addChildGroup(edu, "i7", "internet2");
+
+    i2.addMember(SubjectTestHelper.SUBJ0);
+    i2.addMember(SubjectTestHelper.SUBJ1);
+    i2.addMember(SubjectTestHelper.SUBJ2);
+    i2.addMember(SubjectFinder.findAllSubject());
+    i2.addMember(SubjectFinder.findRootSubject());
+    
+    //page the members in a group
+    QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+    List<Member> members = HibernateSession.byHqlStatic()
+      .createQuery("select distinct theMember from Member as theMember, Membership as theMembership, Field theField "
+      + "where theMembership.ownerUuid = :ownerId and theMember.uuid = theMembership.memberUuid" +
+          " and theMembership.fieldId = theField.uuid and theField.typeString = 'list' and theField.name = 'members'")
+          .setString("ownerId", i2.getUuid())
+      .options(queryOptions).list(Member.class);
+    
+    assertEquals(0, members.size());
+    assertEquals(5L, queryOptions.getCount().longValue());
+    
+    members = HibernateSession.byCriteriaStatic().options(queryOptions).list(Member.class, null);
+    
+    assertEquals(0, members.size());
+    assertTrue(5 < queryOptions.getCount().longValue());
+    
+    Set<Member> memberSet = i2.getMembers(Group.getDefaultList(), queryOptions);
+    
+    assertEquals(0, memberSet.size());
+    assertEquals(5L, queryOptions.getCount().longValue());
+    
+    
+  }
+  
   /**
    * test paging/sorting
    * @throws Exception 
@@ -80,7 +127,7 @@ public class HibernateSessionTest extends GrouperTest {
       + "where theMembership.ownerUuid = :ownerId and theMember.uuid = theMembership.memberUuid" +
       		" and theMembership.fieldId = theField.uuid and theField.typeString = 'list' and theField.name = 'members'")
       		.setString("ownerId", i2.getUuid())
-      .sort(QuerySort.asc("theMember.subjectIdDb")).paging(queryPaging).list(Member.class);
+      .options(new QueryOptions().sortAsc("theMember.subjectIdDb").paging(queryPaging)).list(Member.class);
     
     assertEquals("GrouperAll, GrouperSystem, test.subject.0", Member.subjectIds(members));
     
@@ -147,7 +194,6 @@ public class HibernateSessionTest extends GrouperTest {
     Collections.sort(uuids);
     
     queryPaging = QueryPaging.page(3, 1, true);
-    QuerySort querySort = QuerySort.asc("g.uuid");
     
     List<Group> groups = HibernateSession.byHqlStatic()
     .createQuery("select distinct g from Group as g, Membership as m, Field as f, Attribute as a " +
@@ -157,7 +203,7 @@ public class HibernateSessionTest extends GrouperTest {
     		.setString("parent", edu.getUuid())
         .setString("sessionMemberId", MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1).getUuid())
         .setString("grouperAllUuid", MemberFinder.findBySubject(grouperSession, SubjectFinder.findAllSubject()).getUuid())
-        .paging(queryPaging).sort(querySort)
+        .options(new QueryOptions().paging(queryPaging).sortAsc("g.uuid"))
         .list(Group.class);
     
     assertEquals(3, groups.size());

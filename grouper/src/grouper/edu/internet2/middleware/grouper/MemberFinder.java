@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -38,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
  * Find members within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberFinder.java,v 1.58 2008-12-15 07:09:37 mchyzer Exp $
+ * @version $Id: MemberFinder.java,v 1.58.2.1 2009-04-07 16:21:08 mchyzer Exp $
  */
 public class MemberFinder {
 	
@@ -88,6 +89,28 @@ public class MemberFinder {
     }
     return members;
   } // public static Set findAll(GrouperSession s)
+
+
+  /**
+   * make sure allowed to see them, and find the members
+   * @param grouperSession
+   * @param group
+   * @param field
+   * @param type
+   * @param queryOptions 
+   * @return the members, dont return null
+   */
+  public static Set<Member> internal_findMembersByType(GrouperSession grouperSession, Group group, Field field, String type,
+      QueryOptions queryOptions) {
+    GrouperSession.validate(grouperSession);
+
+    if (!PrivilegeHelper.canViewMembers(grouperSession, group, field)) {
+      return new LinkedHashSet();
+    }
+    Set<Member> members = GrouperDAOFactory.getFactory().getMembership()
+      .findAllMembersByOwnerAndFieldAndType(group.getUuid(), field, type, queryOptions);
+    return members;
+  }
 
   /**
    * Convert a {@link Subject} to a {@link Member}.

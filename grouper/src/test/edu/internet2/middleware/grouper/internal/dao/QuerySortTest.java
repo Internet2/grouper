@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: QuerySortTest.java,v 1.1.2.1 2009-03-29 03:56:38 mchyzer Exp $
+ * $Id: QuerySortTest.java,v 1.1.2.2 2009-04-07 16:21:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -59,24 +59,28 @@ public class QuerySortTest extends GrouperTest {
     
     //viewers, updaters, readers, optouts, optins, admins
     List<Field> fields = HibernateSession.byHqlStatic().createQuery(
-        "from Field where type = 'access'").sort(QuerySort.asc("name")).list(Field.class);
+        "from Field where type = 'access'")
+        .options(new QueryOptions().sortAsc("name")).list(Field.class);
     assertEquals("admins, optins, optouts, readers, updaters, viewers", 
         Field.fieldNames(fields));
     
     fields = HibernateSession.byHqlStatic().createQuery(
-      "from Field where type = 'access'").sort(QuerySort.desc("name")).list(Field.class);
+      "from Field where type = 'access'")
+      .options(new QueryOptions().sortDesc("name")).list(Field.class);
     assertEquals("viewers, updaters, readers, optouts, optins, admins", 
         Field.fieldNames(fields));
 
     //try with criteria
-    fields = HibernateSession.byCriteriaStatic().sort(QuerySort.asc("name"))
-        .list(Field.class, HibUtils.listCrit(Restrictions.eq("typeString", "access")));
+    fields = HibernateSession.byCriteriaStatic()
+      .options(new QueryOptions().sortAsc("name"))
+      .list(Field.class, HibUtils.listCrit(Restrictions.eq("typeString", "access")));
     assertEquals("admins, optins, optouts, readers, updaters, viewers", 
         Field.fieldNames(fields));
 
-    fields = HibernateSession.byCriteriaStatic().sort(QuerySort.desc("name"))
-    .list(Field.class, HibUtils.listCrit(Restrictions.eq("typeString", "access")));
-    assertEquals("viewers, updaters, readers, optouts, optins, admins", 
+    fields = HibernateSession.byCriteriaStatic()
+      .options(new QueryOptions().sortDesc("name"))
+      .list(Field.class, HibUtils.listCrit(Restrictions.eq("typeString", "access")));
+      assertEquals("viewers, updaters, readers, optouts, optins, admins", 
         Field.fieldNames(fields));
     
   }

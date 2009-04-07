@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -34,22 +35,29 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.24 2008-10-22 23:24:12 shilen Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.24.2.1 2009-04-07 16:21:08 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(Hib3MembershipDAO.class);
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = Hib3MembershipDAO.class.getName();
@@ -256,21 +264,194 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Member> findAllMembersByOwnerAndField(String ownerUUID, Field f)
     throws  GrouperDAOException
   {
-    return HibernateSession.byHqlStatic()
+    return findAllMembersByOwnerAndField(ownerUUID, f, null);
+  }
+
+  /**
+   * @see     MembershipDAO#findAllMembersByOwnerAndField(String, Field, QueryOptions)
+   */
+  public Set<Member> findAllMembersByOwnerAndField(String ownerUUID, Field f, QueryOptions queryOptions)
+    throws  GrouperDAOException
+  {
+    return HibernateSession.byHqlStatic().options(queryOptions)
       .createQuery(
           "select m"
-        + " from Member m, Membership ms, Field as field where"
+        + " from Member m, Membership ms where"
         + " ms.ownerUuid      = :owner "
-        + "and  ms.fieldId = field.uuid "
-        + "and  field.name   = :fname            "
-        + "and  field.typeString       = :ftype             "
+        + "and  ms.fieldId = :fieldId "
         + " and ms.memberUuid = m.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllMembersByOwnerAndField")
       .setString( "owner", ownerUUID ) 
-      .setString( "fname", f.getName() )
-      .setString( "ftype", f.getType().toString() )
+      .setString( "fieldId", f.getUuid() )
       .listSet(Member.class);
+  }
+
+  /**
+   * @see     MembershipDAO#findAllMembersByOwnerAndField(String, Field, QueryOptions)
+   */
+  public Set<Member> findAllMembersByOwnerAndFieldAndType(String ownerUUID, Field f, String type, QueryOptions queryOptions)
+    throws  GrouperDAOException {
+    String query = "select m"
+      + " from Member m, Membership ms where"
+      + " ms.ownerUuid      = :owner "
+      + "and  ms.fieldId = :fieldId "
+      + " and ms.memberUuid = m.uuid" 
+      +	" and ms.type = :type";
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Before query: " + query + ", owner: " + ownerUUID + ", field: " + f.getUuid() + ", type: " + type);
+    }
+    try {
+      return HibernateSession.byHqlStatic().options(queryOptions)
+        .createQuery(
+            query)
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindAllMembersByOwnerAndField")
+        .setString( "owner", ownerUUID ) 
+        .setString( "fieldId", f.getUuid() )
+        .setString( "type", type )
+        .listSet(Member.class);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("After query: " + query + ", owner: " + ownerUUID + ", field: " + f.getUuid() + ", type: " + type);
+      }
+    }
+  }
+
+  /** batch size for memberships (setable for testing) */
+  static int batchSize = 50;
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByOwnerAndFieldAndMembers(java.lang.String, edu.internet2.middleware.grouper.Field, java.util.Collection)
+   */
+  public Set<Membership> findAllByOwnerAndFieldAndMembersAndType(String ownerUUID,
+      Field f, Collection<Member> members, String type) throws GrouperDAOException {
+    
+    if (members == null) {
+      return null;
+    }
+    if (members.size() == 0) {
+      return new LinkedHashSet<Membership>();
+    }
+
+    //lets page through these
+    int pages = GrouperUtil.batchNumberOfBatches(members, batchSize);
+    
+    Set<Membership> memberships = new LinkedHashSet<Membership>();
+    
+    for (int i=0; i<pages; i++) {
+      List<Member> memberList = GrouperUtil.batchList(members, batchSize, i);
+      
+      List<String> uuids = GrouperUtil.propertyList(memberList, Member.PROPERTY_UUID, String.class);
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      StringBuilder query = new StringBuilder("select ms"
+          + " from Membership ms where"
+          + " ms.ownerUuid      = :owner "
+          + "and  ms.fieldId = :fieldId "
+          + "and  ms.type = :theType "
+          + " and ms.memberUuid in (");
+      byHqlStatic.setString( "owner", ownerUUID ) 
+        .setString( "fieldId", f.getUuid() )
+        .setString( "theType", type );
+      //add all the uuids
+      byHqlStatic.setCollectionInClause(query, uuids);
+      query.append(")");
+      List<Membership> currentList = byHqlStatic.createQuery(query.toString())
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindAllByOwnerAndFieldAndMembers")
+        .list(Membership.class);
+      memberships.addAll(currentList);
+    }
+    return memberships;
+      
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByOwnerAndFieldAndMembers(java.lang.String, edu.internet2.middleware.grouper.Field, java.util.Collection)
+   */
+  public Set<Membership> findAllByOwnerAndFieldAndMembers(String ownerUUID,
+      Field f, Collection<Member> members) throws GrouperDAOException {
+    
+    if (members == null) {
+      return null;
+    }
+    if (members.size() == 0) {
+      return new LinkedHashSet<Membership>();
+    }
+
+    //lets page through these
+    int pages = GrouperUtil.batchNumberOfBatches(members, batchSize);
+    
+    Set<Membership> memberships = new LinkedHashSet<Membership>();
+    
+    for (int i=0; i<pages; i++) {
+      List<Member> memberList = GrouperUtil.batchList(members, batchSize, i);
+      
+      List<String> uuids = GrouperUtil.propertyList(memberList, Member.PROPERTY_UUID, String.class);
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      StringBuilder query = new StringBuilder("select ms"
+          + " from Membership ms where"
+          + " ms.ownerUuid      = :owner "
+          + "and  ms.fieldId = :fieldId "
+          + " and ms.memberUuid in (");
+      byHqlStatic.setString( "owner", ownerUUID ) 
+        .setString( "fieldId", f.getUuid() );
+      //add all the uuids
+      byHqlStatic.setCollectionInClause(query, uuids);
+      query.append(")");
+      List<Membership> currentList = byHqlStatic.createQuery(query.toString())
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindAllByOwnerAndFieldAndMembers")
+        .list(Membership.class);
+      memberships.addAll(currentList);
+    }
+    return memberships;
+      
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByOwnerAndCompositeAndMembers(java.lang.String, java.util.Collection)
+   */
+  public Set<Membership> findAllByOwnerAndCompositeAndMembers(String ownerUUID,
+      Collection<Member> members) throws GrouperDAOException {
+    
+    if (members == null) {
+      return null;
+    }
+    if (members.size() == 0) {
+      return new LinkedHashSet<Membership>();
+    }
+    
+    //lets page through these
+    int pages = GrouperUtil.batchNumberOfBatches(members, batchSize);
+    
+    Set<Membership> memberships = new LinkedHashSet<Membership>();
+    
+    for (int i=0; i<pages; i++) {
+      List<Member> memberList = GrouperUtil.batchList(members, batchSize, i);
+      
+      List<String> uuids = GrouperUtil.propertyList(memberList, Member.PROPERTY_UUID, String.class);
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      StringBuilder query = new StringBuilder("select ms"
+          + " from Membership ms where"
+          + " ms.ownerUuid      = :owner "
+          + "and  ms.type = 'composite' "
+          + " and ms.memberUuid in (");
+      byHqlStatic.setString( "owner", ownerUUID ) ;
+      //add all the uuids
+      byHqlStatic.setCollectionInClause(query, uuids);
+      query.append(")");
+      List<Membership> currentList = byHqlStatic.createQuery(query.toString())
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindAllByOwnerAndCompositeAndMembers")
+        .list(Membership.class);
+      memberships.addAll(currentList);
+    }
+    return memberships;
+      
   }
 
   /**
@@ -281,7 +462,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             MembershipNotFoundException {
     Object[] result = HibernateSession.byHqlStatic()
       .createQuery(
-        "select ms, m from Membership as ms, Member as m, Field as field where  "
+        "select ms, m from Membership as ms, Member as m where  "
         + "     ms.ownerUuid  = :owner            "
         + "and  ms.memberUuid = :member           "
         + "and  ms.fieldId = field.uuid "
