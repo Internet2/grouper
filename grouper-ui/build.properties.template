@@ -14,14 +14,14 @@ replace.grouper.home=true
 #default.browse.stem=<stem_name>
 
 # For production turn off (false) or restrict to a group
-debug.off=false
+browser.debug.enable=false
 
 # If debug is on then restrict to named group. Disable if group does not exist
-#debug.group=etc:debuggers
+#browser.debug.group=etc:debuggers
 
 # Enables user to specify arbitrary exsecutable as HTML editor on the server
 # Do not enable unless you absolutely trust users 
-debug.group.enable-html-editor=false
+browser.debug.group.enable-html-editor=false
 
 #If you want to save your debug preferences, set debug.prefs.dir to an existing directory 
 #on you system, where the user Tomcat runs as, has write privilege

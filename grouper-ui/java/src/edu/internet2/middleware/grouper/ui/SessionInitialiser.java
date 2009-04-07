@@ -40,7 +40,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.20 2009-03-22 05:40:57 mchyzer Exp $
+ * @version $Id: SessionInitialiser.java,v 1.21 2009-04-07 10:57:09 isgwb Exp $
  */
 
 public class SessionInitialiser {
@@ -236,23 +236,23 @@ public class SessionInitialiser {
 		
 	}
 	private static void initDebugging(HttpSession session) {
-		boolean debugOff = true;
+		boolean debugEnable = false;
 		String debugGroup=null;
 		ResourceBundle media = LowLevelGrouperCapableAction.getMediaResources(session);
 		try {
-			debugOff = !"false".equals(media.getString("debug.off"));
+			debugEnable = !"true".equals(media.getString("browser.debug.enable"));
 		}catch(Exception e) {
-			LOG.error("Error processing debug.off. Disabling.", e);
+			LOG.error("Error processing browser.debug.enable. Disabling.", e);
 		}
-		if(debugOff){
+		if(debugEnable){
 			session.setAttribute("debugMessage", "debug.error.disabled");
 			return;
 		}
 		if(debuggers==null) {
 			try {
-				debugGroup = media.getString("debug.group");
+				debugGroup = media.getString("browser.debug.group");
 			}catch(Exception e) {
-				LOG.info("debug.group not set in media.properties");
+				LOG.info("browser.debug.group not set in media.properties");
 			}
 			if(debugGroup!=null && !debugGroup.matches("^@.*?@$") && !attemptedDebuggers) {
 				try {
@@ -260,7 +260,7 @@ public class SessionInitialiser {
 					GrouperSession root = GrouperSession.startRootSession();
 					debuggers=GroupFinder.findByName(root, debugGroup, true);
 				}catch(Exception e) {
-					LOG.error("debug.group:" + debugGroup + " does not exist",e);
+					LOG.error("browser.debug.group:" + debugGroup + " does not exist",e);
 				}
 			}
 		}
@@ -270,9 +270,9 @@ public class SessionInitialiser {
 		}
 		boolean enableHtmlEditor=false;
 		try {
-			enableHtmlEditor="true".equals(media.getString("debug.group.enable-html-editor"));
+			enableHtmlEditor="true".equals(media.getString("browser.debug.group.enable-html-editor"));
 		}catch(Exception e){
-			LOG.info("debug.group.enable-html-editor not set in media.properties");
+			LOG.info("browser.debug.group.enable-html-editor not set in media.properties");
 		}
 		session.setAttribute("enableHtmlEditor", enableHtmlEditor);
 		
