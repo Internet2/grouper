@@ -211,7 +211,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateAssignNewMembersAction.java,v 1.11 2009-04-07 08:50:46 isgwb Exp $
+ * @version $Id: PopulateAssignNewMembersAction.java,v 1.12 2009-04-07 09:25:55 isgwb Exp $
  */
 public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 	protected static Log LOG = LogFactory.getLog(PopulateAssignNewMembersAction.class);
@@ -318,7 +318,7 @@ public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 					try {
 						if ("group".equals(subjectTypeId)) {
 							subjectGroup = GroupFinder.findByUuid(grouperSession,
-									subjectId, true);
+									subjectId);
 							subjectMap = GrouperHelper.group2Map(grouperSession,
 									subjectGroup);
 						} else {
