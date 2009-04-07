@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Grouper UI Contribution - struts-patch</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
+<body>
+<h2>Grouper UI Contribution - struts-patch</h2>
+<table width="75%" border="1">
+  <tr> 
+    <td>Contributed by</td>
+    <td>University of Bristol, UK</td>
+  </tr>
+  <tr> 
+    <td>Purpose</td>
+    <td><p>Ensures that the current Strut's 'module' is maintained in links and 
+        internal forwards / includes. This enables Strut's modules to be used 
+        to provide multiple user interfaces in one web application instance.</p>
+      <p>Also includes a modified InsertTag.java which forces the original type 
+        of any Exception to be included in the message when a new JspException 
+        is used to 'wrap' an Exception.</p></td>
+  </tr>
+  <tr> 
+    <td>How it works</td>
+    <td>Replaces 4 source files from the Strut's distribution</td>
+  </tr>
+  <tr> 
+    <td>Instructions</td>
+    <td>This contribution is designed to be run from within the normal Grouper 
+      UI build process and is run by adding : <br> <font face="Courier New, Courier, mono">&lt;ant 
+      antfile=&quot;build.xml&quot; target=&quot;webapp&quot; dir=&quot;${contrib.dir}/struts-patch&quot; 
+      inheritrefs=&quot;true&quot; /&gt;</font>
+<p>to the build file. Normally you would include this line in the build 
+        file defined by the <font face="Courier New, Courier, mono">additional.build</font> 
+        property</p></td>
+  </tr>
+</table>
+<p>&nbsp;</p>
+</body>
+</html>
