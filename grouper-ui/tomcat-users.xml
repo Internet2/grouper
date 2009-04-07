@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<tomcat-users>
+ <!-- Add the following lines + other users if you want to, to the equivalent file for your tomcat installation (found in conf-).
+        This is the easiest way (but not the most secure) to set up authenticated users for the Grouper UI -->
+  <role rolename="grouper_user"/>
+  <user username="GrouperSystem" password="chang3m3" roles="grouper_user"/>
+</tomcat-users>
