@@ -41,6 +41,8 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.MissingGroupOrStemException;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
+import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
@@ -209,7 +211,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateAssignNewMembersAction.java,v 1.9 2008-12-12 16:58:50 isgwb Exp $
+ * @version $Id: PopulateAssignNewMembersAction.java,v 1.9.2.1 2009-04-07 08:45:16 isgwb Exp $
  */
 public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 	protected static Log LOG = LogFactory.getLog(PopulateAssignNewMembersAction.class);
@@ -275,6 +277,12 @@ public class PopulateAssignNewMembersAction extends GrouperCapableAction {
 			request.setAttribute("forStems", Boolean.TRUE);
 		}else{
 			request.setAttribute("forStems", Boolean.FALSE);
+			group=groupOrStem.getGroup();
+			UIGroupPrivilegeResolver resolver = 
+				UIGroupPrivilegeResolverFactory.getInstance(grouperSession, 
+					                                    	getMediaResources(request), 
+					                                    	group, grouperSession.getSubject());
+			request.setAttribute("groupPrivResolver", resolver.asMap());
 		}
 		
 
