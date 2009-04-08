@@ -52,7 +52,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * and, if an effective membership, the parent membership
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.98.2.1 2009-04-07 16:21:08 mchyzer Exp $
+ * @version $Id: MembershipFinder.java,v 1.98.2.2 2009-04-08 12:33:31 isgwb Exp $
  */
 public class MembershipFinder {
   
@@ -554,7 +554,7 @@ public class MembershipFinder {
     Set<Membership> allChildren;
     //get the size
     QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
-    group.getImmediateMembers(field, queryOptions);
+    group.getEffectiveMembers(field, queryOptions);
     int totalSize = queryOptions.getCount().intValue();
     
     if (GrouperUtil.length(numberOfRecords) > 0) {
@@ -597,7 +597,7 @@ public class MembershipFinder {
     Set<Membership> allChildren;
     //get the size
     QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
-    group.getImmediateMembers(field, queryOptions);
+    group.getMembers(field, queryOptions);
     int totalSize = queryOptions.getCount().intValue();
     
     if (GrouperUtil.length(numberOfRecords) > 0) {
