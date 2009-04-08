@@ -41,6 +41,12 @@
 				linkKey="search.subjects"
 	/>
 	
+	<item 	functionalArea="SavedStems"
+				action="/populateListSavedStems.do"
+				titleKey="saved-stems.link.title"
+				linkKey="saved.stems"
+	/>
+	
 	<item 	functionalArea="SavedGroups"
 				action="/populateListSavedGroups.do"
 				titleKey="saved-subjects.groups.link.title"

@@ -133,7 +133,7 @@ import edu.internet2.middleware.grouper.ui.Message;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveStemAction.java,v 1.11 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: SaveStemAction.java,v 1.12 2009-04-08 15:16:09 isgwb Exp $
  */
 
 public class SaveStemAction extends GrouperCapableAction {
@@ -249,6 +249,12 @@ public class SaveStemAction extends GrouperCapableAction {
 
 		request.setAttribute("message", new Message("stems.message.stem-saved",
 				(String) stemForm.get("stemDisplayName")));
+		
+		try {
+			if("true".equals(getMediaResources(request).getString("put.in.session.updated.stems"))) {
+				addSavedStem(session,stem);
+			}
+		}catch(Exception e){}
 
 		String submit = request.getParameter("submit.save");
 		if(submit==null) {

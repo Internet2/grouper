@@ -217,7 +217,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.19 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.20 2009-04-08 15:16:09 isgwb Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -377,7 +377,12 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 				curGroupOrStemMap = GrouperHelper.stem2Map(grouperSession,curNodeStem);
 			}	
 		}
-
+		if(curGroupOrStem.isStem()) {
+			Map saveStemParams = new HashMap();
+			saveStemParams.put("stemId",curGroupOrStem.getId());
+			saveStemParams.put("callerPageId",request.getAttribute("thisPageId"));
+			request.setAttribute("saveStemParams",saveStemParams);
+		}
 		List children = new ArrayList();
 		List allChildren = new ArrayList();
 		Map child;

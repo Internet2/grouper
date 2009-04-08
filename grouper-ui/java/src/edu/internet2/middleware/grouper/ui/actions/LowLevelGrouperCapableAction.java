@@ -53,10 +53,12 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.GrouperComparator;
 import edu.internet2.middleware.grouper.ui.Message;
@@ -76,7 +78,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.21 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.22 2009-04-08 15:16:09 isgwb Exp $
  */
 
 /**
@@ -521,6 +523,60 @@ public abstract class LowLevelGrouperCapableAction
 		}
 		return savedSubjects;
 	}
+	
+	
+	protected void makeSavedStemsAvailable(HttpServletRequest request) throws Exception{
+		HttpSession session = request.getSession();
+		List savedAsMaps =  new ArrayList();
+		Set savedStems=getSavedStems(session);
+		Stem stem;
+		Iterator it = savedStems.iterator();
+		GrouperSession grouperSession = (GrouperSession) session.getAttribute("edu.intenet2.middleware.grouper.ui.GrouperSession");
+		
+		while(it.hasNext()) {
+			stem=(Stem)it.next();
+				try {
+					stem=StemFinder.findByUuid(grouperSession,stem.getUuid(), true);
+					savedAsMaps.add(GrouperHelper.stem2Map(grouperSession,stem));
+				}catch(StemNotFoundException e) {
+					it.remove();
+				}
+		}
+		String sortContext="search";
+		String field = (String)session.getAttribute("stemSearchResultField");
+		if(field !=null) {
+			sortContext="search:" + field;
+		}
+		savedAsMaps=sort(savedAsMaps,request,sortContext);
+		request.setAttribute("savedStems",new ArrayList(savedAsMaps));
+		request.setAttribute("savedStemsSize",new Integer(savedAsMaps.size()));	
+	}
+	
+
+	
+	protected void addSavedStem(HttpSession session,Stem stem) {
+		getSavedStems(session).add(stem);
+	}
+	
+	protected void removeSavedStem(HttpSession session,Stem stem) {
+		Set saved = getSavedStems(session);
+		Iterator it = saved.iterator();
+		Stem savedStem;
+		while(it.hasNext()){
+			savedStem = (Stem)it.next();
+			if(stem.getUuid().equals(savedStem.getUuid())) it.remove();
+		}
+	}
+	
+	protected Set getSavedStems(HttpSession session) {
+		Set savedStems = (Set)session.getAttribute("savedStemsSet");
+		if(savedStems==null) {
+			savedStems = new LinkedHashSet();
+			session.setAttribute("savedStemsSet",savedStems);
+		}
+		return savedStems;
+	}
+	
 	
 	/**
 	 * This method assumes that there is a HttpSession attribute, 'GrouperComparator',

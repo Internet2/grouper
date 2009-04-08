@@ -54,6 +54,7 @@
       <form-property name="groupDisplayName" type="java.lang.String"/>
       <form-property name="groupId" type="java.lang.String"/>
       <form-property name="membershipListScope" type="java.lang.String"/>
+      <form-property name="lastMembershipListScope" type="java.lang.String"/>
       <form-property name="privilege" type="java.lang.String"/>
 	  <form-property name="listField" type="java.lang.String"/>
       <form-property name="pageSize" type="java.lang.String"/>
@@ -509,6 +510,12 @@
             unknown="false" validate="false" >
             <forward name="SavedSubjects" path="SavedSubjectsDef" redirect="false"/>
      		   </action>
+     
+     <action name="StemFormBean" path="/populateListSavedStems" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateListSavedStemsAction"
+            unknown="false" validate="false" >
+            <forward name="SavedStems" path="SavedStemsDef" redirect="false"/>
+     </action>
 			   
 	<action name="SubjectFormBean" path="/removeSavedGroups" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.RemoveSavedSubjectsAction"
@@ -520,6 +527,12 @@
             type="edu.internet2.middleware.grouper.ui.actions.RemoveSavedSubjectsAction"
             unknown="false" validate="false" >
             <forward name="SavedSubjects" path="/populateListSavedSubjects.do" redirect="false"/>
+     		   </action>
+     
+     <action name="StemFormBean" path="/removeSavedStems" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.RemoveSavedStemsAction"
+            unknown="false" validate="false" >
+            <forward name="SavedStems" path="/populateListSavedStems.do" redirect="false"/>
      		   </action>
 			   
 			   <action path="/assignSavedSubjects" scope="request"
@@ -575,6 +588,11 @@
     </action>
         <action name="SubjectFormBean" path="/addSavedSubject" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.AddSavedSubjectAction"
+            unknown="false" validate="false">
+                  
+    </action>
+    <action name="StemFormBean" path="/addSavedStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.AddSavedStemAction"
             unknown="false" validate="false">
                   
     </action>
@@ -691,6 +709,10 @@
             
        <action path="/prepareSavedSubjects" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.PrepareSavedSubjectsAction"
+            unknown="false" validate="false"/>
+       
+       <action path="/prepareSavedStems" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PrepareSavedStemsAction"
             unknown="false" validate="false"/>
             
        <action path="/prepareSavedGroups" scope="request"
