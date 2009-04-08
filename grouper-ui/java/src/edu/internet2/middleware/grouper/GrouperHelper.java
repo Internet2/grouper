@@ -82,7 +82,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.58 2009-03-22 05:40:57 mchyzer Exp $
+ * @version $Id: GrouperHelper.java,v 1.59 2009-04-08 13:20:51 isgwb Exp $
  */
 
 
@@ -2834,6 +2834,12 @@ public class GrouperHelper {
 			fieldMap=ObjectAsMap.getInstance("FieldAsMap",field,bundle);
 			map.put(field.getName(),fieldMap);
 		}
+		String[] primaryFields = new String[] {"extension","displayExtension","name","displayName","description"};
+		for (int i=0;i<primaryFields.length;i++) {
+			Map dummyField = new HashMap();
+			dummyField.put("displayName", bundle.getString("field.displayName." + primaryFields[i]));
+			map.put(primaryFields[i], dummyField);
+		}
 		Map any = new HashMap();
 		any.put("displayName",bundle.getString("field.displayName._any"));
 		map.put("_any",any);
@@ -2997,6 +3003,30 @@ public class GrouperHelper {
 		//later
 		if(ms==null) return false;
 		return ms.getDepth()==0;
+	}
+	
+	public static boolean hasOtherReadableFields(Group g, String fieldName) {
+		Field f = null;
+		try {
+			f=FieldFinder.find(fieldName);
+		}catch(SchemaException e) {
+			throw new RuntimeException(e);
+		}
+		Set<GroupType> types=g.getTypes();
+		int count=0;
+		for(GroupType type : types) {
+			Set<Field> fields = type.getFields();
+			for(Field field : fields) {
+				try {
+					if(!field.equals(f) && field.isGroupListField() && g.canReadField(field)) {
+						count++;
+					}
+				}catch(SchemaException e) {
+					LOG.error(e);
+				}
+			}
+		}
+		return count > 0 || !f.getName().equals("members");
 	}
 	
 	/*public static List query(String sql) throws Exception{
