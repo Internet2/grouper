@@ -19,10 +19,16 @@ package edu.internet2.middleware.grouper.ui;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -32,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AllRepositoryBrowser.java,v 1.7 2007-10-21 13:22:11 isgwb Exp $
+ * @version $Id: AllRepositoryBrowser.java,v 1.7.8.1 2009-04-10 18:44:16 mchyzer Exp $
  */
 
 
@@ -40,8 +46,26 @@ public class AllRepositoryBrowser extends AbstractRepositoryBrowser{
 	
 	
 	
-	
-	public AllRepositoryBrowser(){
+	/**
+	 * 
+	 * @see edu.internet2.middleware.grouper.ui.AbstractRepositoryBrowser#pagedQuery()
+	 */
+	@Override
+  protected boolean pagedQuery() {
+    return true;
+  }
+
+	/**
+	 * 
+	 * @see edu.internet2.middleware.grouper.ui.AbstractRepositoryBrowser#sortedQuery()
+	 */
+  @Override
+  protected boolean sortedQuery() {
+    return true;
+  }
+
+
+  public AllRepositoryBrowser(){
 		prefix = "repository.browser.all.";
 		browseMode="All";
 	}
@@ -86,4 +110,13 @@ public class AllRepositoryBrowser extends AbstractRepositoryBrowser{
 
 		return new HashMap();
 	}
+
+  /**
+   * @see edu.internet2.middleware.grouper.ui.AbstractRepositoryBrowser#getChildGroups(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  @Override
+  public Set<Group> getChildGroups(Stem stem, QueryOptions queryOptions) {
+    return stem.getChildGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, queryOptions);
+  }
+
 }

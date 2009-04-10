@@ -63,6 +63,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
+import edu.internet2.middleware.grouper.ui.UIThreadLocal;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 import edu.internet2.middleware.subject.Subject;
@@ -76,7 +77,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.20.2.1 2009-04-07 16:21:04 mchyzer Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.20.2.2 2009-04-10 18:44:16 mchyzer Exp $
  */
 
 /**
@@ -107,10 +108,23 @@ public abstract class LowLevelGrouperCapableAction
 						
 			DynaActionForm dummyForm = (DynaActionForm)form;
 			if(form!=null)request.setAttribute("grouperForm",form);
-			
-			ActionForward forward =  grouperExecute(mapping,form,request,response,session,grouperSession);
-			
-			return forward;
+			//tell grouper session if we are in admin mode or user mode
+	    Boolean originalConsiderIfWheelMember = grouperSession == null ? null : grouperSession.isConsiderIfWheelMember();
+	    
+	    //are we acting as self or wheel?
+	    if (grouperSession != null) {
+  	    grouperSession.setConsiderIfWheelMember(
+  	        Boolean.TRUE.equals(UIThreadLocal.get("isActiveWheelGroupMember")));
+	    }	    
+	    try {
+  			ActionForward forward =  grouperExecute(mapping,form,request,response,session,grouperSession);
+  			
+  			return forward;
+	    } finally {
+	      if (grouperSession != null && originalConsiderIfWheelMember != null) {
+	        grouperSession.setConsiderIfWheelMember(originalConsiderIfWheelMember);
+	      }
+	    }
 	}
 	/**
 	 * Convenience method to extract tiles attributes as a Map

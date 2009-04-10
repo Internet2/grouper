@@ -77,7 +77,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.54.2.1 2009-04-07 16:21:04 mchyzer Exp $
+ * @version $Id: GrouperHelper.java,v 1.54.2.2 2009-04-10 18:44:16 mchyzer Exp $
  */
 
 
@@ -186,102 +186,6 @@ public class GrouperHelper {
 		s.stop();
 	}
 
-
-	/**
-	 * Given a GrouperStem id return a list of stems and groups for which the
-	 * GrouperStem is an immediate parent
-	 * @param s GrouperSession for authenticated user
-	 * @param stemId GrouperStem id
-	 * @return List of all stems and groups for stemId
-	 */
-	public static List getChildren(GrouperSession s, String stemId) throws StemNotFoundException{
-		Stem stem =null;
-		if("".equals(stemId)) {
-			stem=StemFinder.findRootStem(s);
-		}else{
-			stem=StemFinder.findByName(s, stemId);
-		}
-		ArrayList res = new ArrayList();
-		Set children = stem.getChildStems();
-		Iterator it = children.iterator();
-		Stem childStem = null;
-		while(it.hasNext()) {
-			childStem=(Stem)it.next();
-			res.add(GroupOrStem.findByStem(s,childStem));
-		}
-		children=stem.getChildGroups();
-		it = children.iterator();
-		Group childGroup = null;
-		while(it.hasNext()) {
-			childGroup=(Group)it.next();
-			res.add(GroupOrStem.findByGroup(s,childGroup));
-		}
-		return res;
-	}
-
-	/**
-	 * Given a list of GrouperAttributes, return a list of GrouperStems
-	 * which the attributes belong to, and load all atributes for these Stems
-	 * 
-	 * @param s GrouperSession for authenticated user
-	 * @param list of GrouperAttributes
-	 * @return List of GrouperGroups or GrouperStems
-	 */
-	/*public static List instantiateStems(GrouperSession s, List list) {
-		return instantiateGroups(s, list);
-	}*/
-
-
-
-	/**
-	 * Given a list of GrouperAttributes, return a list of GrouperGroups
-	 * which the attributes belong to, and load all atributes for these groups
-	 * 
-	 * @param s GrouperSession for authenticated user
-	 * @param list of GrouperAtributes
-	 * @return List of GrouperGroups or GrouperStems
-	 */
-	/*public static List instantiateGroups(GrouperSession s, List list) {
-		List instantiated = new ArrayList();
-		Attribute attr = null;
-		String key;
-		Stem stem = null;
-		for (int i = 0; i < list.size(); i++) {
-			attr = (Attribute) list.get(i);
-			key = attr.key();
-
-			//stem=Cache.instance().getGroup(s,key);
-			if (stem == null) {
-				try {
-				stem = (GrouperGroup) GrouperGroup.loadByKey(s, key);
-				}catch(InsufficientPrivilegeException e) {
-					throw new RuntimeException(e);
-				}
-				//Cache.instance().put(s,key,stem);
-			}
-			instantiated.add(stem);
-		}
-		return instantiated;
-	}*/
-
-	/**
-	 * Given a GrouperStem id return a list of Maps representing the children
-	 * of that stem. 
-	 * 
-	 * @param s GrouperSession for authenticated user
-	 * @param stemId
-	 * @return List of GrouperGroups and GrouperStems wrapped as Maps
-	 */
-	public static List getChildrenAsMaps(GrouperSession s, String stemId) throws StemNotFoundException{
-		List stems = getChildren(s, stemId);
-		List maps = new ArrayList();
-		GroupOrStem groupOrStem = null;
-		for (int i = 0; i < stems.size(); i++) {
-			groupOrStem = (GroupOrStem)stems.get(i);
-			maps.add(groupOrStem.getAsMap());
-		}
-		return maps;
-	}
 
 	/**
 	 * Given a list of GrouperList objects return a list of instantiated

@@ -21,11 +21,16 @@ package edu.internet2.middleware.grouper.ui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -35,15 +40,13 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: CreateRepositoryBrowser.java,v 1.6 2007-11-06 16:44:28 isgwb Exp $
+ * @version $Id: CreateRepositoryBrowser.java,v 1.6.8.1 2009-04-10 18:44:16 mchyzer Exp $
  */
 
 
 public class CreateRepositoryBrowser extends AbstractRepositoryBrowser{
 	
-	
-	
-	public CreateRepositoryBrowser(){
+  public CreateRepositoryBrowser(){
 		prefix = "repository.browser.create.";
 		browseMode="Create";
 	}
@@ -68,7 +71,6 @@ public class CreateRepositoryBrowser extends AbstractRepositoryBrowser{
 			}
 		}catch(Exception e) {throw new RuntimeException(e);}
 		return (validStems.get(name)!=null);
-		
 	}
 	
 	/**
@@ -94,8 +96,8 @@ public class CreateRepositoryBrowser extends AbstractRepositoryBrowser{
 		Member member = MemberFinder.findBySubject(s,s.getSubject());
 		stems.addAll(member.hasStem());
 		stems.addAll(member.hasCreate());
-		
-		
+
+
 		validStems= getStems(stems);
 		return validStems;
 	}
