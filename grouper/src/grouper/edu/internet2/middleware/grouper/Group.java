@@ -114,7 +114,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.214.2.5 2009-04-07 16:21:08 mchyzer Exp $
+ * @version $Id: Group.java,v 1.214.2.6 2009-04-10 18:44:21 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -300,15 +300,11 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
       FIELD_MODIFY_TIME, FIELD_PARENT_UUID, FIELD_UUID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
-
   
   /** known built-in attributes */
   private static final  Set<String> ALLOWED_ATTRS = GrouperUtil.toSet(
     GrouperConfig.ATTR_DISPLAY_NAME, GrouperConfig.ATTR_DESCRIPTION, GrouperConfig.ATTR_DISPLAY_EXTENSION,
     GrouperConfig.ATTR_EXTENSION, GrouperConfig.ATTR_NAME);
-
-  
-  // PUBLIC CLASS METHODS //
   
   /**
    * Retrieve default members {@link Field}.
@@ -2307,6 +2303,14 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
     return GrouperSession.staticGrouperSession().getAccessResolver().getSubjectsWithPrivilege(this, AccessPrivilege.OPTOUT);
   } 
 
+  /**
+   * get the name of the parent stem
+   * @return the name of the parent stem
+   */
+  public String getParentStemName() {
+    return GrouperUtil.parentStemNameFromName(this.getName(), false);
+  }
+  
   /**
    * Get parent stem.
    * <pre class="eg">

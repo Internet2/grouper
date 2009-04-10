@@ -142,8 +142,8 @@ public class HibUtils {
    */
   public static void evict(HibernateSession hibernateSession,
       Object object, boolean onlyEvictIfNotNew) {
-    if (object instanceof List) {
-      HibUtils.evict(hibernateSession, (List)object, onlyEvictIfNotNew);
+    if (object instanceof Collection) {
+      HibUtils.evict(hibernateSession, (Collection)object, onlyEvictIfNotNew);
       return;
     }
     
@@ -181,7 +181,7 @@ public class HibUtils {
    * @param onlyEvictIfNotNew true to only evict if this is a nested tx
    */
   public static void evict(HibernateSession hibernateSession,
-      List<Object> list, boolean onlyEvictIfNotNew) {
+      Collection<Object> list, boolean onlyEvictIfNotNew) {
     if (list == null) {
       return;
     }
@@ -521,4 +521,30 @@ public class HibUtils {
     return types;
   }
 
+  /**
+   * convert a colleciton of strings (no parens) to an in clause
+   * @param collection
+   * @param scalarable to set the string
+   * @return the string of in clause (without parens)
+   */
+  public static String convertToInClause(Collection<String> collection, HqlQuery scalarable) {
+    
+    String unique = GrouperUtil.uniqueId();
+    
+    StringBuilder result = new StringBuilder();
+    int collectionSize = collection.size();
+    int i = 0;
+    for (String string : collection) {
+      String var = unique + i;
+      result.append(":" + var);
+      
+      //add to query
+      scalarable.setString(var, string);
+      if (i < collectionSize-1) {
+        result.append(", ");
+      }
+      i++;
+    }
+    return result.toString();
+  }
 }

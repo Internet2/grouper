@@ -43,7 +43,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Reference to members list is: Group.getDefaultList()
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.38.2.1 2009-03-27 21:23:25 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.38.2.2 2009-04-10 18:44:21 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -119,6 +119,9 @@ public class Field extends GrouperAPI implements Hib3GrouperVersioned {
       FIELD_WRITE_PRIVILEGE);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+
+  /** constant for property name for: uuid */
+  public static final String PROPERTY_UUID = "uuid";
 
   /** */
   @GrouperIgnoreDbVersion

@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.privs;
 import edu.internet2.middleware.grouper.GrantPrivilegeAlreadyExistsException;
 import  edu.internet2.middleware.grouper.Group;
 import  edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -27,6 +28,7 @@ import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Set;
@@ -36,20 +38,26 @@ import  java.util.Set;
  * Class implementing wrapper around {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessWrapper.java,v 1.8 2008-10-27 10:03:36 mchyzer Exp $
+ * @version $Id: AccessWrapper.java,v 1.8.2.1 2009-04-10 18:44:20 mchyzer Exp $
  * @since   1.2.1
  */
 public class AccessWrapper implements AccessResolver {
 
-
+  /** */
   private AccessAdapter   access;
+
+  /** */
   private GrouperSession  s;
+
+  /** */
   private ParameterHelper param;
 
 
 
   /**
    * Facade around {@link AccessAdapter} that implements {@link AccessResolver}.
+   * @param session 
+   * @param access 
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
    */
@@ -86,7 +94,7 @@ public class AccessWrapper implements AccessResolver {
       return this.access.getGroupsWhereSubjectHasPriv(this.s, subject, privilege);
     }
     catch (SchemaException eSchema) {
-      throw new GrouperRuntimeException("unexpected condition"); // TODO 20070726 log?  throw IllegalStateException?
+      throw new GrouperRuntimeException("unexpected condition", eSchema); // TODO 20070726 log?  throw IllegalStateException?
     }
   }
 
@@ -113,7 +121,7 @@ public class AccessWrapper implements AccessResolver {
       return this.access.getSubjectsWithPriv(this.s, group, privilege);
     }
     catch (SchemaException eSchema) {
-      throw new GrouperRuntimeException("unexpected condition"); // TODO 20070726 log?  throw IllegalStateException?
+      throw new GrouperRuntimeException("unexpected condition", eSchema); // TODO 20070726 log?  throw IllegalStateException?
     }
   }
 
@@ -139,7 +147,7 @@ public class AccessWrapper implements AccessResolver {
       throw new UnableToPerformException( ePrivs.getMessage(), ePrivs );
     }
     catch (SchemaException eSchema) {
-      throw new GrouperRuntimeException("unexpected condition"); // TODO 20070726 log?  throw IllegalStateException?
+      throw new GrouperRuntimeException("unexpected condition", eSchema); // TODO 20070726 log?  throw IllegalStateException?
     }
   }
 
@@ -155,7 +163,7 @@ public class AccessWrapper implements AccessResolver {
       return this.access.hasPriv(this.s, group, subject, privilege);
     }
     catch (SchemaException eSchema) {
-      throw new GrouperRuntimeException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
+      throw new GrouperRuntimeException("unexpected condition", eSchema); // TODO 20070727 log?  throw IllegalStateException?
     }
   }
 
@@ -178,7 +186,7 @@ public class AccessWrapper implements AccessResolver {
       throw new UnableToPerformException( eRevoke.getMessage(), eRevoke );
     }
     catch (SchemaException eSchema) {
-      throw new GrouperRuntimeException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
+      throw new GrouperRuntimeException("unexpected condition", eSchema); // TODO 20070727 log?  throw IllegalStateException?
     }
   }
             
@@ -203,17 +211,51 @@ public class AccessWrapper implements AccessResolver {
       throw new UnableToPerformException( eRevoke.getMessage(), eRevoke );
     }
     catch (SchemaException eSchema) {
-      throw new GrouperRuntimeException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
+      throw new GrouperRuntimeException("unexpected condition", eSchema); // TODO 20070727 log?  throw IllegalStateException?
     }
   }
 
-
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterGroups(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Group> postHqlFilterGroups(Set<Group> groups, Subject subject, Set<Privilege> privInSet) {
+    return this.access.postHqlFilterGroups(this.s, groups, subject, privInSet);
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
    */
   public void flushCache() {
   }            
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#hqlFilterGroupsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   */
+  public boolean hqlFilterGroupsWhereClause( 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Set<Privilege> privInSet) {
+    return this.access.hqlFilterGroupsWhereClause(this.s, subject, hqlQuery, hql, groupColumn, privInSet);
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getGrouperSession()
+   */
+  public GrouperSession getGrouperSession() {
+    return this.s;
+  }
+
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterMemberships(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Membership> postHqlFilterMemberships(Subject subject,
+      Set<Membership> memberships) {
+    return this.access.postHqlFilterMemberships(this.s, subject, memberships);
+  }
 
 }
 

@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Set;
@@ -36,11 +37,18 @@ import  java.util.Set;
  * Class implementing wrapper around {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingWrapper.java,v 1.8 2008-10-27 10:03:36 mchyzer Exp $
+ * @version $Id: NamingWrapper.java,v 1.8.2.1 2009-04-10 18:44:21 mchyzer Exp $
  * @since   1.2.1
  */
 public class NamingWrapper implements NamingResolver {
   // TODO 20070820 DRY w/ access resolution
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#getGrouperSession()
+   */
+  public GrouperSession getGrouperSession() {
+    return this.s;
+  }
 
 
   private NamingAdapter   naming;
@@ -204,6 +212,22 @@ public class NamingWrapper implements NamingResolver {
     } catch (SchemaException eSchema) {
       throw new GrouperRuntimeException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
     }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#hqlFilterStemsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   */
+  public boolean hqlFilterStemsWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String stemColumn, Set<Privilege> privInSet) {
+    return this.naming.hqlFilterStemsWhereClause(this.s, subject, hqlQuery, hql, stemColumn, privInSet);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#postHqlFilterStems(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Stem> postHqlFilterStems(Set<Stem> groups, Subject subject,
+      Set<Privilege> privInSet) {
+    return null;
   }            
 
 }

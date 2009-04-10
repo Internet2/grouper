@@ -16,6 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import java.util.Collections;
+import java.util.Set;
+
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -23,19 +26,27 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /** 
  * An instance of a granted naming privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingPrivilege.java,v 1.4 2008-12-06 20:39:36 mchyzer Exp $
+ * @version $Id: NamingPrivilege.java,v 1.4.2.1 2009-04-10 18:44:20 mchyzer Exp $
  */
 public class NamingPrivilege implements GrouperPrivilege, Comparable {
 
-  // Public Class Constants
+  /** can create objects in this stem */
   public static final Privilege CREATE  = Privilege.getInstance("create");
+
+  /** can create stems in this stem */
   public static final Privilege STEM    = Privilege.getInstance("stem");
+
+  /** any of these constitutes CREATE on a stem
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> CREATE_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(CREATE, STEM));
 
   /**
    * 

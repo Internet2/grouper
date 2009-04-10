@@ -52,7 +52,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * and, if an effective membership, the parent membership
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.98.2.2 2009-04-08 12:33:31 isgwb Exp $
+ * @version $Id: MembershipFinder.java,v 1.98.2.3 2009-04-10 18:44:21 mchyzer Exp $
  */
 public class MembershipFinder {
   
@@ -446,12 +446,7 @@ public class MembershipFinder {
      // @session   true
     GrouperSession.validate(s);
     MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
-    Set           mships  = new LinkedHashSet();
-    mships.addAll( dao.findMembershipsByMemberAndField( m.getUuid(), f ) );
-    if ( !m.equals( MemberFinder.internal_findAllMember() ) ) {
-      mships.addAll( dao.findMembershipsByMemberAndField( MemberFinder.internal_findAllMember().getUuid(), f ) );
-    }
-    return PrivilegeHelper.canViewMemberships(s, mships);
+    return dao.findMembershipsByMemberAndFieldSecure(s, m.getUuid(), f);
   } // public static Set internal_findMemberships(s, m, f)
 
   /**

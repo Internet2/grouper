@@ -22,15 +22,17 @@ import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
+import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Basic <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.15.2.1 2009-04-07 16:21:08 mchyzer Exp $
+ * @version $Id: MembershipDAO.java,v 1.15.2.2 2009-04-10 18:44:21 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
@@ -201,7 +203,18 @@ public interface MembershipDAO extends GrouperDAO {
   /**
    * @since   1.2.0
    */
-  Set findMembershipsByMemberAndField(String memberUUID, Field f)
+  Set<Membership> findMembershipsByMemberAndField(String memberUUID, Field f)
+    throws  GrouperDAOException;
+
+  /**
+   * find memberships that the user is allowed to see
+   * @param grouperSession
+   * @param memberUUID
+   * @param f
+   * @return the memberships
+   * @throws GrouperDAOException
+   */
+  Set<Membership> findMembershipsByMemberAndFieldSecure(GrouperSession grouperSession, String memberUUID, Field f)
     throws  GrouperDAOException;
 
   /**

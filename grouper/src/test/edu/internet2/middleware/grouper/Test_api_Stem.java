@@ -17,6 +17,9 @@
 
 package edu.internet2.middleware.grouper;
 
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
@@ -32,7 +35,7 @@ import junit.textui.TestRunner;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Stem.java,v 1.12 2008-11-12 09:05:53 mchyzer Exp $
+ * @version $Id: Test_api_Stem.java,v 1.12.2.1 2009-04-10 18:44:21 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_Stem extends GrouperTest {
@@ -57,12 +60,11 @@ public class Test_api_Stem extends GrouperTest {
   }
 
   /**
-   * 
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new Test_api_Stem("test_isChildGroup_rootAsPotentialParent"));
-    TestRunner.run(Test_api_Stem.class);
+    TestRunner.run(new Test_api_Stem("test_getChildGroups_PrivilegeArrayAndScope_createPrivAndSubScope"));
+    //TestRunner.run(Test_api_Stem.class);
   }
 
   /** size before getting started */
@@ -169,7 +171,7 @@ public class Test_api_Stem extends GrouperTest {
 
   public void test_getChildGroups_PrivilegeArrayAndScope_nullArray() {
     try {
-      this.root.getChildGroups(null, null);
+      this.root.getChildGroups(null, (Scope)null);
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eExpected) {
@@ -186,11 +188,13 @@ public class Test_api_Stem extends GrouperTest {
     }
   }
   public void test_getChildGroups_PrivilegeArrayAndScope_emptyArray() {
-    assertEquals( 0, this.top.getChildGroups( new Privilege[0], Stem.Scope.SUB ).size() );
+    Set<Group> childGroups = this.top.getChildGroups( new Privilege[0], Stem.Scope.SUB );
+    assertEquals( 0, childGroups.size() );
   }
   public void test_getChildGroups_PrivilegeArrayAndScope_createPrivAndOneScope() {
     Privilege[] privs = { NamingPrivilege.CREATE };
-    assertEquals( 0, this.top.getChildGroups( privs, Stem.Scope.ONE ).size() );
+    Set<Group> childGroups = this.top.getChildGroups( privs, Stem.Scope.ONE );
+    assertEquals( 0, childGroups.size() );
   }
   public void test_getChildGroups_PrivilegeArrayAndScope_createPrivAndSubScope() {
     Privilege[] privs = { NamingPrivilege.CREATE };

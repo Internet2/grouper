@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -48,50 +49,123 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.4.2.1 2009-03-19 19:24:49 mchyzer Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.4.2.2 2009-04-10 18:44:21 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperPrivilegeAdapter {
 	
-	// PRIVATE CLASS VARIABLES //
-	  private static Map<String,Privilege> list2priv = new HashMap();
+	  /** map of field name to privilege */
+	  private static final  Map<String,Privilege> list2priv;
+	  
+	  /**
+	   * convert a set of privileges to a set of fields
+	   * @param priv2list 
+	   * @param privileges
+	   * @return the set of fields
+	   */
+	  public static Set<Field> fieldSet(Map<Privilege, String> priv2list, Set<Privilege> privileges) {
+	    if (privileges == null) {
+	      return null;
+	    }
+	    try {
+  	    Set<Field> fields = new LinkedHashSet<Field>();
+  	    for (Privilege privilege : privileges) {
+  	      Field field = internal_getField(priv2list, privilege);
+  	      fields.add(field);
+  	    }
+  	    return fields;
+	    } catch (SchemaException se) {
+	      throw new RuntimeException("Problem: " + se.getMessage(), se);
+	    }
+	  }
 
+    /**
+     * convert a set of privileges to a set of fields
+     * @param priv2list 
+     * @param privileges
+     * @return the set of fields
+     */
+    public static Set<String> fieldNameSet(Map<Privilege, String> priv2list, Set<Privilege> privileges) {
+      if (privileges == null) {
+        return null;
+      }
+      Set<String> fieldNames = new LinkedHashSet<String>();
+      Set<Field> fieldSet = fieldSet(priv2list, privileges);
+      
+      for (Field field : fieldSet) {
+        fieldNames.add(field.getName());
+      }
+      return fieldNames;
+    }
+
+    /**
+     * convert a set of privileges to a set of fields
+     * @param priv2list 
+     * @param privileges
+     * @return the set of fields
+     */
+    public static Set<String> fieldIdSet(Map<Privilege, String> priv2list, Set<Privilege> privileges) {
+      if (privileges == null) {
+        return null;
+      }
+      Set<String> fieldNames = new LinkedHashSet<String>();
+      Set<Field> fieldSet = fieldSet(priv2list, privileges);
+      
+      for (Field field : fieldSet) {
+        fieldNames.add(field.getUuid());
+      }
+      return fieldNames;
+    }
 
 	  // STATIC //
 	  //2007-11-02 Gary Brown
 	  //Not ideal but need to lookup privilege for list
 	  static {
-	    list2priv.put( "admins",  AccessPrivilege.ADMIN      );
-	    list2priv.put( "optins",  AccessPrivilege.OPTIN    );
-	    list2priv.put( "optouts", AccessPrivilege.OPTOUT   );
-	    list2priv.put( "readers", AccessPrivilege.READ   );
-	    list2priv.put( "updaters",AccessPrivilege.UPDATE   );
-	    list2priv.put( "viewers",AccessPrivilege.VIEW      );
+	    Map<String, Privilege> map = new HashMap<String, Privilege>();
+	    map.put( "admins",  AccessPrivilege.ADMIN      );
+	    map.put( "optins",  AccessPrivilege.OPTIN    );
+	    map.put( "optouts", AccessPrivilege.OPTOUT   );
+	    map.put( "readers", AccessPrivilege.READ   );
+	    map.put( "updaters",AccessPrivilege.UPDATE   );
+	    map.put( "viewers",AccessPrivilege.VIEW      );
+      list2priv = Collections.unmodifiableMap(map);
 	  } // static
 
-  // public CLASS METHODS //
-
-  // @since   1.2.0
-  public static Field internal_getField(Map priv2list, Privilege p)
+	/**
+	 * 
+	 * @param priv2list
+	 * @param p
+	 * @return field
+	 * @throws SchemaException
+	 */
+  public static Field internal_getField(Map<Privilege, String> priv2list, Privilege p)
     throws  SchemaException
   {
     if (priv2list.containsKey(p)) {
       return FieldFinder.find( (String) priv2list.get(p) );
     }
-    throw new SchemaException("invalid privilege");
+    throw new SchemaException("invalid privilege: " + p);
   } // public static Field internal_getField(priv2list, p)
 
-  // @since   1.2.0
-  //2007-11-02 Gary Brown
-  //If p==null determine by looking at the Membership list
-  //Discard those which are not privileges i.e. members / custom lists
-  //Added Owner to signature so we don't need to compute it 
-  //consequently all Memberships must be of the same Owner
+  /**
+   * 2007-11-02 Gary Brown
+   * If p==null determine by looking at the Membership list
+   * Discard those which are not privileges i.e. members / custom lists
+   * Added Owner to signature so we don't need to compute it 
+   * consequently all Memberships must be of the same Owner
+   * @param s
+   * @param ownerGroupOrStem
+   * @param subj
+   * @param m
+   * @param p
+   * @param it
+   * @return the set
+   * @throws SchemaException
+   */
   public static Set<? extends GrouperPrivilege> internal_getPrivs(
     GrouperSession s, final Owner ownerGroupOrStem,final Subject subj, final Member m, final Privilege p, final Iterator it
   )
-    throws  SchemaException
-  {
+    throws  SchemaException  {
     return (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
 
       public Object callback(GrouperSession grouperSession)

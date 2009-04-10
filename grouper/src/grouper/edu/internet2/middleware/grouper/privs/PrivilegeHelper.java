@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.E;
@@ -45,7 +46,7 @@ import edu.internet2.middleware.subject.Subject;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.3.2.2 2009-04-07 16:21:09 mchyzer Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.3.2.3 2009-04-10 18:44:21 mchyzer Exp $
  * @since   1.2.1
  */
 public class PrivilegeHelper {
@@ -90,6 +91,42 @@ public class PrivilegeHelper {
     )
     {
       return true;
+    }
+    return false;
+  } 
+
+  /**
+   * 
+   * @param s
+   * @param stem
+   * @param subj
+   * @param privInSet
+   * @return if has privilege
+   */
+  public static boolean hasPrivilege(GrouperSession s, Stem stem, Subject subj, Set<Privilege> privInSet) {
+    
+    for (Privilege privilege : privInSet) {
+      if (s.getNamingResolver().hasPrivilege(stem, subj, privilege)) {
+        return true;
+      }
+    }
+    return false;
+  } 
+
+  /**
+   * 
+   * @param s
+   * @param g
+   * @param subj
+   * @param privInSet
+   * @return if has privilege
+   */
+  public static boolean hasPrivilege(GrouperSession s, Group g, Subject subj, Set<Privilege> privInSet) {
+    
+    for (Privilege privilege : privInSet) {
+      if (s.getAccessResolver().hasPrivilege(g, subj, privilege)) {
+        return true;
+      }
     }
     return false;
   } 
@@ -209,15 +246,23 @@ public class PrivilegeHelper {
   /**
    * TODO 20070823 find a real home for this and/or add tests
    * @param s 
-   * @param c 
-   * @return 
+   * @param inputMemberships 
+   * @return filtered memberships
    * @SINCE   1.2.1
    */
-  public static Set<Membership> canViewMemberships(GrouperSession s, Collection c) {
+  public static Set<Membership> canViewMemberships(GrouperSession s, Collection<Membership> inputMemberships) {
+    
+    if (inputMemberships == null) {
+      return null;
+    }
+    
+    //make sure all groups are prepopulated
+    Membership.retrieveGroups(inputMemberships);
+    
     //note, no need for GrouperSession inverse of control
     Set<Membership>         mships  = new LinkedHashSet<Membership>();
     Membership  ms;
-    Iterator    it      = c.iterator();
+    Iterator    it      = inputMemberships.iterator();
     while ( it.hasNext() ) {
       ms = (Membership)it.next() ;
       try {
@@ -432,6 +477,27 @@ public class PrivilegeHelper {
       }
     } 
     return rv;
+  }
+
+  /**
+   * see if a subject is wheel or root
+   * @param subject 
+   * @return true or false
+   */
+  public static boolean isWheelOrRoot(Subject subject) {
+    if (SubjectHelper.eq( subject, SubjectFinder.findRootSubject() )) {
+      return true;
+    }
+    if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_USE_WHEEL_GROUP, false)) {
+      String name = GrouperConfig.getProperty( GrouperConfig.PROP_WHEEL_GROUP );
+      try {
+        Group wheel = GroupFinder.findByName( GrouperSession.staticGrouperSession().internal_getRootSession(), name );
+        return wheel.hasMember(subject);
+      } catch (GroupNotFoundException gnfe) {
+        throw new GrouperRuntimeException("Cant find wheel group: " + name, gnfe);
+      }
+    }
+    return false;
   } 
 
 }

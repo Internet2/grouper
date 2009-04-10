@@ -64,14 +64,6 @@
   />
 -->
 
-  <cache  name="edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateMemberDAO.FindBySubject"
-          maxElementsInMemory="1000"
-          eternal="false"
-          timeToIdleSeconds="5"
-          timeToLiveSeconds="10"
-          overflowToDisk="false"  
-  />
-
   <!-- class: HibernateMemberDAO -->
 
   <!-- class: Hib3MemberDAO -->
@@ -210,6 +202,42 @@
           eternal="false"
           timeToIdleSeconds="1"
           timeToLiveSeconds="1"
+          overflowToDisk="false"
+  />
+
+  <!-- @see   StemDAO#findByName(...) -->
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3StemDAO.FindByName"
+          maxElementsInMemory="2000"
+          eternal="false"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
+          overflowToDisk="false"
+  />
+  
+  <!-- @see   StemDAO#findByUuid(...) -->
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3StemDAO.FindByUuid"
+          maxElementsInMemory="2000"
+          eternal="false"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
+          overflowToDisk="false"
+  />
+
+  <!-- @see   GroupDAO#findByName(...) -->
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO.FindByName"
+          maxElementsInMemory="2000"
+          eternal="false"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
+          overflowToDisk="false"
+  />
+  
+  <!-- @see   GroupDAO#findByUuid(...) -->
+  <cache  name="edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GroupDAO.FindByUuid"
+          maxElementsInMemory="2000"
+          eternal="false"
+          timeToIdleSeconds="10"
+          timeToLiveSeconds="10"
           overflowToDisk="false"
   />
 

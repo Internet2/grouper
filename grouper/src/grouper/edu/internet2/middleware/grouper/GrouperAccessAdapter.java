@@ -16,366 +16,82 @@
 */
 
 package edu.internet2.middleware.grouper;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.Collection;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-
-import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
-import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
-import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
-import edu.internet2.middleware.grouper.exception.MemberAddException;
-import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
-import edu.internet2.middleware.grouper.exception.MemberDeleteException;
-import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
-import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
-import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
-import edu.internet2.middleware.grouper.exception.SchemaException;
-import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
-import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
-import edu.internet2.middleware.grouper.misc.E;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.privs.AccessAdapter;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.GrouperNonDbAccessAdapter;
 import edu.internet2.middleware.grouper.privs.GrouperPrivilegeAdapter;
 import edu.internet2.middleware.grouper.privs.Privilege;
-import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
-/** 
+/**
+ * <pre> 
  * Grouper Access Privilege interface.
  * <p>
  * Unless you are implementing a new implementation of this interface,
  * you should not need to directly use these methods as they are all
  * wrapped by methods in the {@link Group} class.
  * </p>
+ * This access adapter affects the HQL queries to give better performance
+ * 
+ * Note: there is no membership override since there is no way to filter all out
+ * by query since it checks which priv is needed to read
+ * 
+ * TODO filter memberships in an effecient way with one (or only a few) queries
+ * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.71 2008-11-11 22:08:33 mchyzer Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.71.2.1 2009-04-10 18:44:21 mchyzer Exp $
  */
-public class GrouperAccessAdapter implements AccessAdapter {
-
-  // PRIVATE CLASS VARIABLES //
-  private static Map priv2list = new HashMap();
-
-
-  // STATIC //
-  static {
-    priv2list.put(  AccessPrivilege.ADMIN , "admins"    );
-    priv2list.put(  AccessPrivilege.OPTIN , "optins"    );
-    priv2list.put(  AccessPrivilege.OPTOUT, "optouts"   );
-    priv2list.put(  AccessPrivilege.READ  , "readers"   );
-    priv2list.put(  AccessPrivilege.UPDATE, "updaters"  );
-    priv2list.put(  AccessPrivilege.VIEW  , "viewers"   );
-  } // static
-
-
-  // PUBLIC INSTANCE METHODS //
+public class GrouperAccessAdapter extends GrouperNonDbAccessAdapter implements AccessAdapter {
 
   /**
-   * Get all subjects with this privilege on this group.
-   * <pre class="eg">
-   * try {
-   *   Set admins = ap.getSubjectsWithPriv(s, g, AccessPrivilege.ADMIN);
-   * }
-   * catch (SchemaException eS) {
-   *   // Invalid priv
-   * }
-   * </pre>
-   * @param   s     Get privileges within this session context.
-   * @param   g     Get privileges on this group.
-   * @param   priv  Get this privilege.
-   * @return  Set of {@link Subject} objects.
-   * @throws  SchemaException
+   * note, can use 
+   * @see edu.internet2.middleware.grouper.privs.AccessAdapter#hqlFilterGroupsWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
    */
-  public Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) 
-    throws  SchemaException
-  {
-    //note, no need for GrouperSession inverse of control
-    GrouperSession.validate(s);
-    return MembershipFinder.internal_findSubjects(
-      s, g, FieldFinder.find( (String) priv2list.get(priv) )
-    );
-  } // public Set getSubjectsWithpriv(s, g, priv)
+  public boolean hqlFilterGroupsWhereClause(GrouperSession grouperSession,
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Set<Privilege> privInSet) {
+
+    //no privs no filter
+    if (GrouperUtil.length(privInSet) == 0) {
+      return false;
+    }
+    
+    Member member = MemberFinder.internal_findBySubject(subject, false);
+    Member allMember = MemberFinder.internal_findAllMember();
+
+    //FieldFinder.findAllIdsByType(FieldType.ACCESS);
+    Collection<String> accessPrivs = GrouperPrivilegeAdapter.fieldIdSet(priv2list, privInSet); 
+    String accessInClause = HibUtils.convertToInClause(accessPrivs, hqlQuery);
+
+    //TODO update this for 1.5 (group owner)
+    //if not, we need an in clause
+    StringBuilder query = hql.append( ", Membership __accessMembership where " +
+    		"__accessMembership.ownerUuid = " + groupColumn
+    		+ " and __accessMembership.fieldId in (");
+    query.append(accessInClause).append(") and __accessMembership.memberUuid in (");
+    Set<String> memberIds = GrouperUtil.toSet(allMember.getUuid());
+    if (member != null) {
+      memberIds.add(member.getUuid());
+    }
+    String memberInClause = HibUtils.convertToInClause(memberIds, hqlQuery);
+    query.append(memberInClause).append(")");
+    return true;
+  }
 
   /**
-   * Get all groups where this subject has this privilege.
-   * <pre class="eg">
-   * try {
-   *   Set isAdmin = ap.getGroupsWhereSubjectHasPriv(
-   *     s, subj, AccessPrivilege.ADMIN
-   *   );
-   * }
-   * catch (SchemaException eS) {
-   *   // Invalid priv
-   * }
-   * </pre>
-   * @param   s     Get privileges within this session context.
-   * @param   subj  Get privileges for this subject.
-   * @param   priv  Get this privilege.
-   * @return  Set of {@link Group} objects.
-   * @throws  SchemaException
+   * 
+   * @see edu.internet2.middleware.grouper.privs.BaseAccessAdapter#postHqlFilterGroups(edu.internet2.middleware.grouper.GrouperSession, java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
    */
-  public Set getGroupsWhereSubjectHasPriv(
-    GrouperSession s, Subject subj, Privilege priv
-  ) 
-    throws  SchemaException
-  {
-    //note, no need for GrouperSession inverse of control
-    GrouperSession.validate(s);
-    Set groups = new LinkedHashSet();
-    try {
-      Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-      // This subject
-      groups.addAll( 
-        GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectHasPriv( s, MemberFinder.findBySubject(s, subj), f ) 
-      );
-      // The ALL subject
-      if ( !( SubjectHelper.eq(subj, SubjectFinder.findAllSubject() ) ) ) {
-        groups.addAll( 
-          GrouperPrivilegeAdapter.internal_getGroupsWhereSubjectHasPriv( s, MemberFinder.internal_findAllMember(), f ) 
-        );
-      }
-    }
-    catch (GroupNotFoundException eGNF) {
-      String msg = E.GAA_GNF + eGNF.getMessage();
-      LOG.error(msg);
-    }
-    return groups;
-  } // public Set getGroupsWhereSubjectHasPriv(s, subj, priv)
+  @Override
+  public Set<Group> postHqlFilterGroups(GrouperSession grouperSession,
+      Set<Group> inputGroups, Subject subject, Set<Privilege> privInSet) {
+    //assume the HQL filtered everything
+    return inputGroups;
+  }
 
-  /** logger */
-  private static final Log LOG = GrouperUtil.getLog(GrouperAccessAdapter.class);
-
-  /**
-   * Get all privileges held by this subject on this group.
-   * <pre class="eg">
-   * Set privs = ap.getPrivs(s, g, subj);
-   * </pre>
-   * @param   s     Get privileges within this session context.
-   * @param   g     Get privileges on this group.
-   * @param   subj  Get privileges for this member.
-   * @return  Set of privileges.
-   */
-  public Set getPrivs(GrouperSession s, Group g, Subject subj) {
-    //note, no need for GrouperSession inverse of control
-    GrouperSession.validate(s);
-    Set privs = new LinkedHashSet();
-    try {
-      Member        m     = MemberFinder.findBySubject(s, subj);
-      Member        all   = MemberFinder.internal_findAllMember();     
-      MembershipDAO dao   = GrouperDAOFactory.getFactory().getMembership();
-      Iterator      it;
-
-		
-	   //2007-11-02 Gary Brown
-	   //Avoid doing 6 queries - get everything at once
-	   //Also don't add GropuperAll privs - do that in 
-	   //GrouperAllAccessResolver
-        it  = dao.findAllByOwnerAndMember( g.getUuid(), m.getUuid()).iterator(); 
-        privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, g,subj, m, null, it) );
-        /*
-         * Done through GrouperAllAccessAdapter
-         * if (!m.equals(all)) {
-          it  = dao.findAllByOwnerAndMemberAndField( g.getUuid(), ( (MemberDTO) all.getDTO() ).getUuid(), f ).iterator();
-          privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, subj, all, p, it) );
-        }*/
-     
-    }
-    catch (SchemaException eS) {
-      LOG.error( eS.getMessage());
-    }
-    return privs;
-  } // public Set getPrivs(s, g, subj)
-
-  /**
-   * Grant the privilege to the subject on this group.
-   * <pre class="eg">
-   * try {
-   *   ap.grantPriv(s, g, subj, AccessPrivilege.ADMIN);
-   * }
-   * catch (GrantPrivilegeException e0) {
-   *   // Unable to grant the privilege
-   * }
-   * catch (InsufficientPrivilegeException e1) {
-   *   // Not privileged to grant the privilege
-   * }
-   * </pre>
-   * @param   s     Grant privilege in this session context.
-   * @param   g     Grant privilege on this group.
-   * @param   subj  Grant privilege to this subject.
-   * @param   priv  Grant this privilege.   
-   * @throws  GrantPrivilegeException
-   * @throws  InsufficientPrivilegeException
-   * @throws  SchemaException
-   */
-  public void grantPriv(
-    GrouperSession s, final Group g, final Subject subj, final Privilege priv)
-    throws  GrantPrivilegeException, InsufficientPrivilegeException, SchemaException {
-    try {
-      GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
-  
-        public Object callback(GrouperSession grouperSession)
-            throws GrouperSessionException {
-          try {
-            GrouperSession.validate(grouperSession);
-            Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-            if ( !FieldType.ACCESS.equals( f.getType() ) ) {
-              throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
-            }
-            if ( !g.internal_canWriteField( grouperSession.getSubject(), f ) ) {
-              throw new GrouperSessionException(new InsufficientPrivilegeException());
-            }
-            Membership.internal_addImmediateMembership(grouperSession, g, subj, f);
-          } catch (MemberAddException eMA) {
-            if (eMA instanceof MemberAddAlreadyExistsException) {
-              throw new GrouperSessionException(new GrantPrivilegeAlreadyExistsException(eMA.getMessage(), eMA));
-            }
-            throw new GrouperSessionException(new GrantPrivilegeException(eMA.getMessage(), eMA));
-          } catch (SchemaException se) {
-            throw new GrouperSessionException(se);
-          }
-          return null;
-        }
-        
-      });
-    } catch (GrouperSessionException gse) {
-      if (gse.getCause() instanceof GrantPrivilegeException) {
-        throw (GrantPrivilegeException)gse.getCause();
-      }
-      if (gse.getCause() instanceof InsufficientPrivilegeException) {
-        throw (InsufficientPrivilegeException)gse.getCause();
-      }
-      if (gse.getCause() instanceof SchemaException) {
-        throw (SchemaException)gse.getCause();
-      }
-      throw gse;
-    }
-  } // public void grantPriv(s, g, subj, priv)
-
-  /**
-   * Check whether the subject has this privilege on this group.
-   * <pre class="eg">
-   * try {
-   *   ap.hasPriv(s, g, subject, AccessPrivilege.ADMIN);
-   * }
-   * catch (SchemaException e) {
-   *   // Invalid privilege
-   * }
-   * </pre>
-   * @param   s     Check privilege in this session context.
-   * @param   g     Check privilege on this group.
-   * @param   subj  Check privilege for this subject.
-   * @param   priv  Check this privilege.   
-   * @throws  SchemaException
-   */
-  public boolean hasPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
-    throws  SchemaException
-  {
-    //note, no need for GrouperSession inverse of control
-    GrouperSession.validate(s);
-    boolean rv = false;
-    Member m = MemberFinder.findBySubject(s, subj);
-    rv = m.isMember(g, GrouperPrivilegeAdapter.internal_getField(priv2list, priv) );
-    return rv;
-  } // public boolean hasPriv(s, g, subj, priv)
-
-  /**
-   * Revoke this privilege from everyone on this group.
-   * <pre class="eg">
-   * try {
-   *   ap.revokePriv(s, g, AccessPrivilege.ADMIN);
-   * }
-   * catch (InsufficientPrivilegeException eIP) {
-   *   // Not privileged to revoke the privilege
-   * }
-   * catch (RevokePrivilegeException eRP) {
-   *   // Unable to revoke the privilege
-   * }
-   * </pre>
-   * @param   s     Revoke privilege in this session context.
-   * @param   g     Revoke privilege on this group.
-   * @param   priv  Revoke this privilege.   
-   * @throws  InsufficientPrivilegeException
-   * @throws  RevokePrivilegeException
-   * @throws  SchemaException
-   */
-  public void revokePriv(GrouperSession s, Group g, Privilege priv)
-    throws  InsufficientPrivilegeException, 
-            RevokePrivilegeException,
-            SchemaException
-  {
-    //note, no need for GrouperSession inverse of control
-    GrouperSession.validate(s);
-    Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-    if ( !FieldType.ACCESS.equals( f.getType() ) ) {
-      throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
-    }
-    if ( !g.internal_canWriteField( s.getSubject(), f ) ) {
-      throw new InsufficientPrivilegeException();
-    }
-    g.internal_setModified();
-    try {
-      GrouperDAOFactory.getFactory().getGroup().revokePriv( g, Membership.internal_deleteAllField(s, g, f) );
-    }
-    catch (MemberDeleteException eMD) {
-      throw new RevokePrivilegeException( eMD.getMessage(), eMD );
-    }
-  } // public void revokePriv(s, g, priv)
-
-  /**
-   * Revoke the privilege from the subject on this group.
-   * <pre class="eg">
-   * try {
-   *   ap.revokePriv(s, g, subj, AccessPrivilege.ADMIN);
-   * }
-   * catch (InsufficientPrivilegeException e0) {
-   *   // Not privileged to grant the privilege
-   * }
-   * catch (RevokePrivilegeException e2) {
-   *   // Unable to revoke the privilege
-   * }
-   * </pre>
-   * @param   s     Revoke privilege in this session context.
-   * @param   g     Revoke privilege on this group.
-   * @param   subj  Revoke privilege from this subject.
-   * @param   priv  Revoke this privilege.   
-   * @throws  InsufficientPrivilegeException
-   * @throws  RevokePrivilegeException
-   * @throws  SchemaException
-   */
-  public void revokePriv(
-    GrouperSession s, Group g, Subject subj, Privilege priv
-  )
-    throws  InsufficientPrivilegeException, 
-            RevokePrivilegeException,
-            SchemaException
-  {
-    //note, no need for GrouperSession inverse of control
-    GrouperSession.validate(s);
-    Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
-    if ( !FieldType.ACCESS.equals( f.getType() ) ) {
-      throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
-    }
-    if ( !g.internal_canWriteField( s.getSubject(), f ) ) {
-      throw new InsufficientPrivilegeException();
-    }
-    try {
-      DefaultMemberOf mof = Membership.internal_delImmediateMembership(s, g, subj, f);
-      g.internal_setModified();
-      GrouperDAOFactory.getFactory().getGroup().revokePriv( g, mof);
-    } catch (MemberDeleteAlreadyDeletedException eMD) {
-      throw new RevokePrivilegeAlreadyRevokedException( eMD.getMessage(), eMD );
-    } catch (MemberDeleteException eMD) {
-      throw new RevokePrivilegeException( eMD.getMessage(), eMD );
-    }
-  } // public void revokePriv(s, g, subj, priv)
-
-} // public class GrouperAccessAdapter 
+} 
 

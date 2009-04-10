@@ -18,7 +18,9 @@
 package edu.internet2.middleware.grouper.privs;
 import  edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Set;
 
@@ -27,11 +29,17 @@ import  java.util.Set;
  * Facade for the {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessResolver.java,v 1.6 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: AccessResolver.java,v 1.6.2.1 2009-04-10 18:44:21 mchyzer Exp $
  * @since   1.2.1
  */
 public interface AccessResolver {
 
+  /**
+   * get a reference to the session
+   * @return the session
+   */
+  public GrouperSession getGrouperSession();
+  
   /**
    * flush cache if caching resolver
    */
@@ -143,6 +151,39 @@ public interface AccessResolver {
     throws  IllegalArgumentException,
             UnableToPerformException
             ;
+
+  /**
+   * after HQL is run, filter groups.  If you are filtering in HQL, then dont filter here
+   * @param groups
+   * @param subject which needs view access to the groups
+   * @param privInSet find a privilege which is in this set 
+   * (e.g. for view, send all access privs).  There are pre-canned sets in AccessAdapter
+   * @return the set of filtered groups
+   */
+  public Set<Group> postHqlFilterGroups(Set<Group> groups, Subject subject, 
+      Set<Privilege> privInSet);
+
+  /**
+   * for a group query, check to make sure the subject can see the records (if filtering HQL, you can do 
+   * the postHqlFilterGroups instead if you like)
+   * @param subject which needs view access to the groups
+   * @param hqlQuery 
+   * @param hql the select and current from part
+   * @param groupColumn is the name of the group column to join to
+   * @param privInSet find a privilege which is in this set (e.g. for view, send all access privs)
+   * @return if the statement was changed
+   */
+  public boolean hqlFilterGroupsWhereClause( 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Set<Privilege> privInSet);
+
+  /**
+   * filter memberships for things the subject can see
+   * @param memberships
+   * @param subject
+   * @return the memberships
+   */
+  public Set<Membership> postHqlFilterMemberships(
+      Subject subject, Set<Membership> memberships);
 
 }
 

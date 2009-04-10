@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Attribute</code> DTO interface.
  * @author  blair christensen.
- * @version $Id: Attribute.java,v 1.22 2008-11-04 07:17:55 mchyzer Exp $
+ * @version $Id: Attribute.java,v 1.22.2.1 2009-04-10 18:44:21 mchyzer Exp $
  * @since   @HEAD@
  */
 @SuppressWarnings("serial")
@@ -68,7 +68,10 @@ public class Attribute extends GrouperAPI implements Hib3GrouperVersioned {
       FIELD_ID, FIELD_VALUE);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
-  
+
+  /** constant for field name for: groupUUID */
+  public static final String PROPERTY_GROUP_UUID = "groupUuid";
+
   // PRIVATE INSTANCE VARIABLES //
   
   /** id of the field which is the attribute name */

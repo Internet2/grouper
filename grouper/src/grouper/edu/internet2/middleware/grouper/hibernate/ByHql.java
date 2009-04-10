@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author mchyzer
  *
  */
-public class ByHql extends HibernateDelegate implements Scalarable {
+public class ByHql extends HibernateDelegate implements HqlQuery {
   
   /**
    * assign data to the bind var

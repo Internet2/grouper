@@ -19,7 +19,6 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,18 +26,19 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
-import org.hibernate.Query;
 import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.FieldType;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -46,12 +46,16 @@ import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.24.2.3 2009-04-07 20:40:01 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.24.2.4 2009-04-10 18:44:21 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -689,8 +693,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @since   @HEAD@
    */
   public Set<Membership> findMembershipsByMemberAndField(String memberUUID, Field f)
-    throws  GrouperDAOException
-  {
+    throws  GrouperDAOException {
     Set<Object[]> mships = HibernateSession.byHqlStatic()
       .createQuery(
         "select ms, m from Membership as ms, Member as m where  "
@@ -704,6 +707,74 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .listSet(Object[].class);
     return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findMembershipsByMemberAndFieldSecure(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, edu.internet2.middleware.grouper.Field)
+   */
+  public Set<Membership> findMembershipsByMemberAndFieldSecure(GrouperSession grouperSession, 
+        String memberUUID, Field f)
+      throws  GrouperDAOException {
+    
+    StringBuilder sql = new StringBuilder("select distinct ms, m from Membership as ms, Member as m ");
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    
+    //see if we are adding more to the query
+    boolean changedQuery = false;
+    boolean securableField = FieldType.ACCESS.equals(f.getType()) || FieldType.LIST.equals(f.getType());
+    
+    if (securableField) {
+      changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+          grouperSession.getSubject(), byHqlStatic, 
+          sql, "ms.ownerUuid", AccessPrivilege.VIEW_PRIVILEGES);
+    }
+
+    if (!changedQuery) {
+      sql.append(" where ");
+    } else {
+      sql.append(" and ");
+    }
+
+    sql.append("     ms.memberUuid = :member           "
+        + "and  ms.fieldId = :fuuid "
+        + "and ms.memberUuid = m.uuid");
+    
+    Set<Object[]> mships = byHqlStatic
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindMemberships")
+      .setString( "member", memberUUID)
+      .setString( "fuuid" , f.getUuid())
+      .listSet(Object[].class);
+    Set<Membership> memberships = _getMembershipsFromMembershipAndMemberQuery(mships);
+
+    Member member = null;
+    Subject subject = null;
+    try {
+      member = MemberFinder.findByUuid(grouperSession, memberUUID);
+      subject = member.getSubject();
+    } catch (SubjectNotFoundException snfe) {
+      throw new RuntimeException("Cant find subject: " + memberUUID, snfe);
+    } catch (MemberNotFoundException mnfe) {
+      throw new RuntimeException("Cant find member: " + memberUUID, mnfe);
+    }
+    
+    //maybe we need to filter these out
+    //if the hql didnt filter, this will
+    Set<Membership> filteredMemberships = memberships;
+    
+    //see if the access resolver can help
+    if (securableField) {
+      filteredMemberships = grouperSession.getAccessResolver().postHqlFilterMemberships(subject, memberships);
+    } else {
+      //just manually do this
+      filteredMemberships = PrivilegeHelper.canViewMemberships(grouperSession, memberships);
+    }
+      
+    return filteredMemberships;
+  }
 
   /**
    * @param mof 

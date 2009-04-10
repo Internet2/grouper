@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author mchyzer
  *
  */
-public class ByHqlStatic implements Scalarable {
+public class ByHqlStatic implements HqlQuery {
   
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(ByHqlStatic.class);
@@ -235,7 +235,7 @@ public class ByHqlStatic implements Scalarable {
    * @param query
    * @param params
    */
-  static void collectionInClauseHelper(Scalarable scalarable, StringBuilder query, Collection<?> params) {
+  static void collectionInClauseHelper(HqlQuery scalarable, StringBuilder query, Collection<?> params) {
     int numberOfParams = params.size();
     
     if (numberOfParams == 0) {

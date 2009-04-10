@@ -16,9 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper.internal.util;
+import java.util.Set;
+
 import  edu.internet2.middleware.grouper.Group;
 import  edu.internet2.middleware.grouper.GrouperSession;
 import  edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.privs.AccessAdapter;
 import  edu.internet2.middleware.grouper.privs.AccessResolver;
 import edu.internet2.middleware.grouper.privs.NamingAdapter;
@@ -32,7 +35,7 @@ import  edu.internet2.middleware.subject.provider.SourceManager;
  * Utility class for validating parameters.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ParameterHelper.java,v 1.5 2008-07-21 04:43:58 mchyzer Exp $
+ * @version $Id: ParameterHelper.java,v 1.5.2.1 2009-04-10 18:44:21 mchyzer Exp $
  * @since   1.2.1
  */
 public class ParameterHelper {
@@ -119,12 +122,30 @@ public class ParameterHelper {
   }
 
   /**
+   * @param hqlQuery is the query
+   * @return  Self for chained calling.
+   * @throws  IllegalArgumentException if any parameter is null.
+   */
+  public ParameterHelper notNullHqlQuery(HqlQuery hqlQuery) {
+    return this.notNull(hqlQuery, "null hqlQuery");
+  }
+
+  /**
    * @return  Self for chained calling.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
    */
   public ParameterHelper notNullPrivilegeArray(Privilege[] privilegeArray) {
     return this.notNull(privilegeArray, "null Privilege[]");
+  }
+
+  /**
+   * @return  Self for chained calling.
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @since   1.2.1
+   */
+  public ParameterHelper notNullPrivilegeSet(Set<Privilege> privilegeSet) {
+    return this.notNull(privilegeSet, "null Privilege set");
   }
 
   /**

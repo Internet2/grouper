@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,7 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.42.2.6 2009-03-29 03:56:38 mchyzer Exp $
+ * @version $Id: FieldFinder.java,v 1.42.2.7 2009-04-10 18:44:21 mchyzer Exp $
  */
 public class FieldFinder {
 
@@ -118,6 +119,21 @@ public class FieldFinder {
 
   }
 
+  /**
+   * find all ids by type
+   * @param type
+   * @return all ids by type
+   */
+  public static List<String> findAllIdsByType(FieldType type) {
+    try {
+      Set<Field> fields = findAllByType(type);
+      List<String> fieldIds = GrouperUtil.propertyList(fields, Field.PROPERTY_UUID, String.class);
+      return fieldIds;
+    } catch (SchemaException se) {
+      throw new RuntimeException("Problem finding fields by type: " + type, se);
+    }
+  }
+  
   /**
    * find the field id or null if the name is empty.  Runtime exception if problem
    * @param attrName

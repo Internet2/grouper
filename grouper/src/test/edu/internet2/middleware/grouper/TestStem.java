@@ -27,6 +27,8 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -38,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.19 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.19.2.1 2009-04-10 18:44:21 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -50,7 +52,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testPropagateDisplayExtensionChangeAsNonRoot"));
+    TestRunner.run(new TestStem("testCache"));
     //TestRunner.run(TestStem.class);
   }
 
@@ -593,5 +595,43 @@ public class TestStem extends GrouperTest {
     }
   } // public void testSetBadStemDisplayExtension()
 
+  /**
+   * 
+   * @throws Exception
+   */
+  public void testCache() throws Exception {
+    LOG.info("testSetBadStemDisplayExtension");
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemFinder.findRootStem(s);
+    Stem            edu   = root.addChildStem("edu", "edu");
+    
+    //get once
+    Stem edu2 = StemFinder.findByUuid(s, edu.getUuid());
+
+    //update it
+    HibernateSession.bySqlStatic().executeSql(
+        "update grouper_stems set extension = 'abc' where id = ?", HibUtils.listObject(edu.getUuid()));
+
+    //get again
+    Stem edu3 = StemFinder.findByUuid(s, edu.getUuid());
+    
+    assertEquals("edu", edu3.getExtension());
+    
+    //wait until timeout
+    GrouperUtil.sleep(12000);
+    
+    //should have updated by now
+    edu2 = StemFinder.findByUuid(s, edu.getUuid());
+    assertEquals("abc", edu2.getExtension());
+    
+    edu.setExtension("abc2");
+    edu.store();
+    
+    //hibernate should know to update it
+    edu2 = StemFinder.findByUuid(s, edu.getUuid());
+    assertEquals("abc2", edu2.getExtension());
+    
+    s.stop();
+  } // public void testSetBadStemDisplayExtension()
 }
 

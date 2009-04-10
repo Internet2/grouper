@@ -18,7 +18,6 @@
 package edu.internet2.middleware.grouper;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -82,7 +81,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.116.2.4 2009-04-07 16:21:08 mchyzer Exp $
+ * @version $Id: Member.java,v 1.116.2.5 2009-04-10 18:44:21 mchyzer Exp $
  */
 public class Member extends GrouperAPI implements Hib3GrouperVersioned {
 
@@ -769,7 +768,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Group} objects.
    */
   public Set<Group> getEffectiveGroups() {
-    return this._getGroups( this.getEffectiveMemberships().iterator() );
+    return Membership.retrieveGroups( this.getEffectiveMemberships());
   } // public Set getEffectiveGroups()
 
   /**
@@ -794,7 +793,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public Set<Group> getEffectiveGroups(Field field) {
     try {
-      return this._getGroups( this.getEffectiveMemberships(field).iterator() );
+      return Membership.retrieveGroups(  this.getEffectiveMemberships(field));
     } catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = "problem retrieving effective groups for member: " + this.subjectID + ", " + this.subjectSourceID + ", " 
@@ -886,7 +885,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Group} objects.
    */
   public Set<Group> getGroups() {
-    return this._getGroups( this.getMemberships().iterator() );
+    return Membership.retrieveGroups(  this.getMemberships() );
   } // public Set getGroups()
 
   /**
@@ -900,7 +899,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public Set<Group> getGroups(Field field) {
     try {
-      return this._getGroups( this.getMemberships(field, false).iterator() );
+      return Membership.retrieveGroups(  this.getMemberships(field, false));
     } catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = "problem retrieving groups for member: " + this.subjectID + ", " + this.subjectSourceID + ", " 
@@ -928,7 +927,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
    * @return  Set of {@link Group} objects.
    */
   public Set<Group> getImmediateGroups() {
-    return this._getGroups( this.getImmediateMemberships().iterator() );
+    return Membership.retrieveGroups(  this.getImmediateMemberships() );
   } // public Set getImmediateGroups()
 
   /**
@@ -951,7 +950,7 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
   public Set<Group> getImmediateGroups(Field field) {
     
     try {
-      return this._getGroups( this.getImmediateMemberships(field).iterator() );
+      return Membership.retrieveGroups( this.getImmediateMemberships(field) );
     } catch (SchemaException eS) {
       // If we don't have "members" we have serious issues
       String msg = "problem retrieving immediate groups for member: " + this.subjectID + ", " + this.subjectSourceID + ", " 
@@ -1932,29 +1931,6 @@ public class Member extends GrouperAPI implements Hib3GrouperVersioned {
   } // protected boolean isMember(ownerUUID, f);
 
 
-  /**
-   * @param it
-   * @return groups
-   */
-  private Set<Group> _getGroups(Iterator it) {
-    Group       g;
-    Set         groups  = new LinkedHashSet();
-    Membership  ms;
-    while (it.hasNext()) {
-      ms = (Membership) it.next();
-      try {
-        g = ms.getGroup();
-        groups.add(g);  
-      }
-      catch (GroupNotFoundException eGNF) {
-        LOG.error(
-          E.MEMBER_NOGROUP + Quote.single(this.getUuid()) + " membership="
-          + Quote.single(ms.getUuid()) + " " + eGNF.getMessage()
-        );
-      }
-    }
-    return groups;
-  } // private Set _getGroups(it)
 
   /**
    * 
