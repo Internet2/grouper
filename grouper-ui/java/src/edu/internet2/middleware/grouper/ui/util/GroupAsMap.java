@@ -17,6 +17,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.util;
 
+import java.util.Iterator;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
  * and works well with JSTL <p />
  * 
  * @author Gary Brown.
- * @version $Id: GroupAsMap.java,v 1.15 2009-03-24 17:31:45 mchyzer Exp $
+ * @version $Id: GroupAsMap.java,v 1.16 2009-04-10 19:29:16 shilen Exp $
  */
 public class GroupAsMap extends ObjectAsMap {
 	//
@@ -71,6 +72,15 @@ public class GroupAsMap extends ObjectAsMap {
 	 * @see java.util.Map#get(java.lang.Object)
 	 */
 	public Object get(Object key) {
+		if (key.equals("alternateName")) {
+			Iterator<String> alternateNamesIterator = group.getAlternateNames().iterator();
+			if (alternateNamesIterator.hasNext()) {
+				return alternateNamesIterator.next();
+			} else {
+				return null;
+			}
+		}
+
 		Object obj = getByIntrospection(key);
 		if(obj!=null) return obj;
 		//Map would override GrouperGroup values

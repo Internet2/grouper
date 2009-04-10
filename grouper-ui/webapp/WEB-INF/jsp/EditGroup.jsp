@@ -3,7 +3,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: EditGroup.jsp,v 1.13 2008-04-14 08:54:30 isgwb Exp $
+  @version $Id: EditGroup.jsp,v 1.14 2009-04-10 19:29:16 shilen Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="editForm section">
@@ -27,6 +27,18 @@
         maxlength="50" styleId="groupName"
       /></td>
     </tr>
+
+    <c:if test="${!empty GroupFormBean.map.groupId}">
+      <tr class="formTableRow">
+        <td class="formTableLeft"><label for="groupAlternateName">
+        <grouper:message key="field.displayName.alternateName" />
+        </label></td>
+        <td class="formTableRight"><html:text property="groupAlternateName" size="50"
+          maxlength="50" styleId="groupAlternateName"
+        /></td>
+      </tr>
+    </c:if>
+
     <tr class="formTableRow">
       <td class="formTableLeft"><label for="groupDescription">
       <grouper:message key="field.displayName.description" /></label></td>

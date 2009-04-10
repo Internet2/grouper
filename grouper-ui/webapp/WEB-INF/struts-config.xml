@@ -52,6 +52,7 @@
       <form-property name="groupType" type="java.lang.String"/>
       <form-property name="groupDescription" type="java.lang.String"/>
       <form-property name="groupDisplayName" type="java.lang.String"/>
+      <form-property name="groupAlternateName" type="java.lang.String"/>
       <form-property name="groupId" type="java.lang.String"/>
       <form-property name="membershipListScope" type="java.lang.String"/>
       <form-property name="lastMembershipListScope" type="java.lang.String"/>

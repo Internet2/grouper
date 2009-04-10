@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -141,7 +142,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.20 2009-03-15 08:14:12 mchyzer Exp $
+ * @version $Id: SaveGroupAction.java,v 1.21 2009-04-10 19:29:16 shilen Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -202,15 +203,36 @@ public class SaveGroupAction extends GrouperCapableAction {
 		
 		String extension = (String) groupForm.get("groupName");
 		String displayExtension = (String) groupForm.get("groupDisplayName");
+		String alternateName = (String) groupForm.get("groupAlternateName");
+
 		if(isEmpty(displayExtension))displayExtension=extension;
 		//TODO: should be transactional - so add map or List of attributes
 		Map assignedPrivs=null;
 		Subject grouperAll = SubjectFinder.findById("GrouperAll", true);
 		if (groupExists) {
 			group = GroupFinder.findByUuid(grouperSession, curNode, true);
-      Set<GroupType> removableTypes = group.getRemovableTypes();
+			Set<GroupType> removableTypes = group.getRemovableTypes();
 			group.setDisplayExtension(displayExtension);
 			group.setExtension(extension);
+
+			String oldAlternateName = null;
+			Iterator<String> alternateNames = group.getAlternateNames().iterator();
+			if (alternateNames.hasNext()) {
+				oldAlternateName = alternateNames.next();
+			}
+
+			if (isEmpty(alternateName) && oldAlternateName != null) {
+				group.deleteAlternateName(oldAlternateName);
+			} else if (!isEmpty(alternateName) && (oldAlternateName == null || !oldAlternateName.equals(alternateName))) {
+				try {
+					group.addAlternateName(alternateName);
+				} catch (GroupModifyException e) {
+					request.setAttribute("message", new Message(
+						"groups.message.error.alternate-name-problem", true));
+					return mapping.findForward(FORWARD_EditAgain);
+				}
+			}
+
 			group.store();
 
 			//do this after the store, in case there were types added in the hook...

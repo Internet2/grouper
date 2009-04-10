@@ -4,7 +4,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: groupInfo.jsp,v 1.7 2008-05-01 04:59:31 mchyzer Exp $
+  @version $Id: groupInfo.jsp,v 1.8 2009-04-10 19:29:16 shilen Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic"
@@ -35,6 +35,10 @@
     <tr class="formTableRow">
       <td class="formTableLeft"><grouper:message key="field.displayName.name" /> </td>
       <td class="formTableRight"><c:out value="${group.name}" /></td>
+    </tr>
+    <tr class="formTableRow">
+      <td class="formTableLeft"><grouper:message key="field.displayName.alternateName" /> </td>
+      <td class="formTableRight"><c:out value="${group.alternateName}" /></td>
     </tr>
     <tr class="formTableRow">
       <td class="formTableLeft"><grouper:message 
