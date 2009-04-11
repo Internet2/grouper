@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.1.2.5 2009-04-03 04:23:07 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.1.2.6 2009-04-11 10:59:34 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.poc;
 
@@ -46,7 +46,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testDeleteMember"));
+    TestRunner.run(new GrouperClientWsTest("testGetMembers"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -4783,7 +4783,7 @@ public class GrouperClientWsTest extends GrouperTest {
       GrouperClient
           .main(GrouperClientUtils
               .splitTrim(
-                  "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2 --subjectAttributeNames=name --outputTemplate=${wsSubject.getAttributeValue(0)}$newline$",
+                  "--operation=getMembersWs --groupNames=aStem:aGroup,aStem:aGroup2 --subjectAttributeNames=a,name --outputTemplate=${wsSubject.getAttributeValue(1)}$newline$",
                   " "));
       System.out.flush();
       output = new String(baos.toByteArray());

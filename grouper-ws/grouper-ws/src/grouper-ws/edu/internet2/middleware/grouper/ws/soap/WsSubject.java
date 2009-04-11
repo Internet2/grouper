@@ -226,22 +226,23 @@ public class WsSubject {
       this.attributeValues = new String[attributesLength];
       int index = 0;
       for (String attributeName : subjectAttributeNames) {
-        this.attributeValues[index] = subject.getAttributeValue(attributeName);
+        //NOTE: dont send nulls, it might mess up XML, only send empty string if not there
+        this.attributeValues[index] = StringUtils.defaultString(subject.getAttributeValue(attributeName));
         //type might be in getter
         if (StringUtils.equals(TYPE, attributeName)
             && StringUtils.isBlank(this.attributeValues[index])) {
           //note, this might go away in next subject api
-          this.attributeValues[index] = subject.getType().getName();
+          this.attributeValues[index] = StringUtils.defaultString(subject.getType().getName());
         }
         if (StringUtils.equals(DESCRIPTION, attributeName)
             && StringUtils.isBlank(this.attributeValues[index])) {
           //note, this might go away in next subject api
-          this.attributeValues[index] = subject.getDescription();
+          this.attributeValues[index] = StringUtils.defaultString(subject.getDescription());
         }
         if (StringUtils.equals(NAME, attributeName)
             && StringUtils.isBlank(this.attributeValues[index])) {
           //note, this might go away in next subject api
-          this.attributeValues[index] = subject.getName();
+          this.attributeValues[index] = StringUtils.defaultString(subject.getName());
         }
         index++;
       }
