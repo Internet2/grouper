@@ -64,6 +64,7 @@ import edu.internet2.middleware.grouper.exception.UnableToPerformException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
@@ -114,7 +115,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.214.2.6 2009-04-10 18:44:21 mchyzer Exp $
+ * @version $Id: Group.java,v 1.214.2.7 2009-04-11 09:55:55 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -857,44 +858,63 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    */
   public void delete() 
     throws  GroupDeleteException,
-            InsufficientPrivilegeException
-  {
-    StopWatch sw = new StopWatch();
+            InsufficientPrivilegeException {
+    final StopWatch sw = new StopWatch();
     sw.start();
     GrouperSession.validate( GrouperSession.staticGrouperSession() );
-    if ( !PrivilegeHelper.canAdmin( GrouperSession.staticGrouperSession(), this, 
-        GrouperSession.staticGrouperSession().getSubject() ) )
-    {
-      throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
-    }
     try {
-      // Revoke all access privs
-      this._revokeAllAccessPrivs();
-      // ... And delete composite mship if it exists
-      if (this.hasComposite()) {
-        this.deleteCompositeMember();
+      HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
+  
+        public Object callback(HibernateSession hibernateSession)
+            throws GrouperDAOException {
+          try {
+            if ( !PrivilegeHelper.canAdmin( GrouperSession.staticGrouperSession(), Group.this, 
+                GrouperSession.staticGrouperSession().getSubject() ) ) {
+              throw new InsufficientPrivilegeException(E.CANNOT_ADMIN);
+            }
+            // Revoke all access privs
+            Group.this._revokeAllAccessPrivs();
+            // ... And delete composite mship if it exists
+            if (Group.this.hasComposite()) {
+              Group.this.deleteCompositeMember();
+            }
+            // ... And delete all memberships - as root
+            Set deletes = new LinkedHashSet(
+              Membership.internal_deleteAllFieldType( GrouperSession.staticGrouperSession().internal_getRootSession(), Group.this, FieldType.LIST )
+            );
+            //deletes.add(this);            // ... And add the group last for good luck    
+            String name = Group.this.getName(); // Preserve name for logging
+            GrouperDAOFactory.getFactory().getGroup().delete( Group.this, deletes );
+            sw.stop();
+            EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_DEL + Quote.single(name), sw);
+          }
+          catch (InsufficientPrivilegeException eDAO) {
+            throw new GrouperRuntimeException( eDAO );
+          }
+          catch (GrouperDAOException eDAO) {
+            throw new GrouperRuntimeException(new GroupDeleteException( eDAO.getMessage(), eDAO ));
+          }
+          catch (MemberDeleteException eMD) {
+            throw new GrouperRuntimeException(new GroupDeleteException(eMD.getMessage(), eMD));
+          }
+          catch (RevokePrivilegeException eRP) {
+            throw new GrouperRuntimeException(new GroupDeleteException(eRP.getMessage(), eRP));
+          }
+          catch (SchemaException eS) {
+            throw new GrouperRuntimeException(new GroupDeleteException(eS.getMessage(), eS));
+          }
+          return null;
+        }
+        
+      });
+    } catch (GrouperRuntimeException gre) {
+      if (gre.getCause() instanceof InsufficientPrivilegeException) {
+        throw (InsufficientPrivilegeException)gre.getCause();
       }
-      // ... And delete all memberships - as root
-      Set deletes = new LinkedHashSet(
-        Membership.internal_deleteAllFieldType( GrouperSession.staticGrouperSession().internal_getRootSession(), this, FieldType.LIST )
-      );
-      //deletes.add(this);            // ... And add the group last for good luck    
-      String name = this.getName(); // Preserve name for logging
-      GrouperDAOFactory.getFactory().getGroup().delete( this, deletes );
-      sw.stop();
-      EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_DEL + Quote.single(name), sw);
-    }
-    catch (GrouperDAOException eDAO) {
-      throw new GroupDeleteException( eDAO.getMessage(), eDAO );
-    }
-    catch (MemberDeleteException eMD) {
-      throw new GroupDeleteException(eMD.getMessage(), eMD);
-    }
-    catch (RevokePrivilegeException eRP) {
-      throw new GroupDeleteException(eRP.getMessage(), eRP);
-    }
-    catch (SchemaException eS) {
-      throw new GroupDeleteException(eS.getMessage(), eS);
+      if (gre.getCause() instanceof GroupDeleteException) {
+        throw (GroupDeleteException)gre.getCause();
+      }
+      throw gre;
     }
   } // public void delete()
 
@@ -2188,7 +2208,6 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    * <pre class="eg">
    * Set memberships = g.getMemberships(f);
    * </pre>
-   * @param   f Get memberships in this list field.
    * @param members 
    * @return  A set of {@link Membership} objects.
    * @throws  SchemaException
