@@ -121,7 +121,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.241 2009-03-29 21:17:21 shilen Exp $
+ * @version $Id: Group.java,v 1.242 2009-04-12 18:16:34 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -3446,12 +3446,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   /**
    * store this object to the DB.
    */
-  public void store() {
-    store(true);
-  }
-  
-  protected void store(final boolean checkSecurity) {
-    
+  public void store() {    
       HibernateSession.callbackHibernateSession(
           GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
           new HibernateHandler() {
@@ -3459,31 +3454,59 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
                 throws GrouperDAOException {
     
-              if (checkSecurity) {
-                Subject subject = GrouperSession.staticGrouperSession().getSubject();
-                if (!Group.this.hasAdmin(subject)) {
-                  throw new InsufficientPrivilegeException(GrouperUtil
-                      .subjectToString(subject)
-                      + " is not admin on group: " + Group.this.getName());
-                }
+              Subject subject = GrouperSession.staticGrouperSession().getSubject();
+              if (!Group.this.hasAdmin(subject)) {
+                throw new InsufficientPrivilegeException(GrouperUtil
+                    .subjectToString(subject)
+                    + " is not admin on group: " + Group.this.getName());
+              }
                 
-                if (Group.this.dbVersionDifferentFields().contains(FIELD_ALTERNATE_NAME_DB) &&
-                    Group.this.getAlternateNameDb() != null) {
+              if (Group.this.dbVersionDifferentFields().contains(FIELD_ALTERNATE_NAME_DB) &&
+                  Group.this.getAlternateNameDb() != null) {
                   
-                  // We're only checking create privilege on the stem if the alternate name
-                  // is for another stem since prior to this, users could rename a group
-                  // without having create privileges.
-                  String parentStemName = GrouperUtil.parentStemNameFromName(Group.this.getAlternateNameDb());
-                  if (parentStemName == null || !parentStemName.equals(Group.this.getParentStem().getName())) {
-                    Stem stem = GrouperUtil.getFirstParentStemOfName(Group.this.getAlternateNameDb());
+                // We're only checking create privilege on the stem if the alternate name
+                // is for another stem since prior to this, users could rename a group
+                // without having create privileges.
+                String parentStemName = GrouperUtil.parentStemNameFromName(Group.this.getAlternateNameDb());
+                if (parentStemName == null || !parentStemName.equals(Group.this.getParentStem().getName())) {
+                  Stem stem = GrouperUtil.getFirstParentStemOfName(Group.this.getAlternateNameDb());
 
-                    if (!stem.hasCreate(subject)) {
-                      throw new InsufficientPrivilegeException(GrouperUtil.subjectToString(subject)
-                          + " cannot create in stem: " + stem.getName());
-                    }
+                  if (!stem.hasCreate(subject)) {
+                    throw new InsufficientPrivilegeException(GrouperUtil.subjectToString(subject)
+                        + " cannot create in stem: " + stem.getName());
+                  }
+                }
+
+                // If the group name is not changing OR
+                // if the group name is changing and the alternate name is not the old group name, THEN
+                // we need to verify the alternate name isn't already taken.
+                String oldName = Group.this.dbVersion().getNameDb();
+                if (!Group.this.dbVersionDifferentFields().contains(FIELD_NAME) || 
+                    (Group.this.dbVersionDifferentFields().contains(FIELD_NAME) && 
+                        !oldName.equals(Group.this.getAlternateNameDb()))) {
+                  Group check = GrouperDAOFactory.getFactory().getGroup().findByName(
+                      Group.this.getAlternateNameDb(), false);
+                  if (check != null) {
+                    throw new GroupModifyException("Group with name " + 
+                        Group.this.getAlternateNameDb() + " already exists.");
                   }
                 }
               }
+              
+              // If the group name is changing, verify that the new name is not in use.
+              // (The new name could be an alternate name).
+              if (Group.this.dbVersionDifferentFields().contains(FIELD_NAME)) {
+                Group check = GrouperDAOFactory.getFactory().getGroup().findByName(
+                    Group.this.getNameDb(), false);
+                if (check != null && 
+                    (!check.getUuid().equals(Group.this.getUuid()) || 
+                        (Group.this.getAlternateNameDb() != null && 
+                            Group.this.getAlternateNameDb().equals(Group.this.getNameDb())))) {
+                  throw new GroupModifyException("Group with name " + 
+                      Group.this.getNameDb() + " already exists.");
+                }
+              }
+
               
               String differences = GrouperUtil.dbVersionDescribeDifferences(Group.this.dbVersion(), 
                   Group.this, Group.this.dbVersion() != null ? Group.this.dbVersionDifferentFields() : Group.CLONE_FIELDS);
@@ -3564,8 +3587,13 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
       throw new GroupModifyException( v.getErrorMessage() );
     }
 
-    if (assignAlternateName) {
-      internal_addAlternateName(this.name, false);
+    String oldExtension = null;
+    if (this.dbVersion() != null) {
+      oldExtension = this.dbVersion().getExtensionDb();
+    }
+    
+    if (assignAlternateName && oldExtension != null && !oldExtension.equals(value)) {
+      internal_addAlternateName(this.dbVersion().getNameDb(), false);
     }
     this.extension = value;
     this.setNameDb(U.constructName( this.getParentStem().getName(), value ) );
@@ -4648,7 +4676,12 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
               throw new InsufficientPrivilegeException(E.CANNOT_CREATE);
             }
             
-            String oldName = Group.this.getName();
+            // if moving to the same stem, just return.
+            if (stem.getUuid().equals(Group.this.getParentUuid())) {
+              return null;
+            }
+            
+            String oldName = Group.this.dbVersion().getNameDb();
             
             Group.this.setParentUuid(stem.getUuid());
             Group.this.setNameDb(stem.getName() + Stem.DELIM + Group.this.getExtension());
@@ -4657,6 +4690,17 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
             
             if (assignAlternateName) {
               Group.this.internal_addAlternateName(oldName, false);
+            }
+            
+            // verify that the new group name doesn't already exist.
+            Group check = GrouperDAOFactory.getFactory().getGroup().findByName(
+                Group.this.getNameDb(), false);
+            if (check != null && 
+                (!check.getUuid().equals(Group.this.getUuid()) || 
+                    (Group.this.getAlternateNameDb() != null && 
+                        Group.this.getAlternateNameDb().equals(Group.this.getNameDb())))) {
+              throw new GroupModifyException("Group with name " + 
+                  Group.this.getNameDb() + " already exists.");
             }
             
             GrouperDAOFactory.getFactory().getGroup().update(Group.this);

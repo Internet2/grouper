@@ -15,13 +15,11 @@
 
 package edu.internet2.middleware.grouper.validator;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /**
  * @author shilen
- * @version $Id: AddAlternateGroupNameValidator.java,v 1.3 2009-03-29 21:17:21 shilen Exp $
+ * @version $Id: AddAlternateGroupNameValidator.java,v 1.4 2009-04-12 18:16:34 shilen Exp $
  */
 public class AddAlternateGroupNameValidator extends GrouperValidator {
 
@@ -50,12 +48,6 @@ public class AddAlternateGroupNameValidator extends GrouperValidator {
         v.setErrorMessage("invalid group name");
         return v;
       }
-    }
-
-    Group check = GrouperDAOFactory.getFactory().getGroup().findByName(name, false);
-    if (check != null) {
-      v.setErrorMessage("group already exists");
-      return v;
     }
 
     v.setIsValid(true);

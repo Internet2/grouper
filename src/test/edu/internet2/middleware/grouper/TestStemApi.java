@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestStemApi.java,v 1.5 2009-03-29 21:17:21 shilen Exp $
+ * @version $Id: TestStemApi.java,v 1.6 2009-04-12 18:16:34 shilen Exp $
  * @since   1.2.1
  */
 public class TestStemApi extends GrouperTest {
@@ -446,6 +446,46 @@ public class TestStemApi extends GrouperTest {
     }
   }
   
+  /**
+   * 
+   */
+  public void test_copy_name_exists() {
+    
+    Stem one = this.root.addChildStem("one", "one");
+    Stem two = this.root.addChildStem("two", "two");
+    Group oneGroup = one.addChildGroup("group", "group");
+    Group twoGroup = two.addChildGroup("group", "group");
+    
+    twoGroup.addAlternateName("two:one:group");
+    twoGroup.store();
+
+    one.copy(two);
+
+    // these should not throw exceptions
+    GroupFinder.findByAlternateName(s, "two:one:group", true);
+    GroupFinder.findByCurrentName(s, "two:one:group.2", true);
+  }
+  
+  /**
+   * 
+   */
+  public void test_move_name_exists() {
+    
+    Stem one = this.root.addChildStem("one", "one");
+    Stem two = this.root.addChildStem("two", "two");
+    Group oneGroup = one.addChildGroup("group", "group");
+    Group twoGroup = two.addChildGroup("group", "group");
+    
+    twoGroup.addAlternateName("two:one:group");
+    twoGroup.store();
+
+    try {
+      one.move(two);
+      fail("failed to throw RuntimeException");
+    } catch (RuntimeException e) {
+      assertTrue(true);
+    }
+  } 
   
   /**
    * @throws InsufficientPrivilegeException 

@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -98,7 +99,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.192 2009-03-29 21:17:21 shilen Exp $
+ * @version $Id: Stem.java,v 1.193 2009-04-12 18:16:34 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -1868,10 +1869,20 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
       }
       else if ( attr.equals("name") )   {
         if (setAlternateName) {
-          _g.internal_addAlternateName(_g.getNameDb(), false);
+          _g.internal_addAlternateName(_g.dbVersion().getNameDb(), false);
         }
         
         _g.setNameDb(U.constructName( this.getName(), _g.getExtension()));
+        
+        Group check = GrouperDAOFactory.getFactory().getGroup().findByName(
+            _g.getNameDb(), false);
+        if (check != null && 
+            (!check.getUuid().equals(_g.getUuid()) || 
+                (_g.getAlternateNameDb() != null && 
+                    _g.getAlternateNameDb().equals(_g.getNameDb())))) {
+          throw new GroupModifyException("Group with name " + 
+              _g.getNameDb() + " already exists.");
+        }
       }
       else {
         throw new IllegalStateException( "attempt to update invalid naming attribute: " + attr);
@@ -2552,9 +2563,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
             }
             
             // the new stem should not be a child of the current stem
-            if (Stem.this.isChildStem(stem)) {
+            if (stem.getUuid().equals(Stem.this.getUuid()) || 
+                Stem.this.isChildStem(stem)) {
               throw new StemModifyException("Cannot move stem. " + stem.getName()
-                  + " is a child of " + Stem.this.getName() + ".");
+                  + " is the same as or a child of " + Stem.this.getName() + ".");
             }
 
             // verify that the subject has stem privileges to the stem
@@ -2583,6 +2595,11 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
                 throw new InsufficientPrivilegeException("User is not a member of "
                     + allowedGroupName + ".");
               }
+            }
+            
+            // if moving to the same stem, just return.
+            if (stem.getUuid().equals(Stem.this.getParentUuid())) {
+              return null;
             }
 
             Stem.this.setParentUuid(stem.getUuid());
@@ -2653,11 +2670,12 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
             if (Stem.this.isRootStem()) {
               throw new StemAddException("Cannot copy the root stem.");
             }
-
+            
             // the new stem should not be a child of the current stem
-            if (Stem.this.isChildStem(stem)) {
+            if (stem.getUuid().equals(Stem.this.getUuid()) || 
+                Stem.this.isChildStem(stem)) {
               throw new StemAddException("Cannot copy stem. " + stem.getName()
-                  + " is a child of " + Stem.this.getName() + ".");
+                  + " is the same as or a child of " + Stem.this.getName() + ".");
             }
 
             // verify that if the property security.stem.groupAllowedToCopyStem is set,
