@@ -42,7 +42,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Test {@link SubjectFinder.findByIdentifier()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSubjectFinder.java,v 1.3 2009-03-23 06:00:00 mchyzer Exp $
+ * @version $Id: TestSubjectFinder.java,v 1.4 2009-04-12 18:16:34 shilen Exp $
  */
 public class TestSubjectFinder extends GrouperTest {
 
@@ -98,7 +98,7 @@ public class TestSubjectFinder extends GrouperTest {
     Subject subj = SubjectTestHelper.getSubjectByIdentifierType(i2.getName(), "group");
     Assert.assertTrue("found subject", true);
     Map<String, Set<String>> attrs = subj.getAttributes();
-    Assert.assertEquals("11 attributes", 11, attrs.size());
+    Assert.assertEquals("12 attributes", 12, attrs.size());
     // createSubjectId
     String attr = "createSubjectId";
     String val  = "GrouperSystem";
@@ -184,7 +184,7 @@ public class TestSubjectFinder extends GrouperTest {
     LOG.debug("testFindByIdGoodIdGoodType.2");
     Map<String, Set<String>> attrs = subj.getAttributes();
     LOG.debug("testFindByIdGoodIdGoodType.3");
-    Assert.assertEquals("10 attributes", 11, attrs.size());
+    Assert.assertEquals("12 attributes", 12, attrs.size());
     LOG.debug("testFindByIdGoodIdGoodType.4");
     // createSubjectId
     String attr = "createSubjectId";

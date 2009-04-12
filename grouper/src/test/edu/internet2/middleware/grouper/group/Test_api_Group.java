@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Group.java,v 1.7 2009-03-29 21:17:21 shilen Exp $
+ * @version $Id: Test_api_Group.java,v 1.8 2009-04-12 18:16:34 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Group extends GrouperTest {
@@ -165,6 +165,44 @@ public class Test_api_Group extends GrouperTest {
     catch (SchemaException eExpected) {
       assertTrue(true);
     }
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_move_name_exists() throws Exception {
+    top_group.addAlternateName("top:child group");
+    top_group.store();
+    
+    // you shouldn't be able to move a group to a location if another group is using that name
+    try {
+      child_group.move(top);
+      fail("failed to throw GroupModifyException");
+    } catch (GroupModifyException e) {
+      assertTrue(true);
+    }
+    
+    top_group.deleteAlternateName("top:child group");
+    top_group.store();
+    
+    // if the same group is using the name though, lets allow it.
+    child_group.addAlternateName("top:child group");
+    child_group.store();
+    child_group.move(top);
+  }
+  
+  
+  /**
+   * @throws Exception
+   */
+  public void test_copy_name_exists() throws Exception {
+    top_group.addAlternateName("top:child group");
+    top_group.store();
+    
+    Group newGroup = child_group.copy(top);
+    
+    // verify that the copied group name is top:child group.2
+    assertTrue(newGroup.getName().equals("top:child group.2"));
   }
   
   /**
@@ -372,6 +410,43 @@ public class Test_api_Group extends GrouperTest {
   /**
    * @throws Exception
    */
+  public void test_rename_with_duplicate_name() throws Exception {
+
+    Group test1 = top.addChildGroup("test1", "test1");
+    Group test2 = top.addChildGroup("test2", "test2");
+    
+    test1.addAlternateName(top.getName() + ":" + "altname");
+    test1.store();
+    test2.addAlternateName(top.getName() + ":" + "conflict");
+    test2.store();
+    
+    try {
+      // this should fail because "test2" is in use.
+      test1.setExtension("test2");
+      test1.store();
+      fail("failed to throw GroupModifyException");
+    } catch (GroupModifyException e) {
+      assertTrue(true);
+    }
+    
+    try {
+      // this should fail because "conflict" is in use.
+      test1.setExtension("conflict");
+      test1.store();
+      fail("failed to throw GroupModifyException");
+    } catch (GroupModifyException e) {
+      assertTrue(true);
+    }    
+    
+    test1.setExtension("test1a");
+    test1.store();
+    
+    assertTrue(test1.getAlternateNameDb().equals(top.getName() + ":" + "test1"));
+  }
+  
+  /**
+   * @throws Exception
+   */
   public void test_rename_no_alternate_name() throws Exception {
     R r = R.populateRegistry(0, 0, 2);
     GrouperSession nrs;
@@ -441,6 +516,35 @@ public class Test_api_Group extends GrouperTest {
     
     r.rs.stop();
   }
+
+  /**
+   * @throws Exception
+   */
+  public void test_rename_same_name() throws Exception {
+
+    assertTrue(child_group.getAlternateNameDb() == null);
+
+    // verify alternate name does not get added
+    child_group.setExtension(child_group.getExtension());
+    child_group.store();
+
+    assertTrue(child_group.getAlternateNameDb() == null);
+    child_group = GroupFinder.findByName(s, child_group.getName(), true);
+    assertTrue(child_group.getAlternateNameDb() == null);
+
+    // add alternate name
+    child_group.addAlternateName("test1:test2");
+    child_group.store();
+    child_group = GroupFinder.findByName(s, child_group.getName(), true);
+
+    // verify alternate name does not get updated
+    child_group.setExtension(child_group.getExtension());
+    child_group.store();
+
+    assertTrue(child_group.getAlternateNameDb().equals("test1:test2"));
+    child_group = GroupFinder.findByName(s, child_group.getName(), true);
+    assertTrue(child_group.getAlternateNameDb().equals("test1:test2"));
+  } 
   
   /**
    * @throws InsufficientPrivilegeException 
@@ -1353,6 +1457,7 @@ public class Test_api_Group extends GrouperTest {
     // add invalid group name
     try {
       top_group.addAlternateName(null);
+      top_group.store();
       fail("failed to throw GroupModifyException");
     } catch (GroupModifyException e) {
       assertTrue(true);
@@ -1361,6 +1466,7 @@ public class Test_api_Group extends GrouperTest {
     // add invalid group name
     try {
       top_group.addAlternateName("");
+      top_group.store();
       fail("failed to throw GroupModifyException");
     } catch (GroupModifyException e) {
       assertTrue(true);
@@ -1369,6 +1475,7 @@ public class Test_api_Group extends GrouperTest {
     // add invalid group name
     try {
       top_group.addAlternateName("top");
+      top_group.store();
       fail("failed to throw GroupModifyException");
     } catch (GroupModifyException e) {
       assertTrue(true);
@@ -1377,6 +1484,7 @@ public class Test_api_Group extends GrouperTest {
     // add invalid group name
     try {
       top_group.addAlternateName("top:top group2:");
+      top_group.store();
       fail("failed to throw GroupModifyException");
     } catch (GroupModifyException e) {
       assertTrue(true);
@@ -1385,6 +1493,7 @@ public class Test_api_Group extends GrouperTest {
     // add invalid group name
     try {
       top_group.addAlternateName("top::top group2");
+      top_group.store();
       fail("failed to throw GroupModifyException");
     } catch (GroupModifyException e) {
       assertTrue(true);
@@ -1393,6 +1502,7 @@ public class Test_api_Group extends GrouperTest {
     // add invalid group name
     try {
       top_group.addAlternateName("top:  :top group2");
+      top_group.store();
       fail("failed to throw GroupModifyException");
     } catch (GroupModifyException e) {
       assertTrue(true);
@@ -1463,6 +1573,7 @@ public class Test_api_Group extends GrouperTest {
     try {
       assertTrue(child_group.getAlternateNames().size() == 0);
       child_group.addAlternateName("top:top group2");
+      child_group.store();
       fail("failed to throw GroupModifyException");
     } catch (GroupModifyException e) {
       assertTrue(true);
@@ -1471,6 +1582,7 @@ public class Test_api_Group extends GrouperTest {
     // add group name that already exists
     try {
       top.addChildGroup("top group2", "test");
+      top_group.store();
       fail("failed to throw GroupAddException");
     } catch (GroupAddException e) {
       assertTrue(true);
@@ -1489,6 +1601,7 @@ public class Test_api_Group extends GrouperTest {
     // now try adding an alternate name where the name is an existing group name
     try {
       top_group.addAlternateName("top:child:child group");
+      top_group.store();
       fail("failed to throw GroupModifyException");
     } catch (GroupModifyException e) {
       assertTrue(true);
