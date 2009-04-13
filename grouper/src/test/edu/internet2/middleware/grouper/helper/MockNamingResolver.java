@@ -30,7 +30,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Mock {@link NamingResolver}.
  * @author  blair christensen.
- * @version $Id: MockNamingResolver.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: MockNamingResolver.java,v 1.2 2009-04-13 16:53:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class MockNamingResolver implements NamingResolver {
@@ -160,5 +160,30 @@ public class MockNamingResolver implements NamingResolver {
     throw E;
   }            
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#getGrouperSession()
+   */
+  public GrouperSession getGrouperSession() {
+    throw E;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#hqlFilterStemsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   */
+  public boolean hqlFilterStemsWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String stemColumn, Set<Privilege> privInSet) {
+    throw E;
+  }
+  
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#postHqlFilterStems(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Stem> postHqlFilterStems(Set<Stem> groups, Subject subject,
+      Set<Privilege> privInSet) {
+    throw E;
+  }            
 }
 

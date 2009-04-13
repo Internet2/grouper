@@ -16,28 +16,33 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.GrouperSession;
 import  edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import  edu.internet2.middleware.subject.Subject;
-import  java.util.Set;
 
 
 /**
  * Decorator that provides parameter validation for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingNamingResolver.java,v 1.6 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: ValidatingNamingResolver.java,v 1.7 2009-04-13 16:53:07 mchyzer Exp $
  * @since   1.2.1
  */
 public class ValidatingNamingResolver extends NamingResolverDecorator {
   // TODO 20070820 DRY w/ access resolution
 
+  /** */
   private ParameterHelper param;
 
 
 
   /**
+   * @param resolver 
    * @since   1.2.1
    */
   public ValidatingNamingResolver(NamingResolver resolver) {
@@ -160,6 +165,45 @@ public class ValidatingNamingResolver extends NamingResolverDecorator {
     this.param.notNullSubject(subj1).notNullSubject(subj2).notNullPrivilege(priv);
     super.getDecoratedResolver().privilegeCopy(subj1, subj2, priv);
   }            
+
+ /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#getGrouperSession()
+   */
+  public GrouperSession getGrouperSession() {
+    NamingResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.getGrouperSession();
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#hqlFilterStemsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   */
+  public boolean hqlFilterStemsWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String stemColumn, Set<Privilege> privInSet) {
+    
+    this.param.notNullSubject(subject).notNullHqlQuery(hqlQuery);
+    
+    NamingResolver decoratedResolver = super.getDecoratedResolver();
+    //CachingNamingResolver
+    return decoratedResolver.hqlFilterStemsWhereClause(subject, hqlQuery, hql, stemColumn, privInSet);
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#postHqlFilterStems(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Stem> postHqlFilterStems(Set<Stem> stems, Subject subject,
+      Set<Privilege> privInSet) {
+    
+    this.param.notNullSubject(subject);
+
+    Set<Stem> filteredStems = super.getDecoratedResolver().postHqlFilterStems(stems, subject, privInSet);
+    
+    //return filtered groups
+    return filteredStems;
+  }
 
 }
 

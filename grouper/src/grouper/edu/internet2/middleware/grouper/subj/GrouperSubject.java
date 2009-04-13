@@ -46,7 +46,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.7 2009-04-12 18:16:34 shilen Exp $
+ * @version $Id: GrouperSubject.java,v 1.8 2009-04-13 16:53:08 mchyzer Exp $
  */
 public class GrouperSubject implements Subject {
   
@@ -205,6 +205,14 @@ public class GrouperSubject implements Subject {
   /** lazy load the modify and create subjects */
   private boolean loadedModifyCreateSubjects = false;
   
+  /**
+   * 
+   * @param ifIgnore
+   */
+  public static void ignoreGroupAttributeSecurityOnNewSubject(boolean ifIgnore) {
+    ignoreGroupAttributeSecurityOnNewSubject.set(ifIgnore);
+  }
+
   /**
    * if loaded group attributes
    * @return true/false

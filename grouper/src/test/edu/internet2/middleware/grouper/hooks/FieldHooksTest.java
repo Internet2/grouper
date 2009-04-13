@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: FieldHooksTest.java,v 1.8 2009-03-21 19:48:50 mchyzer Exp $
+ * $Id: FieldHooksTest.java,v 1.9 2009-04-13 16:53:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -241,7 +241,9 @@ public class FieldHooksTest extends GrouperTest {
           throw new RuntimeException(e);
         }
         
-        assertNull("shouldnt fire yet", FieldHooksImpl.mostRecentPostCommitDeleteFieldName);
+//this will happen in its own transaction for caching purposes...
+//        assertNull("shouldnt fire yet: " + FieldHooksImpl.mostRecentPostCommitDeleteFieldName, 
+//            FieldHooksImpl.mostRecentPostCommitDeleteFieldName);
         grouperTransaction.commit(GrouperCommitType.COMMIT_NOW);
         
         assertEquals("test7", FieldHooksImpl.mostRecentPostCommitDeleteFieldName);

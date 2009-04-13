@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper.privs;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -35,6 +36,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.Owner;
+import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -44,22 +46,90 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.8 2009-03-24 17:12:07 mchyzer Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.9 2009-04-13 16:53:07 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperPrivilegeAdapter {
 
-  // @since   1.2.0
-  //2007-11-02 Gary Brown
-  //If p==null determine by looking at the Membership list
-  //Discard those which are not privileges i.e. members / custom lists
-  //Added Owner to signature so we don't need to compute it 
-  //consequently all Memberships must be of the same Owner
+	  /**
+	   * convert a set of privileges to a set of fields
+	   * @param priv2list 
+	   * @param privileges
+	   * @return the set of fields
+	   */
+	  public static Set<Field> fieldSet(Map<Privilege, String> priv2list, Set<Privilege> privileges) {
+	    if (privileges == null) {
+	      return null;
+	    }
+	    try {
+  	    Set<Field> fields = new LinkedHashSet<Field>();
+  	    for (Privilege privilege : privileges) {
+  	      Field field = internal_getField(priv2list, privilege);
+  	      fields.add(field);
+  	    }
+  	    return fields;
+	    } catch (SchemaException se) {
+	      throw new RuntimeException("Problem: " + se.getMessage(), se);
+	    }
+	  }
+
+    /**
+     * convert a set of privileges to a set of fields
+     * @param priv2list 
+     * @param privileges
+     * @return the set of fields
+     */
+    public static Set<String> fieldNameSet(Map<Privilege, String> priv2list, Set<Privilege> privileges) {
+      if (privileges == null) {
+        return null;
+      }
+      Set<String> fieldNames = new LinkedHashSet<String>();
+      Set<Field> fieldSet = fieldSet(priv2list, privileges);
+      
+      for (Field field : fieldSet) {
+        fieldNames.add(field.getName());
+      }
+      return fieldNames;
+    }
+
+    /**
+     * convert a set of privileges to a set of fields
+     * @param priv2list 
+     * @param privileges
+     * @return the set of fields
+     */
+    public static Set<String> fieldIdSet(Map<Privilege, String> priv2list, Set<Privilege> privileges) {
+      if (privileges == null) {
+        return null;
+      }
+      Set<String> fieldNames = new LinkedHashSet<String>();
+      Set<Field> fieldSet = fieldSet(priv2list, privileges);
+      
+      for (Field field : fieldSet) {
+        fieldNames.add(field.getUuid());
+      }
+      return fieldNames;
+    }
+
+  /**
+   * 2007-11-02 Gary Brown
+   * If p==null determine by looking at the Membership list
+   * Discard those which are not privileges i.e. members / custom lists
+   * Added Owner to signature so we don't need to compute it 
+   * consequently all Memberships must be of the same Owner
+   * @param s
+   * @param ownerGroupOrStem
+   * @param subj
+   * @param m
+   * @param p
+   * @param it
+   * @return the set
+   * @throws SchemaException
+   */
   public static Set<? extends GrouperPrivilege> internal_getPrivs(
     GrouperSession s, final Owner ownerGroupOrStem,final Subject subj, final Member m, final Privilege p, final Iterator it
   )
-    throws  SchemaException
-  {
+    throws  SchemaException  {
     return (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
 
       public Object callback(GrouperSession grouperSession)
@@ -92,11 +162,20 @@ public class GrouperPrivilegeAdapter {
           }
           if ( ms.getViaGroupId() != null ) {
             try {
-              owner   = ms.getViaGroup().toSubject();
+              //dont have an endless loop checking privs
+              GrouperSubject.ignoreGroupAttributeSecurityOnNewSubject(true);
+              Group viaGroup = ms.getViaGroup();
+              if (LOG.isDebugEnabled()) {
+                //temporary log message to try privilege
+                LOG.debug("finding group subject: " + viaGroup.getAttributesDb().get("name"));
+              }
+              owner   = viaGroup.toSubject();
               revoke  = false;
             }
             catch (GroupNotFoundException eGNF) {
               LOG.error(eGNF.getMessage() );
+            } finally {
+              GrouperSubject.ignoreGroupAttributeSecurityOnNewSubject(false);
             }
           }
           

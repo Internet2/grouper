@@ -16,29 +16,32 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.GrouperSession;
 import  edu.internet2.middleware.grouper.Stem;
 import  edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import  edu.internet2.middleware.subject.Subject;
-import  java.util.Set;
 
 
 /**
  * Decorator that provides <i>GrouperAll</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAllNamingResolver.java,v 1.6 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: GrouperAllNamingResolver.java,v 1.7 2009-04-13 16:53:07 mchyzer Exp $
  * @since   1.2.1
  */
 public class GrouperAllNamingResolver extends NamingResolverDecorator {
-  // TODO 20070820 DRY w/ access resolution
 
-  
+  /** */
   private Subject all;
 
 
 
   /**
+   * @param resolver 
    * @since   1.2.1
    */
   public GrouperAllNamingResolver(NamingResolver resolver) {
@@ -148,15 +151,37 @@ public class GrouperAllNamingResolver extends NamingResolverDecorator {
       throws IllegalArgumentException, UnableToPerformException {
     super.getDecoratedResolver().privilegeCopy(stem1, stem2, priv);
   }
-
-  /*
-   * (non-Javadoc)
-   * @see edu.internet2.middleware.grouper.privs.NamingResolver#privilegeCopy(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#getGrouperSession()
    */
-  public void privilegeCopy(Subject subj1, Subject subj2, Privilege priv)
-      throws IllegalArgumentException, UnableToPerformException {
-    super.getDecoratedResolver().privilegeCopy(subj1, subj2, priv);
-  }            
+  public GrouperSession getGrouperSession() {
+    NamingResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.getGrouperSession();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#hqlFilterStemsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   */
+  public boolean hqlFilterStemsWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String stemColumn, Set<Privilege> privInSet) {
+    NamingResolver decoratedResolver = super.getDecoratedResolver();
+    //CachingNamingResolver
+    return decoratedResolver.hqlFilterStemsWhereClause(subject, hqlQuery, hql, stemColumn, privInSet);
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#postHqlFilterStems(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Stem> postHqlFilterStems(Set<Stem> stems, Subject subject,
+      Set<Privilege> privInSet) {
+    Set<Stem> filteredStems = super.getDecoratedResolver().postHqlFilterStems(stems, subject, privInSet);
+    
+    //return filtered groups
+    return filteredStems;
+  }
+
 
 }
 

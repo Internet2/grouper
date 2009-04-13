@@ -52,7 +52,7 @@ import edu.internet2.middleware.ldappcTest.AllLdappcJunitTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: AllTests.java,v 1.4 2009-03-23 06:00:00 mchyzer Exp $
+ * @version $Id: AllTests.java,v 1.5 2009-04-13 16:53:08 mchyzer Exp $
  */
 public class AllTests extends GrouperTest {
 
@@ -186,6 +186,7 @@ public class AllTests extends GrouperTest {
     suite.addTest(AllFilterTests.suite());
     suite.addTest(AllGroupTests.suite());
     suite.addTest(AllHooksTests.suite());
+    suite.addTest(AllHibernateTests.suite());
     suite.addTest(AllInternalDaoTests.suite());
     suite.addTest(AllMemberTests.suite());
     suite.addTest(AllMembershipTests.suite());

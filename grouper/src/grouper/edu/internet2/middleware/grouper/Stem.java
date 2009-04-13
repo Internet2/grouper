@@ -66,6 +66,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
@@ -99,7 +100,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.193 2009-04-12 18:16:34 shilen Exp $
+ * @version $Id: Stem.java,v 1.194 2009-04-13 16:53:08 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -429,20 +430,89 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    * @since   1.2.1
    */
   public Set<Group> getChildGroups(Scope scope) 
-    throws  IllegalArgumentException
-  {
+    throws  IllegalArgumentException {
+    return getChildGroups(scope, AccessPrivilege.VIEW_PRIVILEGES, null);
+  }
+
+  /**
+   * Get groups that are children of this stem.
+   * @param   scope of search: <code>Scope.ONE</code> or <code>Scope.SUB</code>
+   * @param inPrivSet set of privileges that the grouper session needs one of for the row to be returned.
+   * AccessPrivilege has some pre-baked constant sets for use here
+   * @param queryOptions 
+   * @return  Child groups.
+   * @throws  IllegalArgumentException if null scope.
+   * @since   1.2.1
+   */
+  public Set<Group> getChildGroups(Scope scope, Set<Privilege> inPrivSet, QueryOptions queryOptions) 
+    throws  IllegalArgumentException {
     if (scope == null) { // TODO 20070815 ParameterHelper
       throw new IllegalArgumentException("null Scope");
     }
-    Subject     subj    = GrouperSession.staticGrouperSession().getSubject();
-    Set<Group>  groups  = new LinkedHashSet();
-    for ( Group child : GrouperDAOFactory.getFactory().getStem().findAllChildGroups( this, scope ) ) {
-      
-      if ( PrivilegeHelper.canView( GrouperSession.staticGrouperSession().internal_getRootSession(), child, subj ) ) {
-        groups.add(child);
-      }
+    this.param.notNullPrivilegeSet(inPrivSet);
+
+    inPrivSet = AccessPrivilege.filter(inPrivSet);
+    
+    if (inPrivSet.size() == 0) {
+      return new LinkedHashSet<Group>();
     }
-    return groups;
+    
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    Subject     subj    = grouperSession.getSubject();
+    Set<Group> findAllChildGroups = 
+      GrouperDAOFactory.getFactory().getStem().findAllChildGroupsSecure( this, scope, 
+          grouperSession, subj, inPrivSet, queryOptions );
+    return findAllChildGroups;
+  }
+
+  /**
+   * Get groups that are children of this stem and there is a list membership.
+   * @param   scope of search: <code>Scope.ONE</code> or <code>Scope.SUB</code>
+   * @param inPrivSet set of privileges that the grouper session needs one of for the row to be returned.
+   * AccessPrivilege has some pre-baked constant sets for use here
+   * @param queryOptions 
+   * @return  Child groups.
+   * @throws  IllegalArgumentException if null scope.
+   * @since   1.2.1
+   */
+  public Set<Group> getChildMembershipGroups(Scope scope, Set<Privilege> inPrivSet, QueryOptions queryOptions) 
+    throws  IllegalArgumentException {
+    if (scope == null) { // TODO 20070815 ParameterHelper
+      throw new IllegalArgumentException("null Scope");
+    }
+    this.param.notNullPrivilegeSet(inPrivSet);
+      
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    Subject     subj    = grouperSession.getSubject();
+    Set<Group> findAllChildGroups = 
+      GrouperDAOFactory.getFactory().getStem().findAllChildMembershipGroupsSecure( this, scope, 
+          grouperSession, subj, inPrivSet, queryOptions );
+    return findAllChildGroups;
+      }
+
+  /**
+   * Get groups that are children of this stem.
+   * @param   scope of search: <code>Scope.ONE</code> or <code>Scope.SUB</code>
+   * @param inPrivSet set of privileges that the grouper session needs one of for the row to be returned.
+   * AccessPrivilege has some pre-baked constant sets for use here
+   * @param queryOptions 
+   * @return  Child groups.
+   * @throws  IllegalArgumentException if null scope.
+   * @since   1.2.1
+   */
+  public Set<Stem> getChildStems(Scope scope, Set<Privilege> inPrivSet, QueryOptions queryOptions) 
+    throws  IllegalArgumentException {
+    if (scope == null) { // TODO 20070815 ParameterHelper
+      throw new IllegalArgumentException("null Scope");
+    }
+    this.param.notNullPrivilegeSet(inPrivSet);
+
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    Subject     subj    = grouperSession.getSubject();
+    Set<Stem> findAllChildStems = 
+      GrouperDAOFactory.getFactory().getStem().findAllChildStemsSecure( this, scope, 
+          grouperSession, subj, inPrivSet, queryOptions );
+    return findAllChildStems;
   }
 
   /**
@@ -452,38 +522,21 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
    * @return  Child groups where current subject has any of the specified <i>privileges</i>.
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
+   * @deprecated use the overload
    */
+  @Deprecated
   public Set<Group> getChildGroups(Privilege[] privileges, Scope scope)
-    throws  IllegalArgumentException 
-  {
-    this.param.notNullPrivilegeArray(privileges);
+      throws  IllegalArgumentException {
 
-    Set<Group> groups = new LinkedHashSet();
-    // TODO 20070814 this is hideously ugly and far from optimal
-    for ( Group group : this.getChildGroups(scope) ) {
-      for ( Privilege priv : PrivilegeHelper.getAccessPrivileges(privileges) ) {
-        try {
-          PrivilegeHelper.dispatch( GrouperSession.staticGrouperSession(), group, GrouperSession.staticGrouperSession().getSubject(), priv );
-          groups.add(group);
-          break; // we only care that one privilege matches
-        }
-        catch (InsufficientPrivilegeException eIP) {
-          // ignore
-        }
-        catch (SchemaException eSchema) {
-          // ignore
-        }
-      }
+    return getChildGroups(scope, GrouperUtil.toSet(privileges), null);
     }
-    return groups;
-  }
 
   /**
    * Get stems that are immediate children of this stem.
    * @return  Set of {@link Stem} objects.
    * @see     Stem#getChildStems(Scope)
    */
-  public Set getChildStems() {
+  public Set<Stem> getChildStems() {
     return this.getChildStems(Scope.ONE);
   }
 

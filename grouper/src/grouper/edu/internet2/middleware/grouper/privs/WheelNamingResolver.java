@@ -18,6 +18,8 @@
 package edu.internet2.middleware.grouper.privs;
 import java.util.Set;
 
+import net.sf.ehcache.Element;
+
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -25,9 +27,11 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -38,7 +42,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelNamingResolver.java,v 1.14 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: WheelNamingResolver.java,v 1.15 2009-04-13 16:53:07 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelNamingResolver extends NamingResolverDecorator {
@@ -55,6 +59,12 @@ public class WheelNamingResolver extends NamingResolverDecorator {
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(WheelNamingResolver.class);
+
+  /**
+   * 2007-11-02 Gary Brown Provide cache for wheel group members Profiling showed lots of time rechecking memberships 
+   */
+  public static final String CACHE_IS_WHEEL_MEMBER = 
+    WheelNamingResolver.class.getName() + ".isWheelMember";
 
   /**
    * @param resolver 
@@ -92,6 +102,9 @@ public class WheelNamingResolver extends NamingResolverDecorator {
     }
   }
 
+  /** cache controller */
+  private EhcacheController cc;
+
   /** */
   private static boolean loggedWheelNotThere = false;
   
@@ -103,6 +116,39 @@ public class WheelNamingResolver extends NamingResolverDecorator {
     throws IllegalStateException
   {
     return super.getDecoratedResolver().getConfig(key);
+  }
+
+  /**
+   * Put boolean into cache for <code>isWheelMember(...)</code>.
+   * @param subj 
+   * @param rv 
+   * @since   1.2.1
+   */
+  private void putInHasPrivilegeCache(Subject subj,  Boolean rv) {
+    this.cc.getCache(CACHE_IS_WHEEL_MEMBER).put( new Element( subj,rv) );
+  }
+
+  /**
+   * Put boolean into cache for <code>isWheelMember(...)</code>.
+   * @param subj 
+   * @return  if wheel member
+   * @since   1.2.1
+   */
+  private boolean isWheelMember(final Subject subj) {
+    Boolean rv = getFromIsWheelMemberCache(subj);
+    if(rv==null) {
+      
+      rv = (Boolean)GrouperSession.callbackGrouperSession(this.wheelSession, new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          return WheelNamingResolver.this.wheelGroup.hasMember(subj);
+  }
+      });
+
+      putInHasPrivilegeCache(subj, rv);
+    }
+    return rv;
   }
 
   /**
@@ -172,6 +218,22 @@ public class WheelNamingResolver extends NamingResolverDecorator {
   }
 
   /**
+   * 
+   * @param subject
+   * @return true if this is wheel and if using wheel
+   */
+  private boolean isAndUseWheel(Subject subject) {
+    if (this.getGrouperSession().isConsiderIfWheelMember()) {
+      if (this.useWheel) {
+        if (isWheelMember(subject)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
    * @see     NamingResolver#revokePrivilege(Stem, Privilege)
    * @since   1.2.1
    */
@@ -211,6 +273,58 @@ public class WheelNamingResolver extends NamingResolverDecorator {
       throws IllegalArgumentException, UnableToPerformException {
     super.getDecoratedResolver().privilegeCopy(subj1, subj2, priv);
   }            
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#hqlFilterStemsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   */
+  public boolean hqlFilterStemsWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String stemColumn, Set<Privilege> privInSet) {
+    //Wheel can see all stems
+    if (this.isAndUseWheel(subject)) {
+      return false;
+    }
+    NamingResolver decoratedResolver = super.getDecoratedResolver();
+    //CachingNamingResolver
+    return decoratedResolver.hqlFilterStemsWhereClause(subject, hqlQuery, hql, stemColumn, privInSet);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#postHqlFilterStems(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Stem> postHqlFilterStems(Set<Stem> stems, Subject subject,
+      Set<Privilege> privInSet) {
+    
+    //Wheel can see all groups
+    if (this.isAndUseWheel(subject)) {
+      return stems;
+    }
+    Set<Stem> filteredStems = super.getDecoratedResolver().postHqlFilterStems(stems, subject, privInSet);
+    
+    //return filtered groups
+    return filteredStems;
+  }            
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#getGrouperSession()
+   */
+  public GrouperSession getGrouperSession() {
+    NamingResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.getGrouperSession();
+  }
+
+  /**
+   * Retrieve boolean from cache for <code>isWheelMember(...)</code>.
+   * @param subj 
+   * @return  Cached return value or null.
+   * @since   1.2.1
+   */
+  private Boolean getFromIsWheelMemberCache(Subject subj) {
+    Element el = this.cc.getCache(CACHE_IS_WHEEL_MEMBER).get(subj);
+    if (el != null) {
+      return (Boolean) el.getObjectValue();
+    }
+    return null;
+  }
 
 }
 

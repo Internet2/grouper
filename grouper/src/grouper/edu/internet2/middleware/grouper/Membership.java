@@ -16,9 +16,13 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import net.sf.ehcache.Element;
@@ -64,8 +68,10 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
+import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -82,7 +88,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.117 2009-03-18 18:51:58 shilen Exp $
+ * @version $Id: Membership.java,v 1.118 2009-04-13 16:53:08 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -412,7 +418,8 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   }
    
   /**
-   * Get this membership's group.
+   * Get this membership's group.  To get the groups of a bunch of membership, might want to try
+   * retrieveGroups()
    * <pre class="eg">
    * Group g = ms.getGroup();
    * </pre>
@@ -425,12 +432,69 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       throw new GroupNotFoundException();
     }
     Group g = getGroupFromCache(uuid);
-    if (g != null)
+    if (g != null) {
       return g;
-
+    }
     g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid, true);
     putGroupInCache(g);
     return g;
+  }
+  /**
+   * retrieve a set of groups based on some memberships (and store in each membership, like getGroup
+   * @param memberships
+   * @return the set of groups
+   */
+  public static Set<Group> retrieveGroups(Collection<Membership> memberships) {
+    try {
+      
+      //first lets see which uuids are not in cache
+      Set<String> uuidsNotInCache = new HashSet<String>();
+      
+      //TODO update for 1.5 with group owner
+      for (Membership membership : memberships) {
+        
+        String uuid = membership.getOwnerUuid();
+        if (uuid == null) {
+          throw new GroupNotFoundException("Group uuid is null! " + membership.getUuid());
+        }
+        
+        if (membership.getGroupFromCache(uuid) == null) {
+          uuidsNotInCache.add(uuid);
+        }
+        
+      }
+      
+      //now lets get all those groups including attributes
+      Set<Group> groupsFromDb = GrouperDAOFactory.getFactory().getGroup().findByUuids(uuidsNotInCache, false);
+      
+      Set<Group> groups = new LinkedHashSet<Group>();
+      
+      //now we have everything we need
+      for (Membership membership : memberships) {
+        
+        String uuid = membership.getOwnerUuid();
+        
+        Group group = membership.getGroupFromCache(uuid);
+        if (group == null) {
+          group = GrouperUtil.retrieveByProperty(groupsFromDb, Group.FIELD_UUID, uuid);
+          if (group == null && !FieldType.NAMING.equals(membership.getField().getType())) {
+            group = membership.getGroup();
+          } else {
+            if (group != null) {
+              //add to local cache
+              membership.putGroupInCache(group);
+            }
+          }
+        }
+        if (group != null) {
+          groups.add(group);
+        }
+        
+      }
+      return groups;
+    } catch (GroupNotFoundException gnfe) {
+      throw new RuntimeException("Problem", gnfe);
+    }
   }
 
   /**

@@ -29,8 +29,10 @@ import org.hibernate.HibernateException;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
@@ -39,14 +41,17 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.24 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.25 2009-04-13 16:53:08 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -582,7 +587,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     try {
       Stem stemDto = HibernateSession.byHqlStatic()
         .createQuery("from Stem as ns where ns.nameDb = :name")
-        .setCacheable(false)
+        .setCacheable(true)
         .setCacheRegion(KLASS + ".FindByName")
         .setString("name", name)
         .uniqueResult(Stem.class);
@@ -619,7 +624,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     try {
       Stem stemDto = HibernateSession.byHqlStatic()
         .createQuery("from Stem as ns where ns.uuid = :uuid")
-        .setCacheable(false)
+        .setCacheable(true)
         .setCacheRegion(KLASS + ".FindByUuid")
         .setString("uuid", uuid)
         .uniqueResult(Stem.class);
@@ -751,6 +756,199 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       .setString( "uuid1", member.getUuid() ).setString("uuid2", member.getUuid())
       .listSet(Stem.class);
     return stems;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#findAllChildGroupsSecure(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<Group> findAllChildGroupsSecure(Stem ns, Scope scope,
+      GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions) throws GrouperDAOException {
+    
+    Set<Group> groupsSet;
+    try {
+      if (Stem.Scope.ONE == scope) {
+        groupsSet = GrouperDAOFactory.getFactory().getGroup().getImmediateChildrenSecure(
+            grouperSession, ns, subject, inPrivSet, queryOptions);
+      } else if (Stem.Scope.SUB == scope && ns.isRootStem()) {
+        groupsSet = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure(grouperSession, subject, inPrivSet, queryOptions);
+      } else if (Stem.Scope.SUB == scope) {
+        groupsSet = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure(ns.getNameDb() + Stem.DELIM, grouperSession, 
+            subject, inPrivSet, queryOptions);
+      } else {
+        throw new IllegalStateException("unknown search scope: " + scope);
+      }
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find all child groups, stem name: '" 
+        + (ns == null ? null : ns.getNameDb()) + "', scope: '" + scope + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  
+    return groupsSet;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#findAllChildMembershipGroupsSecure(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<Group> findAllChildMembershipGroupsSecure(Stem ns, Scope scope,
+      GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions) throws GrouperDAOException {
+    
+    Set<Group> groupsSet;
+    try {
+      if (Stem.Scope.ONE == scope) {
+        groupsSet = GrouperDAOFactory.getFactory().getGroup().getImmediateChildrenMembershipSecure(
+            grouperSession, ns, subject, inPrivSet, queryOptions);
+      } else if (Stem.Scope.SUB == scope && ns.isRootStem()) {
+        groupsSet = GrouperDAOFactory.getFactory().getGroup().getAllGroupsMembershipSecure(grouperSession, subject, inPrivSet, queryOptions);
+      } else if (Stem.Scope.SUB == scope) {
+        groupsSet = GrouperDAOFactory.getFactory().getGroup().getAllGroupsMembershipSecure(ns.getNameDb() + Stem.DELIM, grouperSession, 
+            subject, inPrivSet, queryOptions);
+      } else {
+        throw new IllegalStateException("unknown search scope: " + scope);
+      }
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find all child membership groups, stem name: '" 
+        + (ns == null ? null : ns.getNameDb()) + "', scope: '" + scope + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+
+    return groupsSet;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#findAllChildStemsSecure(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem.Scope, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<Stem> findAllChildStemsSecure(Stem ns, Scope scope,
+      GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions) throws GrouperDAOException {
+    
+    Set<Stem> stemsSet;
+    try {
+      if (Stem.Scope.ONE == scope) {
+        stemsSet = GrouperDAOFactory.getFactory().getStem().getImmediateChildrenSecure(
+            grouperSession, ns, subject, inPrivSet, queryOptions);
+      } else if (Stem.Scope.SUB == scope && ns.isRootStem()) {
+        stemsSet = GrouperDAOFactory.getFactory().getStem().getAllStemsSecure(grouperSession, subject, inPrivSet, queryOptions);
+      } else if (Stem.Scope.SUB == scope) {
+        stemsSet = GrouperDAOFactory.getFactory().getStem().getAllStemsSecure(ns.getNameDb() + Stem.DELIM, grouperSession, 
+            subject, inPrivSet, queryOptions);
+      } else {
+        throw new IllegalStateException("unknown search scope: " + scope);
+      }
+    }
+    catch (GrouperDAOException e) {
+      String error = "Problem find all child stems, stem name: '" 
+        + (ns == null ? null : ns.getNameDb()) + "', scope: '" + scope + "', " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  
+    return stemsSet;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#getImmediateChildrenSecure(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<Stem> getImmediateChildrenSecure(GrouperSession grouperSession, 
+      final Stem stem, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException {
+  
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("theStem.displayName");
+    }
+  
+    StringBuilder sql = new StringBuilder("select distinct theStem from Stem as theStem ");
+  
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(subject, byHqlStatic, 
+        sql, "theStem.uuid", inPrivSet);
+  
+    if (!changedQuery) {
+      sql.append(" where ");
+    } else {
+      sql.append(" and ");
+    }
+    
+    sql.append(" theStem.parentUuid = :parent ");
+    
+    Set<Stem> stems = byHqlStatic.createQuery(sql.toString())
+      .setString("parent", stem.getUuid())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".getImmediateChildrenSecure")
+      .options(queryOptions)
+      .listSet(Stem.class);
+
+    //if the hql didnt filter, this will
+    Set<Stem> filteredStems = grouperSession.getNamingResolver()
+      .postHqlFilterStems(stems, subject, inPrivSet);
+
+    return filteredStems;
+  
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#getAllStemsSecure(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<Stem> getAllStemsSecure(GrouperSession grouperSession,
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+      throws GrouperDAOException {
+    return getAllStemsSecure(null, grouperSession, subject, inPrivSet, queryOptions);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#getAllStemsSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<Stem> getAllStemsSecure(String scope,
+      GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet,
+      QueryOptions queryOptions) throws GrouperDAOException {
+
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("theStem.displayName");
+    }
+    //TODO update for 1.5
+
+    StringBuilder sql = new StringBuilder("select distinct theStem from Stem theStem ");
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic, 
+        sql, "theStem.uuid", inPrivSet);
+
+    //see if there is a scope
+    if (!StringUtils.isBlank(scope)) {
+      if (!changedQuery) {
+        sql.append(" where ");
+      } else {
+        sql.append(" and ");
+      }
+      sql.append(" theStem.name like :scope");
+      byHqlStatic.setString("scope", scope + "%");
+
+    }
+    
+    Set<Stem> stems = byHqlStatic.createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".GetAllStemsSecure")
+      .options(queryOptions)
+      .listSet(Stem.class);
+    
+    //if the hql didnt filter, this will
+    Set<Stem> filteredStems = grouperSession.getNamingResolver()
+      .postHqlFilterStems(stems, subject, inPrivSet);
+
+    return filteredStems;
   }
 
 } 

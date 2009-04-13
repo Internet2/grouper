@@ -92,7 +92,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.13 2009-03-31 06:58:28 mchyzer Exp $
+ * @version $Id: XmlExporter.java,v 1.14 2009-04-13 16:53:08 mchyzer Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -590,6 +590,7 @@ public class XmlExporter {
             + "      [-userAuditFilename <fileName>] [-userAuditOnly]"              + GrouperConfig.NL 
             + "      [(-id <id>] | [-name <name>)] [-relative]"                     + GrouperConfig.NL
             + "      [-includeParent] [-childrenOnly] fileName [properties]"        + GrouperConfig.NL
+            + "e.g.  gsh -xmlexport -userAuditFilename f:/temp/prodAudit.xml GrouperSystem f:/temp/prod.xml"                 + GrouperConfig.NL
             +                                                                         GrouperConfig.NL
             + "  subjectIdentifier, Identifies a Subject 'who' will create a"       + GrouperConfig.NL
             + "                     GrouperSession"                                 + GrouperConfig.NL

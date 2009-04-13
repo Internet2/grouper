@@ -21,10 +21,12 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -35,8 +37,11 @@ import edu.internet2.middleware.subject.Subject;
  * you should not need to directly use these methods as they are all
  * wrapped by methods in the {@link Group} class.
  * </p>
+ * If you are implementing your own access adapter, you should probably extend
+ * BaseAccessAdapter
+ * 
  * @author  blair christensen.
- * @version $Id: AccessAdapter.java,v 1.4 2009-03-24 17:12:07 mchyzer Exp $
+ * @version $Id: AccessAdapter.java,v 1.5 2009-04-13 16:53:07 mchyzer Exp $
  */
 public interface AccessAdapter {
 
@@ -222,5 +227,43 @@ public interface AccessAdapter {
    void privilegeCopy(GrouperSession s, Subject subj1, Subject subj2, Privilege priv)
       throws InsufficientPrivilegeException, GrantPrivilegeException, SchemaException;
 
+  /**
+   * after HQL is run, filter groups.  If you are filtering in HQL, then dont filter here
+   * @param grouperSession 
+   * @param groups
+   * @param subject which needs view access to the groups
+   * @param privInSet find a privilege which is in this set 
+   * (e.g. for view, send all access privs).  There are pre-canned sets in AccessAdapter
+   * @return the set of filtered groups
+   */
+  public Set<Group> postHqlFilterGroups(GrouperSession grouperSession, 
+      Set<Group> groups, Subject subject, Set<Privilege> privInSet);
+  
+  /**
+   * for a group query, check to make sure the subject can see the records (if filtering HQL, you can do 
+   * the postHqlFilterGroups instead if you like).  Note, this joins to tables, so the queries should
+   * probably be "distinct"
+   * @param grouperSession 
+   * @param subject which needs view access to the groups
+   * @param hql is the select and part part (hql prefix)
+   * @param hqlQuery 
+   * @param groupColumn is the name of the group column to join to
+   * @param privInSet find a privilege which is in this set 
+   * (e.g. for view, send all access privs).  There are pre-canned sets in AccessPrivilege
+   * @return if the query was changed
+   */
+  public boolean hqlFilterGroupsWhereClause(GrouperSession grouperSession, 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, 
+      String groupColumn, Set<Privilege> privInSet);
+
+  /**
+   * filter memberships for things the subject can see
+   * @param grouperSession 
+   * @param memberships
+   * @param subject
+   * @return the memberships
+   */
+  public Set<Membership> postHqlFilterMemberships(GrouperSession grouperSession, 
+      Subject subject, Set<Membership> memberships);
 }
 

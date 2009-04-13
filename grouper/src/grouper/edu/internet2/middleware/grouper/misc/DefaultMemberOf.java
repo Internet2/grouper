@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.misc;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -56,7 +57,7 @@ import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.15 2009-03-27 15:38:21 shilen Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.16 2009-04-13 16:53:08 mchyzer Exp $
  * @since   1.2.0
  */
 @GrouperIgnoreDbVersion
@@ -645,14 +646,43 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   }
 
   /**
+   * make sure the composite group is not a submember of either factor
+   */
+  private void _errorIfCompositeIsSubMember() {
+    
+    String memberId = this.getGroup().toMember().getUuid();
+
+    Set<Membership> memberships = GrouperDAOFactory.getFactory()
+      .getMembership().findAllByOwnerAndMemberAndField(this.getComposite().getLeftFactorUuid(), 
+          memberId, Group.getDefaultList());
+    
+    if (GrouperUtil.length(memberships) > 0) {
+      throw new IllegalStateException("Membership paths from a left factor to the composite are not allowed. " 
+          + this.getComposite().getLeftFactorUuid() + ", " + memberId);
+    }
+    memberships = GrouperDAOFactory.getFactory()
+      .getMembership().findAllByOwnerAndMemberAndField(this.getComposite().getRightFactorUuid(), 
+          memberId, Group.getDefaultList());
+    
+    if (GrouperUtil.length(memberships) > 0) {
+      throw new IllegalStateException("Membership paths from a right factor to the composite are not allowed. " 
+          + this.getComposite().getRightFactorUuid() + ", " + memberId);
+    }
+
+  }
+  
+  /**
    * Evaluate the addition of a new composite membership.
    * @throws IllegalStateException 
    * @since   1.2.0
    */
   private void _evaluateAddCompositeMembership()
-    throws  IllegalStateException
-  {
-    Set composites = new LinkedHashSet();
+    throws  IllegalStateException {
+
+    //make sure the composite group is not a member of either factor
+    this._errorIfCompositeIsSubMember();
+
+    Set<Membership> composites = new LinkedHashSet<Membership>();
     if      ( this.getComposite().getType().equals(CompositeType.COMPLEMENT) )    {
       composites.addAll( this._evaluateAddCompositeMembershipComplement() );
     }
@@ -688,69 +718,43 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
 
   /**
    * 
-   * @return set
+   * @return the set of memberships
    * @throws IllegalStateException
    */
-  private Set _evaluateAddCompositeMembershipComplement() 
+  private Set<Membership> _evaluateAddCompositeMembershipComplement() 
     throws  IllegalStateException {
-    Set memberUUIDs = new LinkedHashSet();
-    String compositeGroupUuid = this.getGroup().toMember().getUuid();
-    Set<String> leftMembers = this._findMemberUUIDs(this.getComposite().getLeftFactorUuid());
-    Set<String> rightMembers = this._findMemberUUIDs(this.getComposite().getRightFactorUuid());
 
-    if (leftMembers.contains(compositeGroupUuid) || rightMembers.contains(compositeGroupUuid)) {
-      throw new IllegalStateException("Membership paths from a factor to the composite are not allowed.");
-    }
-
-    memberUUIDs.addAll(leftMembers);
-    memberUUIDs.removeAll(rightMembers);
+    Set<String> memberUUIDs = GrouperDAOFactory.getFactory().getMember()
+      ._internal_membersComplement(this.getComposite().getLeftFactorUuid(),
+          this.getComposite().getRightFactorUuid());
 
     return this._createNewCompositeMembershipObjects(memberUUIDs);
   } 
 
   /**
    * 
-   * @return set
-   * 
+   * @return the set of memberships
    * @throws IllegalStateException
    */
-  private Set _evaluateAddCompositeMembershipIntersection() 
-    throws  IllegalStateException
-  {
-    Set memberUUIDs = new LinkedHashSet();
-    String compositeGroupUuid = this.getGroup().toMember().getUuid();
-    Set<String> leftMembers = this._findMemberUUIDs(this.getComposite().getLeftFactorUuid());
-    Set<String> rightMembers = this._findMemberUUIDs(this.getComposite().getRightFactorUuid());
-
-    if (leftMembers.contains(compositeGroupUuid) || rightMembers.contains(compositeGroupUuid)) {
-      throw new IllegalStateException("Membership paths from a factor to the composite are not allowed.");
-    }
-
-    memberUUIDs.addAll(leftMembers);
-    memberUUIDs.retainAll(rightMembers);
+  private Set<Membership> _evaluateAddCompositeMembershipIntersection() 
+    throws  IllegalStateException {
+    Set<String> memberUUIDs = GrouperDAOFactory.getFactory().getMember()
+      ._internal_membersIntersection(this.getComposite().getLeftFactorUuid(),
+        this.getComposite().getRightFactorUuid());
 
     return this._createNewCompositeMembershipObjects(memberUUIDs);
   } 
 
   /**
    * 
-   * @return set
+   * @return the set of memberships
    * @throws IllegalStateException
    */
-  private Set _evaluateAddCompositeMembershipUnion() 
-    throws  IllegalStateException
-  {
-    Set memberUUIDs = new LinkedHashSet();
-    String compositeGroupUuid = this.getGroup().toMember().getUuid();
-    Set<String> leftMembers = this._findMemberUUIDs(this.getComposite().getLeftFactorUuid());
-    Set<String> rightMembers = this._findMemberUUIDs(this.getComposite().getRightFactorUuid());
-
-    if (leftMembers.contains(compositeGroupUuid) || rightMembers.contains(compositeGroupUuid)) {
-      throw new IllegalStateException("Membership paths from a factor to the composite are not allowed.");
-    }
-
-    memberUUIDs.addAll(leftMembers);
-    memberUUIDs.addAll(rightMembers);
+  private Set<Membership> _evaluateAddCompositeMembershipUnion() 
+    throws  IllegalStateException {
+    Set<String> memberUUIDs = GrouperDAOFactory.getFactory().getMember()
+      ._internal_membersUnion(this.getComposite().getLeftFactorUuid(),
+      this.getComposite().getRightFactorUuid());
 
     return this._createNewCompositeMembershipObjects(memberUUIDs);
   } 

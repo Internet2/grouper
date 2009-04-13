@@ -66,7 +66,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.84 2009-03-21 19:48:50 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.85 2009-04-13 16:53:08 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements GrouperHasContext, Serializable, Hib3GrouperVersioned, Comparable {
 
@@ -429,6 +429,13 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
           }
           // Now delete the type
           String typeName = GroupType.this.getName(); // For logging purposes
+          Set<Field> fields2 = this.getFields();
+      
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Deleting type: " + this.getName() + " and fields: " 
+              + Field.fieldNames(fields2));
+          }
+      
           GrouperDAOFactory.getFactory().getGroupType().delete( GroupType.this, GroupType.this.getFields() );
           sw.stop();
           EventLog.info(s, M.GROUPTYPE_DEL + Quote.single(typeName), sw);
@@ -754,7 +761,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
                 changedArray[0] = false;
               }
             }
-  
+            FieldFinder.internal_updateKnownFields();
             return field;
           }
           if (GrouperUtil.length(changedArray) > 0) {
@@ -786,6 +793,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
               + " gtype=" + Quote.single( GroupType.this.getName() ),
               sw
             );
+            FieldFinder.internal_updateKnownFields();
           }
           catch (GrouperDAOException eDAO) {
             String msg = E.GROUPTYPE_FIELDADD + name + ": " + eDAO.getMessage();
@@ -857,7 +865,7 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
    */ 
   public Set<Field> getFields() {
     if (this.fields == null) {
-      this.fields = GrouperDAOFactory.getFactory().getField().findAllFieldsByGroupType( this.getUuid() );
+      this.fields = FieldFinder.findAllByGroupType(this);
     }
     return this.fields;
   }

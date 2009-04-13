@@ -44,6 +44,8 @@ import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
@@ -58,7 +60,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.26 2009-03-23 06:00:00 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.27 2009-04-13 16:53:08 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -1329,5 +1331,44 @@ public class TestStem extends GrouperTest {
     }
   } // public void testChildStemsLazyInitializationException() 
 
+
+  /**
+   * 
+   * @throws Exception
+   */
+  public void testCache() throws Exception {
+    LOG.info("testSetBadStemDisplayExtension");
+    GrouperSession  s     = SessionHelper.getRootSession();
+    Stem            root  = StemFinder.findRootStem(s);
+    Stem            edu   = root.addChildStem("edu", "edu");
+    
+    //get once
+    Stem edu2 = StemFinder.findByUuid(s, edu.getUuid());
+
+    //update it
+    HibernateSession.bySqlStatic().executeSql(
+        "update grouper_stems set extension = 'abc' where id = ?", HibUtils.listObject(edu.getUuid()));
+
+    //get again
+    Stem edu3 = StemFinder.findByUuid(s, edu.getUuid());
+    
+    assertEquals("edu", edu3.getExtension());
+    
+    //wait until timeout
+    GrouperUtil.sleep(12000);
+    
+    //should have updated by now
+    edu2 = StemFinder.findByUuid(s, edu.getUuid());
+    assertEquals("abc", edu2.getExtension());
+    
+    edu.setExtension("abc2");
+    edu.store();
+    
+    //hibernate should know to update it
+    edu2 = StemFinder.findByUuid(s, edu.getUuid());
+    assertEquals("abc2", edu2.getExtension());
+    
+    s.stop();
+  } // public void testSetBadStemDisplayExtension()
 }
 

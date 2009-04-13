@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestStemApi.java,v 1.6 2009-04-12 18:16:34 shilen Exp $
+ * @version $Id: TestStemApi.java,v 1.7 2009-04-13 16:53:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class TestStemApi extends GrouperTest {
@@ -184,7 +184,7 @@ public class TestStemApi extends GrouperTest {
 
   public void test_getChildGroups_PrivilegeArrayAndScope_nullArray() {
     try {
-      this.root.getChildGroups(null, null);
+      this.root.getChildGroups(null, (Scope)null);
       fail("failed to throw IllegalArgumentException");
     }
     catch (IllegalArgumentException eExpected) {

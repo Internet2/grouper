@@ -57,9 +57,30 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.96 2009-03-31 06:58:28 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.97 2009-04-13 16:53:08 mchyzer Exp $
  */
 public class GrouperSession {
+
+  /**
+   * if we should take into consideration that we are a wheel member (or act as self if false)
+   */
+  private boolean considerIfWheelMember = true;
+
+  /**
+   * if we should take into consideration that we are a wheel member (or act as self if false)
+   * @return if considering if wheel member
+   */
+  public boolean isConsiderIfWheelMember() {
+    return this.considerIfWheelMember;
+  }
+
+  /**
+   * if we should take into consideration that we are a wheel member (or act as self if false)
+   * @param considerIfWheelMember1
+   */
+  public void setConsiderIfWheelMember(boolean considerIfWheelMember1) {
+    this.considerIfWheelMember = considerIfWheelMember1;
+  }
 
   /**
    * throw illegal state if stopped

@@ -22,14 +22,18 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Basic <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: StemDAO.java,v 1.19 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: StemDAO.java,v 1.20 2009-04-13 16:53:08 mchyzer Exp $
  * @since   1.2.0
  */
 public interface StemDAO extends GrouperDAO {
@@ -156,6 +160,98 @@ public interface StemDAO extends GrouperDAO {
     throws  GrouperDAOException;
 
   /**
+   * Find all child groups within specified scope, and make sure the
+   * grouper session can see them
+   * @param ns 
+   * @param scope 
+   * @param grouperSession 
+   * @param subject 
+   * @param queryOptions 
+   * @param inPrivSet is a set of privs that the subject must have one of to display a row.  AccessPrivilege
+   * has some pre-baked set constants available
+   * @return the groups
+   * @throws GrouperDAOException 
+   * @since   1.2.1
+   */
+  Set<Group> findAllChildGroupsSecure(
+      Stem ns, Stem.Scope scope, GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+
+  /**
+   * Find all child groups within specified scope, and make sure the
+   * grouper session can see them
+   * @param ns 
+   * @param scope 
+   * @param grouperSession 
+   * @param subject 
+   * @param queryOptions 
+   * @param inPrivSet is a set of privs that the subject must have one of to display a row.  AccessPrivilege
+   * has some pre-baked set constants available
+   * @return the groups
+   * @throws GrouperDAOException 
+   * @since   1.2.1
+   */
+  Set<Group> findAllChildMembershipGroupsSecure(
+      Stem ns, Stem.Scope scope, GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+
+  /**
+   * Find all child stems within specified scope, and make sure the
+   * grouper session can see them
+   * @param ns 
+   * @param scope 
+   * @param grouperSession 
+   * @param subject 
+   * @param queryOptions 
+   * @param inPrivSet is a set of privs that the subject must have one of to display a row.  NamingPrivilege
+   * has some pre-baked set constants available
+   * @return the groups
+   * @throws GrouperDAOException 
+   * @since   1.2.1
+   */
+  Set<Stem> findAllChildStemsSecure(
+      Stem ns, Stem.Scope scope, GrouperSession grouperSession, Subject subject, 
+      Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+
+  /**
+   * Find all child groups within specified scope, and make sure the
+   * grouper session can see them
+   * @param ns 
+   * @param scope 
+   * @param grouperSession 
+   * @param subject 
+   * @param queryOptions 
+   * @param inPrivSet is a set of privs that the subject must have one of to display a row.  AccessPrivilege
+   * has some pre-baked set constants available
+   * @return the groups
+   * @throws GrouperDAOException 
+   * @since   1.2.1
+   */
+  Set<Group> findAllChildMembershipGroupsSecure(
+      Stem ns, Stem.Scope scope, GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+
+  /**
+   * Find all child stems within specified scope, and make sure the
+   * grouper session can see them
+   * @param ns 
+   * @param scope 
+   * @param grouperSession 
+   * @param subject 
+   * @param queryOptions 
+   * @param inPrivSet is a set of privs that the subject must have one of to display a row.  NamingPrivilege
+   * has some pre-baked set constants available
+   * @return the groups
+   * @throws GrouperDAOException 
+   * @since   1.2.1
+   */
+  Set<Stem> findAllChildStemsSecure(
+      Stem ns, Stem.Scope scope, GrouperSession grouperSession, Subject subject, 
+      Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+
+  /**
    * Find all child stems within specified scope.
    * @since   1.2.1
    */
@@ -221,5 +317,49 @@ public interface StemDAO extends GrouperDAO {
    * @return the groups
    */
   Set<Stem> findByCreatorOrModifier(Member member);
+
+  /**
+   * get immediate children (stems) secure
+   * @param grouperSession
+   * @param stem
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @return the set of groups
+   * @throws GrouperDAOException
+   */
+  Set<Stem> getImmediateChildrenSecure(GrouperSession grouperSession, 
+      Stem stem, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+
+  /**
+   * 
+   * @param grouperSession
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in NamingPrivilege of pre-canned sets
+   * @return stems
+   * @throws GrouperDAOException
+   */
+  Set<Stem> getAllStemsSecure(GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+
+  /**
+   * 
+   * @param scope is blank for no scope
+   * @param grouperSession
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in NamingPrivilege of pre-canned sets
+   * @return the stems
+   * @throws GrouperDAOException
+   */
+  Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
 } 
 

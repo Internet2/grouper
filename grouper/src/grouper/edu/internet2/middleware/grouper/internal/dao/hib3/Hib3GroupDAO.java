@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -35,6 +36,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
@@ -44,7 +46,6 @@ import edu.internet2.middleware.grouper.hibernate.ByHql;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -52,13 +53,15 @@ import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.36 2009-03-27 19:32:41 shilen Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.37 2009-04-13 16:53:08 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -170,8 +173,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   private static final Log LOG = GrouperUtil.getLog(Hib3GroupDAO.class);
 
   /**
-   * 
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#deleteType(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.GroupType)
+   * @param group 
+   * @param groupType 
+   * @throws GrouperDAOException 
+   * @since   @HEAD@
    */
   public GroupTypeTuple deleteType(final Group group, final GroupType groupType) 
     throws  GrouperDAOException {
@@ -225,7 +230,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     }
     
     Object id = HibernateSession.byHqlStatic()
-      .createQuery("select g.id from Group as g where g.uuid = :uuid")
+      .createQuery("select g.uuid from Group as g where g.uuid = :uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".Exists")
       .setString("uuid", uuid).uniqueResult(Object.class);
@@ -265,6 +270,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
                   + "or lower(g.displayNameDb) like :value "
                   + "or lower(g.extensionDb) like :value "
                   + "or lower(g.displayExtensionDb) like :value "
+                  + "or lower(g.description) like :value "
                   + "or g.uuid in " +
                 "(select a.groupUuid from Attribute as a where lower(a.value) like :value) "
               ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByAnyApproximateAttr")
@@ -304,6 +310,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
                 + "or lower(g.displayNameDb) like :value "
                 + "or lower(g.extensionDb) like :value "
                 + "or lower(g.displayExtensionDb) like :value "
+                + "or lower(g.description) like :value "
                 + "or g.uuid in " 
                 + "(select a.groupUuid from Attribute as a where lower(a.value) like :value)) " 
                 + "and g.nameDb like :scope"
@@ -1248,6 +1255,488 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       .setString( "uuid1", member.getUuid() ).setString("uuid2", member.getUuid())
       .listSet(Group.class);
     return groups;
+
+  }
+
+  /**
+   * In this case, send in the attribute name to sort by (default is displayName).
+   * Make sure the grouperSession can see the groups
+   * @param grouperSession 
+   * @param subject 
+   * @param queryOptions 
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @return set
+   * @throws GrouperDAOException
+   */
+  public Set<Group> getAllGroupsSecure(GrouperSession grouperSession, Subject subject, 
+      Set<Privilege> inPrivSet, QueryOptions queryOptions)
+      throws  GrouperDAOException {
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("displayName");
+    }
+    //TODO update for 1.5
+    String fieldId = FieldFinder.findFieldIdForAttribute(
+        queryOptions.getQuerySort().getQuerySortFields().get(0).getColumn());
+
+    StringBuilder sql = new StringBuilder("select distinct theAttribute from Attribute theAttribute ");
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic, 
+        sql, "theAttribute.groupUuid", inPrivSet);
+
+    if (!changedQuery) {
+      sql.append(" where ");
+    } else {
+      sql.append(" and ");
+    }
+    
+    sql.append("  theAttribute.fieldId = :theFieldId ");
+    
+    QuerySort querySort = queryOptions.getQuerySort();
+    try {
+      //swap this out for value
+      queryOptions.sort(new QuerySort("theAttribute.value", querySort.getQuerySortFields().get(0).isAscending()));
+
+      List<Attribute> attributes = byHqlStatic.createQuery(sql.toString())
+        .setString("theFieldId", fieldId)
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".GetAllGroupsSecure")
+        .options(queryOptions)
+        .list(Attribute.class);
+      
+      //get a list of unique uuids
+      Collection<String> groupIds = new LinkedHashSet<String>(
+          GrouperUtil.propertyList(attributes, Attribute.PROPERTY_GROUP_UUID, String.class));
+      
+      Set<Group> groups = findByUuids(groupIds, false);
+      
+      //if the hql didnt filter, this will
+      Set<Group> filteredGroups = grouperSession.getAccessResolver()
+        .postHqlFilterGroups(groups, subject, inPrivSet);
+
+      return filteredGroups;
+    } catch (GroupNotFoundException gnfe) {
+      throw new RuntimeException("Problem: uuids dont match up", gnfe);
+    } finally {
+      //put this back to the way it was
+      queryOptions.sort(querySort);
+    }
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getAllGroupsSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<Group> getAllGroupsSecure(final String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException {
+
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("displayName");
+    }
+    //TODO update for 1.5
+    String fieldId = FieldFinder.findFieldIdForAttribute(
+        queryOptions.getQuerySort().getQuerySortFields().get(0).getColumn());
+    String nameFieldId = FieldFinder.findFieldIdForAttribute(
+        "name");
+
+    StringBuilder sql = new StringBuilder("select distinct theAttribute from Attribute theAttribute, Attribute nameAttribute");
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic, 
+        sql, "theAttribute.groupUuid", inPrivSet);
+
+    if (!changedQuery) {
+      sql.append(" where ");
+    } else {
+      sql.append(" and ");
+    }
+
+    sql.append("  theAttribute.groupUuid = nameAttribute.groupUuid and theAttribute.fieldId = :theFieldId " +
+        " and nameAttribute.fieldId = :nameFieldId and nameAttribute.value like :scope");
+    
+    QuerySort querySort = queryOptions.getQuerySort();
+    try {
+      //swap this out for value
+      queryOptions.sort(new QuerySort("theAttribute.value", querySort.getQuerySortFields().get(0).isAscending()));
+
+      List<Attribute> attributes = byHqlStatic.createQuery(sql.toString())
+        .setString("theFieldId", fieldId)
+        .setString("nameFieldId", nameFieldId)
+        .setString("scope", scope + "%")
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".GetAllGroupsSecureScope")
+        .options(queryOptions)
+        .list(Attribute.class);
+
+      Set<String> groupIds = new LinkedHashSet<String>(
+          GrouperUtil.propertyList(attributes, Attribute.PROPERTY_GROUP_UUID, String.class));
+      
+      Set<Group> groups = findByUuids(groupIds, false);
+      //if the hql didnt filter, this will
+      Set<Group> filteredGroups = grouperSession.getAccessResolver()
+        .postHqlFilterGroups(groups, subject, inPrivSet);
+
+      return filteredGroups;
+    } catch (GroupNotFoundException gnfe) {
+      throw new RuntimeException("Problem: uuids dont match up", gnfe);
+    } finally {
+      //put this back to the way it was
+      queryOptions.sort(querySort);
+    }
+    
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getImmediateChildrenSecure(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<Group> getImmediateChildrenSecure(GrouperSession grouperSession, 
+      final Stem stem, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException {
+
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("displayName");
+    }
+    //TODO update for 1.5
+    String fieldId = FieldFinder.findFieldIdForAttribute(
+        queryOptions.getQuerySort().getQuerySortFields().get(0).getColumn());
+
+    StringBuilder sql = new StringBuilder("select distinct theAttribute from Attribute theAttribute, Group as theGroup ");
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic, 
+        sql, "theAttribute.groupUuid", inPrivSet);
+
+    if (!changedQuery) {
+      sql.append(" where ");
+    } else {
+      sql.append(" and ");
+    }
+    
+    sql.append(" theAttribute.fieldId = :theFieldId and theGroup.parentUuid = :parent " +
+    " and theAttribute.groupUuid = theGroup.uuid");
+    
+    QuerySort originalQuerySort = queryOptions.getQuerySort();
+    try {
+      //swap this out for value
+      queryOptions.sort(new QuerySort("theAttribute.value", originalQuerySort.getQuerySortFields().get(0).isAscending()));
+
+      List<Attribute> attributes = byHqlStatic.createQuery(sql.toString())
+        .setString("theFieldId", fieldId)
+        .setString("parent", stem.getUuid())
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".getImmediateChildrenSecure")
+        .options(queryOptions)
+        .list(Attribute.class);
+
+      Set<String> groupIds = new LinkedHashSet<String>(GrouperUtil.propertyList(
+          attributes, Attribute.PROPERTY_GROUP_UUID, String.class));
+      
+      Set<Group> groups = findByUuids(groupIds, false);
+      
+      //if the hql didnt filter, this will
+      Set<Group> filteredGroups = grouperSession.getAccessResolver()
+        .postHqlFilterGroups(groups, subject, inPrivSet);
+
+      return filteredGroups;
+    } catch (GroupNotFoundException gnfe) {
+      throw new RuntimeException("Problem: uuids dont match up", gnfe);
+    } finally {
+      //put this back to the way it was
+      queryOptions.sort(originalQuerySort);
+    }
+
+  }
+
+
+  /** batch size for memberships (setable for testing) */
+  static int batchSize = 50;
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findByUuids(java.util.Collection, boolean)
+   */
+  public Set<Group> findByUuids(Collection<String> uuids, boolean exceptionOnNotFound)
+      throws GroupNotFoundException {
+    if (uuids == null) {
+      return null;
+    }
+    Set<Group> groups = new LinkedHashSet<Group>();
+    if (GrouperUtil.length(uuids) == 0) {
+    return groups;
+    }
+    //lets page through these
+    int pages = GrouperUtil.batchNumberOfBatches(uuids, batchSize);
+
+    for (int i=0; i<pages; i++) {
+      List<String> uuidPageList = GrouperUtil.batchList(uuids, batchSize, i);
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      StringBuilder query = new StringBuilder("select g, a from Group as g, Attribute as a "
+          + " where a.groupUuid = g.uuid and g.uuid in (");
+
+      //add all the uuids
+      byHqlStatic.setCollectionInClause(query, uuidPageList);
+      query.append(")");
+      List<Object[]> currentListGroupAttribute = byHqlStatic.createQuery(query.toString())
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindByUuids")
+        .list(Object[].class);
+      Set<Group> currentList = _getGroupsFromGroupsAndAttributesQuery(currentListGroupAttribute);
+      if (exceptionOnNotFound && currentList.size() != uuidPageList.size()) {
+        throw new GroupNotFoundException("Didnt find all uuids: " + GrouperUtil.toStringForLog(uuidPageList)
+            + " , " + uuidPageList.size() + " != " + currentList.size());
+      }
+      
+      //we want to put these in in order...
+      for (String uuid : uuidPageList) {
+        groups.add(GrouperUtil.retrieveByProperty(currentList, Group.FIELD_UUID, uuid));
+      }
+      
+    }
+    return groups;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getAllGroupsMembershipSecure(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<Group> getAllGroupsMembershipSecure(GrouperSession grouperSession, Subject subject, 
+      Set<Privilege> inPrivSet, QueryOptions queryOptions)
+      throws  GrouperDAOException {
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("displayName");
+    }
+    //TODO update for 1.5
+    String fieldId = FieldFinder.findFieldIdForAttribute(
+        queryOptions.getQuerySort().getQuerySortFields().get(0).getColumn());
+    String listId = Group.getDefaultList().getUuid();
+
+    StringBuilder sql = new StringBuilder("select distinct theAttribute from Attribute theAttribute, Membership listMembership ");
+  
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic, 
+        sql, "theAttribute.groupUuid", inPrivSet);
+  
+    if (!changedQuery) {
+      sql.append(" where ");
+    } else {
+      sql.append(" and ");
+    }
+    
+    sql.append("  theAttribute.fieldId = :theFieldId " +
+    		" and listMembership.ownerUuid = theAttribute.groupUuid and listMembership.fieldId = :listId" +
+        " and listMembership.memberUuid = :memberId ");
+    
+    Member member = MemberFinder.internal_findBySubject(subject, false);
+    
+    QuerySort querySort = queryOptions.getQuerySort();
+    try {
+      //swap this out for value
+      queryOptions.sort(new QuerySort("theAttribute.value", querySort.getQuerySortFields().get(0).isAscending()));
+  
+      List<Attribute> attributes = byHqlStatic.createQuery(sql.toString())
+        .setString("theFieldId", fieldId)
+        .setString("listId", listId)
+        .setString("memberId", member.getUuid())
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".GetAllGroupsSecure")
+        .options(queryOptions)
+        .list(Attribute.class);
+      
+      //get a list of unique uuids
+      Collection<String> groupIds = new LinkedHashSet<String>(
+          GrouperUtil.propertyList(attributes, Attribute.PROPERTY_GROUP_UUID, String.class));
+      
+      Set<Group> groups = findByUuids(groupIds, false);
+      
+      //if the hql didnt filter, this will
+      Set<Group> filteredGroups = grouperSession.getAccessResolver()
+        .postHqlFilterGroups(groups, subject, inPrivSet);
+  
+      return filteredGroups;
+    } catch (GroupNotFoundException gnfe) {
+      throw new RuntimeException("Problem: uuids dont match up", gnfe);
+    } finally {
+      //put this back to the way it was
+      queryOptions.sort(querySort);
+    }
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getAllGroupsMembershipSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<Group> getAllGroupsMembershipSecure(final String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException {
+  
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("displayName");
+    }
+    //TODO update for 1.5
+    String fieldId = FieldFinder.findFieldIdForAttribute(
+        queryOptions.getQuerySort().getQuerySortFields().get(0).getColumn());
+    String nameFieldId = FieldFinder.findFieldIdForAttribute(
+        "name");
+    String listId = Group.getDefaultList().getUuid();
+  
+    StringBuilder sql = new StringBuilder("select distinct theAttribute from Attribute theAttribute, Attribute nameAttribute," +
+    		" Membership listMembership ");
+  
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic, 
+        sql, "theAttribute.groupUuid", inPrivSet);
+  
+    if (!changedQuery) {
+      sql.append(" where ");
+    } else {
+      sql.append(" and ");
+    }
+  
+    sql.append("  theAttribute.groupUuid = nameAttribute.groupUuid and theAttribute.fieldId = :theFieldId " +
+        " and nameAttribute.fieldId = :nameFieldId and nameAttribute.value like :scope" +
+        " and listMembership.ownerUuid = nameAttribute.groupUuid and listMembership.fieldId = :listId" +
+        " and listMembership.memberUuid = :memberId ");
+    
+    Member member = MemberFinder.internal_findBySubject(subject, false);
+    
+    if (member == null) {
+      new LinkedHashSet<Group>();
+    }
+    
+    QuerySort querySort = queryOptions.getQuerySort();
+    try {
+      //swap this out for value
+      queryOptions.sort(new QuerySort("theAttribute.value", querySort.getQuerySortFields().get(0).isAscending()));
+  
+      List<Attribute> attributes = byHqlStatic.createQuery(sql.toString())
+        .setString("theFieldId", fieldId)
+        .setString("nameFieldId", nameFieldId)
+        .setString("listId", listId)
+        .setString("memberId", member.getUuid())
+        .setString("scope", scope + "%")
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".GetAllGroupsSecureScope")
+        .options(queryOptions)
+        .list(Attribute.class);
+  
+      Set<String> groupIds = new LinkedHashSet<String>(
+          GrouperUtil.propertyList(attributes, Attribute.PROPERTY_GROUP_UUID, String.class));
+      
+      Set<Group> groups = findByUuids(groupIds, false);
+      //if the hql didnt filter, this will
+      Set<Group> filteredGroups = grouperSession.getAccessResolver()
+        .postHqlFilterGroups(groups, subject, inPrivSet);
+  
+      return filteredGroups;
+    } catch (GroupNotFoundException gnfe) {
+      throw new RuntimeException("Problem: uuids dont match up", gnfe);
+    } finally {
+      //put this back to the way it was
+      queryOptions.sort(querySort);
+    }
+    
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getImmediateChildrenMembershipSecure(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<Group> getImmediateChildrenMembershipSecure(GrouperSession grouperSession, 
+      final Stem stem, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException {
+  
+    if (queryOptions == null) {
+      queryOptions = new QueryOptions();
+    }
+    if (queryOptions.getQuerySort() == null) {
+      queryOptions.sortAsc("displayName");
+    }
+    //TODO update for 1.5
+    String fieldId = FieldFinder.findFieldIdForAttribute(
+        queryOptions.getQuerySort().getQuerySortFields().get(0).getColumn());
+    String listId = Group.getDefaultList().getUuid();
+
+    StringBuilder sql = new StringBuilder("select distinct theAttribute from Attribute theAttribute, Group as theGroup," +
+    		" Membership listMembership ");
+  
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+  
+    //see if we are adding more to the query
+    boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(subject, byHqlStatic, 
+        sql, "theAttribute.groupUuid", inPrivSet);
+  
+    if (!changedQuery) {
+      sql.append(" where ");
+    } else {
+      sql.append(" and ");
+    }
+    
+    sql.append(" theAttribute.fieldId = :theFieldId and theGroup.parentUuid = :parent " +
+        " and theAttribute.groupUuid = theGroup.uuid" +
+        " and listMembership.ownerUuid = theAttribute.groupUuid and listMembership.fieldId = :listId" +
+        " and listMembership.memberUuid = :memberId ");
+
+    Member member = MemberFinder.internal_findBySubject(subject, false);
+    
+    QuerySort originalQuerySort = queryOptions.getQuerySort();
+    try {
+      //swap this out for value
+      queryOptions.sort(new QuerySort("theAttribute.value", originalQuerySort.getQuerySortFields().get(0).isAscending()));
+  
+      List<Attribute> attributes = byHqlStatic.createQuery(sql.toString())
+        .setString("theFieldId", fieldId)
+        .setString("parent", stem.getUuid())
+        .setString("listId", listId)
+        .setString("memberId", member.getUuid())
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".getImmediateChildrenSecure")
+        .options(queryOptions)
+        .list(Attribute.class);
+  
+      Set<String> groupIds = new LinkedHashSet<String>(GrouperUtil.propertyList(
+          attributes, Attribute.PROPERTY_GROUP_UUID, String.class));
+      
+      Set<Group> groups = findByUuids(groupIds, false);
+      
+      //if the hql didnt filter, this will
+      Set<Group> filteredGroups = grouperSession.getAccessResolver()
+        .postHqlFilterGroups(groups, subject, inPrivSet);
+  
+      return filteredGroups;
+    } catch (GroupNotFoundException gnfe) {
+      throw new RuntimeException("Problem: uuids dont match up", gnfe);
+    } finally {
+      //put this back to the way it was
+      queryOptions.sort(originalQuerySort);
+    }
 
   }
 

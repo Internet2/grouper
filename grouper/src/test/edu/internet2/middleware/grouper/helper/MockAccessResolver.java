@@ -30,7 +30,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Mock {@link AccessResolver}.
  * @author  blair christensen.
- * @version $Id: MockAccessResolver.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: MockAccessResolver.java,v 1.2 2009-04-13 16:53:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class MockAccessResolver implements AccessResolver {
@@ -169,5 +169,30 @@ public class MockAccessResolver implements AccessResolver {
     throw E;
   }            
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#hqlFilterGroupsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   */
+  public boolean hqlFilterGroupsWhereClause( 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Set<Privilege> privInSet) {
+    throw E;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getGrouperSession()
+   */
+  public GrouperSession getGrouperSession() {
+    throw E;
+  }
+
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterMemberships(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Membership> postHqlFilterMemberships(Subject subject,
+      Set<Membership> memberships) {
+    throw E;
+  }
 }
 

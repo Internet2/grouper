@@ -11,7 +11,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -33,6 +36,35 @@ import edu.internet2.middleware.grouper.xml.userAudit.XmlUserAuditExport;
  *
  */
 public class HibUtils {
+
+  /**
+   * pattern to detect if a query starts with "from".  e.g. from Field
+   */
+  private static Pattern startsWithFrom = Pattern.compile("^\\s*from.*$", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+  
+  /**
+   * pattern to detect if a query has a select and "from".  e.g. select field from Field field
+   */
+  private static Pattern hasSelectAndFrom = Pattern.compile("^\\s*select(.*?)(from.*)$", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+  
+  /**
+   * convert an hql to a count hql
+   * @param hql
+   * @return the hql of the count query
+   */
+  public static String convertHqlToCountHql(String hql) {
+    
+    if (startsWithFrom.matcher(hql).matches()) {
+      return "select count(*) " + hql;
+    }
+    Matcher selectAndFromMatcher = hasSelectAndFrom.matcher(hql);
+    if (selectAndFromMatcher.matches()) {
+      String selectPart = selectAndFromMatcher.group(1);
+      String endOfQuery = selectAndFromMatcher.group(2);
+      return "select count( " + selectPart + " ) " + endOfQuery;
+    }
+    throw new RuntimeException("Cant convert query to count query: " + hql);
+  }
 
   /**
    * logger 
@@ -132,8 +164,8 @@ public class HibUtils {
    */
   public static void evict(HibernateSession hibernateSession,
       Object object, boolean onlyEvictIfNotNew) {
-    if (object instanceof List) {
-      HibUtils.evict(hibernateSession, (List)object, onlyEvictIfNotNew);
+    if (object instanceof Collection) {
+      HibUtils.evict(hibernateSession, (Collection)object, onlyEvictIfNotNew);
       return;
     }
     
@@ -171,7 +203,7 @@ public class HibUtils {
    * @param onlyEvictIfNotNew true to only evict if this is a nested tx
    */
   public static void evict(HibernateSession hibernateSession,
-      List<Object> list, boolean onlyEvictIfNotNew) {
+      Collection<Object> list, boolean onlyEvictIfNotNew) {
     if (list == null) {
       return;
     }
@@ -236,6 +268,54 @@ public class HibUtils {
       return null;
     }
     return junction;
+    
+  }
+  
+  /**
+   * execute some sql
+   * @param sql can be insert, update, delete, or ddl
+   * @return the number of rows affected or 0 for ddl
+   */
+  public static int executeSql(final String sql) {
+    return executeSql(sql, null);
+  }
+
+  /**
+   * execute some sql
+   * @param sql can be insert, update, delete, or ddl
+   * @param params prepared statement params
+   * @return the number of rows affected or 0 for ddl
+   */
+  @SuppressWarnings("deprecation")
+  public static int executeSql(final String sql, final List<Object> params) {
+
+    int result = (Integer)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
+
+      public Object callback(HibernateSession hibernateSession)
+          throws GrouperDAOException {
+        
+        //we dont close this connection or anything since could be pooled
+        Connection connection = hibernateSession.getSession().connection();
+        PreparedStatement preparedStatement = null;
+
+        try {
+          preparedStatement = connection.prepareStatement(sql);
+  
+          attachParams(preparedStatement, params);
+          
+          int result = preparedStatement.executeUpdate();
+          
+          hibernateSession.commit(GrouperCommitType.COMMIT_IF_NEW_TRANSACTION);
+          return result;
+        } catch (Exception e) {
+          throw new  RuntimeException ("Problem with sql: " + sql, e);
+        } finally {
+          closeQuietly(preparedStatement);
+        }
+      }
+      
+    });
+    return result;
     
   }
   
@@ -463,4 +543,30 @@ public class HibUtils {
     return types;
   }
 
+  /**
+   * convert a colleciton of strings (no parens) to an in clause
+   * @param collection
+   * @param scalarable to set the string
+   * @return the string of in clause (without parens)
+   */
+  public static String convertToInClause(Collection<String> collection, HqlQuery scalarable) {
+    
+    String unique = GrouperUtil.uniqueId();
+    
+    StringBuilder result = new StringBuilder();
+    int collectionSize = collection.size();
+    int i = 0;
+    for (String string : collection) {
+      String var = unique + i;
+      result.append(":" + var);
+
+      //add to query
+      scalarable.setString(var, string);
+      if (i < collectionSize-1) {
+        result.append(", ");
+      }
+      i++;
+    }
+    return result.toString();
+  }
 }
