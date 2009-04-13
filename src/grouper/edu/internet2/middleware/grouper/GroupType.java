@@ -66,7 +66,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.85 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.86 2009-04-13 20:24:29 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements GrouperHasContext, Serializable, Hib3GrouperVersioned, Comparable {
 
@@ -429,10 +429,10 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
           }
           // Now delete the type
           String typeName = GroupType.this.getName(); // For logging purposes
-          Set<Field> fields2 = this.getFields();
+          Set<Field> fields2 = GroupType.this.getFields();
       
           if (LOG.isDebugEnabled()) {
-            LOG.debug("Deleting type: " + this.getName() + " and fields: " 
+            LOG.debug("Deleting type: " + GroupType.this.getName() + " and fields: " 
               + Field.fieldNames(fields2));
           }
       

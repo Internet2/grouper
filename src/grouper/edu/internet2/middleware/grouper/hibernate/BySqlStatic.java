@@ -190,10 +190,17 @@ public class BySqlStatic {
   @SuppressWarnings("deprecation")
   public <T> List<T> listSelect(final Class<T> returnClassType, final String sql, final List<Object> params) {
   
-    List<T> theResult = (List<T>)HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new HibernateHandler() {
+    List<T> theResult = (List<T>)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
-      public Object callback(HibernateSession hibernateSession)
+      /**
+       * 
+       * @see edu.internet2.middleware.grouper.hibernate.HibernateHandler#callback(edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean)
+       */
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
+        
+        HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
         List<Object> resultList = new ArrayList<Object>();

@@ -22,6 +22,7 @@ import java.util.Set;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.helper.FieldHelper;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -32,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.12 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: TestField.java,v 1.13 2009-04-13 20:24:29 mchyzer Exp $
  */
 public class TestField extends TestCase {
 
@@ -52,10 +53,6 @@ public class TestField extends TestCase {
     super(name);
   }
 
-  public static void main(String[] args) {
-    TestRunner.run(new TestField("testCache"));
-  }
-  
   protected void setUp () {
     FieldFinder.find("viewers", true);
     RegistryReset.internal_resetRegistryAndAddTestSubjects();

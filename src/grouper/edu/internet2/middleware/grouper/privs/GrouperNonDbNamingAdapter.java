@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperNonDbNamingAdapter.java,v 1.2 2009-04-13 16:53:07 mchyzer Exp $
+ * $Id: GrouperNonDbNamingAdapter.java,v 1.3 2009-04-13 20:24:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.privs;
 
@@ -14,7 +14,6 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
-import edu.internet2.middleware.grouper.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -22,7 +21,9 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
@@ -59,34 +60,20 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
     priv2list.put(  NamingPrivilege.STEM  , "stemmers"  );
   } // static
 
-
-  // PUBLIC INSTANCE METHODS //
-
   /**
-   * Get all subjects with this privilege on this stem.
-   * <pre class="eg">
-   * try {
-   *   Set stemmers = np.getSubjectsWithPriv(s, ns, NamingPrivilege.STEM);
-   * }
-   * catch (SchemaException e0) {
-   *   // Invalid priv
-   * }
-   * </pre>
-   * @param   s     Get privileges within this session context.
-   * @param   ns    Get privileges on this stem.
-   * @param   priv  Get this privilege.
-   * @return  Set of {@link Subject} objects.
-   * @throws  SchemaException
+   * 
+   * @see edu.internet2.middleware.grouper.privs.NamingAdapter#getSubjectsWithPriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.privs.Privilege)
    */
   public Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) 
     throws  SchemaException
   {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    return MembershipFinder.internal_findSubjectsNoPriv(
-      s, ns, GrouperPrivilegeAdapter.internal_getField(priv2list, priv)
+    return MembershipFinder.internal_findSubjectsStemPriv(
+      s, ns, priv.getField()
     );
   } // public Set getSubjectsWithPriv(s, ns, priv)
+
 
   /**
    * Get all stems where this subject has this privilege.
@@ -115,10 +102,10 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
     GrouperSession.validate(s);
     Set<Stem> stems = new LinkedHashSet<Stem>();
     try {
-      Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+      Field f = priv.getField();
       // This subject
       stems.addAll( 
-        GrouperPrivilegeAdapter.internal_getStemsWhereSubjectHasPriv( s, MemberFinder.findBySubject(s, subj), f ) 
+        GrouperPrivilegeAdapter.internal_getStemsWhereSubjectHasPriv( s, MemberFinder.findBySubject(s, subj, true), f ) 
       );
       // The ALL subject
       if ( !( SubjectHelper.eq(subj, SubjectFinder.findAllSubject() ) ) ) {
@@ -153,7 +140,7 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
     GrouperSession.validate(s);
     Set privs = new LinkedHashSet();
     try {
-      Member        m     = MemberFinder.findBySubject(s, subj);
+      Member        m     = MemberFinder.findBySubject(s, subj, true);
       Member        all   = MemberFinder.internal_findAllMember();     
       MembershipDAO dao   = GrouperDAOFactory.getFactory().getMembership();
       Privilege     p;
@@ -162,11 +149,11 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
       Iterator      iterP = Privilege.getNamingPrivs().iterator();
       while (iterP.hasNext()) {
         p   = (Privilege) iterP.next();
-        f   = GrouperPrivilegeAdapter.internal_getField(priv2list, p);   
-        it  = dao.findAllByOwnerAndMemberAndField( ns.getUuid(), m.getUuid(), f ).iterator();
+        f   = p.getField();
+        it  = dao.findAllByStemOwnerAndMemberAndField( ns.getUuid(), m.getUuid(), f ).iterator();
         privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, ns,subj, m, p, it) );
         if (!m.equals(all)) {
-          it = dao.findAllByOwnerAndMemberAndField( ns.getUuid(), all.getUuid(), f ).iterator();
+          it = dao.findAllByStemOwnerAndMemberAndField( ns.getUuid(), all.getUuid(), f ).iterator();
           privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, ns,subj, all, p, it) );
         }
       }
@@ -178,25 +165,8 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
   } // public Set getPrivs(s, ns, subj)
 
   /**
-   * Grant the privilege to the subject on this stem.
-   * <pre class="eg">
-   * try {
-   *   np.grantPriv(s, ns, subj, NamingPrivilege.STEM);
-   * }
-   * catch (GrantPrivilegeException e0) {
-   *   // Unable to grant the privilege
-   * }
-   * catch (InsufficientPrivilegeException e1) {
-   *   // Not privileged to grant the privilege
-   * }
-   * </pre>
-   * @param   s     Grant privilege in this session context.
-   * @param   ns    Grant privilege on this stem.
-   * @param   subj  Grant privilege to this subject.
-   * @param   priv  Grant this privilege.   
-   * @throws  GrantPrivilegeException
-   * @throws  InsufficientPrivilegeException
-   * @throws  SchemaException
+   * 
+   * @see edu.internet2.middleware.grouper.privs.NamingAdapter#grantPriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
    */
   public void grantPriv(
     GrouperSession s, final Stem ns, final Subject subj, final Privilege priv
@@ -212,7 +182,7 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
           try {
-            Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+            Field f = priv.getField();
             PrivilegeHelper.dispatch( GrouperSession.staticGrouperSession(), ns, grouperSession.getSubject(), f.getWritePriv() );
             if (!f.getType().equals(FieldType.NAMING)) {
               throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
@@ -230,7 +200,6 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
           }
           return null;
         }
-        
       });
     } catch (GrouperSessionException gse) {
       if (gse.getCause() instanceof GrantPrivilegeException) {
@@ -245,6 +214,7 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
       throw gse;
     }
   } // public void grantPriv(s, ns, subj, priv)
+
 
   /**
    * Check whether the subject has this privilege on this stem.
@@ -269,10 +239,73 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     boolean rv = false;
-    Member m = MemberFinder.findBySubject(s, subj);
-    rv = m.isMember( ns.getUuid(), GrouperPrivilegeAdapter.internal_getField(priv2list, priv) );
+    Member m = MemberFinder.findBySubject(s, subj, true);
+    rv = m.isMember( ns.getUuid(), priv.getField() );
     return rv;
   } // public boolean hasPriv(s, ns, subj, priv) 
+
+
+  /**
+   * Copies privileges for subjects that have the specified privilege on stem1 to stem2.
+   * @param s 
+   * @param stem1
+   * @param stem2
+   * @param priv 
+   * @throws InsufficientPrivilegeException 
+   * @throws GrantPrivilegeException 
+   * @throws SchemaException 
+   */
+  public void privilegeCopy(GrouperSession s, Stem stem1, Stem stem2, Privilege priv)
+      throws InsufficientPrivilegeException, GrantPrivilegeException, SchemaException {
+    
+    Field f = priv.getField();
+    Set<Subject> subjs = MembershipFinder.internal_findStemSubjectsImmediateOnly(s, stem1, f);
+    
+    Iterator<Subject> subjectIter = subjs.iterator();
+    while (subjectIter.hasNext()) {
+      Subject subj = subjectIter.next();
+      this.grantPriv(s, stem2, subj, priv);
+    }
+  }
+
+
+  /**
+   * Copies privileges of type priv on any subject for the given Subject subj1 to the given Subject subj2.
+   * For instance, if subj1 has STEM privilege to Stem x, this method will result with subj2
+   * having STEM privilege to Stem x.
+   * @param s 
+   * @param subj1
+   * @param subj2
+   * @param priv 
+   * @throws InsufficientPrivilegeException 
+   * @throws GrantPrivilegeException 
+   * @throws SchemaException 
+   */
+  public void privilegeCopy(GrouperSession s, Subject subj1, Subject subj2, Privilege priv)
+      throws InsufficientPrivilegeException, GrantPrivilegeException, SchemaException {
+    GrouperSession.validate(s);
+    
+    Field f = priv.getField();
+    Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+        .findAllImmediateByMemberAndField(MemberFinder.findBySubject(s, subj1, true).getUuid(), f);
+  
+    Iterator<Membership> membershipsIter = memberships.iterator();
+    while (membershipsIter.hasNext()) {
+      Stem stem;
+      try {
+        stem = membershipsIter.next().getStem();
+      } catch (StemNotFoundException e1) {
+        throw new GrouperException(e1.getMessage(), e1);
+      }
+      PrivilegeHelper.dispatch(s, stem, s.getSubject(), f.getWritePriv());
+      try {
+        Membership.internal_addImmediateMembership(s, stem, subj2, f);
+      } catch (MemberAddException e) {
+        throw new GrantPrivilegeException(e.getMessage(), e);
+      }
+    }    
+  }
+
 
   /**
    * Revoke this privilege from everyone on this stem.
@@ -301,19 +334,19 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
   {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+    Field f = priv.getField();
     PrivilegeHelper.dispatch( GrouperSession.staticGrouperSession(), ns, s.getSubject(), f.getWritePriv() );
     if (!f.getType().equals(FieldType.NAMING)) {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }  
-    ns.internal_setModified();
     try {
-      GrouperDAOFactory.getFactory().getStem().revokePriv( ns, Membership.internal_deleteAllField(s, ns, f) );
+      Membership.internal_deleteAllField(s, ns, f);
     }
     catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );
     }
   } // public void revokePriv(s, ns, priv)
+
 
   /**
    * Revoke the privilege from the subject on this stem.
@@ -345,15 +378,14 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
   {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
-    Field f = GrouperPrivilegeAdapter.internal_getField(priv2list, priv);
+    Field f = priv.getField();
     PrivilegeHelper.dispatch( GrouperSession.staticGrouperSession(), ns, s.getSubject(), f.getWritePriv() );
     if (!f.getType().equals(FieldType.NAMING)) {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }  
     try {
       DefaultMemberOf mof = Membership.internal_delImmediateMembership(s, ns, subj, f);
-      ns.internal_setModified();
-      GrouperDAOFactory.getFactory().getStem().revokePriv( ns, mof );
+      GrouperDAOFactory.getFactory().getMembership().update(mof);
     } catch (MemberDeleteAlreadyDeletedException eMD) {
       throw new RevokePrivilegeAlreadyRevokedException( eMD.getMessage(), eMD );
     } catch (MemberDeleteException eMD) {

@@ -16,8 +16,12 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -26,7 +30,6 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
-import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -35,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  * An instance of a granted access privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.8 2009-04-13 16:53:07 mchyzer Exp $
+ * @version $Id: AccessPrivilege.java,v 1.9 2009-04-13 20:24:29 mchyzer Exp $
  */
 public class AccessPrivilege implements GrouperPrivilege, Comparable {
 

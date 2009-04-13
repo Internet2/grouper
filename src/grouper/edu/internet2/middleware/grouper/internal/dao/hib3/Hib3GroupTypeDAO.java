@@ -17,7 +17,6 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -30,20 +29,20 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.SchemaException;
-import edu.internet2.middleware.grouper.hibernate.ByObject;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /** 
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeDAO.java,v 1.14 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeDAO.java,v 1.15 2009-04-13 20:24:29 mchyzer Exp $
  */
 public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
 
@@ -97,10 +96,12 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
   public void deleteField(final Field field) throws  GrouperDAOException {
 
     //do this in its own tx so we can be sure it is done and move on to refreshing cache
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, new HibernateHandler() {
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, 
+        AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
-      public Object callback(HibernateSession hibernateSession)
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
+        HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
         hibernateSession.byObject().delete(field);    
         return null;
       }
@@ -151,6 +152,7 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
    * @throws GrouperDAOException 
    * @throws SchemaException 
    */
+  @Deprecated
   public GroupType findByUuid(String uuid)
     throws  GrouperDAOException,
             SchemaException {

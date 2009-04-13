@@ -46,7 +46,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /** 
  * @author  blair christensen.
- * @version $Id: GrouperPrivilegeAdapter.java,v 1.9 2009-04-13 16:53:07 mchyzer Exp $
+ * @version $Id: GrouperPrivilegeAdapter.java,v 1.10 2009-04-13 20:24:29 mchyzer Exp $
  * @since   1.1.0
  */
 public class GrouperPrivilegeAdapter {
@@ -64,7 +64,7 @@ public class GrouperPrivilegeAdapter {
 	    try {
   	    Set<Field> fields = new LinkedHashSet<Field>();
   	    for (Privilege privilege : privileges) {
-  	      Field field = internal_getField(priv2list, privilege);
+  	      Field field = privilege.getField();
   	      fields.add(field);
   	    }
   	    return fields;
@@ -162,20 +162,16 @@ public class GrouperPrivilegeAdapter {
           }
           if ( ms.getViaGroupId() != null ) {
             try {
-              //dont have an endless loop checking privs
-              GrouperSubject.ignoreGroupAttributeSecurityOnNewSubject(true);
               Group viaGroup = ms.getViaGroup();
               if (LOG.isDebugEnabled()) {
                 //temporary log message to try privilege
-                LOG.debug("finding group subject: " + viaGroup.getAttributesDb().get("name"));
+                LOG.debug("finding group subject: " + viaGroup.getName());
               }
               owner   = viaGroup.toSubject();
               revoke  = false;
             }
             catch (GroupNotFoundException eGNF) {
               LOG.error(eGNF.getMessage() );
-            } finally {
-              GrouperSubject.ignoreGroupAttributeSecurityOnNewSubject(false);
             }
           }
           

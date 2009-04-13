@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides caching for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingAccessResolver.java,v 1.11 2009-04-13 16:53:07 mchyzer Exp $
+ * @version $Id: CachingAccessResolver.java,v 1.12 2009-04-13 20:24:29 mchyzer Exp $
  * @since   1.2.1
  */
 public class CachingAccessResolver extends AccessResolverDecorator {
@@ -328,7 +328,7 @@ public class CachingAccessResolver extends AccessResolverDecorator {
     
     for (Membership membership : memberships) {
       //TODO change this for 1.5.  Note: this could be a stem, but thats ok
-      putInHasPrivilegeCache(membership.getOwnerUuid(), subject, AccessPrivilege.VIEW, filteredMemberships.contains(membership));
+      putInHasPrivilegeCache(membership.getOwnerGroupId(), subject, AccessPrivilege.VIEW, filteredMemberships.contains(membership));
     }
     
     return filteredMemberships;

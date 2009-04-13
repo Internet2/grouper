@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.45 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: FieldFinder.java,v 1.46 2009-04-13 20:24:29 mchyzer Exp $
  */
 public class FieldFinder {
 
@@ -131,7 +131,6 @@ public class FieldFinder {
     }
     return null;
   }
-  }
 
   /**
    * find all ids by type
@@ -151,6 +150,7 @@ public class FieldFinder {
   /**
    * find the field id or null if the name is empty.  Runtime exception if problem
    * @param attrName
+   * @param exceptionIfNull 
    * @return the field uuid
    */
   public static String findFieldIdForAttribute(String attrName, boolean exceptionIfNull) {
@@ -163,6 +163,7 @@ public class FieldFinder {
    * Field f = FieldFinder.find(field);
    * </pre>
    * @param   name  Name of {@link Field} to return.
+   * @return field
    * @throws  SchemaException
    */
   @Deprecated
@@ -177,6 +178,7 @@ public class FieldFinder {
    * </pre>
    * @param   name  Name of {@link Field} to return.
    * @param exceptionIfNotFound true if exception if not found, otherwise null
+   * @return field
    * @throws  SchemaException
    */
   public static Field find(String name, boolean exceptionIfNotFound) 
@@ -252,9 +254,9 @@ public class FieldFinder {
     /**
    * 
    * @return all fields
-   * @throws GrouperRuntimeException
+   * @throws GrouperException
    */
-  private static Set findAllFromDb() throws GrouperRuntimeException {
+  private static Set findAllFromDb() throws GrouperException {
     Set fields = new LinkedHashSet();
     Iterator it = GrouperDAOFactory.getFactory().getField().findAll()
         .iterator();
@@ -286,6 +288,9 @@ public class FieldFinder {
    * <pre class="eg">
    * Set types = FieldFinder.findAllByType(type);
    * </pre>
+   * @param type 
+   * @return set of fields
+   * @throws SchemaException 
    */
   public static Set<Field> findAllByType(FieldType type) 
     throws  SchemaException {
@@ -300,11 +305,9 @@ public class FieldFinder {
     return fields;
   }
 
-
-  // PROTECTED CLASS METHODS //
-
-  // @since   1.2.0
-  // TODO 20070531 split and test.
+  /**
+   * 
+   */
   public static synchronized void internal_updateKnownFields() {
 
     GrouperStartup.startup();
@@ -343,6 +346,7 @@ public class FieldFinder {
   /**
    * 
    * @param args
+   * @throws Exception 
    */
   public static void main(String[] args) throws Exception {
     System.out.println(FieldFinder.find("update"));

@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -122,7 +123,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.243 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: Group.java,v 1.244 2009-04-13 20:24:29 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -1035,7 +1036,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
               EventLog.info(GrouperSession.staticGrouperSession(), M.GROUP_DEL + Quote.single(name), sw);
           }
           catch (InsufficientPrivilegeException eDAO) {
-            throw new GrouperRuntimeException( eDAO );
+            throw new GrouperException( eDAO );
             }
             catch (GrouperDAOException eDAO) {
               throw new GroupDeleteException( eDAO.getMessage() + errorMessageSuffix, eDAO );

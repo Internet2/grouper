@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -30,13 +31,14 @@ import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
-import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -47,17 +49,21 @@ import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.33 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.34 2009-04-13 20:24:29 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
   /** logger */
+  @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(Hib3MembershipDAO.class);
 
   /** */
@@ -386,64 +392,22 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .listSet(Object[].class);
        return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
-  
-  /**
-   * @param ownerGroupId 
-   * @param f 
-   * @param type 
-   * @return set
-   * @throws GrouperDAOException 
-   * @since   @HEAD@
-   */
-  public Set<Member> findAllMembersByGroupOwnerAndFieldAndType(String ownerGroupId, Field f, String type) 
-    throws  GrouperDAOException {
-    return HibernateSession.byHqlStatic()
-    .createQuery(
-        "select m "
-      + "from Member m, Membership ms where "
-      + "ms.ownerGroupId = :owner "
-        + "and  ms.fieldId = :fieldId "
-      + "and ms.type = :type "
-      + "and ms.memberUuid = m.uuid ")
-    .setCacheable(false)
-    .setCacheRegion(KLASS + ".FindAllMembersByGroupOwnerAndFieldTypeAndType")
-    .setString("owner", ownerGroupId)
-    .setString( "fieldId", f.getUuid() )
-    .setString("type", type)
-    .listSet(Member.class);
-  } 
-  
-  /**
-   * @param ownerStemId 
-   * @param f 
-   * @param type 
-   * @return set
-   * @throws GrouperDAOException 
-   * @since   @HEAD@
-   */
-  public Set<Member> findAllMembersByStemOwnerAndFieldAndType(String ownerStemId, Field f, String type) 
-    throws  GrouperDAOException {
-    return HibernateSession.byHqlStatic()
-    .createQuery(
-        "select m "
-      + "from Member m, Membership ms where "
-      + "ms.ownerStemId = :owner "
-      + "and  ms.fieldId = :fieldId "
-      + "and ms.type = :type "
-      + "and ms.memberUuid = m.uuid ")
-    .setCacheable(false)
-    .setCacheRegion(KLASS + ".FindAllMembersByStemOwnerAndFieldTypeAndType")
-    .setString("owner", ownerStemId)
-    .setString( "fieldId", f.getUuid() )
-    .setString("type", type)
-    .listSet(Member.class);
-  } 
 
   /**
-   * @see     MembershipDAO#findAllMembersByGroupOwnerAndField(String, Field)
-   * @since   @HEAD@
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllMembersByGroupOwnerAndField(java.lang.String, edu.internet2.middleware.grouper.Field)
    */
   public Set<Member> findAllMembersByGroupOwnerAndField(String groupOwnerId, Field f)
+    throws  GrouperDAOException
+  {
+    return findAllMembersByGroupOwnerAndField(groupOwnerId, f, null);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllMembersByGroupOwnerAndField(java.lang.String, edu.internet2.middleware.grouper.Field, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   */
+  public Set<Member> findAllMembersByGroupOwnerAndField(String groupOwnerId, Field f, QueryOptions queryOptions)
     throws  GrouperDAOException
   {
     return HibernateSession.byHqlStatic().options(queryOptions)
@@ -458,18 +422,72 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .setString( "owner", groupOwnerId ) 
       .setString( "fieldId", f.getUuid() )
       .listSet(Member.class);
-    } finally {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("After query: " + query + ", owner: " + ownerUUID + ", field: " + f.getUuid() + ", type: " + type);
-      }
-    }
   }
+
+  /**
+   * @param ownerGroupId 
+   * @param f 
+   * @param type 
+   * @param queryOptions 
+   * @return set
+   * @throws GrouperDAOException 
+   * @since   @HEAD@
+   */
+  public Set<Member> findAllMembersByGroupOwnerAndFieldAndType(
+      String ownerGroupId, Field f, String type, QueryOptions queryOptions) 
+    throws  GrouperDAOException {
+    return HibernateSession.byHqlStatic()
+    .createQuery(
+        "select m "
+      + "from Member m, Membership ms where "
+      + "ms.ownerGroupId = :owner "
+        + "and  ms.fieldId = :fieldId "
+      + "and ms.type = :type "
+      + "and ms.memberUuid = m.uuid ")
+    .setCacheable(false)
+    .setCacheRegion(KLASS + ".FindAllMembersByGroupOwnerAndFieldTypeAndType")
+    .options(queryOptions)
+    .setString("owner", ownerGroupId)
+    .setString( "fieldId", f.getUuid() )
+    .setString("type", type)
+    .listSet(Member.class);
+  } 
+  
+  /**
+   * @param ownerStemId 
+   * @param f 
+   * @param type 
+   * @param queryOptions 
+   * @return set
+   * @throws GrouperDAOException 
+   * @since   @HEAD@
+   */
+  public Set<Member> findAllMembersByStemOwnerAndFieldAndType(
+      String ownerStemId, Field f, String type, QueryOptions queryOptions) 
+    throws  GrouperDAOException {
+    return HibernateSession.byHqlStatic()
+    .createQuery(
+        "select m "
+      + "from Member m, Membership ms where "
+      + "ms.ownerStemId = :owner "
+      + "and  ms.fieldId = :fieldId "
+      + "and ms.type = :type "
+      + "and ms.memberUuid = m.uuid ")
+    .setCacheable(false)
+    .setCacheRegion(KLASS + ".FindAllMembersByStemOwnerAndFieldTypeAndType")
+    .options(queryOptions)
+    .setString("owner", ownerStemId)
+    .setString( "fieldId", f.getUuid() )
+    .setString("type", type)
+    .listSet(Member.class);
+  } 
 
   /** batch size for memberships (setable for testing) */
   static int batchSize = 50;
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByOwnerAndFieldAndMembers(java.lang.String, edu.internet2.middleware.grouper.Field, java.util.Collection)
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByOwnerAndFieldAndMembersAndType(java.lang.String, edu.internet2.middleware.grouper.Field, java.util.Collection, java.lang.String)
    */
   public Set<Membership> findAllByOwnerAndFieldAndMembersAndType(String ownerUUID,
       Field f, Collection<Member> members, String type) throws GrouperDAOException {
@@ -620,11 +638,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   }
 
   /**
-   * @param ownerGroupId
-   * @param memberUUID
-   * @param f
-   * @param type
-   * @param exceptionIfNull 
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findByGroupOwnerAndMemberAndFieldAndType(java.lang.String, java.lang.String, edu.internet2.middleware.grouper.Field, java.lang.String, boolean)
    */
   public Membership findByGroupOwnerAndMemberAndFieldAndType(String ownerGroupId,
       String memberUUID, Field f, String type, boolean exceptionIfNull)
@@ -673,11 +688,8 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   } 
 
   /**
-   * @param ownerStemId
-   * @param memberUUID
-   * @param f
-   * @param type
-   * @param exceptionIfNull
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findByStemOwnerAndMemberAndFieldAndType(java.lang.String, java.lang.String, edu.internet2.middleware.grouper.Field, java.lang.String, boolean)
    */
   public Membership findByStemOwnerAndMemberAndFieldAndType(String ownerStemId,
       String memberUUID, Field f, String type, boolean exceptionIfNull)
@@ -1034,6 +1046,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @param uuid
    * @param exceptionIfNull
+   * @return membership
    * @throws GrouperDAOException 
    * @throws MembershipNotFoundException 
    */
@@ -1126,17 +1139,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       .listSet(Object[].class);
     Set<Membership> memberships = _getMembershipsFromMembershipAndMemberQuery(mships);
 
-    Member member = null;
-    Subject subject = null;
-    try {
-      member = MemberFinder.findByUuid(grouperSession, memberUUID);
-      subject = member.getSubject();
-    } catch (SubjectNotFoundException snfe) {
-      throw new RuntimeException("Cant find subject: " + memberUUID, snfe);
-    } catch (MemberNotFoundException mnfe) {
-      throw new RuntimeException("Cant find member: " + memberUUID, mnfe);
-    }
-    
+    Member member = MemberFinder.findByUuid(grouperSession, memberUUID, true);
+    Subject subject = member.getSubject();
+      
     //maybe we need to filter these out
     //if the hql didnt filter, this will
     Set<Membership> filteredMemberships = memberships;
