@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GeneratedClientSettings.java,v 1.6 2008-10-12 14:15:38 mchyzer Exp $
+ * @author mchyzer $Id: GeneratedClientSettings.java,v 1.7 2009-04-13 03:03:12 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.webservicesClient.util;
 
@@ -9,6 +9,8 @@ import java.io.InputStream;
 import java.net.URL;
 
 import java.util.Properties;
+
+import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -44,8 +46,10 @@ public class GeneratedClientSettings {
 
     /** url prefix */
     public static String URL = properties.getProperty("ws.testing.httpPrefix") +
-        "://" + properties.getProperty("ws.testing.host") + ":" +
-        properties.getProperty("ws.testing.port") + "/" +
+        "://" + properties.getProperty("ws.testing.host") 
+        + (("443".equals(properties.getProperty("ws.testing.port")) 
+            || "80".equals(properties.getProperty("ws.testing.port"))) ? "" 
+                : (":" + properties.getProperty("ws.testing.port"))) + "/" +
         properties.getProperty("ws.testing.appName") +
         "/services/GrouperService";
 

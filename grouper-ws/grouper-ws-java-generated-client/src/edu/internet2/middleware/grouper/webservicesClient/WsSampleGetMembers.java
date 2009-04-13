@@ -79,7 +79,7 @@ public class WsSampleGetMembers implements WsSampleGenerated {
             getMembers.setMemberFilter("All");
             getMembers.setIncludeGroupDetail("F");
             getMembers.setIncludeSubjectDetail("T");
-
+            getMembers.setSubjectAttributeNames(new String[]{"a", "name"});
             WsGetMembersResults wsGetMembersResults = stub.getMembers(getMembers)
                                                           .get_return();
 

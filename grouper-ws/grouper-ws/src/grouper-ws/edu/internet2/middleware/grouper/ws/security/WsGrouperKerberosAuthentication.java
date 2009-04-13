@@ -1,10 +1,15 @@
 /*
  * @author mchyzer
- * $Id: WsGrouperKerberosAuthentication.java,v 1.1 2008-04-24 06:53:37 mchyzer Exp $
+ * $Id: WsGrouperKerberosAuthentication.java,v 1.2 2009-04-13 03:03:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.security;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,9 +22,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import sun.misc.BASE64Encoder;
+
+import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.morphString.Morph;
 
 
 /**
@@ -37,11 +48,34 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  */
 public class WsGrouperKerberosAuthentication implements WsCustomAuthentication {
 
+  /**
+   * 
+   * @param args
+   * @throws Exception 
+   */
+  public static void main(String[] args) throws Exception {
+    GrouperUtil.waitForInput();
+    for (int i=0; i<2; i++) {
+      for (int j=0;j<100;j++) {
+        //TODO  put this in external file
+        if (!authenticateKerberos("penngroups/medley.isc-seo.upenn.edu", 
+            Morph.decryptIfFile("R:/home/appadmin/pass/pennGroups/pennGroupsMedley.pass"))) {
+          throw new RuntimeException("Problem!");
+        }
+        System.gc();
+        System.out.println(j + ":" + i + ", " 
+            + ((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory())/(double)(1024*1024)) + " megs used");
+        Thread.sleep(100);
+      }
+      GrouperUtil.waitForInput();
+    }
+  }
+
   /** logger */
   private static final Log LOG = LogFactory.getLog(WsGrouperKerberosAuthentication.class);
 
   /**
-   * this should be something like: Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==
+   * this should be something like: Basic QWxhZGRabcdefGVuIHNlc2FtZQ==
    * ^\\s*Basic\\s+([^\\s]+)$
    * "^\\s*       Start of string and optional whitespace
    * Basic\\s+    Must be basic auth, and have some whitespace after this
@@ -49,6 +83,12 @@ public class WsGrouperKerberosAuthentication implements WsCustomAuthentication {
    */
   private static Pattern regexPattern = Pattern.compile("^\\s*Basic\\s+([^\\s]+)$");
   
+  /**
+   * cache the logins in a hash cache
+   */
+  private static GrouperCache<String, String> loginCache = new GrouperCache<String, String>(
+      WsGrouperKerberosAuthentication.class.getName() + ".userCache", 10000, false, 60*1, 60*1, false);
+
   /**
    * 
    * @see edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication#retrieveLoggedInSubjectId(javax.servlet.http.HttpServletRequest)
@@ -63,6 +103,16 @@ public class WsGrouperKerberosAuthentication implements WsCustomAuthentication {
       LOG.error("No authorization header in HTTP");
       return null;
     }
+    
+    //hash the authHeader
+    String authHeaderHash = GrouperUtil.encryptSha(authHeader);
+    
+    String cachedLogin = loginCache.get(authHeaderHash);
+    if (!StringUtils.isBlank(cachedLogin)) {
+      LOG.debug("Retrieved cached login");
+      return cachedLogin;
+    }
+    LOG.debug("Login not in cache");
     
     Matcher matcher = regexPattern.matcher(authHeader);
     String authHeaderBase64Part = null;
@@ -88,6 +138,9 @@ public class WsGrouperKerberosAuthentication implements WsCustomAuthentication {
     String pass = GrouperUtil.prefixOrSuffix(unencodedString, ":", false);
     
     if (authenticateKerberos(user, pass)) {
+      
+      loginCache.put(authHeaderHash, user);
+      
       return user;
     }
     
@@ -122,6 +175,8 @@ public class WsGrouperKerberosAuthentication implements WsCustomAuthentication {
     LoginContext lc = null;
     try {
       lc = new LoginContext("JaasSample", new GrouperWsKerberosHandler(principal, password));
+      
+
     } catch (LoginException le) {
       LOG.error("Cannot create LoginContext. ", le);
       return false;
@@ -135,6 +190,11 @@ public class WsGrouperKerberosAuthentication implements WsCustomAuthentication {
       // attempt authentication
       lc.login();
 
+      try {
+        lc.logout();
+      } catch (Exception e) {
+        LOG.warn(e);
+      }
       return true;
     } catch (LoginException le) {
       
