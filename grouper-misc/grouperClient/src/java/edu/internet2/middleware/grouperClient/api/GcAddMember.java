@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GcAddMember.java,v 1.4 2008-12-08 02:55:52 mchyzer Exp $
+ * $Id: GcAddMember.java,v 1.5 2009-04-13 03:21:51 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.api;
 
@@ -264,8 +264,10 @@ public class GcAddMember {
       GrouperClientWs grouperClientWs = new GrouperClientWs();
       
       //kick off the web service
+      String urlSuffix = "groups/" 
+          + GrouperClientUtils.escapeUrlEncode(this.groupName) + "/members";
       wsAddMemberResults = (WsAddMemberResults)
-        grouperClientWs.executeService("groups/" + this.groupName + "/members", addMember, "addMember", this.clientVersion);
+        grouperClientWs.executeService(urlSuffix, addMember, "addMember", this.clientVersion);
       
       String resultMessage = wsAddMemberResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAddMemberResults, wsAddMemberResults.getResults(), resultMessage);

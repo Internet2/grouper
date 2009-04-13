@@ -25,8 +25,13 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -35,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MyMembershipsRepositoryBrowser.java,v 1.8 2009-03-15 08:14:12 mchyzer Exp $
+ * @version $Id: MyMembershipsRepositoryBrowser.java,v 1.9 2009-04-13 03:18:39 mchyzer Exp $
  */
 
 public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
@@ -43,6 +48,33 @@ public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
 	public MyMembershipsRepositoryBrowser(){
 		prefix = "repository.browser.my.";
 		browseMode = "";
+	}
+	
+	/**
+	 * 
+	 * @see edu.internet2.middleware.grouper.ui.AbstractRepositoryBrowser#pagedQuery()
+	 */
+	@Override
+  protected boolean pagedQuery() {
+    return true;
+  }
+
+	/**
+	 * 
+	 * @see edu.internet2.middleware.grouper.ui.AbstractRepositoryBrowser#sortedQuery()
+	 */
+  @Override
+  protected boolean sortedQuery() {
+    return true;
+  }
+
+  /**
+	 * 
+	 * @see edu.internet2.middleware.grouper.ui.AbstractRepositoryBrowser#getChildGroups(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+	 */
+	@Override
+  public Set<Group> getChildGroups(Stem stem, QueryOptions queryOptions) {
+    return stem.getChildMembershipGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, queryOptions);
 	}
 	
 	/**

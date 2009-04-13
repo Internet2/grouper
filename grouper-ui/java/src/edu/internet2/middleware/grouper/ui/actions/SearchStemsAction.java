@@ -134,7 +134,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SearchStemsAction.java,v 1.8 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: SearchStemsAction.java,v 1.9 2009-04-13 03:18:40 mchyzer Exp $
  */
 public class SearchStemsAction extends GrouperCapableAction {
 
@@ -173,7 +173,7 @@ public class SearchStemsAction extends GrouperCapableAction {
 		List outTerms = new ArrayList();
 		List stemRes = repositoryBrowser.search(grouperSession, query,
 				searchFrom, request.getParameterMap(),outTerms);
-		stemRes=sort(stemRes,request,sortContext);
+		stemRes=sort(stemRes,request,sortContext, -1);
 		//Page results
 		int total = stemRes.size();
 		String startStr = request.getParameter("start");

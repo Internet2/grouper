@@ -123,6 +123,9 @@
 			<fileset dir="${last.webapp.folder}/WEB-INF/lib">
 				<include name="**/*.jar"/>
 			</fileset>		
+      <fileset dir="${ui.folder}/contrib">
+        <include name="**/*.jar"/>
+      </fileset>    
 		</path>
 		<java classname="edu.internet2.middleware.grouper.ui.util.TestWebappSources" 
 			classpathref="dist.class.path" outputproperty="testOutput" />
@@ -290,16 +293,30 @@
 			<!-- Last, but not least, make Grouper API available -->
 			<pathelement location="${grouper.folder}/dist/lib/grouper.jar"/>
 		
+      <fileset dir="${ui.folder}/contrib">
+        <include name="**/*.jar"/>
+      </fileset>    
+
 		</path>
 		<antcall target="-compileGrouper"/>
-		<javac srcdir="${ui.folder}/java/src" destdir="${webapp.class.folder}" classpathref="ui.class.path" debuglevel="${debug.level}" debug="true">
-		<include name="edu/internet2/middleware/grouper/GrouperHelper.java"/>
-			<include name="edu/internet2/middleware/grouper/ui/InitialStems.java"/>
-			<include name="edu/internet2/middleware/grouper/PersonalStem.java"/>
-		</javac>
 		<!-- Compile ui code - mostly Struts actions -->
 		
-		<javac srcdir="${ui.folder}/java/src" destdir="${webapp.class.folder}" classpathref="ui.class.path" debuglevel="${debug.level}" debug="true"/>
+	  <mkdir dir="${temp.dir}/jarBin"/>
+	  
+		<javac destdir="${temp.dir}/jarBin" classpathref="ui.class.path" 
+		  debuglevel="${debug.level}" debug="true" target="1.5">
+		  <src path="${ui.folder}/contrib/penn-auth/java/src"/>
+      <src path="${ui.folder}/contrib/struts-patch/java/src"/>
+      <src path="${ui.folder}/contrib/yale-cas-auth/java/src"/>
+      <src path="${ui.folder}/java/src" />
+		</javac>
+
+    <jar file="${webapp.folder}/WEB-INF/lib/grouper-ui.jar">
+      <fileset dir="${temp.dir}/jarBin" />
+      <fileset dir="${ui.folder}/java/src" />
+    </jar>
+	  
+		
 		<!-- Call any site specific build script. This may be used to introduce site specific Struts action,
 		  	     local Subject implementations etc -->
 		<antcall target="-additional-build">
@@ -374,7 +391,7 @@
 		Merge any xml files in temp directory with web.core.xml 
 	-->
 	<target name="-merge-xmls" unless="web.xmls.isempty">
-	<copy file="${ui.folder}/webapp/WEB-INF/web.core.xml" tofile="${temp.dir}/50.web.core.xml"/>
+	<copy file="${ui.folder}/webapp/WEB-INF/web.core.xml" tofile="${temp.dir}/50.web.core.xml" filtering="true"/>
 	
 	<path id="final.web.xml.files">
 			<fileset dir="${temp.dir}">
@@ -403,7 +420,7 @@
 		 If nothing to merge just copy core file
 	-->
 	<target name="-copy-core-web-xml" if="web.xmls.isempty">
-		<copy file="${ui.folder}/webapp/WEB-INF/web.core.xml" tofile="${webapp.folder}/WEB-INF/web.xml" overwrite="true"/>
+		<copy file="${ui.folder}/webapp/WEB-INF/web.core.xml" tofile="${webapp.folder}/WEB-INF/web.xml" overwrite="true" filtering="true"/>
 	</target>
 	
 	<!--
@@ -560,6 +577,9 @@
 		<echo message="Removing  ${webapp.folder}"/>
 		<delete dir="${webapp.folder}"/>
     <delete dir="${dist.home}"/>
+    <delete dir="${temp.dir}"/>
+    <mkdir dir="${temp.dir}"/>
+
 	</target>
 	
 	<!--

@@ -21,11 +21,16 @@ package edu.internet2.middleware.grouper.ui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -35,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: CreateRepositoryBrowser.java,v 1.7 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: CreateRepositoryBrowser.java,v 1.8 2009-04-13 03:18:39 mchyzer Exp $
  */
 
 

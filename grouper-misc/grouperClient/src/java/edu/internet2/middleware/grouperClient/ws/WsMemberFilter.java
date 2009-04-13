@@ -12,18 +12,24 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  * 
  */
 public enum WsMemberFilter {
-  /** retrieve all members (immediate and effective) */
+  /** retrieve all members (immediate, effective and composite) */
   All,
 
-  /** retrieve non direct (non immediate) members */
+  /** 
+   * retrieve members which exist due a group as a member of another group (for composite
+   * groups, this will not return anything) 
+   */
   Effective,
 
-  /** return only direct members, not indirect */
+  /** 
+   * return only direct members of a group (for composite groups this will not return anything) 
+   */
   Immediate,
 
   /**
-   * if this is a composite group, then return the two groups which make up
-   * the composition (and the group math operator (union, minus, etc)
+   * if this is a composite group, then return all the memberships that match the 
+   * composite operator (union, intersection, complement).  This will be the same as
+   * All for composite groups.
    */
   Composite;
 

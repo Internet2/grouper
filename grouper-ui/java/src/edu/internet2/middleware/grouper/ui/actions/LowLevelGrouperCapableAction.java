@@ -65,6 +65,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
+import edu.internet2.middleware.grouper.ui.UIThreadLocal;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 import edu.internet2.middleware.subject.Subject;
@@ -78,7 +79,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.22 2009-04-08 15:16:09 isgwb Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.23 2009-04-13 03:18:40 mchyzer Exp $
  */
 
 /**
@@ -109,10 +110,23 @@ public abstract class LowLevelGrouperCapableAction
 						
 			DynaActionForm dummyForm = (DynaActionForm)form;
 			if(form!=null)request.setAttribute("grouperForm",form);
+			//tell grouper session if we are in admin mode or user mode
+	    Boolean originalConsiderIfWheelMember = grouperSession == null ? null : grouperSession.isConsiderIfWheelMember();
 			
+	    //are we acting as self or wheel?
+	    if (grouperSession != null) {
+  	    grouperSession.setConsiderIfWheelMember(
+  	        Boolean.TRUE.equals(UIThreadLocal.get("isActiveWheelGroupMember")));
+	    }	    
+	    try {
 			ActionForward forward =  grouperExecute(mapping,form,request,response,session,grouperSession);
 			
 			return forward;
+	    } finally {
+	      if (grouperSession != null && originalConsiderIfWheelMember != null) {
+	        grouperSession.setConsiderIfWheelMember(originalConsiderIfWheelMember);
+	}
+	    }
 	}
 	/**
 	 * Convenience method to extract tiles attributes as a Map
@@ -483,7 +497,7 @@ public abstract class LowLevelGrouperCapableAction
 		if(field !=null) {
 			sortContext="search:" + field;
 		}
-		savedAsMaps=sort(savedAsMaps,request,sortContext);
+		savedAsMaps=sort(savedAsMaps,request,sortContext, -1);
 		request.setAttribute("savedSubjects",new ArrayList(savedAsMaps));
 		request.setAttribute("savedSubjectsSize",new Integer(savedAsMaps.size()));	
 	}
@@ -496,7 +510,7 @@ public abstract class LowLevelGrouperCapableAction
 			sortContext="search:" + field;
 		}
 		List savedAsMaps =  GrouperHelper.subjects2Maps(getSavedSubjects(session).toArray());
-		savedAsMaps=sort(savedAsMaps,request,sortContext);
+		savedAsMaps=sort(savedAsMaps,request,sortContext, -1);
 		request.setAttribute("savedSubjects",new ArrayList(savedAsMaps));
 		request.setAttribute("savedSubjectsSize",new Integer(savedAsMaps.size()));	
 	}
@@ -590,9 +604,11 @@ public abstract class LowLevelGrouperCapableAction
 	 * @param input the Collection to sort
 	 * @param request the current request object
 	 * @param context the context in which sorting is taking place
+	 * @param collectionSize is the total size of the collection, or -1 if the collection is the entire thing
 	 * @return the input Collection as a sorted List
 	 */
-	public static List sort(Collection input,HttpServletRequest request,String context) {
+	public static List sort(Collection input,HttpServletRequest request,
+	    String context, int collectionSize) {
 		HttpSession session = request.getSession();
 		GrouperComparator gc = (GrouperComparator)session.getAttribute("GrouperComparator");
 		ResourceBundle config = getMediaResources(request);
@@ -621,7 +637,8 @@ public abstract class LowLevelGrouperCapableAction
 		}else{
 			toSort=new ArrayList(input);
 		}
-		if(toSort.size()<=max) Collections.sort(toSort,gc);
+		int toSortSize = collectionSize == -1 ? toSort.size() : collectionSize;
+    if(toSortSize<=max) Collections.sort(toSort,gc);
 		return toSort;
 	}
 	

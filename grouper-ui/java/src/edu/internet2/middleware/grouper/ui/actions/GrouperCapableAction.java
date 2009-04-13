@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 
 import edu.internet2.middleware.grouper.ui.CallerPageException;
 import edu.internet2.middleware.grouper.ui.Message;
+import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
@@ -180,7 +181,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.20 2009-03-12 10:29:39 isgwb Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.21 2009-04-13 03:18:40 mchyzer Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -540,10 +541,11 @@ public abstract class GrouperCapableAction
 	
 	protected void doWheelGroupStuff(String action,HttpSession session) {
 		if(!isWheelGroupMember(session)) return;
-		if("toAdmin".equals(action)) {
-			session.setAttribute("activeWheelGroupMember",Boolean.TRUE);
-		}else{
-			session.setAttribute("activeWheelGroupMember",Boolean.FALSE);
+		boolean activeWheelGroupMember = "toAdmin".equals(action);
+    session.setAttribute("activeWheelGroupMember",activeWheelGroupMember);
+    GrouperSession grouperSession = SessionInitialiser.getGrouperSession(session);
+    if (grouperSession != null) {
+      grouperSession.setConsiderIfWheelMember(activeWheelGroupMember);
 		}
 		//Ensure the menu is recalculated if switching admin mode
 		session.removeAttribute("cachedMenu");

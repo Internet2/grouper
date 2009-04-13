@@ -82,7 +82,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.59 2009-04-08 13:20:51 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.60 2009-04-13 03:18:40 mchyzer Exp $
  */
 
 
@@ -265,29 +265,7 @@ public class GrouperHelper {
 				}
 				//Cache.instance().put(s,key,stem);
 			}
-			instantiated.add(stem);
-		}
-		return instantiated;
-	}*/
 
-	/**
-	 * Given a GrouperStem id return a list of Maps representing the children
-	 * of that stem. 
-	 * 
-	 * @param s GrouperSession for authenticated user
-	 * @param stemId
-	 * @return List of GrouperGroups and GrouperStems wrapped as Maps
-	 */
-	public static List getChildrenAsMaps(GrouperSession s, String stemId) throws StemNotFoundException{
-		List stems = getChildren(s, stemId);
-		List maps = new ArrayList();
-		GroupOrStem groupOrStem = null;
-		for (int i = 0; i < stems.size(); i++) {
-			groupOrStem = (GroupOrStem)stems.get(i);
-			maps.add(groupOrStem.getAsMap());
-		}
-		return maps;
-	}
 
 	/**
 	 * Given a list of GrouperList objects return a list of instantiated
@@ -690,7 +668,7 @@ public class GrouperHelper {
 	 *  
 	 * @param s GrouperSession for authenticated user
 	 * @param members List of GrouperLists or GrouperMembers
-	 * @param start of sublist
+	 * @param start 0 based start index
 	 * @param pageSize number of results to return
 	 * @return List of Subjects wrapped as Maps
 	 */
@@ -2327,7 +2305,7 @@ public class GrouperHelper {
 	 * @throws MemberNotFoundException
 	 * @throws GroupNotFoundException
 	 */
-	public static List getOneMembershipPerSubjectOrGroup(Set memberships,String type,Map count,Map sources,int membersFilterLimit) 
+	public static List<Membership> getOneMembershipPerSubjectOrGroup(Set memberships,String type,Map count,Map sources,int membersFilterLimit) 
 		throws MemberNotFoundException,GroupNotFoundException{
 		//won't pass back values but will give 'unique' list
 		if(count==null) count=new HashMap();

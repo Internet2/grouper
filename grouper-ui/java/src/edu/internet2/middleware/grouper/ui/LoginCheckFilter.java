@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: LoginCheckFilter.java,v 1.17 2008-12-08 21:00:00 mchyzer Exp $
+ * @version $Id: LoginCheckFilter.java,v 1.18 2009-04-13 03:18:39 mchyzer Exp $
  */
 
 public class LoginCheckFilter implements Filter {
@@ -68,6 +68,8 @@ public class LoginCheckFilter implements Filter {
 	private String failureUrl = "/";
 
 	private String ignore = "";
+	
+	private String grouperRole="*";
 
 	/**
 	 * Constructor
@@ -86,6 +88,11 @@ public class LoginCheckFilter implements Filter {
 		String failureUrl = config.getInitParameter("failureUrl");
 		if (failureUrl != null)
 			this.failureUrl = failureUrl;
+		
+		String grouperRole = config.getInitParameter("grouperRole");
+		if (grouperRole != null)
+			this.grouperRole = grouperRole;
+		
 		String ignore = config.getInitParameter("ignore");
 		if (ignore != null)
 			this.ignore = ignore;
@@ -193,8 +200,8 @@ public class LoginCheckFilter implements Filter {
 		}
 
 		String remoteUser = request.getRemoteUser();
-		if (remoteUser == null || remoteUser.length() == 0) {
-			response.sendRedirect(request.getContextPath() + failureUrl
+		if (remoteUser == null || remoteUser.length() == 0 || (!"*".equals(grouperRole) && !request.isUserInRole(grouperRole) && !"y".equals(request.getParameter("badRole")))) {
+			response.sendRedirect(request.getContextPath() + failureUrl + "?badRole=y"
 					+ moduleStr);
 			return;
 		}

@@ -275,7 +275,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.25 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.26 2009-04-13 03:18:40 mchyzer Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 	
@@ -477,7 +477,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 			subjectScopeMaps = GrouperHelper.memberships2Maps(grouperSession,uniqueSubjectScopes);
 			GrouperHelper.setMembershipCountPerSubjectOrGroup(subjectScopeMaps,"subject",countMap);
 		}
-		subjectScopeMaps = sort(subjectScopeMaps,request,"subjectSummary");
+		subjectScopeMaps = sort(subjectScopeMaps,request,"subjectSummary", -1);
 		String startStr = (String)subjectForm.get("start");
 		if (startStr == null || "".equals(startStr))
 			startStr = "0";

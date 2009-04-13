@@ -8,6 +8,10 @@
 #* Start your application server with a -Dgrouper.home=<grouper dir>
 replace.grouper.home=true
 
+#Must be set to * (any role - including none) or an actual role name (e.g. grouper_user) such that
+#HttpServletRequest.isUserInRole(<role_name>) is true for a user to be able to 
+#log into the UI
+grouper.role=*
 
 #You can override the default browse stem, however, you must ensure that the stem
 #exists by creating it using the Grouper API
