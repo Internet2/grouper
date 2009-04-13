@@ -26,9 +26,12 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.cache.CacheStats;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -36,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides caching for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingAccessResolver.java,v 1.10 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: CachingAccessResolver.java,v 1.11 2009-04-13 16:53:07 mchyzer Exp $
  * @since   1.2.1
  */
 public class CachingAccessResolver extends AccessResolverDecorator {
@@ -192,7 +195,15 @@ public class CachingAccessResolver extends AccessResolverDecorator {
    * @since   1.2.1
    */
   private void putInHasPrivilegeCache(Group g, Subject subj, Privilege priv, Boolean rv) {
-    this.cc.getCache(CACHE_HASPRIV).put( new Element( new MultiKey( g.getUuid(), subj, priv ), rv ) );
+    this.putInHasPrivilegeCache(g.getUuid(), subj, priv, rv);
+  }
+
+  /**
+   * Put boolean into cache for <code>hasPrivilege(...)</code>.
+   * @since   1.2.1
+   */
+  private void putInHasPrivilegeCache(String groupUuid, Subject subj, Privilege priv, Boolean rv) {
+    this.cc.getCache(CACHE_HASPRIV).put( new Element( new MultiKey( groupUuid, subj, priv ), rv ) );
   }
 
   /**
@@ -262,6 +273,68 @@ public class CachingAccessResolver extends AccessResolverDecorator {
   public void flushCache() {
     this.cc.flushCache();
   }       
+
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterGroups(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Group> postHqlFilterGroups(Set<Group> groups, Subject subject, Set<Privilege> privInSet) {
+    
+    Set<Group> filteredGroups = super.getDecoratedResolver().postHqlFilterGroups(groups, subject, privInSet);
+    
+    //add to cache
+    for (Group group : groups) {
+      putInHasPrivilegeCache(group, subject, AccessPrivilege.VIEW, filteredGroups.contains(group));
+    }
+
+    //return filtered groups
+    return filteredGroups;
+  }            
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#hqlFilterGroupsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   */
+  public boolean hqlFilterGroupsWhereClause( 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Set<Privilege> privInSet) {
+
+    AccessResolver decoratedResolver = super.getDecoratedResolver();
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    return decoratedResolver.hqlFilterGroupsWhereClause(subject, hqlQuery, hql, groupColumn, privInSet);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getGrouperSession()
+   */
+  public GrouperSession getGrouperSession() {
+    AccessResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.getGrouperSession();
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterMemberships(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Membership> postHqlFilterMemberships(Subject subject,
+      Set<Membership> memberships) {
+    
+    AccessResolver decoratedResolver = super.getDecoratedResolver();
+    
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    Set<Membership> filteredMemberships = decoratedResolver.postHqlFilterMemberships(subject, memberships);
+    
+    for (Membership membership : memberships) {
+      //TODO change this for 1.5.  Note: this could be a stem, but thats ok
+      putInHasPrivilegeCache(membership.getOwnerUuid(), subject, AccessPrivilege.VIEW, filteredMemberships.contains(membership));
+    }
+    
+    return filteredMemberships;
+  }
+
+
 
 }
 

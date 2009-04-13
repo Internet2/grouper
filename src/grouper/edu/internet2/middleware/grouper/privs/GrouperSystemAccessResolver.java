@@ -20,9 +20,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.subject.Subject;
 
@@ -31,17 +34,20 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>GrouperSystem</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSystemAccessResolver.java,v 1.10 2009-03-24 17:12:07 mchyzer Exp $
+ * @version $Id: GrouperSystemAccessResolver.java,v 1.11 2009-04-13 16:53:07 mchyzer Exp $
  * @since   1.2.1
  */
 public class GrouperSystemAccessResolver extends AccessResolverDecorator {
 
-  
+  /**
+   * 
+   */
   private Subject root;
 
 
 
   /**
+   * @param resolver 
    * @since   1.2.1
    */
   public GrouperSystemAccessResolver(AccessResolver resolver) {
@@ -130,9 +136,8 @@ public class GrouperSystemAccessResolver extends AccessResolverDecorator {
     	if(!privilege.equals(AccessPrivilege.OPTIN) 
     		&& !privilege.equals(AccessPrivilege.OPTOUT)) {
       return true;
-    	}else{
-    		return false;
     	}
+    		return false;
     }
     return super.getDecoratedResolver().hasPrivilege(group, subject, privilege);
   }
@@ -190,5 +195,56 @@ public class GrouperSystemAccessResolver extends AccessResolverDecorator {
     super.getDecoratedResolver().privilegeCopy(subj1, subj2, priv);
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterGroups(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Group> postHqlFilterGroups(Set<Group> groups, Subject subject, Set<Privilege> privInSet) {
+    if ( SubjectHelper.eq( this.root, subject ) ) {
+      return groups;
+    }
+    return super.getDecoratedResolver().postHqlFilterGroups(groups, subject, privInSet);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#hqlFilterGroupsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, String, Set)
+   */
+  public boolean hqlFilterGroupsWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String groupColumn, Set<Privilege> privInSet) {
+
+    if ( SubjectHelper.eq( this.root, subject ) ) {
+      return false;
+    }
+
+    AccessResolver decoratedResolver = super.getDecoratedResolver();
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    return decoratedResolver.hqlFilterGroupsWhereClause(subject, hqlQuery, hql, groupColumn, privInSet);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getGrouperSession()
+   */
+  public GrouperSession getGrouperSession() {
+    AccessResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.getGrouperSession();
+  }
+  
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterMemberships(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Membership> postHqlFilterMemberships(Subject subject,
+      Set<Membership> memberships) {
+    
+    if ( SubjectHelper.eq( this.root, subject ) ) {
+      return memberships;
+    }
+    
+    AccessResolver decoratedResolver = super.getDecoratedResolver();
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    return decoratedResolver.postHqlFilterMemberships(subject, memberships);
+  }
 }
 

@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import  edu.internet2.middleware.subject.Subject;
 import  java.util.Set;
@@ -36,20 +37,26 @@ import  java.util.Set;
  * Class implementing wrapper around {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessWrapper.java,v 1.12 2009-03-24 17:12:07 mchyzer Exp $
+ * @version $Id: AccessWrapper.java,v 1.13 2009-04-13 16:53:07 mchyzer Exp $
  * @since   1.2.1
  */
 public class AccessWrapper implements AccessResolver {
 
-
+  /** */
   private AccessAdapter   access;
+
+  /** */
   private GrouperSession  s;
+
+  /** */
   private ParameterHelper param;
 
 
 
   /**
    * Facade around {@link AccessAdapter} that implements {@link AccessResolver}.
+   * @param session 
+   * @param access 
    * @throws  IllegalArgumentException if any parameter is null.
    * @since   1.2.1
    */
@@ -208,6 +215,14 @@ public class AccessWrapper implements AccessResolver {
   }
 
   /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterGroups(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Group> postHqlFilterGroups(Set<Group> groups, Subject subject, Set<Privilege> privInSet) {
+    return this.access.postHqlFilterGroups(this.s, groups, subject, privInSet);
+  }
+
+  /**
    * @see   AccessResolver#privilegeCopy(Group, Group, Privilege)
    * @see   AccessAdapter#privilegeCopy(GrouperSession, Group, Group, Privilege)
    */
@@ -249,6 +264,34 @@ public class AccessWrapper implements AccessResolver {
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#flushCache()
    */
   public void flushCache() {
+  }            
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#hqlFilterGroupsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   */
+  public boolean hqlFilterGroupsWhereClause( 
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String groupColumn, Set<Privilege> privInSet) {
+    return this.access.hqlFilterGroupsWhereClause(this.s, subject, hqlQuery, hql, groupColumn, privInSet);
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getGrouperSession()
+   */
+  public GrouperSession getGrouperSession() {
+    return this.s;
+  }
+
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterMemberships(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Membership> postHqlFilterMemberships(Subject subject,
+      Set<Membership> memberships) {
+    return this.access.postHqlFilterMemberships(this.s, subject, memberships);
   }            
 
 }

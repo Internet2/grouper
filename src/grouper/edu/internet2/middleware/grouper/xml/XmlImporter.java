@@ -102,7 +102,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.18 2009-03-31 06:58:28 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.19 2009-04-13 16:53:08 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -425,6 +425,7 @@ public class XmlImporter {
             + "      [-userAuditFilename <fileName>] [-userAuditOnly]"              + GrouperConfig.NL 
             + "      [(-id <id> | -name <name> | -list)]"                           + GrouperConfig.NL
             + "      [-ignoreInternal] [-noprompt] filename [properties]"           + GrouperConfig.NL
+            + "e.g.  gsh -xmlimport -userAuditFilename f:/temp/prodAudit.xml GrouperSystem f:/temp/prod.xml"                 + GrouperConfig.NL
             +                                                                         GrouperConfig.NL
             + "  subjectIdentifier, Identifies a Subject 'who' will create a"       + GrouperConfig.NL
             + "                     GrouperSession"                                 + GrouperConfig.NL

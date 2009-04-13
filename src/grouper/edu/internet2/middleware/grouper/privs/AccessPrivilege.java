@@ -26,6 +26,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -33,18 +35,54 @@ import edu.internet2.middleware.subject.Subject;
  * An instance of a granted access privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.7 2009-03-24 17:12:07 mchyzer Exp $
+ * @version $Id: AccessPrivilege.java,v 1.8 2009-04-13 16:53:07 mchyzer Exp $
  */
 public class AccessPrivilege implements GrouperPrivilege, Comparable {
 
-  // Public Class Constants
+  /**
+   * filter some privs for access privs
+   * @param privileges
+   * @return a new set of privs
+   */
+  public static Set<Privilege> filter(Collection<Privilege> privileges) {
+    
+    if (privileges == null) {
+      return null;
+    }
+    Set<Privilege> result = new LinkedHashSet<Privilege>();
+    for (Privilege privilege : privileges) {
+      if (Privilege.isAccess(privilege)) {
+        result.add(privilege);
+      }
+    }
+    return result;
+  }
+  
+  /** */
   public static final Privilege ADMIN   = Privilege.getInstance("admin");
+  
+  /** */
   public static final Privilege OPTIN   = Privilege.getInstance("optin");
+  
+  /** */
   public static final Privilege OPTOUT  = Privilege.getInstance("optout");
+  
+  /** */
   public static final Privilege READ    = Privilege.getInstance("read");
+  
+  /** */
   public static final Privilege SYSTEM  = Privilege.getInstance("system");
+  
+  /** */
   public static final Privilege UPDATE  = Privilege.getInstance("update");
+
+  /** */
   public static final Privilege VIEW    = Privilege.getInstance("view");
+
+  /** any of these constitutes VIEW on a group
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> VIEW_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(VIEW, READ, ADMIN, UPDATE, OPTIN, OPTOUT));
 
   /** convert a list to priv */
   private static Map<String,Privilege> list2priv = new HashMap<String, Privilege>();
@@ -90,19 +128,41 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
   }
 
 
+  /** any of these constitutes MANAGE on a group
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> MANAGE_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(ADMIN, UPDATE));
 
-  // Private Instance Variables
+  /** */
   private Group   group;
+
+  /** */
   private boolean isRevokable;
+  
+  /** */
   private String  klass;
+  
+  /** */
   private String  name;
+  
+  /** */
   private Subject owner;
+  
+  /** */
   private Subject subj;
 
   /** optionally link the audit id with the low level action */
   private String contextId;
 
-  // Constructors
+  /**
+   * 
+   * @param group
+   * @param subj
+   * @param owner
+   * @param priv
+   * @param klass
+   * @param isRevokable
+   */
   public AccessPrivilege(
     Group   group , Subject subj,   Subject owner, 
     Privilege priv, String  klass,  boolean isRevokable, String contextId1
@@ -207,6 +267,11 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
     return this.isRevokable;
   } // public boolean isRevokable()
 
+  /**
+   * 
+   * @see java.lang.Object#toString()
+   */
+  @Override
   public String toString() {
     return new ToStringBuilder(this)
            .append("name"           , this.getName()                )

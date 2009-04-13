@@ -22,25 +22,33 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /** 
  * Basic Hibernate <code>GroupType</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupTypeDAO.java,v 1.13 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: Hib3GroupTypeDAO.java,v 1.14 2009-04-13 16:53:08 mchyzer Exp $
  */
 public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(Hib3GroupTypeDAO.class);
 
   /** */
   private static final String KLASS = Hib3GroupTypeDAO.class.getName();
@@ -83,12 +91,24 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
   } 
 
   /**
-   * @param _f 
+   * @param field 
    * @throws GrouperDAOException 
-   * @since   @HEAD@
    */
-  public void deleteField(Field _f) throws  GrouperDAOException {
-    HibernateSession.byObjectStatic().delete(_f);
+  public void deleteField(final Field field) throws  GrouperDAOException {
+
+    //do this in its own tx so we can be sure it is done and move on to refreshing cache
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, new HibernateHandler() {
+
+      public Object callback(HibernateSession hibernateSession)
+          throws GrouperDAOException {
+        hibernateSession.byObject().delete(field);    
+        return null;
+      }
+      
+    });
+    
+    FieldFinder.clearCache();
+
   } 
 
   /**
@@ -162,18 +182,16 @@ public class Hib3GroupTypeDAO extends Hib3DAO implements GroupTypeDAO {
    * @throws HibernateException
    */
   protected static void reset(HibernateSession hibernateSession) 
-    throws  HibernateException
-  {
-    GroupType  _type;
-    Iterator      it    = GrouperDAOFactory.getFactory().getGroupType().findAll().iterator();
-    ByObject byObject = hibernateSession.byObject();
-    while (it.hasNext()) {
-      _type = (GroupType) it.next();
-      if ( ! ( _type.getName().equals("base") || _type.getName().equals("naming") ) ) {
-        byObject.setIgnoreHooks(true).delete(_type.getFields());
-        byObject.setIgnoreHooks(true).delete( _type );
-      }
-    }
+    throws  HibernateException {
+    
+    //delete from field where the type is not base or naming
+    hibernateSession.byHql().createQuery("delete from Field field where not exists " +
+    		"(from GroupType groupType where groupType.uuid = field.groupTypeUuid and groupType.name in ('base', 'naming'))")
+    		.executeUpdate();
+    //delete from type where it is not base or naming
+    hibernateSession.byHql().createQuery("delete from GroupType groupType where groupType.name not in ('base', 'naming')")
+        .executeUpdate();
+    
   }
 
   /**

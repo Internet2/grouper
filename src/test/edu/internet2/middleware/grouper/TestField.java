@@ -26,12 +26,13 @@ import edu.internet2.middleware.grouper.helper.FieldHelper;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Test {@link Field}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestField.java,v 1.11 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestField.java,v 1.12 2009-04-13 16:53:08 mchyzer Exp $
  */
 public class TestField extends TestCase {
 
@@ -51,6 +52,10 @@ public class TestField extends TestCase {
     super(name);
   }
 
+  public static void main(String[] args) {
+    TestRunner.run(new TestField("testCache"));
+  }
+  
   protected void setUp () {
     FieldFinder.find("viewers", true);
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
@@ -112,6 +117,84 @@ public class TestField extends TestCase {
       AccessPrivilege.ADMIN , AccessPrivilege.ADMIN
     );
   } // public void testFields()
+
+  /**
+   * 
+   */
+  public void testCache() throws Exception {
+    
+    int originalFieldCacheSeconds = FieldFinder.defaultFieldCacheSeconds;
+    String originalFieldCacheName = FieldFinder.cacheName;
+    
+    try {
+    
+      FieldFinder.defaultFieldCacheSeconds = 3;
+      FieldFinder.cacheName = TestField.class.getName() + ".testFieldCache";
+      FieldFinder.fieldGrouperCache = null;
+
+      try {
+        FieldFinder.find("sadfasdf");
+      } catch (SchemaException se) {
+        
+      }
+  
+      //refreshed in last second
+      long theLastRefreshed = FieldFinder.lastTimeRefreshed;
+      assertTrue(System.currentTimeMillis() - theLastRefreshed < 1000);
+  
+      GrouperUtil.sleep(100);
+      
+      try {
+        FieldFinder.find("sadfasdf");
+      } catch (SchemaException se) {
+        
+      }
+  
+      assertEquals(theLastRefreshed, FieldFinder.lastTimeRefreshed);
+      
+      //wait 3 seconds
+      GrouperUtil.sleep(3000);
+      
+      try {
+        FieldFinder.find("sadfasdf");
+      } catch (SchemaException se) {
+        
+      }
+  
+      assertTrue(theLastRefreshed < FieldFinder.lastTimeRefreshed);
+      
+      theLastRefreshed = FieldFinder.lastTimeRefreshed;
+      
+      Field field = FieldFinder.find("updaters");
+      FieldFinder.findById(field.getUuid());
+      
+      assertEquals(theLastRefreshed, FieldFinder.lastTimeRefreshed);
+      
+      //make sure clock updates
+      GrouperUtil.sleep(100);
+      
+      //find one not there, should refresh cache
+      try {
+        FieldFinder.findById("abc");
+        fail("Should throw exception");
+      } catch (RuntimeException re) {
+        //good
+      }
+
+      assertTrue(theLastRefreshed < FieldFinder.lastTimeRefreshed);
+
+      int allFieldsSize = FieldFinder.findAll().size();
+      assertTrue(allFieldsSize > 5);
+      
+      int accessFieldsSize = FieldFinder.findAllByType(FieldType.ACCESS).size();
+      
+      assertTrue(accessFieldsSize > 1 && allFieldsSize > accessFieldsSize);
+    } finally {
+      FieldFinder.cacheName = originalFieldCacheName;
+      FieldFinder.defaultFieldCacheSeconds = originalFieldCacheSeconds;
+      FieldFinder.fieldGrouperCache = null;
+    }
+  }
 
 }
 

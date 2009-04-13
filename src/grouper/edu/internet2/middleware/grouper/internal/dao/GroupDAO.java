@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.22 2009-03-27 19:32:41 shilen Exp $
+ * @version $Id: GroupDAO.java,v 1.23 2009-04-13 16:53:08 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -270,10 +271,80 @@ public interface GroupDAO extends GrouperDAO {
     throws  GrouperDAOException, GroupNotFoundException;
 
   /**
+   * find all groups which have these uuids
+   * @param uuids
+   * @param exceptionOnNotFound if exception should be thrown when a uuid doesnt match up
+   * @return the groups
+   * @throws GroupNotFoundException 
+   */
+  Set<Group> findByUuids(Collection<String> uuids, boolean exceptionOnNotFound) throws GroupNotFoundException;
+  
+  /**
    * @since   1.3.1
    */
   Set<Group> getAllGroups()
     throws  GrouperDAOException;
+
+  /**
+   * 
+   * @param grouperSession
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @return groups
+   * @throws GrouperDAOException
+   */
+  Set<Group> getAllGroupsSecure(GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+
+  /**
+   * 
+   * @param scope
+   * @param grouperSession
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @return the groups
+   * @throws GrouperDAOException
+   */
+  Set<Group> getAllGroupsSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+
+
+  /**
+   * get immediate children secure
+   * @param grouperSession
+   * @param stem
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @return the set of groups
+   * @throws GrouperDAOException
+   */
+  Set<Group> getImmediateChildrenSecure(GrouperSession grouperSession, 
+      Stem stem, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+
+  /**
+   * get immediate children secure
+   * @param grouperSession
+   * @param stem
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @return the set of groups
+   * @throws GrouperDAOException
+   */
+  Set<Group> getImmediateChildrenMembershipSecure(GrouperSession grouperSession, 
+      Stem stem, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+
 
   /**
    * @since   1.4.0
@@ -360,5 +431,34 @@ public interface GroupDAO extends GrouperDAO {
    */
   Set<Group> findAllByApproximateAlternateName(String name, String scope)
       throws GrouperDAOException;
+
+  /**
+   * 
+   * @param grouperSession
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @return groups
+   * @throws GrouperDAOException
+   */
+  Set<Group> getAllGroupsMembershipSecure(GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
+
+  /**
+   * 
+   * @param scope
+   * @param grouperSession
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in AccessPrivilege of pre-canned sets
+   * @return the groups
+   * @throws GrouperDAOException
+   */
+  Set<Group> getAllGroupsMembershipSecure(String scope, GrouperSession grouperSession, 
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+    throws  GrouperDAOException;
 } 
 

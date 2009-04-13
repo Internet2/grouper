@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Collection;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -44,9 +45,26 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Reference to members list is: Group.getDefaultList()
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.41 2009-03-15 06:37:21 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.42 2009-04-13 16:53:08 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+
+  /**
+   * print out a collection of fields
+   * @param collection
+   * @return the field names comma separated
+   */
+  public static String fieldNames(Collection<Field> collection) {
+    StringBuilder result = new StringBuilder();
+    for (Field field : GrouperUtil.nonNull(collection)) {
+      result.append(field.getName()).append(", ");
+    }
+    if (result.length() >= 2) {
+      //take off the last comma and space
+      result.delete(result.length()-2, result.length());
+    }
+    return result.toString();
+  }
 
   /** table name for fields */
   public static final String TABLE_GROUPER_FIELDS = "grouper_fields";
@@ -103,6 +121,9 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
       FIELD_WRITE_PRIVILEGE);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+
+  /** constant for property name for: uuid */
+  public static final String PROPERTY_UUID = "uuid";
 
   /** */
   @GrouperIgnoreDbVersion

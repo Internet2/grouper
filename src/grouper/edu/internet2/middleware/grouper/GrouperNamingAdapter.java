@@ -40,12 +40,11 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.GrouperNonDbNamingAdapter;
 import edu.internet2.middleware.grouper.privs.GrouperPrivilegeAdapter;
 import edu.internet2.middleware.grouper.privs.NamingAdapter;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
-import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -57,25 +56,13 @@ import edu.internet2.middleware.subject.Subject;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.79 2009-03-24 17:12:07 mchyzer Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.80 2009-04-13 16:53:08 mchyzer Exp $
  */
-public class GrouperNamingAdapter implements NamingAdapter {
+public class GrouperNamingAdapter extends GrouperNonDbNamingAdapter {
 
   /**
-   * Get all subjects with this privilege on this stem.
-   * <pre class="eg">
-   * try {
-   *   Set stemmers = np.getSubjectsWithPriv(s, ns, NamingPrivilege.STEM);
-   * }
-   * catch (SchemaException e0) {
-   *   // Invalid priv
-   * }
-   * </pre>
-   * @param   s     Get privileges within this session context.
-   * @param   ns    Get privileges on this stem.
-   * @param   priv  Get this privilege.
-   * @return  Set of {@link Subject} objects.
-   * @throws  SchemaException
+   * 
+   * @see edu.internet2.middleware.grouper.privs.BaseNamingAdapter#hqlFilterStemsWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
    */
   public Set getSubjectsWithPriv(GrouperSession s, Stem ns, Privilege priv) 
     throws  SchemaException
@@ -133,9 +120,6 @@ public class GrouperNamingAdapter implements NamingAdapter {
     return stems;
   } // public Set getStemsWhereSubjectHasPriv(s, subj, priv)
 
-  /** logger */
-  private static final Log LOG = GrouperUtil.getLog(GrouperNamingAdapter.class);
-
   /**
    * Get all privileges held by this subject on this stem.
    * <p/>
@@ -168,34 +152,14 @@ public class GrouperNamingAdapter implements NamingAdapter {
           it = dao.findAllByStemOwnerAndMemberAndField( ns.getUuid(), all.getUuid(), f ).iterator();
           privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, ns,subj, all, p, it) );
         }
-      }
+    String memberInClause = HibUtils.convertToInClause(memberIds, hqlQuery);
+    query.append(memberInClause).append(")");
+    return true;
     }
-    catch (SchemaException eS) {
-      LOG.error( eS.getMessage());
-    }
-    return privs;
-  } // public Set getPrivs(s, ns, subj)
 
   /**
-   * Grant the privilege to the subject on this stem.
-   * <pre class="eg">
-   * try {
-   *   np.grantPriv(s, ns, subj, NamingPrivilege.STEM);
-   * }
-   * catch (GrantPrivilegeException e0) {
-   *   // Unable to grant the privilege
-   * }
-   * catch (InsufficientPrivilegeException e1) {
-   *   // Not privileged to grant the privilege
-   * }
-   * </pre>
-   * @param   s     Grant privilege in this session context.
-   * @param   ns    Grant privilege on this stem.
-   * @param   subj  Grant privilege to this subject.
-   * @param   priv  Grant this privilege.   
-   * @throws  GrantPrivilegeException
-   * @throws  InsufficientPrivilegeException
-   * @throws  SchemaException
+   * 
+   * @see edu.internet2.middleware.grouper.privs.BaseNamingAdapter#postHqlFilterStems(edu.internet2.middleware.grouper.GrouperSession, java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
    */
   public void grantPriv(
     GrouperSession s, final Stem ns, final Subject subj, final Privilege priv
@@ -230,20 +194,9 @@ public class GrouperNamingAdapter implements NamingAdapter {
           return null;
         }
         
-      });
-    } catch (GrouperSessionException gse) {
-      if (gse.getCause() instanceof GrantPrivilegeException) {
-        throw (GrantPrivilegeException)gse.getCause();
-      }
-      if (gse.getCause() instanceof SchemaException) {
-        throw (SchemaException)gse.getCause();
-      }
-      if (gse.getCause() instanceof InsufficientPrivilegeException) {
-        throw (InsufficientPrivilegeException)gse.getCause();
-      }
-      throw gse;
-    }
-  } // public void grantPriv(s, ns, subj, priv)
+  /** logger */
+  @SuppressWarnings("unused")
+  private static final Log LOG = GrouperUtil.getLog(GrouperNamingAdapter.class);
 
   /**
    * Check whether the subject has this privilege on this stem.
@@ -418,5 +371,55 @@ public class GrouperNamingAdapter implements NamingAdapter {
     }    
   }
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.BaseNamingAdapter#hqlFilterStemsWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   */
+  @Override
+  public boolean hqlFilterStemsWhereClause(GrouperSession grouperSession,
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, String stemColumn,
+      Set<Privilege> privInSet) {
+    //no privs no filter
+    if (GrouperUtil.length(privInSet) == 0) {
+      return false;
+    }
+    
+    Member member = MemberFinder.internal_findBySubject(subject, false);
+    Member allMember = MemberFinder.internal_findAllMember();
+
+    //FieldFinder.findAllIdsByType(FieldType.CREATE);
+    Collection<String> namingPrivs = GrouperPrivilegeAdapter.fieldIdSet(priv2list, privInSet); 
+    String accessInClause = HibUtils.convertToInClause(namingPrivs, hqlQuery);
+
+    //TODO update this for 1.5 (stem owner)
+    //if not, we need an in clause
+    StringBuilder query = hql.append( ", Membership __namingMembership where " +
+        "__namingMembership.ownerUuid = " + stemColumn
+        + " and __namingMembership.fieldId in (");
+    query.append(accessInClause).append(") and __accessMembership.memberUuid in (");
+    Set<String> memberIds = GrouperUtil.toSet(allMember.getUuid());
+    if (member != null) {
+      memberIds.add(member.getUuid());
+    }
+    String memberInClause = HibUtils.convertToInClause(memberIds, hqlQuery);
+    query.append(memberInClause).append(")");
+    return true;
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.BaseNamingAdapter#postHqlFilterStems(edu.internet2.middleware.grouper.GrouperSession, java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  @Override
+  public Set<Stem> postHqlFilterStems(GrouperSession grouperSession,
+      Set<Stem> inputStems, Subject subject, Set<Privilege> privInSet) {
+    //this is already filtered
+    return inputStems;
+  }
+
+  /** logger */
+  @SuppressWarnings("unused")
+  private static final Log LOG = GrouperUtil.getLog(GrouperNamingAdapter.class);
+  
 } // public class GrouperNamingAdapter
 

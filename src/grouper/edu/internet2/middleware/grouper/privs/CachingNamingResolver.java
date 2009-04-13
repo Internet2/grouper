@@ -22,10 +22,12 @@ import net.sf.ehcache.Element;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cache.CacheStats;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -33,13 +35,20 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides caching for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingNamingResolver.java,v 1.7 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: CachingNamingResolver.java,v 1.8 2009-04-13 16:53:07 mchyzer Exp $
  * @since   1.2.1
  */
 public class CachingNamingResolver extends NamingResolverDecorator {
   // TODO 20070816 DRY caching w/ subject caching
   // TODO 20070820 DRY w/ access resolution
 
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#getGrouperSession()
+   */
+  public GrouperSession getGrouperSession() {
+    NamingResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.getGrouperSession();
+  }
  
   public  static final  String            CACHE_HASPRIV = CachingNamingResolver.class.getName() + ".HasPrivilege";
   private               EhcacheController cc;
@@ -207,5 +216,34 @@ public class CachingNamingResolver extends NamingResolverDecorator {
     this.cc.flushCache();
   }            
 
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#hqlFilterStemsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   */
+  public boolean hqlFilterStemsWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String stemColumn, Set<Privilege> privInSet) {
+    NamingResolver decoratedResolver = super.getDecoratedResolver();
+    //CachingNamingResolver
+    return decoratedResolver.hqlFilterStemsWhereClause(subject, hqlQuery, hql, stemColumn, privInSet);
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#postHqlFilterStems(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Stem> postHqlFilterStems(Set<Stem> stems, Subject subject,
+      Set<Privilege> privInSet) {
+    Set<Stem> filteredStems = super.getDecoratedResolver().postHqlFilterStems(stems, subject, privInSet);
+    
+    //add to cache
+    for (Stem stem : stems) {
+      putInHasPrivilegeCache(stem, subject, AccessPrivilege.VIEW, filteredStems.contains(stem));
+    }
+  
+    //return filtered groups
+    return filteredStems;
+  }
 }
 

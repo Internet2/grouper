@@ -29,6 +29,8 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.CodeSource;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -75,6 +77,8 @@ import org.dom4j.io.SAXReader;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+
+import sun.misc.BASE64Encoder;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -628,6 +632,39 @@ public class GrouperUtil {
   }
   
   /**
+   * 
+   * @param seconds
+   */
+  public static void sleepWithStdoutCountdown(int seconds) {
+    for (int i=seconds;i>0;i--) {
+      System.out.println("Sleeping: " + i);
+      sleep(1000);
+    }
+  }
+  
+  /**
+   * encrypt a message to SHA
+   * @param plaintext
+   * @return the hash
+   */
+  public synchronized static String encryptSha(String plaintext) {
+    MessageDigest md = null;
+    try {
+      md = MessageDigest.getInstance("SHA"); //step 2
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
+    try {
+      md.update(plaintext.getBytes("UTF-8")); //step 3
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+  }
+    byte raw[] = md.digest(); //step 4
+    String hash = (new BASE64Encoder()).encode(raw); //step 5
+    return hash; //step 6
+  }
+  
+  /**
    * If we can, inject this into the exception, else return false
    * @param t
    * @param message
@@ -1152,6 +1189,17 @@ public class GrouperUtil {
    * @return the parent stem name or null if none
    */
   public static String parentStemNameFromName(String name) {
+    return parentStemNameFromName(name, true);
+  }
+  /**
+   * get the parent stem name from name.  if already a root stem
+   * then just return null.  e.g. if the name is a:b:c then
+   * the return value is a:b
+   * @param name
+   * @param nullForRoot null for root, otherwise colon
+   * @return the parent stem name or null if none
+   */
+  public static String parentStemNameFromName(String name, boolean nullForRoot) {
     
     //null safe
     if (GrouperUtil.isBlank(name)) {
@@ -1160,7 +1208,11 @@ public class GrouperUtil {
     
     int lastColonIndex = name.lastIndexOf(':');
     if (lastColonIndex == -1) {
+      
+      if (nullForRoot) { 
       return null;
+      }
+      return ":";
     }
     String parentStemName = name.substring(0,lastColonIndex);
     return parentStemName;
@@ -1565,6 +1617,16 @@ public class GrouperUtil {
   }
   
   /**
+   * make sure a collection is non null.  If null, then return an empty list
+   * @param <T>
+   * @param list
+   * @return the list or empty list if null
+   */
+  public static <T> Collection<T> nonNull(Collection<T> list) {
+    return list == null ? new ArrayList<T>() : list;
+  }
+  
+  /**
    * make sure a list is non null.  If null, then return an empty set
    * @param <T>
    * @param set
@@ -1629,7 +1691,9 @@ public class GrouperUtil {
    * @return the set
    */
   public static <T> Set<T> toSet(T... objects) {
-
+    if (objects == null) {
+      return null;
+    }
     Set<T> result = new LinkedHashSet<T>();
     for (T object : objects) {
       result.add(object);
@@ -4537,6 +4601,34 @@ public class GrouperUtil {
     //return the lower appended with the rest
     return fourthCharLower + methodName.substring(expectedLength+1, length);
   }
+
+  /**
+   * take a collection of beans, and go through and get all the values
+   * of one of the javabean properties, and make a list of those values.
+   * @param <T>
+   * @param collection
+   * @param propertyName
+   * @param fieldType
+   * @return the list
+   */
+  public static <T> List<T> propertyList(Collection<?> collection, 
+      String propertyName, Class<T> fieldType) {
+    
+    if (collection == null) {
+      return null;
+    }
+    
+    List<T> list = new ArrayList<T>();
+    
+    for (Object object : collection) {
+      T value = (T)propertyValue(object, propertyName);
+      list.add(value);
+    }
+    
+    return list;
+    
+  }
+      
 
   /**
    * use reflection to get a property type based on getter or setter or field
@@ -8632,5 +8724,86 @@ public class GrouperUtil {
 
     return getFirstParentStemOfName(parent);
   }
+
+  /**
+   * find an object (or objects) in a collection based on fields
+   * @param <T>
+   * @param collection
+   * @param propertyNames
+   * @param propertyValues
+   * @return the object(s) or empty list if cant find
+   */
+  public static <T> List<T> retrieveListByProperties(Collection<T> collection, 
+      List<String> propertyNames, List<Object> propertyValues) {
+    
+    int fieldNameLength = propertyNames.size();
+    
+    List<T> result = new ArrayList<T>();
+    
+    assertion(fieldNameLength == propertyValues.size(), "Problem: " + fieldNameLength + " != " + propertyValues.size());
+  
+    OUTER: for (T object : collection) {
+      //loop through fields and values
+      for (int i=0;i<fieldNameLength;i++) {
+        Object propertyValue = propertyValue(object, propertyNames.get(i));
+        if (!equals(propertyValue, propertyValues.get(i))) {
+          continue OUTER;
+        }
+      }
+      //if we got this far, then its a match
+      result.add(object);
+      
+    }
+    //if we havent found one, we done
+    return result;
+  }
+
+  /**
+   * find an object (or objects) in a collection based on fields
+   * @param <T>
+   * @param collection
+   * @param propertyName 
+   * @param propertyValue 
+   * @return the object(s) or empty list if cant find
+   */
+  public static <T> List<T> retrieveListByProperty(Collection<T> collection, 
+      String propertyName, Object propertyValue) {
+    
+    List<T> result = new ArrayList<T>();
+    
+    OUTER: for (T object : collection) {
+      if (object == null) {
+        continue;
+      }
+      Object currentPropertyValue = propertyValue(object, propertyName);
+      if (!equals(currentPropertyValue, propertyValue)) {
+        continue OUTER;
+      }
+      //if we got this far, then its a match
+      result.add(object);
+      
+    }
+    //if we havent found one, we done
+    return result;
+  }
+
+  /**
+   * Return the zero element of the list, if it exists, null if the list is empty.
+   * If there is more than one element in the list, an exception is thrown.
+   * @param <T>
+   * @param list is the container of objects to get the first of.
+   * @return the first object, null, or exception.
+   */
+  public static <T> T listPopOne(List<T> list) {
+    int size = length(list);
+    if (size == 1) {
+      return list.get(0);
+    } else if (size == 0) {
+      return null;
+    }
+    throw new RuntimeException("More than one object of type " + className(list.get(0))
+        + " was returned when only one was expected. (size:" + size +")" );
+  }
+  
   
 }

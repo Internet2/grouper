@@ -27,7 +27,7 @@ import edu.internet2.middleware.subject.Subject;
 /** 
  * Basic <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MemberDAO.java,v 1.9 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: MemberDAO.java,v 1.10 2009-04-13 16:53:08 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MemberDAO extends GrouperDAO {
@@ -184,6 +184,30 @@ public interface MemberDAO extends GrouperDAO {
    * @param uuid
    */
   public void uuid2dtoCacheRemove(String uuid);
+
+  /**
+   * find the set of member uuids of the intersection of two groups
+   * @param groupUuid1
+   * @param groupUuid2
+   * @return the set of member uuids (non null)
+   */
+  public Set<String> _internal_membersIntersection(String groupUuid1, String groupUuid2);
+  
+  /**
+   * find the set of member uuids of the union of two groups
+   * @param groupUuid1
+   * @param groupUuid2
+   * @return the set of member uuids (non null)
+   */
+  public Set<String> _internal_membersUnion(String groupUuid1, String groupUuid2);
+  
+  /**
+   * find the set of member uuids of the complement of two groups
+   * @param groupUuid1
+   * @param groupUuid2
+   * @return the set of member uuids (non null)
+   */
+  public Set<String> _internal_membersComplement(String groupUuid1, String groupUuid2);
 
 } 
 

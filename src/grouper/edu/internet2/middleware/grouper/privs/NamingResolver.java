@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -31,7 +32,7 @@ import edu.internet2.middleware.subject.Subject;
  * Facade for the {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingResolver.java,v 1.7 2009-02-27 20:51:46 shilen Exp $
+ * @version $Id: NamingResolver.java,v 1.8 2009-04-13 16:53:07 mchyzer Exp $
  * @since   1.2.1
  */
 public interface NamingResolver {
@@ -147,6 +148,39 @@ public interface NamingResolver {
    */
    void privilegeCopy(Subject subj1, Subject subj2, Privilege priv)
       throws IllegalArgumentException, UnableToPerformException;
+
+  /**
+   * get a reference to the session
+   * @return the session
+   */
+  public GrouperSession getGrouperSession();
+  
+  /**
+   * for a stem query, check to make sure the subject can see the records (if filtering HQL, you can do 
+   * the postHqlFilterGroups instead if you like).  Note, this joins to tables, so the queries should
+   * probably be "distinct"
+   * @param subject which needs view access to the groups
+   * @param hql is the select and part part (hql prefix)
+   * @param hqlQuery 
+   * @param stemColumn is the name of the stem column to join to
+   * @param privInSet find a privilege which is in this set 
+   * (e.g. for view, send all access privs).  There are pre-canned sets in AccessAdapter
+   * @return if the query was changed
+   */
+  public boolean hqlFilterStemsWhereClause(
+      Subject subject, HqlQuery hqlQuery, StringBuilder hql, 
+      String stemColumn, Set<Privilege> privInSet);
+
+  /**
+   * after HQL is run, filter stems.  If you are filtering in HQL, then dont filter here
+   * @param stems
+   * @param subject which needs view access to the groups
+   * @param privInSet find a privilege which is in this set 
+   * (e.g. for view, send all access privs).  There are pre-canned sets in NamingPrivilege
+   * @return the set of filtered groups
+   */
+  public Set<Stem> postHqlFilterStems(
+      Set<Stem> stems, Subject subject, Set<Privilege> privInSet);
 
 }
 

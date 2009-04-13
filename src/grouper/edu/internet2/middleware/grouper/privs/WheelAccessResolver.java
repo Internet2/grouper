@@ -26,11 +26,13 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -41,7 +43,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.21 2009-03-24 17:12:07 mchyzer Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.22 2009-04-13 16:53:07 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -142,8 +144,7 @@ public class WheelAccessResolver extends AccessResolverDecorator {
 	Set<AccessPrivilege> accessPrivs =super.getDecoratedResolver().getPrivileges(group, subject);
 	
 	//Add any due to Wheel.
-	if (this.useWheel) {
-	      if ( isWheelMember(subject) ) {
+	if (this.isAndUseWheel(subject)) {
 		    Set<Privilege> privs = Privilege.getAccessPrivs();
 		    AccessPrivilege ap = null;
 		    for(Privilege p : privs) {
@@ -154,9 +155,24 @@ public class WheelAccessResolver extends AccessResolverDecorator {
 			  		accessPrivs.add(ap);
 			  	}
 		    }
-	      }
 	}
     return accessPrivs;
+			  	}
+
+  /**
+   * 
+   * @param subject
+   * @return true if this is wheel and if using wheel
+   */
+  private boolean isAndUseWheel(Subject subject) {
+    if (this.getGrouperSession().isConsiderIfWheelMember()) {
+      if (this.useWheel) {
+        if (isWheelMember(subject)) {
+          return true;
+		    }
+	      }
+	}
+    return false;
   }
 
   /**
@@ -189,13 +205,13 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   {
 	//Admin incorporates other privileges - except optin /optout
 	//Which we don't want to assume
-    if ((this.useWheel && isWheelMember(subject)) || PrivilegeHelper.isSystemSubject(subject) ) {
+    if (this.isAndUseWheel(subject)) {
   	  if(!AccessPrivilege.OPTOUT.equals(privilege) 
   			  && !AccessPrivilege.OPTIN.equals(privilege)) {
   		  return true;
   	  
   	  }
-    }
+  	  }
     AccessResolver decoratedResolver = super.getDecoratedResolver();
     //System.out.println(decoratedResolver.getClass().getName());
     //CachingAccessResolver
@@ -298,5 +314,63 @@ public class WheelAccessResolver extends AccessResolverDecorator {
       throws IllegalArgumentException, UnableToPerformException {
     super.getDecoratedResolver().privilegeCopy(subj1, subj2, priv);
   }            
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterGroups(java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Group> postHqlFilterGroups(Set<Group> groups, Subject subject, Set<Privilege> privInSet) {
+    //Wheel can see all groups
+    if (this.isAndUseWheel(subject)) {
+      return groups;
+    }
+    AccessResolver decoratedResolver = super.getDecoratedResolver();
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    return decoratedResolver.postHqlFilterGroups(groups, subject, privInSet);
+
+  }    
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#hqlFilterGroupsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
+   */
+  public boolean hqlFilterGroupsWhereClause(Subject subject, HqlQuery hqlQuery,
+      StringBuilder hql, String groupColumn, Set<Privilege> privInSet) {
+    //Wheel can see all groups
+    if (this.isAndUseWheel(subject)) {
+      return false;
+    }
+    AccessResolver decoratedResolver = super.getDecoratedResolver();
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    return decoratedResolver.hqlFilterGroupsWhereClause(subject, hqlQuery, hql, groupColumn, privInSet);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#getGrouperSession()
+   */
+  public GrouperSession getGrouperSession() {
+    AccessResolver decoratedResolver = super.getDecoratedResolver();
+    return decoratedResolver.getGrouperSession();
+  }
+
+
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#postHqlFilterMemberships(edu.internet2.middleware.subject.Subject, java.util.Set)
+   */
+  public Set<Membership> postHqlFilterMemberships(Subject subject,
+      Set<Membership> memberships) {
+    //Wheel can see all memberships
+    if (this.isAndUseWheel(subject)) {
+      return memberships;
+    }
+    AccessResolver decoratedResolver = super.getDecoratedResolver();
+    //System.out.println(decoratedResolver.getClass().getName());
+    //CachingAccessResolver
+    return decoratedResolver.postHqlFilterMemberships(subject, memberships);
+  }
+
 }
 
