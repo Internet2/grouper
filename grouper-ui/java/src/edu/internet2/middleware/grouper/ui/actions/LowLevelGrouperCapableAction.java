@@ -79,7 +79,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.23 2009-04-13 03:18:40 mchyzer Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.24 2009-04-13 20:24:18 mchyzer Exp $
  */
 
 /**
@@ -561,7 +561,7 @@ public abstract class LowLevelGrouperCapableAction
 		if(field !=null) {
 			sortContext="search:" + field;
 		}
-		savedAsMaps=sort(savedAsMaps,request,sortContext);
+		savedAsMaps=sort(savedAsMaps,request,sortContext, -1);
 		request.setAttribute("savedStems",new ArrayList(savedAsMaps));
 		request.setAttribute("savedStemsSize",new Integer(savedAsMaps.size()));	
 	}

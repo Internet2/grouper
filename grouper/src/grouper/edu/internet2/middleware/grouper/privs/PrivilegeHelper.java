@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.misc.E;
@@ -46,7 +46,7 @@ import edu.internet2.middleware.subject.Subject;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.6 2009-04-13 16:53:07 mchyzer Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.7 2009-04-13 20:24:29 mchyzer Exp $
  * @since   1.2.1
  */
 public class PrivilegeHelper {
@@ -500,10 +500,10 @@ public class PrivilegeHelper {
     if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_USE_WHEEL_GROUP, false)) {
       String name = GrouperConfig.getProperty( GrouperConfig.PROP_WHEEL_GROUP );
       try {
-        Group wheel = GroupFinder.findByName( GrouperSession.staticGrouperSession().internal_getRootSession(), name );
+        Group wheel = GroupFinder.findByName( GrouperSession.staticGrouperSession().internal_getRootSession(), name, true );
         return wheel.hasMember(subject);
       } catch (GroupNotFoundException gnfe) {
-        throw new GrouperRuntimeException("Cant find wheel group: " + name, gnfe);
+        throw new GrouperException("Cant find wheel group: " + name, gnfe);
       }
     }
     return false;

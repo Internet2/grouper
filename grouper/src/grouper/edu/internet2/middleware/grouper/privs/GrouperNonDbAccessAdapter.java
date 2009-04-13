@@ -28,7 +28,6 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
-import edu.internet2.middleware.grouper.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -36,8 +35,10 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
@@ -62,7 +63,7 @@ import edu.internet2.middleware.subject.Subject;
  * slower and more explicit than the GrouperAccessAdapter (subclass)
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNonDbAccessAdapter.java,v 1.2 2009-04-13 16:53:07 mchyzer Exp $
+ * @version $Id: GrouperNonDbAccessAdapter.java,v 1.3 2009-04-13 20:24:29 mchyzer Exp $
  */
 public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements AccessAdapter {
 
@@ -87,8 +88,20 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperNonDbAccessAdapter.class);
 
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.privs.AccessAdapter#getSubjectsWithPriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) 
+    throws  SchemaException
+  {
+    //note, no need for GrouperSession inverse of control
+    GrouperSession.validate(s);
+    return MembershipFinder.internal_findGroupSubjects(
+      s, g, FieldFinder.find( priv.getListName(), true )
+    );
+  }
 
-  // public Set getSubjectsWithpriv(s, g, priv)
   
   /**
    * Get all groups where this subject has this privilege.
@@ -133,12 +146,8 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
       String msg = E.GAA_GNF + eGNF.getMessage();
       LOG.error(msg);
     }
-  
-    Member member = MemberFinder.internal_findBySubject(subject, false);
-    Member allMember = MemberFinder.internal_findAllMember();
-  
-  
-
+    return groups;
+  }  
 
   /**
    * Get all privileges held by this subject on this group.
@@ -181,20 +190,6 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
     return privs;
   }
 
-
-  /**
-   * note, can use 
-   * @see edu.internet2.middleware.grouper.privs.AccessAdapter#hqlFilterGroupsWhereClause(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, java.lang.String, java.util.Set)
-   */
-  public Set getSubjectsWithPriv(GrouperSession s, Group g, Privilege priv) 
-    throws  SchemaException
-  {
-    //note, no need for GrouperSession inverse of control
-    GrouperSession.validate(s);
-    return MembershipFinder.internal_findGroupSubjects(
-      s, g, FieldFinder.find( priv.getListName(), true )
-    );
-  }
 
 
   // public Set getPrivs(s, g, subj)
@@ -262,11 +257,11 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
       }
       throw gse;
     }
-
+  }
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.privs.BaseAccessAdapter#postHqlFilterGroups(edu.internet2.middleware.grouper.GrouperSession, java.util.Set, edu.internet2.middleware.subject.Subject, java.util.Set)
+   * @see edu.internet2.middleware.grouper.privs.AccessAdapter#hasPriv(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Group, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
    */
   public boolean hasPriv(GrouperSession s, Group g, Subject subj, Privilege priv)
     throws  SchemaException
@@ -399,8 +394,6 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
   }
 
 
-  // public void revokePriv(s, g, priv)
-  
   /**
    * Revoke the privilege from the subject on this group.
    * <pre class="eg">

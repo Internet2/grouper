@@ -43,7 +43,7 @@ import edu.internet2.middleware.subject.Subject;
  * TODO filter memberships in an effecient way with one (or only a few) queries
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.80 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.81 2009-04-13 20:24:29 mchyzer Exp $
  */
 public class GrouperAccessAdapter extends GrouperNonDbAccessAdapter {
 
@@ -69,7 +69,7 @@ public class GrouperAccessAdapter extends GrouperNonDbAccessAdapter {
     //TODO update this for 1.5 (group owner)
     //if not, we need an in clause
     StringBuilder query = hql.append( ", Membership __accessMembership where " +
-    		"__accessMembership.ownerUuid = " + groupColumn
+    		"__accessMembership.ownerGroupId = " + groupColumn
     		+ " and __accessMembership.fieldId in (");
     query.append(accessInClause).append(") and __accessMembership.memberUuid in (");
     Set<String> memberIds = GrouperUtil.toSet(allMember.getUuid());

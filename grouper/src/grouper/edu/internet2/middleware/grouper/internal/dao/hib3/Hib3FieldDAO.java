@@ -25,9 +25,11 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -36,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Field</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3FieldDAO.java,v 1.13 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: Hib3FieldDAO.java,v 1.14 2009-04-13 20:24:29 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
@@ -161,14 +163,16 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
   public void createOrUpdate(final Field field) {
     
     //do this in its own tx so we can be sure it is done and move on to refreshing cache
-    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, new HibernateHandler() {
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, 
+        AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
 
-      public Object callback(HibernateSession hibernateSession)
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
+        HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
         hibernateSession.byObject().saveOrUpdate(field);    
         return null;
       }
-      
+
     });
     
     FieldFinder.clearCache();

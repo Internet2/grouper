@@ -15,6 +15,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
+import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -223,7 +224,7 @@ public class WsGroupToSave {
           String attributeName = attributeNames[i];
           String attributeValue = attributeValues[i];
           
-          if (!StringUtils.equals(group.getAttributeOrNull(attributeName), attributeValue)) {
+          if (!StringUtils.equals(group.getAttributeValue(attributeName, false, false), attributeValue)) {
             if (LOG.isDebugEnabled()) {
               LOG.debug("Group: " + group.getName() + ": updating attribute: " 
                 + attributeName + ": " + attributeValue);
@@ -236,7 +237,7 @@ public class WsGroupToSave {
           attributeNamesPassedIn.add(attributeName);
         }
         //find attributes to remove
-        Map<String, String> attributes = group.getAttributes();
+        Map<String, Attribute> attributes = group.getAttributesMap(true);
         for (String key : new HashSet<String>(attributes.keySet())) {
           
           //these are built in attributes, dont touch

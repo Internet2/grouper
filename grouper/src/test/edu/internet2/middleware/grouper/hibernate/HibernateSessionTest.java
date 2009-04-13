@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HibernateSessionTest.java,v 1.2 2009-04-13 16:53:08 mchyzer Exp $
+ * $Id: HibernateSessionTest.java,v 1.3 2009-04-13 20:24:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
@@ -10,15 +10,15 @@ import java.util.Set;
 
 import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperSession; 
-import edu.internet2.middleware.grouper.GrouperTest;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.SessionHelper;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemHelper;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SessionHelper;
+import edu.internet2.middleware.grouper.helper.StemHelper;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;

@@ -16,8 +16,10 @@
 */
 
 package edu.internet2.middleware.grouper.privs;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -33,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * An instance of a granted naming privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingPrivilege.java,v 1.7 2009-04-13 16:53:07 mchyzer Exp $
+ * @version $Id: NamingPrivilege.java,v 1.8 2009-04-13 20:24:29 mchyzer Exp $
  */
 public class NamingPrivilege implements GrouperPrivilege, Comparable {
 

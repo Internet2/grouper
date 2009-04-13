@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperServiceLogic.java,v 1.25 2009-04-13 03:03:15 mchyzer Exp $
+ * @author mchyzer $Id: GrouperServiceLogic.java,v 1.26 2009-04-13 20:24:22 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws;
 
@@ -962,7 +962,7 @@ public class GrouperServiceLogic {
           wsGetGroupsResult.setWsSubject(new WsSubject(wsSubjectLookup));
           Subject subject = wsSubjectLookup.retrieveSubject("subjectLookup");
           wsGetGroupsResult.setWsSubject(new WsSubject(subject, subjectAttributeNames, wsSubjectLookup));
-          Member member = MemberFinder.internal_findBySubject(subject, false);
+          Member member = MemberFinder.internal_findBySubject(subject, null, false);
           Set<Group> groups = null;
           if (member == null) {
             groups = new HashSet<Group>();

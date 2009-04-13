@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.ddl.AllDdlTests;
 import edu.internet2.middleware.grouper.filter.AllFilterTests;
 import edu.internet2.middleware.grouper.group.AllGroupTests;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.hibernate.AllHibernateTests;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.AllHooksTests;
 import edu.internet2.middleware.grouper.internal.dao.AllInternalDaoTests;
@@ -52,7 +53,7 @@ import edu.internet2.middleware.ldappcTest.AllLdappcJunitTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: AllTests.java,v 1.5 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: AllTests.java,v 1.6 2009-04-13 20:24:29 mchyzer Exp $
  */
 public class AllTests extends GrouperTest {
 

@@ -10,6 +10,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
@@ -220,7 +221,7 @@ public class WsGroupDetail {
       }
 
       //set the attributes
-      Map<String, String> attributeMap = new TreeMap<String, String>(group.getAttributes());
+      Map<String, Attribute> attributeMap = new TreeMap<String, Attribute>(group.getAttributesMap(true));
 
       //remove common attributes to not take redundant space in response
       attributeMap.remove(GrouperConfig.ATTRIBUTE_NAME);
@@ -236,7 +237,7 @@ public class WsGroupDetail {
         i = 0;
         for (String attributeName : attributeMap.keySet()) {
           theAttributeNames[i] = attributeName;
-          theAttributeValues[i] = attributeMap.get(attributeName);
+          theAttributeValues[i] = group.getAttributeValue(attributeName, false, true);
           i++;
         }
         this.setAttributeNames(theAttributeNames);

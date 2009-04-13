@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: XstreamPocGroup.java,v 1.2 2009-03-15 08:15:38 mchyzer Exp $
+ * $Id: XstreamPocGroup.java,v 1.3 2009-04-13 20:24:22 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.poc;
 
@@ -10,39 +10,65 @@ package edu.internet2.middleware.grouper.ws.poc;
  */
 public class XstreamPocGroup {
 
+  /**
+   * 
+   */
+  @SuppressWarnings("unused")
   private String somethingNotMarshaled = "whatever";
   
+  /**
+   * 
+   * @param theName
+   * @param theMembers
+   */
   public XstreamPocGroup(String theName, XstreamPocMember[] theMembers) {
     this.name = theName;
     this.members = theMembers;
   }
 
+  /**
+   * 
+   */
   public XstreamPocGroup() {
-    
+    //empty
   }
-
+  
+  /** */
   private String name;
   
+  /** */
   private XstreamPocMember[] members;
 
-  
+  /**
+   * 
+   * @return name
+   */
   public String getName() {
     return this.name;
   }
 
-  
-  public void setName(String name) {
-    this.name = name;
+  /**
+   * 
+   * @param name1
+   */
+  public void setName(String name1) {
+    this.name = name1;
   }
 
-  
+  /**
+   * 
+   * @return array of members
+   */
   public XstreamPocMember[] getMembers() {
     return this.members;
   }
 
-  
-  public void setMembers(XstreamPocMember[] members) {
-    this.members = members;
+  /**
+   * 
+   * @param members1
+   */
+  public void setMembers(XstreamPocMember[] members1) {
+    this.members = members1;
   }
   
 }

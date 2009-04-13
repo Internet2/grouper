@@ -140,7 +140,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.21 2009-04-13 03:18:39 mchyzer Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.22 2009-04-13 20:24:19 mchyzer Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -272,7 +272,6 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		Stem stem = groupOrStem.getStem();
 		if(listField==null || "".equals(listField)) listField="members";
 		Field field = FieldFinder.find(listField, true);
-		Set allChildren = new LinkedHashSet();
 		List sortedChildren=null;
     int[] resultSizeArray= new int[1];
 		int resultSize=0;

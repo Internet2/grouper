@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: XstreamPoc.java,v 1.2 2009-03-15 08:15:38 mchyzer Exp $
+ * $Id: XstreamPoc.java,v 1.3 2009-04-13 20:24:22 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.poc;
 
@@ -31,6 +31,9 @@ public class XstreamPoc {
     xmlXstream();
   }
 
+  /**
+   * 
+   */
   public static void xmlXstream() {
     XstreamPocGroup group = new XstreamPocGroup("myGroup",
         new XstreamPocMember[]{
@@ -64,7 +67,10 @@ public class XstreamPoc {
         + group.getMembers().length);
 
   }
-  
+
+  /**
+   * 
+   */
   public static void jsonXstream() {
 
     XstreamPocGroup group = new XstreamPocGroup("myGroup",
@@ -83,6 +89,9 @@ public class XstreamPoc {
   
   }
 
+  /**
+   * 
+   */
   public static void xhtmlConversion() {
     XstreamPocGroup group = new XstreamPocGroup("myGroup",
         new XstreamPocMember[]{

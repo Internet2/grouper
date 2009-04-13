@@ -33,7 +33,7 @@ import edu.internet2.middleware.subject.Subject;
 /** 
  * Basic <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: StemDAO.java,v 1.20 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: StemDAO.java,v 1.21 2009-04-13 20:24:29 mchyzer Exp $
  * @since   1.2.0
  */
 public interface StemDAO extends GrouperDAO {
@@ -175,43 +175,6 @@ public interface StemDAO extends GrouperDAO {
    */
   Set<Group> findAllChildGroupsSecure(
       Stem ns, Stem.Scope scope, GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
-    throws  GrouperDAOException;
-
-  /**
-   * Find all child groups within specified scope, and make sure the
-   * grouper session can see them
-   * @param ns 
-   * @param scope 
-   * @param grouperSession 
-   * @param subject 
-   * @param queryOptions 
-   * @param inPrivSet is a set of privs that the subject must have one of to display a row.  AccessPrivilege
-   * has some pre-baked set constants available
-   * @return the groups
-   * @throws GrouperDAOException 
-   * @since   1.2.1
-   */
-  Set<Group> findAllChildMembershipGroupsSecure(
-      Stem ns, Stem.Scope scope, GrouperSession grouperSession, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
-    throws  GrouperDAOException;
-
-  /**
-   * Find all child stems within specified scope, and make sure the
-   * grouper session can see them
-   * @param ns 
-   * @param scope 
-   * @param grouperSession 
-   * @param subject 
-   * @param queryOptions 
-   * @param inPrivSet is a set of privs that the subject must have one of to display a row.  NamingPrivilege
-   * has some pre-baked set constants available
-   * @return the groups
-   * @throws GrouperDAOException 
-   * @since   1.2.1
-   */
-  Set<Stem> findAllChildStemsSecure(
-      Stem ns, Stem.Scope scope, GrouperSession grouperSession, Subject subject, 
-      Set<Privilege> inPrivSet, QueryOptions queryOptions)
     throws  GrouperDAOException;
 
   /**

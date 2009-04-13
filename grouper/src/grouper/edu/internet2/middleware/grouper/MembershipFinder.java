@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * and, if an effective membership, the parent membership
  * <p/>
  * @author  blair christensen.
- * @version $Id: MembershipFinder.java,v 1.102 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: MembershipFinder.java,v 1.103 2009-04-13 20:24:29 mchyzer Exp $
  */
 public class MembershipFinder {
   
@@ -356,7 +356,8 @@ public class MembershipFinder {
     try {
       GrouperSession  s   = GrouperSession.staticGrouperSession();
       PrivilegeHelper.dispatch( s, group, s.getSubject(), field.getReadPriv() );
-      members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByOwnerAndField( group.getUuid(), field, queryOptions );
+      members = GrouperDAOFactory.getFactory().getMembership().findAllMembersByGroupOwnerAndField( 
+          group.getUuid(), field, queryOptions );
     }
     catch (InsufficientPrivilegeException eIP) {
       // ignore  
@@ -433,7 +434,7 @@ public class MembershipFinder {
       PrivilegeHelper.dispatch(s, group, s.getSubject(), f.getReadPriv());
       Iterator<Member> it = GrouperDAOFactory.getFactory().getMembership()
           .findAllMembersByGroupOwnerAndFieldAndType(group.getUuid(), f,
-              Membership.IMMEDIATE).iterator();
+              Membership.IMMEDIATE, null).iterator();
 
       while (it.hasNext()) {
         try {
@@ -483,7 +484,7 @@ public class MembershipFinder {
       PrivilegeHelper.dispatch(s, stem, s.getSubject(), f.getReadPriv());
       Iterator<Member> it = GrouperDAOFactory.getFactory().getMembership()
           .findAllMembersByStemOwnerAndFieldAndType(stem.getUuid(), f,
-              Membership.IMMEDIATE).iterator();
+              Membership.IMMEDIATE, null).iterator();
 
       while (it.hasNext()) {
         try {

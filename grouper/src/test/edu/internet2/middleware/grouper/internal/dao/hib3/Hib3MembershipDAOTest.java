@@ -1,23 +1,22 @@
 /*
  * @author mchyzer
- * $Id: Hib3MembershipDAOTest.java,v 1.2 2009-04-13 16:53:08 mchyzer Exp $
+ * $Id: Hib3MembershipDAOTest.java,v 1.3 2009-04-13 20:24:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.util.Set;
 
 import junit.textui.TestRunner;
-
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperTest;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.SessionHelper;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemHelper;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SessionHelper;
+import edu.internet2.middleware.grouper.helper.StemHelper;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 
 /**
  *
@@ -72,7 +71,7 @@ public class Hib3MembershipDAOTest extends GrouperTest {
 
     
     //get all memberships by member, 
-    Set<Membership> allMemberships = new Hib3MembershipDAO().findAllByOwnerAndField(i2.getUuid(), Group.getDefaultList());
+    Set<Membership> allMemberships = new Hib3MembershipDAO().findAllByGroupOwnerAndField(i2.getUuid(), Group.getDefaultList());
     
     assertTrue(Integer.toString(allMemberships.size()),  2 < allMemberships.size());
     

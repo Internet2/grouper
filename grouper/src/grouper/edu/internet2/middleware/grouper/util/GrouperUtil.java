@@ -8694,6 +8694,50 @@ public class GrouperUtil {
   }
   
   /**
+   * wait for input
+   */
+  public static void waitForInput() {
+    System.out.print("Press enter to continue: ");
+    BufferedReader stdin = null;
+
+    try {
+      stdin = new BufferedReader(new InputStreamReader(System.in));
+      stdin.readLine();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+
+  }
+
+  /**
+   * find an object (or objects) in a collection based on fields
+   * @param <T>
+   * @param collection
+   * @param propertyNames
+   * @param propertyValues
+   * @return the object(s) or empty list if cant find
+   */
+  public static <T> T retrieveByProperties(Collection<T> collection, 
+      List<String> propertyNames, List<Object> propertyValues) {
+    List<T> list = retrieveListByProperties(collection, propertyNames, propertyValues);
+    return listPopOne(list);
+  }
+
+  /**
+   * find an object (or objects) in a collection based on fields
+   * @param <T>
+   * @param collection
+   * @param propertyName
+   * @param propertyValue
+   * @return the object(s) or empty list if cant find
+   */
+  public static <T> T retrieveByProperty(Collection<T> collection, 
+      String propertyName, Object propertyValue) {
+    List<T> list = retrieveListByProperty(collection, propertyName, propertyValue);
+    return listPopOne(list);
+  }
+
+  /**
    * Returns the first existing parent stem of a given name.
    * So if the following stems exist:
    *   i2

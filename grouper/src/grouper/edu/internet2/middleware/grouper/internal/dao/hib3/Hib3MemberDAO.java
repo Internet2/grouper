@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.14 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.15 2009-04-13 20:24:29 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
@@ -344,8 +344,8 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     .createQuery("select distinct theMember.uuid " +
     		"from Member theMember, " +
         "Membership theMembership, Membership theMembership2 " +
-        "where theMembership.ownerUuid = :group1uuid " +
-        "and theMembership2.ownerUuid = :group2uuid " +
+        "where theMembership.ownerGroupId = :group1uuid " +
+        "and theMembership2.ownerGroupId = :group2uuid " +
         "and theMember.uuid = theMembership.memberUuid " +
         "and theMember.uuid = theMembership2.memberUuid " +
         "and theMembership.fieldId = :fuuid " +
@@ -366,7 +366,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     .createQuery("select distinct theMember.uuid " +
         "from Member theMember, " +
         "Membership theMembership " +
-        "where theMembership.ownerUuid in (:group1uuid, " +
+        "where theMembership.ownerGroupId in (:group1uuid, " +
         " :group2uuid) " +
         "and theMember.uuid = theMembership.memberUuid " +
         "and theMembership.fieldId = :fuuid ")
@@ -385,7 +385,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     Set<String> memberUuids = HibernateSession.byHqlStatic()
     .createQuery("select distinct theMember.uuid from Member theMember, " +
         "Membership theMembership " +
-        "where theMembership.ownerUuid = :group1uuid " +
+        "where theMembership.ownerGroupId = :group1uuid " +
         "and theMember.uuid = theMembership.memberUuid " +
         "and theMembership.fieldId = :fuuid " +
         "and not exists (select theMembership2.memberUuid from Membership theMembership2 " +

@@ -30,7 +30,7 @@ import  edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>GrouperAll</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAllNamingResolver.java,v 1.7 2009-04-13 16:53:07 mchyzer Exp $
+ * @version $Id: GrouperAllNamingResolver.java,v 1.8 2009-04-13 20:24:29 mchyzer Exp $
  * @since   1.2.1
  */
 public class GrouperAllNamingResolver extends NamingResolverDecorator {
@@ -141,16 +141,23 @@ public class GrouperAllNamingResolver extends NamingResolverDecorator {
     super.getDecoratedResolver().revokePrivilege(stem, subject, privilege);
   }
 
-
-
-  /*
-   * (non-Javadoc)
+  /**
+   * 
    * @see edu.internet2.middleware.grouper.privs.NamingResolver#privilegeCopy(edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.grouper.privs.Privilege)
    */
   public void privilegeCopy(Stem stem1, Stem stem2, Privilege priv)
       throws IllegalArgumentException, UnableToPerformException {
     super.getDecoratedResolver().privilegeCopy(stem1, stem2, priv);
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#privilegeCopy(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.privs.Privilege)
+   */
+  public void privilegeCopy(Subject subj1, Subject subj2, Privilege priv)
+      throws IllegalArgumentException, UnableToPerformException {
+    super.getDecoratedResolver().privilegeCopy(subj1, subj2, priv);
+  }            
+
   /**
    * @see edu.internet2.middleware.grouper.privs.NamingResolver#getGrouperSession()
    */

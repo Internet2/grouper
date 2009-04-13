@@ -19,7 +19,6 @@ package edu.internet2.middleware.grouper.misc;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,7 +56,7 @@ import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.16 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.17 2009-04-13 20:24:29 mchyzer Exp $
  * @since   1.2.0
  */
 @GrouperIgnoreDbVersion
@@ -653,7 +652,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     String memberId = this.getGroup().toMember().getUuid();
 
     Set<Membership> memberships = GrouperDAOFactory.getFactory()
-      .getMembership().findAllByOwnerAndMemberAndField(this.getComposite().getLeftFactorUuid(), 
+      .getMembership().findAllByGroupOwnerAndMemberAndField(this.getComposite().getLeftFactorUuid(), 
           memberId, Group.getDefaultList());
     
     if (GrouperUtil.length(memberships) > 0) {
@@ -661,7 +660,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
           + this.getComposite().getLeftFactorUuid() + ", " + memberId);
     }
     memberships = GrouperDAOFactory.getFactory()
-      .getMembership().findAllByOwnerAndMemberAndField(this.getComposite().getRightFactorUuid(), 
+      .getMembership().findAllByGroupOwnerAndMemberAndField(this.getComposite().getRightFactorUuid(), 
           memberId, Group.getDefaultList());
     
     if (GrouperUtil.length(memberships) > 0) {

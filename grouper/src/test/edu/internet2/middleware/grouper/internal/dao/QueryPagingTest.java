@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: QueryPagingTest.java,v 1.2 2009-04-13 16:53:08 mchyzer Exp $
+ * $Id: QueryPagingTest.java,v 1.3 2009-04-13 20:24:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -11,7 +11,7 @@ import junit.textui.TestRunner;
 import org.hibernate.criterion.Restrictions;
 
 import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.ByCriteriaStatic;
 import edu.internet2.middleware.grouper.hibernate.ByHql;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;

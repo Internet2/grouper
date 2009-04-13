@@ -88,7 +88,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.118 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.119 2009-04-13 20:24:29 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -453,7 +453,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       //TODO update for 1.5 with group owner
       for (Membership membership : memberships) {
         
-        String uuid = membership.getOwnerUuid();
+        String uuid = membership.getOwnerGroupId();
         if (uuid == null) {
           throw new GroupNotFoundException("Group uuid is null! " + membership.getUuid());
         }
@@ -472,7 +472,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       //now we have everything we need
       for (Membership membership : memberships) {
         
-        String uuid = membership.getOwnerUuid();
+        String uuid = membership.getOwnerGroupId();
         
         Group group = membership.getGroupFromCache(uuid);
         if (group == null) {

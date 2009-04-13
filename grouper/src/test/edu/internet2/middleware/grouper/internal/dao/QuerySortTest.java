@@ -1,16 +1,17 @@
 /*
  * @author mchyzer
- * $Id: QuerySortTest.java,v 1.2 2009-04-13 16:53:08 mchyzer Exp $
+ * $Id: QuerySortTest.java,v 1.3 2009-04-13 20:24:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.List;
 
+import junit.textui.TestRunner;
+
 import org.hibernate.criterion.Restrictions;
 
-import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 
