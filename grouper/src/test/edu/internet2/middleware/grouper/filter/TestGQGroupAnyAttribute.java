@@ -18,6 +18,8 @@
 package edu.internet2.middleware.grouper.filter;
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.runner.TestRunListener;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -36,10 +38,18 @@ import edu.internet2.middleware.grouper.registry.RegistryReset;
  * Test {@link GroupAnyAttributeFilter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGQGroupAnyAttribute.java,v 1.3 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: TestGQGroupAnyAttribute.java,v 1.4 2009-04-14 07:41:24 mchyzer Exp $
  */
 public class TestGQGroupAnyAttribute extends TestCase {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(TestGQGroupAnyAttribute.class);
+  }
+  
   public TestGQGroupAnyAttribute(String name) {
     super(name);
   }

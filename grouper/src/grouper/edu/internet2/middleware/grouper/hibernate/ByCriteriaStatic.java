@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -360,12 +361,16 @@ public class ByCriteriaStatic {
     if (this.criterions != null) {
       query.add(this.criterions);
     }
-    if (ByCriteriaStatic.this.cacheable != null) {
-      query.setCacheable(ByCriteriaStatic.this.cacheable);
+    boolean secondLevelCaching = HibUtils.secondLevelCaching(
+        ByCriteriaStatic.this.cacheable, ByCriteriaStatic.this.queryOptions);
+    query.setCacheable(secondLevelCaching);
+
+    String secondLevelCacheRegion = HibUtils.secondLevelCacheRegion(ByCriteriaStatic.this.cacheRegion, 
+        ByCriteriaStatic.this.queryOptions);
+    if (!StringUtils.isBlank(secondLevelCacheRegion)) {
+      query.setCacheRegion(secondLevelCacheRegion);
     }
-    if (ByCriteriaStatic.this.cacheRegion != null) {
-      query.setCacheRegion(ByCriteriaStatic.this.cacheRegion);
-    }
+
     QuerySort querySort = this.queryOptions == null ? null : this.queryOptions.getQuerySort();
     if (querySort != null) {
       List<QuerySortField> sorts = querySort.getQuerySortFields();

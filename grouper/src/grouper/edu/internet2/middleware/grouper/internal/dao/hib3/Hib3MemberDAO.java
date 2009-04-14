@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
 
@@ -39,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.15 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.16 2009-04-14 07:41:24 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
@@ -190,29 +191,33 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
    */
   public Member findByUuid(String uuid, boolean exceptionIfNull)
       throws GrouperDAOException, MemberNotFoundException {
-    if ( getUuid2dtoCache().containsKey(uuid) ) {
-      return getUuid2dtoCache().get(uuid);
-    }
     Member memberDto = null;
-    
-    try {
-      memberDto = HibernateSession.byHqlStatic()
-      .createQuery("from Member as m where m.uuid = :uuid")
-      .setCacheable(false) // but i probably should - or at least permit it
-      //.setCacheRegion(KLASS + ".FindByUuid")
-      .setString("uuid", uuid).uniqueResult(Member.class);
-    } catch (GrouperDAOException gde) {
-      Throwable throwable = gde.getCause();
-      //CH 20080218 this was legacy error handling
-      if (throwable instanceof HibernateException) {
-        LOG.fatal( throwable.getMessage() );
+    if (!StringUtils.isBlank(uuid)) {
+      if ( getUuid2dtoCache().containsKey(uuid) ) {
+        return getUuid2dtoCache().get(uuid);
       }
-      throw gde;
+      
+      try {
+        memberDto = HibernateSession.byHqlStatic()
+        .createQuery("from Member as m where m.uuid = :uuid")
+        .setCacheable(false) // but i probably should - or at least permit it
+        //.setCacheRegion(KLASS + ".FindByUuid")
+        .setString("uuid", uuid).uniqueResult(Member.class);
+      } catch (GrouperDAOException gde) {
+        Throwable throwable = gde.getCause();
+        //CH 20080218 this was legacy error handling
+        if (throwable instanceof HibernateException) {
+          LOG.fatal( throwable.getMessage() );
+        }
+        throw gde;
+      }
     }
     if (memberDto == null && exceptionIfNull) {
       throw new MemberNotFoundException();
     }
-    getUuid2dtoCache().put(uuid, memberDto);
+    if (memberDto != null && uuid != null) {
+      getUuid2dtoCache().put(uuid, memberDto);
+    }
     return memberDto;
   }
 
@@ -390,7 +395,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         "and theMembership.fieldId = :fuuid " +
         "and not exists (select theMembership2.memberUuid from Membership theMembership2 " +
         "where theMembership2.memberUuid = theMember.uuid and theMembership2.fieldId = :fuuid " +
-        "and theMembership2.ownerUuid = :group2uuid) ")
+        "and theMembership2.ownerGroupId = :group2uuid) ")
         .setString("group1uuid", groupUuid1)
         .setString("group2uuid", groupUuid2)
         .setString("fuuid", Group.getDefaultList().getUuid())

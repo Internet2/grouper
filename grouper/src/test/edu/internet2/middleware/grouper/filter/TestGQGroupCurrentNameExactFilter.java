@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper.filter;
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -34,11 +35,18 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link GroupCurrentNameExactFilter}.
  * <p />
  * @author shilen
- * @version $Id: TestGQGroupCurrentNameExactFilter.java,v 1.1 2009-03-27 23:28:53 shilen Exp $
+ * @version $Id: TestGQGroupCurrentNameExactFilter.java,v 1.2 2009-04-14 07:41:24 mchyzer Exp $
  */
 public class TestGQGroupCurrentNameExactFilter extends TestCase {
 
-  
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(TestGQGroupCurrentNameExactFilter.class);
+    //TestRunner.run(new TestGQGroupCurrentNameExactFilter("testCase"));
+  }
   /**
    * @param name
    */
@@ -100,32 +108,6 @@ public class TestGQGroupCurrentNameExactFilter extends TestCase {
         s, new GroupCurrentNameExactFilter("edu:i2")
       );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
-      Assert.assertTrue("members", gq.getMembers().size()     == 0);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
-    }
-    catch (QueryException eQ) {
-      Assert.fail("unable to query: " + eQ.getMessage());
-    }
-  } 
-  
-  /**
-   * Test search on name with wrong case
-   */
-  public void testCase() {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dev   = StemHelper.addChildGroup(com, "devclue", "devclue");
-
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupCurrentNameExactFilter("edu:I2")
-      );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
       Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
       Assert.assertTrue("stems",   gq.getStems().size()       == 0);

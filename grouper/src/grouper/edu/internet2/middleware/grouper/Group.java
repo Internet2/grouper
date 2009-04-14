@@ -123,7 +123,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.244 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: Group.java,v 1.245 2009-04-14 07:41:24 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -2531,7 +2531,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     throws  SchemaException {
     return PrivilegeHelper.canViewMemberships( 
         GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership()
-          .findAllByOwnerAndFieldAndMembers( this.getUuid(), f, members )
+          .findAllByGroupOwnerAndFieldAndMembers( this.getUuid(), f, members )
       );
   }
 
@@ -2554,7 +2554,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     throws  SchemaException {
     return PrivilegeHelper.canViewMemberships( 
         GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership()
-          .findAllByOwnerAndFieldAndMembersAndType( this.getUuid(), f, members, "immediate" )
+          .findAllByGroupOwnerAndFieldAndMembersAndType( this.getUuid(), f, members, "immediate" )
       );
   }
 
@@ -2577,7 +2577,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     throws  SchemaException {
     return PrivilegeHelper.canViewMemberships( 
         GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership()
-          .findAllByOwnerAndFieldAndMembersAndType( this.getUuid(), f, members, "effective" )
+          .findAllByGroupOwnerAndFieldAndMembersAndType( this.getUuid(), f, members, "effective" )
       );
   }
 
@@ -2599,7 +2599,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     throws  SchemaException {
     return PrivilegeHelper.canViewMemberships( 
         GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership()
-          .findAllByOwnerAndCompositeAndMembers( this.getUuid(), members )
+          .findAllByGroupOwnerAndCompositeAndMembers( this.getUuid(), members )
       );
   }
 

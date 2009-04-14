@@ -31,7 +31,7 @@ import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 /** 
  * Basic <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.22 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: MembershipDAO.java,v 1.23 2009-04-14 07:41:24 mchyzer Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
@@ -160,19 +160,19 @@ TODO update for 1.5
    * @throws GrouperDAOException 
    * @since   1.2.1
    */
-  Set<Membership> findAllByOwnerAndFieldAndMembers(String ownerUUID, Field f, 
+  Set<Membership> findAllByGroupOwnerAndFieldAndMembers(String ownerUUID, Field f, 
       Collection<Member> members) 
     throws  GrouperDAOException;
   
   /**
    */
-  Set<Membership> findAllByOwnerAndFieldAndMembersAndType(String ownerUUID, Field f, 
+  Set<Membership> findAllByGroupOwnerAndFieldAndMembersAndType(String ownerUUID, Field f, 
       Collection<Member> members, String type) 
     throws  GrouperDAOException;
   
   /**
    */
-  Set<Membership> findAllByOwnerAndCompositeAndMembers(String ownerUUID, 
+  Set<Membership> findAllByGroupOwnerAndCompositeAndMembers(String ownerUUID, 
       Collection<Member> members) 
     throws  GrouperDAOException;
   

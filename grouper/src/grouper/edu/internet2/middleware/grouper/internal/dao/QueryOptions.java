@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: QueryOptions.java,v 1.2 2009-04-13 16:53:08 mchyzer Exp $
+ * $Id: QueryOptions.java,v 1.3 2009-04-14 07:41:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -56,6 +56,52 @@ public class QueryOptions {
   private Boolean retrieveCount;
   
   /**
+   * if hibernate should second level cache this query
+   */
+  private Boolean secondLevelCache;
+  
+  /**
+   * if hibernate should second level cache this query, this is the region
+   */
+  private String secondLevelCacheRegion;
+  
+  /**
+   * 
+   * @param secondLevelCache1
+   * @return this for chaining
+   */
+  public QueryOptions secondLevelCache(boolean secondLevelCache1) {
+    this.secondLevelCache = secondLevelCache1;
+    return this;
+  }
+  
+  /**
+   * 
+   * @return if second level cache
+   */
+  public Boolean getSecondLevelCache() {
+    return this.secondLevelCache;
+  }
+  
+  /**
+   * 
+   * @param secondLevelCacheRegion1
+   * @return this for chaining
+   */
+  public QueryOptions secondLevelCacheRegion(String secondLevelCacheRegion1) {
+    this.secondLevelCacheRegion = secondLevelCacheRegion1;
+    return this;
+  }
+  
+  /**
+   * 
+   * @return if second level cache
+   */
+  public String getSecondLevelCacheRegion() {
+    return this.secondLevelCacheRegion;
+  }
+  
+  /**
    * count of the query if it is being calculated.  Note the hibernateSession API
    * is what sets this
    */
@@ -74,7 +120,9 @@ public class QueryOptions {
     if (this.querySort != null) {
       result.append("querySort: ").append(querySort.sortString(false)).append(", ");
     }
-    
+    if (this.secondLevelCache != null) {
+      result.append("secondLevelCache: ").append(this.getSecondLevelCache()).append(", ");
+    }
     if (this.retrieveResults != null) {
       result.append("retrieveResults: ").append(this.retrieveResults).append(", ");
     }

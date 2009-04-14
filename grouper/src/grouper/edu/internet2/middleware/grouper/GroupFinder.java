@@ -22,6 +22,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -33,7 +34,7 @@ import edu.internet2.middleware.grouper.validator.NotNullValidator;
  * Find groups within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupFinder.java,v 1.59 2009-03-27 15:38:20 shilen Exp $
+ * @version $Id: GroupFinder.java,v 1.60 2009-04-14 07:41:24 mchyzer Exp $
  */
 public class GroupFinder {
 
@@ -368,10 +369,26 @@ public class GroupFinder {
    */
   public static Group findByUuid(GrouperSession s, String uuid, boolean exceptionIfNotFound) 
       throws GroupNotFoundException {
+    return findByUuid(s, uuid, exceptionIfNotFound, null);
+  }
+  /**
+   * Find a group within the registry by UUID.
+   * <pre class="eg">
+   *   Group g = GroupFinder.findByUuid(s, uuid);
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   uuid  UUID of group to find.
+   * @param exceptionIfNotFound true if exception if not found
+   * @param queryOptions 
+   * @return  A {@link Group}
+   * @throws GroupNotFoundException if not found an exceptionIfNotFound is true
+   */
+  public static Group findByUuid(GrouperSession s, String uuid, boolean exceptionIfNotFound,  QueryOptions queryOptions) 
+      throws GroupNotFoundException {
     //note, no need for GrouperSession inverse of control
     GrouperSession.validate(s);
     try {
-      Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid, true);
+      Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid, true, queryOptions);
       if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
         return g;
       }

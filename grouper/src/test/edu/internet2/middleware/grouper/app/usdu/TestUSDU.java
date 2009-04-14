@@ -67,8 +67,8 @@ public class TestUSDU extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(TestUSDU.class);
-    //TestRunner.run(new TestUSDU("testNamingPrivilege"));
+    //TestRunner.run(TestUSDU.class);
+    TestRunner.run(new TestUSDU("testNamingPrivilege"));
   }
 
   private void deleteSubject(Subject subject) throws InterruptedException {

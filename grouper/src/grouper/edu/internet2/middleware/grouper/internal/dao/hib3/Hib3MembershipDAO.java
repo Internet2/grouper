@@ -57,7 +57,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.34 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.35 2009-04-14 07:41:24 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -487,9 +487,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByOwnerAndFieldAndMembersAndType(java.lang.String, edu.internet2.middleware.grouper.Field, java.util.Collection, java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerAndFieldAndMembersAndType(java.lang.String, edu.internet2.middleware.grouper.Field, java.util.Collection, java.lang.String)
    */
-  public Set<Membership> findAllByOwnerAndFieldAndMembersAndType(String ownerUUID,
+  public Set<Membership> findAllByGroupOwnerAndFieldAndMembersAndType(String ownerGroupId,
       Field f, Collection<Member> members, String type) throws GrouperDAOException {
     
     if (members == null) {
@@ -512,11 +512,11 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
       StringBuilder query = new StringBuilder("select ms"
           + " from Membership ms where"
-          + " ms.ownerUuid      = :owner "
+          + " ms.ownerGroupId      = :owner "
           + "and  ms.fieldId = :fieldId "
           + "and  ms.type = :theType "
           + " and ms.memberUuid in (");
-      byHqlStatic.setString( "owner", ownerUUID ) 
+      byHqlStatic.setString( "owner", ownerGroupId ) 
         .setString( "fieldId", f.getUuid() )
         .setString( "theType", type );
       //add all the uuids
@@ -533,9 +533,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByOwnerAndFieldAndMembers(java.lang.String, edu.internet2.middleware.grouper.Field, java.util.Collection)
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerAndFieldAndMembers(java.lang.String, edu.internet2.middleware.grouper.Field, java.util.Collection)
    */
-  public Set<Membership> findAllByOwnerAndFieldAndMembers(String ownerUUID,
+  public Set<Membership> findAllByGroupOwnerAndFieldAndMembers(String ownerGroupId,
       Field f, Collection<Member> members) throws GrouperDAOException {
     
     if (members == null) {
@@ -558,10 +558,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
       StringBuilder query = new StringBuilder("select ms"
           + " from Membership ms where"
-          + " ms.ownerUuid      = :owner "
+          + " ms.ownerGroupId      = :owner "
           + "and  ms.fieldId = :fieldId "
           + " and ms.memberUuid in (");
-      byHqlStatic.setString( "owner", ownerUUID ) 
+      byHqlStatic.setString( "owner", ownerGroupId ) 
         .setString( "fieldId", f.getUuid() );
       //add all the uuids
       byHqlStatic.setCollectionInClause(query, uuids);
@@ -577,9 +577,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByOwnerAndCompositeAndMembers(java.lang.String, java.util.Collection)
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerAndCompositeAndMembers(java.lang.String, java.util.Collection)
    */
-  public Set<Membership> findAllByOwnerAndCompositeAndMembers(String ownerUUID,
+  public Set<Membership> findAllByGroupOwnerAndCompositeAndMembers(String ownerGroupId,
       Collection<Member> members) throws GrouperDAOException {
     
     if (members == null) {
@@ -602,10 +602,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
       StringBuilder query = new StringBuilder("select ms"
           + " from Membership ms where"
-          + " ms.ownerUuid      = :owner "
+          + " ms.ownerGroupId      = :owner "
           + "and  ms.type = 'composite' "
           + " and ms.memberUuid in (");
-      byHqlStatic.setString( "owner", ownerUUID ) ;
+      byHqlStatic.setString( "owner", ownerGroupId ) ;
       //add all the uuids
       byHqlStatic.setCollectionInClause(query, uuids);
       query.append(")");
@@ -696,7 +696,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       throws GrouperDAOException, MembershipNotFoundException {
     Object[] result = HibernateSession.byHqlStatic()
     .createQuery(
-      "select ms, m from Membership as ms, Member as m, Field as field where  "
+      "select distinct ms, m from Membership as ms, Member as m, Field as field where  "
       + "     ms.ownerStemId  = :owner            "
       + "and  ms.memberUuid = :member           "
         + "and  ms.fieldId = :fuuid "
@@ -1117,7 +1117,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     if (securableField) {
       changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
           grouperSession.getSubject(), byHqlStatic, 
-          sql, "ms.ownerUuid", AccessPrivilege.VIEW_PRIVILEGES);
+          sql, "ms.ownerGroupId", AccessPrivilege.VIEW_PRIVILEGES);
     }
 
     if (!changedQuery) {

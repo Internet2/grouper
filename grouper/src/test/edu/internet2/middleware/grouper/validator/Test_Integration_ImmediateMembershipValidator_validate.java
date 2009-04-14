@@ -33,7 +33,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.2 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.3 2009-04-14 07:41:24 mchyzer Exp $
  * @since   1.2.0
  */
 public class Test_Integration_ImmediateMembershipValidator_validate extends GrouperTest {
@@ -65,7 +65,7 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
    */
   public static void main(String[] args) {
     junit.textui.TestRunner.run(new Test_Integration_ImmediateMembershipValidator_validate(
-        "testValidate_MembershipAlreadyExists"));
+        "testValidate_InvalidMemberInCircularCheck"));
   }
 
 

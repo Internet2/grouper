@@ -52,7 +52,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.26 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.27 2009-04-14 07:41:24 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -934,7 +934,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       } else {
         sql.append(" and ");
       }
-      sql.append(" theStem.name like :scope");
+      sql.append(" theStem.nameDb like :scope");
       byHqlStatic.setString("scope", scope + "%");
 
     }

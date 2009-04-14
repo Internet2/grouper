@@ -411,11 +411,14 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
       query.setMaxResults(queryPaging.getPageSize());
     }
 
-    if (this.cacheable != null) {
-      query.setCacheable(this.cacheable);
-    }
-    if (this.cacheRegion != null) {
-      query.setCacheRegion(this.cacheRegion);
+    boolean secondLevelCaching = HibUtils.secondLevelCaching(
+        this.cacheable, this.queryOptions);
+    query.setCacheable(secondLevelCaching);
+
+    String secondLevelCacheRegion = HibUtils.secondLevelCacheRegion(this.cacheRegion, 
+        this.queryOptions);
+    if (!StringUtils.isBlank(secondLevelCacheRegion)) {
+      query.setCacheRegion(secondLevelCacheRegion);
     }
 
     attachBindValues(query);
