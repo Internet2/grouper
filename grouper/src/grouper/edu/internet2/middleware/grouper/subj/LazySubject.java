@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,6 +27,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -40,7 +42,7 @@ import edu.internet2.middleware.subject.SubjectType;
  * necessary to instantiate all the Subjects (and Members) 
  * <p/>
  * @author  Gary Brown.
- * @version $Id: LazySubject.java,v 1.5 2008-10-15 03:57:06 mchyzer Exp $
+ * @version $Id: LazySubject.java,v 1.5.2.1 2009-04-14 15:14:15 mchyzer Exp $
  */
 
 public class LazySubject implements Subject {
@@ -199,17 +201,58 @@ public Map getAttributes() {
 	 */
 	private Subject getSubject() throws SubjectNotFoundException{
 		  if(subject==null) {
+		    final String[] error = new String[1];
 			  try {
 			        this.subject = SubjectFinder.findById(
 			          this.member.getSubjectId(), this.member.getSubjectTypeId(), this.member.getSubjectSourceId()
 			        );
+			        return subject;
+            }
+            catch (SubjectNotFoundException snfe) {
+              error[0] = this.member.getSubjectId() + " entity not found";
 			      }
 			      catch (SourceUnavailableException eSU) {
-			        throw new SubjectNotFoundException(eSU.getMessage(), eSU);
+              error[0] = this.member.getSubjectId() + " source unavailable " + this.member.getSubjectSourceId();
 			      }
 			      catch (SubjectNotUniqueException eSNU) {
-			        throw new SubjectNotFoundException(eSNU.getMessage(), eSNU);
+              error[0] = this.member.getSubjectId() + " entity not unique";
 			      }
+			      //there was an error
+			      this.subject = new Subject() {
+
+              public String getAttributeValue(String name) {
+                return error[0];
+              }
+
+              public Set getAttributeValues(String name) {
+                return GrouperUtil.toSet(error[0]);
+              }
+
+              public Map getAttributes() {
+                return new HashMap();
+              }
+
+              public String getDescription() {
+                return error[0];
+              }
+
+              public String getId() {
+                return LazySubject.this.member.getSubjectId();
+              }
+
+              public String getName() {
+                return error[0];
+              }
+
+              public Source getSource() {
+                return LazySubject.this.getSource();
+              }
+
+              public SubjectType getType() {
+                return LazySubject.this.getType();
+              }
+			        
+			      };
 		  }
 		  return subject;
 	 }
