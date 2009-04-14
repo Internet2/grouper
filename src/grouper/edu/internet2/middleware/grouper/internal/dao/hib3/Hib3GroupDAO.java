@@ -31,7 +31,6 @@ import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 
-import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
@@ -65,7 +64,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.38 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.39 2009-04-14 07:41:24 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -275,9 +274,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
                   + "or lower(g.displayNameDb) like :value "
                   + "or lower(g.extensionDb) like :value "
                   + "or lower(g.displayExtensionDb) like :value "
-                  + "or lower(g.description) like :value "
-                  + "or g.uuid in " +
-                "(select a.groupUuid from Attribute as a where lower(a.value) like :value) "
+                  + "or lower(g.descriptionDb) like :value "
+                  + "or exists " +
+                "(select a from Attribute as a where lower(a.value) like :value and a.groupUuid = g.uuid) "
               ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByAnyApproximateAttr")
               .setString( "value", valLowerForQuery ).listSet(Group.class);
 
@@ -315,9 +314,9 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
                 + "or lower(g.displayNameDb) like :value "
                 + "or lower(g.extensionDb) like :value "
                 + "or lower(g.displayExtensionDb) like :value "
-                + "or lower(g.description) like :value "
-                + "or g.uuid in " 
-                + "(select a.groupUuid from Attribute as a where lower(a.value) like :value)) " 
+                + "or lower(g.descriptionDb) like :value "
+                + "or exists " 
+                + "(select a from Attribute as a where lower(a.value) like :value and a.groupUuid = g.uuid) ) " 
                 + "and g.nameDb like :scope"
               ).setCacheable(false).setCacheRegion(KLASS + ".FindAllByAnyApproximateAttr")
               .setString("value", "%" + val.toLowerCase() + "%").setString("scope", scope + "%").listSet(Group.class);
@@ -958,20 +957,26 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             GroupNotFoundException  {
     return findByUuid(uuid, true);
   } 
-  
+
   /**
-   * <p><b>Implementation Notes.</b</p>
-   * <ol>
-   * <li>Hibernate caching is enabled.</li>
-   * </ol>
-   * @see     GroupDAO#findByUuid(String, boolean)
-   * @since   @HEAD@
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findByUuid(java.lang.String, boolean)
    */
   public Group findByUuid(String uuid, boolean exceptionIfNotFound)
+      throws GrouperDAOException, GroupNotFoundException {
+    return findByUuid(uuid, exceptionIfNotFound, null);
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findByUuid(java.lang.String, boolean, QueryOptions)
+   */
+  public Group findByUuid(String uuid, boolean exceptionIfNotFound, QueryOptions queryOptions)
       throws GrouperDAOException, GroupNotFoundException {
     Group dto = HibernateSession.byHqlStatic()
       .createQuery("from Group as g where g.uuid = :uuid")
       .setCacheable(true)
+      .options(queryOptions)
       .setCacheRegion(KLASS + ".FindByUuid")
       .setString("uuid", uuid).uniqueResult(Group.class);
     if (dto == null) {
@@ -1281,7 +1286,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       queryOptions = new QueryOptions();
     }
     if (queryOptions.getQuerySort() == null) {
-      queryOptions.sortAsc("displayName");
+      queryOptions.sortAsc("theGroup.displayNameDb");
     }
 
     StringBuilder sql = new StringBuilder("select distinct theGroup from Group theGroup ");
@@ -1294,18 +1299,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
     try {
 
-      List<Attribute> attributes = byHqlStatic.createQuery(sql.toString())
+      Set<Group> groups = byHqlStatic.createQuery(sql.toString())
         .setCacheable(false)
         .setCacheRegion(KLASS + ".GetAllGroupsSecure")
         .options(queryOptions)
-        .list(Attribute.class);
-      
-      //get a list of unique uuids
-      Collection<String> groupIds = new LinkedHashSet<String>(
-          GrouperUtil.propertyList(attributes, Attribute.PROPERTY_GROUP_UUID, String.class));
-      
-      Set<Group> groups = findByUuids(groupIds, false);
-      
+        .listSet(Group.class);
+            
       //if the hql didnt filter, this will
       Set<Group> filteredGroups = grouperSession.getAccessResolver()
         .postHqlFilterGroups(groups, subject, inPrivSet);
@@ -1328,7 +1327,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       queryOptions = new QueryOptions();
     }
     if (queryOptions.getQuerySort() == null) {
-      queryOptions.sortAsc("displayName");
+      queryOptions.sortAsc("theGroup.displayNameDb");
     }
 
     StringBuilder sql = new StringBuilder("select distinct theGroup from Group theGroup ");
@@ -1345,7 +1344,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       sql.append(" and ");
     }
 
-    sql.append("  nameGroup.name like :scope");
+    sql.append("  theGroup.nameDb like :scope");
     
     try {
 
@@ -1379,10 +1378,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       queryOptions = new QueryOptions();
     }
     if (queryOptions.getQuerySort() == null) {
-      queryOptions.sortAsc("displayName");
+      queryOptions.sortAsc("theGroup.displayNameDb");
     }
 
-    StringBuilder sql = new StringBuilder("select distinct Group as theGroup ");
+    StringBuilder sql = new StringBuilder("select distinct theGroup from Group as theGroup ");
 
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
 
@@ -1476,7 +1475,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       queryOptions = new QueryOptions();
     }
     if (queryOptions.getQuerySort() == null) {
-      queryOptions.sortAsc("displayName");
+      queryOptions.sortAsc("theGroup.displayNameDb");
     }
     String listId = Group.getDefaultList().getUuid();
 
@@ -1531,7 +1530,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       queryOptions = new QueryOptions();
     }
     if (queryOptions.getQuerySort() == null) {
-      queryOptions.sortAsc("displayName");
+      queryOptions.sortAsc("theGroup.displayNameDb");
     }
 
     String listId = Group.getDefaultList().getUuid();
@@ -1551,7 +1550,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       sql.append(" and ");
     }
   
-    sql.append( " theGroup.name like :scope" +
+    sql.append( " theGroup.nameDb like :scope" +
         " and listMembership.ownerGroupId = nameAttribute.groupUuid and listMembership.fieldId = :listId" +
         " and listMembership.memberUuid = :memberId ");
     
@@ -1595,7 +1594,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       queryOptions = new QueryOptions();
     }
     if (queryOptions.getQuerySort() == null) {
-      queryOptions.sortAsc("displayName");
+      queryOptions.sortAsc("theGroup.displayNameDb");
     }
 
     String listId = Group.getDefaultList().getUuid();

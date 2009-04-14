@@ -28,6 +28,7 @@ import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.type.Type;
 
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -35,6 +36,45 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 public class HibUtils {
+
+  /**
+   * 
+   * @param cacheable
+   * @param queryOptions
+   * @return if caching
+   */
+  public static boolean secondLevelCaching(Boolean cacheable, QueryOptions queryOptions) {
+
+    //cant find answer
+    if (cacheable == null && (queryOptions == null || queryOptions.getSecondLevelCache() == null)) {
+      return false;
+    }
+    //if no options, but has cacheable
+    if (queryOptions == null || queryOptions.getSecondLevelCache() == null) {
+      return cacheable;
+    }
+    //this one trumps all if not null
+    return queryOptions.getSecondLevelCache();
+  }
+
+  /**
+   * 
+   * @param cacheRegion
+   * @param queryOptions
+   * @return if caching
+   */
+  public static String secondLevelCacheRegion(String cacheRegion, QueryOptions queryOptions) {
+    if (StringUtils.isBlank(cacheRegion) && (queryOptions == null || StringUtils.isBlank(queryOptions.getSecondLevelCacheRegion()))) {
+      return null;
+    }
+    //if no options, but has cacheable
+    if (queryOptions == null || StringUtils.isBlank(queryOptions.getSecondLevelCacheRegion())) {
+      return cacheRegion;
+    }
+    //this one trumps all if not null
+    return queryOptions.getSecondLevelCacheRegion();
+    
+  }
 
   /**
    * pattern to detect if a query starts with "from".  e.g. from Field

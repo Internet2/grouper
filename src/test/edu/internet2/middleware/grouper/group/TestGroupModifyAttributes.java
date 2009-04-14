@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -35,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroupModifyAttributes.java,v 1.4 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: TestGroupModifyAttributes.java,v 1.5 2009-04-14 07:41:24 mchyzer Exp $
  * @since   1.2.0
  */
 public class TestGroupModifyAttributes extends GrouperTest {
@@ -45,8 +46,8 @@ public class TestGroupModifyAttributes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroupModifyAttributes("testGroupModifyAttributesAfterUpdatingAttributes"));
-    //TestRunner.run(TestGroupModifyAttributes.class);
+    //TestRunner.run(new TestGroupModifyAttributes("testGroupModifyAttributesUpdatedAfterAddingImmediateMember"));
+    TestRunner.run(TestGroupModifyAttributes.class);
   }
   
   private static final Log LOG = GrouperUtil.getLog(TestGroupModifyAttributes.class);
@@ -77,7 +78,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       gA.addMember(subjA);
       long    post  = new java.util.Date().getTime();
-      gA = GroupFinder.findByUuid(r.rs, gA.getUuid(), true);
+      gA = GroupFinder.findByUuid(r.rs, gA.getUuid(), true,new QueryOptions().secondLevelCache(false));
       assertTrue( "gA modify time not updated: " + gA.getModifyTime().getTime() 
           + ", " + orig, gA.getModifyTime().getTime() == orig );
       assertTrue( "gA last membership time >= pre",    gA.getLastMembershipChange().getTime() >= pre );
@@ -109,7 +110,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
       gA.deleteMember(subjA);
       Thread.sleep(100); // TODO 20070430 hack
       long    post  = new java.util.Date().getTime();
-      gA = GroupFinder.findByUuid(r.rs, gA.getUuid(), true);
+      gA = GroupFinder.findByUuid(r.rs, gA.getUuid(), true,new QueryOptions().secondLevelCache(false));
       long    mtime = gA.getModifyTime().getTime();
       long    mtime_mem = gA.getLastMembershipChange().getTime();
 
@@ -150,7 +151,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group g = GroupFinder.findByUuid( s, gA.getUuid(), true );
+      Group g = GroupFinder.findByUuid( s, gA.getUuid(), true,new QueryOptions().secondLevelCache(false) );
       assertTrue( "gA modifyTime == orig",  g.getModifyTime().getTime() == orig );
       assertTrue( "gA getLastMembershipChange >= pre", g.getLastMembershipChange().getTime() >= pre );
       assertTrue( "gA getLastMembershipChange <= post", g.getLastMembershipChange().getTime() <= post );
@@ -188,7 +189,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group g = GroupFinder.findByUuid( s, gA.getUuid(), true );
+      Group g = GroupFinder.findByUuid( s, gA.getUuid(), true,new QueryOptions().secondLevelCache(false) );
       assertTrue( "gA modifyTime == orig",  g.getModifyTime().getTime() == orig );
       assertTrue( "gA getLastMembershipChange >= pre", g.getLastMembershipChange().getTime() >= pre );
       assertTrue( "gA getLastMembershipChange <= post", g.getLastMembershipChange().getTime() <= post );
@@ -232,7 +233,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group           g     = GroupFinder.findByUuid( s, gC.getUuid(), true );
+      Group           g     = GroupFinder.findByUuid( s, gC.getUuid(), true,new QueryOptions().secondLevelCache(false) );
 
       assertTrue( "gC modifyTime <= pre",  g.getModifyTime().getTime() <= pre );
       assertTrue( "gC getLastMembershipChange >= pre", g.getLastMembershipChange().getTime() >= pre );
@@ -266,7 +267,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       gA.grantPriv(subjA, AccessPrivilege.ADMIN);
       long    post  = new java.util.Date().getTime();
-      gA = GroupFinder.findByUuid(r.rs, gA.getUuid(), true);
+      gA = GroupFinder.findByUuid(r.rs, gA.getUuid(), true,new QueryOptions().secondLevelCache(false));
 
       long    mtime = gA.getModifyTime().getTime();
       long    mtime_mem = gA.getLastMembershipChange().getTime();
@@ -301,7 +302,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       gA.revokePriv(subjA, AccessPrivilege.ADMIN);
       long    post  = new java.util.Date().getTime();
-      gA = GroupFinder.findByUuid(r.rs, gA.getUuid(), true);
+      gA = GroupFinder.findByUuid(r.rs, gA.getUuid(), true,new QueryOptions().secondLevelCache(false));
 
       long    mtime = gA.getModifyTime().getTime();
       long    mtime_mem = gA.getLastMembershipChange().getTime();
@@ -339,7 +340,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group g     = GroupFinder.findByUuid( s, gA.getUuid(), true );
+      Group g     = GroupFinder.findByUuid( s, gA.getUuid(), true,new QueryOptions().secondLevelCache(false) );
       long  mtime = g.getModifyTime().getTime();
       long  mtime_mem = g.getLastMembershipChange().getTime();
 
@@ -379,7 +380,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group g = GroupFinder.findByUuid( s, gA.getUuid(), true );
+      Group g = GroupFinder.findByUuid( s, gA.getUuid(), true ,new QueryOptions().secondLevelCache(false));
       long  mtime_mem = g.getLastMembershipChange().getTime();
 
       assertTrue( "gA modifyTime < pre",  g.getModifyTime().getTime() < pre );
@@ -415,7 +416,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group g     = GroupFinder.findByUuid( s, gA.getUuid(), true );
+      Group g     = GroupFinder.findByUuid( s, gA.getUuid(), true,new QueryOptions().secondLevelCache(false) );
       long  mtime = g.getModifyTime().getTime();
       long  mtime_mem = g.getLastMembershipChange().getTime();
 
@@ -454,7 +455,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group g = GroupFinder.findByUuid( s, gA.getUuid(), true );
+      Group g = GroupFinder.findByUuid( s, gA.getUuid(), true,new QueryOptions().secondLevelCache(false) );
       long  mtime_mem = g.getLastMembershipChange().getTime();
 
       assertTrue( "gA modifyTime < pre",  g.getModifyTime().getTime() < pre );
@@ -487,7 +488,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group g = GroupFinder.findByUuid( s, gA.getUuid(), true );
+      Group g = GroupFinder.findByUuid( s, gA.getUuid(), true,new QueryOptions().secondLevelCache(false) );
       long  mtime_mem = g.getLastMembershipChange().getTime();
 
       assertTrue( "gA modifyTime > pre",  g.getModifyTime().getTime() > pre );
@@ -522,7 +523,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group           g     = GroupFinder.findByUuid( s, gC.getUuid(), true );
+      Group           g     = GroupFinder.findByUuid( s, gC.getUuid(), true,new QueryOptions().secondLevelCache(false) );
 
       assertTrue( "gC modifyTime > pre",  g.getModifyTime().getTime() > pre );
       assertTrue( "gC getLastMembershipChange < pre", g.getLastMembershipChange().getTime() < pre );
@@ -559,7 +560,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group           g     = GroupFinder.findByUuid( s, gC.getUuid(), true );
+      Group           g     = GroupFinder.findByUuid( s, gC.getUuid(), true,new QueryOptions().secondLevelCache(false) );
 
       assertTrue( "gC modifyTime > pre",  g.getModifyTime().getTime() > pre );
       assertTrue( "gC getLastMembershipChange > pre", g.getLastMembershipChange().getTime() > pre );
@@ -594,7 +595,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group           g     = GroupFinder.findByUuid( s, gC.getUuid(), true );
+      Group           g     = GroupFinder.findByUuid( s, gC.getUuid(), true,new QueryOptions().secondLevelCache(false) );
 
       assertTrue( "gC modifyTime > pre",  g.getModifyTime().getTime() > pre );
       assertTrue( "gC getLastMembershipChange < pre", g.getLastMembershipChange().getTime() < pre );
@@ -630,7 +631,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
-      Group           g     = GroupFinder.findByUuid( s, gC.getUuid(), true );
+      Group           g     = GroupFinder.findByUuid( s, gC.getUuid(), true,new QueryOptions().secondLevelCache(false) );
 
       assertTrue( "gC modifyTime > pre",  g.getModifyTime().getTime() > pre );
       assertTrue( "gC getLastMembershipChange > pre", g.getLastMembershipChange().getTime() > pre );

@@ -88,7 +88,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.119 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.120 2009-04-14 07:41:24 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -450,18 +450,14 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       //first lets see which uuids are not in cache
       Set<String> uuidsNotInCache = new HashSet<String>();
       
-      //TODO update for 1.5 with group owner
       for (Membership membership : memberships) {
         
         String uuid = membership.getOwnerGroupId();
-        if (uuid == null) {
-          throw new GroupNotFoundException("Group uuid is null! " + membership.getUuid());
-        }
-        
-        if (membership.getGroupFromCache(uuid) == null) {
-          uuidsNotInCache.add(uuid);
-        }
-        
+        if (uuid != null) {
+          if (membership.getGroupFromCache(uuid) == null) {
+            uuidsNotInCache.add(uuid);
+          }
+        }        
       }
       
       //now lets get all those groups including attributes
@@ -474,6 +470,10 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
         
         String uuid = membership.getOwnerGroupId();
         
+        //this is a naming membership
+        if (uuid == null) {
+          continue;
+        }
         Group group = membership.getGroupFromCache(uuid);
         if (group == null) {
           group = GrouperUtil.retrieveByProperty(groupsFromDb, Group.FIELD_UUID, uuid);

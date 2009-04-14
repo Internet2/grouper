@@ -34,7 +34,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link GroupAlternateNameExactFilter}.
  * <p />
  * @author shilen
- * @version $Id: TestGQGroupAlternateNameExactFilter.java,v 1.1 2009-03-27 23:28:53 shilen Exp $
+ * @version $Id: TestGQGroupAlternateNameExactFilter.java,v 1.2 2009-04-14 07:41:24 mchyzer Exp $
  */
 public class TestGQGroupAlternateNameExactFilter extends TestCase {
 
@@ -130,36 +130,6 @@ public class TestGQGroupAlternateNameExactFilter extends TestCase {
         s, new GroupAlternateNameExactFilter("education:internet2alt")
       );
       Assert.assertTrue("groups",  gq.getGroups().size()      == 1);
-      Assert.assertTrue("members", gq.getMembers().size()     == 0);
-      Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
-      Assert.assertTrue("stems",   gq.getStems().size()       == 0);
-    }
-    catch (QueryException eQ) {
-      Assert.fail("unable to query: " + eQ.getMessage());
-    }
-  } 
-  
-  /**
-   * Test wrong case
-   * @throws Exception
-   */
-  public void testCase() {
-    GrouperSession  s     = SessionHelper.getRootSession();
-    Stem            root  = StemHelper.findRootStem(s);
-    Stem            edu   = StemHelper.addChildStem(root, "edu", "education");
-    Group           i2    = StemHelper.addChildGroup(edu, "i2", "internet2");
-    Group           uofc  = StemHelper.addChildGroup(edu, "uofc", "uchicago");
-    Stem            com   = StemHelper.addChildStem(root, "com", "commercial");
-    Group           dev   = StemHelper.addChildGroup(com, "devclue", "devclue");
-
-    i2.addAlternateName("education:internet2alt");
-    i2.store();
-    
-    try {
-      GrouperQuery gq = GrouperQuery.createQuery(
-        s, new GroupAlternateNameExactFilter("education:Internet2alt")
-      );
-      Assert.assertTrue("groups",  gq.getGroups().size()      == 0);
       Assert.assertTrue("members", gq.getMembers().size()     == 0);
       Assert.assertTrue("mships",  gq.getMemberships().size() == 0);
       Assert.assertTrue("stems",   gq.getStems().size()       == 0);

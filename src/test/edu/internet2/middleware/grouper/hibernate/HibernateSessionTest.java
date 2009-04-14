@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HibernateSessionTest.java,v 1.3 2009-04-13 20:24:29 mchyzer Exp $
+ * $Id: HibernateSessionTest.java,v 1.4 2009-04-14 07:41:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
@@ -34,7 +34,8 @@ public class HibernateSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new HibernateSessionTest("testResultSize"));
+    TestRunner.run(new HibernateSessionTest("testPagingSorting"));
+    //TestRunner.run(HibernateSessionTest.class);
   }
   
 
@@ -72,7 +73,7 @@ public class HibernateSessionTest extends GrouperTest {
     QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
     List<Member> members = HibernateSession.byHqlStatic()
       .createQuery("select distinct theMember from Member as theMember, Membership as theMembership, Field theField "
-      + "where theMembership.ownerUuid = :ownerId and theMember.uuid = theMembership.memberUuid" +
+      + "where theMembership.ownerGroupId = :ownerId and theMember.uuid = theMembership.memberUuid" +
           " and theMembership.fieldId = theField.uuid and theField.typeString = 'list' and theField.name = 'members'")
           .setString("ownerId", i2.getUuid())
       .options(queryOptions).list(Member.class);
@@ -124,7 +125,7 @@ public class HibernateSessionTest extends GrouperTest {
     //page the members in a group
     List<Member> members = HibernateSession.byHqlStatic()
       .createQuery("select distinct theMember from Member as theMember, Membership as theMembership, Field theField "
-      + "where theMembership.ownerUuid = :ownerId and theMember.uuid = theMembership.memberUuid" +
+      + "where theMembership.ownerGroupId = :ownerId and theMember.uuid = theMembership.memberUuid" +
       		" and theMembership.fieldId = theField.uuid and theField.typeString = 'list' and theField.name = 'members'")
       		.setString("ownerId", i2.getUuid())
       .options(new QueryOptions().sortAsc("theMember.subjectIdDb").paging(queryPaging)).list(Member.class);
@@ -138,7 +139,7 @@ public class HibernateSessionTest extends GrouperTest {
     List<String> memberUuids = HibernateSession.byHqlStatic()
       .createQuery("select distinct theMember.uuid from Member theMember, " +
       		"Membership theMembership, Membership theMembership2, Field theField " +
-      		"where theMembership.ownerUuid = :group1uuid and theMembership2.ownerUuid = :group2uuid " +
+      		"where theMembership.ownerGroupId = :group1uuid and theMembership2.ownerGroupId = :group2uuid " +
       		"and theMember.uuid = theMembership.memberUuid and theMember.uuid = theMembership2.memberUuid " +
       		"and theMembership.fieldId = theField.uuid and theMembership2.fieldId = theField.uuid " +
       		"and theField.typeString = 'list' and theField.name = 'members'")
@@ -153,13 +154,13 @@ public class HibernateSessionTest extends GrouperTest {
     memberUuids = HibernateSession.byHqlStatic()
     .createQuery("select distinct theMember.uuid from Member theMember, " +
         "Membership theMembership, Field theField " +
-        "where theMembership.ownerUuid = :group1uuid " +
+        "where theMembership.ownerGroupId = :group1uuid " +
         "and theMember.uuid = theMembership.memberUuid " +
         "and theMembership.fieldId = theField.uuid " +
         "and theField.typeString = 'list' and theField.name = 'members' " +
         "and not exists (select theMembership2.memberUuid from Membership theMembership2 " +
         "where theMembership2.memberUuid = theMember.uuid and theMembership.fieldId = theField.uuid " +
-        "and theMembership2.ownerUuid = :group2uuid) ")
+        "and theMembership2.ownerGroupId = :group2uuid) ")
         .setString("group1uuid", i3.getUuid())
         .setString("group2uuid", i2.getUuid())
         .list(String.class);
@@ -171,7 +172,7 @@ public class HibernateSessionTest extends GrouperTest {
     memberUuids = HibernateSession.byHqlStatic()
     .createQuery("select distinct theMember.uuid from Member theMember, " +
         "Membership theMembership, Membership theMembership2, Field theField " +
-        "where theMembership.ownerUuid = :group1uuid and theMembership2.ownerUuid = :group2uuid " +
+        "where theMembership.ownerGroupId = :group1uuid and theMembership2.ownerGroupId = :group2uuid " +
         "and (theMember.uuid = theMembership.memberUuid or theMember.uuid = theMembership2.memberUuid) " +
         "and theMembership.fieldId = theField.uuid and theMembership2.fieldId = theField.uuid " +
         "and theField.typeString = 'list' and theField.name = 'members'")
@@ -196,13 +197,13 @@ public class HibernateSessionTest extends GrouperTest {
     queryPaging = QueryPaging.page(3, 1, true);
     
     List<Group> groups = HibernateSession.byHqlStatic()
-    .createQuery("select distinct g from Group as g, Membership as m, Field as f, Attribute as a " +
-    		"where a.groupUuid = g.uuid and g.parentUuid = :parent " +
-    		"and m.ownerUuid = g.uuid and m.fieldId = f.uuid and f.typeString = 'access' " +
+    .createQuery("select distinct g from Group as g, Membership as m, Field as f " +
+    		"where g.parentUuid = :parent " +
+    		"and m.ownerGroupId = g.uuid and m.fieldId = f.uuid and f.typeString = 'access' " +
     		"and (m.memberUuid = :sessionMemberId or m.memberUuid = :grouperAllUuid)")
     		.setString("parent", edu.getUuid())
-        .setString("sessionMemberId", MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1).getUuid())
-        .setString("grouperAllUuid", MemberFinder.findBySubject(grouperSession, SubjectFinder.findAllSubject()).getUuid())
+        .setString("sessionMemberId", MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid())
+        .setString("grouperAllUuid", MemberFinder.findBySubject(grouperSession, SubjectFinder.findAllSubject(), true).getUuid())
         .options(new QueryOptions().paging(queryPaging).sortAsc("g.uuid"))
         .list(Group.class);
     

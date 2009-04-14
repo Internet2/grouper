@@ -60,7 +60,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.27 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.28 2009-04-14 07:41:24 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -72,8 +72,8 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestStem("testStemModifyAttributesAfterUpdatingAttributes"));
-    TestRunner.run(TestStem.class);
+    TestRunner.run(new TestStem("testCache"));
+    //TestRunner.run(TestStem.class);
   }
 
   public TestStem(String name) {
@@ -1343,14 +1343,19 @@ public class TestStem extends GrouperTest {
     Stem            edu   = root.addChildStem("edu", "edu");
     
     //get once
-    Stem edu2 = StemFinder.findByUuid(s, edu.getUuid());
+    Stem edu2 = StemFinder.findByUuid(s, edu.getUuid(), true);
 
     //update it
     HibernateSession.bySqlStatic().executeSql(
         "update grouper_stems set extension = 'abc' where id = ?", HibUtils.listObject(edu.getUuid()));
 
+    //System.out.println("updated stem");
+    
+    //NOTE: make sure this is set in grouper.hibernate.properties: hibernate.cache.use_query_cache = true  
+    //NOTE: make sure the ehcache.xml is like the example in regards to Stem caching
+    
     //get again
-    Stem edu3 = StemFinder.findByUuid(s, edu.getUuid());
+    Stem edu3 = StemFinder.findByUuid(s, edu.getUuid(), true);
     
     assertEquals("edu", edu3.getExtension());
     
@@ -1358,14 +1363,14 @@ public class TestStem extends GrouperTest {
     GrouperUtil.sleep(12000);
     
     //should have updated by now
-    edu2 = StemFinder.findByUuid(s, edu.getUuid());
+    edu2 = StemFinder.findByUuid(s, edu.getUuid(), true);
     assertEquals("abc", edu2.getExtension());
     
     edu.setExtension("abc2");
     edu.store();
     
     //hibernate should know to update it
-    edu2 = StemFinder.findByUuid(s, edu.getUuid());
+    edu2 = StemFinder.findByUuid(s, edu.getUuid(), true);
     assertEquals("abc2", edu2.getExtension());
     
     s.stop();

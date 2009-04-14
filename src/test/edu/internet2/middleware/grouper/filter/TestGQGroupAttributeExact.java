@@ -44,8 +44,8 @@ public class TestGQGroupAttributeExact extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new TestGQGroupAttributeExact("testGroupAttributeExactFilterSomethingScoped"));
-    //TestRunner.run(TestGQGroupAttributeExact.class);
+    //TestRunner.run(new TestGQGroupAttributeExact("testGroupAttributeExactFilterSomethingScoped"));
+    TestRunner.run(TestGQGroupAttributeExact.class);
   }
   /**
    * 

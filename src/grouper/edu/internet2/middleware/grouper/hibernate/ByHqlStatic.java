@@ -466,6 +466,7 @@ public class ByHqlStatic implements HqlQuery {
     byHql.setCacheable(ByHqlStatic.this.cacheable);
     byHql.setCacheRegion(ByHqlStatic.this.cacheRegion);
     byHql.setQuery(ByHqlStatic.this.query);
+    byHql.options(ByHqlStatic.this.queryOptions);
     return byHql;
     
   }

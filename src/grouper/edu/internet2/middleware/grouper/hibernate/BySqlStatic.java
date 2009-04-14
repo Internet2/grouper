@@ -67,7 +67,11 @@ public class BySqlStatic {
 
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
+        
+        //lets flush before the query
         HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+        hibernateSession.misc().flush();
+        
         PreparedStatement preparedStatement = null;
         try {
           
