@@ -64,7 +64,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.39 2009-04-14 07:41:24 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.40 2009-04-15 15:56:21 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -1493,7 +1493,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       sql.append(" and ");
     }
     
-    sql.append("  listMembership.ownerGroupId = theAttribute.groupUuid and listMembership.fieldId = :listId" +
+    sql.append("  listMembership.ownerGroupId = theGroup.uuid and listMembership.fieldId = :listId" +
         " and listMembership.memberUuid = :memberId ");
     
     Member member = MemberFinder.internal_findBySubject(subject, null, false);
@@ -1615,7 +1615,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     }
     
     sql.append(" theGroup.parentUuid = :parent " +
-        " and listMembership.ownerGroupId = theAttribute.groupUuid and listMembership.fieldId = :listId" +
+        " and listMembership.ownerGroupId = theGroup.uuid and listMembership.fieldId = :listId" +
         " and listMembership.memberUuid = :memberId ");
 
     Member member = MemberFinder.internal_findBySubject(subject, null, false);

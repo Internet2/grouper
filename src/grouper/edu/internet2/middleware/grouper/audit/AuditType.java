@@ -1,12 +1,14 @@
 /*
  * @author mchyzer
- * $Id: AuditType.java,v 1.3 2009-03-31 06:58:28 mchyzer Exp $
+ * $Id: AuditType.java,v 1.4 2009-04-15 15:56:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
 import java.sql.Timestamp;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -125,6 +127,105 @@ public class AuditType extends GrouperAPI implements Hib3GrouperVersioned {
       .append(this.labelString07, auditType.labelString07)
       .append(this.labelString08, auditType.labelString08).isEquals();
       
+  }
+  
+  /**
+   * labels for this type
+   * @return the labels
+   */
+  public Set<String> labels() {
+    Set<String> labels = new LinkedHashSet<String>();
+    if (!StringUtils.isBlank(this.labelString01)) {
+      labels.add(this.labelString01);
+    }
+    if (!StringUtils.isBlank(this.labelString02)) {
+      labels.add(this.labelString02);
+    }
+    if (!StringUtils.isBlank(this.labelString03)) {
+      labels.add(this.labelString03);
+    }
+    if (!StringUtils.isBlank(this.labelString04)) {
+      labels.add(this.labelString04);
+    }
+    if (!StringUtils.isBlank(this.labelString05)) {
+      labels.add(this.labelString05);
+    }
+    if (!StringUtils.isBlank(this.labelString06)) {
+      labels.add(this.labelString06);
+    }
+    if (!StringUtils.isBlank(this.labelString07)) {
+      labels.add(this.labelString07);
+    }
+    if (!StringUtils.isBlank(this.labelString08)) {
+      labels.add(this.labelString08);
+    }
+
+    if (!StringUtils.isBlank(this.labelInt01)) {
+      labels.add(this.labelInt01);
+    }
+    if (!StringUtils.isBlank(this.labelInt02)) {
+      labels.add(this.labelInt02);
+    }
+    if (!StringUtils.isBlank(this.labelInt03)) {
+      labels.add(this.labelInt03);
+    }
+    if (!StringUtils.isBlank(this.labelInt04)) {
+      labels.add(this.labelInt04);
+    }
+    if (!StringUtils.isBlank(this.labelInt05)) {
+      labels.add(this.labelInt05);
+    }
+    return labels;
+  }
+  
+  /**
+   * get the field in audit entry for this label
+   * @param label
+   * @return the field
+   */
+  public String retrieveAuditEntryFieldForLabel(String label) {
+    if (StringUtils.equals(label, this.labelString01)) {
+      return "string01";
+    }
+    if (StringUtils.equals(label, this.labelString02)) {
+      return "string02";
+    }
+    if (StringUtils.equals(label, this.labelString03)) {
+      return "string03";
+    }
+    if (StringUtils.equals(label, this.labelString04)) {
+      return "string04";
+    }
+    if (StringUtils.equals(label, this.labelString05)) {
+      return "string05";
+    }
+    if (StringUtils.equals(label, this.labelString06)) {
+      return "string06";
+    }
+    if (StringUtils.equals(label, this.labelString07)) {
+      return "string07";
+    }
+    if (StringUtils.equals(label, this.labelString08)) {
+      return "string08";
+    }
+
+    if (StringUtils.equals(label, this.labelInt01)) {
+      return "int01";
+    }
+    if (StringUtils.equals(label, this.labelInt02)) {
+      return "int02";
+    }
+    if (StringUtils.equals(label, this.labelInt03)) {
+      return "int03";
+    }
+    if (StringUtils.equals(label, this.labelInt04)) {
+      return "int04";
+    }
+    if (StringUtils.equals(label, this.labelInt05)) {
+      return "int05";
+    }
+
+    throw new RuntimeException("Cant find label '" + label + "' for type: " + this);
   }
   
   /**

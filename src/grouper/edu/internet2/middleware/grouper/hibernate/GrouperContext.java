@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperContext.java,v 1.5 2009-02-09 21:36:44 mchyzer Exp $
+ * $Id: GrouperContext.java,v 1.6 2009-04-15 15:56:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
@@ -55,6 +55,12 @@ public class GrouperContext {
    */
   private int queryCount;
 
+  /** member id of the logged in user */
+  private String loggedInMemberId;
+  
+  /** member id that the logged in user is acting as */
+  private String loggedInMemberIdActAs;
+  
   /**
    * this is not a timestamp, but rather is the nanos of when it started 
    */
@@ -86,6 +92,9 @@ public class GrouperContext {
       
       auditEntry.setGrouperEngine(grouperDefaultContext.grouperEngine);
       auditEntry.setUserIpAddress(grouperDefaultContext.callerIpAddress);
+      auditEntry.setLoggedInMemberId(grouperDefaultContext.loggedInMemberId);
+      auditEntry.setActAsMemberId(grouperDefaultContext.loggedInMemberIdActAs);
+
     }
 
     GrouperContext grouperOuterContext = currentOuterContext.get();
@@ -95,6 +104,12 @@ public class GrouperContext {
         auditEntry.setUserIpAddress(grouperOuterContext.callerIpAddress);
       }
       
+      if (!StringUtils.isBlank(grouperOuterContext.loggedInMemberId)) {
+        auditEntry.setLoggedInMemberId(grouperDefaultContext.loggedInMemberId);
+      }
+      if (!StringUtils.isBlank(grouperOuterContext.loggedInMemberIdActAs)) {       
+        auditEntry.setActAsMemberId(grouperDefaultContext.loggedInMemberIdActAs);
+      }
     }
   }
   
@@ -127,6 +142,14 @@ public class GrouperContext {
    */
   private static ThreadLocal<GrouperContext> defaultContext = 
     new ThreadLocal<GrouperContext>();
+  
+  /**
+   * 
+   * @return the default context
+   */
+  public static GrouperContext retrieveDefaultContext() {
+    return defaultContext.get();
+  }
   
   /**
    * 
@@ -253,5 +276,37 @@ public class GrouperContext {
    */
   public void setCallerIpAddress(String callerIpAddress1) {
     this.callerIpAddress = callerIpAddress1;
+  }
+
+  /**
+   * member id of the logged in user
+   * @return member id
+   */
+  public String getLoggedInMemberId() {
+    return this.loggedInMemberId;
+  }
+
+  /**
+   * member id of the logged in user
+   * @param loggedInMemberId1
+   */
+  public void setLoggedInMemberId(String loggedInMemberId1) {
+    this.loggedInMemberId = loggedInMemberId1;
+  }
+
+  /**
+   * member id that the logged in user is acting as
+   * @return member id
+   */
+  public String getLoggedInMemberIdActAs() {
+    return this.loggedInMemberIdActAs;
+  }
+
+  /**
+   * member id that the logged in user is acting as
+   * @param loggedInMemberIdActAs1
+   */
+  public void setLoggedInMemberIdActAs(String loggedInMemberIdActAs1) {
+    this.loggedInMemberIdActAs = loggedInMemberIdActAs1;
   }
 }
