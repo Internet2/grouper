@@ -34,7 +34,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.subject.Subject;
@@ -43,7 +47,7 @@ import edu.internet2.middleware.subject.Subject;
  * Generic filter for ui for grouper (e.g. set hooks context)
  * 
  * @author Chris Hyzer.
- * @version $Id: GrouperUiFilter.java,v 1.3 2009-03-15 08:14:12 mchyzer Exp $
+ * @version $Id: GrouperUiFilter.java,v 1.4 2009-04-15 15:56:18 mchyzer Exp $
  */
 
 public class GrouperUiFilter implements Filter {
@@ -102,11 +106,27 @@ public class GrouperUiFilter implements Filter {
     HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SESSION, session, false);
     HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_RESPONSE, response, false);
     
+    GrouperContext grouperContext = GrouperContext.createNewDefaultContext(
+        GrouperEngineBuiltin.UI, false, false);
+    
+    grouperContext.setCallerIpAddress(req.getRemoteAddr());
+    
+    GrouperSession rootSession = grouperSession == null ? 
+        GrouperSession.startRootSession(false) : grouperSession.internal_getRootSession();
+    
+    if (subject != null) {
+      //TODO also put this at the login step...
+      Member member = MemberFinder.findBySubject(rootSession, subject, true);
+      
+      grouperContext.setLoggedInMemberId(member.getUuid());
+    }
+    
     try {
       chain.doFilter(request, response);
     } finally {
 
       HooksContext.clearThreadLocal();
+      GrouperContext.deleteDefaultContext();
     }
 
 

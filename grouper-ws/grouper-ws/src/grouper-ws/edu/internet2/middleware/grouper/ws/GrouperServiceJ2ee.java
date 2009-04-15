@@ -32,9 +32,13 @@ import org.apache.ws.security.handler.WSHandlerResult;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.SessionException;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -214,6 +218,20 @@ public class GrouperServiceJ2ee implements Filter {
       //this is probably a system error...  not a user error
       throw new RuntimeException("Cant find subject from login id: " + userIdLoggedIn, e);
     }
+    
+    //this is set in filter
+    GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
+
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession rootSession = grouperSession == null ? 
+        GrouperSession.startRootSession(false) : grouperSession.internal_getRootSession();
+
+    
+    Member member = MemberFinder.findBySubject(rootSession, caller, true);
+    
+    grouperContext.setLoggedInMemberId(member.getUuid());
+
+    
     return caller;
 
   }
@@ -269,7 +287,20 @@ public class GrouperServiceJ2ee implements Filter {
   public static Subject retrieveSubjectActAs(WsSubjectLookup actAsLookup)
       throws WsInvalidQueryException {
     Subject actAsSubject = retrieveSubjectActAsHelper(actAsLookup);
-    HooksContext.assignSubjectLoggedIn(actAsSubject);
+    HooksContext.assignSubjectActAs(actAsSubject);
+
+    //this is set in filter
+    GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
+
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    GrouperSession rootSession = grouperSession == null ? 
+        GrouperSession.startRootSession(false) : grouperSession.internal_getRootSession();
+
+    
+    Member member = MemberFinder.findBySubject(rootSession, actAsSubject, true);
+    
+    grouperContext.setLoggedInMemberIdActAs(member.getUuid());
+    
     return actAsSubject;
   }
 
@@ -571,6 +602,12 @@ public class GrouperServiceJ2ee implements Filter {
         ((HttpServletRequest)request).getSession(), false);
     HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_RESPONSE, response, false);
 
+    GrouperContext grouperContext = GrouperContext.createNewDefaultContext(
+        GrouperEngineBuiltin.WS, false, false);
+    
+    grouperContext.setCallerIpAddress(request.getRemoteAddr());
+
+    
     try {
       filterChain.doFilter(request, response);
     } finally {

@@ -1,22 +1,27 @@
 /*
  * @author mchyzer
- * $Id: AuditEntry.java,v 1.7 2009-03-31 06:58:28 mchyzer Exp $
+ * $Id: AuditEntry.java,v 1.8 2009-04-15 15:56:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -174,6 +179,114 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public String toString() {
     return "Audit entry: " + StringUtils.substring(this.description, 0, 30);
+  }
+
+  /**
+   * get the audit type, it better be there
+   * @return the audit type
+   */
+  public AuditType getAuditType() {
+    return AuditTypeFinder.find(this.auditTypeId, true);
+  }
+  
+  /**
+   * 
+   * @param extended if all fields should be printed
+   * @return the report
+   */
+  public String toStringReport(boolean extended) {
+    StringBuilder result = new StringBuilder();
+    AuditType auditType = this.getAuditType();
+    Timestamp lastUpdated = this.getLastUpdated();
+    
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+    String lastUpdatedString = simpleDateFormat.format(lastUpdated);
+    
+    result.append(lastUpdatedString).append(" ").append(StringUtils.rightPad(auditType.getAuditCategory(), 12))
+      .append(" - ").append(StringUtils.rightPad(auditType.getActionName(), 20))
+      .append(" (").append(StringUtils.leftPad(Long.toString(this.getDurationMicroseconds()/1000), 6))
+      .append("ms, ").append(StringUtils.leftPad(Integer.toString(this.getQueryCount()), 3)).append(" queries)\n");
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession(false);
+    
+    if (!StringUtils.isBlank(this.loggedInMemberId)) {
+      result.append("  ").append(StringUtils.rightPad("Logged in user:", 20));
+      Member loggedInMember = MemberFinder.findByUuid(grouperSession, this.loggedInMemberId, false);
+      String loggedInMemberString = subjectToString(loggedInMember);
+      result.append(loggedInMemberString);
+      
+      if (!StringUtils.isBlank(this.userIpAddress)) {
+        result.append(" (ip: ").append(this.userIpAddress).append(")");
+      }
+      
+      if (!StringUtils.isBlank(this.actAsMemberId) && !StringUtils.equals(this.actAsMemberId, this.loggedInMemberId)) {
+        result.append(" (actAs: ");
+        Member actAsMember = MemberFinder.findByUuid(grouperSession, this.actAsMemberId, false);
+        String actAsMemberString = subjectToString(actAsMember);
+        result.append(actAsMemberString);
+        result.append(")");
+      }
+      result.append("\n");
+    }
+
+    if (!StringUtils.isBlank(this.description)) {
+      result.append("  ").append(StringUtils.rightPad("Description:", 20))
+        .append(StringUtils.abbreviate(this.description, 200)).append("\n");
+    }
+    result.append("  ").append(StringUtils.rightPad("Server:", 20));
+    result.append(this.grouperEngine).append(", host: ").append(this.serverHost);
+    result.append(", user: ").append(this.serverUserName);
+    result.append("\n");
+    
+    if (extended) {
+      
+      for (String label: auditType.labels()) {
+        
+        //see if there is data
+        String fieldName = auditType.retrieveAuditEntryFieldForLabel(label);
+        Object value = GrouperUtil.fieldValue(this, fieldName);
+        String valueString = GrouperUtil.stringValue(value);
+        if (!StringUtils.isBlank(valueString)) {
+          
+          result.append("  ").append(StringUtils.rightPad(StringUtils.capitalize(label) + ":", 20)).append(value).append("\n");
+          
+        }
+      }
+    }
+    
+    return result.toString();
+  }
+  
+  /**
+   * convert a subject to a string
+   * @param member
+   * @return the string
+   */
+  private static String subjectToString(Member member) {
+    StringBuilder result = new StringBuilder();
+    result.append(member.getSubjectSourceIdDb()).append(" - ").append(member.getSubjectIdDb())
+      .append(" - ");
+    try {
+      Subject subject = member.getSubject();
+      String more = subject.getAttributeValue("description");
+      if (StringUtils.isBlank(more)) {
+        more = subject.getDescription();
+      }
+      if (StringUtils.isBlank(more)) {
+        more = subject.getAttributeValue("name");
+      }
+      if (StringUtils.isBlank(more)) {
+        more = subject.getName();
+      }
+      
+      if (!StringUtils.isBlank(more)) {
+        result.append(more);
+      }
+      
+    } catch (Exception e) {
+      result.append(" problem with subject: " + e.getMessage());
+    }
+    return result.toString();
   }
   
   /**
