@@ -3,7 +3,7 @@
 		 	on the privileges of the current user for the current group
 --%><%--
   @author Gary Brown.
-  @version $Id: groupLinks.jsp,v 1.12 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: groupLinks.jsp,v 1.13 2009-04-18 16:33:46 shilen Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -19,7 +19,7 @@
       <html:link page="/deleteGroup.do" styleClass="redLink" name="group" onclick="return confirm('${navMap['groups.delete.warn']}')">
         <grouper:message bundle="${nav}" key="groups.action.delete"/>
       </html:link>
-    
+
   </c:if>
   
   <c:out value="${saveButton}" escapeXml="false"/>
@@ -46,7 +46,6 @@
 			<html:link page="/populateGroupMembers.do"  name="group">
 				<grouper:message bundle="${nav}" key="groups.action.edit-members"/>
 			</html:link>
-		
 		</c:if>
 
 		<c:if test="${!isCompositeGroup && groupPrivResolver.canManageMembers}">
@@ -74,6 +73,16 @@
 				<grouper:message bundle="${nav}" key="groups.action.leave"/>
 			</html:link>
 		
+	</c:if>
+	<c:if test="${groupPrivs.ADMIN}">
+		<html:link page="/populateMoveGroup.do"  name="group">
+			<grouper:message bundle="${nav}" key="groups.action.move"/>
+		</html:link>
+	</c:if>
+	<c:if test="${groupPrivs.ADMIN || groupPrivs.READ}">
+		<html:link page="/populateCopyGroup.do"  name="group">
+			<grouper:message bundle="${nav}" key="groups.action.copy"/>
+		</html:link>
 	</c:if>
 	<jsp:useBean id="subjSum" class="java.util.HashMap"/>
 	<c:set target="${subjSum}" property="subjectId" value="${group.id}"/>

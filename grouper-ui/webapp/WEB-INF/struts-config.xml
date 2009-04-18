@@ -442,6 +442,18 @@
       <forward name="EditGroup" path="EditGroupDef" redirect="false"/>
     </action>
 
+    <action name="GroupFormBean" path="/populateCopyGroup" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateCopyGroupAction"
+            unknown="false" validate="false">
+      <forward name="CopyGroup" path="CopyGroupDef" redirect="false"/>
+    </action>
+
+    <action name="GroupFormBean" path="/populateMoveGroup" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateMoveGroupAction"
+            unknown="false" validate="false">
+      <forward name="MoveGroup" path="MoveGroupDef" redirect="false"/>
+    </action>
+
     <action name="GroupFormBean" path="/populateEditGroupAttributes"
             scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.PopulateEditGroupAttributesAction"
@@ -745,6 +757,22 @@
 	  <forward name="FindMembers" path="/populateFindNewMembers.do"
                redirect="false"/>
     </action>
+
+    <action name="GroupFormBean" path="/moveGroup" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.MoveGroupAction"
+            unknown="false" validate="false">
+      <forward name="GroupSummary" path="/populateGroupSummary.do" redirect="false"/>
+      <forward name="MoveGroup" path="/populateMoveGroup.do" redirect="false"/>
+    </action>
+
+    <action name="GroupFormBean" path="/copyGroup" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.CopyGroupAction"
+            unknown="false" validate="false">
+      <forward name="GroupSummary" path="/populateGroupSummary.do" redirect="false"/>
+      <forward name="CopyGroup" path="/populateCopyGroup.do" redirect="false"/>
+    </action>
+
+
     <!--
       Store changes in database (and unlock). Forwards appropriately
       depending on submit button clicked by user<p/>

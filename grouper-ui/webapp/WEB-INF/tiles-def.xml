@@ -96,6 +96,20 @@
     <put name="content" type="page" value="/WEB-INF/jsp/EditGroup.jsp"/>
   </definition>
   
+  <definition extends="BaseDef" name="CopyGroupDef">
+ 	 <description>
+		  Form for copying groups to another folder.
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/CopyGroup.jsp"/>
+  </definition>
+  
+  <definition extends="BaseDef" name="MoveGroupDef">
+ 	 <description>
+		  Form for moving groups to another folder.
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/MoveGroup.jsp"/>
+  </definition>
+  
     <definition extends="BaseDef" name="ChainDef">
     <put name="content" type="page" value="/WEB-INF/jsp/Chain.jsp"/>
   </definition>
