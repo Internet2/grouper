@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +43,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.commons.logging.Log;
 import org.doomdark.uuid.UUIDGenerator;
 
 import edu.internet2.middleware.grouper.Group;
@@ -60,6 +62,7 @@ import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.filter.NullFilter;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
 import edu.internet2.middleware.grouper.filter.UnionFilter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.synchronize.GroupEntrySynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.GroupStringMembershipSynchronizer;
@@ -78,6 +81,8 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class GrouperProvisioner extends Provisioner
 {
+    private static final Log LOG = GrouperUtil.getLog(GrouperProvisioner.class);
+    
     /**
      * Number of records of membership updates to sort in memory. This value
      * (200,000) is a good compromise between speed and memory.
@@ -732,6 +737,7 @@ public class GrouperProvisioner extends Provisioner
 
         try
         {
+            LOG.debug("update subject '" + objectDN + "' " + Arrays.asList(modItems));
             ldapCtx.modifyAttributes(objectDN, modItems);
         }
         catch (NamingException e)

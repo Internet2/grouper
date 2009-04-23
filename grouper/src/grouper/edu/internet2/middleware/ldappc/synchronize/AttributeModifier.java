@@ -18,6 +18,7 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -97,12 +98,6 @@ public class AttributeModifier
      * Holds values to be retained in the attribute.
      */
     private Values       retained;
-
-    /**
-     * Total number of deletes started with.
-     * This is automatically initialized to zero.
-     */
-    private int          deletesCnt;
 
     /**
      * "no value" value. This is used when the attribute is required, but there
@@ -262,7 +257,6 @@ public class AttributeModifier
         adds.clear();
         deletes.clear();
         retained.clear();
-        deletesCnt = deletes.size();
     }
 
     /**
@@ -274,11 +268,6 @@ public class AttributeModifier
         // Clear any existing values
         //
         clear();
-
-        //
-        // Reset deletesCnt based on new deletes
-        //
-        deletesCnt = deletes.size();
     }
 
     /**
@@ -324,11 +313,6 @@ public class AttributeModifier
                 deletes.add((String) value);
             }
         }
-
-        //
-        // Reset deletesCnt based on new deletes
-        //
-        deletesCnt = deletes.size();
     }
 
     /**
@@ -352,11 +336,6 @@ public class AttributeModifier
         {
             deletes.addAll(collection);
         }
-
-        //
-        // Reset deletesCnt based on new deletes
-        //
-        deletesCnt = deletes.size();
     }
 
     /**
@@ -407,123 +386,21 @@ public class AttributeModifier
      */
     public ModificationItem[] getModifications() throws NamingException
     {
-        //
-        // Init return value to be empty array
-        //
-        ModificationItem[] mods = new ModificationItem[0];
-
-        //
-        // If everything is being deleted, then build a replacement accordingly
-        //
-        if (deletes.size() == deletesCnt)
+        ArrayList<ModificationItem> mods = new ArrayList<ModificationItem>();
+                   
+        if (adds.size() > 0)
         {
-            //
-            // Init the ModificationItem to be populated
-            //
-            ModificationItem modItem = null;
-
-            //
-            // IF there are additions, replace the current attribute with them
-            //
-            // ELSE IF there is a "no value", replace the current attribute with
-            // it
-            //
-            // ELSE IF deletes.size() > 0 (i.e., attribute currently holds
-            // values), delete the attribute
-            //
-            // ELSE there is nothing to do
-            //
-            // (MUST DO THE CHECKS IN THE ORDER GIVEN!)
-            //
-            if (adds.size() > 0)
-            {
-                //
-                // Replace the current value(s) with the additions
-                //
-                modItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, makeAttribute(adds));
-            }
-            else if (getNoValue() != null)
-            {
-                //
-                // If deletes only holds the "no value" then nothing to do
-                //
-                if (deletes.size() == 1 && deletes.contains(getNoValue()))
-                {
-                    modItem = null;
-                }
-                else
-                {
-                    //
-                    // Replace the current value(s) with "no value"
-                    //
-                    modItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(getAttributeName(),
-                            getNoValue()));
-                }
-            }
-            else if (deletes.size() > 0)
-            {
-                //
-                // Replace the current value(s) with nothing (i.e., delete them)
-                //
-                modItem = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(getAttributeName()));
-            }
-            else
-            {
-                //
-                // Attribute didn't hold any values to begin with so there is
-                // nothing to do
-                //
-                modItem = null;
-            }
-
-            //
-            // If there is a modification to be made, reallocate the mods
-            // adding the modItem
-            //
-            if (modItem != null)
-            {
-                mods = new ModificationItem[] { modItem };
-            }
+          mods.add(new ModificationItem(DirContext.ADD_ATTRIBUTE, makeAttribute(adds)));                   
         }
-        //
-        // Some values are being retained so build add and delete modification
-        // items appropriately
-        //
-        else
+        
+        if (deletes.size() > 0)
         {
-            //
-            // Create modification array based on changes
-            //
-            int modsSize = (adds.size() > 0 ? 1 : 0) + (deletes.size() > 0 ? 1 : 0);
-            if (modsSize > 0)
-            {
-                //
-                // Re-allocate the mods array
-                //
-                mods = new ModificationItem[modsSize];
-
-                //
-                // Add the modification items
-                //
-                int modsIndex = 0;
-
-                // Add the deletes
-                if (deletes.size() > 0)
-                {
-                    mods[modsIndex] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, makeAttribute(deletes));
-                    modsIndex++;
-                }
-
-                // Add the adds
-                if (adds.size() > 0)
-                {
-                    mods[modsIndex] = new ModificationItem(DirContext.ADD_ATTRIBUTE, makeAttribute(adds));
-                    modsIndex++;
-                }
-            }
+          mods.add(new ModificationItem(DirContext.REMOVE_ATTRIBUTE, makeAttribute(deletes)));                   
         }
-
-        return mods;
+            
+        mods.trimToSize();
+               
+        return mods.toArray(new ModificationItem[] {});
     }
 
     /**
@@ -539,10 +416,6 @@ public class AttributeModifier
         for (String value : attributeSet)
         {
             attribute.add(value);
-        }
-        if (getNoValue() != null && attribute.size() == 0)
-        {
-            attribute.add(getNoValue());
         }
         return attribute;
     }

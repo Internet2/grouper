@@ -338,7 +338,7 @@
                 *       when creating the list of groups for a member (e.g., "name" ).
             -->
             <member-groups-list list-object-class="mglObjectClass" list-attribute="mglListAttribute"
-                naming-attribute="mglNamingAttribute" list-empty-value="mglListEmpty"/><!-- exactly 1 required -->
+                naming-attribute="mglNamingAttribute" /><!-- exactly 1 required -->
 
         </memberships>
 

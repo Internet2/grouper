@@ -230,7 +230,7 @@ public class ConfigManagerTest extends BaseLdappcTestCase
             assertEquals(cm.getMemberGroupsListAttribute(), "mglListAttribute");
             assertEquals(cm.getMemberGroupsNamingAttribute(),
                     "mglNamingAttribute");
-            assertEquals(cm.getMemberGroupsListEmptyValue(), "mglListEmpty");
+            // assertEquals(cm.getMemberGroupsListEmptyValue(), "mglListEmpty");
 
             // validate permissions listing
             assertEquals(cm.getPermissionsListingStoredAs(), "string");
@@ -383,7 +383,7 @@ public class ConfigManagerTest extends BaseLdappcTestCase
             assertEquals(cm.getMemberGroupsListAttribute(), "mglListAttribute");
             assertEquals(cm.getMemberGroupsNamingAttribute(),
                     "mglNamingAttribute");
-            assertEquals(cm.getMemberGroupsListEmptyValue(), null);
+            // assertEquals(cm.getMemberGroupsListEmptyValue(), null);
 
             // validate permissions listing
             assertEquals(cm.getPermissionsListingStoredAs(), "string");

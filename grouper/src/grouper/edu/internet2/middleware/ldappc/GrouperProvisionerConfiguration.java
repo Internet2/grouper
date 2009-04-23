@@ -148,7 +148,7 @@ public interface GrouperProvisionerConfiguration extends ProvisionerConfiguratio
      * @return String to place in the member groups list attribute if no Groups
      *         are found to store there, or <code>null</code> if not defined.
      */
-    public String getMemberGroupsListEmptyValue();
+    // public String getMemberGroupsListEmptyValue();
 
     /**
      * Directory for the membership updates temporary file.

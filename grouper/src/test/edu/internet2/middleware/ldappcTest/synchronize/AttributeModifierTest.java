@@ -173,9 +173,9 @@ public class AttributeModifierTest extends BaseLdappcTestCase
             ModificationItem[] mods = am.getModifications();
             assertEquals("To many modification items", 1, mods.length);
             assertEquals("Wrong modification operation", mods[0]
-                    .getModificationOp(), DirContext.REPLACE_ATTRIBUTE);
+                    .getModificationOp(), DirContext.REMOVE_ATTRIBUTE);
             Attribute attribute = mods[0].getAttribute();
-            assertEquals("To many add values", 0, attribute.size());
+            assertEquals("To many add values", lowerCaseSet.length, attribute.size());
 
             am.clear();
             mods = am.getModifications();
@@ -219,19 +219,22 @@ public class AttributeModifierTest extends BaseLdappcTestCase
             am.setNoValue(noValue);
             attr.clear();
             am.init();
+            am.store(noValue);
             ModificationItem[] mods = am.getModifications();
             assertEquals("To many modification items", 1, mods.length);
-            assertEquals("Wrong modification operation", mods[0]
-                    .getModificationOp(), DirContext.REPLACE_ATTRIBUTE);
+            assertEquals("Wrong modification operation", DirContext.ADD_ATTRIBUTE,
+                mods[0].getModificationOp());
             Attribute attribute = mods[0].getAttribute();
             assertEquals("To many add values", 1, attribute.size());
             attribute.remove(noValue);
             assertEquals("'No value' still remains", 0, attribute.size());
-
-            am.setNoValue(null);
-            Attribute additions = am.getAdditions();
-            assertEquals("Wrong number of additions. It should be 0", 0,
-                    additions.size());
+            
+            // 20090423 tz omit dynamically changing noValue state
+            // am.setNoValue(null);
+            // Attribute additions = am.getAdditions();
+            // assertEquals("Wrong number of additions. It should be 0", 0,
+            //        additions.size());
+           
 
         }
         catch(NamingException ne)
@@ -251,12 +254,16 @@ public class AttributeModifierTest extends BaseLdappcTestCase
                 attr.add(lowerCaseSet[i]);
             }
             am.init(attr);
+            am.store(noValue);
             ModificationItem[] mods = am.getModifications();
-            assertEquals("Wrong number of modification items", 1, mods.length);
-            assertEquals("Wrong modification operation", mods[0]
-                    .getModificationOp(), DirContext.REPLACE_ATTRIBUTE);
+            assertEquals("Wrong number of modification items", 2, mods.length);         
+            assertEquals("Wrong modification operation", DirContext.ADD_ATTRIBUTE,
+                mods[0].getModificationOp());
+            assertEquals("Wrong modification operation", DirContext.REMOVE_ATTRIBUTE,
+                mods[1].getModificationOp());                        
             Attribute attribute = mods[0].getAttribute();
-            assertEquals("To many add values", 1, attribute.size());
+            assertEquals("To many add values", 1, mods[0].getAttribute().size());
+            assertEquals("To many add values", lowerCaseSet.length, mods[1].getAttribute().size());
             attribute.remove(noValue);
             assertEquals("'No value' still remains", 0, attribute.size());
         }
@@ -272,7 +279,7 @@ public class AttributeModifierTest extends BaseLdappcTestCase
             //
             am.setNoValue(null);
             am.init();
-            ModificationItem[] mods = am.getModifications();
+            ModificationItem[] mods = am.getModifications();            
             assertEquals("Wrong number of modification items", 0, mods.length);
         }
         catch(NamingException ne)
@@ -290,7 +297,8 @@ public class AttributeModifierTest extends BaseLdappcTestCase
             am.setNoValue(noValue);
             attr.add(noValue);
             am.init(attr);
-            ModificationItem[] mods = am.getModifications();
+            am.store(noValue);
+            ModificationItem[] mods = am.getModifications();           
             assertEquals("Wrong number of modification items", 0, mods.length);
         }
         catch(NamingException ne)
@@ -335,8 +343,8 @@ public class AttributeModifierTest extends BaseLdappcTestCase
 
             ModificationItem[] mods = am.getModifications();
             assertEquals("To many modification items", 1, mods.length);
-            assertEquals("Wrong modification operation", mods[0]
-                    .getModificationOp(), DirContext.REPLACE_ATTRIBUTE);
+            assertEquals("Wrong modification operation", DirContext.ADD_ATTRIBUTE,
+                mods[0].getModificationOp());
             Attribute attribute = mods[0].getAttribute();
             assertEquals("To many add values", lowerCaseSet.length, attribute
                     .size());
@@ -503,8 +511,8 @@ public class AttributeModifierTest extends BaseLdappcTestCase
 
             ModificationItem[] mods = am.getModifications();
             assertEquals("Wrong number of modification items", 1, mods.length);
-            assertEquals("Wrong modification operation", mods[0]
-                    .getModificationOp(), DirContext.REPLACE_ATTRIBUTE);
+            assertEquals("Wrong modification operation", DirContext.ADD_ATTRIBUTE,
+                mods[0].getModificationOp());
             Attribute attribute = mods[0].getAttribute();
             assertEquals("Wrong number of add values", 2 * lowerCaseSet.length,
                     attribute.size());
@@ -657,12 +665,16 @@ public class AttributeModifierTest extends BaseLdappcTestCase
             }
 
             ModificationItem[] mods = am.getModifications();
-            assertEquals("Wrong number of modification items", 1, mods.length);
-            assertEquals("Wrong modification operation", mods[0]
-                    .getModificationOp(), DirContext.REPLACE_ATTRIBUTE);
+            assertEquals("Wrong number of modification items", 2, mods.length);
+            assertEquals("Wrong modification operation", DirContext.ADD_ATTRIBUTE,
+                mods[0].getModificationOp());
+            assertEquals("Wrong modification operation", DirContext.REMOVE_ATTRIBUTE,
+                mods[1].getModificationOp());
             Attribute attribute = mods[0].getAttribute();
             assertEquals("Wrong number of values", lowerCaseSet.length,
-                    attribute.size());
+                mods[0].getAttribute().size());
+            assertEquals("Wrong number of values", lowerCaseSet.length,
+                mods[1].getAttribute().size());
             for(int i = 0; i < lowerCaseSet.length; i++)
             {
                 attribute.remove(lowerCaseSet[i].toUpperCase());

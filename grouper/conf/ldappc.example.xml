@@ -345,13 +345,6 @@
                 *    list-attribute - Defines the LDAP entry attribute in which
                 *       to store group list (e.g., groupList).
                 *
-                *    list-empty-value - Optional attribute defining the value to
-                *       be placed in the list-attribute if no group names are
-                *       stored there.  If list-attribute is optional (i.e., a MAY 
-                *       attribute), this value is most likely not needed.  If 
-                *       list-attribute is required (i.e., a MUST attribute), then 
-                *       this value should be defined.
-                * 
                 *    naming-attribute - Defines the group naming attribute to use
                 *       when creating the list of groups for a member (e.g., "name" ).
                 *
@@ -360,7 +353,7 @@
 			    *       the current directory.
             -->
             <member-groups-list list-object-class="" list-attribute=""
-                naming-attribute="" list-empty-value="" temporary-directory="" /><!-- exactly 1 required -->
+                naming-attribute="" temporary-directory="" /><!-- exactly 1 required -->
 
         </memberships>
 

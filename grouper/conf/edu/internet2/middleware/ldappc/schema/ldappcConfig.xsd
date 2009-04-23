@@ -354,8 +354,6 @@
                 type="ldap-attribute-name-type" />
             <xs:attribute name="naming-attribute" use="required"
                 type="grouper-attribute-name-type" />
-            <xs:attribute name="list-empty-value"
-                type="empty-attribute-value-type" />
             <xs:attribute name="temporary-directory"
                 type="xs:string" />
         </xs:complexType>

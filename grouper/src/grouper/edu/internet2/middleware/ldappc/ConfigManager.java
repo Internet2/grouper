@@ -201,7 +201,7 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
      * Value placed in member groups listattribute when no groups are stored
      * there.
      */
-    private String                        memberGroupsListEmptyValue;
+    // private String                        memberGroupsListEmptyValue;
 
     /**
      * Directory for the membership updates file.
@@ -517,8 +517,8 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
         digester.addCallMethod(elementPath, "setMemberGroupsNamingAttribute", 1);
         digester.addCallParam(elementPath, 0, "naming-attribute");
 
-        digester.addCallMethod(elementPath, "setMemberGroupsListEmptyValue", 1);
-        digester.addCallParam(elementPath, 0, "list-empty-value");
+        // digester.addCallMethod(elementPath, "setMemberGroupsListEmptyValue", 1);
+        // digester.addCallParam(elementPath, 0, "list-empty-value");
 
         digester.addCallMethod(elementPath, "setMemberGroupsListTemporaryDirectory", 1);
         digester.addCallParam(elementPath, 0, "temporary-directory");
@@ -1482,10 +1482,10 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
      * @return String to place in the member groups list attribute if no Groups
      *         are found to store there, or <code>null</code> if not defined.
      */
-    public String getMemberGroupsListEmptyValue()
-    {
-        return memberGroupsListEmptyValue;
-    }
+    //public String getMemberGroupsListEmptyValue()
+    //{
+    //    return memberGroupsListEmptyValue;
+    //}
 
     /**
      * Sets the value to be placed into the member groups list attribute if no
@@ -1495,10 +1495,10 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
      *            String value or <code>null</code> if no value is to be
      *            stored
      */
-    private void setMemberGroupsListEmptyValue(String value)
-    {
-        this.memberGroupsListEmptyValue = value;
-    }
+    //private void setMemberGroupsListEmptyValue(String value)
+    //{
+    //    this.memberGroupsListEmptyValue = value;
+    //}
 
     /**
      * Directory for the membership updates temporary file.
@@ -2327,10 +2327,10 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
          * 
          * Calls {@link ConfigManager#setMemberGroupsListEmptyValue(String))}.
          */
-        public void setMemberGroupsListEmptyValue(String value)
-        {
-            ConfigManager.this.setMemberGroupsListEmptyValue(value);
-        }
+        //public void setMemberGroupsListEmptyValue(String value)
+        //{
+        //    ConfigManager.this.setMemberGroupsListEmptyValue(value);
+        //}
 
         /**
          * Sets the member groups list temporary directory.

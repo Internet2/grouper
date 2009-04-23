@@ -18,6 +18,7 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -38,10 +39,12 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.GrouperProvisioner;
 import edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
@@ -62,6 +65,8 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class GroupEntrySynchronizer extends GroupSynchronizer
 {
+    private static final Log LOG = GrouperUtil.getLog(GroupEntrySynchronizer.class);
+    
     /**
      * Default size of group hash tables if not specified in configuration.
      */
@@ -447,6 +452,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         if (modificationItems.length > 0)
         {
+            LOG.debug("modify group '" + groupDn + "' " + Arrays.asList(modificationItems));
             getContext().modifyAttributes(groupDn, modificationItems);
             // DebugLog.info("Modified " + group.getName());
         }
@@ -573,96 +579,112 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         storeObjectClassData();
 
+        
+        Set<Member> members = group.getMembers();
+        
         //
-        // Get membership process it
+        // If there are no members, then provision the noValue value if appropriate
         //
-        for (Member member : (Set<Member>) group.getMembers())
-        {
-            Subject subject = null;
-            try
-            {
-                subject = member.getSubject();
+        if (members.isEmpty()) {
+            if (memberDnMods != null && memberDnMods.getNoValue() != null) {
+                memberDnMods.store(memberDnMods.getNoValue());
             }
-            catch (SubjectNotFoundException snfe)
-            {
-                //
-                // If the subject was not found, log it and continue
-                //
-                ErrorLog.warn(getClass(), getErrorData(member) + " Subject not found :: " + snfe.getMessage());
-                continue;
+            if (memberNameMods != null && memberNameMods.getNoValue() != null) {
+                memberNameMods.store(memberNameMods.getNoValue());
             }
+        } else {
+        
+          //
+          // Get membership process it
+          //
+          for (Member member : members)
+          {
+              Subject subject = null;
+              try
+              {
+                  subject = member.getSubject();
+              }
+              catch (SubjectNotFoundException snfe)
+              {
+                  //
+                  // If the subject was not found, log it and continue
+                  //
+                  ErrorLog.warn(getClass(), getErrorData(member) + " Subject not found :: " + snfe.getMessage());
+                  continue;
+              }
 
-            //
-            // If maintaining member DN list, do it now
-            //
-            if (memberDnMods != null)
-            {
-                try
-                {
-                    Name subjectDn = getSubjectCache().findSubjectDn(getContext(), getConfiguration(), subject);
-                    memberDnMods.store(subjectDn.toString());
-                }
-                catch (Exception e)
-                {
-                    ErrorLog.warn(getClass(), getErrorData(subject) + " " + e.getMessage());
-                }
-            }
+              //
+              // If maintaining member DN list, do it now
+              //
+              if (memberDnMods != null)
+              {
+                  try
+                  {
+                      Name subjectDn = getSubjectCache().findSubjectDn(getContext(), getConfiguration(), subject);
+                      memberDnMods.store(subjectDn.toString());
+                  }
+                  catch (Exception e)
+                  {
+                      ErrorLog.warn(getClass(), getErrorData(subject) + " " + e.getMessage());
+                  }
+              }
 
-            //
-            // If maintaining member name list, do it now
-            //
-            if (memberNameMods != null)
-            {
-                //
-                // Catch all of the exceptions thrown as they are "warning" and
-                // handle them in a common manner.
-                //
-                try
-                {
-                    //
-                    // Get the subject source
-                    //
-                    Source source = subject.getSource();
-                    if (source == null)
-                    {
-                        throw new LdappcException("Source is null");
-                    }
+              //
+              // If maintaining member name list, do it now
+              //
+              if (memberNameMods != null)
+              {
+                  //
+                  // Catch all of the exceptions thrown as they are "warning" and
+                  // handle them in a common manner.
+                  //
+                  try
+                  {
+                      //
+                      // Get the subject source
+                      //
+                      Source source = subject.getSource();
+                      if (source == null)
+                      {
+                          throw new LdappcException("Source is null");
+                      }
 
-                    //
-                    // Get the naming attribute for this source
-                    //
-                    String nameAttribute = getConfiguration().getGroupMembersNameListNamingAttribute(source.getId());
-                    if (nameAttribute != null)
-                    {
-                        //
-                        // Get the subject attribute value
-                        //
-                        String nameValue = subject.getAttributeValue(nameAttribute);
-                        if (nameValue != null)
-                        {
-                            this.memberNameMods.store(nameValue);
-                        }
-                        else
-                        {
-                            throw new LdappcException("Naming attribute [" + nameAttribute + "] is not defined.");
-                        }
-                    }
-                    else
-                    {
-                        throw new LdappcException("No group members name list naming attribute defined for source id ["
-                                + source.getId() + "]");
-                    }
-                }
-                catch (Exception e)
-                {
-                    //
-                    // All of the exceptions thrown in this try are "warning"
-                    // related so simply log them and continue on with
-                    // processing.
-                    //
-                    ErrorLog.warn(getClass(), getErrorData(subject) + " " + e.getMessage());
-                }
-            }
+                      //
+                      // Get the naming attribute for this source
+                      //
+                      String nameAttribute = getConfiguration().getGroupMembersNameListNamingAttribute(source.getId());
+                      if (nameAttribute != null)
+                      {
+                          //
+                          // Get the subject attribute value
+                          //
+                          String nameValue = subject.getAttributeValue(nameAttribute);
+                          if (nameValue != null)
+                          {
+                              this.memberNameMods.store(nameValue);
+                          }
+                          else
+                          {
+                              throw new LdappcException("Naming attribute [" + nameAttribute + "] is not defined.");
+                          }
+                      }
+                      else
+                      {
+                          throw new LdappcException("No group members name list naming attribute defined for source id ["
+                                  + source.getId() + "]");
+                      }
+                  }
+                  catch (Exception e)
+                  {
+                      //
+                      // All of the exceptions thrown in this try are "warning"
+                      // related so simply log them and continue on with
+                      // processing.
+                      //
+                      ErrorLog.warn(getClass(), getErrorData(subject) + " " + e.getMessage());
+                  }
+              }
+          }
         }
 
         //
@@ -673,29 +695,30 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             //
             // If the group has this attribute populated, store it
             //
-            try
-            {
-                //
-                // Get the attribute value from the group
-                //
-                String groupAttributeValue = group.getAttribute(groupAttribute);
+           
+            //
+            // Get the attribute value from the group
+            //
+            String groupAttributeValue = group.getAttributeOrNull(groupAttribute);                
 
-                //
-                // Only storing non-empty string attributes (i.e., lenght > 0)
-                //
-                if (groupAttributeValue != null && groupAttributeValue.length() > 0)
-                {
-                    ((AttributeModifier) mappedGrouperAttributes.get(groupAttribute)).store(groupAttributeValue);
-                }
-                else
-                {
-                    ErrorLog.warn(getClass(), getErrorData(group) + " " + "The value for group attribute \""
-                            + groupAttribute + "\" will not be stored as it is either an empty string or null.");
-                }
-            }
-            catch (AttributeNotFoundException anfe)
+            //
+            // Only storing non-empty string attributes (i.e., length > 0)
+            //
+            if (groupAttributeValue != null && groupAttributeValue.length() > 0)
             {
-                ErrorLog.warn(getClass(), getErrorData(group) + " " + anfe.getMessage());
+                mappedGrouperAttributes.get(groupAttribute).store(groupAttributeValue);
+            }
+            //
+            // Store noValue value if there are no values and noValue is defined
+            //
+            else if (mappedGrouperAttributes.get(groupAttribute).getNoValue() != null)
+            {
+                mappedGrouperAttributes.get(groupAttribute).store(mappedGrouperAttributes.get(groupAttribute).getNoValue());
+            }
+            else
+            {
+                ErrorLog.warn(getClass(), getErrorData(group) + " " + "The value for group attribute \""
+                        + groupAttribute + "\" will not be stored as it is either an empty string or null.");
             }
         }
     }
@@ -811,6 +834,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Build the subject context
         //
+        LOG.debug("create group '" + groupDn + "' attrs '" + attributes + "'");
         getContext().createSubcontext(groupDn, attributes);
         // DebugLog.info("Added " + group.getName());
     }
