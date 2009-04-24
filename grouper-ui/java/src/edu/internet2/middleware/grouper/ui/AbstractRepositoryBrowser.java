@@ -57,7 +57,6 @@ import edu.internet2.middleware.grouper.filter.StemNameFilter;
 import edu.internet2.middleware.grouper.filter.UnionFilter;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
-import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -93,6 +92,12 @@ import edu.internet2.middleware.subject.Subject;
     <td><font face="Arial, Helvetica, sans-serif">true</font></td>
     <td><font face="Arial, Helvetica, sans-serif">Indicates that the hierarchy 
       can be hidden and a list of stems or groups (according to flat-type) shown</font></td>
+  </tr>
+  <tr> 
+    <td><font face="Arial, Helvetica, sans-serif">flat-is-default</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">true</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">Indicates that the flat view should be shown by default.
+    If flat-capable is false then flat view is the only view </font></td>
   </tr>
   <tr> 
     <td><font face="Arial, Helvetica, sans-serif">flat-type</font></td>
@@ -140,7 +145,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.18.2.2 2009-04-10 18:44:16 mchyzer Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.18.2.3 2009-04-24 14:22:12 isgwb Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
   
@@ -151,6 +156,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
   private  ResourceBundle mediaBundle = null;
   private  ResourceBundle navBundle = null;
   boolean isFlatCapable  = false;
+  boolean isFlatDefault  = false;
   private String rootNode = null;
   private boolean hidePreRootNode = false;
   private String[] flatPrivs = {};
@@ -177,6 +183,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
     this.subject=s.getSubject();
     
     isFlatCapable = "true".equals(getProperty("flat-capable"));
+    isFlatDefault = "true".equals(getProperty("flat-is-default"));
     rootNode = getProperty("root-node");
     if("".equals(rootNode)){
       rootNode=mediaBundle.getString("default.browse.stem");
@@ -792,7 +799,16 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
     return isFlatCapable;
   }
   
+  
   /**
+   * @return Returns the isFlatDefault.
+   */
+  public boolean isFlatDefault() {
+	return isFlatDefault;
+}
+
+
+/**
    * @return Returns the mediaBundle.
    */
   protected ResourceBundle getMediaBundle() {

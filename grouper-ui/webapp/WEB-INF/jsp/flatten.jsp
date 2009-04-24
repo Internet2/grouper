@@ -5,13 +5,14 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: flatten.jsp,v 1.4 2008-04-11 14:49:36 mchyzer Exp $
+  @version $Id: flatten.jsp,v 1.4.6.1 2009-04-24 14:22:12 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic"
   tile="${requestScope['javax.servlet.include.servlet_path']}"
 >
   <tiles:importAttribute />
+  <c:if test="${repositoryBrowser.flatCapable}">
   <c:choose>
     <c:when test="${isFlat}">
       <c:set var="makeFlatFalse" value="false" />
@@ -26,6 +27,7 @@
       </html:link>
     </c:otherwise>
   </c:choose>
+  </c:if>
   <c:if test="${isQuickLinks && empty initialStems}">
     <c:set var="reset" value="Y" />
     &nbsp; <html:link styleClass="underline subtitleLink" page="/${pageName}.do" paramId="resetBrowse" paramName="reset">

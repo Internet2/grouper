@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: RepositoryBrowser.java,v 1.8.8.1 2009-04-07 16:21:04 mchyzer Exp $
+ * @version $Id: RepositoryBrowser.java,v 1.8.8.2 2009-04-24 14:22:12 isgwb Exp $
  */
 
 public interface RepositoryBrowser {
@@ -70,9 +70,16 @@ public interface RepositoryBrowser {
 
 	/**
 	 * Does this browse mode have a flat mode i.e. can it hide the hierarchy?
-	 * @return whether user should have option to select an initial stems view
+	 * @return whether user should have option to select a flat view
 	 */
 	public boolean isFlatCapable();
+	
+	/**
+	 * Is this browse mode flat by default?
+	 * If this is true and isFlatCapable is false then only a flat view will be available
+	 * @return whether UI should default to flat view
+	 */
+	public boolean isFlatDefault();
 	
 	/**
 	 * stems or groups - used to create correct screen text
