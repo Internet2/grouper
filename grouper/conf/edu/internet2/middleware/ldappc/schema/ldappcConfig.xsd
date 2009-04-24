@@ -201,14 +201,8 @@
                 type="ldap-objectclass-name-type" />
             <xs:attribute name="ldap-rdn-attribute" use="required"
                 type="ldap-attribute-name-type" />
-            <xs:attribute name="grouper-attribute">
-                <xs:simpleType>
-                    <xs:restriction base="xs:string">
-                        <xs:enumeration value="id" />
-                        <xs:enumeration value="name" />
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:attribute>
+            <xs:attribute name="grouper-attribute" use="required"
+                type="grouper-attribute-name-type" />
 			<xs:attribute name="initial-cache-size" use="optional" type="xs:integer" />
         </xs:complexType>
     </xs:element>
