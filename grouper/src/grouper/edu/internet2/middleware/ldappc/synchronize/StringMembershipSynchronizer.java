@@ -26,13 +26,11 @@ import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.commons.logging.Log;
-
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
 import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.LdappcException;
+import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
 
@@ -42,8 +40,7 @@ import edu.internet2.middleware.ldappc.util.SubjectCache;
  */
 public class StringMembershipSynchronizer extends MembershipSynchronizer
 {
-    private static final Log LOG = GrouperUtil.getLog(StringMembershipSynchronizer.class);
-  
+
     /**
      * Holds the membership listing attribute modifications.
      */
@@ -247,9 +244,8 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
             //
             // Perform the modifications
             //
-            LOG.debug("modify subject '" + getSubject() + "' " + Arrays.asList(mods));
+            DebugLog.info("Modify subject '" + getSubject() + "' " + Arrays.asList(mods));
             getContext().modifyAttributes(getSubject(), mods);
-            // DebugLog.info("Updated subject " + getSubject());
         }
     }
 }
