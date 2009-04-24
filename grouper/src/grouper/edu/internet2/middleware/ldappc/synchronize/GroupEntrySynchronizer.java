@@ -39,12 +39,9 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.commons.logging.Log;
-
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.GrouperProvisioner;
 import edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
@@ -65,8 +62,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class GroupEntrySynchronizer extends GroupSynchronizer
 {
-    private static final Log LOG = GrouperUtil.getLog(GroupEntrySynchronizer.class);
-    
+   
     /**
      * Default size of group hash tables if not specified in configuration.
      */
@@ -452,9 +448,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         if (modificationItems.length > 0)
         {
-            LOG.debug("modify group '" + groupDn + "' " + Arrays.asList(modificationItems));
-            getContext().modifyAttributes(groupDn, modificationItems);
-            // DebugLog.info("Modified " + group.getName());
+            DebugLog.info("Modify '" + group.getName() + "' " + Arrays.asList(modificationItems));
+            getContext().modifyAttributes(groupDn, modificationItems);            
         }
     }
 
@@ -834,9 +829,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Build the subject context
         //
-        LOG.debug("create group '" + groupDn + "' attrs '" + attributes + "'");
-        getContext().createSubcontext(groupDn, attributes);
-        // DebugLog.info("Added " + group.getName());
+        DebugLog.info("Creating '" + group.getName() + "' attrs " + attributes);
+        getContext().createSubcontext(groupDn, attributes);        
     }
 
     /**
@@ -887,7 +881,15 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             }
             else
             {
-                rdnString = group.getUuid();
+                String attr = group.getAttributeOrNull(getConfiguration().getGroupDnGrouperAttribute());
+                if (attr != null)
+                {
+                  rdnString = attr;
+                }
+                else
+                {
+                  rdnString = group.getUuid();
+                }
             }
         }
         else
@@ -1284,6 +1286,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
                 //
                 // Delete it
                 //
+                DebugLog.info("Delete group '" + dn + "'");
                 LdapUtil.delete(context, dn);
             }
             catch (NamingException ne)
@@ -1318,6 +1321,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             //
             try
             {
+                DebugLog.info("Delete ou '" + dn + "'"); 
                 LdapUtil.delete(context, dn);
             }
             catch (NamingException ne)
