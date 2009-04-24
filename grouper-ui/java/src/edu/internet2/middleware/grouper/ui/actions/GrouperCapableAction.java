@@ -181,7 +181,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.19.2.1 2009-04-10 18:44:16 mchyzer Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.19.2.2 2009-04-24 14:19:06 isgwb Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -304,14 +304,15 @@ public abstract class GrouperCapableAction
 				session.setAttribute("sessionMessage",request.getAttribute("message"));
 				}catch(IllegalStateException e){}
 			}
+			if(Boolean.TRUE.equals(request.getAttribute("loggedOut"))) {
+				return forward;
+			}
 			try {
 				GrouperHelper.fixSessionFields((Map)session.getAttribute("fieldList"), getNavResources(request));
 			}catch(SchemaException e) {
 				LOG.error(e);
 			}
-			if(Boolean.TRUE.equals(request.getAttribute("loggedOut"))) {
-				return forward;
-			}
+
 			String advSearch = request.getParameter("advancedSearch");
 			try {
 				session.getAttribute("");
