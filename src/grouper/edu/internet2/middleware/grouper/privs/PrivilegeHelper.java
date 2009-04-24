@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
@@ -46,7 +47,7 @@ import edu.internet2.middleware.subject.Subject;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.7 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.8 2009-04-24 13:08:19 shilen Exp $
  * @since   1.2.1
  */
 public class PrivilegeHelper {
@@ -508,6 +509,63 @@ public class PrivilegeHelper {
     }
     return false;
   } 
+  
+  /**
+   * Is this user allowed to move stems?
+   * @param subject 
+   * @return boolean
+   */
+  public static boolean canMoveStems(Subject subject) {
+    String allowedGroupName = GrouperConfig
+        .getProperty("security.stem.groupAllowedToMoveStem");
+    if (StringUtils.isNotBlank(allowedGroupName) && !isWheelOrRoot(subject)) {
+
+      Group allowedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession()
+          .internal_getRootSession(), allowedGroupName, false);
+      if (allowedGroup == null || !allowedGroup.hasMember(subject)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  /**
+   * Is this user allowed to copy stems?
+   * @param subject 
+   * @return boolean
+   */
+  public static boolean canCopyStems(Subject subject) {
+    String allowedGroupName = GrouperConfig
+        .getProperty("security.stem.groupAllowedToCopyStem");
+    if (StringUtils.isNotBlank(allowedGroupName) && !isWheelOrRoot(subject)) {
+
+      Group allowedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession()
+          .internal_getRootSession(), allowedGroupName, false);
+      if (allowedGroup == null || !allowedGroup.hasMember(subject)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  /**
+   * Is this user allowed to rename stems?
+   * @param subject 
+   * @return boolean
+   */
+  public static boolean canRenameStems(Subject subject) {
+    String allowedGroupName = GrouperConfig
+        .getProperty("security.stem.groupAllowedToRenameStem");
+    if (StringUtils.isNotBlank(allowedGroupName) && !isWheelOrRoot(subject)) {
+
+      Group allowedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession()
+          .internal_getRootSession(), allowedGroupName, false);
+      if (allowedGroup == null || !allowedGroup.hasMember(subject)) {
+        return false;
+      }
+    }
+    return true;
+  }
 
 }
 
