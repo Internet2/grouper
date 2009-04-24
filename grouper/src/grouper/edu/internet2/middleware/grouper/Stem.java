@@ -100,7 +100,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.194 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.195 2009-04-24 13:08:19 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -1399,18 +1399,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     
     // verify that if the property security.stem.groupAllowedToRenameStem is set,
     // then the user is a member of that group.
-    String allowedGroupName = GrouperConfig
-        .getProperty("security.stem.groupAllowedToRenameStem");
-    if (StringUtils.isNotBlank(allowedGroupName)
-        && !PrivilegeHelper.isRoot(GrouperSession.staticGrouperSession())) {
-
-      Group allowedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession()
-          .internal_getRootSession(), allowedGroupName, false);
-      if (allowedGroup == null
-          || !allowedGroup.hasMember(GrouperSession.staticGrouperSession().getSubject())) {
-        throw new InsufficientPrivilegeException("User is not a member of "
-            + allowedGroupName + ".");
-      }
+    if (!PrivilegeHelper.canRenameStems(GrouperSession.staticGrouperSession().getSubject())) {
+      throw new InsufficientPrivilegeException("User cannot rename stems.");      
     }
     
     try {
@@ -2636,18 +2626,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
             
             // verify that if the property security.stem.groupAllowedToMoveStem is set,
             // then the user is a member of that group.
-            String allowedGroupName = GrouperConfig
-                .getProperty("security.stem.groupAllowedToMoveStem");
-            if (StringUtils.isNotBlank(allowedGroupName)
-                && !PrivilegeHelper.isRoot(GrouperSession.staticGrouperSession())) {
-
-              Group allowedGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession()
-                  .internal_getRootSession(), allowedGroupName, false);
-              if (allowedGroup == null
-                  || !allowedGroup.hasMember(GrouperSession.staticGrouperSession().getSubject())) {
-                throw new InsufficientPrivilegeException("User is not a member of "
-                    + allowedGroupName + ".");
-              }
+            if (!PrivilegeHelper.canMoveStems(GrouperSession.staticGrouperSession().getSubject())) {
+              throw new InsufficientPrivilegeException("User cannot move stems.");      
             }
             
             // if moving to the same stem, just return.
@@ -2733,20 +2713,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
 
             // verify that if the property security.stem.groupAllowedToCopyStem is set,
             // then the user is a member of that group.
-            String allowedGroupName = GrouperConfig
-                .getProperty("security.stem.groupAllowedToCopyStem");
-            if (StringUtils.isNotBlank(allowedGroupName)
-                && !PrivilegeHelper.isRoot(GrouperSession.staticGrouperSession())) {
-
-              Group allowedGroup = GroupFinder.findByName(GrouperSession
-                  .staticGrouperSession().internal_getRootSession(),
-                  allowedGroupName, false);
-              if (allowedGroup == null
-                  || !allowedGroup.hasMember(GrouperSession.staticGrouperSession()
-                      .getSubject())) {
-                throw new InsufficientPrivilegeException("User is not a member of "
-                    + allowedGroupName + ".");
-              }
+            if (!PrivilegeHelper.canCopyStems(GrouperSession.staticGrouperSession().getSubject())) {
+              throw new InsufficientPrivilegeException("User cannot copy stems.");      
             }
             
             Map<String, Stem> oldStemUuidToNewStem = new HashMap<String, Stem>();
