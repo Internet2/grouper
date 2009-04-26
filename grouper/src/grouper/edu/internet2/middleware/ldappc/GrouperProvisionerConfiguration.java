@@ -18,6 +18,7 @@
 
 package edu.internet2.middleware.ldappc;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -285,7 +286,7 @@ public interface GrouperProvisionerConfiguration extends ProvisionerConfiguratio
      * 
      * @return Map of Group attribute names to LDAP attribute names.
      */
-    public Map getGroupAttributeMapping();
+    public Map<String, List<String>> getGroupAttributeMapping();
 
     /**
      * This gets the value to store in the ldap attribute if there are no

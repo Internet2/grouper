@@ -19,8 +19,8 @@
 package edu.internet2.middleware.ldappc.synchronize;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -39,9 +39,12 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.GrouperProvisioner;
 import edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
@@ -49,7 +52,6 @@ import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.LdappcException;
 import edu.internet2.middleware.ldappc.MultiErrorException;
 import edu.internet2.middleware.ldappc.ldap.OrganizationalUnit;
-import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
@@ -62,7 +64,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class GroupEntrySynchronizer extends GroupSynchronizer
 {
-   
+  private static final Log LOG = GrouperUtil.getLog(GroupEntrySynchronizer.class);
     /**
      * Default size of group hash tables if not specified in configuration.
      */
@@ -109,29 +111,17 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
     private AttributeModifier                  rdnMods;
 
     /**
-     * The keys are the mapped grouper attributes and the values are the
-     * AttributeModifier for the associated Ldap attribute.
-     * 
-     * IMPORTANT NOTE: An AttributeModifier object maybe mapped for multiple
-     * grouper attributes, and the AttributeModifier objects are the same as the
-     * attribute values in mappedLdapAttributes. This allows multiple grouper
-     * attributes to contribute values to the ldap attribute.
-     */
-    private HashMap<String, AttributeModifier> mappedGrouperAttributes;
-
-    /**
      * The attribute names are the mapped ldap attributes, and the attribute
      * values are the AttributeModifiers associated with the attribute.
-     * 
-     * IMPORTANT NOTE: The AttributeModifier objects here are the same as the
-     * values in the mappedGrouperAttributes.
      * 
      * NOTE: Used BasicAttributes object here to take advantage of case
      * insensitivity of attribute names. This is important as the ldapAttribute
      * names in grouper attribute to ldap attribute mapping may not all be in
      * the same case.
      */
-    private BasicAttributes                    mappedLdapAttributes;
+    private BasicAttributes                   mappedLdapAttributes;
+    
+    private GrouperProvisionerConfiguration   configuration;
 
     /**
      * Constructs a <code>GroupEntrySynchronizer</code>.
@@ -160,13 +150,15 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         // Call super constructor
         //
         super(ctx, root, configuration, options, subjectCache);
+        
+        this.configuration = configuration;
 
         int estimate = configuration.getGroupHashEstimate();
         if (estimate == 0)
         {
             estimate = DEFAULT_HASH_SIZE;
         }
-        DebugLog.info("Group initial cache size = " + estimate);
+        LOG.info("Group initial cache size = " + estimate);
 
         //
         // Init various objects
@@ -176,7 +168,6 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         deleteGroups = new HashSet<Name>(estimate);
         processedGroups = new HashSet<Name>(estimate);
 
-        mappedGrouperAttributes = new HashMap<String, AttributeModifier>();
         mappedLdapAttributes = new BasicAttributes(true);
 
         //
@@ -262,36 +253,23 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Build attribute modifiers for the grouper to ldap attribute mapping
         //
-        Map<String, String> attributeMap = configuration.getGroupAttributeMapping();
+        Map<String, List<String>> attributeMap = configuration.getGroupAttributeMapping();
         for (String grouperAttr : attributeMap.keySet())
         {
             //
             // Get the next key (i.e., grouper attribute name) and the
             // corresponding value (i.e., ldap attribute name)
-            String ldapAttr = (String) attributeMap.get(grouperAttr);
-
-            //
-            // If the ldapAttr is not yet defined in mappedLdapAttributes
-            // with a modifier, add it
-            //
-            if (mappedLdapAttributes.get(ldapAttr) == null)
-            {
-                String emptyValue = configuration.getGroupAttributeMappingLdapEmptyValue(ldapAttr);
-                mappedLdapAttributes.put(ldapAttr, new AttributeModifier(ldapAttr, emptyValue));
+            for(String ldapAttr : attributeMap.get(grouperAttr)) {
+                //
+                // If the ldapAttr is not yet defined in mappedLdapAttributes
+                // with a modifier, add it
+                //
+                if (mappedLdapAttributes.get(ldapAttr) == null)
+                {
+                    String emptyValue = configuration.getGroupAttributeMappingLdapEmptyValue(ldapAttr);
+                    mappedLdapAttributes.put(ldapAttr, new AttributeModifier(ldapAttr, emptyValue));
+                }
             }
-
-            //
-            // Get the AttributeModifier associated with the ldapAttr
-            //
-            AttributeModifier modifier = (AttributeModifier) mappedLdapAttributes.get(ldapAttr).get();
-
-            //
-            // Add the modifier to the mappedGrouperAttributes.
-            // NOTE: this is the same modifier as was included for
-            // the ldap attribute. This allows multiple grouper attributes
-            // to contribute values to the ldap attribute.
-            //
-            mappedGrouperAttributes.put(grouperAttr, modifier);
         }
     }
 
@@ -414,10 +392,10 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             modifiers.add(memberNameMods);
         }
 
-        NamingEnumeration ldapAttrEnum = mappedLdapAttributes.getAll();
+        NamingEnumeration<Attribute> ldapAttrEnum = mappedLdapAttributes.getAll();
         while (ldapAttrEnum.hasMore())
         {
-            Attribute attribute = (Attribute) ldapAttrEnum.next();
+            Attribute attribute = ldapAttrEnum.next();
             modifiers.add((AttributeModifier) attribute.get());
         }
 
@@ -448,7 +426,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         if (modificationItems.length > 0)
         {
-            DebugLog.info("Modify '" + group.getName() + "' " + Arrays.asList(modificationItems));
+            LOG.info("Modify '" + group.getName() + "' " + Arrays.asList(modificationItems));
             getContext().modifyAttributes(groupDn, modificationItems);            
         }
     }
@@ -482,10 +460,10 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             wantedAttr.add(memberNameMods.getAttributeName());
         }
 
-        NamingEnumeration mappedLdapAttrNames = mappedLdapAttributes.getIDs();
+        NamingEnumeration<String> mappedLdapAttrNames = mappedLdapAttributes.getIDs();
         while (mappedLdapAttrNames.hasMore())
         {
-            wantedAttr.add((String) mappedLdapAttrNames.next());
+            wantedAttr.add(mappedLdapAttrNames.next());
         }
 
         wantedAttr.add(objectClassMods.getAttributeName());
@@ -493,6 +471,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Get the existing attributes defined for the entry
         //
+        LOG.debug("get group attributes '" + groupDn +"' attrs " + wantedAttr);
         Attributes attributes = getContext().getAttributes(groupDn, (String[]) wantedAttr.toArray(new String[0]));
 
         //
@@ -519,10 +498,10 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Populate the mapped attributes modifiers
         //
-        NamingEnumeration mappedLdapAttributeEnum = mappedLdapAttributes.getAll();
+        NamingEnumeration<Attribute> mappedLdapAttributeEnum = mappedLdapAttributes.getAll();
         while (mappedLdapAttributeEnum.hasMore())
         {
-            Attribute ldapAttribute = (Attribute) mappedLdapAttributeEnum.next();
+            Attribute ldapAttribute = mappedLdapAttributeEnum.next();
             populateAttrModifier(attributes, (AttributeModifier) ldapAttribute.get());
         }
 
@@ -685,35 +664,43 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Populate mapped attributes from the group
         //
-        for (String groupAttribute : mappedGrouperAttributes.keySet())
+        Map<String, List<String>> attributeMap = configuration.getGroupAttributeMapping();        
+        for (String groupAttribute : attributeMap.keySet())
         {
-            //
-            // If the group has this attribute populated, store it
-            //
-           
             //
             // Get the attribute value from the group
             //
-            String groupAttributeValue = group.getAttributeOrNull(groupAttribute);                
-
+            String groupAttributeValue = group.getAttributeOrNull(groupAttribute);
+            
             //
-            // Only storing non-empty string attributes (i.e., length > 0)
-            //
-            if (groupAttributeValue != null && groupAttributeValue.length() > 0)
-            {
-                mappedGrouperAttributes.get(groupAttribute).store(groupAttributeValue);
-            }
-            //
-            // Store noValue value if there are no values and noValue is defined
-            //
-            else if (mappedGrouperAttributes.get(groupAttribute).getNoValue() != null)
-            {
-                mappedGrouperAttributes.get(groupAttribute).store(mappedGrouperAttributes.get(groupAttribute).getNoValue());
-            }
-            else
-            {
-                ErrorLog.warn(getClass(), getErrorData(group) + " " + "The value for group attribute \""
+            // Get the next key (i.e., grouper attribute name) and the
+            // corresponding value (i.e., ldap attribute name)
+            for(String ldapAttr : attributeMap.get(groupAttribute))
+            {               
+                //
+                // If the group has this attribute populated, store it
+                //
+              Attribute attribute = mappedLdapAttributes.get(ldapAttr);
+              AttributeModifier attributeModifier = (AttributeModifier) attribute.get();              
+                //
+                // Only storing non-empty string attributes (i.e., length > 0)
+                //
+                if (groupAttributeValue != null && groupAttributeValue.length() > 0)
+                {
+                  attributeModifier.store(groupAttributeValue);
+                }
+                //
+                // Store noValue value if there are no values and noValue is defined
+                //
+                else if (attributeModifier.getNoValue() != null)
+                {
+                  attributeModifier.store(attributeModifier.getNoValue());
+                }
+                else
+                {
+                    ErrorLog.warn(getClass(), getErrorData(group) + " " + "The value for group attribute \""
                         + groupAttribute + "\" will not be stored as it is either an empty string or null.");
+                }
             }
         }
     }
@@ -805,10 +792,10 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             modifiers.add(memberNameMods);
         }
 
-        NamingEnumeration ldapAttrEnum = mappedLdapAttributes.getAll();
+        NamingEnumeration<Attribute> ldapAttrEnum = mappedLdapAttributes.getAll();
         while (ldapAttrEnum.hasMore())
         {
-            Attribute attribute = (Attribute) ldapAttrEnum.next();
+            Attribute attribute = ldapAttrEnum.next();
             modifiers.add((AttributeModifier) attribute.get());
         }
 
@@ -829,7 +816,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Build the subject context
         //
-        DebugLog.info("Creating '" + group.getName() + "' attrs " + attributes);
+        LOG.info("Creating '" + groupDn + "' attrs " + attributes);
         getContext().createSubcontext(groupDn, attributes);        
     }
 
@@ -1072,6 +1059,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         // Perform the search
         //
+        LOG.debug("search base '" + getRoot() + "' filter '" + filter + "'");
         NamingEnumeration searchEnum = getContext().search(getRoot(), filter, searchControls);
 
         //
@@ -1120,6 +1108,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
                 //
                 try
                 {
+                    LOG.debug("delete '" + entryDn + "'");
                     LdapUtil.delete(getContext(), entryDn);
                 }
                 catch (Exception e)
@@ -1159,7 +1148,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         String filter = "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "=" + getConfiguration().getGroupDnObjectClass() + ")";
         populateDns(deleteGroups, filter, searchControls);
-
+        LOG.debug("found " + deleteGroups.size() + " groups");
+        
         //
         // If necessary, populate the stem ou deletes
         //
@@ -1167,6 +1157,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         {
             filter = "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "=" + OrganizationalUnit.OBJECT_CLASS + ")";
             populateDns(deleteOus, filter, searchControls);
+            LOG.debug("found " + deleteOus.size() + " ous");
         }
     }
 
@@ -1183,11 +1174,12 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
      * @throws NamingException
      *             thrown if a Naming error occurs.
      */
-    protected void populateDns(Set dns, String filter, SearchControls searchControls) throws NamingException
+    protected void populateDns(Set<Name> dns, String filter, SearchControls searchControls) throws NamingException
     {
         //
         // Perform the search of the root
         //
+        LOG.debug("search base '" + getRoot() + "' '" + filter + "'");
         NamingEnumeration searchEnum = getContext().search(getRoot(), filter, searchControls);
 
         //
@@ -1234,8 +1226,9 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
      * 
      * @param group
      *            Group
+     * @throws NamingException 
      */
-    protected void initializeInclude(Group group)
+    protected void initializeInclude(Group group) throws NamingException
     {
         //
         // Clear existing values
@@ -1252,10 +1245,12 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             memberNameMods.clear();
         }
 
-        for (AttributeModifier modifier : mappedGrouperAttributes.values())
+        NamingEnumeration<Attribute> ldapAttrEnum = mappedLdapAttributes.getAll();
+        while (ldapAttrEnum.hasMore())
         {
-            modifier.clear();
-        }
+            Attribute attribute = ldapAttrEnum.next();
+            ((AttributeModifier) attribute.get()).clear();
+        } 
     }
 
     /**
@@ -1286,7 +1281,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
                 //
                 // Delete it
                 //
-                DebugLog.info("Delete group '" + dn + "'");
+                LOG.info("Delete group '" + dn + "'");
                 LdapUtil.delete(context, dn);
             }
             catch (NamingException ne)
@@ -1321,7 +1316,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             //
             try
             {
-                DebugLog.info("Delete ou '" + dn + "'"); 
+                LOG.info("Delete ou '" + dn + "'"); 
                 LdapUtil.delete(context, dn);
             }
             catch (NamingException ne)

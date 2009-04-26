@@ -21,10 +21,12 @@ package edu.internet2.middleware.ldappc;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -148,7 +150,7 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
     /**
      * Group attribute name to LDAP attribute name mapping.
      */
-    private Map                           groupAttributeMapping                = new Hashtable();
+    private Map<String, List<String>>     groupAttributeMapping                = new HashMap<String, List<String>>();
 
     /**
      * Associated empty values for the ldap attributes defined in the group
@@ -1142,7 +1144,10 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
      */
     private void addGroupAttributeMapping(String groupAttribute, String ldapAttribute)
     {
-        groupAttributeMapping.put(groupAttribute, ldapAttribute);
+        if (!groupAttributeMapping.containsKey(groupAttribute)) {
+            groupAttributeMapping.put(groupAttribute, new ArrayList<String>());
+        }
+        groupAttributeMapping.get(groupAttribute).add(ldapAttribute);
     }
 
     /**
