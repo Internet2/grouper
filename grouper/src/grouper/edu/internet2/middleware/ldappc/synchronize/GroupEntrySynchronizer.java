@@ -1167,6 +1167,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         searchControls.setCountLimit(0);
+        searchControls.setReturningAttributes(new String[] {});
 
         //
         // Populate the group deletes
