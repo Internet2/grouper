@@ -64,7 +64,8 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class GroupEntrySynchronizer extends GroupSynchronizer
 {
-  private static final Log LOG = GrouperUtil.getLog(GroupEntrySynchronizer.class);
+    private static final Log LOG = GrouperUtil.getLog(GroupEntrySynchronizer.class);
+    
     /**
      * Default size of group hash tables if not specified in configuration.
      */
@@ -384,11 +385,23 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
 
         if (memberDnMods != null)
         {
+            //
+            // If no members could be resolved, then provision the noValue value if appropriate
+            //
+            if (memberDnMods.getRetainedValues().size() == 0 && memberDnMods.getNoValue() != null) {
+                memberDnMods.store(memberDnMods.getNoValue());              
+            }
             modifiers.add(memberDnMods);
         }
 
         if (memberNameMods != null)
         {
+            //
+            // If no members could be resolved, then provision the noValue value if appropriate
+            //
+            if (memberNameMods.getRetainedValues().size() == 0 && memberNameMods.getNoValue() != null) {
+                memberNameMods.store(memberNameMods.getNoValue());              
+            }
             modifiers.add(memberNameMods);
         }
 
@@ -426,7 +439,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         //
         if (modificationItems.length > 0)
         {
-            LOG.info("Modify '" + group.getName() + "' " + Arrays.asList(modificationItems));
+            LOG.info("Modify '" + groupDn + "' " + Arrays.asList(modificationItems));
             getContext().modifyAttributes(groupDn, modificationItems);            
         }
     }
@@ -783,12 +796,24 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         modifiers.add(rdnMods);
 
         if (memberDnMods != null)
-        {
+        {          
+            //
+            // If no members could be resolved, then provision the noValue value if appropriate
+            //
+            if (memberDnMods.getAdditions().size() == 0 && memberDnMods.getNoValue() != null) {
+                memberDnMods.store(memberDnMods.getNoValue());              
+            }
             modifiers.add(memberDnMods);
         }
 
         if (memberNameMods != null)
         {
+            //
+            // If no members could be resolved, then provision the noValue value if appropriate
+            //
+            if (memberNameMods.getAdditions().size() == 0 && memberNameMods.getNoValue() != null) {
+                memberNameMods.store(memberNameMods.getNoValue());              
+            }
             modifiers.add(memberNameMods);
         }
 

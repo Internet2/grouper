@@ -571,4 +571,9 @@ public class AttributeModifier
             return map.size();
         }
     }
+    
+    public Values getRetainedValues()
+    {
+        return retained;
+    }
 }
