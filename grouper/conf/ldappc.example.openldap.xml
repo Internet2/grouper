@@ -26,7 +26,7 @@
       <group-members-dn-list list-object-class="groupOfNames"
         list-attribute="member" list-empty-value="" />
              
-      <group-members-name-list list-object-class="eduMember" list-attribute="hasMember" list-empty-value="">
+      <group-members-name-list list-object-class="eduMember" list-attribute="hasMember" >
         <source-subject-name-mapping>
           <source-subject-name-map source="_source_name_" subject-attribute="_attr_name_" />
           <source-subject-name-map source="g:gsa" subject-attribute="name" />
