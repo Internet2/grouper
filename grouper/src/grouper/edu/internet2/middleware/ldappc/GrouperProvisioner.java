@@ -432,7 +432,7 @@ public class GrouperProvisioner extends Provisioner
         //
         try
         {
-            // DebugLog.info("Clearing old memberships");
+            LOG.debug("Clearing old memberships");
             clearSubjectEntryMemberships(existingSubjectDns);
         }
         catch (Exception e)
@@ -660,6 +660,7 @@ public class GrouperProvisioner extends Provisioner
             // Get a membership synchronizer and synchronize with
             // the subject's group memberships
             //
+            LOG.debug("synchronizing memberships for '" + objectDN + "'");
             MembershipSynchronizer synchronizer = getMembershipSynchronizer(objectDN);
             synchronizer.synchronize(groups);
         }
