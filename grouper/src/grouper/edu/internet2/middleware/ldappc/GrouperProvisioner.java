@@ -855,7 +855,7 @@ public class GrouperProvisioner extends Provisioner
             //
             // Build the DN for the search result
             //
-            Name subjectDn = parser.parse(searchResult.getName());
+            Name subjectDn = LdapUtil.getName(parser, searchResult);
             subjectDn = subjectDn.addAll(0, baseDn);
 
             if (searchResult.getAttributes().get(listAttribute) != null)

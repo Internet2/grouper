@@ -1199,18 +1199,11 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
                 {
                     continue;
                 }
-
-                // 20090426 tz there should be a better way to handle
-                // names that begin and end with quotes as returned by JNDI
-                if (entryName.startsWith("\"") && entryName.endsWith("\"")) {
-                    entryName = entryName.replaceFirst("^\"", "");
-                    entryName = entryName.replaceFirst("\"$", "");
-                }
                 
                 //
                 // Build the entry's DN
                 //
-                Name entryDn = parser.parse(entryName);
+                Name entryDn = LdapUtil.getName(parser, searchResult);
                 entryDn = entryDn.addAll(0, getRoot());
 
                 //

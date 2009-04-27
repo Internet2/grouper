@@ -22,9 +22,11 @@ import java.util.Hashtable;
 
 import javax.naming.Binding;
 import javax.naming.Name;
+import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
+import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
 import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
@@ -421,5 +423,32 @@ public final class LdapUtil
             newFilter = filter.replaceAll(regExpr, asterisk);
         }
         return newFilter;
+    }
+    
+    /**
+     * Return the Name of a SearchResult via getName().
+     * 
+     * @param parser
+     *            the Context's NameParser
+     * @param searchResult
+     *            the SearchResult
+     * @return the Name
+     * @throws NamingException
+     */
+    public static Name getName(NameParser parser, SearchResult searchResult) throws NamingException 
+    {
+        String entryName = searchResult.getName();
+       
+        // there should be a better way to handle
+        // names that begin and end with quotes as returned by JNDI
+        if (entryName.startsWith("\"") && entryName.endsWith("\"")) {
+            entryName = entryName.replaceFirst("^\"", "");
+            entryName = entryName.replaceFirst("\"$", "");
+        }
+      
+        //
+        // Build the entry's DN
+        //
+       return parser.parse(entryName);  
     }
 }
