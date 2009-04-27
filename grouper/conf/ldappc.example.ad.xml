@@ -18,10 +18,18 @@
       </attribute-matching-queries>
       -->
     </group-queries>
-
+    
     <groups structure="flat" root-dn="OU=Groups,DC=example,DC=edu"
       ldap-object-class="group" ldap-rdn-attribute="cn"
       grouper-attribute="name" initial-cache-size="100">
+    
+    <!-- some versions of Active Directory may require that groups
+         be created first without members
+    <groups structure="flat" root-dn="OU=Groups,DC=example,DC=edu"
+      ldap-object-class="group" ldap-rdn-attribute="cn"
+      grouper-attribute="name" initial-cache-size="100"
+      create-then-modify-members="true" >
+     -->
       
       <group-members-dn-list list-object-class="group"
         list-attribute="member" />

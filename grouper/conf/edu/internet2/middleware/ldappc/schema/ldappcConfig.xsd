@@ -204,6 +204,7 @@
             <xs:attribute name="grouper-attribute" use="required"
                 type="grouper-attribute-name-type" />
 			<xs:attribute name="initial-cache-size" use="optional" type="xs:integer" />
+            <xs:attribute name="create-then-modify-members" type="xs:boolean" />      
         </xs:complexType>
     </xs:element>
 

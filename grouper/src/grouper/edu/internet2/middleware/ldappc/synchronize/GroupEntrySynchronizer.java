@@ -786,8 +786,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
         storeGroupData(group);
 
         //
-        // Build list of all attribute modifiers possibly holding data for the
-        // entry
+        // Build list of attribute modifiers possibly holding data
         //
         Vector<AttributeModifier> modifiers = new Vector<AttributeModifier>();
 
@@ -795,6 +794,18 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
 
         modifiers.add(rdnMods);
 
+        NamingEnumeration<Attribute> ldapAttrEnum = mappedLdapAttributes.getAll();
+        while (ldapAttrEnum.hasMore())
+        {
+            Attribute attribute = ldapAttrEnum.next();
+            modifiers.add((AttributeModifier) attribute.get());
+        }
+        
+        //
+        // Build list of member attribute modifiers possibly holding data
+        //
+        Vector<AttributeModifier> memberModifiers = new Vector<AttributeModifier>();
+        
         if (memberDnMods != null)
         {          
             //
@@ -803,7 +814,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             if (memberDnMods.getAdditions().size() == 0 && memberDnMods.getNoValue() != null) {
                 memberDnMods.store(memberDnMods.getNoValue());              
             }
-            modifiers.add(memberDnMods);
+            memberModifiers.add(memberDnMods);
         }
 
         if (memberNameMods != null)
@@ -814,14 +825,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             if (memberNameMods.getAdditions().size() == 0 && memberNameMods.getNoValue() != null) {
                 memberNameMods.store(memberNameMods.getNoValue());              
             }
-            modifiers.add(memberNameMods);
-        }
-
-        NamingEnumeration<Attribute> ldapAttrEnum = mappedLdapAttributes.getAll();
-        while (ldapAttrEnum.hasMore())
-        {
-            Attribute attribute = ldapAttrEnum.next();
-            modifiers.add((AttributeModifier) attribute.get());
+            memberModifiers.add(memberNameMods);
         }
 
         //
@@ -837,13 +841,55 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
                 attributes.put(attribute);
             }
         }
-
+        
+        //
+        // If not creating the group then modifying members,
+        // include member attributes when creating the group
+        //
+        if (!configuration.getCreateGroupThenModifyMembers()) {
+            for (AttributeModifier modifier : memberModifiers)
+            {
+                Attribute attribute = modifier.getAdditions();
+                if (attribute.size() > 0)
+                {
+                    attributes.put(attribute);
+                }
+            }          
+        }
+        
         //
         // Build the subject context
         //
         LOG.info("Creating '" + groupDn + "' attrs " + attributes);
-        getContext().createSubcontext(groupDn, attributes);        
-    }
+        getContext().createSubcontext(groupDn, attributes);
+        
+        //
+        // If creating the group then modifying members,
+        // modify the member attributes
+        //
+        if (configuration.getCreateGroupThenModifyMembers()) {
+            //
+            // Member modifications
+            //
+            Vector<ModificationItem> modifications = new Vector<ModificationItem>();
+            for (AttributeModifier modifier : memberModifiers)
+            {
+                for (ModificationItem modItem : modifier.getModifications())
+                {
+                    modifications.add(modItem);
+                }
+            }
+
+            //
+            // Modify the entry
+            //
+            if (!modifications.isEmpty())
+            {
+                LOG.info("Modify '" + groupDn + "' " + modifications);
+                getContext().modifyAttributes(groupDn, modifications.toArray(new ModificationItem[] {}));            
+            }
+        }
+     }
 
     /**
      * This builds the DN of the given group. Also this populates the

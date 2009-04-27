@@ -316,6 +316,12 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
      * Boolean indicating if the ldappc element was found while parsing.
      */
     private boolean                       rootElementFound;
+    
+    /**
+     * Boolean indicating if groups should be created without members
+     * followed by modifications which add member attributes
+     */
+    private boolean                       createGroupsThenModifyMembers        = false;
 
     /**
      * Constructs an instance of ConfigManager using the configuration file
@@ -505,6 +511,9 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
 
         digester.addCallMethod(elementPath, "setGroupHashEstimate", 1);
         digester.addCallParam(elementPath, 0, "initial-cache-size");
+        
+        digester.addCallMethod(elementPath, "setCreateGroupThenModifyMembers", 1);
+        digester.addCallParam(elementPath, 0, "create-then-modify-members");
 
         // Save the Member Group Listing parameters
         elementPath = "ldappc/grouper/memberships/member-groups-list";
@@ -1997,6 +2006,20 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
     {
         this.rootElementFound = found;
     }
+    
+    /*
+     * (non-Javadoc)
+     * @see edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration#getCreateGroupThenModifyMembers()
+     */
+    public boolean getCreateGroupThenModifyMembers()
+    {
+        return createGroupsThenModifyMembers;
+    }
+    
+    private void setCreateGroupThenModifyMembers(String string)
+    {
+        this.createGroupsThenModifyMembers = Boolean.parseBoolean(string);
+    }
 
     /**
      * This is class allows the Digester processing the configuration file
@@ -2559,6 +2582,11 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
         public void addPermissionsFunctionQuery(String function)
         {
             ConfigManager.this.addPermissionsFunctionQuery(function);
+        }
+        
+        public void setCreateGroupThenModifyMembers(String string)
+        {
+            ConfigManager.this.setCreateGroupThenModifyMembers(string);
         }
     }
 

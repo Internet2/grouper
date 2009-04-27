@@ -299,4 +299,14 @@ public interface GrouperProvisionerConfiguration extends ProvisionerConfiguratio
      *         defined.
      */
     public String getGroupAttributeMappingLdapEmptyValue(String ldapAttribute);
+    
+    /**
+     * Returns true if the group should be created without members followed
+     * by a modification which adds member attributes, defaults to false.
+     * 
+     * @return true if the group should be created without members followed
+     *         by a modification which adds member attributes, defaults to false
+     *         
+     */
+    public boolean getCreateGroupThenModifyMembers();
 }
