@@ -18,16 +18,22 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
+import java.util.Arrays;
+
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration;
 import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
 import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.LdappcException;
+import edu.internet2.middleware.ldappc.logging.DebugLog;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
 
@@ -37,6 +43,9 @@ import edu.internet2.middleware.ldappc.util.SubjectCache;
  */
 public class StringMembershipSynchronizer extends MembershipSynchronizer
 {
+
+    private static final Log LOG = GrouperUtil.getLog(StringMembershipSynchronizer.class);
+    
     /**
      * Holds the membership listing attribute modifications.
      */
@@ -95,7 +104,8 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
         // Initialize the instance attributes
         //
         objectClassMods = new AttributeModifier(LdapUtil.OBJECT_CLASS_ATTRIBUTE);
-        membershipMods = new AttributeModifier(listAttrName, configuration.getMemberGroupsListEmptyValue());
+        // membershipMods = new AttributeModifier(listAttrName, configuration.getMemberGroupsListEmptyValue());
+        membershipMods = new AttributeModifier(listAttrName);
 
         //
         // Get the group naming attribute
@@ -167,6 +177,8 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
         //
         // Get the existing values
         //
+        LOG.debug("get attributes for '" + getSubject() + " attrs '" + membershipMods.getAttributeName() + "' '"
+            + objectClassMods.getAttributeName() + "'");
         Attributes attributes = getContext().getAttributes(getSubject(),
                 new String[] { membershipMods.getAttributeName(), objectClassMods.getAttributeName() });
 
@@ -239,8 +251,8 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer
             //
             // Perform the modifications
             //
+            DebugLog.info("Modify subject '" + getSubject() + "' " + Arrays.asList(mods));
             getContext().modifyAttributes(getSubject(), mods);
-            // DebugLog.info("Updated subject " + getSubject());
         }
     }
 }

@@ -18,6 +18,7 @@
 
 package edu.internet2.middleware.ldappc;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -148,7 +149,7 @@ public interface GrouperProvisionerConfiguration extends ProvisionerConfiguratio
      * @return String to place in the member groups list attribute if no Groups
      *         are found to store there, or <code>null</code> if not defined.
      */
-    public String getMemberGroupsListEmptyValue();
+    // public String getMemberGroupsListEmptyValue();
 
     /**
      * Directory for the membership updates temporary file.
@@ -285,7 +286,7 @@ public interface GrouperProvisionerConfiguration extends ProvisionerConfiguratio
      * 
      * @return Map of Group attribute names to LDAP attribute names.
      */
-    public Map getGroupAttributeMapping();
+    public Map<String, List<String>> getGroupAttributeMapping();
 
     /**
      * This gets the value to store in the ldap attribute if there are no
@@ -298,4 +299,14 @@ public interface GrouperProvisionerConfiguration extends ProvisionerConfiguratio
      *         defined.
      */
     public String getGroupAttributeMappingLdapEmptyValue(String ldapAttribute);
+    
+    /**
+     * Returns true if the group should be created without members followed
+     * by a modification which adds member attributes, defaults to false.
+     * 
+     * @return true if the group should be created without members followed
+     *         by a modification which adds member attributes, defaults to false
+     *         
+     */
+    public boolean getCreateGroupThenModifyMembers();
 }

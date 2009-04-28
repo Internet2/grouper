@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderJob.java,v 1.8 2009-03-15 06:37:23 mchyzer Exp $
+ * $Id: GrouperLoaderJob.java,v 1.9 2009-04-28 20:08:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -27,6 +27,11 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.hooks.LoaderHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksLoaderBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -271,9 +276,21 @@ public class GrouperLoaderJob implements Job, StatefulJob {
         }
       }
       
+      LoaderJobBean loaderJobBean = new LoaderJobBean(grouperLoaderTypeEnum, groupName, grouperLoaderDb, grouperLoaderQuery, 
+          hib3GrouploaderLog, grouperSession, andGroups, groupTypes, groupLikeString, groupQuery, startTime);
+      
+      //call hooks if registered
+      GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LOADER, 
+          LoaderHooks.METHOD_LOADER_PRE_RUN, HooksLoaderBean.class, loaderJobBean, 
+          LoaderJobBean.class, VetoTypeGrouper.LOADER_PRE_RUN);
+
       //based on type, run query from the db and sync members
-      grouperLoaderTypeEnum.syncGroupMembership(groupName, grouperLoaderDb, 
-          grouperLoaderQuery, hib3GrouploaderLog, startTime, grouperSession, andGroups, groupTypes, groupLikeString, groupQuery);
+      grouperLoaderTypeEnum.syncGroupMembership(loaderJobBean);
+
+      //call hooks if registered
+      GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LOADER, 
+          LoaderHooks.METHOD_LOADER_POST_RUN, HooksLoaderBean.class, loaderJobBean, 
+          LoaderJobBean.class, VetoTypeGrouper.LOADER_POST_RUN);
       
     } catch (Exception t) {
       LOG.error("Error on job: " + jobName, t);

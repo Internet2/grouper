@@ -21,10 +21,12 @@ package edu.internet2.middleware.ldappc;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -148,7 +150,7 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
     /**
      * Group attribute name to LDAP attribute name mapping.
      */
-    private Map                           groupAttributeMapping                = new Hashtable();
+    private Map<String, List<String>>     groupAttributeMapping                = new HashMap<String, List<String>>();
 
     /**
      * Associated empty values for the ldap attributes defined in the group
@@ -201,7 +203,7 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
      * Value placed in member groups listattribute when no groups are stored
      * there.
      */
-    private String                        memberGroupsListEmptyValue;
+    // private String                        memberGroupsListEmptyValue;
 
     /**
      * Directory for the membership updates file.
@@ -314,6 +316,12 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
      * Boolean indicating if the ldappc element was found while parsing.
      */
     private boolean                       rootElementFound;
+
+    /**
+     * Boolean indicating if groups should be created without members
+     * followed by modifications which add member attributes
+     */
+    private boolean                       createGroupsThenModifyMembers        = false;
 
     /**
      * Constructs an instance of ConfigManager using the configuration file
@@ -503,6 +511,9 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
 
         digester.addCallMethod(elementPath, "setGroupHashEstimate", 1);
         digester.addCallParam(elementPath, 0, "initial-cache-size");
+        
+        digester.addCallMethod(elementPath, "setCreateGroupThenModifyMembers", 1);
+        digester.addCallParam(elementPath, 0, "create-then-modify-members");
 
         // Save the Member Group Listing parameters
         elementPath = "ldappc/grouper/memberships/member-groups-list";
@@ -517,8 +528,8 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
         digester.addCallMethod(elementPath, "setMemberGroupsNamingAttribute", 1);
         digester.addCallParam(elementPath, 0, "naming-attribute");
 
-        digester.addCallMethod(elementPath, "setMemberGroupsListEmptyValue", 1);
-        digester.addCallParam(elementPath, 0, "list-empty-value");
+        // digester.addCallMethod(elementPath, "setMemberGroupsListEmptyValue", 1);
+        // digester.addCallParam(elementPath, 0, "list-empty-value");
 
         digester.addCallMethod(elementPath, "setMemberGroupsListTemporaryDirectory", 1);
         digester.addCallParam(elementPath, 0, "temporary-directory");
@@ -1142,7 +1153,10 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
      */
     private void addGroupAttributeMapping(String groupAttribute, String ldapAttribute)
     {
-        groupAttributeMapping.put(groupAttribute, ldapAttribute);
+        if (!groupAttributeMapping.containsKey(groupAttribute)) {
+            groupAttributeMapping.put(groupAttribute, new ArrayList<String>());
+        }
+        groupAttributeMapping.get(groupAttribute).add(ldapAttribute);
     }
 
     /**
@@ -1482,10 +1496,10 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
      * @return String to place in the member groups list attribute if no Groups
      *         are found to store there, or <code>null</code> if not defined.
      */
-    public String getMemberGroupsListEmptyValue()
-    {
-        return memberGroupsListEmptyValue;
-    }
+    //public String getMemberGroupsListEmptyValue()
+    //{
+    //    return memberGroupsListEmptyValue;
+    //}
 
     /**
      * Sets the value to be placed into the member groups list attribute if no
@@ -1495,10 +1509,10 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
      *            String value or <code>null</code> if no value is to be
      *            stored
      */
-    private void setMemberGroupsListEmptyValue(String value)
-    {
-        this.memberGroupsListEmptyValue = value;
-    }
+    //private void setMemberGroupsListEmptyValue(String value)
+    //{
+    //    this.memberGroupsListEmptyValue = value;
+    //}
 
     /**
      * Directory for the membership updates temporary file.
@@ -1993,6 +2007,20 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
         this.rootElementFound = found;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration#getCreateGroupThenModifyMembers()
+     */
+    public boolean getCreateGroupThenModifyMembers()
+    {
+        return createGroupsThenModifyMembers;
+    }
+    
+    private void setCreateGroupThenModifyMembers(String string)
+    {
+        this.createGroupsThenModifyMembers = Boolean.parseBoolean(string);
+    }
+
     /**
      * This is class allows the Digester processing the configuration file
      * access to all the necessary methods, regardless of visibility, for
@@ -2327,10 +2355,10 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
          * 
          * Calls {@link ConfigManager#setMemberGroupsListEmptyValue(String))}.
          */
-        public void setMemberGroupsListEmptyValue(String value)
-        {
-            ConfigManager.this.setMemberGroupsListEmptyValue(value);
-        }
+        //public void setMemberGroupsListEmptyValue(String value)
+        //{
+        //    ConfigManager.this.setMemberGroupsListEmptyValue(value);
+        //}
 
         /**
          * Sets the member groups list temporary directory.
@@ -2554,6 +2582,11 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
         public void addPermissionsFunctionQuery(String function)
         {
             ConfigManager.this.addPermissionsFunctionQuery(function);
+        }
+        
+        public void setCreateGroupThenModifyMembers(String string)
+        {
+            ConfigManager.this.setCreateGroupThenModifyMembers(string);
         }
     }
 

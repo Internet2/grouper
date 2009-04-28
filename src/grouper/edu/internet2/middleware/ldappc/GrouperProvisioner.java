@@ -25,6 +25,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -34,14 +35,11 @@ import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.BasicAttribute;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.commons.logging.Log;
 import org.doomdark.uuid.UUIDGenerator;
 
 import edu.internet2.middleware.grouper.Group;
@@ -60,9 +58,9 @@ import edu.internet2.middleware.grouper.filter.GrouperQuery;
 import edu.internet2.middleware.grouper.filter.NullFilter;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
 import edu.internet2.middleware.grouper.filter.UnionFilter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.synchronize.GroupEntrySynchronizer;
-import edu.internet2.middleware.ldappc.synchronize.GroupStringMembershipSynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.GroupSynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.MembershipSynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.StringMembershipSynchronizer;
@@ -78,6 +76,8 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class GrouperProvisioner extends Provisioner
 {
+    private static final Log LOG = GrouperUtil.getLog(GrouperProvisioner.class);
+    
     /**
      * Number of records of membership updates to sort in memory. This value
      * (200,000) is a good compromise between speed and memory.
@@ -335,8 +335,8 @@ public class GrouperProvisioner extends Provisioner
         //
         // DebugLog.info("Collecting existing subjects with memberships");
         Set<Name> existingSubjectDns = new HashSet<Name>();
-        Set<String> existingObjectDns = new HashSet<String>();
-        buildSourceSubjectDnSet(existingSubjectDns, existingObjectDns);
+        buildSourceSubjectDnSet(existingSubjectDns);
+        LOG.debug("found " + existingSubjectDns.size() + " existing subjectDns");
 
         //
         // File for writing memberships to when provisioning memberships. Each
@@ -373,8 +373,7 @@ public class GrouperProvisioner extends Provisioner
             //
             // Iterate over the members in the group.
             //
-            Set<String> grouperMemberships = new HashSet<String>();
-            for (Member member : (Set<Member>) group.getMembers())
+            for (Member member : group.getMembers())
             {
                 //
                 // Look for subject in the directory
@@ -385,28 +384,17 @@ public class GrouperProvisioner extends Provisioner
                     //
                     // Add subject DN to members and remove it from the list of
                     // existing subjects.
-                    //
-                    grouperMemberships.add(subjectDn.toString());
-                    existingSubjectDns.remove(subjectDn);
-                }
-            }
-
             //
-            // Get the membership synchronizer and synchronize by writing
-            // updates to the updates file.
-            //
-            GroupStringMembershipSynchronizer synchronizer = new GroupStringMembershipSynchronizer(ldapCtx,
-                    groupNameString, updatesWriter, configuration, options, getSubjectCache());
             try
             {
-                synchronizer.synchronize(grouperMemberships);
+                        updatesWriter.write(subjectDn.toString() + "\t" + groupNameString + "\n");
             }
-            catch (Exception e)
+                    catch (IOException e)
             {
-                logThrowableError(e, "Unable to synchronize memberships for " + group.getName());
-                caughtExceptions
-                        .add(new LdappcException("Unable to synchronize memberships for " + group.getName(), e));
-                continue;
+                        caughtExceptions.add(e);
+                    }
+                    existingSubjectDns.remove(subjectDn);
+                }
             }
         }
 
@@ -437,14 +425,14 @@ public class GrouperProvisioner extends Provisioner
         //
         // Read the updates and make the changes to the LDAP objects.
         //
-        performActualMembershipUpdates(updatesFile, existingObjectDns);
+        performActualMembershipUpdates(updatesFile);
 
         //
         // Clear the memberships from any subject not processed above.
         //
         try
         {
-            // DebugLog.info("Clearing old memberships");
+            LOG.debug("Clearing old memberships");
             clearSubjectEntryMemberships(existingSubjectDns);
         }
         catch (Exception e)
@@ -588,7 +576,7 @@ public class GrouperProvisioner extends Provisioner
      * @param existingObjectDns
      *            Set containing subject DNs that have the list object class.
      */
-    private void performActualMembershipUpdates(File updatesFile, Set<String> existingObjectDns)
+    private void performActualMembershipUpdates(File updatesFile)
     {
         //
         // Re-open the sorted memberships file for reading.
@@ -602,46 +590,29 @@ public class GrouperProvisioner extends Provisioner
         // DebugLog.info("Beginning memberships updates");
         try
         {
-            Set<String> adds = new HashSet<String>();
-            Set<String> dels = new HashSet<String>();
-            Set<String> reps = new HashSet<String>();
+            Set<String> groups = new HashSet<String>();
 
             String currentSubjectDn = null;
             for (String s = null; (s = updatesReader.readLine()) != null;)
             {
-                String[] parts = s.split("\t");
+                String[] parts = s.split("\t", 2);
                 String subjectDn = parts[0];
-                String modOp = parts[1];
-                String groupNameString = parts[2];
+                String groupNameString = parts[1];
 
                 if (!subjectDn.equals(currentSubjectDn))
                 {
                     if (currentSubjectDn != null)
                     {
-                        updateSubject(currentSubjectDn, !existingObjectDns.contains(subjectDn), adds, dels, reps);
+                        updateSubject(currentSubjectDn, groups);
                     }
-                    adds.clear();
-                    dels.clear();
-                    reps.clear();
                     currentSubjectDn = subjectDn;
+                    groups.clear();
                 }
-
-                if ("1".equals(modOp))
-                {
-                    adds.add(groupNameString);
+                groups.add(groupNameString);
                 }
-                else if ("2".equals(modOp))
-                {
-                    reps.add(groupNameString);
-                }
-                else
-                {
-                    dels.add(groupNameString);
-                }
-            }
             if (currentSubjectDn != null)
             {
-                updateSubject(currentSubjectDn, !existingObjectDns.contains(currentSubjectDn), adds, dels, reps);
+                updateSubject(currentSubjectDn, groups);
             }
         }
         catch (IOException e)
@@ -655,7 +626,9 @@ public class GrouperProvisioner extends Provisioner
             // Close and delete the memberships file.
             //
             updatesReader.close();
+            if (!LOG.isDebugEnabled()) {
             updatesFile.delete();
+        }
         }
         catch (IOException e)
         {
@@ -679,85 +652,23 @@ public class GrouperProvisioner extends Provisioner
      * @param reps
      *            Set of memberships to replace existing memberships with.xd
      */
-    private void updateSubject(String objectDN, boolean addMemberObjectClass, Set<String> adds, Set<String> dels,
-            Set<String> reps)
-    {
-        if (adds.size() == 0 && dels.size() == 0 && reps.size() == 0)
+    private void updateSubject(String objectDN, Set<String> groups)
         {
-            return;
-        }
-
-        int size = (addMemberObjectClass ? 1 : 0) + (adds.size() > 0 ? 1 : 0) + (dels.size() > 0 ? 1 : 0)
-                + (reps.size() > 0 ? 1 : 0);
-
-        ModificationItem[] modItems = new ModificationItem[size];
-        int modIndex = 0;
-
-        String listAttribute = configuration.getMemberGroupsListAttribute();
-        String listObjectClass = configuration.getMemberGroupsListObjectClass();
-
-        if (addMemberObjectClass)
-        {
-            Attribute attrs = new BasicAttribute(LdapUtil.OBJECT_CLASS_ATTRIBUTE);
-            attrs.add(listObjectClass);
-            modItems[modIndex++] = new ModificationItem(DirContext.ADD_ATTRIBUTE, attrs);
-        }
-        if (adds.size() > 0)
-        {
-            Attribute attrs = new BasicAttribute(listAttribute);
-            for (String groupName : adds)
-            {
-                attrs.add(groupName);
-            }
-            modItems[modIndex++] = new ModificationItem(DirContext.ADD_ATTRIBUTE, attrs);
-        }
-        if (dels.size() > 0)
-        {
-            Attribute attrs = new BasicAttribute(listAttribute);
-            for (String groupName : dels)
-            {
-                attrs.add(groupName);
-            }
-            modItems[modIndex++] = new ModificationItem(DirContext.REMOVE_ATTRIBUTE, attrs);
-        }
-        if (reps.size() > 0)
-        {
-            Attribute attrs = new BasicAttribute(listAttribute);
-            for (String groupName : reps)
-            {
-                attrs.add(groupName);
-            }
-            modItems[modIndex++] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, attrs);
-        }
-
         try
         {
-            ldapCtx.modifyAttributes(objectDN, modItems);
+            //
+            // Get a membership synchronizer and synchronize with
+            // the subject's group memberships
+            //
+            LOG.debug("synchronizing memberships for '" + objectDN + "'");
+            MembershipSynchronizer synchronizer = getMembershipSynchronizer(objectDN);
+            synchronizer.synchronize(groups);
         }
-        catch (NamingException e)
+        catch (Exception e)
         {
-            e.printStackTrace();
-            System.out.println("Printing ModItems array:");
-            for (ModificationItem modItem : modItems)
-            {
-                System.out.println("op = " + modItem.getModificationOp() + ", id = " + modItem.getAttribute().getID());
-                Attribute attr = modItem.getAttribute();
-                for (int i = 0; i < attr.size(); i++)
-                {
-                    try
-                    {
-                        System.out.println("    " + attr.get(i));
+            logThrowableError(e);
                     }
-                    catch (NamingException e1)
-                    {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    }
-                }
             }
-            System.out.println("Done printing ModItems array:");
-        }
-    }
 
     /**
      * Open the membership file for writing.
@@ -841,7 +752,7 @@ public class GrouperProvisioner extends Provisioner
      * @throws NamingException
      *             thrown if a Naming error occurs
      */
-    protected void buildSourceSubjectDnSet(Set<Name> subjectDns, Set<String> subjectObjectDns) throws NamingException
+    protected void buildSourceSubjectDnSet(Set<Name> subjectDns) throws NamingException
     {
         //
         // Get the source to subject ldap filter mapping from the configuration
@@ -857,7 +768,7 @@ public class GrouperProvisioner extends Provisioner
             //
             // Add the subjectDns for this source
             //
-            addSubjectDnSet(subjectDns, subjectObjectDns, filter);
+            addSubjectDnSet(subjectDns, filter);
         }
     }
 
@@ -875,14 +786,8 @@ public class GrouperProvisioner extends Provisioner
      * @throws NamingException
      *             thrown if a Naming error occurs.
      */
-    private void addSubjectDnSet(Set<Name> subjectDns, Set<String> subjectObjectDns, LdapSearchFilter filter) throws NamingException
+    private void addSubjectDnSet(Set<Name> subjectDns, LdapSearchFilter filter) throws NamingException
     {
-        //
-        // Build the search control
-        //
-        SearchControls searchControls = new SearchControls();
-        searchControls.setSearchScope(filter.getScope());
-        searchControls.setCountLimit(0);
 
         //
         // Get the member list attribute name and object class
@@ -892,6 +797,14 @@ public class GrouperProvisioner extends Provisioner
         {
             throw new LdappcConfigurationException("Member groups list attribute is null");
         }
+
+        //
+        // Build the search control
+        //
+        SearchControls searchControls = new SearchControls();
+        searchControls.setSearchScope(filter.getScope());
+        searchControls.setCountLimit(0);
+        searchControls.setReturningAttributes(new String[] {listAttribute} );
 
         String listObjectClass = configuration.getMemberGroupsListObjectClass();
 
@@ -926,6 +839,8 @@ public class GrouperProvisioner extends Provisioner
         //
         // perform the search
         //
+        LOG.debug("search base '" + baseDn +"' filter '" + filter +
+            "' attrs " + Arrays.asList(searchControls.getReturningAttributes()));
         NamingEnumeration searchResults = ldapCtx.search(baseDn, filterExpr, searchControls);
 
         //
@@ -941,15 +856,8 @@ public class GrouperProvisioner extends Provisioner
             //
             // Build the DN for the search result
             //
-            Name subjectDn = parser.parse(searchResult.getName());
+            Name subjectDn = LdapUtil.getName(parser, searchResult);
             subjectDn = subjectDn.addAll(0, baseDn);
-
-            boolean hasObjectClass = true;
-            if (listObjectClass != null)
-            {
-                hasObjectClass = searchResult.getAttributes().get(LdapUtil.OBJECT_CLASS_ATTRIBUTE).contains(
-                        listObjectClass);
-            }
 
             if (searchResult.getAttributes().get(listAttribute) != null)
             {
@@ -957,10 +865,6 @@ public class GrouperProvisioner extends Provisioner
                 // Save the subject dn
                 //
                 subjectDns.add(subjectDn);
-            }
-            if (hasObjectClass)
-            {
-                subjectObjectDns.add(subjectDn.toString());
             }
         }
     }
