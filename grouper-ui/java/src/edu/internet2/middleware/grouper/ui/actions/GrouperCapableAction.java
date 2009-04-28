@@ -181,7 +181,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.21 2009-04-13 03:18:40 mchyzer Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.22 2009-04-28 18:48:51 shilen Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -248,6 +248,16 @@ public abstract class GrouperCapableAction
 			String wheelGroupAction = request.getParameter("wheelGroupAction");
 			if(!isEmpty(wheelGroupAction)) doWheelGroupStuff(wheelGroupAction,session);
 			UIThreadLocal.replace("isActiveWheelGroupMember",new Boolean(isActiveWheelGroupMember(session)));
+			
+	    if (grouperSession != null) {
+	      if (isWheelGroupMember(session)) {
+	        grouperSession.setConsiderIfWheelMember(isActiveWheelGroupMember(session));
+	      } else {
+	        // we'll set this back to the default
+	        grouperSession.setConsiderIfWheelMember(true);
+	      }
+	    }
+			
 			if(form!=null)request.setAttribute("grouperForm",form);
 			Object sessionMessage = session.getAttribute("sessionMessage");
 			if(isEmpty(request.getAttribute("message")) && !isEmpty(sessionMessage)) {
@@ -543,10 +553,7 @@ public abstract class GrouperCapableAction
 		if(!isWheelGroupMember(session)) return;
 		boolean activeWheelGroupMember = "toAdmin".equals(action);
     session.setAttribute("activeWheelGroupMember",activeWheelGroupMember);
-    GrouperSession grouperSession = SessionInitialiser.getGrouperSession(session);
-    if (grouperSession != null) {
-      grouperSession.setConsiderIfWheelMember(activeWheelGroupMember);
-		}
+
 		//Ensure the menu is recalculated if switching admin mode
 		session.removeAttribute("cachedMenu");
 	}	
