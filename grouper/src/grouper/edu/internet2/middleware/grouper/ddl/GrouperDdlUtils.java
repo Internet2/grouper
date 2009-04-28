@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.30.2.4 2009-03-20 21:18:05 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.30.2.5 2009-04-28 19:37:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1236,7 +1236,8 @@ public class GrouperDdlUtils {
         }
       } catch (Exception e) {
         //just log, maybe the table isnt there
-        LOG.error("maybe the grouper_ddl table isnt there... if that is the reason its ok.  info level logging will show underlying reason." + e.getMessage());
+        LOG.error("maybe the grouper_ddl table isnt there... if that is the reason its ok.  " +
+        		"info level logging will show underlying reason." + e.getMessage());
         //send this as info, since most of the time it isnt needed
         LOG.info("ddl issue: ", e);
       }
@@ -1247,7 +1248,6 @@ public class GrouperDdlUtils {
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LIFECYCLE, 
           LifecycleHooks.METHOD_DDL_INIT, HooksLifecycleDdlInitBean.class, 
           (Object)cachedDdls, List.class, null);
-
       
     }
   }
@@ -1441,8 +1441,7 @@ public class GrouperDdlUtils {
     }
     
   }
-  
-  
+
   /**
    * get the object names from the 
    * @return the list of object names
@@ -1450,12 +1449,12 @@ public class GrouperDdlUtils {
   public static List<String> retrieveObjectNames() {
     //init stuff
     retrieveDdlsFromCache();
-    
+
     List<String> objectNames = new ArrayList<String>();
     for (Hib3GrouperDdl hib3GrouperDdl : cachedDdls) {
       objectNames.add(hib3GrouperDdl.getObjectName());
     }
-    
+
     //make sure Grouper is in there
     if (!objectNames.contains("Grouper")) {
       objectNames.add("Grouper");
@@ -1463,17 +1462,22 @@ public class GrouperDdlUtils {
     if (!objectNames.contains("Subject")) {
       objectNames.add("Subject");
     }
+    if (!objectNames.contains("GrouperOrg")) {
+      objectNames.add("GrouperOrg");
+    }
     if (GrouperConfig.getPropertyBoolean("ddlutils.exclude.subject.tables", false)) {
       objectNames.remove("Subject");
     }
-    
-    
+    if (!GrouperConfig.getPropertyBoolean("orgs.includePocOrgsTablesInDdl", false)) {
+      objectNames.remove("GrouperOrg");
+    }
+
     return objectNames;
   }
-  
+
   /** if check from scratch */
   public static boolean deepCheck = false;
-  
+
   /**
    * get the version of a ddl object in the DB
    * @param objectName

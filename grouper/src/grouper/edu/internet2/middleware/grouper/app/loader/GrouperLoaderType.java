@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.13 2008-12-22 05:50:42 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.13.2.1 2009-04-28 19:37:37 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -13,6 +13,7 @@ import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,6 +48,7 @@ import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcl
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperReport;
 import edu.internet2.middleware.grouper.misc.GrouperReportException;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -88,27 +90,23 @@ public enum GrouperLoaderType {
     
     /**
      * sync up a group membership based on query and db
-     * @param groupName
-     * @param grouperLoaderDb
-     * @param query
-     * @param hib3GrouploaderLog
-     * @param startTime
-     * @param groupTypes comma separated group types
-     * @param groupLikeString locates groups being managed so we can delete if necessary
-     * @param groupQuery query containing group metadata
      */
     @SuppressWarnings("unchecked")
     @Override
-    public void syncGroupMembership(String groupName, GrouperLoaderDb grouperLoaderDb, String query, 
-        Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
-        List<Group> andGroups, List<GroupType> groupTypes, String groupLikeString, String groupQuery) {
+    public void syncGroupMembership(LoaderJobBean loaderJobBean) {
+      
+//      String groupName, GrouperLoaderDb grouperLoaderDb, String query, 
+//      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, 
+//      List<Group> andGroups, List<GroupType> groupTypes, String groupLikeString, String groupQuery
       
       //get a resultset from the db
-      final GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(grouperLoaderDb, query);
+      final GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(
+          loaderJobBean.getGrouperLoaderDb(), loaderJobBean.getQuery());
       
-      syncOneGroupMembership(groupName, null, null, hib3GrouploaderLog, startTime,
-          grouperLoaderResultset, false, grouperSession, andGroups, groupTypes);
-      
+      syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), null, null, 
+          loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(),
+          grouperLoaderResultset, false, loaderJobBean.getGrouperSession(), 
+          loaderJobBean.getAndGroups(), loaderJobBean.getGroupTypes());
       
     }
   }, 
@@ -138,23 +136,13 @@ public enum GrouperLoaderType {
       
       /**
        * sync up a group membership based on query and db
-       * @param groupName
-       * @param grouperLoaderDb
-       * @param query
-       * @param hib3GrouploaderLog
-       * @param startTime
-       * @param grouperSession
-       * @param andGroups
-       * @param groupTypes comma separated group types
-       * @param groupLikeString locates groups being managed so we can delete if necessary
-       * @param groupQuery query containing group metadata
-       * 
+       * @param loaderJobBean
        */
       @SuppressWarnings("unchecked")
       @Override
-      public void syncGroupMembership(String groupName, GrouperLoaderDb grouperLoaderDb, String query, 
-          Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, List<Group> andGroups,
-          List<GroupType> groupTypes, String groupLikeString, String groupQuery) {
+      public void syncGroupMembership(LoaderJobBean loaderJobBean) {
+        
+        Hib3GrouperLoaderLog hib3GrouploaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
         
         if (StringUtils.equals(MAINTENANCE_CLEAN_LOGS, hib3GrouploaderLog.getJobName())) {
           int daysToKeepLogs = GrouperLoaderConfig.getPropertyInt(GrouperLoaderConfig.LOADER_RETAIN_DB_LOGS_DAYS, 7);
@@ -172,9 +160,7 @@ public enum GrouperLoaderType {
           }
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
-        }
-        
-        if (StringUtils.equals(GROUPER_REPORT, hib3GrouploaderLog.getJobName())) {
+        } else if (StringUtils.equals(GROUPER_REPORT, hib3GrouploaderLog.getJobName())) {
 
 
           //how often to run usdu
@@ -230,6 +216,8 @@ public enum GrouperLoaderType {
               + isRunUsdu + ", isRunBadMembershipFinder: " + isRunBadMember + ", sent to: " + emailTo);
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+        } else {
+          throw new RuntimeException("Cant find implementation for job: " + hib3GrouploaderLog.getJobName());
         }
         
       }
@@ -269,23 +257,23 @@ public enum GrouperLoaderType {
       }
       
       /**
-       * sync up a group membership based on query and db
-       * @param groupNameOverall
-       * @param grouperLoaderDb
-       * @param query
-       * @param hib3GrouploaderLogOverall
-       * @param startTime
-       * @param grouperSession
-       * @param andGroups
-       * @param groupTypes group types to add to loader managed group
-       * @param groupLikeString locates groups being managed so we can delete if necessary
-       * @param groupQuery query containing group metadata
+       * 
+       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#syncGroupMembership(edu.internet2.middleware.grouper.app.loader.LoaderJobBean)
        */
       @SuppressWarnings("unchecked")
       @Override
-      public void syncGroupMembership(String groupNameOverall, GrouperLoaderDb grouperLoaderDb, String query, 
-          Hib3GrouperLoaderLog hib3GrouploaderLogOverall, long startTime, GrouperSession grouperSession, 
-          List<Group> andGroups, List<GroupType> groupTypes, String groupLikeString, String groupQuery) {
+      public void syncGroupMembership(LoaderJobBean loaderJobBean) {
+        
+        String groupNameOverall = loaderJobBean.getGroupNameOverall();
+        GrouperLoaderDb grouperLoaderDb = loaderJobBean.getGrouperLoaderDb();
+        String query = loaderJobBean.getQuery();
+        Hib3GrouperLoaderLog hib3GrouploaderLogOverall = loaderJobBean.getHib3GrouploaderLogOverall();
+        GrouperSession grouperSession = loaderJobBean.getGrouperSession();
+        List<Group> andGroups = loaderJobBean.getAndGroups();
+        List<GroupType> groupTypes = loaderJobBean.getGroupTypes();
+        String groupLikeString = loaderJobBean.getGroupLikeString();
+        String groupQuery = loaderJobBean.getGroupQuery();
+        long startTime = loaderJobBean.getStartTime();
         
         if (LOG.isDebugEnabled()) {
           LOG.debug(groupNameOverall + ": start syncing membership");
@@ -312,6 +300,37 @@ public enum GrouperLoaderType {
           if (LOG.isDebugEnabled()) {
             LOG.debug(groupNameOverall + ": syncing membership for " + groupNames.size() + " groups");
           }
+          
+          //#######################################
+          //Get group metadata
+          int groupMetadataNumberOfRows = 0;
+          Map<String, String> groupNameToDisplayName = new LinkedHashMap<String, String>();
+          Map<String, String> groupNameToDescription = new LinkedHashMap<String, String>();
+          Set<String> groupNamesFromGroupQuery = new LinkedHashSet<String>();
+          if (!StringUtils.isBlank(groupQuery)) {
+            //get a resultset from the db
+            final GrouperLoaderResultset grouperLoaderGroupsResultset = new GrouperLoaderResultset(
+                grouperLoaderDb, groupQuery);
+            
+            groupMetadataNumberOfRows = grouperLoaderGroupsResultset.numberOfRows();
+            for (int i=0;i<groupMetadataNumberOfRows;i++) {
+              
+              String groupName = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_NAME_COL, true);
+              groupNamesFromGroupQuery.add(groupName);
+              String groupDisplayName = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_DISPLAY_NAME_COL, false);
+              groupNameToDisplayName.put(groupName, groupDisplayName);
+              String groupDescription = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_DESCRIPTION_COL, false);
+              groupNameToDescription.put(groupName, groupDescription);
+            }
+            
+          }
+
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(groupNameOverall + ": found " + groupMetadataNumberOfRows + " number of metadata rows");
+          }
+
+          //End group metadata
+          //#######################################
           
           //#######################################
           //Delete records in groups not there anymore.  maybe delete group too
@@ -379,8 +398,9 @@ public enum GrouperLoaderType {
                   groupEmpty.deleteMember(member);
                 }
   
-                //see if we are deleting group
-                if (GrouperLoaderConfig.getPropertyBoolean(
+                //see if we are deleting group.  It must not be in the group query (if exists), and it 
+                //must be configured to do this in the grouper loader properties
+                if (!groupNamesFromGroupQuery.contains(groupNameEmpty) && GrouperLoaderConfig.getPropertyBoolean(
                     "loader.sqlTable.likeString.removeGroupIfNotUsed", true)) {
 
                   //see if we need to log
@@ -437,35 +457,6 @@ public enum GrouperLoaderType {
             
           }
           //End delete records in groups not there anymore.  maybe delete group too
-          //#######################################
-          
-          //#######################################
-          //Get group metadata
-          int groupMetadataNumberOfRows = 0;
-          Map<String, String> groupNameToDisplayName = new LinkedHashMap<String, String>();
-          Map<String, String> groupNameToDescription = new LinkedHashMap<String, String>();
-          if (!StringUtils.isBlank(groupQuery)) {
-            //get a resultset from the db
-            final GrouperLoaderResultset grouperLoaderGroupsResultset = new GrouperLoaderResultset(
-                grouperLoaderDb, groupQuery);
-            
-            groupMetadataNumberOfRows = grouperLoaderGroupsResultset.numberOfRows();
-            for (int i=0;i<groupMetadataNumberOfRows;i++) {
-              
-              String groupName = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_NAME_COL, true);
-              String groupDisplayName = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_DISPLAY_NAME_COL, false);
-              groupNameToDisplayName.put(groupName, groupDisplayName);
-              String groupDescription = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_DESCRIPTION_COL, false);
-              groupNameToDescription.put(groupName, groupDescription);
-            }
-            
-          }
-
-          if (LOG.isDebugEnabled()) {
-            LOG.debug(groupNameOverall + ": found " + groupMetadataNumberOfRows + " number of metadata rows");
-          }
-
-          //End group metadata
           //#######################################
           
           int count=1;
@@ -534,6 +525,34 @@ public enum GrouperLoaderType {
             hib3GrouploaderLogOverall.store();
             count++;
           }
+          
+          //lets go through and create groups which arent there
+          for (String groupName : groupNamesFromGroupQuery) {
+            
+            Group group = GroupFinder.findByName(grouperSession, groupName, false);
+            if (group == null) {
+              
+              String groupDisplayName = groupNameToDisplayName.get(groupName);
+              groupDisplayName = StringUtils.defaultIfEmpty(groupDisplayName, groupName);
+              String groupDescription = groupNameToDescription.get(groupName);
+              
+              Group newGroup = new GroupSave(grouperSession).assignSaveMode(SaveMode.INSERT)
+                .assignCreateParentStemsIfNotExist(true)
+                .assignName(groupName).assignDisplayName(groupDisplayName)
+                .assignDescription(groupDescription).saveUnchecked();
+              
+              for (GroupType groupType : groupTypes) {
+                try {
+                  newGroup.addType(groupType, false);
+                  
+                } catch (Exception se) {
+                  //TODO remove this catch block in 1.5 when we have unchecked exceptions
+                  throw new RuntimeException(se.getMessage(), se);
+                }
+              }
+            }
+          }
+          
           if (LOG.isDebugEnabled()) {
             LOG.debug(groupNameOverall + ": done syncing membership");
           }
@@ -587,20 +606,9 @@ public enum GrouperLoaderType {
 
   /**
    * sync up a group membership based on query and db
-   * @param groupName
-   * @param grouperLoaderDb
-   * @param query
-   * @param hib3GrouploaderLog 
-   * @param startTime 
-   * @param grouperSession grouper session
-   * @param andGroups groups whose memberships should be anded with the group in question
-   * @param groupTypes group types to add to loader managed groups
-   * @param groupLikeString locates groups being managed so we can delete if necessary
-   * @param groupQuery query containing group metadata
+   * @param loaderJobBean is the bean data
    */
-  public abstract void syncGroupMembership(String groupName, GrouperLoaderDb grouperLoaderDb, String query, 
-      Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime, GrouperSession grouperSession, List<Group> andGroups,
-      List<GroupType> groupTypes, String groupLikeString, String groupQuery);
+  public abstract void syncGroupMembership(LoaderJobBean loaderJobBean);
   
   /**
    * see if an attribute if optional or not (if not, then it is either required or forbidden)

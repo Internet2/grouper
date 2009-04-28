@@ -115,7 +115,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.214.2.7 2009-04-11 09:55:55 mchyzer Exp $
+ * @version $Id: Group.java,v 1.214.2.8 2009-04-28 19:37:37 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -611,7 +611,7 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
       }
     }
     if ( ( Group.getDefaultList().equals(f) ) && ( this.hasComposite() ) ) {
-      throw new MemberAddException(E.GROUP_AMTC);
+      throw new MemberAddException(E.GROUP_AMTC + ", " + this.getName());
     }
     boolean doesntExist = true;
     try {

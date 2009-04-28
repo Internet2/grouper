@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderTest.java,v 1.5.2.1 2009-01-30 12:25:15 mchyzer Exp $
+ * $Id: GrouperLoaderTest.java,v 1.5.2.2 2009-04-28 19:37:38 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -53,7 +53,7 @@ public class GrouperLoaderTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderTest("testLoaderTypesGroupMeta"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderTypes"));
   }
 
   /**
