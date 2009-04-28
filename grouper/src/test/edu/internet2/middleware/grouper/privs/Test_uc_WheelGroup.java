@@ -45,7 +45,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test wheel group use cases.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_uc_WheelGroup.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: Test_uc_WheelGroup.java,v 1.2 2009-04-28 18:45:00 shilen Exp $
  * @since   1.2.1
  */
 public class Test_uc_WheelGroup extends GrouperTest {
@@ -206,6 +206,133 @@ public class Test_uc_WheelGroup extends GrouperTest {
 
     s.setConfig( GrouperConfig.PROP_USE_WHEEL_GROUP, "false" );
   } 
+  
+  /**
+   * If a subject is a member of the wheel group and we're in self mode, the 
+   * subject should not have wheel access.
+   * @throws GrantPrivilegeException
+   * @throws GroupNotFoundException
+   * @throws InsufficientPrivilegeException
+   * @throws MemberAddException
+   * @throws SchemaException
+   * @throws SessionException
+   */
+  public void test_preventAdminWhenMemberOfWheelAndSelfMode()
+      throws GrantPrivilegeException, GroupNotFoundException,
+      InsufficientPrivilegeException, MemberAddException, SchemaException,
+      SessionException {
+    // make this.subjA a member of wheel
+    Subject rootSubject = SubjectFinder.findRootSubject();
+    GrouperSession grouperSession = GrouperSession.start(rootSubject);
+    String wheelUuid = wheel.getUuid();
+    Group wheelGroup = GroupFinder.findByUuid(grouperSession, wheelUuid, true);
+
+    wheelGroup.addMember(this.subjA);
+
+    // start session and turn on wheel
+    GrouperSession s = GrouperSession.start(this.subjA);
+    s.setConfig(GrouperConfig.PROP_USE_WHEEL_GROUP, "true");
+    s.setConsiderIfWheelMember(false);
+    // verify no admin privilege
+    assertFalse(s.getMember().canAdmin(dev));
+    s.setConfig(GrouperConfig.PROP_USE_WHEEL_GROUP, "false");
+  }
+  
+  /**
+   * If a subject is a member of the wheel group and we're in self mode, the 
+   * subject should not have wheel access.
+   * @throws GrantPrivilegeException
+   * @throws GroupNotFoundException
+   * @throws InsufficientPrivilegeException
+   * @throws MemberAddException
+   * @throws SchemaException
+   * @throws SessionException
+   */
+  public void test_preventStemWhenMemberOfWheelAndSelfMode()
+      throws GrantPrivilegeException, GroupNotFoundException,
+      InsufficientPrivilegeException, MemberAddException, SchemaException,
+      SessionException {
+    // make this.subjA a member of wheel
+    Subject rootSubject = SubjectFinder.findRootSubject();
+    GrouperSession grouperSession = GrouperSession.start(rootSubject);
+    String wheelUuid = wheel.getUuid();
+    Group wheelGroup = GroupFinder.findByUuid(grouperSession, wheelUuid, true);
+
+    wheelGroup.addMember(this.subjA);
+
+    // start session and turn on wheel
+    GrouperSession s = GrouperSession.start(this.subjA);
+    s.setConfig(GrouperConfig.PROP_USE_WHEEL_GROUP, "true");
+    s.setConsiderIfWheelMember(false);
+    // verify no stem privilege
+    assertFalse(s.getMember().canStem(dev.getParentStem()));
+    s.setConfig(GrouperConfig.PROP_USE_WHEEL_GROUP, "false");
+  }
+  
+  /**
+   * If a subject is a member of the wheel group and we're in self mode, the 
+   * subject should still have access if the subject is a member of the access list.
+   * @throws GrantPrivilegeException
+   * @throws GroupNotFoundException
+   * @throws InsufficientPrivilegeException
+   * @throws MemberAddException
+   * @throws SchemaException
+   * @throws SessionException
+   */
+  public void test_canAdminWhenMemberOfWheelAndSelfMode()
+      throws GrantPrivilegeException, GroupNotFoundException,
+      InsufficientPrivilegeException, MemberAddException, SchemaException,
+      SessionException {
+    // make this.subjA a member of wheel
+    Subject rootSubject = SubjectFinder.findRootSubject();
+    GrouperSession grouperSession = GrouperSession.start(rootSubject);
+    String wheelUuid = wheel.getUuid();
+    Group wheelGroup = GroupFinder.findByUuid(grouperSession, wheelUuid, true);
+
+    wheelGroup.addMember(this.subjA);
+    dev.grantPriv(this.subjA, AccessPrivilege.ADMIN);
+
+    // start session and turn on wheel
+    GrouperSession s = GrouperSession.start(this.subjA);
+    s.setConfig(GrouperConfig.PROP_USE_WHEEL_GROUP, "true");
+    s.setConsiderIfWheelMember(false);
+    // verify admin privilege
+    assertTrue(s.getMember().canAdmin(dev));
+    s.setConfig(GrouperConfig.PROP_USE_WHEEL_GROUP, "false");
+  }
+  
+  /**
+   * If a subject is a member of the wheel group and we're in self mode, the 
+   * subject should still have access if the subject is a member of the access list.
+   * @throws GrantPrivilegeException
+   * @throws GroupNotFoundException
+   * @throws InsufficientPrivilegeException
+   * @throws MemberAddException
+   * @throws SchemaException
+   * @throws SessionException
+   */
+  public void test_canStemWhenMemberOfWheelAndSelfMode()
+      throws GrantPrivilegeException, GroupNotFoundException,
+      InsufficientPrivilegeException, MemberAddException, SchemaException,
+      SessionException {
+    // make this.subjA a member of wheel
+    Subject rootSubject = SubjectFinder.findRootSubject();
+    GrouperSession grouperSession = GrouperSession.start(rootSubject);
+    String wheelUuid = wheel.getUuid();
+    Group wheelGroup = GroupFinder.findByUuid(grouperSession, wheelUuid, true);
+
+    wheelGroup.addMember(this.subjA);
+    dev.getParentStem().grantPriv(this.subjA, NamingPrivilege.STEM);
+
+    // start session and turn on wheel
+    GrouperSession s = GrouperSession.start(this.subjA);
+    s.setConfig(GrouperConfig.PROP_USE_WHEEL_GROUP, "true");
+    s.setConsiderIfWheelMember(false);
+    // verify stem privilege
+    assertTrue(s.getMember().canStem(dev.getParentStem()));
+    s.setConfig(GrouperConfig.PROP_USE_WHEEL_GROUP, "false");
+  }
+  
   
 
 } 

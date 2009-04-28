@@ -44,7 +44,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestStemApi.java,v 1.7 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: TestStemApi.java,v 1.8 2009-04-28 18:45:00 shilen Exp $
  * @since   1.2.1
  */
 public class TestStemApi extends GrouperTest {
@@ -721,6 +721,43 @@ public class TestStemApi extends GrouperTest {
     r.rs.stop();
   }
 
+  /**
+   * @throws Exception
+   */
+  public void test_move_insufficientPrivileges_with_wheel_group_in_self_mode() throws Exception {
+    this.etc          = this.root.addChildStem("etc", "etc");
+    this.admin        = this.etc.addChildGroup("admin", "admin");
+    this.wheel        = this.etc.addChildGroup("wheel","wheel");
+    
+    ApiConfig.testConfig.put("security.stem.groupAllowedToMoveStem", admin.getName());
+    ApiConfig.testConfig.put("groups.wheel.use", "true");
+    ApiConfig.testConfig.put("groups.wheel.group", wheel.getName());
+
+    GrouperSession nrs;
+    R r = R.populateRegistry(0, 0, 2);
+    Subject a = r.getSubject("a");
+    
+    this.top_new = this.root.addChildStem("top new", "top new display name");
+    
+    wheel.addMember(a);
+    
+    nrs = GrouperSession.start(a);
+    nrs.setConsiderIfWheelMember(false);
+    try {
+      top.move(top_new);
+      fail("failed to throw InsufficientPrivilegeException");
+    } catch (InsufficientPrivilegeException ex) {
+      assertTrue(true);
+    }
+    nrs.setConsiderIfWheelMember(true);
+    top.move(top_new);
+    assertTrue(true);
+    nrs.stop();
+            
+    r.rs.stop();
+  }
+
+  
   /**
    * @throws Exception
    */

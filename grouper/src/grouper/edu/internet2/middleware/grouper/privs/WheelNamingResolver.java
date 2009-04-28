@@ -42,7 +42,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelNamingResolver.java,v 1.15 2009-04-13 16:53:07 mchyzer Exp $
+ * @version $Id: WheelNamingResolver.java,v 1.16 2009-04-28 18:45:00 shilen Exp $
  * @since   1.2.1
  */
 public class WheelNamingResolver extends NamingResolverDecorator {
@@ -72,6 +72,8 @@ public class WheelNamingResolver extends NamingResolverDecorator {
    */
   public WheelNamingResolver(NamingResolver resolver) {
     super(resolver);
+    this.cc = new EhcacheController();
+
     // TODO 20070816 this is ugly
     this.useWheel = Boolean.valueOf( this.getConfig( GrouperConfig.PROP_USE_WHEEL_GROUP ) ).booleanValue();
     // TODO 20070816 and this is even worse
@@ -199,20 +201,8 @@ public class WheelNamingResolver extends NamingResolverDecorator {
   public boolean hasPrivilege(Stem stem, final Subject subject, Privilege privilege)
     throws  IllegalArgumentException
   {
-    if (this.useWheel) {
-      if ((Boolean)GrouperSession.callbackGrouperSession(this.wheelSession, new GrouperSessionHandler() {
-
-        public Object callback(GrouperSession grouperSession)
-            throws GrouperSessionException {
-          if ( WheelNamingResolver.this.wheelGroup.hasMember(subject) ) {
-            return true;
-          }
-          return false;
-        }
-        
-      })) {
-        return true;
-      }
+    if (this.isAndUseWheel(subject)) {
+      return true;
     }
     return super.getDecoratedResolver().hasPrivilege(stem, subject, privilege);
   }
