@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.Subject;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.8 2009-04-24 13:08:19 shilen Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.9 2009-04-28 18:45:00 shilen Exp $
  * @since   1.2.1
  */
 public class PrivilegeHelper {
@@ -474,6 +474,11 @@ public class PrivilegeHelper {
   public static boolean isWheel(GrouperSession s) {
     // TODO 20070823 this is ugly
     boolean rv = false;
+    
+    if (s.isConsiderIfWheelMember() == false) {
+      return false;
+    }
+    
     if ( Boolean.valueOf( s.getConfig( GrouperConfig.PROP_USE_WHEEL_GROUP ) ).booleanValue() ) {
       String name = s.getConfig( GrouperConfig.PROP_WHEEL_GROUP );
       try {
@@ -498,6 +503,11 @@ public class PrivilegeHelper {
     if (SubjectHelper.eq( subject, SubjectFinder.findRootSubject() )) {
       return true;
     }
+    
+    if (GrouperSession.staticGrouperSession().isConsiderIfWheelMember() == false) {
+      return false;
+    }
+    
     if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_USE_WHEEL_GROUP, false)) {
       String name = GrouperConfig.getProperty( GrouperConfig.PROP_WHEEL_GROUP );
       try {
