@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: VetoTypeGrouper.java,v 1.5 2008-11-04 07:17:56 mchyzer Exp $
+ * $Id: VetoTypeGrouper.java,v 1.6 2009-04-28 20:08:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -49,8 +49,12 @@ public enum VetoTypeGrouper implements VetoType {
   /** veto of group */
   GROUP_POST_DELETE,
   
-
-
+  /** veto hook */
+  LOADER_PRE_RUN,
+  
+  /** veto hook */
+  LOADER_POST_RUN,
+  
   /** veto of stem */
   STEM_PRE_INSERT,
   

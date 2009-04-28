@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHookType.java,v 1.8 2008-11-04 07:17:56 mchyzer Exp $
+ * $Id: GrouperHookType.java,v 1.9 2009-04-28 20:08:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouper.hooks.GroupTypeHooks;
 import edu.internet2.middleware.grouper.hooks.GroupTypeTupleHooks;
 import edu.internet2.middleware.grouper.hooks.GrouperSessionHooks;
 import edu.internet2.middleware.grouper.hooks.LifecycleHooks;
+import edu.internet2.middleware.grouper.hooks.LoaderHooks;
 import edu.internet2.middleware.grouper.hooks.MemberHooks;
 import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.StemHooks;
@@ -35,6 +36,11 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public enum GrouperHookType implements GrouperHookTypeInterface {
 
+  /**
+   * loader hooks
+   */
+  LOADER("hooks.loader.class", LoaderHooks.class),
+  
   /**
    * group hooks
    */

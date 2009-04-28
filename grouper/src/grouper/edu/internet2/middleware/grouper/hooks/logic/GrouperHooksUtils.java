@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperHooksUtils.java,v 1.22 2009-03-20 19:56:42 mchyzer Exp $
+ * $Id: GrouperHooksUtils.java,v 1.23 2009-04-28 20:08:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.logic;
 
@@ -79,7 +79,14 @@ public class GrouperHooksUtils {
       try {
         Class testLifecycle = Class.forName("edu.internet2.middleware.grouper.hooks.LifecycleHooksImpl");
         Class grouperTestClass = Class.forName("edu.internet2.middleware.grouper.helper.GrouperTest");
-        boolean testing = (Boolean)GrouperUtil.fieldValue(grouperTestClass, null, "testing", false, true, false);
+        boolean testing = false;
+        
+        try {
+          testing = (Boolean)GrouperUtil.fieldValue(grouperTestClass, null, "testing", false, true, false);
+        } catch (Exception e) {
+          LOG.warn("You might have a wrong version of grouper-test.jar... if so, upgrade it", e);
+          //might have wrong version of testing jar...
+        }
         if (testing) {
         addHookManual(GrouperHookType.LIFECYCLE.getPropertyFileKey(), testLifecycle);
           GroupAttributeNameValidationHook.registerHookIfNecessary(true);

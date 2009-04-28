@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.42 2009-03-27 15:38:21 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.43 2009-04-28 20:08:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -2632,7 +2632,7 @@ public enum GrouperDdl implements DdlVersionable {
             "GROUP_ID", 
             "GROUPTYPE_UUID",
             "CONTEXT_ID"),
-         GrouperUtil.toSet("Group name is full ip path, e.g. school:stem1:groupId",
+         GrouperUtil.toSet("Group name is full id path, e.g. school:stem1:groupId",
              "Group display name is the full friendly name, e.g. My School:Stem 1:The Group",
              "Attribute name is the name of the name/value pair",
              "Attribute value is the value of the name/value pair",

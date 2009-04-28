@@ -141,8 +141,8 @@ public class DnAttributeModifierTest extends BaseLdappcTestCase
 
             ModificationItem[] mods = am.getModifications();
             assertEquals("To many modification items", 1, mods.length);
-            assertEquals("Wrong modification operation", mods[0]
-                    .getModificationOp(), DirContext.REPLACE_ATTRIBUTE);
+            assertEquals("Wrong modification operation", DirContext.ADD_ATTRIBUTE,
+                mods[0].getModificationOp());
             Attribute attribute = mods[0].getAttribute();
             assertEquals("To many add values", dnSet.length, attribute
                     .size());

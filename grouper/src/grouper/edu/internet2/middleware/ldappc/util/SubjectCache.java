@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.2 2009-01-31 16:46:40 mchyzer Exp $
+ * $Id: SubjectCache.java,v 1.3 2009-04-28 20:08:08 mchyzer Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
@@ -29,9 +29,13 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.EntryNotFoundException;
 import edu.internet2.middleware.ldappc.MultipleEntriesFoundException;
 import edu.internet2.middleware.ldappc.ProvisionerConfiguration;
+import edu.internet2.middleware.ldappc.synchronize.GroupEntrySynchronizer;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
@@ -41,6 +45,8 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class SubjectCache
 {
+    private static final Log LOG = GrouperUtil.getLog(SubjectCache.class);
+    
     /**
      * Hash table default estimate.
      */
@@ -276,6 +282,8 @@ public class SubjectCache
 
         SearchControls searchControls = new SearchControls();
         searchControls.setSearchScope(filter.getScope());
+        searchControls.setReturningAttributes(new String[] {});
+        
 
         //
         // As only 1 is wanted, if two are found the subjectName value
@@ -286,6 +294,8 @@ public class SubjectCache
         //
         // Perform the search
         //
+        
+        // LOG.debug("search base '" + baseName +"' filter '" + filterExpr + "' subjectId '" + subjectIdentifier + "'");
         NamingEnumeration namingEnum = ldapCtx.search(baseName, filterExpr, filterArgs, searchControls);
 
         //
