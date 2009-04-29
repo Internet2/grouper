@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeU4.java,v 1.7 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestCompositeU4.java,v 1.7.2.1 2009-04-29 12:16:13 mchyzer Exp $
  */
 public class TestCompositeU4 extends TestCase {
 
@@ -63,7 +63,7 @@ public class TestCompositeU4 extends TestCase {
       }
       catch (MemberAddException eMA) {
         Assert.assertTrue("OK: cannot add member to composite mship", true);
-        T.string("error message", E.GROUP_AMTC, eMA.getMessage());
+        Assert.assertTrue(eMA.getMessage(), eMA.getMessage().contains(E.GROUP_AMTC));
       }
       finally {
         r.rs.stop();
