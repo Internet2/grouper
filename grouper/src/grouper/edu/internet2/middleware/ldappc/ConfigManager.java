@@ -51,7 +51,7 @@ import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
 /**
  * Class for accessing values from the Auth2Ldap configuration file.
  */
-public class ConfigManager implements SignetProvisionerConfiguration, GrouperProvisionerConfiguration
+public class ConfigManager implements GrouperProvisionerConfiguration
 {
     /**
      * Default configuration file resource name.
@@ -712,20 +712,6 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
                 throw new LdappcConfigurationException(
                         "The grouper-attribute must be defined when the group dn structure is "
                                 + GrouperProvisionerConfiguration.GROUP_DN_FLAT);
-            }
-        }
-
-        //
-        // Validate permissions-listing attribute combination when
-        // permissions are stored as strings
-        //
-        if (SignetProvisionerConfiguration.PERMISSIONS_LISTING_STRING.equals(getPermissionsListingStoredAs()))
-        {
-            if (getPermissionsListingStringAttribute() == null)
-            {
-                throw new LdappcConfigurationException(
-                        "The string-attribute must be defined when storing permissions as "
-                                + SignetProvisionerConfiguration.PERMISSIONS_LISTING_STRING);
             }
         }
     }

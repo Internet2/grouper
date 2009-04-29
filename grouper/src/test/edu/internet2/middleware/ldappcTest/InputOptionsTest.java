@@ -144,7 +144,6 @@ public class InputOptionsTest extends BaseLdappcTestCase
             assertEquals("Failed on set 1, subjectIdA", "subjectIdA", inputOptions1.getSubjectId());
             assertTrue("Failed on set 1, memberships", inputOptions1.getDoMemberships());
             assertTrue("Failed on set 1, groups", !inputOptions1.getDoGroups());
-            assertTrue("Failed on set 1, permissions", !inputOptions1.getDoPermissions());
             assertTrue("Failed on set 1, groups", !inputOptions1.getDoGroups());
             assertTrue("Failed on set 1, doPolling", !inputOptions1.getDoPolling());
             Calendar calendar = new GregorianCalendar();
@@ -176,7 +175,6 @@ public class InputOptionsTest extends BaseLdappcTestCase
             assertEquals("Failed on set 2, subjectIdB", "subjectIdB", inputOptions2.getSubjectId());
             assertTrue("Failed on set 2, memberships", !inputOptions2.getDoMemberships());
             assertTrue("Failed on set 2, groups", inputOptions2.getDoGroups());
-            assertTrue("Failed on set 2, permissions", inputOptions2.getDoPermissions());
             assertTrue("Failed on set 2, groups", inputOptions2.getDoGroups());
             assertTrue("Failed on set 2, doPolling", inputOptions2.getDoPolling());
             assertNull("Failed on lastModifyTime", inputOptions2.getLastModifyTime());

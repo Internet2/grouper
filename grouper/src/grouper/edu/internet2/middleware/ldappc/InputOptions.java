@@ -32,7 +32,7 @@ import edu.internet2.middleware.ldappc.logging.ErrorLog;
  * 
  * @author Gil Singer
  */
-public class InputOptions implements GrouperProvisionerOptions, SignetProvisionerOptions
+public class InputOptions implements GrouperProvisionerOptions
 {
 
     /**
@@ -61,11 +61,6 @@ public class InputOptions implements GrouperProvisionerOptions, SignetProvisione
      * An indicator that memberships are to be provisioned.
      */
     private boolean          doMemberships;
-
-    /**
-     * An indicator that permissions are to be provisioned.
-     */
-    private boolean          doPermissions;
 
     /**
      * The lastModifyTime.
@@ -196,27 +191,6 @@ public class InputOptions implements GrouperProvisionerOptions, SignetProvisione
     public boolean getDoMemberships()
     {
         return doMemberships;
-    }
-
-    /**
-     * This is the setter for doPermissions.
-     * 
-     * @param doPermissions
-     *            The doPermissions.
-     */
-    private void setDoPermissions(boolean doPermissions)
-    {
-        this.doPermissions = doPermissions;
-    }
-
-    /**
-     * This is the getter for doPermissions.
-     * 
-     * @return The current value of doPermissions.
-     */
-    public boolean getDoPermissions()
-    {
-        return doPermissions;
     }
 
     /**
@@ -410,10 +384,6 @@ public class InputOptions implements GrouperProvisionerOptions, SignetProvisione
                     else if (args[i].equalsIgnoreCase("-memberships"))
                     {
                         setDoMemberships(true);
-                    }
-                    else if (args[i].equalsIgnoreCase("-permissions"))
-                    {
-                        setDoPermissions(true);
                     }
                     else if (args[i].equalsIgnoreCase("-lastModifyTime"))
                     {
