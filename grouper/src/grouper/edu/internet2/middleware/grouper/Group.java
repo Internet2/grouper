@@ -123,7 +123,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.246 2009-04-28 20:08:08 mchyzer Exp $
+ * @version $Id: Group.java,v 1.247 2009-04-29 12:09:57 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -1710,6 +1710,23 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     } catch (AttributeNotFoundException anfe) {
       return null;
     }
+  }
+  
+  /**
+   * if attribute or field name is a field name, call that getter with reflection.
+   * If not, then call getAttributeValue()
+   * @param attributeOrFieldName
+   * @param checkSecurity
+   * @param exceptionIfAttributeNotFound
+   * @return the value
+   */
+  public String getAttributeOrFieldValue(String attributeOrFieldName, boolean checkSecurity, boolean exceptionIfAttributeNotFound) {
+    
+    if (INTERNAL_FIELD_ATTRIBUTES.contains(attributeOrFieldName)) {
+      return (String)GrouperUtil.fieldValue(this, attributeOrFieldName);
+    }
+    return this.getAttributeValue(attributeOrFieldName, checkSecurity, exceptionIfAttributeNotFound);
+    
   }
   
   /**
