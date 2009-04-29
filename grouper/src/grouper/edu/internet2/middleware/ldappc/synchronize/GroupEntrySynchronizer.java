@@ -683,7 +683,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             //
             // Get the attribute value from the group
             //
-            String groupAttributeValue = group.getAttributeOrNull(groupAttribute);
+            String groupAttributeValue = group.getAttributeOrFieldValue(groupAttribute, false, false);            
             
             //
             // Get the next key (i.e., grouper attribute name) and the
@@ -708,11 +708,6 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
                 else if (attributeModifier.getNoValue() != null)
                 {
                   attributeModifier.store(attributeModifier.getNoValue());
-                }
-                else
-                {
-                    ErrorLog.warn(getClass(), getErrorData(group) + " " + "The value for group attribute \""
-                            + groupAttribute + "\" will not be stored as it is either an empty string or null.");
                 }
             }
         }
@@ -954,7 +949,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             }
             else
             {
-                String attr = group.getAttributeValue(getConfiguration().getGroupDnGrouperAttribute(), true, false);
+                String attr = group.getAttributeOrFieldValue(getConfiguration().getGroupDnGrouperAttribute(), true, false);
                 if (attr != null)
                 {
                   rdnString = attr;

@@ -359,7 +359,7 @@ public class BushyGroupsProvisionTest extends BaseLdappcTestCase {
                     String ldapAttr = attributeMapping.get(grouperAttr);
 
                     try {
-                        String grouperAttrValue = group.getAttributeValue(grouperAttr, false, true);
+                        String grouperAttrValue = group.getAttributeOrFieldValue(grouperAttr, false, true);
                         Attribute attribute = attributes.get(ldapAttr);
                         if (attribute != null) {
                             assertEquals("To many ldap attribute values", 1, attribute.size());
