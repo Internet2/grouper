@@ -55,7 +55,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.24.2.4 2009-04-10 18:44:21 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.24.2.5 2009-04-29 11:37:59 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -728,7 +728,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     if (securableField) {
       changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
           grouperSession.getSubject(), byHqlStatic, 
-          sql, "ms.ownerUuid", AccessPrivilege.VIEW_PRIVILEGES);
+          sql, "ms.ownerUuid", AccessPrivilege.READ_PRIVILEGES);
     }
 
     if (!changedQuery) {

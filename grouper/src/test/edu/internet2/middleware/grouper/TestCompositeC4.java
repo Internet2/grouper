@@ -18,6 +18,7 @@
 package edu.internet2.middleware.grouper;
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -29,24 +30,19 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestCompositeC4.java,v 1.6 2008-09-29 03:38:27 mchyzer Exp $
+ * @version $Id: TestCompositeC4.java,v 1.6.2.1 2009-04-29 11:37:59 mchyzer Exp $
  */
-public class TestCompositeC4 extends TestCase {
+public class TestCompositeC4 extends GrouperTest {
 
+  public static void main(String[] args) {
+    TestRunner.run(TestCompositeC4.class);
+  }
+  
   // Private Static Class Constants
   private static final Log LOG = GrouperUtil.getLog(TestCompositeC4.class);
 
   public TestCompositeC4(String name) {
     super(name);
-  }
-
-  protected void setUp () {
-    LOG.debug("setUp");
-    RegistryReset.reset();
-  }
-
-  protected void tearDown () {
-    LOG.debug("tearDown");
   }
 
   public void testFailToAddMemberWhenHasComposite() {
@@ -63,7 +59,7 @@ public class TestCompositeC4 extends TestCase {
       }
       catch (MemberAddException eMA) {
         Assert.assertTrue("OK: cannot add member to composite mship", true);
-        T.string("error message", E.GROUP_AMTC, eMA.getMessage());
+        assertTrue(eMA.getMessage(), eMA.getMessage().contains(E.GROUP_AMTC));
       }
       finally {
         r.rs.stop();
