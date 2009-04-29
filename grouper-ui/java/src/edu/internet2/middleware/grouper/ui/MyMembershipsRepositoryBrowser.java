@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MyMembershipsRepositoryBrowser.java,v 1.6.8.3 2009-04-10 18:44:16 mchyzer Exp $
+ * @version $Id: MyMembershipsRepositoryBrowser.java,v 1.6.8.4 2009-04-29 11:37:56 mchyzer Exp $
  */
 
 public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
@@ -75,7 +75,7 @@ public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
 	 */
 	@Override
   public Set<Group> getChildGroups(Stem stem, QueryOptions queryOptions) {
-    return stem.getChildMembershipGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, queryOptions);
+    return stem.getChildMembershipGroups(Scope.ONE, AccessPrivilege.READ_PRIVILEGES, queryOptions);
   }
 
   /**
@@ -110,8 +110,7 @@ public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
     Map validStems = savedValidStems;
     if (validStems != null)
       return validStems;
-    GrouperSession s = GrouperSession.startRootSession(false);
-    Set groups = (Set)GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+    Set groups = (Set)GrouperSession.callbackGrouperSession(getGrouperSession(), new GrouperSessionHandler() {
 
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
@@ -122,7 +121,6 @@ public class MyMembershipsRepositoryBrowser extends AbstractRepositoryBrowser {
       }
       
     });
-    s.stop();
     return getStems(groups);
 
 	}
