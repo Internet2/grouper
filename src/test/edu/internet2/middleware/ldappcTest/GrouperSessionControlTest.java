@@ -1,20 +1,17 @@
 /*
-  Copyright 2006-2007 The University Of Chicago
-  Copyright 2006-2007 University Corporation for Advanced Internet Development, Inc.
-  Copyright 2006-2007 EDUCAUSE
-  
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-  
-      http://www.apache.org/licenses/LICENSE-2.0
-  
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
-*/
+ * Copyright 2006-2007 The University Of Chicago Copyright 2006-2007 University
+ * Corporation for Advanced Internet Development, Inc. Copyright 2006-2007 EDUCAUSE
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this
+ * file except in compliance with the License. You may obtain a copy of the License at
+ * 
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software distributed under
+ * the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
 
 package edu.internet2.middleware.ldappcTest;
 
@@ -25,90 +22,77 @@ import edu.internet2.middleware.ldappc.GrouperSessionControl;
 
 /**
  * Class for testing the GrouperSessionControl class
- * @author Gil Singer 
+ * 
+ * @author Gil Singer
  */
-public class GrouperSessionControlTest extends BaseLdappcTestCase
-{
-    /**
-     * Instance for starting and stopping a GrouperSession
-     */
-    private GrouperSessionControl grouperSessionControl;
-    
-    /**
-     * Constructor
-     */
-    public GrouperSessionControlTest(String name) 
-    {
-        super(name);
-    }
-    
-    /**
-     * Setup the fixture.
-     */
-    protected void setUp() 
-    {
-        DisplayTest.showRunClass(getClass().getName()); 
-        grouperSessionControl = new GrouperSessionControl();
-    }
+public class GrouperSessionControlTest extends BaseLdappcTestCase {
 
-    /**
-     * Tear down the fixture.
-     */
-    protected void tearDown() 
-    {
-    }
+  /**
+   * Instance for starting and stopping a GrouperSession
+   */
+  private GrouperSessionControl grouperSessionControl;
 
-    /**
-     * The main method for running the test.
-     */
-    public static void main(String args[]) 
-    {
-        BaseLdappcTestCase.runTestRunner(GrouperSessionControlTest.class);
-    }
-    
+  /**
+   * Constructor
+   */
+  public GrouperSessionControlTest(String name) {
+    super(name);
+  }
 
-    /**
-     * A test of starting and stopping a grouper session.
-     */
-    public void testGrouperSessionControl() 
-    {
-        DisplayTest.showRunTitle("testGrouperSessionControl", "GrouperSystem is retrieved.");
+  /**
+   * Setup the fixture.
+   */
+  protected void setUp() {
+    DisplayTest.showRunClass(getClass().getName());
+    grouperSessionControl = new GrouperSessionControl();
+  }
 
+  /**
+   * Tear down the fixture.
+   */
+  protected void tearDown() {
+  }
 
-        boolean started = grouperSessionControl.startSession("GrouperSystem");
+  /**
+   * The main method for running the test.
+   */
+  public static void main(String args[]) {
+    BaseLdappcTestCase.runTestRunner(GrouperSessionControlTest.class);
+  }
 
-        assertTrue("Failed to start GrouperSystem session", started);
+  /**
+   * A test of starting and stopping a grouper session.
+   */
+  public void testGrouperSessionControl() {
+    DisplayTest.showRunTitle("testGrouperSessionControl", "GrouperSystem is retrieved.");
 
-        boolean stopped = grouperSessionControl.stopSession();
+    boolean started = grouperSessionControl.startSession("GrouperSystem");
 
-        assertTrue("Failed to stop GrouperSystem session", stopped);
-    }
-    
+    assertTrue("Failed to start GrouperSystem session", started);
 
-    /**
-     * A test of finding the root stem
-     */
-    public void testGrouperRootStem() 
-    {
-        DisplayTest.showRunTitle("testGrouperRootStem", "RootStem is retrieved.");
+    boolean stopped = grouperSessionControl.stopSession();
 
+    assertTrue("Failed to stop GrouperSystem session", stopped);
+  }
 
-        boolean started = grouperSessionControl.startSession("GrouperSystem");
+  /**
+   * A test of finding the root stem
+   */
+  public void testGrouperRootStem() {
+    DisplayTest.showRunTitle("testGrouperRootStem", "RootStem is retrieved.");
 
-        assertTrue("Failed to start GrouperSystem session", started);
+    boolean started = grouperSessionControl.startSession("GrouperSystem");
 
-        GrouperSession grouperSession = grouperSessionControl.getSession();
+    assertTrue("Failed to start GrouperSystem session", started);
 
-        // Find root stem.
-        Stem rootStem = StemFinder.findRootStem(grouperSession);
-        assertNotNull("root stem not found", rootStem);
+    GrouperSession grouperSession = grouperSessionControl.getSession();
 
-        boolean stopped = grouperSessionControl.stopSession();
+    // Find root stem.
+    Stem rootStem = StemFinder.findRootStem(grouperSession);
+    assertNotNull("root stem not found", rootStem);
 
-        assertTrue("Failed to stop GrouperSystem session", stopped);
-    }
+    boolean stopped = grouperSessionControl.stopSession();
+
+    assertTrue("Failed to stop GrouperSystem session", stopped);
+  }
 }
-        
-
-
-
