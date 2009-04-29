@@ -96,15 +96,6 @@ public class LdappcProvisionControl extends TimerTask
             provisioner.provisionGroups();
         }
 
-        //
-        // Provision Signet information if requested
-        //
-        if (options.getDoPermissions())
-        {
-            LdappcSignetProvisioner provisioner = new LdappcSignetProvisioner(options, subjectCache);
-            provisioner.provisionPermissions();
-        }
-
         int subjectIDLookups = subjectCache.getSubjectIdLookups();
         int subjectIDTableHits = subjectCache.getSubjectIdTableHits();
 
