@@ -3,7 +3,7 @@
 		 on the privileges of the current user for the current stem
 --%><%--
   @author Gary Brown.
-  @version $Id: stemLinks.jsp,v 1.9 2009-04-08 15:16:09 isgwb Exp $
+  @version $Id: stemLinks.jsp,v 1.10 2009-05-08 12:03:37 shilen Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="section">
@@ -40,6 +40,9 @@
 </c:if>
 <c:if test="${browsePrivs.CREATE}"> 
 <html:link page="/populateCreateGroup.do" ><grouper:message bundle="${nav}" key="groups.action.create"/></html:link>
+</c:if>
+<c:if test="${showStemMovesCopies}">
+<html:link page="/populateMovesCopiesLinks.do" name="stemMovesCopiesParams"><grouper:message bundle="${nav}" key="stems.action.movesandcopies"/></html:link>
 </c:if>
 </div><!--linkbutton1-->
 <br/>

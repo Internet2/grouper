@@ -19,8 +19,11 @@ package edu.internet2.middleware.grouper.ui.actions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -36,6 +39,9 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.InitialStems;
 import edu.internet2.middleware.grouper.ui.Message;
@@ -217,7 +223,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.20 2009-04-08 15:16:09 isgwb Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.21 2009-05-08 12:03:37 shilen Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -462,6 +468,48 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 				.getStemPrivsWithLabels(getNavResources(request)));
 		request.setAttribute("currentLocation", curGroupOrStemMap);
 		request.setAttribute("repositoryBrowser",repositoryBrowser);
+		
+    if (curGroupOrStem != null && curGroupOrStem.isStem()) {
+      boolean showStemMovesCopies = showStemMovesCopies(grouperSession, curGroupOrStem.getStem());
+      request.setAttribute("showStemMovesCopies", showStemMovesCopies);
+
+      Map<String, String> stemMovesCopiesParams = new HashMap<String, String>();
+      stemMovesCopiesParams.put("stemId", curGroupOrStem.getId());
+      request.setAttribute("stemMovesCopiesParams", stemMovesCopiesParams);
+    }
+		
 		return null;
 	}
+	
+
+  /**
+   * Should we show an option for the user to perform moves or copies?
+   * @param grouperSession
+   * @param stem
+   * @return boolean
+   */
+  public boolean showStemMovesCopies(GrouperSession grouperSession, Stem stem) {
+
+    Set<Privilege> privs = new LinkedHashSet<Privilege>();
+    if (stem.hasStem(grouperSession.getSubject())) {
+      privs.add(NamingPrivilege.STEM);
+    }
+    if (stem.hasCreate(grouperSession.getSubject())) {
+      privs.add(NamingPrivilege.CREATE);
+    }
+    boolean canCopy = PrivilegeHelper.canCopyStems(grouperSession.getSubject());
+    boolean canMove = PrivilegeHelper.canMoveStems(grouperSession.getSubject());
+
+    if (GrouperHelper.canCopyStem(stem, canCopy)
+        || GrouperHelper.canMoveStem(stem, canMove, privs)
+        || GrouperHelper.canCopyOtherStemToStem(stem, canCopy, privs)
+        || GrouperHelper.canMoveOtherStemToStem(stem, canMove, privs)
+        || GrouperHelper.canCopyGroupToStem(stem, privs)
+        || GrouperHelper.canMoveGroupToStem(stem, privs)) {
+      return true;
+    }
+
+    return false;
+  }
+
 }

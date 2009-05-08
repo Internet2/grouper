@@ -11,12 +11,13 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 
 /**
  * @author shilen
- * @version $Id: PopulateMoveGroupAction.java,v 1.1 2009-04-18 16:33:46 shilen Exp $
+ * @version $Id: PopulateMoveGroupAction.java,v 1.2 2009-05-08 12:03:37 shilen Exp $
  */
 public class PopulateMoveGroupAction extends GrouperCapableAction {
 
@@ -30,8 +31,7 @@ public class PopulateMoveGroupAction extends GrouperCapableAction {
 
     // Identify and instantiate group to move
     String curNode = (String)groupForm.get("groupId");
-    Group group = GrouperHelper.groupLoadById(grouperSession,
-        curNode);
+    Group group = GroupFinder.findByUuid(grouperSession, curNode, true);
     
     // this is needed to display the current path in the JSP page.
     request.setAttribute("browseParent", GrouperHelper.group2Map(

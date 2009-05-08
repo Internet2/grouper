@@ -109,6 +109,55 @@
 	  </description>
     <put name="content" type="page" value="/WEB-INF/jsp/MoveGroup.jsp"/>
   </definition>
+
+  <definition extends="BaseDef" name="CopyStemDef">
+         <description>
+                  Form for copying stems to another folder.
+          </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/CopyStem.jsp"/>
+  </definition>
+ 
+  <definition extends="BaseDef" name="MoveStemDef">
+         <description>
+                  Form for moving stems to another folder.
+          </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/MoveStem.jsp"/>
+  </definition>
+
+  <definition extends="BaseDef" name="CopyOtherStemToStemDef">
+         <description>
+                  Form for copying other stems to the current folder.
+          </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/CopyOtherStemToStem.jsp"/>
+  </definition>
+
+  <definition extends="BaseDef" name="MoveOtherStemToStemDef">
+         <description>
+                  Form for moving other stems to the current folder.
+          </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/MoveOtherStemToStem.jsp"/>
+  </definition>
+
+  <definition extends="BaseDef" name="CopyGroupToStemDef">
+         <description>
+                  Form for copying groups to the current folder.
+          </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/CopyGroupToStem.jsp"/>
+  </definition>
+
+  <definition extends="BaseDef" name="MoveGroupToStemDef">
+         <description>
+                  Form for moving groups to the current folder.
+          </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/MoveGroupToStem.jsp"/>
+  </definition>
+
+  <definition extends="BaseDef" name="MovesCopiesLinksDef">
+ 	 <description>
+		  Form with links for moving/copying a stem and moving/copying stems and groups to a stem.
+	  </description>
+    <put name="content" type="page" value="/WEB-INF/jsp/MovesCopiesLinks.jsp"/>
+  </definition>
   
     <definition extends="BaseDef" name="ChainDef">
     <put name="content" type="page" value="/WEB-INF/jsp/Chain.jsp"/>

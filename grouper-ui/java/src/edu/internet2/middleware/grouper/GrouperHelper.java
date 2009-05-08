@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -82,7 +83,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.60 2009-04-13 03:18:40 mchyzer Exp $
+ * @version $Id: GrouperHelper.java,v 1.61 2009-05-08 12:03:37 shilen Exp $
  */
 
 
@@ -3006,33 +3007,318 @@ public class GrouperHelper {
 		}
 		return count > 0 || !f.getName().equals("members");
 	}
-	
-	/*public static List query(String sql) throws Exception{
-		Connection con = null;
-		try {
-			  List results = new ArrayList();
-		      Session hs = HibernateDAO.getSession();
-		      
-		      con = hs.connection();
-		      Statement stmt = con.createStatement();
-		      ResultSet rs = stmt.executeQuery(sql);
-		      Object obj;
-		      while(rs.next()) {
-		    	  obj = rs.getObject(1);
-		    	  results.add(obj);
-		      }
-		      return results;
-		    }
-		    catch (Exception e) {
-		      throw new QueryException("error finding groups: " +
-e.getMessage(), e);
-		    }finally {
-		    	try {
-		    		con.close();
-		    	}catch(Exception e){}
-		    }
 
-	}*/
+  /*public static List query(String sql) throws Exception{
+  	Connection con = null;
+  	try {
+  		  List results = new ArrayList();
+  	      Session hs = HibernateDAO.getSession();
+  	      
+  	      con = hs.connection();
+  	      Statement stmt = con.createStatement();
+  	      ResultSet rs = stmt.executeQuery(sql);
+  	      Object obj;
+  	      while(rs.next()) {
+  	    	  obj = rs.getObject(1);
+  	    	  results.add(obj);
+  	      }
+  	      return results;
+  	    }
+  	    catch (Exception e) {
+  	      throw new QueryException("error finding groups: " +
+  e.getMessage(), e);
+  	    }finally {
+  	    	try {
+  	    		con.close();
+  	    	}catch(Exception e){}
+  	    }
+
+  }*/
+
+  /**
+   * Return true if the following parameter values would allow a subject to 
+   * copy the specified stem to another location.
+   * @param stem
+   * @param canCopy This is false if there's a security group limiting the subjects
+   * that can copy stems and this subject is not in the group.
+   * @return boolean
+   */
+  public static boolean canCopyStem(Stem stem, boolean canCopy) {
+    if (!canCopy || stem.isRootStem()) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Returns true if the following parameter values would allow a subject to 
+   * move the specified stem to another location.
+   * @param stem
+   * @param canMove This is false if there's a security group limiting the subjects
+   * that can move stems and this subject is not in the group.
+   * @param privs The naming privileges that the subject has on the stem.
+   * @return boolean
+   */
+  public static boolean canMoveStem(Stem stem, boolean canMove, Set<Privilege> privs) {
+    if (!canMove || stem.isRootStem()) {
+      return false;
+    }
+
+    if (privs.contains(NamingPrivilege.STEM)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Returns true if the following parameter values would allow a subject to 
+   * copy a stem to the specified stem.
+   * @param canCopy This is false if there's a security group limiting the subjects
+   * that can copy stems and this subject is not in the group.
+   * @param privs The naming privileges that the subject has on the specified stem.
+   * @return boolean
+   */
+  public static boolean canCopyOtherStemToStem(Stem stem, boolean canCopy,
+      Set<Privilege> privs) {
+    if (!canCopy) {
+      return false;
+    }
+
+    if (privs.contains(NamingPrivilege.STEM)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Returns true if the following parameters would allow a subject to 
+   * move a stem to the specified stem.
+   * @param canMove This is false if there's a security group limiting the subjects
+   * that can move stems and this subject is not in the group.
+   * @param privs The naming privileges that the subject has on the specified stem.
+   * @return boolean
+   */
+  public static boolean canMoveOtherStemToStem(Stem stem, boolean canMove,
+      Set<Privilege> privs) {
+    if (!canMove) {
+      return false;
+    }
+
+    if (privs.contains(NamingPrivilege.STEM)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Returns true if the following parameters would allow a subject to 
+   * copy a group to the specified stem.
+   * @param stem
+   * @param privs The naming privileges that the subject has on the stem.
+   * @return boolean
+   */
+  public static boolean canCopyGroupToStem(Stem stem, Set<Privilege> privs) {
+    if (stem.isRootStem()) {
+      return false;
+    }
+
+    if (privs.contains(NamingPrivilege.CREATE)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Returns true if the following parameters would allow a subject to
+   * move a group to the specified stem.
+   * @param stem
+   * @param privs The naming privileges that the subject has on the stem.
+   * @return boolean
+   */
+  public static boolean canMoveGroupToStem(Stem stem, Set<Privilege> privs) {
+    if (stem.isRootStem()) {
+      return false;
+    }
+
+    if (privs.contains(NamingPrivilege.CREATE)) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Copy a group
+   * @param group
+   * @param destinationStem
+   * @param selections
+   * @return
+   */
+  public static Group copyGroup(Group group, Stem destinationStem, String[] selections) {
+
+    List<String> selectionsList = new LinkedList<String>();
+    if (selections != null) {
+      for (int i = 0; i < selections.length; i++) {
+        selectionsList.add(selections[i]);
+      }
+    }
+
+    GroupCopy groupCopy = new GroupCopy(group, destinationStem);
+
+    // set options for copy
+    if (selectionsList.contains("copyPrivilegesOfGroup")) {
+      groupCopy.copyPrivilegesOfGroup(true);
+    } else {
+      groupCopy.copyPrivilegesOfGroup(false);
+    }
+
+    if (selectionsList.contains("copyGroupAsPrivilege")) {
+      groupCopy.copyGroupAsPrivilege(true);
+    } else {
+      groupCopy.copyGroupAsPrivilege(false);
+    }
+
+    if (selectionsList.contains("copyListMembersOfGroup")) {
+      groupCopy.copyListMembersOfGroup(true);
+    } else {
+      groupCopy.copyListMembersOfGroup(false);
+    }
+
+    if (selectionsList.contains("copyListGroupAsMember")) {
+      groupCopy.copyListGroupAsMember(true);
+    } else {
+      groupCopy.copyListGroupAsMember(false);
+    }
+
+    if (selectionsList.contains("copyAttributes")) {
+      groupCopy.copyAttributes(true);
+    } else {
+      groupCopy.copyAttributes(false);
+    }
+
+    Group newGroup = groupCopy.save();
+
+    return newGroup;
+  }
+
+  /**
+   * Move a group
+   * @param group
+   * @param destinationStem
+   * @param selections
+   */
+  public static void moveGroup(Group group, Stem destinationStem, String[] selections) {
+
+    List<String> selectionsList = new LinkedList<String>();
+    if (selections != null) {
+      for (int i = 0; i < selections.length; i++) {
+        selectionsList.add(selections[i]);
+      }
+    }
+
+    GroupMove groupMove = new GroupMove(group, destinationStem);
+
+    // set options for move
+    if (selectionsList.contains("assignAlternateName")) {
+      groupMove.assignAlternateName(true);
+    } else {
+      groupMove.assignAlternateName(false);
+    }
+
+    groupMove.save();
+  }
+
+  /**
+   * Copy a stem
+   * @param stemToCopy
+   * @param destinationStem
+   * @param selections
+   * @return
+   */
+  public static Stem copyStem(Stem stemToCopy, Stem destinationStem, String[] selections) {
+
+    List<String> selectionsList = new LinkedList<String>();
+    if (selections != null) {
+      for (int i = 0; i < selections.length; i++) {
+        selectionsList.add(selections[i]);
+      }
+    }
+
+    StemCopy stemCopy = new StemCopy(stemToCopy, destinationStem);
+
+    // set options
+    if (selectionsList.contains("copyPrivilegesOfStem")) {
+      stemCopy.copyPrivilegesOfStem(true);
+    } else {
+      stemCopy.copyPrivilegesOfStem(false);
+    }
+
+    if (selectionsList.contains("copyPrivilegesOfGroup")) {
+      stemCopy.copyPrivilegesOfGroup(true);
+    } else {
+      stemCopy.copyPrivilegesOfGroup(false);
+    }
+
+    if (selectionsList.contains("copyGroupAsPrivilege")) {
+      stemCopy.copyGroupAsPrivilege(true);
+    } else {
+      stemCopy.copyGroupAsPrivilege(false);
+    }
+
+    if (selectionsList.contains("copyListMembersOfGroup")) {
+      stemCopy.copyListMembersOfGroup(true);
+    } else {
+      stemCopy.copyListMembersOfGroup(false);
+    }
+
+    if (selectionsList.contains("copyListGroupAsMember")) {
+      stemCopy.copyListGroupAsMember(true);
+    } else {
+      stemCopy.copyListGroupAsMember(false);
+    }
+
+    if (selectionsList.contains("copyAttributes")) {
+      stemCopy.copyAttributes(true);
+    } else {
+      stemCopy.copyAttributes(false);
+    }
+
+    Stem newStem = stemCopy.save();
+
+    return newStem;
+  }
+
+  /**
+   * Move a stem
+   * @param stemToMove
+   * @param destinationStem
+   * @param selections
+   */
+  public static void moveStem(Stem stemToMove, Stem destinationStem, String[] selections) {
+
+    List<String> selectionsList = new LinkedList<String>();
+    if (selections != null) {
+      for (int i = 0; i < selections.length; i++) {
+        selectionsList.add(selections[i]);
+      }
+    }
+
+    StemMove stemMove = new StemMove(stemToMove, destinationStem);
+
+    // set options
+    if (selectionsList.contains("assignAlternateName")) {
+      stemMove.assignAlternateName(true);
+    } else {
+      stemMove.assignAlternateName(false);
+    }
+
+    stemMove.save();
+  }
 }
 
 

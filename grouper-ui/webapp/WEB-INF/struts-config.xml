@@ -448,6 +448,48 @@
       <forward name="CopyGroup" path="CopyGroupDef" redirect="false"/>
     </action>
 
+    <action name="StemFormBean" path="/populateCopyStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateCopyStemAction"
+            unknown="false" validate="false">
+      <forward name="CopyStem" path="CopyStemDef" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/populateMoveStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateMoveStemAction"
+            unknown="false" validate="false">
+      <forward name="MoveStem" path="MoveStemDef" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/populateCopyOtherStemToStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateCopyOtherStemToStemAction"
+            unknown="false" validate="false">
+      <forward name="CopyOtherStemToStem" path="CopyOtherStemToStemDef" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/populateMoveOtherStemToStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateMoveOtherStemToStemAction"
+            unknown="false" validate="false">
+      <forward name="MoveOtherStemToStem" path="MoveOtherStemToStemDef" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/populateCopyGroupToStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateCopyGroupToStemAction"
+            unknown="false" validate="false">
+      <forward name="CopyGroupToStem" path="CopyGroupToStemDef" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/populateMoveGroupToStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateMoveGroupToStemAction"
+            unknown="false" validate="false">
+      <forward name="MoveGroupToStem" path="MoveGroupToStemDef" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/populateMovesCopiesLinks" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateMovesCopiesLinksAction"
+            unknown="false" validate="false">
+      <forward name="MovesCopiesLinks" path="MovesCopiesLinksDef" redirect="false"/>
+    </action>
+
     <action name="GroupFormBean" path="/populateMoveGroup" scope="request"
             type="edu.internet2.middleware.grouper.ui.actions.PopulateMoveGroupAction"
             unknown="false" validate="false">
@@ -770,6 +812,42 @@
             unknown="false" validate="false">
       <forward name="GroupSummary" path="/populateGroupSummary.do" redirect="false"/>
       <forward name="CopyGroup" path="/populateCopyGroup.do" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/copyStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.CopyStemAction"
+            unknown="false" validate="false">
+      <forward name="CopyStem" path="/populateCopyStem.do" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/moveStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.MoveStemAction"
+            unknown="false" validate="false">
+      <forward name="MoveStem" path="/populateMoveStem.do" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/copyOtherStemToStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.CopyOtherStemToStemAction"
+            unknown="false" validate="false">
+      <forward name="CopyOtherStemToStem" path="/populateCopyOtherStemToStem.do" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/moveOtherStemToStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.MoveOtherStemToStemAction"
+            unknown="false" validate="false">
+      <forward name="MoveOtherStemToStem" path="/populateMoveOtherStemToStem.do" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/copyGroupToStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.CopyGroupToStemAction"
+            unknown="false" validate="false">
+      <forward name="CopyGroupToStem" path="/populateCopyGroupToStem.do" redirect="false"/>
+    </action>
+
+    <action name="StemFormBean" path="/moveGroupToStem" scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.MoveGroupToStemAction"
+            unknown="false" validate="false">
+      <forward name="MoveGroupToStem" path="/populateMoveGroupToStem.do" redirect="false"/>
     </action>
 
 

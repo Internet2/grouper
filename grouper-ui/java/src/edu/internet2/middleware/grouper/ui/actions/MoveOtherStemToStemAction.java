@@ -9,36 +9,35 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.ui.Message;
+
 /**
  * @author shilen
- * @version $Id: CopyGroupAction.java,v 1.2 2009-05-08 12:03:37 shilen Exp $
+ * @version $Id: MoveOtherStemToStemAction.java,v 1.1 2009-05-08 12:03:37 shilen Exp $
  */
-public class CopyGroupAction extends GrouperCapableAction {
+public class MoveOtherStemToStemAction extends GrouperCapableAction {
 
-  static final private String FORWARD_GroupSummary = "GroupSummary";
-  static final private String FORWARD_CopyGroup = "CopyGroup";
+  static final private String FORWARD_MoveStem = "MoveOtherStemToStem";
 
   public ActionForward grouperExecute(ActionMapping mapping, ActionForm form,
       HttpServletRequest request, HttpServletResponse response,
       HttpSession session, GrouperSession grouperSession)
       throws Exception {
     
-    DynaActionForm groupForm = (DynaActionForm) form;
+    DynaActionForm stemForm = (DynaActionForm) form;
     
-    String curNode = (String)groupForm.get("groupId");
-    Group group = GroupFinder.findByUuid(grouperSession, curNode, true);
-    
-    // get the options selected by the user for the group copy
-    String[] selections = request.getParameterValues("selections");
+    String curNode = (String)stemForm.get("stemId");
+    Stem destinationStem = StemFinder.findByUuid(grouperSession, curNode, true);
 
-    // find the destination stem
+    
+    // get the options selected by the user
+    String[] selections = request.getParameterValues("selections");
+    
+    // find the stem to move
     String stemSelection = request.getParameter("stemSelection");
     if (stemSelection.equals("other")) {
       stemSelection = request.getParameter("otherStemSelection");
@@ -47,24 +46,23 @@ public class CopyGroupAction extends GrouperCapableAction {
     if (stemSelection == null || stemSelection.equals("")) {
       request.setAttribute("message", new Message(
           "stems.message.error.invalid-stem", true));
-      return mapping.findForward(FORWARD_CopyGroup);
+      return mapping.findForward(FORWARD_MoveStem);
     }
     
-    Stem destinationStem = StemFinder.findByName(grouperSession, stemSelection, false);
+    Stem stem = StemFinder.findByName(grouperSession, stemSelection, false);
     
-    if (destinationStem == null) {
+    if (stem == null) {
       request.setAttribute("message", new Message(
           "stems.message.error.invalid-stem", true));
-      return mapping.findForward(FORWARD_CopyGroup);
+      return mapping.findForward(FORWARD_MoveStem);
     }
 
-    Group newGroup = GrouperHelper.copyGroup(group, destinationStem, selections);
+    GrouperHelper.moveStem(stem, destinationStem, selections);
 
     request.setAttribute("message", new Message(
-        "groups.message.group-copied", newGroup.getName()));
+        "stems.message.stem-moved", stem.getName()));
     
-    return mapping.findForward(FORWARD_GroupSummary);
-
+    return new ActionForward("/populate" + getBrowseMode(session) + "Groups.do");
   }
 
 }
