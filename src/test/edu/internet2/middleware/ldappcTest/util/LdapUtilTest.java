@@ -15,27 +15,20 @@
 
 package edu.internet2.middleware.ldappcTest.util;
 
+import junit.framework.TestCase;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
  * Class for testing the LdapUtil class.
  */
-public class LdapUtilTest extends BaseLdappcTestCase {
+public class LdapUtilTest extends TestCase {
 
   /**
    * Constructor
    */
   public LdapUtilTest(String name) {
     super(name);
-  }
-
-  /**
-   * Setup the fixture.
-   */
-  protected void setUp() {
-    DisplayTest.showRunClass(getClass().getName());
   }
 
   /**
@@ -55,7 +48,6 @@ public class LdapUtilTest extends BaseLdappcTestCase {
    * A test the makeLdapNameSafe method with no character to escape
    */
   public void testMakeLdapNameSafeNoEscaping() {
-    DisplayTest.showRunTitle("testMakeLdapNameSafeNoEscaping", "No character to escape");
 
     String ldapName = "noCharactersToEsape";
     String safeLdapName = ldapName;
@@ -66,8 +58,6 @@ public class LdapUtilTest extends BaseLdappcTestCase {
    * A test the makeLdapNameSafe method with leading spaces and #
    */
   public void testMakeLdapNameSafeLeadingSpaces() {
-    DisplayTest.showRunTitle("testMakeLdapNameSafeLeadingSpaces",
-        "Leading spaces and # to escape");
 
     String ldapName = " # # ##  leadingToEscape";
     String safeLdapName = "\\ \\#\\ \\#\\ \\#\\#\\ \\ leadingToEscape";
@@ -78,8 +68,6 @@ public class LdapUtilTest extends BaseLdappcTestCase {
    * A test the makeLdapNameSafe method with trailing spaces to escape
    */
   public void testMakeLdapNameSafeTrailingSpaces() {
-    DisplayTest.showRunTitle("testMakeLdapNameSafeTrailingSpaces",
-        "Trailing spaces to escape");
 
     String ldapName = "trailingSpaces     ";
     String safeLdapName = "trailingSpaces\\ \\ \\ \\ \\ ";
@@ -90,8 +78,6 @@ public class LdapUtilTest extends BaseLdappcTestCase {
    * A test the makeLdapNameSafe method with special characters
    */
   public void testMakeLdapNameSafeSpecialCharacters() {
-    DisplayTest.showRunTitle("testMakeLdapNameSafeSpecialCharacters",
-        "Special characters to escape");
 
     String ldapName = "s,p+e\"c\\i<a>l;";
     String safeLdapName = "s\\,p\\+e\\\"c\\\\i\\<a\\>l\\;";
@@ -102,8 +88,6 @@ public class LdapUtilTest extends BaseLdappcTestCase {
    * A test the makeLdapNameSafe method with leading, trailing and special characters
    */
   public void testMakeLdapNameSafeAll() {
-    DisplayTest.showRunTitle("testMakeLdapNameSafeAll",
-        "Leading spaces, trailing spaces, and special characters to escape");
 
     String ldapName = "##  ,+\"   \\<>;    ";
     String safeLdapName = "\\#\\#\\ \\ \\,\\+\\\"   \\\\\\<\\>\\;\\ \\ \\ \\ ";
@@ -114,7 +98,6 @@ public class LdapUtilTest extends BaseLdappcTestCase {
    * A test the makeLdapNameSafe method with null
    */
   public void testMakeLdapNameSafeNull() {
-    DisplayTest.showRunTitle("testMakeLdapNameSafeNull", "Passing in null");
 
     String ldapName = null;
     String safeLdapName = null;
@@ -125,7 +108,6 @@ public class LdapUtilTest extends BaseLdappcTestCase {
    * A test the makeLdapNameSafe method with empty string
    */
   public void testMakeLdapNameSafeEmpty() {
-    DisplayTest.showRunTitle("testMakeLdapNameSafeEmpty", "Passing in an empty string");
 
     String ldapName = "";
     String safeLdapName = ldapName;
@@ -136,8 +118,6 @@ public class LdapUtilTest extends BaseLdappcTestCase {
    * A test the makeLdapNameSafe method with all spaces
    */
   public void testMakeLdapNameSafeAllSpaces() {
-    DisplayTest.showRunTitle("testMakeLdapNameSafeAllSpaces",
-        "Passing in an all spaces string");
 
     String ldapName = "            ";
     String safeLdapName = "\\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ \\ ";
@@ -148,8 +128,6 @@ public class LdapUtilTest extends BaseLdappcTestCase {
    * A test of the makeLdapFilterValueSafe method with nothing to escape
    */
   public void testMakeLdapFilterValueSafeNoEscape() {
-    DisplayTest.showRunTitle("testMakeLdapFilterValueSafeNoEscape",
-        "Passing in string with nothing to escape");
 
     String ldapFilterValue = "nothing To Escape";
     String safeLdapFilterValue = ldapFilterValue;
@@ -160,8 +138,6 @@ public class LdapUtilTest extends BaseLdappcTestCase {
    * A test of the makeLdapFilterValueSafe method with '*','(',')' and '\u0000' to escape
    */
   public void testMakeLdapFilterValueSafeEscapeAll() {
-    DisplayTest.showRunTitle("testMakeLdapFilterValueSafeEscapeAll",
-        "Passing in string with all 4 characters to escape");
 
     String ldapFilterValue = "(*nothing \\To Escape\u0000)";
     String safeLdapFilterValue = "\\28\\2anothing \\5cTo Escape\\00\\29";

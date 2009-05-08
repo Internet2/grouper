@@ -13,34 +13,25 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.ldappcTest;
-
-/**
- * SkeletonTest.java Template used to create other tests
- */
+package edu.internet2.middleware.ldappcTest.util;
 
 import junit.framework.TestCase;
+import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
+import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
 
 /**
- * A convenience class for starting a set of test cases. It can also be used as a template
- * for other test classes.
+ * Class for making sure a connection can be make to the Hsql database. This does not use
+ * any of the non-test classes.
+ * 
+ * @author Gil Singer
  */
-public class SkeletonTest extends BaseLdappcTestCase {
+public class ResourceBundleUtilTest extends TestCase {
 
   /**
-   * Class constructor
-   * 
-   * @param name
-   *          Name of the test case.
+   * Constructor
    */
-  public SkeletonTest(String name) {
+  public ResourceBundleUtilTest(String name) {
     super(name);
-  }
-
-  /**
-   * Set up the fixture.
-   */
-  protected void setUp() {
   }
 
   /**
@@ -53,13 +44,20 @@ public class SkeletonTest extends BaseLdappcTestCase {
    * The main method for running the test.
    */
   public static void main(String args[]) {
-    junit.textui.TestRunner.run(SkeletonTest.class);
+    BaseLdappcTestCase.runTestRunner(ResourceBundleUtilTest.class);
   }
 
   /**
-   * A sanity test -- must always be okay or something is drastically wrong.
+   * A test accessing an ldappc resource bundle property.
    */
-  public void testAssert() {
-    assertTrue(true);
+  public void testResourceBundleUtil() {
+    String dbUrl = ResourceBundleUtil.getString("testUseEmbeddedLdap");
+    String msg = "Does not contain the letter e";
+    String expected = "e";
+    if (dbUrl.indexOf("e") != -1) {
+      msg = expected;
+    }
+    assertEquals(expected, msg);
   }
+
 }

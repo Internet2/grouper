@@ -22,15 +22,15 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.ModificationItem;
 
+import junit.framework.TestCase;
 import edu.internet2.middleware.ldappc.synchronize.AttributeModifier;
 import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
  * This set of tests validates the
  * {@link edu.internet2.middleware.ldappc.synchronize.AttributeModifier}.
  */
-public class AttributeModifierTest extends BaseLdappcTestCase {
+public class AttributeModifierTest extends TestCase {
 
   /**
    * Class constructor
@@ -40,13 +40,6 @@ public class AttributeModifierTest extends BaseLdappcTestCase {
    */
   public AttributeModifierTest(String name) {
     super(name);
-  }
-
-  /**
-   * Set up the fixture.
-   */
-  protected void setUp() {
-    DisplayTest.showRunClass(getClass().getName());
   }
 
   /**
@@ -66,8 +59,6 @@ public class AttributeModifierTest extends BaseLdappcTestCase {
    * Test all of the constructors
    */
   public void testConstructors() {
-    DisplayTest.showRunTitle("testConstructors",
-        "Test that constructors set values correctly");
 
     String attrName = "name";
     String noValue = "xxxxxxxx";
@@ -99,10 +90,6 @@ public class AttributeModifierTest extends BaseLdappcTestCase {
    * Test invalid value type
    */
   public void testInvalidValueType() {
-    DisplayTest
-        .showRunTitle(
-            "testInvalidValueType",
-            "Test that only exception thrown if attribute used for initialization has non-String values");
 
     BasicAttribute attr = new BasicAttribute("someAttribute");
     attr.add(new byte[] {});
@@ -123,7 +110,6 @@ public class AttributeModifierTest extends BaseLdappcTestCase {
    * Test addition of "no value"
    */
   public void testNoValue() {
-    DisplayTest.showRunTitle("testNoValue", "Test that 'no value' is handled correctly");
 
     BasicAttribute attr = new BasicAttribute("someAttribute");
     String attrName = "name";
@@ -264,9 +250,6 @@ public class AttributeModifierTest extends BaseLdappcTestCase {
    * Test initialize and store with case insensitivity
    */
   public void testCaseInsensitiveInitAndStore() {
-    DisplayTest
-        .showRunTitle("testCaseInsensitiveInitAndStore",
-            "Test that initialize and storing works correctly with case insensitive comparisons");
 
     BasicAttribute attr = new BasicAttribute("someAttribute");
     String attrName = "name";
@@ -395,9 +378,6 @@ public class AttributeModifierTest extends BaseLdappcTestCase {
    * Test initialize and store with case insensitivity
    */
   public void testCaseSensitiveInitAndStore() {
-    DisplayTest
-        .showRunTitle("testCaseSensitiveInitAndStore",
-            "Test that initialize and storing works correctly with case sensitive comparisons");
 
     BasicAttribute attr = new BasicAttribute("someAttribute");
     String attrName = "name";

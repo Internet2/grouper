@@ -18,7 +18,6 @@ package edu.internet2.middleware.ldappcTest;
 import junit.framework.TestSuite;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.ldappcTest.wrappers.LdapWrapperTestSetup;
 
 /**
  * Base test case class which our tests will extend. Provides a static method to run the
@@ -54,6 +53,6 @@ public class BaseLdappcTestCase extends GrouperTest {
    *          the class to run tests for.
    */
   public static void runTestRunner(Class clazz) {
-    junit.textui.TestRunner.run(new LdapWrapperTestSetup(new TestSuite(clazz)));
+    junit.textui.TestRunner.run(new TestSuite(clazz));
   }
 }
