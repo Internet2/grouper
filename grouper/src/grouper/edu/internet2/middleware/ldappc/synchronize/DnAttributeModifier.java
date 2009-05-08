@@ -15,12 +15,7 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import javax.naming.Name;
-import javax.naming.NameParser;
+import javax.security.auth.x500.X500Principal;
 
 /**
  * This is an AttributeModifier for modifying LDAP attribute values that are known to hold
@@ -31,66 +26,34 @@ import javax.naming.NameParser;
 public class DnAttributeModifier extends AttributeModifier {
 
   /**
-   * Name parser to use for converting DN strings to Name objects.
-   */
-  private NameParser parser;
-
-  /**
    * Constructs a <code>DnAttributeModifier</code> for the attribute name without a
    * "no value".
    * 
-   * @param parser
-   *          Name parser
    * @param attributeName
    *          Name of the attribute
    */
-  public DnAttributeModifier(NameParser parser, String attributeName) {
-    this(parser, attributeName, DEFAULT_NO_VALUE);
+  public DnAttributeModifier(String attributeName) {
+    this(attributeName, DEFAULT_NO_VALUE);
   }
 
   /**
    * Constructs a <code>DnAttributeModifier</code> for the attribute name with the given
    * "no value" value.
    * 
-   * @param parser
-   *          Name parser
    * @param attributeName
    *          Name of the attribute
    * @param noValue
    *          "no value" value (null if the attribute is not required).
    */
-  public DnAttributeModifier(NameParser parser, String attributeName, String noValue) {
+  public DnAttributeModifier(String attributeName, String noValue) {
     super(attributeName, noValue);
-    this.parser = parser;
   }
 
   /**
    * {@inheritDoc}
    */
   protected String makeComparisonString(String value) {
-    Name name = null;
-    try {
-      name = parser.parse(value.toLowerCase());
-      if (name.size() == 0) {
-        return "";
-      }
-      String rdn = name.get(name.size() - 1);
-      String[] parts = rdn.split("\\+");
-      List<String> list = new ArrayList<String>();
-      for (String element : parts) {
-        list.add(element);
-      }
-      Collections.sort(list);
-      rdn = list.get(0);
-      for (int i = 1; i < list.size(); i++) {
-        rdn = rdn + "+" + list.get(i);
-      }
-      name.remove(name.size() - 1);
-      name.add(rdn);
-      return name.toString();
-    } catch (Exception e) {
-      e.printStackTrace();
-      return value.toLowerCase();
-    }
+
+    return new X500Principal(value.toLowerCase()).getName(X500Principal.CANONICAL);
   }
 }
