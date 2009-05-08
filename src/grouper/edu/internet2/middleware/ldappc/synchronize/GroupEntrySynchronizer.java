@@ -220,8 +220,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
       //
       // Build the member Dn list attribute modifier
       //
-      memberDnMods = new DnAttributeModifier(ctx.getNameParser(""), attrName,
-          configuration.getGroupMembersDnListEmptyValue());
+      memberDnMods = new DnAttributeModifier(attrName, configuration
+          .getGroupMembersDnListEmptyValue());
     }
 
     //
