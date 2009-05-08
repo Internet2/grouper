@@ -15,29 +15,21 @@
 
 package edu.internet2.middleware.ldappcTest.synchronize;
 
-import javax.naming.NameParser;
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
-import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.ModificationItem;
 
-import edu.internet2.middleware.ldappc.ConfigManager;
+import junit.framework.TestCase;
 import edu.internet2.middleware.ldappc.synchronize.DnAttributeModifier;
 import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
  * This set of tests validates the
  * {@link edu.internet2.middleware.ldappc.synchronize.DnAttributeModifier}.
  */
-public class DnAttributeModifierTest extends BaseLdappcTestCase {
-
-  /**
-   * Name parser to use for testing
-   */
-  private NameParser parser;
+public class DnAttributeModifierTest extends TestCase {
 
   /**
    * Class constructor
@@ -47,27 +39,6 @@ public class DnAttributeModifierTest extends BaseLdappcTestCase {
    */
   public DnAttributeModifierTest(String name) {
     super(name);
-  }
-
-  /**
-   * Set up the fixture.
-   */
-  protected void setUp() {
-    DisplayTest.showRunClass(getClass().getName());
-    try {
-      DirContext ctx = new InitialDirContext(ConfigManager.getInstance()
-          .getLdapContextParameters());
-      parser = ctx.getNameParser("");
-    } catch (NamingException ne) {
-      fail("Could not create inital directory context -- naming exception: "
-          + ne.getMessage());
-    }
-  }
-
-  /**
-   * Tear down the fixture.
-   */
-  protected void tearDown() {
   }
 
   /**
@@ -81,17 +52,15 @@ public class DnAttributeModifierTest extends BaseLdappcTestCase {
    * Test all of the constructors
    */
   public void testConstructors() {
-    DisplayTest.showRunTitle("testConstructors",
-        "Test that constructors set values correctly");
 
     String attrName = "name";
     String noValue = "";
 
-    DnAttributeModifier am = new DnAttributeModifier(parser, attrName);
+    DnAttributeModifier am = new DnAttributeModifier(attrName);
     assertEquals("Attribute names do not match", attrName, am.getAttributeName());
     assertEquals("No value does not match", null, am.getNoValue());
 
-    am = new DnAttributeModifier(parser, attrName, noValue);
+    am = new DnAttributeModifier(attrName, noValue);
     assertEquals("Attribute names do not match", attrName, am.getAttributeName());
     assertEquals("No value does not match", noValue, am.getNoValue());
   }
@@ -100,15 +69,13 @@ public class DnAttributeModifierTest extends BaseLdappcTestCase {
    * Test initialize and store
    */
   public void testInitAndStore() {
-    DisplayTest.showRunTitle("testCaseInsensitiveInitAndStore",
-        "Test that initialize and storing works correctly");
 
     BasicAttribute attr = new BasicAttribute("someAttribute");
     String attrName = "name";
     String noValue = "";
     String[] dnSet = { "cn=abc", "ou=value1", "ou=value2", "cn=1234+ou=xyz,dc=com" };
 
-    DnAttributeModifier am = new DnAttributeModifier(parser, attrName, noValue);
+    DnAttributeModifier am = new DnAttributeModifier(attrName, noValue);
 
     try {
       //
@@ -185,7 +152,7 @@ public class DnAttributeModifierTest extends BaseLdappcTestCase {
       }
       am.init(attr);
 
-      String[] newValues = { "cn=rrr", "ou=bbbb", "xx=c1", "yy=22" };
+      String[] newValues = { "cn=rrr", "ou=bbbb", "o=c1", "dc=22" };
       for (int i = 0; i < newValues.length; i++) {
         am.store(newValues[i]);
       }

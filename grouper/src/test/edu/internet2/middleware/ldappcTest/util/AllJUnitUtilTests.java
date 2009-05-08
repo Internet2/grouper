@@ -19,8 +19,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import edu.internet2.middleware.ldappcTest.ResourceBundleUtilTest;
-
 /**
  * This class builds a TestSuite out of the individual test classes. It assembles all of
  * the test classes is the "root" directory of the Ldappc application.
@@ -45,9 +43,6 @@ public class AllJUnitUtilTests extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTest(new TestSuite(ResourceBundleUtilTest.class));
-    // This test takes about 7 minutes on Grouper1.1 so run only
-    // occasionally.
-    // suite.addTest(new TestSuite(GrouperExportTest.class));
     suite.addTest(new TestSuite(LdapUtilTest.class));
     return suite;
   }

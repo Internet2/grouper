@@ -19,8 +19,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import edu.internet2.middleware.ldappcTest.configuration.ConfigManagerTest;
-
 /**
  * This class builds a TestSuite out of the individual test classes. It assembles all of
  * the test classes for the configuration management of the Ldappc application.
@@ -43,8 +41,6 @@ public class AllJUnitConfigurationTests extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTest(new TestSuite(ConfigManagerTest.class));
-    // Add additional tests using the following format:
-    // suite.addTest(new TestSuite(ConfigManagerTest.class));
     return suite;
   }
 }

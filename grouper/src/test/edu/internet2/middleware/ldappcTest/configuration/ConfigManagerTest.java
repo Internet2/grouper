@@ -25,16 +25,16 @@ import java.util.Set;
 import javax.naming.Context;
 import javax.naming.directory.SearchControls;
 
+import junit.framework.TestCase;
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
-import edu.internet2.middleware.ldappcTest.DisplayTest;
 
 /**
  * This set of tests validates the {@link edu.internet2.middleware.ldappc.ConfigManager}.
  */
-public class ConfigManagerTest extends BaseLdappcTestCase {
+public class ConfigManagerTest extends TestCase {
 
   /**
    * Relative configuration resource path
@@ -88,13 +88,6 @@ public class ConfigManagerTest extends BaseLdappcTestCase {
   }
 
   /**
-   * Set up the fixture.
-   */
-  protected void setUp() {
-    DisplayTest.showRunClass(getClass().getName());
-  }
-
-  /**
    * Tear down the fixture.
    */
   protected void tearDown() {
@@ -111,8 +104,6 @@ public class ConfigManagerTest extends BaseLdappcTestCase {
    * Test reading in a valid configuration file
    */
   public void testValidAllFile() {
-    DisplayTest.showRunTitle("testValidAllFile",
-        "Process a Valid Configuration File with all elements and attributes");
 
     try {
       //
@@ -265,8 +256,6 @@ public class ConfigManagerTest extends BaseLdappcTestCase {
    * Test reading in a valid configuration file without any optional attributes
    */
   public void testValidNoOptionalAttributesFile() {
-    DisplayTest.showRunTitle("testValidNoOptionalAttributesFile",
-        "Process a Valid Configuration File without optional attributes");
 
     try {
       //
@@ -401,8 +390,6 @@ public class ConfigManagerTest extends BaseLdappcTestCase {
    * Test reading in a valid configuration file with a minimal Grouper group configuration
    */
   public void testValidGrouperGroupMinimal() {
-    DisplayTest.showRunTitle("testValidGrouperGroupMinimal",
-        "Process a Valid Configuration File with minimal Grouper group elements");
 
     try {
       //
@@ -491,9 +478,6 @@ public class ConfigManagerTest extends BaseLdappcTestCase {
    * configuration
    */
   public void testValidGrouperMembershipMinimalFile() {
-    DisplayTest
-        .showRunTitle("testValidGrouperMembershipMinimalFile",
-            "Process a Valid Configuration File with minimal Grouper membership configuration");
 
     try {
       //
@@ -576,8 +560,6 @@ public class ConfigManagerTest extends BaseLdappcTestCase {
    * the initial release of the code.
    */
   public void inactiveTestInvalidMissingLdappcElementFile() {
-    DisplayTest.showRunTitle("testInvalidMissingLdappcElementFile",
-        "Process an invalid Configuration File that is missing the ldappc element");
 
     try {
       //

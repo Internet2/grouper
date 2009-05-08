@@ -25,9 +25,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.QueryException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
@@ -65,7 +63,6 @@ public class GrouperProvisionerLastModifyTest extends BaseLdappcTestCase {
    * Setup the fixture.
    */
   protected void setUp() {
-    DisplayTest.showRunClass(getClass().getName());
     GrouperSessionControl grouperSessionControl = new GrouperSessionControl();
     boolean started = grouperSessionControl.startSession("GrouperSystem");
     if (!started) {
@@ -97,7 +94,6 @@ public class GrouperProvisionerLastModifyTest extends BaseLdappcTestCase {
    * changed
    */
   public void testLastModifyTimeRetrievalAndStemQuery() {
-    DisplayTest.showRunTitle("test simple lastModifyTime and StemQuery");
 
     String[] args = { "-subject", "GrouperSystem", "-groups" };
     InputOptions options = new InputOptions(args);

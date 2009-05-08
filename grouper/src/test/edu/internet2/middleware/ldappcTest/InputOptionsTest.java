@@ -18,6 +18,7 @@ package edu.internet2.middleware.ldappcTest;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import junit.framework.TestCase;
 import edu.internet2.middleware.ldappc.InputOptions;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 
@@ -31,7 +32,7 @@ import edu.internet2.middleware.ldappc.logging.ErrorLog;
  * @author Gil Singer
  */
 
-public class InputOptionsTest extends BaseLdappcTestCase {
+public class InputOptionsTest extends TestCase {
 
   /*
    * An instance of the main class, just to check that it can be created.
@@ -59,7 +60,6 @@ public class InputOptionsTest extends BaseLdappcTestCase {
    * Setup the fixture.
    */
   protected void setUp() {
-    DisplayTest.showRunClass(getClass().getName());
     //
     // Try to perform the set up
     //
@@ -98,7 +98,6 @@ public class InputOptionsTest extends BaseLdappcTestCase {
    * Trivial test
    */
   public void testCreateInputOptions() {
-    DisplayTest.showRunTitle("testCreateInputOptions", "Empty InputOptions is created.");
     //
     // Try to perform the test
     //
@@ -120,7 +119,6 @@ public class InputOptionsTest extends BaseLdappcTestCase {
    * Test the first set of input options This tests correct input.
    */
   public void testInputOptions1() {
-    DisplayTest.showRunTitle("testInputOptions", "Set 1 InputOptions are processed.");
 
     try {
       // String args1[] = {"-subject", "subjectIdA", "-memberships", "-lastModifyTime",
@@ -150,7 +148,6 @@ public class InputOptionsTest extends BaseLdappcTestCase {
    * Test the second set of input options This tests correct input.
    */
   public void testInputOptions2() {
-    DisplayTest.showRunTitle("testInputOptions", "Set 2 InputOptions are processed.");
 
     try {
       // String args2[] = {"-subject", "subjectIdB", "-groups", "-permissions",
@@ -171,7 +168,6 @@ public class InputOptionsTest extends BaseLdappcTestCase {
    * Test the second set of input options This tests incorrect input.
    */
   public void testBadInputOptions() {
-    DisplayTest.showRunTitle("testBadInputOptions", "BadInputOptions are processed.");
 
     InputOptions badInputOptions = null;
 
