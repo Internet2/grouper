@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ldappc>
+  <grouper>
+   
+    <group-queries>
+      <subordinate-stem-queries>
+        <stem-list>
+          <stem>edu</stem>
+        </stem-list>
+      </subordinate-stem-queries>
+    </group-queries>
+   
+    <groups structure="bushy" root-dn="ou=groups,dc=grouper,dc=edu" ldap-object-class="groupOfNames"
+            ldap-rdn-attribute="cn" grouper-attribute="name" >
+   
+      <group-members-dn-list list-object-class="groupOfNames" list-attribute="member" list-empty-value=""/>
+   
+      <group-members-name-list list-object-class="eduMember" list-attribute="hasMember" >
+        <source-subject-name-mapping>
+          <source-subject-name-map source="jdbc" subject-attribute="lfname" />
+          <source-subject-name-map source="g:gsa" subject-attribute="name" />
+        </source-subject-name-mapping>
+      </group-members-name-list>
+
+      <group-attribute-mapping ldap-object-class="groupOfNames">
+    	<group-attribute-map group-attribute="description" ldap-attribute="description" ldap-attribute-empty-value="" />
+        <group-attribute-map group-attribute="description" ldap-attribute="seeAlso" />
+      </group-attribute-mapping>
+    
+    </groups>
+    
+    <memberships>
+    	<member-groups-list list-object-class="eduMember" list-attribute="isMemberOf" naming-attribute="name" />
+    </memberships>
+    
+  </grouper>
+
+  <source-subject-identifiers>    
+    <source-subject-identifier source="jdbc" subject-attribute="subjectId">
+      <ldap-search base="ou=people,dc=grouper,dc=edu" scope="subtree_scope" filter="(uid={0})" />
+    </source-subject-identifier>        
+    <source-subject-identifier source="g:gsa" subject-attribute="name" > 
+      <ldap-search base="ou=groups,dc=grouper,dc=edu" scope="subtree_scope" filter="(cn={0})" />
+    </source-subject-identifier>    
+  </source-subject-identifiers>
+
+  <ldap>
+    <context>
+      <parameter-list>
+        <parameter name="initial_context_factory" value="com.sun.jndi.ldap.LdapCtxFactory" />
+        <parameter name="provider_url" value="ldap://localhost:389" />
+        <parameter name="security_authentication" value="simple" />
+        <parameter name="security_principal" value="uid=admin,ou=system" />
+        <parameter name="security_credentials" value="secret" />
+      </parameter-list>
+    </context>
+  </ldap>
+
+</ldappc>
