@@ -57,7 +57,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.35 2009-04-14 07:41:24 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.36 2009-05-11 19:19:18 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -1188,7 +1188,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
             
             long now = System.currentTimeMillis();
             
-            if (GrouperConfig.getPropertyBoolean("groups.updateLastMembershipTime", false)) {
+            if (GrouperConfig.getPropertyBoolean("groups.updateLastMembershipTime", true)) {
               Iterator<String> membershipChanges = mof.getGroupIdsWithNewMemberships()
                   .iterator();
               while (membershipChanges.hasNext()) {
@@ -1200,7 +1200,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
               }
             }
             
-            if (GrouperConfig.getPropertyBoolean("stems.updateLastMembershipTime", false)) {
+            if (GrouperConfig.getPropertyBoolean("stems.updateLastMembershipTime", true)) {
               Iterator<String> membershipChanges = mof.getStemIdsWithNewMemberships()
                   .iterator();
               while (membershipChanges.hasNext()) {
