@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.ldappcTest.configuration;
+package edu.internet2.middleware.ldappc.configuration;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -26,10 +26,10 @@ import javax.naming.Context;
 import javax.naming.directory.SearchControls;
 
 import junit.framework.TestCase;
+import edu.internet2.middleware.ldappc.BaseLdappcTestCase;
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
-import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
 
 /**
  * This set of tests validates the {@link edu.internet2.middleware.ldappc.ConfigManager}.

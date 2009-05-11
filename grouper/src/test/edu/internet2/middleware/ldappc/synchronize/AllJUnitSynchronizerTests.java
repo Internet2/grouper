@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.ldappcTest.synchronize;
+package edu.internet2.middleware.ldappc.synchronize;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

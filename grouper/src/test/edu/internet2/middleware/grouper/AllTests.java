@@ -48,12 +48,12 @@ import edu.internet2.middleware.grouper.util.AllUtilTests;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AllValidatorTests;
 import edu.internet2.middleware.grouper.xml.AllXmlTests;
-import edu.internet2.middleware.ldappcTest.AllLdappcJunitTests;
+import edu.internet2.middleware.ldappc.AllLdappcJunitTests;
 
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: AllTests.java,v 1.6 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: AllTests.java,v 1.7 2009-05-11 15:25:10 tzeller Exp $
  */
 public class AllTests extends GrouperTest {
 

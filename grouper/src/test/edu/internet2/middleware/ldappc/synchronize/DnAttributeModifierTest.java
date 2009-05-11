@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.ldappcTest.synchronize;
+package edu.internet2.middleware.ldappc.synchronize;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
@@ -22,8 +22,8 @@ import javax.naming.directory.DirContext;
 import javax.naming.directory.ModificationItem;
 
 import junit.framework.TestCase;
+import edu.internet2.middleware.ldappc.BaseLdappcTestCase;
 import edu.internet2.middleware.ldappc.synchronize.DnAttributeModifier;
-import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
 
 /**
  * This set of tests validates the

@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.ldappcTest.util;
+package edu.internet2.middleware.ldappc.util;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

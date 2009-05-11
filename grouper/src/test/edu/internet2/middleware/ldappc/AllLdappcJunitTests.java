@@ -13,15 +13,15 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.ldappcTest;
+package edu.internet2.middleware.ldappc;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import edu.internet2.middleware.ldappcTest.configuration.AllJUnitConfigurationTests;
-import edu.internet2.middleware.ldappcTest.synchronize.AllJUnitSynchronizerTests;
-import edu.internet2.middleware.ldappcTest.util.AllJUnitUtilTests;
+import edu.internet2.middleware.ldappc.configuration.AllJUnitConfigurationTests;
+import edu.internet2.middleware.ldappc.synchronize.AllJUnitSynchronizerTests;
+import edu.internet2.middleware.ldappc.util.AllJUnitUtilTests;
 
 /**
  * This class builds a master TestSuite out of the individual test suites.

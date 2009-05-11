@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.ldappcTest;
+package edu.internet2.middleware.ldappc;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
