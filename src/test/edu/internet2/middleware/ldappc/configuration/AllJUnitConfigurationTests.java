@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.ldappcTest;
+package edu.internet2.middleware.ldappc.configuration;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -21,18 +21,16 @@ import junit.framework.TestSuite;
 
 /**
  * This class builds a TestSuite out of the individual test classes. It assembles all of
- * the test classes is the "root" directory of the Ldappc application.
- * 
- * @author Gil Singer
+ * the test classes for the configuration management of the Ldappc application.
  */
 
-public class AllJUnitBaseDirTests extends TestCase {
+public class AllJUnitConfigurationTests extends TestCase {
 
   /**
-   * Class for running all of the test cases for the base directory.
+   * Class for running all of the configuration management test cases.
    */
 
-  public AllJUnitBaseDirTests(String name) {
+  public AllJUnitConfigurationTests(String name) {
     super(name);
   }
 
@@ -42,9 +40,7 @@ public class AllJUnitBaseDirTests extends TestCase {
 
   public static Test suite() {
     TestSuite suite = new TestSuite();
-    suite.addTest(new TestSuite(InputOptionsTest.class));
-    suite.addTest(new TestSuite(GrouperProvisionerLastModifyTest.class));
+    suite.addTest(new TestSuite(ConfigManagerTest.class));
     return suite;
   }
-
 }

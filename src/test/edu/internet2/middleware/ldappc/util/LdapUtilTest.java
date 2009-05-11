@@ -13,11 +13,11 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.ldappcTest.util;
+package edu.internet2.middleware.ldappc.util;
 
 import junit.framework.TestCase;
+import edu.internet2.middleware.ldappc.BaseLdappcTestCase;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
-import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
 
 /**
  * Class for testing the LdapUtil class.

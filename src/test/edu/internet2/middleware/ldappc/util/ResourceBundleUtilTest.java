@@ -13,11 +13,11 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.ldappcTest.util;
+package edu.internet2.middleware.ldappc.util;
 
 import junit.framework.TestCase;
+import edu.internet2.middleware.ldappc.BaseLdappcTestCase;
 import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
-import edu.internet2.middleware.ldappcTest.BaseLdappcTestCase;
 
 /**
  * Class for making sure a connection can be make to the Hsql database. This does not use

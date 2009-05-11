@@ -13,7 +13,7 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.ldappcTest;
+package edu.internet2.middleware.ldappc;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
