@@ -16,8 +16,7 @@
 package edu.internet2.middleware.ldappc.util;
 
 import junit.framework.TestCase;
-import edu.internet2.middleware.ldappc.BaseLdappcTestCase;
-import edu.internet2.middleware.ldappc.util.LdapUtil;
+import junit.textui.TestRunner;
 
 /**
  * Class for testing the LdapUtil class.
@@ -41,7 +40,7 @@ public class LdapUtilTest extends TestCase {
    * The main method for running the test.
    */
   public static void main(String args[]) {
-    BaseLdappcTestCase.runTestRunner(LdapUtilTest.class);
+    TestRunner.run(LdapUtilTest.class);
   }
 
   /**

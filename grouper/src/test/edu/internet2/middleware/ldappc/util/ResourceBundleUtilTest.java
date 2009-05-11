@@ -16,8 +16,7 @@
 package edu.internet2.middleware.ldappc.util;
 
 import junit.framework.TestCase;
-import edu.internet2.middleware.ldappc.BaseLdappcTestCase;
-import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
+import junit.textui.TestRunner;
 
 /**
  * Class for making sure a connection can be make to the Hsql database. This does not use
@@ -44,7 +43,7 @@ public class ResourceBundleUtilTest extends TestCase {
    * The main method for running the test.
    */
   public static void main(String args[]) {
-    BaseLdappcTestCase.runTestRunner(ResourceBundleUtilTest.class);
+    TestRunner.run(ResourceBundleUtilTest.class);
   }
 
   /**

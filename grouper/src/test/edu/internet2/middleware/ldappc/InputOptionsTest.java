@@ -19,7 +19,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import junit.framework.TestCase;
-import edu.internet2.middleware.ldappc.InputOptions;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 
 /**
@@ -91,7 +91,7 @@ public class InputOptionsTest extends TestCase {
    * The main method for running the test.
    */
   public static void main(String args[]) {
-    BaseLdappcTestCase.runTestRunner(InputOptionsTest.class);
+    TestRunner.run(InputOptionsTest.class);
   }
 
   /**

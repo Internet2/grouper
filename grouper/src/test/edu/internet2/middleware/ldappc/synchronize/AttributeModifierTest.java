@@ -23,8 +23,7 @@ import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.ModificationItem;
 
 import junit.framework.TestCase;
-import edu.internet2.middleware.ldappc.BaseLdappcTestCase;
-import edu.internet2.middleware.ldappc.synchronize.AttributeModifier;
+import junit.textui.TestRunner;
 
 /**
  * This set of tests validates the
@@ -52,7 +51,7 @@ public class AttributeModifierTest extends TestCase {
    * The main method for running the test.
    */
   public static void main(String args[]) {
-    BaseLdappcTestCase.runTestRunner(AttributeModifierTest.class);
+    TestRunner.run(AttributeModifierTest.class);
   }
 
   /**

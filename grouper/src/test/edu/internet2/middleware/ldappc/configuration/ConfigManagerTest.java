@@ -26,7 +26,7 @@ import javax.naming.Context;
 import javax.naming.directory.SearchControls;
 
 import junit.framework.TestCase;
-import edu.internet2.middleware.ldappc.BaseLdappcTestCase;
+import junit.textui.TestRunner;
 import edu.internet2.middleware.ldappc.ConfigManager;
 import edu.internet2.middleware.ldappc.LdappcConfigurationException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
@@ -91,7 +91,7 @@ public class ConfigManagerTest extends TestCase {
    * The main method for running the test.
    */
   public static void main(String args[]) {
-    BaseLdappcTestCase.runTestRunner(ConfigManagerTest.class);
+    TestRunner.run(ConfigManagerTest.class);
   }
 
   /**
