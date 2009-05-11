@@ -43,7 +43,6 @@ public class AllJUnitBaseDirTests extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite();
     suite.addTest(new TestSuite(InputOptionsTest.class));
-    suite.addTest(new TestSuite(GrouperProvisionerLastModifyTest.class));
     return suite;
   }
 
