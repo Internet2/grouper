@@ -58,7 +58,7 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
   /**
    * Configuration Schema file resource name.
    */
-  public static final String SCHEMA_FILE_RESOURCE = "edu/internet2/middleware/ldappc/schema/ldappcConfig.xsd";
+  public static final String SCHEMA_FILE_RESOURCE = "ldappc.schema.xsd";
 
   /**
    * JAXP schema language property name.
