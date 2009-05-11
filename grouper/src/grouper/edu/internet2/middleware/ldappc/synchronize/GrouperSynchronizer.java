@@ -127,40 +127,34 @@ public abstract class GrouperSynchronizer extends Synchronizer {
    *         {@link #STATUS_UNCHANGED} or {@link #STATUS_UNKNOWN}.
    */
   protected int determineStatus(Group group) {
-    //
-    // Init variables
-    //
-    int status = STATUS_UNKNOWN;
+
     Date lastModifyTime = options.getLastModifyTime();
+    if (lastModifyTime == null) {
+      return STATUS_UNKNOWN;
+    }
 
-    //
-    // If lastModifyTime provided, update status based on it
-    //
-    if (lastModifyTime != null) {
-      //
-      // Get the group create and modify time. Neither should be null, but
-      // if either is leave status as UNKNOWN
-      //
-      Date groupCreateTime = group.getCreateTime();
-      Date groupModifyTime = group.getModifyTime();
+    Date groupCreateTime = group.getCreateTime();
+    if (groupCreateTime == null) {
+      return STATUS_UNKNOWN;
+    }
 
-      if (groupCreateTime != null && groupModifyTime != null) {
-        //
-        // Set status to be new if permission created on or after the
-        // lastModifyTime
-        //
-        if (lastModifyTime.compareTo(groupCreateTime) < 1) {
-          status = STATUS_NEW;
-        } else {
-          if (lastModifyTime.compareTo(groupModifyTime) < 1) {
-            status = STATUS_MODIFIED;
-          } else {
-            status = STATUS_UNCHANGED;
-          }
-        }
+    if (lastModifyTime.before(groupCreateTime)) {
+      return STATUS_NEW;
+    }
+
+    Date groupModifyTime = group.getModifyTime();
+    if (groupModifyTime != null && lastModifyTime.before(groupModifyTime)) {
+      return STATUS_MODIFIED;
+    }
+
+    // some weirdness occurs with getLastMembershipChange()
+    if (group.getLastMembershipChange() != null) {
+      Date memberModifyTime = new Date(group.getLastMembershipChange().getTime());
+      if (lastModifyTime.before(memberModifyTime)) {
+        return STATUS_MODIFIED;
       }
     }
 
-    return status;
+    return STATUS_UNCHANGED;
   }
 }

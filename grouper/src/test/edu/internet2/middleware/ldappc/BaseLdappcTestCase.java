@@ -15,8 +15,11 @@
 
 package edu.internet2.middleware.ldappc;
 
-import junit.framework.TestSuite;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SessionHelper;
+import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -24,6 +27,14 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * tests in the class with an LDAP and database wrapper around them.
  */
 public class BaseLdappcTestCase extends GrouperTest {
+
+  public static final String TEST_CONFIG = "edu/internet2/middleware/ldappc/ldappc-test.xml";
+
+  protected GrouperSession grouperSession = SessionHelper.getRootSession();
+
+  protected Stem edu;
+
+  protected Stem root;
 
   /**
    * 
@@ -46,13 +57,14 @@ public class BaseLdappcTestCase extends GrouperTest {
     GrouperUtil.promptUserAboutLdapChanges("test ldap", true, ldappcConfigFile);
   }
 
-  /**
-   * Run the class's tests with an LDAP and a database wrapper around them.
-   * 
-   * @param clazz
-   *          the class to run tests for.
-   */
-  public static void runTestRunner(Class clazz) {
-    junit.textui.TestRunner.run(new TestSuite(clazz));
+  public void setUp() {
+    super.setUp();
+    grouperSession = SessionHelper.getRootSession();
+    root = StemHelper.findRootStem(grouperSession);
+    edu = StemHelper.addChildStem(root, "edu", "education");
+  }
+
+  public void tearDown() {
+    super.tearDown();
   }
 }
