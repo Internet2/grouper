@@ -39,7 +39,7 @@ public class ConfigManagerTest extends TestCase {
   /**
    * Relative configuration resource path
    */
-  public static String RELATIVE_RESOURCE_PATH = "edu/internet2/middleware/ldappcTest/configuration/data/";
+  public static String RELATIVE_RESOURCE_PATH = "edu/internet2/middleware/ldappc/configuration/data/";
 
   /**
    * Valid configuration file resource with all elements and attributes
@@ -64,12 +64,6 @@ public class ConfigManagerTest extends TestCase {
    */
   public static String VALID_GROUPER_MEMBERSHIP_MINIMAL_CONFIG_FILE_RESOURCE = RELATIVE_RESOURCE_PATH
       + "ldappcValidGrouperMembershipMinimal.xml";
-
-  /**
-   * Valid configuration file resource with the minimal Signet configuration
-   */
-  public static String VALID_SIGNET_MINIMAL_CONFIG_FILE_RESOURCE = RELATIVE_RESOURCE_PATH
-      + "ldappcValidSignetMinimal.xml";
 
   /**
    * Invalid configuration file resource that is missing the ldappc element
