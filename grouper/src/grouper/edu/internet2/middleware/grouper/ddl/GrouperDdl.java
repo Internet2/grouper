@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.43 2009-04-28 20:08:08 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.44 2009-05-12 06:35:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -28,6 +28,8 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -406,6 +408,26 @@ public enum GrouperDdl implements DdlVersionable {
     }
   },
 
+  /**
+   * <pre>
+   * add change log
+   * </pre>
+   */
+  V21 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+
+      addChangeLogTables(ddlVersionBean, database);
+      
+    }
+  },
+  
   /**
    * delete backup cols if configured to and if exist
    */
@@ -1586,6 +1608,7 @@ public enum GrouperDdl implements DdlVersionable {
       
       addAuditTables(ddlVersionBean, database);
 
+      addChangeLogTables(ddlVersionBean, database);
     }
 
   }, 
@@ -2467,8 +2490,14 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AuditEntry.TABLE_GROUPER_AUDIT_ENTRY, 
           "fk_audit_entry_type_id", AuditType.TABLE_GROUPER_AUDIT_TYPE, "audit_type_id", "id");
 
-      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Attribute.TABLE_GROUPER_ATTRIBUTES, 
-          "fk_attributes_group_id", Group.TABLE_GROUPER_GROUPS, "group_id", groupIdCol);
+    }
+    
+    //dont add if just testing
+    boolean buildingChangeLogs = buildingToVersion >= V21.getVersion();
+    if (buildingChangeLogs) {
+      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY, 
+          "fk_change_log_entry_type_id", ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE, "change_log_type_id", "id");
+
     }
     
     //dont add if just testing
@@ -3514,4 +3543,145 @@ public enum GrouperDdl implements DdlVersionable {
 
   }
   
+  /**
+   * add change log tables in v2 or when needed
+   * @param ddlVersionBean
+   * @param database
+   */
+  private static void addChangeLogTables(DdlVersionBean ddlVersionBean, Database database) {
+    {
+      Table grouperChangeLogTypeTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          ChangeLogType.TABLE_GROUPER_CHANGE_LOG_TYPE);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "action_name", 
+          Types.VARCHAR, "50", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "change_log_category", 
+          Types.VARCHAR, "50", false, false); 
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "context_id", 
+          Types.VARCHAR, "128", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "created_on", 
+          Types.BIGINT, "20", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "hibernate_version_number", 
+          Types.INTEGER, null, false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "id", 
+          Types.VARCHAR, "128", true, true); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "label_string01", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "label_string02", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "label_string03", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "label_string04", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "label_string05", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "label_string06", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "label_string07", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "label_string08", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "label_string09", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "label_string10", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "label_string11", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "label_string12", 
+          Types.VARCHAR, "50", false, false); 
+    
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTypeTable, "last_updated", 
+          Types.BIGINT, "20", false, false); 
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperChangeLogTypeTable.getName(), 
+          "change_log_type_cat_type_idx", true, "change_log_category", "action_name");
+
+    }
+    
+    {
+      Table grouperChangeLogEntryTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
+          "change_log_type_id", Types.VARCHAR, "128", false, true); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
+          "context_id", Types.VARCHAR, "128", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
+          "created_on", Types.BIGINT, "20", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
+          "sequence_number", Types.BIGINT, "20", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
+          "string01", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
+          "string02", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
+          "string03", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
+          "string04", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
+          "string05", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
+          "string06", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
+          "string07", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
+          "string08", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
+          "string09", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
+          "string10", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
+          "string11", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
+          "string12", Types.VARCHAR, "4000", false, false); 
+
+      //do 5 string indexes, probably dont need them on the other string cols
+      for (int i=1;i<=5;i++) {
+        //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
+        String scriptOverride = ddlVersionBean.isMysql() ? "\nCREATE INDEX change_log_entry_string0" + i + "_idx " +
+            "ON grouper_change_log_entry (string0" + i + "(333));\n" : null;
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogEntryTable.getName(), 
+            "change_log_entry_string0" + i + "_idx", scriptOverride, false, "string0" + i);
+        
+      }
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogEntryTable.getName(), 
+          "change_log_sequence_number_idx", null, false, "sequence_number", "created_on");
+      
+    }
+
+  }
 }

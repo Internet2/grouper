@@ -9,9 +9,9 @@ import edu.internet2.middleware.grouper.internal.dao.ChangeLogTypeDAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 
 /**
- * Data Access Object for audit type
+ * Data Access Object for changeLog type
  * @author  mchyzer
- * @version $Id: Hib3ChangeLogTypeDAO.java,v 1.1 2009-05-08 05:28:10 mchyzer Exp $
+ * @version $Id: Hib3ChangeLogTypeDAO.java,v 1.2 2009-05-12 06:35:26 mchyzer Exp $
  */
 public class Hib3ChangeLogTypeDAO extends Hib3DAO implements ChangeLogTypeDAO {
   
@@ -37,7 +37,7 @@ public class Hib3ChangeLogTypeDAO extends Hib3DAO implements ChangeLogTypeDAO {
   }
 
   /**
-   * reset the audit types
+   * reset the changeLog types
    * @param hibernateSession
    */
   static void reset(HibernateSession hibernateSession) {
@@ -54,14 +54,14 @@ public class Hib3ChangeLogTypeDAO extends Hib3DAO implements ChangeLogTypeDAO {
     
     //delete entries
     HibernateSession.byHqlStatic()
-      .createQuery("delete from ChangeLogEntry as auditEntry where auditEntry.auditTypeId = " +
-      		"(select auditType.id from ChangeLogType auditType " +
-      		"where auditType.auditCategory = :theChangeLogCategory and auditType.actionName = :theActionName)")
+      .createQuery("delete from ChangeLogEntry as changeLogEntry where changeLogEntry.changeLogTypeId = " +
+      		"(select changeLogType.id from ChangeLogType changeLogType " +
+      		"where changeLogType.changeLogCategory = :theChangeLogCategory and changeLogType.actionName = :theActionName)")
       		.setString("theChangeLogCategory", category).setString("theActionName", action).executeUpdate();
 
     //delete types
     HibernateSession.byHqlStatic()
-      .createQuery("delete from ChangeLogType where auditCategory = :theChangeLogCategory and actionName = :theActionName")
+      .createQuery("delete from ChangeLogType where changeLogCategory = :theChangeLogCategory and actionName = :theActionName")
       .setString("theChangeLogCategory", category).setString("theActionName", action).executeUpdate();
     
   }

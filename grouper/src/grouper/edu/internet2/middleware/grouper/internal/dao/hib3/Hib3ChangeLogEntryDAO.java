@@ -6,7 +6,7 @@ import edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO;
 /**
  * Data Access Object for audit entry
  * @author  mchyzer
- * @version $Id: Hib3ChangeLogEntryDAO.java,v 1.1 2009-05-08 05:28:10 mchyzer Exp $
+ * @version $Id: Hib3ChangeLogEntryDAO.java,v 1.2 2009-05-12 06:35:26 mchyzer Exp $
  */
 public class Hib3ChangeLogEntryDAO extends Hib3DAO implements ChangeLogEntryDAO {
   
@@ -18,11 +18,11 @@ public class Hib3ChangeLogEntryDAO extends Hib3DAO implements ChangeLogEntryDAO 
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO#saveOrUpdate(edu.internet2.middleware.grouper.changeLog.ChangeLogEntry)
+   * @see edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO#save(edu.internet2.middleware.grouper.changeLog.ChangeLogEntry)
    */
-  public void saveOrUpdate(ChangeLogEntry changeLogEntry) {
+  public void save(ChangeLogEntry changeLogEntry) {
     changeLogEntry.truncate();
-    HibernateSession.byObjectStatic().saveOrUpdate(changeLogEntry);
+    HibernateSession.byObjectStatic().save(changeLogEntry);
   }
 
   /**

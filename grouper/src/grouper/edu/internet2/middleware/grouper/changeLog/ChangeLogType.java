@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogType.java,v 1.1 2009-05-08 05:28:10 mchyzer Exp $
+ * $Id: ChangeLogType.java,v 1.2 2009-05-12 06:35:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -304,7 +304,7 @@ public class ChangeLogType extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /** name of the grouper changeLog type table in the db */
-  public static final String TABLE_GROUPER_AUDIT_TYPE = "grouper_changeLog_type";
+  public static final String TABLE_GROUPER_CHANGE_LOG_TYPE = "grouper_change_log_type";
   
   /** id of this type */
   private String id;
