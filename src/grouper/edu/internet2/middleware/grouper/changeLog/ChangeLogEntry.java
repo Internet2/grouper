@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogEntry.java,v 1.1 2009-05-08 05:28:10 mchyzer Exp $
+ * $Id: ChangeLogEntry.java,v 1.2 2009-05-12 06:35:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -21,7 +21,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * represents a user change log record.  This is a change to a record in the DB (insert/update/delete).
  */
 @SuppressWarnings("serial")
-public class ChangeLogEntry extends GrouperAPI implements Hib3GrouperVersioned {
+public class ChangeLogEntry extends GrouperAPI {
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -133,11 +133,10 @@ public class ChangeLogEntry extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
-   * save or update this object
-   * @param copyContextData 
+   * save (insert) this object
    */
-  public void saveOrUpdate(boolean copyContextData) {
-    GrouperDAOFactory.getFactory().getChangeLogEntry().saveOrUpdate(this);
+  public void save() {
+    GrouperDAOFactory.getFactory().getChangeLogEntry().save(this);
   }
   
   /**
@@ -279,6 +278,27 @@ public class ChangeLogEntry extends GrouperAPI implements Hib3GrouperVersioned {
    * when this record was created 
    */
   private Long createdOnDb;
+
+  /**
+   * optional sequence for ordering
+   */
+  private Long sequenceNumber;
+
+  /**
+   * optional sequence for ordering
+   * @return sequence number
+   */
+  public Long getSequenceNumber() {
+    return this.sequenceNumber;
+  }
+
+  /**
+   * optional sequence for ordering
+   * @param sequenceNumber1
+   */
+  public void setSequenceNumber(Long sequenceNumber1) {
+    this.sequenceNumber = sequenceNumber1;
+  }
 
   /**
    * foreign key to the type of changeLog entry this is

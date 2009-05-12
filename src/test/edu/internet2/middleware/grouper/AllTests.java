@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.audit.AllAuditTests;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.AllConfigTests;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.changeLog.AllChangeLogTests;
 import edu.internet2.middleware.grouper.ddl.AllDdlTests;
 import edu.internet2.middleware.grouper.filter.AllFilterTests;
 import edu.internet2.middleware.grouper.group.AllGroupTests;
@@ -53,7 +54,7 @@ import edu.internet2.middleware.ldappc.AllLdappcJunitTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: AllTests.java,v 1.7 2009-05-11 15:25:10 tzeller Exp $
+ * @version $Id: AllTests.java,v 1.8 2009-05-12 06:35:27 mchyzer Exp $
  */
 public class AllTests extends GrouperTest {
 
@@ -177,6 +178,7 @@ public class AllTests extends GrouperTest {
 
     suite.addTest(AllAppTests.suite());
     suite.addTest(AllAuditTests.suite());
+    suite.addTest(AllChangeLogTests.suite());
     suite.addTest(AllConfigTests.suite());
 
     if (GrouperConfig.getPropertyBoolean("junit.test.ddl", true)) {
