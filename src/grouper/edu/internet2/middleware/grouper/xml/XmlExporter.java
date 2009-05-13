@@ -92,7 +92,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlExporter.java,v 1.14 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: XmlExporter.java,v 1.15 2009-05-13 12:18:21 mchyzer Exp $
  * @since   1.0
  */
 public class XmlExporter {
@@ -625,7 +625,7 @@ public class XmlExporter {
     }
     
     String userAuditOnly = rc.getProperty("userAuditOnly");
-    if (!StringUtils.equalsIgnoreCase("true", userAuditOnly)) {
+    if (StringUtils.equalsIgnoreCase("true", userAuditOnly)) {
       //we are done
       return;
     }
