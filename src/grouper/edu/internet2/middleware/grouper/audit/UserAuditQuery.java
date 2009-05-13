@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: UserAuditQuery.java,v 1.2 2009-05-13 12:15:01 mchyzer Exp $
+ * $Id: UserAuditQuery.java,v 1.3 2009-05-13 13:17:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -315,7 +315,7 @@ public class UserAuditQuery {
     
     //if there are no actions, just get all actions where 
     //TODO, do this later
-    throw new RuntimeException("Not implemented querying by field name: " + fieldName);
+    throw new RuntimeException("Not implemented querying by field name without action or category: " + fieldName);
   }
   
   
