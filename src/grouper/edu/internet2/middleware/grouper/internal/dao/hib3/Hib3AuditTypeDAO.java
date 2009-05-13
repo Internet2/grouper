@@ -11,9 +11,10 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 /**
  * Data Access Object for audit type
  * @author  mchyzer
- * @version $Id: Hib3AuditTypeDAO.java,v 1.2 2009-02-06 16:33:18 mchyzer Exp $
+ * @version $Id: Hib3AuditTypeDAO.java,v 1.3 2009-05-13 12:15:01 mchyzer Exp $
  */
 public class Hib3AuditTypeDAO extends Hib3DAO implements AuditTypeDAO {
+  
   
   /**
    * 
@@ -71,6 +72,15 @@ public class Hib3AuditTypeDAO extends Hib3DAO implements AuditTypeDAO {
    */
   public Set<AuditType> findAll() {
     return HibernateSession.byHqlStatic().createQuery("from AuditType").listSet(AuditType.class);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO#findByCategory(java.lang.String)
+   */
+  public Set<AuditType> findByCategory(String categoryName) {
+    return HibernateSession.byHqlStatic().createQuery("from AuditType where auditCategory = :theAuditCategory")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindByCategory")
+      .setString("theAuditCategory", categoryName).listSet(AuditType.class);
   }
   
 } 
