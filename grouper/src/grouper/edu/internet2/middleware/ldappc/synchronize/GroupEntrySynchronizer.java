@@ -967,6 +967,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
           // Build the new OU
           //
           attributes.put(OrganizationalUnit.Attribute.OU, rdnString);
+          LOG.info("Creating '" + stemDn + "' attrs " + attributes);
           getContext().createSubcontext(stemDn, attributes);
 
           //
