@@ -1,14 +1,20 @@
 /*
  * @author mchyzer
- * $Id: UserAuditQuery.java,v 1.1 2009-04-15 15:56:21 mchyzer Exp $
+ * $Id: UserAuditQuery.java,v 1.2 2009-05-13 12:15:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Restrictions;
@@ -27,6 +33,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class UserAuditQuery {
 
+  /**
+   * query by audit type category
+   */
+  private List<String> auditTypeCategoryList;
+  
+  /**
+   * field value must match all audit types
+   */
+  private Map<String, Object> auditFieldValue;
+  
+  /**
+   * query by audit type action
+   */
+  private Set<AuditType> auditTypeActionList;
+  
   /**
    * query options
    */
@@ -120,9 +141,11 @@ public class UserAuditQuery {
   /**
    * query options
    * @param queryOptions
+   * @return this for chaining
    */
-  public void setQueryOptions(QueryOptions queryOptions) {
+  public UserAuditQuery setQueryOptions(QueryOptions queryOptions) {
     this.queryOptions = queryOptions;
+    return this;
   }
 
   /**
@@ -162,6 +185,32 @@ public class UserAuditQuery {
     if (this.loggedInMember != null) {
       criterionList.add(Restrictions.eq(AuditEntry.FIELD_LOGGED_IN_MEMBER_ID, 
           this.loggedInMember.getUuid()));
+    }
+    
+    //add categories to actions
+    for (String auditTypeCategory : GrouperUtil.nonNull(this.auditTypeCategoryList)) {
+      Collection<AuditType> auditTypes = AuditTypeFinder.findByCategory(auditTypeCategory);
+      for (AuditType auditType : GrouperUtil.nonNull(auditTypes)) {
+        this.addAuditTypeAction(auditType.getAuditCategory(), auditType.getActionName());
+      }
+    }
+
+    if (GrouperUtil.length(this.auditTypeActionList) > 0) {
+      Set<String> auditTypeIds = new LinkedHashSet<String>();
+      for (AuditType auditType : this.auditTypeActionList) {
+        auditTypeIds.add(auditType.getId());
+      }
+      criterionList.add(Restrictions.in(AuditEntry.FIELD_AUDIT_TYPE_ID, auditTypeIds));
+    }
+    
+    if (this.auditFieldValue != null) {
+      
+      for (String fieldName : this.auditFieldValue.keySet()) {
+        Object value = this.auditFieldValue.get(fieldName);
+        //find the field name for this fieldName in all audit types
+        String translatedFieldName = this.translateFieldName(fieldName);
+        criterionList.add(Restrictions.eq(translatedFieldName, value));
+      }
     }
     
     Criterion allCriteria = HibUtils.listCrit(criterionList);
@@ -236,6 +285,105 @@ public class UserAuditQuery {
       }
       
     }
+    
     return report.toString();
+  }
+
+  /**
+   * get the field name based on field name and audit types
+   * @param fieldName
+   * @return the field name
+   */
+  String translateFieldName(String fieldName) {
+    String translatedFieldName = null;
+    if (this.auditTypeActionList != null) {
+      for (AuditType auditType : this.auditTypeActionList ) {
+        String field = auditType.retrieveAuditEntryFieldForLabel(fieldName);
+        if (translatedFieldName != null) {
+          if (!StringUtils.equals(translatedFieldName, field)) {
+            throw new RuntimeException("Ambiguous field: " + fieldName 
+                + ", could be " + translatedFieldName + ", or " + field);
+          }
+        }
+        translatedFieldName = field;
+      }
+      if (translatedFieldName == null) {
+        throw new RuntimeException("Cant find field: " + fieldName);
+      }
+      return translatedFieldName;
+    }
+    
+    //if there are no actions, just get all actions where 
+    //TODO, do this later
+    throw new RuntimeException("Not implemented querying by field name: " + fieldName);
+  }
+  
+  
+  /**
+   * query by audit type category
+   * @param auditTypeCategoryList
+   * @return this for chaining
+   */
+  public UserAuditQuery setAuditTypeCategoryList(List<String> auditTypeCategoryList) {
+    this.auditTypeCategoryList = auditTypeCategoryList;
+    return this;
+  }
+
+  /**
+   * query by audit type action
+   * @param auditTypeActionList
+   * @return this for chaining
+   */
+  public UserAuditQuery setAuditTypeActionList(List<AuditTypeIdentifier> auditTypeActionList) {
+    if (this.auditTypeActionList == null) {
+      this.auditTypeActionList = new LinkedHashSet<AuditType>();
+    }
+    this.auditTypeActionList.clear();
+    for (AuditTypeIdentifier auditTypeIdentifier : GrouperUtil.nonNull(auditTypeActionList)) {
+      this.addAuditTypeAction(auditTypeIdentifier.getAuditCategory(), auditTypeIdentifier.getActionName());
+    }
+    return this;
+  }
+
+  /**
+   * query by audit type category, add a criteria to list
+   * @param auditTypeCategory
+   * @return this for chaining
+   */
+  public UserAuditQuery addAuditTypeCategory(String auditTypeCategory) {
+    if (this.auditTypeCategoryList == null) {
+      this.auditTypeCategoryList = new ArrayList<String>();
+    }
+    this.auditTypeCategoryList.add(auditTypeCategory);
+    return this;
+  }
+
+  /**
+   * query by audit type action, add a criteria to list
+   * @param auditTypeCategory 
+   * @param auditTypeAction
+   * @return this for chaining
+   */
+  public UserAuditQuery addAuditTypeAction(String auditTypeCategory, String auditTypeAction) {
+    if (this.auditTypeActionList == null) {
+      this.auditTypeActionList = new LinkedHashSet<AuditType>();
+    }
+    AuditType auditType = AuditTypeFinder.find(auditTypeCategory, auditTypeAction, false);
+    this.auditTypeActionList.add(auditType);
+    return this;
+  }
+
+  /**
+   * query by audit type action, add a criteria to list
+   * @param auditTypeField 
+   * @param auditTypeValue
+   * @return this for chaining
+   */
+  public UserAuditQuery addAuditTypeFieldValue(String auditTypeField, Object auditTypeValue) {
+    if (this.auditFieldValue == null) {
+      this.auditFieldValue = new LinkedHashMap<String, Object>();
+    }
+    this.auditFieldValue.put(auditTypeField, auditTypeValue);
+    return this;
   }
 }

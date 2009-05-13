@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: UserAuditQueryTest.java,v 1.1 2009-04-15 15:56:21 mchyzer Exp $
+ * $Id: UserAuditQueryTest.java,v 1.2 2009-05-13 12:15:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -23,7 +23,7 @@ public class UserAuditQueryTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new UserAuditQueryTest("testQueries"));
+    TestRunner.run(new UserAuditQueryTest("testMembershipMemberQuery"));
   }
   
   /**
@@ -52,7 +52,24 @@ public class UserAuditQueryTest extends TestCase {
     result = new UserAuditQuery().loggedInMember(member).executeReport();
     System.out.println(result);
     
-    
+  }
+
+  /**
+   * 
+   */
+  public void testMembershipQuery() {
+    String result = new UserAuditQuery().addAuditTypeCategory("membership").executeReport();
+    System.out.println(result);
+
   }
   
+  /**
+   * 
+   */
+  public void testMembershipMemberQuery() {
+    String result = new UserAuditQuery().addAuditTypeCategory("membership")
+      .addAuditTypeFieldValue("memberId", "123").executeReport();
+    System.out.println(result);
+
+  }
 }

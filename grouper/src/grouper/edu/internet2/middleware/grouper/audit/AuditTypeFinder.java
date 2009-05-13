@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTypeFinder.java,v 1.3 2009-02-09 21:36:43 mchyzer Exp $
+ * $Id: AuditTypeFinder.java,v 1.4 2009-05-13 12:15:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -66,6 +66,17 @@ public class AuditTypeFinder {
       throw new RuntimeException(msg);
     }
     return null;
+  }
+
+  /** 
+   * Find an {@link AuditType}.
+   * <p/>
+   * @param   auditCategory  Find {@link AuditType} with this name.
+   * @return  {@link GroupType}
+   */
+  public static Set<AuditType> findByCategory(String auditCategory) {
+    
+    return GrouperDAOFactory.getFactory().getAuditType().findByCategory(auditCategory);
   }
 
   /** 
