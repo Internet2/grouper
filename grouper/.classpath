@@ -50,5 +50,12 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/ant.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-io.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/xstream.jar"/>
+	<classpathentry kind="lib" path="lib/test/ldappc/apacheds-all-1.5.5-SNAPSHOT-app.jar" sourcepath="/Users/tzeller/workspace-apache-ds/apacheds-trunk"/>
+	<classpathentry kind="lib" path="lib/test/ldappc/apacheds-core-integ-1.5.5-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/test/ldappc/apacheds-server-integ-1.5.5-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/test/ldappc/apacheds-server-unit-1.5.5-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/test/ldappc/shared-converter-0.9.15-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/test/ldappc/slf4j-api-1.5.2.jar"/>
+	<classpathentry kind="lib" path="lib/test/ldappc/slf4j-log4j12-1.5.2.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
