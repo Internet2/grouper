@@ -126,7 +126,7 @@ public class InputOptions implements GrouperProvisionerOptions {
    * @param subjectId
    *          The subjectId.
    */
-  private void setSubjectId(String subjectId) {
+  protected void setSubjectId(String subjectId) {
     this.subjectId = subjectId;
   }
 
@@ -145,7 +145,7 @@ public class InputOptions implements GrouperProvisionerOptions {
    * @param doGroups
    *          The doGroups.
    */
-  private void setDoGroups(boolean doGroups) {
+  protected void setDoGroups(boolean doGroups) {
     this.doGroups = doGroups;
   }
 
@@ -164,7 +164,7 @@ public class InputOptions implements GrouperProvisionerOptions {
    * @param doMemberships
    *          The doMemberships.
    */
-  private void setDoMemberships(boolean doMemberships) {
+  protected void setDoMemberships(boolean doMemberships) {
     this.doMemberships = doMemberships;
   }
 

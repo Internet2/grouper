@@ -24,14 +24,13 @@
       </group-members-name-list>
 
       <group-attribute-mapping ldap-object-class="groupOfNames">
-    	<group-attribute-map group-attribute="description" ldap-attribute="description" ldap-attribute-empty-value="" />
-        <group-attribute-map group-attribute="description" ldap-attribute="seeAlso" />
+      	<group-attribute-map group-attribute="description" ldap-attribute="description" />
       </group-attribute-mapping>
     
     </groups>
     
     <memberships>
-    	<member-groups-list list-object-class="eduMember" list-attribute="isMemberOf" naming-attribute="name" />
+    	<member-groups-list list-object-class="eduMember" list-attribute="isMemberOf" naming-attribute="name" temporary-directory="tmp" />
     </memberships>
     
   </grouper>
@@ -49,10 +48,10 @@
     <context>
       <parameter-list>
         <parameter name="initial_context_factory" value="com.sun.jndi.ldap.LdapCtxFactory" />
-        <parameter name="provider_url" value="ldap://localhost:389" />
-        <parameter name="security_authentication" value="simple" />
-        <parameter name="security_principal" value="uid=admin,ou=system" />
-        <parameter name="security_credentials" value="secret" />
+        <parameter name="provider_url" value="" />
+        <parameter name="security_authentication" value="" />
+        <parameter name="security_principal" value="" />
+        <parameter name="security_credentials" value="" />
       </parameter-list>
     </context>
   </ldap>
