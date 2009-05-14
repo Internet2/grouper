@@ -1,1 +1,1 @@
-confForTest is higher in the eclipse classpath than conf.  Use this directory for config files for your tests that you run from ecilpse.
+confForTest is higher in the eclipse classpath than conf.  Use this directory for config files for your tests that you run from eclipse.
