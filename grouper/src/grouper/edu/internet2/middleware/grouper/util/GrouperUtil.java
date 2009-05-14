@@ -809,7 +809,7 @@ public class GrouperUtil {
    * @param url to check for
    * @param user user for db
    */
-  private static void promptUserAboutChanges(String reason, boolean checkResponse, String dbType, String url, String user) {
+  public static void promptUserAboutChanges(String reason, boolean checkResponse, String dbType, String url, String user) {
     
     MultiKey cacheKey = stopPromptingUser ? new MultiKey(url, user) : new MultiKey(reason, url, user);
     
