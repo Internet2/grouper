@@ -16,7 +16,6 @@
 package edu.internet2.middleware.ldappc;
 
 import java.io.File;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -66,11 +65,10 @@ import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
-import edu.internet2.middleware.ldappc.util.SubjectCache;
 
 public class BaseLdappcTestCase extends GrouperTest {
 
-  private static final Log LOG = GrouperUtil.getLog(CreateGroupTest.class);
+  private static final Log LOG = GrouperUtil.getLog(CRUDTest.class);
 
   public static final String LDAPPC_BUSHY_XML = "edu/internet2/middleware/ldappc/ldappc.test.bushy.xml";
 
@@ -94,6 +92,8 @@ public class BaseLdappcTestCase extends GrouperTest {
 
   protected ConfigManager configuration;
 
+  protected String className = getClass().getSimpleName();
+
   public void setUp() {
     super.setUp();
     grouperSession = SessionHelper.getRootSession();
@@ -110,7 +110,7 @@ public class BaseLdappcTestCase extends GrouperTest {
    */
   public void setUpLdappc(String file) throws Exception {
 
-    configuration = ConfigManager.load(GrouperUtil.fileFromResourceName(file)
+    configuration = new ConfigManager(GrouperUtil.fileFromResourceName(file)
         .getAbsolutePath());
 
     if (useEmbedded()) {
@@ -184,7 +184,7 @@ public class BaseLdappcTestCase extends GrouperTest {
     ldapContext = new InitialLdapContext(env, null);
 
     // load eduMember schema
-    ldifLoad(GrouperUtil.fileFromResourceName(EDUMEMBER_SCHEMA));
+    loadLdif(GrouperUtil.fileFromResourceName(EDUMEMBER_SCHEMA));
   }
 
   public void tearDown() {
@@ -245,69 +245,31 @@ public class BaseLdappcTestCase extends GrouperTest {
     return tree;
   }
 
-  public GrouperProvisioner getGrouperProvisioner() throws Exception {
+  public Provisioner getGrouperProvisioner() throws Exception {
     return getGrouperProvisioner(true, true);
   }
 
-  public GrouperProvisioner getGrouperProvisioner(boolean doGroups, boolean doMemberships)
+  public Provisioner getGrouperProvisioner(boolean doGroups, boolean doMemberships)
       throws Exception {
 
-    InputOptions options = new InputOptions();
+    ProvisionerOptions options = new ProvisionerOptions();
     options.setDoGroups(doGroups);
     options.setDoMemberships(doMemberships);
     options.setIsTest(true);
     options.setSubjectId("GrouperSystem");
 
-    return new GrouperProvisioner(configuration, options, ldapContext, new SubjectCache());
+    return new Provisioner(configuration, options, ldapContext);
   }
 
-  /**
-   * Return the name of the running method.
-   * 
-   * @param e
-   * @return
-   */
-  public String getRunningMethodName(StackTraceElement e[]) {
-    boolean doNext = false;
-    for (StackTraceElement s : e) {
-      if (doNext) {
-        return s.getMethodName();
-      }
-      doNext = s.getMethodName().equals("getStackTrace");
+  public void loadLdif(String file) throws Exception {
+    if (file.endsWith(".ldif")) {
+      loadLdif(new File(getClass().getResource(file).toURI()));
+    } else {
+      fail("file does not end in .ldif");
     }
-    return null;
   }
 
-  /**
-   * Return a File with a name of the form class.test.after.ldif
-   * 
-   * @param e
-   * @return
-   * @throws URISyntaxException
-   */
-  public File ldifAfterFile(StackTraceElement e[]) throws URISyntaxException {
-
-    String file = getClass().getSimpleName() + "." + getRunningMethodName(e)
-        + ".after.ldif";
-
-    return new File(getClass().getResource(file).toURI());
-  }
-
-  /**
-   * Return a File with a name of the form class.test.before.ldif
-   * 
-   * @param e
-   * @return
-   * @throws URISyntaxException
-   */
-  public File ldifBeforeFile(StackTraceElement e[]) throws URISyntaxException {
-    String file = getClass().getSimpleName() + "." + getRunningMethodName(e)
-        + ".before.ldif";
-
-    return new File(getClass().getResource(file).toURI());
-  }
-
-  public void ldifLoad(File file) throws Exception {
+  public void loadLdif(File file) throws Exception {
 
     LdifReader ldifReader = new LdifReader(file);
     for (LdifEntry entry : ldifReader) {
@@ -351,11 +313,14 @@ public class BaseLdappcTestCase extends GrouperTest {
     return ResourceBundleUtil.getString("testUseEmbeddedLdap").equalsIgnoreCase("true");
   }
 
-  public void verify(File file) throws Exception {
+  public void verify(String file) throws Exception {
+
+    File ldifFile = new File(getClass().getResource(file).toURI());
 
     LdifReader reader = new LdifReader();
 
-    Map<LdapDN, Entry> correctMap = buildMap(reader.parseLdifFile(file.getAbsolutePath()));
+    Map<LdapDN, Entry> correctMap = buildMap(reader.parseLdifFile(ldifFile
+        .getAbsolutePath()));
 
     Map<LdapDN, Entry> currentMap = buildMap(reader.parseLdif(getCurrentLdif()));
 
