@@ -50,8 +50,8 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/ant.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-io.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/xstream.jar"/>
-	<classpathentry kind="lib" path="lib/test/ldappc/apacheds-all-1.5.5-SNAPSHOT-app.jar" sourcepath="/Users/tzeller/workspace-apache-ds/apacheds-trunk"/>
-	<classpathentry kind="lib" path="lib/test/ldappc/slf4j-api-1.5.2.jar"/>
-	<classpathentry kind="lib" path="lib/test/ldappc/slf4j-log4j12-1.5.2.jar"/>
+	<classpathentry kind="lib" path="lib/test/ldappc/apacheds-all-1.5.5-SNAPSHOT-app.jar" sourcepath="/Users/tzeller/Downloads/slf4j-1.5.2"/>
+	<classpathentry kind="lib" path="lib/ldappc/slf4j-api-1.5.2.jar"/>
+	<classpathentry kind="lib" path="lib/ldappc/slf4j-log4j12-1.5.2.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>

@@ -77,6 +77,8 @@ import org.dom4j.io.SAXReader;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import sun.misc.BASE64Encoder;
 
@@ -277,6 +279,11 @@ public class GrouperUtil {
   public static Log getLog(Class<?> theClass) {
     logDirsCreateIfNotDone();
     return LogFactory.getLog(theClass);
+  }
+  
+  public static Logger getLogger(Class<?> theClass) {
+    logDirsCreateIfNotDone();
+    return LoggerFactory.getLogger(theClass);
   }
   
   /**

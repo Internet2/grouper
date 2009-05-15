@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.23 2009-05-14 11:12:57 tzeller Exp $
+ * $Id: GrouperCheckConfig.java,v 1.24 2009-05-15 18:29:00 tzeller Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -1033,7 +1033,7 @@ public class GrouperCheckConfig {
     checkJar("cglib.jar", 454154, "net.sf.cglib.beans.BeanCopier", "2.1.3");
     checkJar("commons-beanutils.jar", 173783, "org.apache.commons.beanutils.BasicDynaBean", "0.1.0");
     checkJar("commons-betwixt.jar", 242227, "org.apache.commons.betwixt.expression.MethodExpression", "0.8");
-    checkJar("commons-cli.jar", 36174, "org.apache.commons.cli.AlreadySelectedException", "1.1");
+    checkJar("commons-cli.jar", 41123, "org.apache.commons.cli.AlreadySelectedException", "1.2");
     checkJar("commons-collections.jar", 570463, "org.apache.commons.collections.ArrayStack", "0.1.0");
     checkJar("commons-digester.jar", 136649, "org.apache.commons.digester.AbstractObjectCreationFactory", "0.1.0");
     checkJar("commons-discovery.jar", 76685, "org.apache.commons.discovery.ant.ServiceDiscoveryTask", "0.4");
