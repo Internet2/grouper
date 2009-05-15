@@ -28,7 +28,7 @@ import javax.naming.directory.SearchControls;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.ldappc.ConfigManager;
-import edu.internet2.middleware.ldappc.LdappcConfigurationException;
+import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 
 /**
@@ -103,7 +103,7 @@ public class ConfigManagerTest extends TestCase {
       //
       // Get the configuration manager and validate all of the entries
       //
-      ConfigManager cm = ConfigManager.load(ConfigManager.getSystemResourceURL(
+      ConfigManager cm = new ConfigManager(ConfigManager.getSystemResourceURL(
           VALID_ALL_CONFIG_FILE_RESOURCE, true).toString());
       // ConfigManager cm =
       // ConfigManager.load(ConfigManager.getSystemResourceURL(VALID_ALL_CONFIG_FILE_RESOURCE,
@@ -255,7 +255,7 @@ public class ConfigManagerTest extends TestCase {
       //
       // Get the configuration manager and validate all of the entries
       //
-      ConfigManager cm = ConfigManager.load(ConfigManager.getSystemResourceURL(
+      ConfigManager cm = new ConfigManager(ConfigManager.getSystemResourceURL(
           VALID_NO_OPTIONAL_ATTRIBUTES_CONFIG_FILE_RESOURCE, true).toString());
       // ConfigManager cm =
       // ConfigManager.load(VALID_NO_OPTIONAL_ATTRIBUTES_CONFIG_FILE_RESOURCE);
@@ -388,8 +388,8 @@ public class ConfigManagerTest extends TestCase {
     try {
       //
       // Get the configuration manager and validate all of the entries
-      //
-      ConfigManager cm = ConfigManager.load(ConfigManager.getSystemResourceURL(
+      //      
+      ConfigManager cm = new ConfigManager(ConfigManager.getSystemResourceURL(
           VALID_GROUPER_GROUP_MINIMAL_CONFIG_FILE_RESOURCE, true).toString());
       // ConfigManager cm =
       // ConfigManager.load(VALID_GROUPER_GROUP_MINIMAL_CONFIG_FILE_RESOURCE);
@@ -477,7 +477,7 @@ public class ConfigManagerTest extends TestCase {
       //
       // Get the configuration manager and validate all of the entries
       //
-      ConfigManager cm = ConfigManager.load(ConfigManager.getSystemResourceURL(
+      ConfigManager cm = new ConfigManager(ConfigManager.getSystemResourceURL(
           VALID_GROUPER_MEMBERSHIP_MINIMAL_CONFIG_FILE_RESOURCE, true).toString());
       // ConfigManager cm =
       // ConfigManager.load(VALID_GROUPER_MEMBERSHIP_MINIMAL_CONFIG_FILE_RESOURCE);
@@ -559,12 +559,12 @@ public class ConfigManagerTest extends TestCase {
       //
       // Get the configuration manager and validate all of the entries
       //
-      ConfigManager.load(ConfigManager.getSystemResourceURL(
+      new ConfigManager(ConfigManager.getSystemResourceURL(
           INVALID_NO_LDAPPC_ELEMENT_CONFIG_FILE_RESOURCE, true).toString());
       // ConfigManager cm =
       // ConfigManager.load(INVALID_NO_LDAPPC_ELEMENT_CONFIG_FILE_RESOURCE);
       fail("Test failed : File without ldappc element parsed without error.");
-    } catch (LdappcConfigurationException lce) {
+    } catch (ConfigurationException lce) {
       assertTrue(lce.getCause() == null);
     } catch (Exception e) {
       fail("Test failed : Unexpected exception " + e.getClass().getName() + " :: "

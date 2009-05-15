@@ -35,20 +35,22 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.digester.CallMethodRule;
 import org.apache.commons.digester.Digester;
+import org.slf4j.Logger;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.ldappc.logging.DebugLog;
-import edu.internet2.middleware.ldappc.logging.ErrorLog;
+import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
 
 /**
  * Class for accessing values from the Auth2Ldap configuration file.
  */
-public class ConfigManager implements GrouperProvisionerConfiguration {
+public class ConfigManager implements ProvisionerConfiguration {
+
+  private static final Logger LOG = GrouperUtil.getLogger(ConfigManager.class);
 
   /**
    * Default configuration file resource name.
@@ -81,11 +83,6 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
   private static final String GET_FROM_PROPERTIES_FILE = "GetFromPropertiesFile";
 
   /**
-   * Singleton instance of ConfigManager.
-   */
-  private static ConfigManager instance;
-
-  /**
    * List of SAXParseException objects created while parsing the configuration. file
    */
   private Vector saxParseErrors = new Vector();
@@ -107,10 +104,8 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
 
   /**
    * Group DN Structure. Must have value of
-   * {@link edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration#GROUP_DN_FLAT}
-   * or
-   * {@link edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration#GROUP_DN_BUSHY}
-   * .
+   * {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUP_DN_FLAT} or
+   * {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUP_DN_BUSHY} .
    */
   private String groupDnStructure;
 
@@ -131,9 +126,9 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
 
   /**
    * Grouper attribute whose value is the Group DN RDN value. Must have a value of
-   * {@link edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration#GROUPER_ID_ATTRIBUTE}
+   * {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUPER_ID_ATTRIBUTE}
    * or
-   * {@link edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration#GROUPER_NAME_ATTRIBUTE}
+   * {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUPER_NAME_ATTRIBUTE}
    * .
    */
   private String groupDnGrouperAttribute;
@@ -311,6 +306,11 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
    */
   private boolean createGroupsThenModifyMembers = false;
 
+  public ConfigManager() throws ConfigurationException {
+
+    this(CONFIG_FILE_RESOURCE);
+  }
+
   /**
    * Constructs an instance of ConfigManager using the configuration file identified by
    * the uri.
@@ -319,82 +319,19 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
    * 
    * @param uri
    *          URI containing the configuration file XML.
-   * @throws LdappcConfigurationException
+   * @throws ConfigurationException
    *           thrown if an error occurs loading the instance from the given uri.
    * 
    */
-  private ConfigManager(String uri) throws LdappcConfigurationException {
+  public ConfigManager(String uri) throws ConfigurationException {
     //
     // Initialize the ConfigManager instance
     //
+    if (uri == null) {
+      uri = CONFIG_FILE_RESOURCE;
+    }
+
     init(uri);
-  }
-
-  /**
-   * Clean the singleton, allowing for re-use with a different configuration file during
-   * testing.
-   */
-  public static void cleanConfiguration() {
-    instance = null;
-  }
-
-  /**
-   * Returns the singleton instance of ConfigManager. The singleton is loaded by default
-   * with the configuration from the resource identified by {@link #CONFIG_FILE_RESOURCE},
-   * unless it was loaded prior calling {@link #load(String)}.
-   * 
-   * @return Singleton instance of ConfigManager.
-   * 
-   * @throws LdappcConfigurationException
-   *           thrown if an error occurs initializing the singleton
-   * 
-   * @see #load(String)
-   */
-  public static ConfigManager getInstance() throws LdappcConfigurationException {
-    if (instance == null) {
-      loadSingleton(getSystemResourceURL(CONFIG_FILE_RESOURCE, true).toString());
-    }
-    return instance;
-  }
-
-  /**
-   * This loads the <code>ConfigManager</code> singleton from the configuration file
-   * identified by <code>uri</code>. If the singleton has already been loaded, this method
-   * does nothing.
-   * 
-   * @param uri
-   *          URI containing the configuration file XML.
-   * 
-   * @return <code>true</code> if the singleton is loaded, and <code>false</code>
-   *         otherwise.
-   * 
-   * @throws LdappcConfigurationException
-   *           thrown if an error occurs loading the singleton from the uri.
-   */
-  public static boolean loadSingleton(String uri) throws LdappcConfigurationException {
-    boolean loadUri = (instance == null);
-    if (loadUri) {
-      instance = new ConfigManager(uri);
-    }
-    return loadUri;
-  }
-
-  /**
-   * This loads a <code>ConfigManager</code> instance from the configuration file
-   * identified by <code>uri</code>. Note, this <code>ConfigManager</code> instance is
-   * independent from the singleton.
-   * 
-   * @param uri
-   *          URI containing the configuration file XML.
-   * 
-   * @return <code>ConfigManager</code> instance.
-   * 
-   * @throws LdappcConfigurationException
-   *           thrown if an error occurs loading the singleton from the given uri.
-   * 
-   */
-  public static ConfigManager load(String uri) throws LdappcConfigurationException {
-    return new ConfigManager(uri);
   }
 
   /**
@@ -403,10 +340,10 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
    * 
    * @param uri
    *          URI containing the configuration file XML.
-   * @throws LdappcConfigurationException
+   * @throws ConfigurationException
    *           thrown if an error occurs parsing the configuration file.
    */
-  private void init(String uri) throws LdappcConfigurationException {
+  private void init(String uri) throws ConfigurationException {
     //
     // Build a Digester for processing the config file
     //
@@ -597,14 +534,14 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
       // 
       // Fatal if file can't be parsed
       //
-      ErrorLog.fatal(ConfigManager.class, se.getMessage());
-      throw new LdappcConfigurationException(se);
+      LOG.error("An error occurred", se);
+      throw new ConfigurationException(se);
     } catch (IOException ioe) {
       // 
       // Fatal if a file can't be read
       //
-      ErrorLog.fatal(ConfigManager.class, ioe.getMessage());
-      throw new LdappcConfigurationException(ioe);
+      LOG.error("An error occurred", ioe);
+      throw new ConfigurationException(ioe);
     }
 
     //
@@ -614,7 +551,7 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
     // file.
     //
     if (!isRootElementFound()) {
-      throw new LdappcConfigurationException(
+      throw new ConfigurationException(
           "The ldappc element was not found in the configuration file.");
     }
   }
@@ -643,15 +580,14 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
    * This method throws a {@link Auth2LdapConfigurationException} if any SAX errors
    * occured while parsing the configuration file.
    * 
-   * @throws LdappcConfigurationException
+   * @throws ConfigurationException
    *           thrown if validation fails.
    */
-  private void validateSaxParsing() throws LdappcConfigurationException {
+  private void validateSaxParsing() throws ConfigurationException {
     if (saxParseErrors.size() == 1) {
-      throw new LdappcConfigurationException((SAXParseException) saxParseErrors
-          .elementAt(0));
+      throw new ConfigurationException((SAXParseException) saxParseErrors.elementAt(0));
     } else if (saxParseErrors.size() > 1) {
-      throw new LdappcConfigurationException(
+      throw new ConfigurationException(
           "Multiple SAXParseExceptions generated while parsing the configuration file.  See error log for details.");
     }
   }
@@ -661,19 +597,19 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
    * be defined in the schema. Note although there maybe some overlap between this and the
    * schema, this method is not intended to replace the schema validation.
    * 
-   * @throws LdappcConfigurationException
+   * @throws ConfigurationException
    *           thrown if validation fails.
    */
-  private void validateValues() throws LdappcConfigurationException {
+  private void validateValues() throws ConfigurationException {
     //
     // Validate the grouper-attribute attribute is defined when the
     // groups Dn structure is "flat"
     //
-    if (GrouperProvisionerConfiguration.GROUP_DN_FLAT.equals(getGroupDnStructure())) {
+    if (ProvisionerConfiguration.GROUP_DN_FLAT.equals(getGroupDnStructure())) {
       if (getGroupDnGrouperAttribute() == null) {
-        throw new LdappcConfigurationException(
+        throw new ConfigurationException(
             "The grouper-attribute must be defined when the group dn structure is "
-                + GrouperProvisionerConfiguration.GROUP_DN_FLAT);
+                + ProvisionerConfiguration.GROUP_DN_FLAT);
       }
     }
   }
@@ -683,7 +619,7 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
    * {@link java.lang.ClassLoader#getSystemResource(java.lang.String)} for
    * <code>resource</code>. If the resource is not found (i.e., URL is null) and
    * <code>isRequired</code> is true, this throws a
-   * {@link edu.internet2.middleware.ldappc.LdappcConfigurationException}.
+   * {@link edu.internet2.middleware.ldappc.exception.ConfigurationException}.
    * 
    * @param resource
    *          The resource name
@@ -691,11 +627,11 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
    *          Boolean indicating if the resource is required
    * 
    * @return {@link java.net.URL} for the resource, possibly a <code>null</code> value.
-   * @throws LdappcConfigurationException
+   * @throws ConfigurationException
    *           thrown as defined above.
    */
   public static URL getSystemResourceURL(String resource, boolean isRequired)
-      throws LdappcConfigurationException {
+      throws ConfigurationException {
     // 20090116 tz doesn't work, strange
     // URL url = ClassLoader.getSystemResource(resource);
     URL url = GrouperUtil.computeUrl(resource, false);
@@ -703,8 +639,8 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
       //
       // Fatal error; Throw Auth2LdapRuntimeException
       //
-      throw new LdappcConfigurationException(
-          "Unable to locate required system resource: " + resource);
+      throw new ConfigurationException("Unable to locate required system resource: "
+          + resource);
     }
     return url;
   }
@@ -755,8 +691,7 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
       // that would validate the configuration file using the schema.
       // Nothing to do but log the exception and continue on.
       //
-      ErrorLog.warn(ConfigManager.class, "Schema validation not supported: "
-          + se.getClass().getName() + " : " + se.getMessage());
+      LOG.error("Schema validation not supported", se);
     }
 
     //
@@ -814,8 +749,7 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
       //
       // Add a debug log entry and do nothing else
       //
-      DebugLog.info(ConfigManager.class, name
-          + " is not a valid javax.naming.ldap.LdapContext constant.");
+      LOG.debug("{} is not a valid javax.naming.ldap.LdapContext constant.", name);
     }
 
     //
@@ -916,9 +850,9 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
    * This returns the defined Group DN structure.
    * 
    * @return Group DN structure, either
-   *         {@link edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration#GROUP_DN_FLAT}
+   *         {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUP_DN_FLAT}
    *         or
-   *         {@link edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration#GROUP_DN_BUSHY}
+   *         {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUP_DN_BUSHY}
    */
   public String getGroupDnStructure() {
     return groupDnStructure;
@@ -929,9 +863,9 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
    * 
    * @param structure
    *          Either
-   *          {@link edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration#GROUP_DN_FLAT}
+   *          {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUP_DN_FLAT}
    *          or
-   *          {@link edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration#GROUP_DN_BUSHY}
+   *          {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUP_DN_BUSHY}
    */
   private void setGroupDnStructure(String structure) {
     this.groupDnStructure = structure;
@@ -958,8 +892,8 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
 
   /**
    * Returns the name of the object class for the Group entry when
-   * {@link #getGroupDnStructure()} returns
-   * {@link GrouperProvisionerConfiguration#GROUP_DN_FLAT}.
+   * {@link #getGroupDnStructure()} returns {@link ProvisionerConfiguration#GROUP_DN_FLAT}
+   * .
    * 
    * @return Name of the object class for a Group
    */
@@ -1010,9 +944,9 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
    * 
    * @param attribute
    *          Either
-   *          {@link edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration#GROUPER_ID_ATTRIBUTE}
+   *          {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUPER_ID_ATTRIBUTE}
    *          or
-   *          {@link edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration#GROUPER_NAME_ATTRIBUTE}
+   *          {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUPER_NAME_ATTRIBUTE}
    */
   private void setGroupDnGrouperAttribute(String attribute) {
     this.groupDnGrouperAttribute = attribute;
@@ -1239,11 +1173,11 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
    * @param filter
    *          Subject LDAP filter
    * 
-   * @throws LdappcConfigurationException
+   * @throws ConfigurationException
    *           thrown if an invalid scope value is encountered.
    */
   private void addSourceSubjectLdapFilter(String source, String base, String scope,
-      String filter) throws LdappcConfigurationException {
+      String filter) throws ConfigurationException {
     //
     // If scope matches (ignoring case) the name of a
     // javax.naming.directory.SearchControls constant,
@@ -1257,7 +1191,7 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
       //
       // This should never happen
       //
-      throw new LdappcConfigurationException(t);
+      throw new ConfigurationException(t);
     }
 
     //
@@ -1870,22 +1804,22 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
     /**
      * Calls {@link ConfigManager#validateSaxParsing()}.
      * 
-     * @throws LdappcConfigurationException
+     * @throws ConfigurationException
      *           thrown if any non-fatal SAXParsingExceptions were encountered while
      *           parsing the configuration file.
      */
-    public void validateSaxParsing() throws LdappcConfigurationException {
+    public void validateSaxParsing() throws ConfigurationException {
       ConfigManager.this.validateSaxParsing();
     }
 
     /**
      * Calls {@link ConfigManager#validateValues()}.
      * 
-     * @throws LdappcConfigurationException
+     * @throws ConfigurationException
      *           thrown if any non-fatal SAXParsingExceptions were encountered while
      *           parsing the configuration file.
      */
-    public void validateValues() throws LdappcConfigurationException {
+    public void validateValues() throws ConfigurationException {
       ConfigManager.this.validateValues();
     }
 
@@ -2070,7 +2004,7 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
      * @param filter
      *          the filter string
      * 
-     * @throws LdappcConfigurationException
+     * @throws ConfigurationException
      *           thrown when the configuration file is incorrect.
      * 
      *           Calls
@@ -2078,7 +2012,7 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
      *           .
      */
     public void addSourceSubjectLdapFilter(String source, String base, String scope,
-        String filter) throws LdappcConfigurationException {
+        String filter) throws ConfigurationException {
       ConfigManager.this.addSourceSubjectLdapFilter(source, base, scope, filter);
     }
 
@@ -2384,7 +2318,7 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
      *           Any SAX exception, possibly wrapping another exception.
      */
     public void warning(SAXParseException e) throws SAXException {
-      ErrorLog.warn(ConfigManager.class, formatMsg(e));
+      LOG.error(formatMsg(e));
     }
 
     /**
@@ -2397,7 +2331,7 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
      *           Any SAX exception, possibly wrapping another exception.
      */
     public void error(SAXParseException e) throws SAXException {
-      ErrorLog.error(ConfigManager.class, formatMsg(e));
+      LOG.error(formatMsg(e));
       ConfigManager.this.addSaxParseError(e);
     }
 
@@ -2409,14 +2343,14 @@ public class ConfigManager implements GrouperProvisionerConfiguration {
      * 
      * @throws SAXException
      *           if fatal SAX parse exception is encountered.
-     * @throws LdappcConfigurationException
+     * @throws ConfigurationException
      *           if configuration file is incorrect.
      */
     public void fatalError(SAXParseException e) throws SAXException,
-        LdappcConfigurationException {
-      ErrorLog.fatal(ConfigManager.class, formatMsg(e));
+        ConfigurationException {
+      LOG.error(formatMsg(e));
       ConfigManager.this.addSaxParseError(e);
-      throw new LdappcConfigurationException(e);
+      throw new ConfigurationException(e);
     }
 
     /**

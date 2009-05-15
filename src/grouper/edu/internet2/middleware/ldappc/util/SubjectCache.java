@@ -11,10 +11,11 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.4 2009-04-29 14:52:05 tzeller Exp $
+ * $Id: SubjectCache.java,v 1.5 2009-05-15 18:33:29 tzeller Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -25,15 +26,12 @@ import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
-import javax.naming.ldap.LdapContext;
 
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.ldappc.EntryNotFoundException;
-import edu.internet2.middleware.ldappc.MultipleEntriesFoundException;
-import edu.internet2.middleware.ldappc.ProvisionerConfiguration;
-import edu.internet2.middleware.ldappc.synchronize.GroupEntrySynchronizer;
+import edu.internet2.middleware.ldappc.Provisioner;
+import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
@@ -42,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class SubjectCache {
 
-  private static final Log LOG = GrouperUtil.getLog(SubjectCache.class);
+  private static final Logger LOG = GrouperUtil.getLogger(SubjectCache.class);
 
   /**
    * Hash table default estimate.
@@ -64,6 +62,33 @@ public class SubjectCache {
    */
   private int subjectIdTableHits;
 
+  private Provisioner provisioner;
+
+  public SubjectCache(Provisioner provisioner) {
+
+    this.provisioner = provisioner;
+
+    //
+    // Initialize the hash tables mapping between RDN and subject ID.
+    // Use the estimate in the config file if present
+    //
+    Map<String, Integer> estimates = provisioner.getConfiguration()
+        .getSourceSubjectHashEstimates();
+    for (String source : provisioner.getConfiguration().getSourceSubjectLdapFilters()
+        .keySet()) {
+      int estimate = DEFAULT_HASH_ESTIMATE;
+      if (estimates.get(source) != null) {
+        estimate = estimates.get(source);
+      }
+
+      if (subjectIdToDnTables.get(source) == null) {
+        subjectIdToDnTables.put(source, new Hashtable<String, Name>(estimate));
+      } else {
+        subjectIdToDnTables.get(source).clear();
+      }
+    }
+  }
+
   /**
    * Return the count of subject ID lookups.
    * 
@@ -80,32 +105,6 @@ public class SubjectCache {
    */
   public int getSubjectIdTableHits() {
     return subjectIdTableHits;
-  }
-
-  /**
-   * Initialize the subject cache data structures.
-   * 
-   * @param configuration
-   *          Configuration data from file.
-   */
-  public void init(ProvisionerConfiguration configuration) {
-    //
-    // Initialize the hash tables mapping between RDN and subject ID.
-    // Use the estimate in the config file if present
-    //
-    Map<String, Integer> estimates = configuration.getSourceSubjectHashEstimates();
-    for (String source : configuration.getSourceSubjectLdapFilters().keySet()) {
-      int estimate = DEFAULT_HASH_ESTIMATE;
-      if (estimates.get(source) != null) {
-        estimate = estimates.get(source);
-      }
-
-      if (subjectIdToDnTables.get(source) == null) {
-        subjectIdToDnTables.put(source, new Hashtable<String, Name>(estimate));
-      } else {
-        subjectIdToDnTables.get(source).clear();
-      }
-    }
   }
 
   /**
@@ -157,40 +156,44 @@ public class SubjectCache {
    * @throws MultipleEntriesFoundException
    *           thrown if the search found more than one entry
    */
-  public Name findSubjectDn(LdapContext ctx, ProvisionerConfiguration configuration,
-      Subject subject) throws NamingException, MultipleEntriesFoundException,
-      EntryNotFoundException {
+  public Name findSubjectDn(Subject subject) throws NamingException, LdappcException {
     //
     // Get the subject's source and source id
     //
     Source source = subject.getSource();
     if (source == null) {
-      throw new EntryNotFoundException("Subject [ " + getSubjectData(subject)
+      throw new LdappcException("Subject [ " + getSubjectData(subject)
           + " ] has a null source");
     }
 
     String sourceId = source.getId();
 
+    if (sourceId.equals("g:gsa")) {
+      LOG.debug("g:gsa shortcut");
+
+    }
+
     //
     // Get the source name attribute
     //
-    String sourceNameAttr = configuration.getSourceSubjectNamingAttribute(sourceId);
+    String sourceNameAttr = provisioner.getConfiguration()
+        .getSourceSubjectNamingAttribute(sourceId);
     if (sourceNameAttr == null) {
-      throw new EntryNotFoundException("Subject [ " + getSubjectData(subject)
-          + " ] source [ " + sourceId
-          + " ] does not identify a source subject naming attribute");
+      throw new LdappcException("Subject [ " + getSubjectData(subject) + " ] source [ "
+          + sourceId + " ] does not identify a source subject naming attribute");
     }
 
     //
     // Get the subject's name attribute value
     //
-    String sourceName = subject.getAttributeValue(sourceNameAttr);
-    if (sourceName == null) {
-      throw new EntryNotFoundException("Subject [ " + getSubjectData(subject, true)
+    LOG.debug("get attribute {} for subject {}", sourceNameAttr, subject);
+    String subjectIdentifier = subject.getAttributeValue(sourceNameAttr);
+    if (subjectIdentifier == null) {
+      throw new LdappcException("Subject [ " + getSubjectData(subject, true)
           + " ] has no value for attribute [ " + sourceNameAttr + " ]");
     }
 
-    return findSubjectDn(ctx, configuration, sourceId, sourceName);
+    return findSubjectDn(sourceId, subjectIdentifier);
   }
 
   /**
@@ -215,9 +218,8 @@ public class SubjectCache {
    * @throws MultipleEntriesFoundException
    *           thrown if the search found more than one entry
    */
-  public Name findSubjectDn(LdapContext ldapCtx, ProvisionerConfiguration configuration,
-      String sourceId, String subjectIdentifier) throws NamingException,
-      MultipleEntriesFoundException, EntryNotFoundException {
+  public Name findSubjectDn(String sourceId, String subjectIdentifier)
+      throws NamingException, LdappcException {
     //
     // Initialize error message suffix
     //
@@ -227,10 +229,10 @@ public class SubjectCache {
     //
     // Get the LDAP search filter for the source
     //
-    LdapSearchFilter filter = configuration.getSourceSubjectLdapFilter(sourceId);
+    LdapSearchFilter filter = provisioner.getConfiguration().getSourceSubjectLdapFilter(
+        sourceId);
     if (filter == null) {
-      throw new EntryNotFoundException("Ldap search filter not found using "
-          + errorSuffix);
+      throw new LdappcException("Ldap search filter not found using " + errorSuffix);
     }
 
     //
@@ -241,7 +243,7 @@ public class SubjectCache {
     //
     // Build all of pieces needed to search
     //
-    NameParser parser = ldapCtx.getNameParser(LdapUtil.EMPTY_NAME);
+    NameParser parser = provisioner.getContext().getNameParser(LdapUtil.EMPTY_NAME);
     Name baseName = parser.parse(filter.getBase());
 
     subjectIdLookups++;
@@ -260,6 +262,11 @@ public class SubjectCache {
 
     Object[] filterArgs = new Object[] { subjectIdentifier };
 
+    //
+    // Update the error suffix
+    //
+    errorSuffix += "[ filterArgs = " + Arrays.asList(filterArgs) + " ]";
+
     SearchControls searchControls = new SearchControls();
     searchControls.setSearchScope(filter.getScope());
     searchControls.setReturningAttributes(new String[] {});
@@ -273,17 +280,18 @@ public class SubjectCache {
     //
     // Perform the search
     //
-
-    // LOG.debug("search base '" + baseName +"' filter '" + filterExpr + "' subjectId '" +
-    // subjectIdentifier + "'");
-    NamingEnumeration namingEnum = ldapCtx.search(baseName, filterExpr, filterArgs,
-        searchControls);
+    LOG
+        .debug("search base '{}' filter '{}' filterArgs '{}' subjectId '{}'",
+            new Object[] { baseName, filterExpr, Arrays.asList(filterArgs),
+                subjectIdentifier });
+    NamingEnumeration namingEnum = provisioner.getContext().search(baseName, filterExpr,
+        filterArgs, searchControls);
 
     //
     // If no entries where found, throw an exception
     //
     if (!namingEnum.hasMore()) {
-      throw new EntryNotFoundException("Subject not found using " + errorSuffix);
+      throw new LdappcException("Subject not found using " + errorSuffix);
     }
 
     //
@@ -296,15 +304,14 @@ public class SubjectCache {
     // as the search result was not unique
     //
     if (namingEnum.hasMore()) {
-      throw new MultipleEntriesFoundException("Multiple entries found using "
-          + errorSuffix);
+      throw new LdappcException("Multiple entries found using " + errorSuffix);
     }
 
     //
     // If name is NOT relative, throw an exception
     //
     if (!searchResult.isRelative()) {
-      throw new EntryNotFoundException("Unable to resolve the reference found using "
+      throw new LdappcException("Unable to resolve the reference found using "
           + errorSuffix);
     }
 

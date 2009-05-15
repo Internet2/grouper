@@ -36,22 +36,18 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.ldappc.GrouperProvisioner;
-import edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration;
-import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
-import edu.internet2.middleware.ldappc.LdappcConfigurationException;
-import edu.internet2.middleware.ldappc.LdappcException;
-import edu.internet2.middleware.ldappc.MultiErrorException;
+import edu.internet2.middleware.ldappc.Provisioner;
+import edu.internet2.middleware.ldappc.ProvisionerConfiguration;
+import edu.internet2.middleware.ldappc.exception.ConfigurationException;
+import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.ldap.OrganizationalUnit;
-import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
-import edu.internet2.middleware.ldappc.util.SubjectCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -59,9 +55,9 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 /**
  * This synchronizes groups stored in the directory as entries.
  */
-public class GroupEntrySynchronizer extends GroupSynchronizer {
+public class GroupEntrySynchronizer extends Synchronizer {
 
-  private static final Log LOG = GrouperUtil.getLog(GroupEntrySynchronizer.class);
+  private static final Logger LOG = GrouperUtil.getLogger(GroupEntrySynchronizer.class);
 
   /**
    * Default size of group hash tables if not specified in configuration.
@@ -118,8 +114,6 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
    */
   private BasicAttributes mappedLdapAttributes;
 
-  private GrouperProvisionerConfiguration configuration;
-
   /**
    * Constructs a <code>GroupEntrySynchronizer</code>.
    * 
@@ -136,18 +130,16 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
    * 
    * @throws NamingException
    *           Thrown when a naming exception occurs.
-   * @throws LdappcConfigurationException
+   * @throws ConfigurationException
    *           Thrown if the configuration file is not correct.
    */
-  public GroupEntrySynchronizer(LdapContext ctx, Name root,
-      GrouperProvisionerConfiguration configuration, GrouperProvisionerOptions options,
-      SubjectCache subjectCache) throws NamingException, LdappcConfigurationException {
+  public GroupEntrySynchronizer(Provisioner provisioner) throws NamingException,
+      ConfigurationException {
     //
     // Call super constructor
     //
-    super(ctx, root, configuration, options, subjectCache);
-
-    this.configuration = configuration;
+    // super(ctx, root, configuration, options, subjectCache);
+    super(provisioner);
 
     int estimate = configuration.getGroupHashEstimate();
     if (estimate == 0) {
@@ -166,14 +158,23 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
     mappedLdapAttributes = new BasicAttributes(true);
 
     //
+    // Get the Name of the root ou
+    //
+    String rootDnStr = configuration.getGroupDnRoot();
+    if (rootDnStr == null) {
+      throw new ConfigurationException("Group root DN is not defined.");
+    }
+
+    rootDn = ldapCtx.getNameParser(LdapUtil.EMPTY_NAME).parse(rootDnStr);
+
+    //
     // If provisioning with "flat" structure, verify that a group naming
     // attribute is defined for the group ldap entry
     //
-    if (GrouperProvisionerConfiguration.GROUP_DN_FLAT.equals(getConfiguration()
-        .getGroupDnStructure())) {
+    if (ProvisionerConfiguration.GROUP_DN_FLAT
+        .equals(configuration.getGroupDnStructure())) {
       if (configuration.getGroupDnGrouperAttribute() == null) {
-        throw new LdappcConfigurationException(
-            "Group DN grouper attribute is not defined.");
+        throw new ConfigurationException("Group DN grouper attribute is not defined.");
       }
     }
 
@@ -181,8 +182,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
     // Verify that a object class is defined for the group ldap entry
     //
     if (configuration.getGroupDnObjectClass() == null) {
-      throw new LdappcConfigurationException(
-          "Group ldap entry object class is not defined.");
+      throw new ConfigurationException("Group ldap entry object class is not defined.");
     }
 
     //
@@ -193,8 +193,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
     String rdnAttrName = configuration.getGroupDnRdnAttribute();
     if (rdnAttrName == null
         || OrganizationalUnit.Attribute.OU.equalsIgnoreCase(rdnAttrName)) {
-      throw new LdappcConfigurationException(
-          "Group ldap entry RDN attribute name is invalid.");
+      throw new ConfigurationException("Group ldap entry RDN attribute name is invalid.");
     }
     rdnMods = new AttributeModifier(rdnAttrName);
 
@@ -213,7 +212,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
       //
       String attrName = configuration.getGroupMembersDnListAttribute();
       if (attrName == null) {
-        throw new LdappcConfigurationException(
+        throw new ConfigurationException(
             "Group members DN list attribute name is not defined.");
       }
 
@@ -234,7 +233,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
       //
       String attrName = configuration.getGroupMembersNameListAttribute();
       if (attrName == null) {
-        throw new LdappcConfigurationException(
+        throw new ConfigurationException(
             "Group members name list attribute name is not defined.");
       }
 
@@ -265,6 +264,30 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
         }
       }
     }
+  }
+
+  /**
+   * Synchronizes the group set with that in the directory.
+   * 
+   * @param groups
+   *          Set of Groups
+   * @throws javax.naming.NamingException
+   *           thrown if a Naming error occurs
+   * @throws MultiErrorException
+   *           thrown if one or more exceptions occurred that did not need to stop all
+   *           processing
+   * @throws LdappcException
+   *           thrown if an error occurs
+   */
+  public void synchronize(Set<Group> groups) throws NamingException, LdappcException {
+
+    initialize();
+
+    for (Group group : groups) {
+      performInclude(group, provisioner.determineStatus(group));
+    }
+
+    commit();
   }
 
   /**
@@ -307,7 +330,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
         //
         // Update the group as needed
         //
-        if (status == STATUS_NEW || status == STATUS_MODIFIED || status == STATUS_UNKNOWN) {
+        if (status == Provisioner.STATUS_NEW || status == Provisioner.STATUS_MODIFIED
+            || status == Provisioner.STATUS_UNKNOWN) {
           updateGroupEntry(groupDn, group);
         }
       } else {
@@ -334,10 +358,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
       // groupDn has already been processed so log an error
       // (This should never happen).
       //
-      ErrorLog
-          .error(getClass(), "Group entry identified by " + groupDn
-              + " has already been encountered,"
-              + " and will not be processed another time.");
+      LOG.error("Group entry identified by {} has already been encountered,"
+          + " and will not be processed another time.", groupDn);
     }
   }
 
@@ -421,7 +443,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
     //
     if (modificationItems.length > 0) {
       LOG.info("Modify '" + groupDn + "' " + Arrays.asList(modificationItems));
-      getContext().modifyAttributes(groupDn, modificationItems);
+      ldapCtx.modifyAttributes(groupDn, modificationItems);
     }
   }
 
@@ -462,8 +484,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
     // Get the existing attributes defined for the entry
     //
     LOG.debug("get group attributes '" + groupDn + "' attrs " + wantedAttr);
-    Attributes attributes = getContext().getAttributes(groupDn,
-        (String[]) wantedAttr.toArray(new String[0]));
+    Attributes attributes = ldapCtx.getAttributes(groupDn, (String[]) wantedAttr
+        .toArray(new String[0]));
 
     //
     // Populate the rdn attribute
@@ -564,8 +586,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
           //
           // If the subject was not found, log it and continue
           //
-          ErrorLog.warn(getClass(), getErrorData(member) + " Subject not found :: "
-              + snfe.getMessage());
+          LOG.warn("Subject not found", snfe);
           continue;
         }
 
@@ -574,11 +595,10 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
         //
         if (memberDnMods != null) {
           try {
-            Name subjectDn = getSubjectCache().findSubjectDn(getContext(),
-                getConfiguration(), subject);
+            Name subjectDn = subjectCache.findSubjectDn(subject);
             memberDnMods.store(subjectDn.toString());
           } catch (Exception e) {
-            ErrorLog.warn(getClass(), getErrorData(subject) + " " + e.getMessage());
+            LOG.warn(getErrorData(subject), e);
           }
         }
 
@@ -602,7 +622,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
             //
             // Get the naming attribute for this source
             //
-            String nameAttribute = getConfiguration()
+            String nameAttribute = configuration
                 .getGroupMembersNameListNamingAttribute(source.getId());
             if (nameAttribute != null) {
               //
@@ -626,7 +646,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
             // related so simply log them and continue on with
             // processing.
             //
-            ErrorLog.warn(getClass(), getErrorData(subject) + " " + e.getMessage());
+            LOG.warn(getErrorData(subject), e);
           }
         }
       }
@@ -679,13 +699,13 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
     //
     // Store the group entry object class
     //
-    objectClassMods.store(getConfiguration().getGroupDnObjectClass());
+    objectClassMods.store(configuration.getGroupDnObjectClass());
 
     //
     // If needed and defined, store the member dn list object class
     //
     if (memberDnMods != null) {
-      String objectClass = getConfiguration().getGroupMembersDnListObjectClass();
+      String objectClass = configuration.getGroupMembersDnListObjectClass();
       if (objectClass != null) {
         objectClassMods.store(objectClass);
       }
@@ -695,7 +715,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
     // If needed and defined, store the member name list object class
     //
     if (memberNameMods != null) {
-      String objectClass = getConfiguration().getGroupMembersNameListObjectClass();
+      String objectClass = configuration.getGroupMembersNameListObjectClass();
       if (objectClass != null) {
         objectClassMods.store(objectClass);
       }
@@ -704,7 +724,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
     //
     // If defined, store the grouper attribute object class
     //
-    String attrMapObjClass = getConfiguration().getGroupAttributeMappingObjectClass();
+    String attrMapObjClass = configuration.getGroupAttributeMappingObjectClass();
     if (attrMapObjClass != null) {
       objectClassMods.store(attrMapObjClass);
     }
@@ -811,7 +831,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
     // Build the subject context
     //
     LOG.info("Creating '" + groupDn + "' attrs " + attributes);
-    getContext().createSubcontext(groupDn, attributes);
+    ldapCtx.createSubcontext(groupDn, attributes);
 
     //
     // If creating the group then modifying members,
@@ -833,8 +853,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
       //
       if (!modifications.isEmpty()) {
         LOG.info("Modify '" + groupDn + "' " + modifications);
-        getContext().modifyAttributes(groupDn,
-            modifications.toArray(new ModificationItem[] {}));
+        ldapCtx.modifyAttributes(groupDn, modifications
+            .toArray(new ModificationItem[] {}));
       }
     }
   }
@@ -864,24 +884,24 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
     // with the parent OU DN. Else, initialize the group DN with the root
     // DN.
     //
-    if (GrouperProvisionerConfiguration.GROUP_DN_BUSHY.equals(getConfiguration()
+    if (ProvisionerConfiguration.GROUP_DN_BUSHY.equals(configuration
         .getGroupDnStructure())) {
       groupDn = buildStemOuEntries(group);
     } else {
-      groupDn = (Name) getRoot().clone();
+      groupDn = (Name) rootDn.clone();
     }
 
     //
     // Get the group's rdn value
     //
     String rdnString = null;
-    if (GrouperProvisionerConfiguration.GROUP_DN_FLAT.equals(getConfiguration()
-        .getGroupDnStructure())) {
-      if (GrouperProvisionerConfiguration.GROUPER_NAME_ATTRIBUTE
-          .equals(getConfiguration().getGroupDnGrouperAttribute())) {
+    if (ProvisionerConfiguration.GROUP_DN_FLAT
+        .equals(configuration.getGroupDnStructure())) {
+      if (ProvisionerConfiguration.GROUPER_NAME_ATTRIBUTE.equals(configuration
+          .getGroupDnGrouperAttribute())) {
         rdnString = group.getName();
       } else {
-        String attr = group.getAttributeOrFieldValue(getConfiguration()
+        String attr = group.getAttributeOrFieldValue(configuration
             .getGroupDnGrouperAttribute(), true, false);
         if (attr != null) {
           rdnString = attr;
@@ -933,14 +953,14 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
     // Initialize the stemDn to be the root DN. This stemDn
     // is updated for each element of the group's stem below
     //
-    Name stemDn = (Name) getRoot().clone();
+    Name stemDn = (Name) rootDn.clone();
 
     //
     // Get the group's parent stem, and tokenize it's name to build
     // the ou's for the group.
     //
     Stem stem = group.getParentStem();
-    StringTokenizer stemTokens = new StringTokenizer(stem.getName(), STEM_DELIMITER);
+    StringTokenizer stemTokens = new StringTokenizer(stem.getName(), Stem.DELIM);
     while (stemTokens.hasMoreTokens()) {
       //
       // Get next stem token for the rdn value making sure it is Ldap name
@@ -968,7 +988,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
           //
           attributes.put(OrganizationalUnit.Attribute.OU, rdnString);
           LOG.info("Creating '" + stemDn + "' attrs " + attributes);
-          getContext().createSubcontext(stemDn, attributes);
+          ldapCtx.createSubcontext(stemDn, attributes);
 
           //
           // Add it to deleteOus so if the group isn't processed it
@@ -993,7 +1013,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
    *          DN of the group entry
    */
   protected void updateProcessedOus(Name groupDn) {
-    for (int i = getRoot().size() + 1; i < groupDn.size(); i++) {
+    for (int i = rootDn.size() + 1; i < groupDn.size(); i++) {
       Name stemDn = groupDn.getPrefix(i);
       deleteOus.remove(stemDn);
       processedOus.add(stemDn);
@@ -1043,9 +1063,9 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
     // entries, and if needed not organizationalUnit entries
     //
     String filter = "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "="
-        + getConfiguration().getGroupDnObjectClass() + ")";
+        + configuration.getGroupDnObjectClass() + ")";
 
-    if (GrouperProvisionerConfiguration.GROUP_DN_BUSHY.equals(getConfiguration()
+    if (ProvisionerConfiguration.GROUP_DN_BUSHY.equals(configuration
         .getGroupDnStructure())) {
       filter = "(|" + filter + "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "="
           + OrganizationalUnit.OBJECT_CLASS + "))";
@@ -1063,13 +1083,13 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
     //
     // Perform the search
     //
-    LOG.debug("search base '" + getRoot() + "' filter '" + filter + "'");
-    NamingEnumeration searchEnum = getContext().search(getRoot(), filter, searchControls);
+    LOG.debug("search base '" + rootDn + "' filter '" + filter + "'");
+    NamingEnumeration searchEnum = ldapCtx.search(rootDn, filter, searchControls);
 
     //
     // Delete anything found here and it's children.
     //
-    NameParser parser = getContext().getNameParser(LdapUtil.EMPTY_NAME);
+    NameParser parser = ldapCtx.getNameParser(LdapUtil.EMPTY_NAME);
     while (searchEnum.hasMore()) {
       SearchResult searchResult = (SearchResult) searchEnum.next();
       if (searchResult.isRelative()) {
@@ -1086,14 +1106,14 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
         // Build the entry's DN
         //
         Name entryDn = parser.parse(entryName);
-        entryDn = entryDn.addAll(0, getRoot());
+        entryDn = entryDn.addAll(0, rootDn);
 
         //
         // Try to find it as may already been deleted. If not found,
         // just continue
         //
         try {
-          getContext().lookup(entryDn);
+          ldapCtx.lookup(entryDn);
         } catch (NamingException ne) {
           //
           // Assume it couldn't be found, so just continue
@@ -1106,16 +1126,15 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
         //
         try {
           LOG.debug("delete '" + entryDn + "'");
-          LdapUtil.delete(getContext(), entryDn);
+          LdapUtil.delete(ldapCtx, entryDn);
         } catch (Exception e) {
-          ErrorLog.error(getClass(), "Unable to delete " + entryDn);
+          LOG.warn("Unable to delete " + entryDn, e);
         }
       } else {
         //
         // Log it and continue on.
         //
-        ErrorLog.error(this.getClass(), "Unable to handle LDAP URL references: "
-            + searchResult.getName());
+        LOG.error("Unable to handle LDAP URL references: {}", searchResult.getName());
       }
     }
   }
@@ -1140,14 +1159,14 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
     // Populate the group deletes
     //
     String filter = "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "="
-        + getConfiguration().getGroupDnObjectClass() + ")";
+        + configuration.getGroupDnObjectClass() + ")";
     populateDns(deleteGroups, filter, searchControls);
     LOG.debug("found " + deleteGroups.size() + " groups");
 
     //
     // If necessary, populate the stem ou deletes
     //
-    if (GrouperProvisionerConfiguration.GROUP_DN_BUSHY.equals(getConfiguration()
+    if (ProvisionerConfiguration.GROUP_DN_BUSHY.equals(configuration
         .getGroupDnStructure())) {
       filter = "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "="
           + OrganizationalUnit.OBJECT_CLASS + ")";
@@ -1174,13 +1193,13 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
     //
     // Perform the search of the root
     //
-    LOG.debug("search base '" + getRoot() + "' '" + filter + "'");
-    NamingEnumeration searchEnum = getContext().search(getRoot(), filter, searchControls);
+    LOG.debug("search base '{}' filter '{}'", rootDn, filter);
+    NamingEnumeration searchEnum = ldapCtx.search(rootDn, filter, searchControls);
 
     //
     // Populate dns with DNs of existing objects. The root dn is excluded.
     //
-    NameParser parser = getContext().getNameParser(LdapUtil.EMPTY_NAME);
+    NameParser parser = ldapCtx.getNameParser(LdapUtil.EMPTY_NAME);
     while (searchEnum.hasMore()) {
       SearchResult searchResult = (SearchResult) searchEnum.next();
       if (searchResult.isRelative()) {
@@ -1196,18 +1215,18 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
         // Build the entry's DN
         //
         Name entryDn = LdapUtil.getName(parser, searchResult);
-        entryDn = entryDn.addAll(0, getRoot());
+        entryDn = entryDn.addAll(0, rootDn);
 
         //
         // Add entryDn to the deletes list
         //
+        LOG.debug("entryDn '" + entryDn + "'");
         dns.add(entryDn);
       } else {
         //
         // Log it and continue on.
         //
-        ErrorLog.error(this.getClass(), "Unable to handle LDAP URL references: "
-            + searchResult.getName());
+        LOG.error("Unable to handle LDAP URL references: {}", searchResult.getName());
       }
     }
   }
@@ -1254,24 +1273,17 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
     //
     // Init vars
     //
-    Vector<NamingException> namingExceptions = new Vector<NamingException>();
-    LdapContext context = getContext();
+    LdapContext context = ldapCtx;
 
     //
     // Delete any group entries that are no longer valid
     //
     for (Name dn : deleteGroups) {
-      try {
-        //
-        // Delete it
-        //
-        LOG.info("Delete group '" + dn + "'");
-        LdapUtil.delete(context, dn);
-      } catch (NamingException ne) {
-        ErrorLog.error(getClass(), "Failed to delete " + dn + " for " + getRoot()
-            + " :: " + ne.getMessage());
-        namingExceptions.add(ne);
-      }
+      //
+      // Delete it
+      //
+      LOG.info("Delete group '" + dn + "'");
+      LdapUtil.delete(context, dn);
     }
 
     //
@@ -1282,7 +1294,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
       // Try to find it. If not found, just continue
       //
       try {
-        getContext().lookup(dn);
+        ldapCtx.lookup(dn);
       } catch (NamingException ne) {
         //
         // Assume it couldn't be found, so just continue
@@ -1293,23 +1305,10 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
       //
       // Try to delete it
       //
-      try {
-        LOG.info("Delete ou '" + dn + "'");
-        LdapUtil.delete(context, dn);
-      } catch (NamingException ne) {
-        ErrorLog.error(getClass(), "Failed to delete " + dn + " for " + getRoot()
-            + " :: " + ne.getMessage());
-        namingExceptions.add(ne);
-      }
+      LOG.info("Delete ou '" + dn + "'");
+      LdapUtil.delete(context, dn);
     }
 
-    //
-    // If necessary, thrown an exception
-    //
-    if (namingExceptions.size() > 0) {
-      throw new MultiErrorException((Exception[]) namingExceptions
-          .toArray(new Exception[0]));
-    }
   }
 
   /**
@@ -1320,7 +1319,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
    * @return data string for error message
    */
   protected String getErrorData(Subject subject) {
-    return "SUBJECT[" + getSubjectCache().getSubjectData(subject) + "]";
+    return "SUBJECT[" + subjectCache.getSubjectData(subject) + "]";
   }
 
   /**
@@ -1331,7 +1330,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
    * @return data string for error message
    */
   protected String getErrorData(Group group) {
-    return "GROUP[" + GrouperProvisioner.getGroupData(group) + "]";
+    return "GROUP[" + Provisioner.getGroupData(group) + "]";
   }
 
   /**
@@ -1342,6 +1341,6 @@ public class GroupEntrySynchronizer extends GroupSynchronizer {
    * @return member data string
    */
   protected String getErrorData(Member member) {
-    return "MEMBER[" + GrouperProvisioner.getMemberData(member) + "]";
+    return "MEMBER[" + Provisioner.getMemberData(member) + "]";
   }
 }
