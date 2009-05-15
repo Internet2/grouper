@@ -15,11 +15,13 @@
 
 package edu.internet2.middleware.ldappc.util;
 
-import java.util.ResourceBundle;
 import java.util.Locale;
 import java.util.MissingResourceException;
+import java.util.ResourceBundle;
 
-import edu.internet2.middleware.ldappc.logging.ErrorLog;
+import org.slf4j.Logger;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * A utility for accessing data in a ResourceBundle.
@@ -27,6 +29,8 @@ import edu.internet2.middleware.ldappc.logging.ErrorLog;
  * @author Gil Singer
  */
 public final class ResourceBundleUtil {
+
+  private static final Logger LOG = GrouperUtil.getLogger(ResourceBundleUtil.class);
 
   /**
    * The ldappc properties file name used for test data.
@@ -65,13 +69,11 @@ public final class ResourceBundleUtil {
     try {
       stringValue = bundle.getString(key);
     } catch (MissingResourceException mre) {
-      ErrorLog.error(ResourceBundleUtil.class, "MissingResourceException: "
-          + mre.getMessage());
+      LOG.error("An error occurred.", mre);
     } catch (ClassCastException cce) {
-      ErrorLog.error(ResourceBundleUtil.class, "ClassCastException: " + cce.getMessage());
+      LOG.error("An error occurred.", cce);
     } catch (NullPointerException npe) {
-      ErrorLog.error(ResourceBundleUtil.class, "null pointer exception: "
-          + npe.getMessage());
+      LOG.error("An error occurred.", npe);
     }
     return stringValue;
   }

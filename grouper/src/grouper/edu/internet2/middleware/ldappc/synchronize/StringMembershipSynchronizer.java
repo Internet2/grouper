@@ -16,30 +16,28 @@
 package edu.internet2.middleware.ldappc.synchronize;
 
 import java.util.Arrays;
+import java.util.Set;
 
 import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.ModificationItem;
-import javax.naming.ldap.LdapContext;
 
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration;
-import edu.internet2.middleware.ldappc.GrouperProvisionerOptions;
-import edu.internet2.middleware.ldappc.LdappcConfigurationException;
-import edu.internet2.middleware.ldappc.LdappcException;
-import edu.internet2.middleware.ldappc.logging.DebugLog;
+import edu.internet2.middleware.ldappc.Provisioner;
+import edu.internet2.middleware.ldappc.exception.ConfigurationException;
+import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
-import edu.internet2.middleware.ldappc.util.SubjectCache;
 
 /**
  * This synchronizes memberships stored in the directory as strings in an attribute.
  */
-public class StringMembershipSynchronizer extends MembershipSynchronizer {
+public class StringMembershipSynchronizer extends Synchronizer {
 
-  private static final Log LOG = GrouperUtil.getLog(StringMembershipSynchronizer.class);
+  private static final Logger LOG = GrouperUtil
+      .getLogger(StringMembershipSynchronizer.class);
 
   /**
    * Holds the membership listing attribute modifications.
@@ -57,6 +55,11 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer {
   private String groupNamingAttribute;
 
   /**
+   * DN of the subject whose permissions are being synchronized.
+   */
+  private String subject;
+
+  /**
    * Constructs a <code>StringMembershipSynchronizer</code>.
    * 
    * @param ctx
@@ -72,16 +75,18 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer {
    * 
    * @throws NamingException
    *           thrown if a naming exception occurs.
-   * @throws LdappcConfigurationException
+   * @throws ConfigurationException
    *           thrown if the configuration isn't correct.
    */
-  public StringMembershipSynchronizer(LdapContext ctx, String subject,
-      GrouperProvisionerConfiguration configuration, GrouperProvisionerOptions options,
-      SubjectCache subjectCache) throws NamingException, LdappcConfigurationException {
+  public StringMembershipSynchronizer(Provisioner provisioner, String subject)
+      throws NamingException, ConfigurationException {
     //
     // Call super constructor
     //
-    super(ctx, subject, configuration, options, subjectCache);
+    // super(ctx, subject, configuration, options, subjectCache);
+    super(provisioner);
+
+    this.subject = subject;
 
     //
     // Try to get the membership listing string attribute name as it is
@@ -89,7 +94,7 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer {
     //
     String listAttrName = configuration.getMemberGroupsListAttribute();
     if (listAttrName == null) {
-      throw new LdappcConfigurationException(
+      throw new ConfigurationException(
           "The name of the attribute to store membership group strings is null.");
     }
 
@@ -106,9 +111,44 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer {
     //
     groupNamingAttribute = configuration.getMemberGroupsNamingAttribute();
     if (groupNamingAttribute == null) {
-      throw new LdappcConfigurationException(
+      throw new ConfigurationException(
           "The name of the group naming attribute is null.");
     }
+  }
+
+  /**
+   * Synchronizes the groups with those in the directory.
+   * 
+   * @param groupNames
+   *          Set of group names
+   * @throws javax.naming.NamingException
+   *           thrown if a Naming error occurs
+   * @throws MultiErrorException
+   *           thrown if one or more exceptions occurred that did not need to stop all
+   *           processing
+   * @throws LdappcException
+   *           thrown if an error occurs
+   */
+  public void synchronize(Set<String> groupNames) throws NamingException, LdappcException {
+    //
+    // Initialize the process
+    //
+    initialize();
+
+    //
+    // Iterate over the set of membership group names.
+    //
+    for (String groupNameString : groupNames) {
+      //
+      // Process the group
+      //
+      performInclude(groupNameString, Provisioner.STATUS_UNKNOWN);
+    }
+
+    //
+    // Commit the modifications to the directory
+    //
+    commit();
   }
 
   /**
@@ -167,13 +207,10 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer {
     //
     // Get the existing values
     //
-    LOG.debug("get attributes for '" + getSubject() + " attrs '"
-        + membershipMods.getAttributeName() + "' '" + objectClassMods.getAttributeName()
-        + "'");
-    Attributes attributes = getContext().getAttributes(
-        getSubject(),
-        new String[] { membershipMods.getAttributeName(),
-            objectClassMods.getAttributeName() });
+    LOG.debug("get attributes for '{}' attrs '{}' '{}'", new Object[] { getSubject(),
+        membershipMods.getAttributeName(), objectClassMods.getAttributeName() });
+    Attributes attributes = ldapCtx.getAttributes(getSubject(), new String[] {
+        membershipMods.getAttributeName(), objectClassMods.getAttributeName() });
 
     //
     // Initialize the membership listing attribute modifier
@@ -185,7 +222,7 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer {
     // Populate the objectClass modifier if needed
     //
     objectClassMods.init();
-    String stringObjectClass = getConfiguration().getMemberGroupsListObjectClass();
+    String stringObjectClass = configuration.getMemberGroupsListObjectClass();
     if (stringObjectClass != null) {
       attribute = attributes.get(objectClassMods.getAttributeName());
       objectClassMods.init(attribute);
@@ -239,8 +276,17 @@ public class StringMembershipSynchronizer extends MembershipSynchronizer {
       //
       // Perform the modifications
       //
-      DebugLog.info("Modify subject '" + getSubject() + "' " + Arrays.asList(mods));
-      getContext().modifyAttributes(getSubject(), mods);
+      LOG.info("Modify subject '{}' {}", getSubject(), Arrays.asList(mods));
+      ldapCtx.modifyAttributes(getSubject(), mods);
     }
+  }
+
+  /**
+   * Get the DN of the subject.
+   * 
+   * @return DN of the subject
+   */
+  public String getSubject() {
+    return subject;
   }
 }

@@ -15,98 +15,136 @@
 
 package edu.internet2.middleware.ldappc;
 
+import java.util.Arrays;
+import java.util.Date;
 import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.naming.NamingException;
+import javax.naming.ldap.LdapContext;
+
+import org.apache.commons.cli.ParseException;
+import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
-import edu.internet2.middleware.ldappc.logging.DebugLog;
-import edu.internet2.middleware.ldappc.logging.ErrorLog;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.ldappc.exception.LdappcException;
+import edu.internet2.middleware.ldappc.util.LdapUtil;
 
 /**
- * Class for starting the Ldappc program. For the design of this program, see the site
- * documentation.
- * 
- * @author Gil Singer
+ * Initiates provisioning.
  */
-public final class Ldappc {
+public final class Ldappc extends TimerTask {
 
-  /**
-   * The version of Ldappc.
-   */
-  public static final String VERSION_NUMBER = "1.0";
+  private static final Logger LOG = GrouperUtil.getLogger(Ldappc.class);
 
-  /**
-   * The date this version of Ldappc was created.
-   */
-  public static final String VERSION_DATE = "2007-01-11";
+  private ProvisionerOptions options;
 
-  /**
-   * Prevent instantiation.
-   */
-  private Ldappc() {
+  public Ldappc(ProvisionerOptions options) {
+    this.options = options;
   }
 
-  /**
-   * Main program for transferring Grouper and Signet repository information into an LDAP
-   * directory.
-   * 
-   * @param args
-   *          May be any of the following in any order, where (Opt) implies optional;
-   *          however, when a key of -xxx is followed by a name, a value must be present
-   *          following the key.
-   * 
-   *          <pre>
-   * &lt;no arguments&gt;                  Display the following list of available arguments to standard output. 
-   * -subject        subjectId       The SubjectId is used to establish Grouper API and Signet API sessions
-   * -groups                         (Opt) When present, group information will be provisioned
-   * -memberships                    (Opt) When present, membership information will be provisioned
-   * -permissions                    (Opt) When present, permissions information will be provisioned
-   * -lastModifyTime lastModifyTime  (Opt) DateTime representation to select only objects changed since then
-   * -interval       interval        (Opt) Number of seconds between polling intervals
-   * </pre>
-   */
   public static void main(String[] args) {
+
+    try {
+      LOG.debug("Starting Ldappc with the following arguments: {}", Arrays.asList(args));
+
+      ProvisionerOptions options = new ProvisionerOptions();
+
+      try {
+        if (args.length == 0) {
+          options.printUsage();
+          return;
+        }
+        options.init(args);
+      } catch (ParseException e) {
+        options.printUsage();
+        System.err.println(e.getMessage());
+        return;
+      } catch (java.text.ParseException e) {
+        options.printUsage();
+        System.err.println(e.getMessage());
+        return;
+      }
+
+      LOG.info("Starting Ldappc");
+
+      Ldappc ldappc = new Ldappc(options);
+
+      if (options.getInterval() == 0) {
+        ldappc.run();
+      } else {
+        Timer timer = new Timer();
+        timer.schedule(ldappc, 0, 1000 * options.getInterval());
+      }
+
+      LOG.info("End of Ldappc execution.");
+
+    } catch (LdappcException e) {
+      System.err.println(e.getMessage());
+      throw e;
+    }
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see java.util.TimerTask#run()
+   */
+  public void run() {
+
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LDAPPC, false, true);
 
-    DebugLog.info(Ldappc.class, "Starting the Ldappc Program");
+    LOG.info("***** Starting Provisioning *****");
 
-    // 
-    // Process the user arguments.
-    //
-    InputOptions options = new InputOptions(args);
+    Date now = new Date();
 
-    long intervalInMsec = 1000 * options.getInterval();
+    LdapContext ldapContext = null;
 
-    //
-    // If an error occurred, log it before terminating.
-    //
-    if (options.isFatal()) {
-      String msg = "A fatal error occurred in Ldappc -- see the error log file";
-      System.out.println(msg);
-      DebugLog.info(Ldappc.class, msg);
-      ErrorLog.warn(Ldappc.class,
-          "A fatal error occurred in Ldappc while processing input options; "
-              + "check earlier messages.");
-    } else {
-      //
-      // Create provision control
-      //
-      LdappcProvisionControl pc = new LdappcProvisionControl(options);
+    try {
 
-      //
-      // 
-      //
+      ProvisionerConfiguration configuration = new ConfigManager(options
+          .getConfigManagerLocation());
 
-      if (intervalInMsec == 0) {
-        pc.run();
-      } else {
-        Timer provisionerTimer = new Timer();
-        // Start immediately (2nd arg is 0)
-        // Rerun every intervalInMsec milliseconds
-        provisionerTimer.schedule(pc, 0, intervalInMsec);
+      if (LOG.isInfoEnabled()) {
+        for (String source : configuration.getSourceSubjectHashEstimates().keySet()) {
+          LOG.info("Estimate({}) = {}", source, configuration
+              .getSourceSubjectHashEstimate(source));
+        }
+      }
+
+      ldapContext = LdapUtil.getLdapContext(configuration.getLdapContextParameters(),
+          null);
+
+      Provisioner provisioner = new Provisioner(configuration, options, ldapContext);
+
+      provisioner.provision();
+
+      options.setLastModifyTime(now);
+
+      if (LOG.isInfoEnabled()) {
+        int subjectIDLookups = provisioner.getSubjectCache().getSubjectIdLookups();
+        int subjectIDTableHits = provisioner.getSubjectCache().getSubjectIdTableHits();
+        LOG.info("Subject ID Lookups: {}", subjectIDLookups);
+        LOG.info("Subject Table Hits: {}", subjectIDTableHits);
+        // Compute hit ratio percent, rounded to nearest tenth percent.
+        double ratio = Math.round(((double) subjectIDTableHits) / subjectIDLookups
+            * 1000.0) / 10.0;
+        LOG.info("Subject hit ratio: {} %", ratio);
+      }
+
+    } catch (Exception e) {
+      LOG.error("Grouper Provision Failed", e);
+      cancel();
+    } finally {
+      try {
+        if (null != ldapContext) {
+          ldapContext.close();
+        }
+      } catch (NamingException e) {
+        // May have already been closed.
       }
     }
-
-    DebugLog.info(Ldappc.class, "End of Ldappc execution.");
   }
 }

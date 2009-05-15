@@ -27,12 +27,13 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.BaseLdappcTestCase;
 import edu.internet2.middleware.ldappc.ConfigManager;
-import edu.internet2.middleware.ldappc.InputOptions;
-import edu.internet2.middleware.ldappc.LdappcConfigurationException;
+import edu.internet2.middleware.ldappc.Provisioner;
+import edu.internet2.middleware.ldappc.ProvisionerOptions;
+import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 
 public class GrouperSynchronizerTest extends BaseLdappcTestCase {
 
-  private InputOptions options = new InputOptions();
+  private ProvisionerOptions options = new ProvisionerOptions();
 
   private ConfigManager configuration;
 
@@ -42,14 +43,13 @@ public class GrouperSynchronizerTest extends BaseLdappcTestCase {
     ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
 
-    configuration = ConfigManager.load(GrouperUtil.fileFromResourceName(
+    configuration = new ConfigManager(GrouperUtil.fileFromResourceName(
         BaseLdappcTestCase.LDAPPC_BUSHY_XML).getAbsolutePath());
   }
 
-  public void testStatusUnknown() throws LdappcConfigurationException, NamingException {
+  public void testStatusUnknown() throws ConfigurationException, NamingException {
 
-    GrouperSynchronizer gs = new GroupEntrySynchronizer(null, null, configuration,
-        options, null);
+    Provisioner provisioner = new Provisioner(configuration, options, null);
 
     Group group = StemHelper.addChildGroup(this.edu, "groupA", "Group A");
 
@@ -58,15 +58,14 @@ public class GrouperSynchronizerTest extends BaseLdappcTestCase {
 
     assertEquals(
         "Status should be UNKNOWN when InputOptions.getLastModifyTime() is null.",
-        GrouperSynchronizer.STATUS_UNKNOWN, gs.determineStatus(g));
+        Provisioner.STATUS_UNKNOWN, provisioner.determineStatus(g));
   }
 
-  public void testStatusNew() throws LdappcConfigurationException, NamingException {
+  public void testStatusNew() throws ConfigurationException, NamingException {
 
     options.setLastModifyTime(new Date());
 
-    GrouperSynchronizer gs = new GroupEntrySynchronizer(null, null, configuration,
-        options, null);
+    Provisioner provisioner = new Provisioner(configuration, options, null);
 
     Group group = StemHelper.addChildGroup(this.edu, "groupA", "Group A");
 
@@ -75,16 +74,15 @@ public class GrouperSynchronizerTest extends BaseLdappcTestCase {
 
     assertEquals(
         "Status should be NEW when InputOptions.getLastModifyTime() is before Group.getCreateTime().",
-        GrouperSynchronizer.STATUS_NEW, gs.determineStatus(g));
+        Provisioner.STATUS_NEW, provisioner.determineStatus(g));
   }
 
-  public void testStatusNewWithModification() throws LdappcConfigurationException,
+  public void testStatusNewWithModification() throws ConfigurationException,
       NamingException {
 
     options.setLastModifyTime(new Date());
 
-    GrouperSynchronizer gs = new GroupEntrySynchronizer(null, null, configuration,
-        options, null);
+    Provisioner provisioner = new Provisioner(configuration, options, null);
 
     Group group = StemHelper.addChildGroup(this.edu, "groupA", "Group A");
 
@@ -95,16 +93,15 @@ public class GrouperSynchronizerTest extends BaseLdappcTestCase {
 
     assertEquals(
         "Status should be NEW when InputOptions.getLastModifyTime() is before Group.getCreateTime().",
-        GrouperSynchronizer.STATUS_NEW, gs.determineStatus(g));
+        Provisioner.STATUS_NEW, provisioner.determineStatus(g));
   }
 
-  public void testStatusNewWithMemberModification() throws LdappcConfigurationException,
+  public void testStatusNewWithMemberModification() throws ConfigurationException,
       NamingException {
 
     options.setLastModifyTime(new Date());
 
-    GrouperSynchronizer gs = new GroupEntrySynchronizer(null, null, configuration,
-        options, null);
+    Provisioner provisioner = new Provisioner(configuration, options, null);
 
     Group group = StemHelper.addChildGroup(this.edu, "groupA", "Group A");
 
@@ -115,13 +112,12 @@ public class GrouperSynchronizerTest extends BaseLdappcTestCase {
 
     assertEquals(
         "Status should be NEW when InputOptions.getLastModifyTime() is before Group.getCreateTime().",
-        GrouperSynchronizer.STATUS_NEW, gs.determineStatus(g));
+        Provisioner.STATUS_NEW, provisioner.determineStatus(g));
   }
 
-  public void testStatusUnchanged() throws LdappcConfigurationException, NamingException {
+  public void testStatusUnchanged() throws ConfigurationException, NamingException {
 
-    GrouperSynchronizer gs = new GroupEntrySynchronizer(null, null, configuration,
-        options, null);
+    Provisioner provisioner = new Provisioner(configuration, options, null);
 
     Group group = StemHelper.addChildGroup(this.edu, "groupA", "Group A");
 
@@ -132,14 +128,13 @@ public class GrouperSynchronizerTest extends BaseLdappcTestCase {
 
     assertEquals(
         "Status should be UNCHANGED when InputOptions.getLastModifyTime() is after Group.getCreateTime().",
-        GrouperSynchronizer.STATUS_UNCHANGED, gs.determineStatus(g));
+        Provisioner.STATUS_UNCHANGED, provisioner.determineStatus(g));
   }
 
-  public void testStatusUnchangedWithModification() throws LdappcConfigurationException,
+  public void testStatusUnchangedWithModification() throws ConfigurationException,
       NamingException {
 
-    GrouperSynchronizer gs = new GroupEntrySynchronizer(null, null, configuration,
-        options, null);
+    Provisioner provisioner = new Provisioner(configuration, options, null);
 
     Group group = StemHelper.addChildGroup(this.edu, "groupA", "Group A");
 
@@ -152,14 +147,13 @@ public class GrouperSynchronizerTest extends BaseLdappcTestCase {
 
     assertEquals(
         "Status should be UNCHANGED when InputOptions.getLastModifyTime() is after Group.getCreateTime() and Group.getModifyTime().",
-        GrouperSynchronizer.STATUS_UNCHANGED, gs.determineStatus(g));
+        Provisioner.STATUS_UNCHANGED, provisioner.determineStatus(g));
   }
 
-  public void testStatusUnchangedWithMemberModification()
-      throws LdappcConfigurationException, NamingException {
+  public void testStatusUnchangedWithMemberModification() throws ConfigurationException,
+      NamingException {
 
-    GrouperSynchronizer gs = new GroupEntrySynchronizer(null, null, configuration,
-        options, null);
+    Provisioner provisioner = new Provisioner(configuration, options, null);
 
     Group group = StemHelper.addChildGroup(this.edu, "groupA", "Group A");
 
@@ -172,13 +166,12 @@ public class GrouperSynchronizerTest extends BaseLdappcTestCase {
 
     assertEquals(
         "Status should be UNCHANGED when InputOptions.getLastModifyTime() is after Group.getCreateTime() and Group.getLastMembershipChange().",
-        GrouperSynchronizer.STATUS_UNCHANGED, gs.determineStatus(g));
+        Provisioner.STATUS_UNCHANGED, provisioner.determineStatus(g));
   }
 
-  public void testStatusModified() throws LdappcConfigurationException, NamingException {
+  public void testStatusModified() throws ConfigurationException, NamingException {
 
-    GrouperSynchronizer gs = new GroupEntrySynchronizer(null, null, configuration,
-        options, null);
+    Provisioner provisioner = new Provisioner(configuration, options, null);
 
     Group group = StemHelper.addChildGroup(this.edu, "groupA", "Group A");
 
@@ -191,6 +184,6 @@ public class GrouperSynchronizerTest extends BaseLdappcTestCase {
 
     assertEquals(
         "Status should be MODIFIED when InputOptions.getLastModifyTime() is after Group.getCreateTime() and before Group.getLastMembershipChange().",
-        GrouperSynchronizer.STATUS_MODIFIED, gs.determineStatus(g));
+        Provisioner.STATUS_MODIFIED, provisioner.determineStatus(g));
   }
 }

@@ -13,16 +13,29 @@
  * permissions and limitations under the License.
  */
 
-package edu.internet2.middleware.ldappc;
+package edu.internet2.middleware.ldappc.exception;
 
 /**
- * Class for containing global constants for the Ldappc program.
+ * This indicates that a configuration error occurred.
  */
-public class Constants {
+public class ConfigurationException extends LdappcException {
 
-  /**
-   * A flag to allow the use of reflection in the testing code to access private and
-   * protected members. Setting this to false will cause some test cases to fail.
-   */
-  public static final boolean ACCESSIBILITY = true;
+  private static final long serialVersionUID = 5421115193822021142L;
+
+  public ConfigurationException() {
+    super();
+  }
+
+  public ConfigurationException(String message) {
+    super(message);
+  }
+
+  public ConfigurationException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  public ConfigurationException(Throwable cause) {
+    super(cause);
+  }
+
 }

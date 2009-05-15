@@ -20,7 +20,6 @@ import java.util.GregorianCalendar;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
-import edu.internet2.middleware.ldappc.logging.ErrorLog;
 
 /**
  * InputOptionsTest verifies that arguments input to the InputOptions class constructor
@@ -37,17 +36,17 @@ public class InputOptionsTest extends TestCase {
   /*
    * An instance of the main class, just to check that it can be created.
    */
-  private InputOptions inputOptions;
+  private ProvisionerOptions inputOptions;
 
   /*
    * An instance of the main class, to check for property setting of options.
    */
-  private InputOptions inputOptions1;
+  private ProvisionerOptions inputOptions1;
 
   /*
    * An instance of the main class, to check for property setting of options.
    */
-  private InputOptions inputOptions2;
+  private ProvisionerOptions inputOptions2;
 
   /**
    * InputOptions Test
@@ -66,16 +65,15 @@ public class InputOptionsTest extends TestCase {
     // Test one set of args and then its complement.
     //
 
-    String args[] = { "-subject", "subjectIdA" };
+    String args[] = { "-subject", "subjectIdA", "-groups" };
     String args1[] = { "-subject", "subjectIdA", "-memberships", "-lastModifyTime",
         "2006-09-14_20:55" };
-    String args2[] = { "-subject", "subjectIdB", "-groups", "-permissions", "-interval",
-        "123" };
+    String args2[] = { "-subject", "subjectIdB", "-groups", "-interval", "123" };
 
     try {
-      inputOptions = new InputOptions(args);
-      inputOptions1 = new InputOptions(args1);
-      inputOptions2 = new InputOptions(args2);
+      inputOptions = new ProvisionerOptions(args);
+      inputOptions1 = new ProvisionerOptions(args1);
+      inputOptions2 = new ProvisionerOptions(args2);
     } catch (Exception e) {
       fail(e.toString());
     }
@@ -128,7 +126,6 @@ public class InputOptionsTest extends TestCase {
       assertTrue("Failed on set 1, memberships", inputOptions1.getDoMemberships());
       assertTrue("Failed on set 1, groups", !inputOptions1.getDoGroups());
       assertTrue("Failed on set 1, groups", !inputOptions1.getDoGroups());
-      assertTrue("Failed on set 1, doPolling", !inputOptions1.getDoPolling());
       Calendar calendar = new GregorianCalendar();
       calendar.setTime(inputOptions1.getLastModifyTime());
       int day = calendar.get(Calendar.DAY_OF_MONTH);
@@ -157,47 +154,9 @@ public class InputOptionsTest extends TestCase {
       assertTrue("Failed on set 2, memberships", !inputOptions2.getDoMemberships());
       assertTrue("Failed on set 2, groups", inputOptions2.getDoGroups());
       assertTrue("Failed on set 2, groups", inputOptions2.getDoGroups());
-      assertTrue("Failed on set 2, doPolling", inputOptions2.getDoPolling());
       assertNull("Failed on lastModifyTime", inputOptions2.getLastModifyTime());
     } catch (Exception e) {
       fail("Failure in testInputOptions2: " + e.getMessage());
-    }
-  }
-
-  /**
-   * Test the second set of input options This tests incorrect input.
-   */
-  public void testBadInputOptions() {
-
-    InputOptions badInputOptions = null;
-
-    // Test total garbage
-    String args[][] = {
-    // Not Fatal: just ignores extraneous data: {"aaa", "bbb", "ccc", "ddd"},
-        // Bad interval type
-        { "-subject", "subjectIdA", "-interval", "badIntervalType" },
-        // missing subjectId value
-        { "-subject", "-groups" },
-        // missing subject key
-        { "subjectIdValue" } };
-
-    for (int i = 0; i < args.length; i++) {
-      try {
-        badInputOptions = new InputOptions();
-        // Avoid sending fatal error message to the log when doing these tests.
-        badInputOptions.setIsTest(true);
-        badInputOptions.init(args[i]);
-      } catch (Exception e) {
-        fail(e.toString());
-      }
-
-      try {
-        assertTrue("Failed (by not failing) on bad input options", badInputOptions
-            .isFatal());
-      } catch (Exception e) {
-        ErrorLog
-            .error(this.getClass(), "Failure in testInputOptions2: " + e.getMessage());
-      }
     }
   }
 

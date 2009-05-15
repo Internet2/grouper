@@ -516,9 +516,23 @@ public class AttributeModifier {
     public int size() {
       return map.size();
     }
+
+    public String toString() {
+      return map.toString();
+    }
   }
 
   public Values getRetainedValues() {
     return retained;
+  }
+
+  public String toString() {
+    StringBuffer buffer = new StringBuffer(attributeName);
+
+    buffer.append(" adds " + adds.toString());
+    buffer.append(" deletes " + deletes.toString());
+    buffer.append(" retained " + retained.toString());
+
+    return buffer.toString();
   }
 }
