@@ -16,25 +16,32 @@
 */
 
 package edu.internet2.middleware.grouper.internal.util;
-import  org.doomdark.uuid.UUIDGenerator;
+import java.util.UUID;
 
 /** 
  * Generate UUIDs.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperUuid.java,v 1.1 2007-04-17 17:13:27 blair Exp $
+ * @version $Id: GrouperUuid.java,v 1.1.10.1 2009-05-18 16:05:32 mchyzer Exp $
  * @since   1.2.0
  *     
 */
 public class GrouperUuid {
 
-  // PUBLIC CLASS METHODS //
-
   /**
+   * @return a uuid 
    * @since   1.2.0
    */
   public static String getUuid() {
-    return UUIDGenerator.getInstance().generateRandomBasedUUID().toString();
+    String uuid = UUID.randomUUID().toString();
+    StringBuilder result = new StringBuilder(uuid.length());
+    for (int i=0;i<uuid.length();i++) {
+      char theChar = uuid.charAt(i);
+      if (theChar != '-') {
+        result.append(theChar);
+      }
+    }
+    return result.toString();
   } 
 
 }
