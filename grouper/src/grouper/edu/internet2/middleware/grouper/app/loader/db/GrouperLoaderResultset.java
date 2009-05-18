@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderResultset.java,v 1.5 2008-12-09 08:11:50 mchyzer Exp $
+ * $Id: GrouperLoaderResultset.java,v 1.5.2.1 2009-05-18 15:33:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
@@ -53,6 +53,36 @@ public class GrouperLoaderResultset {
    * 
    */
   public static final String GROUP_DESCRIPTION_COL = "GROUP_DESCRIPTION";
+
+  /**
+   * 
+   */
+  public static final String GROUP_VIEWERS_COL = "VIEWERS";
+
+  /**
+   * 
+   */
+  public static final String GROUP_READERS_COL = "READERS";
+
+  /**
+   * 
+   */
+  public static final String GROUP_UPDATERS_COL = "UPDATERS";
+
+  /**
+   * 
+   */
+  public static final String GROUP_ADMINS_COL = "ADMINS";
+
+  /**
+   * 
+   */
+  public static final String GROUP_OPTINS_COL = "OPTINS";
+
+  /**
+   * 
+   */
+  public static final String GROUP_OPTOUTS_COL = "OPTOUTS";
 
   /**
    * 

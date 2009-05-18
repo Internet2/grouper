@@ -1,15 +1,17 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.13.2.1 2009-04-28 19:37:37 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.13.2.2 2009-05-18 15:33:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
 import java.io.File;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -49,6 +51,9 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperReport;
 import edu.internet2.middleware.grouper.misc.GrouperReportException;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -106,7 +111,7 @@ public enum GrouperLoaderType {
       syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), null, null, 
           loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(),
           grouperLoaderResultset, false, loaderJobBean.getGrouperSession(), 
-          loaderJobBean.getAndGroups(), loaderJobBean.getGroupTypes());
+          loaderJobBean.getAndGroups(), loaderJobBean.getGroupTypes(), null);
       
     }
   }, 
@@ -306,6 +311,8 @@ public enum GrouperLoaderType {
           int groupMetadataNumberOfRows = 0;
           Map<String, String> groupNameToDisplayName = new LinkedHashMap<String, String>();
           Map<String, String> groupNameToDescription = new LinkedHashMap<String, String>();
+          Map<String, Subject> subjectCache = new HashMap<String, Subject>();
+          Map<Privilege, List<Subject>> privsToAdd = new LinkedHashMap<Privilege, List<Subject>>();
           Set<String> groupNamesFromGroupQuery = new LinkedHashSet<String>();
           if (!StringUtils.isBlank(groupQuery)) {
             //get a resultset from the db
@@ -321,6 +328,48 @@ public enum GrouperLoaderType {
               groupNameToDisplayName.put(groupName, groupDisplayName);
               String groupDescription = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_DESCRIPTION_COL, false);
               groupNameToDescription.put(groupName, groupDescription);
+              {
+                String groupViewers = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_VIEWERS_COL, false);
+                if (!StringUtils.isBlank(groupViewers)) {
+                  List<Subject> viewerSubjects = lookupSubject(subjectCache, groupViewers);
+                  privsToAdd.put(AccessPrivilege.VIEW, viewerSubjects);
+                }
+              }
+              {
+                String groupReaders = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_READERS_COL, false);
+                if (!StringUtils.isBlank(groupReaders)) {
+                  List<Subject> readerSubjects = lookupSubject(subjectCache, groupReaders);
+                  privsToAdd.put(AccessPrivilege.READ, readerSubjects);
+                }
+              }
+              {
+                String groupUpdaters = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_UPDATERS_COL, false);
+                if (!StringUtils.isBlank(groupUpdaters)) {
+                  List<Subject> updaterSubjects = lookupSubject(subjectCache, groupUpdaters);
+                  privsToAdd.put(AccessPrivilege.UPDATE, updaterSubjects);
+                }
+              }
+              {
+                String groupAdmins = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_ADMINS_COL, false);
+                if (!StringUtils.isBlank(groupAdmins)) {
+                  List<Subject> adminSubjects = lookupSubject(subjectCache, groupAdmins);
+                  privsToAdd.put(AccessPrivilege.ADMIN, adminSubjects);
+                }
+              }
+              {
+                String groupOptins = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_OPTINS_COL, false);
+                if (!StringUtils.isBlank(groupOptins)) {
+                  List<Subject> optinSubjects = lookupSubject(subjectCache, groupOptins);
+                  privsToAdd.put(AccessPrivilege.OPTIN, optinSubjects);
+                }
+              }
+              {
+                String groupOptouts = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_OPTOUTS_COL, false);
+                if (!StringUtils.isBlank(groupOptouts)) {
+                  List<Subject> optoutSubjects = lookupSubject(subjectCache, groupOptouts);
+                  privsToAdd.put(AccessPrivilege.OPTOUT, optoutSubjects);
+                }
+              }
             }
             
           }
@@ -492,7 +541,7 @@ public enum GrouperLoaderType {
               //based on type, run query from the db and sync members
               syncOneGroupMembership(groupName, groupNameToDisplayName.get(groupName), 
                   groupNameToDescription.get(groupName), hib3GrouploaderLog, groupStartedMillis,
-                  grouperLoaderResultset, true, grouperSession, andGroups, groupTypes);
+                  grouperLoaderResultset, true, grouperSession, andGroups, groupTypes, privsToAdd);
               
               long endTime = System.currentTimeMillis();
               hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
@@ -616,6 +665,48 @@ public enum GrouperLoaderType {
    * @return true if optional, false if not
    */
   public abstract boolean attributeOptional(String attributeName);
+  
+  /**
+   * take in a subject list, comma separated
+   * @param subjectCache
+   * @param subjectIdOrIdentifierList
+   * @return the list of subjects (never null)
+   */
+  public static List<Subject> lookupSubject(Map<String, Subject> subjectCache, String subjectIdOrIdentifierList) {
+    List<Subject> subjectList = new ArrayList<Subject>();
+    if (!StringUtils.isBlank(subjectIdOrIdentifierList)) {
+      String[] subjectIdsArray = GrouperUtil.splitTrim(subjectIdOrIdentifierList, ",");
+      for (String subjectIdOrIdentifier : subjectIdsArray) {
+        Subject subject = subjectCache.get(subjectIdOrIdentifier);
+        if (subject == null) {
+          
+          //we need to find this or make it
+          try {
+            subject = SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, false);
+          } catch (Exception e) {
+            //ignore I guess
+            LOG.debug("error looking for subject: " + subjectIdOrIdentifier, e);
+          }
+          if (subject == null && StringUtils.contains(subjectIdOrIdentifier, ':')) {
+            //if there is a colon, that is a group, it doesnt exist, so create it
+            GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+            Group group = new GroupSave(grouperSession).assignName(subjectIdOrIdentifier)
+              .assignGroupNameToEdit(subjectIdOrIdentifier)
+              .assignSaveMode(SaveMode.INSERT).saveUnchecked();
+            subject = group.toSubject();
+          }
+        }
+        if (subject != null) {
+          subjectCache.put(subjectIdOrIdentifier, subject);
+          if (!SubjectHelper.inList(subjectList, subject)) {
+            subjectList.add(subject);
+          }
+        }
+      }
+    }
+    return subjectList;
+    
+  }
   
   /**
    * logger 
@@ -760,13 +851,15 @@ public enum GrouperLoaderType {
    * @param grouperSession 
    * @param andGroups 
    * @param groupTypes comma separated group types
+   * @param groupPrivsToAdd priv
    */
   @SuppressWarnings("unchecked")
   protected static void syncOneGroupMembership(final String groupName,
       final String groupDisplayNameForInsert, final String groupDescription,
       Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime,
       final GrouperLoaderResultset grouperLoaderResultset, boolean groupList,
-      final GrouperSession grouperSession, List<Group> andGroups, List<GroupType> groupTypes) {
+      final GrouperSession grouperSession, List<Group> andGroups, List<GroupType> groupTypes,
+      Map<Privilege,List<Subject>> groupPrivsToAdd) {
     
     //keep this separate so we can prepend stuff inside...
     final StringBuilder jobMessage = new StringBuilder(StringUtils.defaultString(hib3GrouploaderLog.getJobMessage()));
@@ -812,6 +905,24 @@ public enum GrouperLoaderType {
         theGroup = groupSave.save();
         if (LOG.isDebugEnabled()) {
           LOG.debug(groupName + ": saving group if necessary, result type: " + groupSave.getSaveResultType());
+        }
+        if (groupPrivsToAdd != null) {
+          for (Privilege privilege : groupPrivsToAdd.keySet()) {
+            List<Subject> subjects = groupPrivsToAdd.get(privilege);
+            for (Subject subject : subjects) {
+              //add the priv
+              Boolean added = null;
+              try {
+                added = theGroup.grantPriv(subject, privilege, false);
+                if (added) {
+                  hib3GrouploaderLog.addInsertCount(1);
+                }
+              } finally {
+                LOG.debug("Granting privilege " + privilege + " to group: " + theGroup.getName() + " to subject: "
+                    + GrouperUtil.subjectToString(subject) + " already existed? " + added);
+              }
+            }
+          }
         }
       } else {
         theGroup = GroupFinder.findByName(grouperSession, groupName);
