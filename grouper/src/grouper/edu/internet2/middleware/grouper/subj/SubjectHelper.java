@@ -19,9 +19,14 @@ package edu.internet2.middleware.grouper.subj;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.subject.Subject;
 
@@ -29,13 +34,53 @@ import edu.internet2.middleware.subject.Subject;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.2.2.1 2009-03-25 08:17:30 mchyzer Exp $
+ * @version $Id: SubjectHelper.java,v 1.2.2.2 2009-05-18 16:56:38 mchyzer Exp $
  */
 public class SubjectHelper {
 
   /** */
   private static final String SUBJECT_DELIM = "/";
 
+  /**
+   * sort a set of subjects for a search, match id's and identifiers at top
+   * @param subjectsIn
+   * @param searchTerm
+   * @return the set with close matches at top
+   */
+  public static Set<Subject> sortSetForSearch(Set<Subject> subjectsIn, String searchTerm) {
+    
+    if (subjectsIn == null) {
+      return null;
+    }
+    Set<Subject> subjectsOut = new LinkedHashSet<Subject>(subjectsIn.size());
+    //look for subjectId's
+    Iterator<Subject> iterator = subjectsIn.iterator();
+    while (iterator.hasNext()) {
+      Subject subject = iterator.next();
+      if (StringUtils.equals(searchTerm, subject.getId())) {
+        subjectsOut.add(subject);
+        iterator.remove();
+      }
+    }
+    
+    //look for any attribute
+    iterator = subjectsIn.iterator();
+    while (iterator.hasNext()) {
+      Subject subject = iterator.next();
+      Map<String, Set<String>> attributes = subject.getAttributes();
+      for (Set<String> attributeValues: attributes.values()) {
+        if (attributeValues != null && attributeValues.contains(searchTerm)) {
+          subjectsOut.add(subject);
+          iterator.remove();
+        }
+      }
+    }
+    
+    //add the rest
+    subjectsOut.addAll(subjectsIn);
+    return subjectsOut;
+    
+  }
 
   /**
    * @param a 

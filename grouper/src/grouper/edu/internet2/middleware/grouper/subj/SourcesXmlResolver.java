@@ -23,6 +23,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
@@ -38,7 +40,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * Wrapper around Subject sources configured in <code>sources.xml</code>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SourcesXmlResolver.java,v 1.9 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: SourcesXmlResolver.java,v 1.9.2.1 2009-05-18 16:56:38 mchyzer Exp $
  * @since   1.2.1
  */
 public class SourcesXmlResolver implements SubjectResolver {
@@ -142,10 +144,16 @@ public class SourcesXmlResolver implements SubjectResolver {
   public Set<Subject> findAll(String query)
     throws  IllegalArgumentException
   {
+    
     Set<Subject> subjects = new LinkedHashSet();
     for ( Source sa : this.getSources() ) {
       subjects.addAll( sa.search(query) );
     }
+    
+    if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
+      subjects = SubjectHelper.sortSetForSearch(subjects, query);
+    }
+
     return subjects;
   }
 
@@ -157,7 +165,11 @@ public class SourcesXmlResolver implements SubjectResolver {
     throws  IllegalArgumentException,
             SourceUnavailableException
   {
-    return this.getSource(source).search(query);
+    Set<Subject> subjects = this.getSource(source).search(query);
+    if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
+      subjects = SubjectHelper.sortSetForSearch(subjects, query);
+    }
+    return subjects;
   }
 
   /**
