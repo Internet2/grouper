@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.1.2.6 2009-04-11 10:59:34 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.1.2.7 2009-05-19 15:37:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.poc;
 
@@ -46,7 +46,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testGetMembers"));
+    TestRunner.run(new GrouperClientWsTest("testGroupSaveUpdateExistingName"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -1734,6 +1734,76 @@ public class GrouperClientWsTest extends GrouperTest {
         assertEquals("GROUP_ALREADY_EXISTS", resultCode);
       }
     }    
+  }
+  
+  /**
+   * update a group to an existing name
+   * @throws Exception
+   */
+  public void testGroupSaveUpdateExistingName() throws Exception {
+    
+    {
+      WsGroupToSave wsGroupToSave = new WsGroupToSave();
+      wsGroupToSave.setSaveMode("INSERT");
+      wsGroupToSave.setWsGroupLookup(new WsGroupLookup(null, null));
+      WsGroup wsGroup = new WsGroup();
+      wsGroup.setDisplayExtension("a group4");
+      wsGroup.setExtension("aGroup4");
+      wsGroup.setName("aStem:aGroup4");
+      wsGroupToSave.setWsGroup(wsGroup);
+      WsGroupSaveResults wsGroupSaveResults = new GcGroupSave().addGroupToSave(wsGroupToSave).execute();
+      
+      //prints SUCCESS_INSERTED when it works
+      String resultCode = wsGroupSaveResults.getResults()[0].getResultMetadata().getResultCode();
+      
+      assertEquals("SUCCESS_INSERTED", resultCode);
+    }
+    String uuid = null;
+    {
+      WsGroupToSave wsGroupToSave = new WsGroupToSave();
+      wsGroupToSave.setSaveMode("INSERT");
+      wsGroupToSave.setWsGroupLookup(new WsGroupLookup(null, null));
+      WsGroup wsGroup = new WsGroup();
+      wsGroup.setDisplayExtension("a group5");
+      wsGroup.setExtension("aGroup5");
+      wsGroup.setName("aStem:aGroup5");
+      wsGroupToSave.setWsGroup(wsGroup);
+      WsGroupSaveResults wsGroupSaveResults = new GcGroupSave().addGroupToSave(wsGroupToSave).execute();
+      
+      uuid = wsGroupSaveResults.getResults()[0].getWsGroup().getUuid();
+      
+      //prints SUCCESS_INSERTED when it works
+      String resultCode = wsGroupSaveResults.getResults()[0].getResultMetadata().getResultCode();
+      
+      assertEquals("SUCCESS_INSERTED", resultCode);
+    
+    }
+    
+    {
+      WsGroupToSave wsGroupToSave = new WsGroupToSave();
+      wsGroupToSave.setSaveMode("UPDATE");
+      wsGroupToSave.setWsGroupLookup(new WsGroupLookup(null, uuid));
+      WsGroup wsGroup = new WsGroup();
+      wsGroup.setDisplayExtension("a group4");
+      wsGroup.setExtension("aGroup4");
+      wsGroup.setName("aStem:aGroup4");
+      wsGroupToSave.setWsGroup(wsGroup);
+      try {
+        @SuppressWarnings("unused")
+        WsGroupSaveResults wsGroupSaveResults = new GcGroupSave().addGroupToSave(wsGroupToSave).execute();
+        
+        fail("Should not update to existing name");
+  
+        //System.out.println(resultCode);
+      } catch (GcWebServiceError gwse) {
+        WsGroupSaveResults wsGroupSaveResults = (WsGroupSaveResults)gwse.getContainerResponseObject();
+  
+        String resultCode = wsGroupSaveResults.getResults()[0].getResultMetadata().getResultCode();
+        
+        assertEquals("EXCEPTION", resultCode);
+      }
+    }    
+      
   }
   
   /**

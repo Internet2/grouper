@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
+import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
@@ -115,7 +116,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.214.2.8 2009-04-28 19:37:37 mchyzer Exp $
+ * @version $Id: Group.java,v 1.214.2.9 2009-05-19 15:38:03 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Comparable {
@@ -3050,6 +3051,22 @@ public class Group extends GrouperAPI implements Owner, Hib3GrouperVersioned, Co
    */
   public void store() {
     if (GrouperConfig.getPropertyBoolean(GrouperConfig.PROP_SETTERS_DONT_CAUSE_QUERIES, false)) {
+      
+      //make sure if changing extension that it doesnt already exist
+      String extensionNew = this.getExtension();
+      Group dbVersion = this.dbVersion();
+      String extensionOld = dbVersion != null ? dbVersion.getExtension() : null;
+      if (!StringUtils.isBlank(extensionOld) && !StringUtils.equals(extensionNew, extensionOld)) {
+        //lets just confirm that one doesnt exist
+        String newName = this.getName();
+        
+        Group existingGroup = GroupFinder.findByName(
+            GrouperSession.staticGrouperSession().internal_getRootSession(), newName, false);
+        
+        if (existingGroup != null && !StringUtils.equals(this.getUuid(), existingGroup.getUuid())) {
+          throw new GroupModifyAlreadyExistsException("Group already exists: " + newName);
+        }
+      }
       GrouperDAOFactory.getFactory().getGroup().update( this );
     }
   }

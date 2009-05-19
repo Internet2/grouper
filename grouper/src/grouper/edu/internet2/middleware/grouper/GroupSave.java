@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupSave.java,v 1.3.2.2 2009-02-20 07:23:00 mchyzer Exp $
+ * $Id: GroupSave.java,v 1.3.2.3 2009-05-19 15:38:03 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -9,7 +9,9 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
+import edu.internet2.middleware.grouper.exception.GroupAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -344,8 +346,18 @@ public class GroupSave {
                   } else {
                     //check if different so it doesnt make unneeded queries
                     if (!StringUtils.equals(theGroup.getExtension(), extensionNew)) {
-                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
+                      
+                      //lets just confirm that one doesnt exist
+                      String newName = GrouperUtil.parentStemNameFromName(theGroup.getName()) + ":" + extensionNew;
+                      
+                      Group existingGroup = GroupFinder.findByName(grouperSession.internal_getRootSession(), newName, false);
+                      
+                      if (existingGroup != null && !StringUtils.equals(theGroup.getUuid(), existingGroup.getUuid())) {
+                        throw new GroupModifyAlreadyExistsException("Group already exists: " + newName);
+                      }
+                      
                       theGroup.setExtension(extensionNew);
+                      GroupSave.this.saveResultType = SaveResultType.UPDATE;
                       needsSave = true;
                     }
                     if (!StringUtils.equals(theGroup.getDisplayExtension(), theDisplayExtension)) {
