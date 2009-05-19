@@ -65,7 +65,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.24.2.2 2009-04-10 18:44:21 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.24.2.3 2009-05-19 11:49:51 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -799,13 +799,31 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   public Group findByName(final String name) 
     throws  GrouperDAOException,
             GroupNotFoundException {
+    return findByName(name, true);
+  }
+
+  /**
+   * @param name
+   * @param useCache if we should use cache or not
+   * @return group
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   * @since   @HEAD@
+   */
+  public Group findByName(final String name, boolean useCache) 
+    throws  GrouperDAOException,
+            GroupNotFoundException {
     
-    Group group = HibernateSession.byHqlStatic()
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
       .createQuery("select g from Attribute as a, Group as g, Field as field where a.groupUuid = g.uuid " +
-      		"and field.name = 'name' and a.value = :value and field.typeString = 'attribute' and a.fieldId = field.uuid")
-      .setCacheable(true)
-      .setCacheRegion(KLASS + ".FindByName")
-      .setString("value", name).uniqueResult(Group.class);
+      "and field.name = 'name' and a.value = :value and field.typeString = 'attribute' and a.fieldId = field.uuid")
+      .setCacheable(useCache);
+    
+    if (useCache) {
+      byHqlStatic.setCacheRegion(KLASS + ".FindByName");
+    }
+    
+    Group group = byHqlStatic.setString("value", name).uniqueResult(Group.class);
 
     //handle exceptions out of data access method...
     if (group == null) {

@@ -23,7 +23,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AddGroupValidator.java,v 1.1.2.1 2009-02-20 07:23:00 mchyzer Exp $
+ * @version $Id: AddGroupValidator.java,v 1.1.2.2 2009-05-19 11:49:51 mchyzer Exp $
  * @since   1.2.0
  */
 public class AddGroupValidator extends GrouperValidator {
@@ -57,7 +57,7 @@ public class AddGroupValidator extends GrouperValidator {
     else {
       try {
         String groupName = U.constructName( parent.getName(), extn );
-        GrouperDAOFactory.getFactory().getGroup().findByName( groupName );
+        GrouperDAOFactory.getFactory().getGroup().findByName( groupName, false );
         v.setErrorMessage(GROUP_ALREADY_EXISTS_WITH_NAME_PREFIX + groupName + "'");
       }
       catch (GroupNotFoundException eGNF) {
