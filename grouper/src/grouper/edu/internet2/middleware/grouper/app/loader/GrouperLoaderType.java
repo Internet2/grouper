@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.13.2.2 2009-05-18 15:33:44 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.13.2.3 2009-05-19 19:34:30 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -906,24 +906,6 @@ public enum GrouperLoaderType {
         if (LOG.isDebugEnabled()) {
           LOG.debug(groupName + ": saving group if necessary, result type: " + groupSave.getSaveResultType());
         }
-        if (groupPrivsToAdd != null) {
-          for (Privilege privilege : groupPrivsToAdd.keySet()) {
-            List<Subject> subjects = groupPrivsToAdd.get(privilege);
-            for (Subject subject : subjects) {
-              //add the priv
-              Boolean added = null;
-              try {
-                added = theGroup.grantPriv(subject, privilege, false);
-                if (added) {
-                  hib3GrouploaderLog.addInsertCount(1);
-                }
-              } finally {
-                LOG.debug("Granting privilege " + privilege + " to group: " + theGroup.getName() + " to subject: "
-                    + GrouperUtil.subjectToString(subject) + " already existed? " + added);
-              }
-            }
-          }
-        }
       } else {
         theGroup = GroupFinder.findByName(grouperSession, groupName);
       }
@@ -936,6 +918,34 @@ public enum GrouperLoaderType {
           boolean added = group[0].addType(groupType, false);
           if (added) {
             LOG.debug("Added type: " + groupType.getName() + " to group: " + group[0].getName());
+          }
+        }
+      }
+
+      if (groupList) {
+        if (groupPrivsToAdd != null && groupPrivsToAdd.size() > 0) {
+          
+          Set<Group> groupsForPrivs = GroupTypeTupleIncludeExcludeHook.relatedGroups(theGroup);
+          for (Group groupForPriv : groupsForPrivs) {
+          
+            for (Privilege privilege : groupPrivsToAdd.keySet()) {
+              List<Subject> subjects = groupPrivsToAdd.get(privilege);
+              for (Subject subject : subjects) {
+                //add the priv
+                Boolean added = null;
+                try {
+                  added = groupForPriv.grantPriv(subject, privilege, false);
+                  if (added) {
+                    hib3GrouploaderLog.addInsertCount(1);
+                  }
+                } finally {
+                  String logMessage = "Granting privilege " + privilege + " to group: " + groupForPriv.getName() + " to subject: "
+                      + GrouperUtil.subjectToString(subject) + " already existed? " + added;
+                  System.out.println(logMessage);
+                  LOG.debug(logMessage);
+                }
+              }
+            }
           }
         }
       }
