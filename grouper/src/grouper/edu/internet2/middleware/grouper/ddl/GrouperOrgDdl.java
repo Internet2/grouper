@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperOrgDdl.java,v 1.1.2.1 2009-04-28 19:37:37 mchyzer Exp $
+ * $Id: GrouperOrgDdl.java,v 1.1.2.2 2009-05-19 20:59:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -364,16 +364,16 @@ public enum GrouperOrgDdl implements DdlVersionable {
          GrouperUtil.toSet("Group name is full id path, e.g. school:stem1:groupId of the parent all group",
              "member group name is the group name of the member group in the all group"),
              "select gh.org_hier_all_sor_name as group_name, gh.org_hierarchical_name as member_group_name "
-             + "from grouperorgs_hierarchical as gh "
+             + "from grouperorgs_hierarchical gh "
              + "where gh.org_hier_all_name is not null "
              + "union "
              + "select gh.org_hier_all_sor_name as group_name, gh_member.org_hier_all_name as subject_identifier "
-             + "from grouperorgs_hierarchical as gh, grouperorgs_hierarchical as gh_member, grouperorgs_poc_orgs as gpo "
+             + "from grouperorgs_hierarchical gh, grouperorgs_hierarchical gh_member, grouperorgs_poc_orgs gpo "
              + "where gh.org_hier_all_name is not null and gpo.parent_id = gh.org_id and gpo.id = gh_member.org_id "
              + "and gh_member.org_hier_all_name is not null "
              + "union "
              + "select gh.org_hier_all_sor_name as group_name, gh_member.org_hierarchical_name as subject_identifier "
-             + "from grouperorgs_hierarchical as gh, grouperorgs_hierarchical as gh_member, grouperorgs_poc_orgs as gpo "
+             + "from grouperorgs_hierarchical gh, grouperorgs_hierarchical gh_member, grouperorgs_poc_orgs gpo "
              + "where gh.org_hier_all_name is not null and gpo.parent_id = gh.org_id and gpo.id = gh_member.org_id "
              + "and gh_member.org_hier_all_name is null ");
 
