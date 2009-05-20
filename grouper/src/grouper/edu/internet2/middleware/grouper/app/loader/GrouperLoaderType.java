@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.13.2.3 2009-05-19 19:34:30 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.13.2.4 2009-05-20 04:50:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -941,7 +941,7 @@ public enum GrouperLoaderType {
                 } finally {
                   String logMessage = "Granting privilege " + privilege + " to group: " + groupForPriv.getName() + " to subject: "
                       + GrouperUtil.subjectToString(subject) + " already existed? " + added;
-                  System.out.println(logMessage);
+                  //System.out.println(logMessage);
                   LOG.debug(logMessage);
                 }
               }
