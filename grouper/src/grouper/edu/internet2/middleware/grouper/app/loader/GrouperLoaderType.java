@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.13.2.4 2009-05-20 04:50:29 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.13.2.5 2009-05-20 06:03:54 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -275,7 +275,7 @@ public enum GrouperLoaderType {
         Hib3GrouperLoaderLog hib3GrouploaderLogOverall = loaderJobBean.getHib3GrouploaderLogOverall();
         GrouperSession grouperSession = loaderJobBean.getGrouperSession();
         List<Group> andGroups = loaderJobBean.getAndGroups();
-        List<GroupType> groupTypes = loaderJobBean.getGroupTypes();
+        List<GroupType> groupTypes = GrouperUtil.nonNull(loaderJobBean.getGroupTypes());
         String groupLikeString = loaderJobBean.getGroupLikeString();
         String groupQuery = loaderJobBean.getGroupQuery();
         long startTime = loaderJobBean.getStartTime();
