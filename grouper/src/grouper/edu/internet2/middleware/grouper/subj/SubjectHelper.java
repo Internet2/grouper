@@ -34,7 +34,7 @@ import edu.internet2.middleware.subject.Subject;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.2.2.2 2009-05-18 16:56:38 mchyzer Exp $
+ * @version $Id: SubjectHelper.java,v 1.2.2.3 2009-05-22 19:27:34 mchyzer Exp $
  */
 public class SubjectHelper {
 
@@ -140,6 +140,39 @@ public class SubjectHelper {
             + Quote.single( subj.getType().getName() ) 
             + SUBJECT_DELIM
             + Quote.single( subj.getSource().getId() );
+  }
+
+  /**
+   * 
+   * @param subj
+   * @return string
+   */
+  public static String getPrettyComplete(Subject subj) {
+    
+    StringBuilder result = new StringBuilder(subj.getId()
+            + SUBJECT_DELIM
+            + subj.getType().getName() 
+            + SUBJECT_DELIM
+            + subj.getSource().getId()
+            + SUBJECT_DELIM + "name: "
+            + subj.getName()
+            + SUBJECT_DELIM + "desc: "
+            + subj.getDescription());
+    Map<String, Set<String>> attributes = subj.getAttributes();
+    if (attributes != null) {
+      for (String key : attributes.keySet()) {
+        Set<String> set = attributes.get(key);
+        result.append(SUBJECT_DELIM).append(key).append(": ");
+        for (String value : set) {
+          result.append(value).append(", ");
+        }
+        //remove last comma
+        result.delete(result.length()-2, result.length());
+      }
+    }
+    
+    return result.toString();
+  
   }
 
   
