@@ -12,7 +12,7 @@
     </group-queries>
    
     <groups structure="bushy" root-dn="ou=groups,dc=grouper,dc=edu" ldap-object-class="groupOfNames"
-            ldap-rdn-attribute="cn" grouper-attribute="name" >
+            ldap-rdn-attribute="cn" grouper-attribute="name" provision-member-groups="true" >
    
       <group-members-dn-list list-object-class="groupOfNames" list-attribute="member" list-empty-value=""/>
    
@@ -38,10 +38,7 @@
   <source-subject-identifiers>    
     <source-subject-identifier source="jdbc" subject-attribute="subjectId">
       <ldap-search base="ou=people,dc=grouper,dc=edu" scope="subtree_scope" filter="(uid={0})" />
-    </source-subject-identifier>        
-    <source-subject-identifier source="g:gsa" subject-attribute="name" > 
-      <ldap-search base="ou=groups,dc=grouper,dc=edu" scope="subtree_scope" filter="(cn={0})" />
-    </source-subject-identifier>    
+    </source-subject-identifier>  
   </source-subject-identifiers>
 
   <ldap>

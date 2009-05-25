@@ -11,7 +11,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.5 2009-05-15 18:33:29 tzeller Exp $
+ * $Id: SubjectCache.java,v 1.6 2009-05-25 20:40:36 tzeller Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
@@ -29,10 +29,10 @@ import javax.naming.directory.SearchResult;
 
 import org.slf4j.Logger;
 
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.Provisioner;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
-import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -139,151 +139,140 @@ public class SubjectCache {
   }
 
   /**
-   * This returns the DN of the subject. This uses the query filter defined for the
-   * <code>sourceId</code> in the configuration to search for the <code>subject</code>.
+   * Returns the member's DN.
    * 
-   * @param ctx
-   *          Ldap context
-   * @param configuration
-   *          Provisioner configuration
-   * @param subject
-   *          Subject
-   * @return Subject's DN
-   * @throws javax.naming.NamingException
-   *           thrown if a Naming exception occurs
-   * @throws EntryNotFoundException
-   *           thrown if the entry could not be located
-   * @throws MultipleEntriesFoundException
-   *           thrown if the search found more than one entry
+   * @param member
+   *          the member
+   * @return the member's DN
+   * @throws NamingException
+   *           if an ldap error occurs
+   * @throws LdappcException
+   *           if there is a configuration error or if exactly one DN cannot be determined
    */
-  public Name findSubjectDn(Subject subject) throws NamingException, LdappcException {
-    //
-    // Get the subject's source and source id
-    //
-    Source source = subject.getSource();
-    if (source == null) {
-      throw new LdappcException("Subject [ " + getSubjectData(subject)
-          + " ] has a null source");
+  public Name findSubjectDn(Member member) throws NamingException, LdappcException {
+
+    // source and subject identifiers
+    String sourceId = member.getSubjectSourceId();
+
+    // return null if we aren't provisioning member groups and source is g:gsa
+    if (sourceId.equals("g:gsa")
+        && (!provisioner.getConfiguration().getProvisionMemberGroups())) {
+      return null;
     }
 
-    String sourceId = source.getId();
+    String subjectIdentifier = member.getSubjectId();
 
-    if (sourceId.equals("g:gsa")) {
-      LOG.debug("g:gsa shortcut");
-
-    }
-
-    //
-    // Get the source name attribute
-    //
-    String sourceNameAttr = provisioner.getConfiguration()
-        .getSourceSubjectNamingAttribute(sourceId);
-    if (sourceNameAttr == null) {
-      throw new LdappcException("Subject [ " + getSubjectData(subject) + " ] source [ "
-          + sourceId + " ] does not identify a source subject naming attribute");
-    }
-
-    //
-    // Get the subject's name attribute value
-    //
-    LOG.debug("get attribute {} for subject {}", sourceNameAttr, subject);
-    String subjectIdentifier = subject.getAttributeValue(sourceNameAttr);
-    if (subjectIdentifier == null) {
-      throw new LdappcException("Subject [ " + getSubjectData(subject, true)
-          + " ] has no value for attribute [ " + sourceNameAttr + " ]");
-    }
-
-    return findSubjectDn(sourceId, subjectIdentifier);
-  }
-
-  /**
-   * This returns the DN of the identified subject. This uses the query filter defined for
-   * the <code>sourceId</code> in the configuration to search for the subject identified
-   * by <code>subjectIdentifier</code>. It will return <code>null</code> if the subject is
-   * not found or multiple entries match the search.
-   * 
-   * @param ldapCtx
-   *          Ldap context
-   * @param configuration
-   *          Provisioner configuration
-   * @param sourceId
-   *          Source Id of the subject
-   * @param subjectIdentifier
-   *          Identifier string of the subject
-   * @return Subject's DN
-   * @throws javax.naming.NamingException
-   *           thrown if a Naming exception occurs
-   * @throws EntryNotFoundException
-   *           thrown if the entry could not be located
-   * @throws MultipleEntriesFoundException
-   *           thrown if the search found more than one entry
-   */
-  public Name findSubjectDn(String sourceId, String subjectIdentifier)
-      throws NamingException, LdappcException {
-    //
-    // Initialize error message suffix
-    //
-    String errorSuffix = "[ subject id = " + subjectIdentifier + " ][ source = "
-        + sourceId + " ]";
-
-    //
-    // Get the LDAP search filter for the source
-    //
-    LdapSearchFilter filter = provisioner.getConfiguration().getSourceSubjectLdapFilter(
-        sourceId);
-    if (filter == null) {
-      throw new LdappcException("Ldap search filter not found using " + errorSuffix);
-    }
-
-    //
-    // Update the error suffix
-    //
-    errorSuffix += "[ filter = " + filter + " ]";
-
-    //
-    // Build all of pieces needed to search
-    //
-    NameParser parser = provisioner.getContext().getNameParser(LdapUtil.EMPTY_NAME);
-    Name baseName = parser.parse(filter.getBase());
-
-    subjectIdLookups++;
-    Name subjectDn = null;
+    // use cache
     if (subjectIdToDnTables.get(sourceId) == null) {
       subjectIdToDnTables.put(sourceId,
           new Hashtable<String, Name>(DEFAULT_HASH_ESTIMATE));
     } else {
-      subjectDn = subjectIdToDnTables.get(sourceId).get(subjectIdentifier);
+      Name subjectDn = subjectIdToDnTables.get(sourceId).get(subjectIdentifier);
       if (subjectDn != null) {
         subjectIdTableHits++;
+        LOG.debug("cache found dn '{}' for sourceId '{}' subjectId '{}'", new Object[] {
+            subjectDn, sourceId, subjectIdentifier });
         return subjectDn;
       }
     }
+
+    // determine filter, use built-in for g:gsa source
+    LdapSearchFilter filter = null;
+
+    if (sourceId.equals("g:gsa")) {
+
+      Name groupDN = provisioner.calculateGroupDn(member.toGroup());
+      filter = new LdapSearchFilter(groupDN.toString(), SearchControls.OBJECT_SCOPE,
+          "(objectclass=*)");
+
+    } else {
+
+      //
+      // Get the LDAP search filter for the source
+      //
+      filter = provisioner.getConfiguration().getSourceSubjectLdapFilter(sourceId);
+      if (filter == null) {
+        throw new LdappcException("Ldap search filter not found using sourceId '"
+            + sourceId + "'");
+      }
+
+      //
+      // Get the source name attribute
+      //
+      String sourceNameAttr = provisioner.getConfiguration()
+          .getSourceSubjectNamingAttribute(sourceId);
+      if (sourceNameAttr == null) {
+        throw new LdappcException("Subject source [ " + sourceId
+            + " ] does not identify a source subject naming attribute");
+      }
+
+      //
+      // Get the subject's name attribute value
+      //
+      if (!sourceNameAttr.equals("id")) {
+        LOG.debug("get source attribute '{}' for subject '{}'", sourceNameAttr,
+            subjectIdentifier);
+        subjectIdentifier = member.getSubject().getAttributeValue(sourceNameAttr);
+        if (subjectIdentifier == null) {
+          throw new LdappcException("Subject " + subjectIdentifier
+              + " ] has no value for attribute [ " + sourceNameAttr + " ]");
+        }
+      }
+    }
+
+    // perform ldap search
+    Name subjectDn = findSubjectDn(filter, subjectIdentifier);
+
+    // add to cache
+    subjectIdToDnTables.get(sourceId).put(subjectIdentifier, subjectDn);
+
+    LOG.debug("search found dn '{}' for sourceId '{}' subjectId '{}'", new Object[] {
+        subjectDn, sourceId, subjectIdentifier });
+
+    return subjectDn;
+  }
+
+  /**
+   * Return the DN for the given subject identifier using the supplied filter object.
+   * 
+   * @param filter
+   *          the filter appropriate for the subject's source
+   * @param subjectIdentifier
+   *          the identifier of the subject
+   * @return the subject's DN as a Name
+   * @throws NamingException
+   *           thrown if an ldap error occurs
+   * @throws LdappcException
+   *           thrown if the search does not return exactly 1 result
+   */
+  private Name findSubjectDn(LdapSearchFilter filter, String subjectIdentifier)
+      throws NamingException, LdappcException {
+
+    subjectIdLookups++;
+
+    // base
+    NameParser parser = provisioner.getContext().getNameParser(LdapUtil.EMPTY_NAME);
+    Name baseName = parser.parse(filter.getBase());
+
+    // filter
     String filterExpr = filter.getFilter();
 
+    // filter args
     Object[] filterArgs = new Object[] { subjectIdentifier };
 
-    //
-    // Update the error suffix
-    //
-    errorSuffix += "[ filterArgs = " + Arrays.asList(filterArgs) + " ]";
-
+    // search control
     SearchControls searchControls = new SearchControls();
     searchControls.setSearchScope(filter.getScope());
     searchControls.setReturningAttributes(new String[] {});
-
-    //
-    // As only 1 is wanted, if two are found the subjectName value
-    // wasn't unique
-    //
     searchControls.setCountLimit(2);
+
+    String msg = "search for subjectId '" + subjectIdentifier + "' base '" + baseName
+        + "' filter '" + filterExpr + "' args " + Arrays.asList(filterArgs);
 
     //
     // Perform the search
     //
-    LOG
-        .debug("search base '{}' filter '{}' filterArgs '{}' subjectId '{}'",
-            new Object[] { baseName, filterExpr, Arrays.asList(filterArgs),
-                subjectIdentifier });
+    LOG.debug(msg);
     NamingEnumeration namingEnum = provisioner.getContext().search(baseName, filterExpr,
         filterArgs, searchControls);
 
@@ -291,7 +280,7 @@ public class SubjectCache {
     // If no entries where found, throw an exception
     //
     if (!namingEnum.hasMore()) {
-      throw new LdappcException("Subject not found using " + errorSuffix);
+      throw new LdappcException("Subject not found using " + msg);
     }
 
     //
@@ -304,24 +293,21 @@ public class SubjectCache {
     // as the search result was not unique
     //
     if (namingEnum.hasMore()) {
-      throw new LdappcException("Multiple entries found using " + errorSuffix);
+      throw new LdappcException("Multiple entries found using " + msg);
     }
 
     //
     // If name is NOT relative, throw an exception
     //
     if (!searchResult.isRelative()) {
-      throw new LdappcException("Unable to resolve the reference found using "
-          + errorSuffix);
+      throw new LdappcException("Unable to resolve the reference found using " + msg);
     }
 
     //
     // Build the subject's DN
     //
-    subjectDn = parser.parse(searchResult.getName());
+    Name subjectDn = parser.parse(searchResult.getName());
     subjectDn = subjectDn.addAll(0, baseName);
-
-    subjectIdToDnTables.get(sourceId).put(subjectIdentifier, subjectDn);
 
     return subjectDn;
   }

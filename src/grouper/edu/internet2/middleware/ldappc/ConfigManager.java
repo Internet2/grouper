@@ -103,11 +103,9 @@ public class ConfigManager implements ProvisionerConfiguration {
   private Map groupAttrMatchingQueries = new Hashtable();
 
   /**
-   * Group DN Structure. Must have value of
-   * {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUP_DN_FLAT} or
-   * {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUP_DN_BUSHY} .
+   * Group DN Structure.
    */
-  private String groupDnStructure;
+  private GroupDNStructure groupDnStructure;
 
   /**
    * Group DN root OU.
@@ -253,49 +251,6 @@ public class ConfigManager implements ProvisionerConfiguration {
   private Map groupMembersNameListNamingAttributes = new Hashtable();
 
   /**
-   * Storage method for permissions listings. Valid values are
-   * {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_EDU_PERMISSION}
-   * or
-   * {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_STRING}
-   * .
-   */
-  private String permissionsListingStoredAs;
-
-  /**
-   * Subject LDAP object class containing the attribute for holding the permissions
-   * listing when stored as objects.
-   */
-  private String permissionsListingStringObjectClass;
-
-  /**
-   * Subject LDAP entry attribute for holding the permissions listing when stored as
-   * {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_STRING}
-   * .
-   */
-  private String permissionsListingStringAttribute;
-
-  /**
-   * Prefix for creating the permissions listing when stored as String.
-   */
-  private String permissionsListingStringPrefix;
-
-  /**
-   * Value placed in permission listing string attribute when no permissions are stored
-   * there.
-   */
-  private String permissionsListingStringEmptyValue;
-
-  /**
-   * Set of the subsystem IDs for the Permission subsystem queries.
-   */
-  private Set permissionsSubsystemQueries = new HashSet();
-
-  /**
-   * Set of the function IDs for the Permission function queries.
-   */
-  private Set permissionsFunctionQueries = new HashSet();
-
-  /**
    * Boolean indicating if the ldappc element was found while parsing.
    */
   private boolean rootElementFound;
@@ -305,6 +260,11 @@ public class ConfigManager implements ProvisionerConfiguration {
    * modifications which add member attributes
    */
   private boolean createGroupsThenModifyMembers = false;
+
+  /**
+   * Boolean indicating if member groups should be provisioned as members.
+   */
+  private boolean provisionMemberGroups = true;
 
   public ConfigManager() throws ConfigurationException {
 
@@ -428,6 +388,9 @@ public class ConfigManager implements ProvisionerConfiguration {
 
     digester.addCallMethod(elementPath, "setCreateGroupThenModifyMembers", 1);
     digester.addCallParam(elementPath, 0, "create-then-modify-members");
+
+    digester.addCallMethod(elementPath, "setProvisionMemberGroups", 1);
+    digester.addCallParam(elementPath, 0, "provision-member-groups");
 
     // Save the Member Group Listing parameters
     elementPath = "ldappc/grouper/memberships/member-groups-list";
@@ -605,12 +568,19 @@ public class ConfigManager implements ProvisionerConfiguration {
     // Validate the grouper-attribute attribute is defined when the
     // groups Dn structure is "flat"
     //
-    if (ProvisionerConfiguration.GROUP_DN_FLAT.equals(getGroupDnStructure())) {
+    if (GroupDNStructure.flat.equals(getGroupDnStructure())) {
       if (getGroupDnGrouperAttribute() == null) {
         throw new ConfigurationException(
             "The grouper-attribute must be defined when the group dn structure is "
-                + ProvisionerConfiguration.GROUP_DN_FLAT);
+                + GroupDNStructure.flat);
       }
+    }
+
+    // 1.5 20090525 don't allow source-subject-identifier for source "g:gsa"; now built-in
+    if (getSourceSubjectNamingAttributes().containsKey("g:gsa")) {
+      throw new ConfigurationException(
+          "The source-subject-identifier for source 'g:gsa' should be removed. This functionality "
+              + "has been replaced by the provision-member-groups attribute of the <groups /> element.");
     }
   }
 
@@ -854,7 +824,7 @@ public class ConfigManager implements ProvisionerConfiguration {
    *         or
    *         {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUP_DN_BUSHY}
    */
-  public String getGroupDnStructure() {
+  public GroupDNStructure getGroupDnStructure() {
     return groupDnStructure;
   }
 
@@ -862,12 +832,13 @@ public class ConfigManager implements ProvisionerConfiguration {
    * Set the Group DN structure.
    * 
    * @param structure
-   *          Either
-   *          {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUP_DN_FLAT}
-   *          or
-   *          {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUP_DN_BUSHY}
+   * 
    */
   private void setGroupDnStructure(String structure) {
+    this.groupDnStructure = GroupDNStructure.valueOf(structure);
+  }
+
+  protected void setGroupDnStructure(GroupDNStructure structure) {
     this.groupDnStructure = structure;
   }
 
@@ -1572,178 +1543,6 @@ public class ConfigManager implements ProvisionerConfiguration {
   }
 
   /**
-   * This get the storage method for permission listings.
-   * 
-   * @return Either
-   *         {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_EDU_PERMISSION}
-   *         or
-   *         {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_STRING}
-   *         .
-   */
-  public String getPermissionsListingStoredAs() {
-    return permissionsListingStoredAs;
-  }
-
-  /**
-   * This sets the storage method for permission listings on a Subjects.
-   * 
-   * @param storedAs
-   *          Method of storing permission listings, either
-   *          {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_EDU_PERMISSION}
-   *          or
-   *          {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_STRING}
-   *          .
-   */
-  private void setPermissionsListingStoredAs(String storedAs) {
-    this.permissionsListingStoredAs = storedAs;
-  }
-
-  /**
-   * This gets the Subject LDAP entry object class for storing the permission listing when
-   * the storage method is
-   * {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_STRING}
-   * .
-   * 
-   * @return Subject LDAP entry object class for storing the permissions listing or
-   *         <code>null</code> if not defined.
-   */
-  public String getPermissionsListingStringObjectClass() {
-    return permissionsListingStringObjectClass;
-  }
-
-  /**
-   * This sets the Subject LDAP entry object class for storing the permission listing when
-   * the storage method is
-   * {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_STRING}
-   * .
-   * 
-   * @param objectClass
-   *          Subject LDAP entry object class for storing the permissions listing
-   */
-  private void setPermissionsListingStringObjectClass(String objectClass) {
-    this.permissionsListingStringObjectClass = objectClass;
-  }
-
-  /**
-   * This gets the Subject LDAP entry attribute for storing the permission listing when
-   * the storage method is
-   * {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_STRING}
-   * .
-   * 
-   * @return Subject LDAP entry attribute for storing the permissions listing.
-   */
-  public String getPermissionsListingStringAttribute() {
-    return permissionsListingStringAttribute;
-  }
-
-  /**
-   * This sets the Subject LDAP entry attribute for storing the permission listing when
-   * the storage method is
-   * {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_STRING}
-   * .
-   * 
-   * @param attribute
-   *          Subject LDAP entry attribute for storing the permissions listing
-   */
-  private void setPermissionsListingStringAttribute(String attribute) {
-    this.permissionsListingStringAttribute = attribute;
-  }
-
-  /**
-   * This gets the prefix for creating the permission listing when the storage method is
-   * {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_STRING}
-   * .
-   * 
-   * @return Prefix to use when creating the permissions listing.
-   */
-  public String getPermissionsListingStringPrefix() {
-    return permissionsListingStringPrefix;
-  }
-
-  /**
-   * This sets the prefix to use when creating the permission listing when the storage
-   * method is
-   * {@link edu.internet2.middleware.ldappc.SignetProvisionerConfiguration#PERMISSIONS_LISTING_STRING}
-   * .
-   * 
-   * @param prefix
-   *          Prefix for creating the permissions listing
-   */
-  private void setPermissionsListingStringPrefix(String prefix) {
-    this.permissionsListingStringPrefix = prefix;
-  }
-
-  /**
-   * This gets the value to store in the permission listing string attribute if there are
-   * no permissions found to store there.
-   * 
-   * @return String to place in the permissions listing string attribute if no permissions
-   *         are found to store there, or <code>null</code> if not defined.
-   */
-  public String getPermissionsListingStringEmptyValue() {
-    return permissionsListingStringEmptyValue;
-  }
-
-  /**
-   * Sets the value to be placed into the permissions listing string attribute if no
-   * permissions are stored there.
-   * 
-   * @param value
-   *          String value or <code>null</code> if no value is to be stored
-   */
-  private void setPermissionsListingStringEmptyValue(String value) {
-    this.permissionsListingStringEmptyValue = value;
-  }
-
-  /**
-   * This method returns a possibly empty {@link java.util.Set} of the subsystem IDs for
-   * creating permission subsystem queries.
-   * 
-   * @return Set of Permission subsystem ids.
-   */
-  public Set getPermissionsSubsystemQueries() {
-    //
-    // Return a copy to prevent the original from being
-    // unexpectedly changed
-    //
-    return new HashSet(this.permissionsSubsystemQueries);
-  }
-
-  /**
-   * This method adds a subsystem id to the Permission subsystem queries set.
-   * 
-   * @param subsystem
-   *          Subsystem id
-   */
-  private void addPermissionsSubsystemQuery(String subsystem) {
-    permissionsSubsystemQueries.add(subsystem);
-  }
-
-  /**
-   * This method returns a possibly empty {@link java.util.Set} of the function IDs for
-   * creating permission function queries.
-   * 
-   * @return Set of Permission function ids.
-   */
-  public Set getPermissionsFunctionQueries() {
-    //
-    // Return a copy to prevent the original from being
-    // unexpectedly changed
-    //
-    return new HashSet(this.permissionsFunctionQueries);
-  }
-
-  /**
-   * This method adds a function id to the Permission function queries set.
-   * 
-   * @param function
-   *          Function id
-   */
-  private void addPermissionsFunctionQuery(String function) {
-    permissionsFunctionQueries.add(function);
-  }
-
-  /**
    * This method returns <code>true</code> if the root element of the configuration file
    * was encountered.
    * 
@@ -1777,6 +1576,24 @@ public class ConfigManager implements ProvisionerConfiguration {
 
   private void setCreateGroupThenModifyMembers(String string) {
     this.createGroupsThenModifyMembers = Boolean.parseBoolean(string);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * edu.internet2.middleware.ldappc.ProvisionerConfiguration#getProvisionMemberGroups()
+   */
+  public boolean getProvisionMemberGroups() {
+    return provisionMemberGroups;
+  }
+
+  private void setProvisionMemberGroups(String string) {
+    this.provisionMemberGroups = Boolean.parseBoolean(string);
+  }
+
+  protected void setProvisionMemberGroups(Boolean provisionMemberGroups) {
+    this.provisionMemberGroups = provisionMemberGroups;
   }
 
   /**
@@ -1867,7 +1684,7 @@ public class ConfigManager implements ProvisionerConfiguration {
      * Sets the group DN structure.
      * 
      * @param structure
-     *          the structure. Must be either "flat" or "bushy".
+     * 
      * 
      *          Calls {@link ConfigManager#setGroupDnStructure(String)}.
      */
@@ -2211,91 +2028,12 @@ public class ConfigManager implements ProvisionerConfiguration {
       ConfigManager.this.addGroupMembersNameListNamingAttribute(source, subjectAttribute);
     }
 
-    /**
-     * Sets the permissions listing "stored as" type.
-     * 
-     * @param storedAs
-     *          the "stored as" type. Must be either "string" or "eduPermission".
-     * 
-     *          Calls {@link ConfigManager#setPermissionsListingStoredAs(String)}.
-     */
-    public void setPermissionsListingStoredAs(String storedAs) {
-      ConfigManager.this.setPermissionsListingStoredAs(storedAs);
-    }
-
-    /**
-     * Sets the permissions listing string object class.
-     * 
-     * @param objectClass
-     *          the object class.
-     * 
-     *          Calls {@link ConfigManager#setPermissionsListingStringObjectClass(String)}
-     *          .
-     */
-    public void setPermissionsListingStringObjectClass(String objectClass) {
-      ConfigManager.this.setPermissionsListingStringObjectClass(objectClass);
-    }
-
-    /**
-     * Sets the permissions listing string attribute.
-     * 
-     * @param attribute
-     *          the attribute.
-     * 
-     *          Calls {@link ConfigManager#setPermissionsListingStringAttribute(String)}.
-     */
-    public void setPermissionsListingStringAttribute(String attribute) {
-      ConfigManager.this.setPermissionsListingStringAttribute(attribute);
-    }
-
-    /**
-     * Sets the permissions listing string prefix.
-     * 
-     * @param prefix
-     *          the prefix.
-     */
-    public void setPermissionsListingStringPrefix(String prefix) {
-      ConfigManager.this.setPermissionsListingStringPrefix(prefix);
-    }
-
-    /**
-     * Sets the permissions listing empty value.
-     * 
-     * @param value
-     *          the value to set for empty permissions listing, if any.
-     * 
-     *          Calls {@link ConfigManager#setPermissionsListingStringEmptyValue(String)}.
-     */
-    public void setPermissionsListingStringEmptyValue(String value) {
-      ConfigManager.this.setPermissionsListingStringEmptyValue(value);
-    }
-
-    /**
-     * Adds a permissions subsystem query.
-     * 
-     * @param subsystem
-     *          the subsystem to include.
-     * 
-     *          Calls {@link ConfigManager#addPermissionsSubsystemQuery(String)}.
-     */
-    public void addPermissionsSubsystemQuery(String subsystem) {
-      ConfigManager.this.addPermissionsSubsystemQuery(subsystem);
-    }
-
-    /**
-     * Adds a permissions function query.
-     * 
-     * @param function
-     *          the function to include Calls
-     * 
-     *          Calls {@link ConfigManager#addPermissionsFunctionQuery(String)}.
-     */
-    public void addPermissionsFunctionQuery(String function) {
-      ConfigManager.this.addPermissionsFunctionQuery(function);
-    }
-
     public void setCreateGroupThenModifyMembers(String string) {
       ConfigManager.this.setCreateGroupThenModifyMembers(string);
+    }
+
+    public void setProvisionMemberGroups(String string) {
+      ConfigManager.this.setProvisionMemberGroups(string);
     }
   }
 

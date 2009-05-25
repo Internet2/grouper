@@ -63,6 +63,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.ldappc.ProvisionerConfiguration.GroupDNStructure;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
 
@@ -70,9 +71,7 @@ public class BaseLdappcTestCase extends GrouperTest {
 
   private static final Log LOG = GrouperUtil.getLog(CRUDTest.class);
 
-  public static final String LDAPPC_BUSHY_XML = "edu/internet2/middleware/ldappc/ldappc.test.bushy.xml";
-
-  public static final String LDAPPC_FLAT_XML = "edu/internet2/middleware/ldappc/ldappc.test.flat.xml";
+  public static final String LDAPPC_TEST_XML = "edu/internet2/middleware/ldappc/ldappc.test.xml";
 
   public static final String EDUMEMBER_SCHEMA = "edu/internet2/middleware/ldappc/eduMember.ldif";
 
@@ -245,18 +244,20 @@ public class BaseLdappcTestCase extends GrouperTest {
     return tree;
   }
 
-  public Provisioner getGrouperProvisioner() throws Exception {
-    return getGrouperProvisioner(true, true);
+  public Provisioner getProvisioner(GroupDNStructure structure) throws Exception {
+    return getProvisioner(structure, true, true);
   }
 
-  public Provisioner getGrouperProvisioner(boolean doGroups, boolean doMemberships)
-      throws Exception {
+  public Provisioner getProvisioner(GroupDNStructure structure, boolean doGroups,
+      boolean doMemberships) throws Exception {
 
     ProvisionerOptions options = new ProvisionerOptions();
     options.setDoGroups(doGroups);
     options.setDoMemberships(doMemberships);
     options.setIsTest(true);
     options.setSubjectId("GrouperSystem");
+
+    configuration.setGroupDnStructure(structure);
 
     return new Provisioner(configuration, options, ldapContext);
   }
@@ -300,8 +301,8 @@ public class BaseLdappcTestCase extends GrouperTest {
     }
   }
 
-  public void provision() throws Exception {
-    getGrouperProvisioner().provision();
+  public void provision(GroupDNStructure structure) throws Exception {
+    getProvisioner(structure).provision();
   }
 
   /**

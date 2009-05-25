@@ -15,25 +15,11 @@
 
 package edu.internet2.middleware.ldappc.synchronize;
 
-import java.util.Iterator;
-import java.util.Vector;
-
 import javax.naming.Name;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.OperationNotSupportedException;
-import javax.naming.directory.Attribute;
-import javax.naming.directory.Attributes;
-import javax.naming.directory.DirContext;
-import javax.naming.directory.SearchControls;
 import javax.naming.ldap.LdapContext;
 
-import org.slf4j.Logger;
-
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.Provisioner;
 import edu.internet2.middleware.ldappc.ProvisionerConfiguration;
-import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
 
 /**
@@ -64,5 +50,6 @@ public abstract class Synchronizer {
     
     this.subjectCache = provisioner.getSubjectCache();
     
+    this.rootDn = provisioner.getRootDn();
   }
 }

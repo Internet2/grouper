@@ -22,11 +22,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.Vector;
 
 import javax.naming.Name;
@@ -58,8 +61,10 @@ import edu.internet2.middleware.grouper.filter.NullFilter;
 import edu.internet2.middleware.grouper.filter.QueryFilter;
 import edu.internet2.middleware.grouper.filter.UnionFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.ldappc.ProvisionerConfiguration.GroupDNStructure;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
+import edu.internet2.middleware.ldappc.ldap.OrganizationalUnit;
 import edu.internet2.middleware.ldappc.synchronize.GroupEntrySynchronizer;
 import edu.internet2.middleware.ldappc.synchronize.StringMembershipSynchronizer;
 import edu.internet2.middleware.ldappc.util.ExternalSort;
@@ -67,7 +72,6 @@ import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * This class provisions Grouper data.
@@ -103,6 +107,11 @@ public class Provisioner {
   private SubjectCache subjectCache;
 
   /**
+   * The root DN used when calculating DNs.
+   */
+  protected Name rootDn;
+
+  /**
    * Constructs a <code>GrouperProvisioner</code> with the given provisioning
    * configuration, options and Ldap context.
    * 
@@ -121,6 +130,20 @@ public class Provisioner {
     this.options = options;
     this.ldapCtx = ldapCtx;
     subjectCache = new SubjectCache(this);
+
+    //
+    // Get the Name of the root ou
+    //
+    String rootDnStr = configuration.getGroupDnRoot();
+    if (rootDnStr == null) {
+      throw new ConfigurationException("Group root DN is not defined.");
+    }
+
+    try {
+      rootDn = ldapCtx.getNameParser(LdapUtil.EMPTY_NAME).parse(rootDnStr);
+    } catch (NamingException e) {
+      throw new ConfigurationException("Unable to parse root DN.");
+    }
   }
 
   /**
@@ -329,7 +352,7 @@ public class Provisioner {
         //
         // Look for subject in the directory
         //
-        Name subjectDn = getSubjectDn(member);
+        Name subjectDn = subjectCache.findSubjectDn(member);
         if (subjectDn != null) {
           //
           // Add subject DN to members and remove it from the list of
@@ -405,46 +428,6 @@ public class Provisioner {
     }
 
     return groupNameString;
-  }
-
-  /**
-   * Get the subjectDn for a member. Remove the subject from the existing subjectDns set.
-   * 
-   * @param member
-   *          Member for which to retrieve subject DN
-   * @return the subject DN for the Member.
-   */
-  private Name getSubjectDn(Member member) {
-    Name subjectDn = null;
-
-    try {
-      // Must use alternate mechanism to get subject if search
-      // attr is not the subject ID. Alternate method hits the
-      // subject API and is rather slower.
-      if ("id".equals(configuration.getSourceSubjectNamingAttribute(member
-          .getSubjectSourceId()))) {
-        subjectDn = getSubjectCache().findSubjectDn(member.getSubjectSourceId(),
-            member.getSubjectId());
-      } else {
-        Subject subject = member.getSubject();
-        subjectDn = getSubjectCache().findSubjectDn(subject);
-      }
-    } catch (Exception e) {
-      //
-      // If not found, simply log the error and return null.
-      //
-      Subject subject = null;
-      try {
-        subject = member.getSubject();
-      } catch (SubjectNotFoundException e1) {
-        // Ignore exception.
-      }
-      String errorData = getErrorData(member, subject, null);
-      LOG.warn(errorData, e);
-      // logThrowableWarning(e, errorData);
-    }
-
-    return subjectDn;
   }
 
   /**
@@ -941,5 +924,128 @@ public class Provisioner {
     }
 
     return STATUS_UNCHANGED;
+  }
+
+  public Name getRootDn() {
+    return rootDn;
+  }
+
+  /**
+   * This calculates the DN of the given group.
+   * 
+   * @param group
+   *          Group
+   * @return DN for the associated LDAP entry
+   * @throws NamingException
+   *           thrown if a Naming error occurs.
+   * @throws LdappcException
+   *           thrown if the RDN attribute is not defined for the group.
+   */
+  public Name calculateGroupDn(Group group) throws NamingException, LdappcException {
+    //
+    // Initialize return value
+    //
+    Name groupDn = null;
+
+    //
+    // If DN structure is bushy, build stem Ou's and initialize the group DN
+    // with the parent OU DN. Else, initialize the group DN with the root
+    // DN.
+    //
+    if (GroupDNStructure.bushy.equals(configuration.getGroupDnStructure())) {
+      groupDn = calculateStemDn(group);
+    } else {
+      groupDn = (Name) rootDn.clone();
+    }
+
+    //
+    // Get the group's rdn value
+    //
+    String rdnString = null;
+    if (GroupDNStructure.flat.equals(configuration.getGroupDnStructure())) {
+      if (ProvisionerConfiguration.GROUPER_NAME_ATTRIBUTE.equals(configuration
+          .getGroupDnGrouperAttribute())) {
+        rdnString = group.getName();
+      } else {
+        String attr = group.getAttributeOrFieldValue(configuration
+            .getGroupDnGrouperAttribute(), true, false);
+        if (attr != null) {
+          rdnString = attr;
+        } else {
+          rdnString = group.getUuid();
+        }
+      }
+    } else {
+      //
+      // Structure must be bushy so use the extension
+      //
+      rdnString = group.getExtension();
+    }
+
+    //
+    // Add the rdn to the group Dn
+    //
+    groupDn = groupDn.add(configuration.getGroupDnRdnAttribute() + "="
+        + LdapUtil.makeLdapNameSafe(rdnString));
+
+    return groupDn;
+  }
+
+  /**
+   * Calculates the group's parent OU DN.
+   * 
+   * @param group
+   *          Group
+   * @return OU DN under which the group entry must be created.
+   * @throws javax.naming.NamingException
+   *           thrown if a Naming exception occured.
+   */
+  public Name calculateStemDn(Group group) throws NamingException {
+
+    List<Name> names = calculateStemDns(group);
+
+    return names.get(names.size() - 1);
+  }
+
+  /**
+   * Calculates all parent OU DNs for the given group.
+   * 
+   * @param group
+   * @return a List of OU DNs
+   * @throws NamingException
+   */
+  public List<Name> calculateStemDns(Group group) throws NamingException {
+
+    ArrayList<Name> names = new ArrayList<Name>();
+
+    //
+    // Initialize the stemDn to be the root DN. This stemDn
+    // is updated for each element of the group's stem below
+    //
+    Name stemDn = (Name) rootDn.clone();
+
+    //
+    // Get the group's parent stem, and tokenize it's name to build
+    // the ou's for the group.
+    //
+    Stem stem = group.getParentStem();
+    StringTokenizer stemTokens = new StringTokenizer(stem.getName(), Stem.DELIM);
+    while (stemTokens.hasMoreTokens()) {
+      //
+      // Get next stem token for the rdn value making sure it is Ldap name
+      // safe
+      //
+      String rdnString = stemTokens.nextToken();
+      String rdnValue = LdapUtil.makeLdapNameSafe(rdnString);
+
+      //
+      // Build the new name (keep adding on to previous)
+      //
+      stemDn = stemDn.add(OrganizationalUnit.Attribute.OU + "=" + rdnValue);
+
+      names.add(stemDn);
+    }
+
+    return names;
   }
 }

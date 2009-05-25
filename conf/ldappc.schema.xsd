@@ -28,10 +28,6 @@
         <xs:restriction base="name-string-type" />
     </xs:simpleType>
 
-    <xs:simpleType name="signet-id-type">
-        <xs:restriction base="name-string-type" />
-    </xs:simpleType>
-
     <xs:simpleType name="ldap-dn-type">
         <xs:restriction base="xs:string" />
     </xs:simpleType>
@@ -114,17 +110,9 @@
     <!-- ==================== AUTH2LDAP ROOT ELEMENT ====================== -->
     <xs:element name="ldappc">
         <xs:complexType>
-            <xs:sequence>
-                <!-- Must have either grouper, signet, or both -->
-                <xs:choice>
-                    <xs:sequence>
-                        <xs:element ref="grouper" />
-                        <xs:element ref="signet" minOccurs="0"
-                            maxOccurs="1" />
-                    </xs:sequence>
-                    <xs:element ref="signet" />
-                </xs:choice>
+            <xs:sequence>      
                 <!-- Must have each of the following -->
+                <xs:element ref="grouper" />            
                 <xs:element ref="source-subject-identifiers" />
                 <xs:element ref="ldap" />
             </xs:sequence>
@@ -155,17 +143,6 @@
         <xs:complexType>
             <xs:sequence>
                 <xs:element ref="member-groups-list" />
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-
-    <!-- =========================== SIGNET ELEMENT ======================= -->
-    <xs:element name="signet">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element ref="permissions-listing" />
-                <xs:element ref="permissions-queries" minOccurs="0"
-                    maxOccurs="1" />
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -204,66 +181,8 @@
             <xs:attribute name="grouper-attribute" use="required"
                 type="grouper-attribute-name-type" />
 			<xs:attribute name="initial-cache-size" use="optional" type="xs:integer" />
-            <xs:attribute name="create-then-modify-members" type="xs:boolean" />      
-        </xs:complexType>
-    </xs:element>
-
-    <!-- ===================== PERMISSION-QUERIES ELEMENT ================= -->
-    <xs:element name="permissions-queries">
-        <xs:complexType>
-            <!-- Must have one or both of the following -->
-            <xs:choice>
-                <xs:sequence>
-                    <xs:element ref="subsystem-queries" />
-                    <xs:element ref="function-queries" minOccurs="0"
-                        maxOccurs="1" />
-                </xs:sequence>
-                <xs:element ref="function-queries" />
-            </xs:choice>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:element name="subsystem-queries">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element ref="subsystem-list" />
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:element name="subsystem-list">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="subsystem" minOccurs="1"
-                    maxOccurs="unbounded">
-                    <xs:complexType>
-                        <xs:attribute name="id" use="required"
-                            type="signet-id-type" />
-                    </xs:complexType>
-                </xs:element>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:element name="function-queries">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element ref="function-list" />
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
-
-    <xs:element name="function-list">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element name="function" minOccurs="1"
-                    maxOccurs="unbounded">
-                    <xs:complexType>
-                        <xs:attribute name="id" use="required"
-                            type="signet-id-type" />
-                    </xs:complexType>
-                </xs:element>
-            </xs:sequence>
+            <xs:attribute name="create-then-modify-members" type="xs:boolean" />
+            <xs:attribute name="provision-member-groups" type="xs:boolean" />
         </xs:complexType>
     </xs:element>
 
@@ -418,27 +337,6 @@
             </xs:sequence>
             <xs:attribute name="ldap-object-class"
                 type="ldap-objectclass-name-type" />
-        </xs:complexType>
-    </xs:element>
-
-    <!-- ================== PERMISSIONS-LISTING ELEMENT =================== -->
-    <xs:element name="permissions-listing">
-        <xs:complexType>
-            <xs:attribute name="stored-as" use="required">
-                <xs:simpleType>
-                    <xs:restriction base="xs:string">
-                        <xs:enumeration value="string" />
-                        <xs:enumeration value="eduPermission" />
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:attribute>
-            <xs:attribute name="string-object-class"
-                type="ldap-objectclass-name-type" />
-            <xs:attribute name="string-attribute"
-                type="ldap-attribute-name-type" />
-            <xs:attribute name="string-prefix" />
-            <xs:attribute name="string-list-empty-value"
-                type="empty-attribute-value-type" />
         </xs:complexType>
     </xs:element>
 

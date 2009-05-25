@@ -4,50 +4,6 @@
     * This is a valid configuration file except that there is no "ldappc" element.
 -->
 <Xldappc>
-
-    <!-- 
-        * <signet> is an optional element that contains the elements specific to
-        * provisioning information from Signet. Note, if <signet> is NOT defined,
-        * then <grouper> must be. <signet> contains the following elements.
-        *
-        *   <permissions-listing> - This required element defines how permissions
-        *      are stored when provisioned.
-        *
-        *   <permissions-queries> - This optional element defines additional
-        *      criteria for determining which permissions are provisioned.
-        *
-    -->
-    <signet><!-- 0 or 1 allowed -->
-
-        <!-- 
-            * <permissions-listing> is a required element that defines how
-            * provisioned permissions are stored in a Subject's LDAP entry.
-            * The method storing provisioned permissions is wholly defined by
-            * the following attributes.
-            *
-            *   stored-as - Defines how the permissions are stored. Its value
-            *      must be one of "string" or "eduPermission".
-            *
-            *   string-object-class - Optional attribute defining the object 
-            *      class to add to the Member's subject LDAP entry in order to
-            *      support the string-attribute. Please note that if this object
-            *      class has required attributes not populated by the 
-            *      provisioning process, then an error may occur.
-            *
-            *   string-attribute - Optional attribute defining the LDAP entry
-            *      attribute in which to store permissions if stored-as is set
-            *      to "string" (e.g., permissionStrings).  As implied this
-            *      attribute is required if stored-as is "string".
-            *
-            *   string-prefix - Optional attribute defining the prefix to use
-            *      when storing permissions as strings.
-        -->
-        <permissions-listing stored-as="string"
-            string-attribute="stringAttribute"
-            string-prefix="stringPrefix" /><!-- Exactly 1 required -->
-
-    </signet>
-
     <!-- 
         *
         * <source-subject-identifiers> is a required element identifying by
