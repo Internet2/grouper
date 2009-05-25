@@ -44,7 +44,7 @@ public class GrouperSynchronizerTest extends BaseLdappcTestCase {
     ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
 
     configuration = new ConfigManager(GrouperUtil.fileFromResourceName(
-        BaseLdappcTestCase.LDAPPC_BUSHY_XML).getAbsolutePath());
+        BaseLdappcTestCase.LDAPPC_TEST_XML).getAbsolutePath());
   }
 
   public void testStatusUnknown() throws ConfigurationException, NamingException {

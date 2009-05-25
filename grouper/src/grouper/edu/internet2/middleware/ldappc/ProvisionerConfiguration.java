@@ -25,14 +25,11 @@ import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 public interface ProvisionerConfiguration {
 
   /**
-   * Indicates creating a flat Group DN structure.
+   * Indicates creating either a flat or bushy Group DN structure.
    */
-  public static final String GROUP_DN_FLAT = "flat";
-
-  /**
-   * Indicates creating a bushy Group DN structure.
-   */
-  public static final String GROUP_DN_BUSHY = "bushy";
+  public static enum GroupDNStructure {
+    flat, bushy
+  };
 
   /**
    * Grouper group id attribute.
@@ -71,9 +68,9 @@ public interface ProvisionerConfiguration {
   /**
    * This returns the defined Group DN structure.
    * 
-   * @return Group DN structure, either {@link #GROUP_DN_FLAT} or {@link #GROUP_DN_BUSHY}
+   * @return Group DN structure.
    */
-  public String getGroupDnStructure();
+  public GroupDNStructure getGroupDnStructure();
 
   /**
    * This returns the DN of the root entry being used for Group DNs.
@@ -360,4 +357,13 @@ public interface ProvisionerConfiguration {
    * @return Hashtable with the LDAP initial context parameters.
    */
   public Hashtable getLdapContextParameters();
+
+  /**
+   * Returns true if member groups should be provisioned as members, false otherwise. True
+   * by default. A member group is a group which is a member of another group. This method
+   * effectively replaces the "g:gsa" source-subject-identifier.
+   * 
+   * @return true if member groups should be provisioned as members.
+   */
+  public boolean getProvisionMemberGroups();
 }

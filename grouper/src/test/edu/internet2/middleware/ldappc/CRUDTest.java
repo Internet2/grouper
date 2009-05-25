@@ -3,6 +3,7 @@ package edu.internet2.middleware.ldappc;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.ldappc.ProvisionerConfiguration.GroupDNStructure;
 
 public class CRUDTest extends BaseLdappcTestCase {
 
@@ -25,91 +26,123 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCreateBushy() throws Exception {
 
-    setUpLdappc(LDAPPC_BUSHY_XML);
+    setUpLdappc(LDAPPC_TEST_XML);
 
     loadLdif("CRUDTest.before.ldif");
 
-    provision();
+    provision(GroupDNStructure.bushy);
+
+    print();
 
     verify("CRUDTest.testCreateBushy.after.ldif");
   }
 
   public void testCreateFlat() throws Exception {
 
-    setUpLdappc(LDAPPC_FLAT_XML);
+    setUpLdappc(LDAPPC_TEST_XML);
 
     loadLdif("CRUDTest.before.ldif");
 
-    provision();
+    provision(GroupDNStructure.flat);
 
     verify("CRUDTest.testCreateFlat.after.ldif");
   }
 
   public void testCreateSubgroupBushy() throws Exception {
-  
-    setUpLdappc(LDAPPC_BUSHY_XML);
-  
+
+    setUpLdappc(LDAPPC_TEST_XML);
+
     loadLdif("CRUDTest.before.ldif");
-  
+
     groupB.addMember(groupA.toSubject());
-  
-    provision();
-  
+
+    provision(GroupDNStructure.bushy);
+
     verify("CRUDTest.testCreateSubgroupBushy.after.ldif");
+  }
+
+  public void testCreateSubgroupBushyNoMemberGroups() throws Exception {
+
+    setUpLdappc(LDAPPC_TEST_XML);
+
+    loadLdif("CRUDTest.before.ldif");
+
+    groupB.addMember(groupA.toSubject());
+
+    configuration.setProvisionMemberGroups(false);
+
+    provision(GroupDNStructure.bushy);
+
+    verify("CRUDTest.testCreateSubgroupBushyNoMemberGroups.after.ldif");
   }
 
   public void testCreateSubgroupFlat() throws Exception {
 
-    setUpLdappc(LDAPPC_FLAT_XML);
+    setUpLdappc(LDAPPC_TEST_XML);
 
     loadLdif("CRUDTest.before.ldif");
 
     groupB.addMember(groupA.toSubject());
 
-    provision();
+    provision(GroupDNStructure.flat);
 
     verify("CRUDTest.testCreateSubgroupFlat.after.ldif");
   }
-  
+
+  public void testCreateSubgroupFlatNoMemberGroups() throws Exception {
+
+    setUpLdappc(LDAPPC_TEST_XML);
+
+    loadLdif("CRUDTest.before.ldif");
+
+    groupB.addMember(groupA.toSubject());
+
+    configuration.setProvisionMemberGroups(false);
+
+    provision(GroupDNStructure.flat);
+
+    verify("CRUDTest.testCreateSubgroupFlatNoMemberGroups.after.ldif");
+  }
+
   public void testCreateSubgroupPhasingFlat() throws Exception {
 
-    setUpLdappc(LDAPPC_FLAT_XML);
+    setUpLdappc(LDAPPC_TEST_XML);
 
     loadLdif("CRUDTest.before.ldif");
 
     groupA.addMember(groupB.toSubject());
 
-    provision();
+    provision(GroupDNStructure.flat);
 
     // TODO GRP-275 will need to provision twice
-    provision();
+    provision(GroupDNStructure.flat);
 
     verify("CRUDTest.testCreateSubgroupPhasingFlat.after.ldif");
   }
 
   public void testDeleteGroupsBushy() throws Exception {
 
-    setUpLdappc(LDAPPC_BUSHY_XML);
+    setUpLdappc(LDAPPC_TEST_XML);
 
     loadLdif("CRUDTest.testDeleteGroupsBushy.before.ldif");
 
     groupA.delete();
     groupB.delete();
 
-    provision();
+    provision(GroupDNStructure.bushy);
 
     verify("CRUDTest.testDeleteGroupsBushy.after.ldif");
   }
 
   public void testModifyMemberBushy() throws Exception {
 
-    setUpLdappc(LDAPPC_BUSHY_XML);
+    setUpLdappc(LDAPPC_TEST_XML);
 
     loadLdif("CRUDTest.testModifyMemberBushy.before.ldif");
 
     groupB.addMember(groupA.toSubject());
 
-    provision();
+    provision(GroupDNStructure.bushy);
 
     verify("CRUDTest.testModifyMemberBushy.after.ldif");
   }

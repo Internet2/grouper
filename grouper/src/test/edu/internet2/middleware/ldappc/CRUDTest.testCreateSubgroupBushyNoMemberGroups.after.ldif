@@ -1,6 +1,6 @@
 dn: ou=groups,dc=grouper,dc=edu
-objectClass: top
-objectClass: organizationalUnit
+objectclass: top
+objectclass: organizationalUnit
 ou: groups
 
 dn: ou=edu,ou=groups,dc=grouper,dc=edu
@@ -12,7 +12,6 @@ objectClass: eduMember
 objectClass: groupOfNames
 cn: groupA
 hasMember: name.test.subject.0
-isMemberOf: edu:groupB
 member: uid=test.subject.0,ou=people,dc=grouper,dc=edu
 
 dn: cn=groupB,ou=edu,ou=groups,dc=grouper,dc=edu
@@ -24,12 +23,11 @@ hasMember: name.test.subject.1
 hasMember: edu:groupA
 member: uid=test.subject.0,ou=people,dc=grouper,dc=edu
 member: uid=test.subject.1,ou=people,dc=grouper,dc=edu
-member: cn=groupA,ou=edu,ou=groups,dc=grouper,dc=edu
 description: descriptionB
 
 dn: ou=people,dc=grouper,dc=edu
-objectClass: top
-objectClass: organizationalUnit
+objectclass: top
+objectclass: organizationalUnit
 description: people
 ou: people
 
@@ -55,5 +53,4 @@ ismemberof: edu:groupB
 sn: subject.1
 cn: test
 uid: test.subject.1
-
 

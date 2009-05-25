@@ -28,6 +28,7 @@ import javax.naming.directory.SearchControls;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.ldappc.ConfigManager;
+import edu.internet2.middleware.ldappc.ProvisionerConfiguration.GroupDNStructure;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 
@@ -70,6 +71,9 @@ public class ConfigManagerTest extends TestCase {
    */
   public static String INVALID_NO_LDAPPC_ELEMENT_CONFIG_FILE_RESOURCE = RELATIVE_RESOURCE_PATH
       + "ldappcInvalidNoLdappcElement.xml";
+
+  public static String PROVISION_MEMBER_GROUPS_CONFIG_FILE_RESOURCE = RELATIVE_RESOURCE_PATH
+      + "ldappcProvisionMemberGroups.xml";
 
   /**
    * Class constructor
@@ -130,7 +134,7 @@ public class ConfigManagerTest extends TestCase {
       assertEquals(true, set.contains("attributeValue2"));
 
       // validate group dn structure
-      assertEquals(cm.getGroupDnStructure(), "flat");
+      assertEquals(cm.getGroupDnStructure(), GroupDNStructure.flat);
       assertEquals(cm.getGroupDnRoot(), "ou=root");
       assertEquals(cm.getGroupDnObjectClass(), "gLdapObjectClass");
       assertEquals(cm.getGroupDnRdnAttribute(), "gLdapRdnAttribute");
@@ -190,26 +194,6 @@ public class ConfigManagerTest extends TestCase {
       assertEquals(cm.getMemberGroupsListAttribute(), "mglListAttribute");
       assertEquals(cm.getMemberGroupsNamingAttribute(), "mglNamingAttribute");
       // assertEquals(cm.getMemberGroupsListEmptyValue(), "mglListEmpty");
-
-      // validate permissions listing
-      assertEquals(cm.getPermissionsListingStoredAs(), "string");
-      assertEquals(cm.getPermissionsListingStringObjectClass(), "stringObjectClass");
-      assertEquals(cm.getPermissionsListingStringAttribute(), "stringAttribute");
-      assertEquals(cm.getPermissionsListingStringPrefix(), "stringPrefix");
-      assertEquals(cm.getPermissionsListingStringEmptyValue(), "stringEmptyValue");
-
-      // validate permissions subsystem queries
-      Set permissionSubsystems = cm.getPermissionsSubsystemQueries();
-      assertEquals(permissionSubsystems.size(), 3);
-      assertEquals(permissionSubsystems.contains("subsystem1"), true);
-      assertEquals(permissionSubsystems.contains("subsystem2"), true);
-      assertEquals(permissionSubsystems.contains("subsystem3"), true);
-
-      // validate permissions function queries
-      Set permissionFunctions = cm.getPermissionsFunctionQueries();
-      assertEquals(permissionFunctions.size(), 2);
-      assertEquals(permissionFunctions.contains("function1"), true);
-      assertEquals(permissionFunctions.contains("function2"), true);
 
       // validate source subject identifiers
       Map srcSubjAttrs = cm.getSourceSubjectNamingAttributes();
@@ -281,7 +265,7 @@ public class ConfigManagerTest extends TestCase {
       assertEquals(true, set.contains("attributeValue2"));
 
       // validate group dn structure
-      assertEquals(cm.getGroupDnStructure(), "flat");
+      assertEquals(cm.getGroupDnStructure(), GroupDNStructure.flat);
       assertEquals(cm.getGroupDnRoot(), "ou=root");
       assertEquals(cm.getGroupDnObjectClass(), "gLdapObjectClass");
       assertEquals(cm.getGroupDnRdnAttribute(), "gLdapRdnAttribute");
@@ -325,26 +309,6 @@ public class ConfigManagerTest extends TestCase {
       assertEquals(cm.getMemberGroupsListAttribute(), "mglListAttribute");
       assertEquals(cm.getMemberGroupsNamingAttribute(), "mglNamingAttribute");
       // assertEquals(cm.getMemberGroupsListEmptyValue(), null);
-
-      // validate permissions listing
-      assertEquals(cm.getPermissionsListingStoredAs(), "string");
-      assertEquals(cm.getPermissionsListingStringObjectClass(), null);
-      assertEquals(cm.getPermissionsListingStringAttribute(), "stringAttribute");
-      assertEquals(cm.getPermissionsListingStringPrefix(), "stringPrefix");
-      assertEquals(cm.getPermissionsListingStringEmptyValue(), null);
-
-      // validate permissions subsystem queries
-      Set permissionSubsystems = cm.getPermissionsSubsystemQueries();
-      assertEquals(permissionSubsystems.size(), 3);
-      assertEquals(permissionSubsystems.contains("subsystem1"), true);
-      assertEquals(permissionSubsystems.contains("subsystem2"), true);
-      assertEquals(permissionSubsystems.contains("subsystem3"), true);
-
-      // validate permissions function queries
-      Set permissionFunctions = cm.getPermissionsFunctionQueries();
-      assertEquals(permissionFunctions.size(), 2);
-      assertEquals(permissionFunctions.contains("function1"), true);
-      assertEquals(permissionFunctions.contains("function2"), true);
 
       // validate source subject identifiers
       Map srcSubjAttrs = cm.getSourceSubjectNamingAttributes();
@@ -413,7 +377,7 @@ public class ConfigManagerTest extends TestCase {
       assertEquals(true, set.contains("attributeValue2"));
 
       // validate group dn structure
-      assertEquals(cm.getGroupDnStructure(), "flat");
+      assertEquals(cm.getGroupDnStructure(), GroupDNStructure.flat);
       assertEquals(cm.getGroupDnRoot(), "ou=root");
       assertEquals(cm.getGroupDnObjectClass(), "gLdapObjectClass");
       assertEquals(cm.getGroupDnRdnAttribute(), "gLdapRdnAttribute");
@@ -569,6 +533,17 @@ public class ConfigManagerTest extends TestCase {
     } catch (Exception e) {
       fail("Test failed : Unexpected exception " + e.getClass().getName() + " :: "
           + e.getMessage());
+    }
+  }
+
+  public void testProvisionMemberGroupsGGSASource() {
+
+    try {
+      new ConfigManager(ConfigManager.getSystemResourceURL(
+          PROVISION_MEMBER_GROUPS_CONFIG_FILE_RESOURCE, true).toString());
+      fail("Should throw ConfigurationException.");
+    } catch (ConfigurationException e) {
+      // ok
     }
   }
 }

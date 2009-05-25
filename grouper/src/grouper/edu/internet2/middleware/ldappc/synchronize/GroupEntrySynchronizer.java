@@ -20,7 +20,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.Vector;
 
 import javax.naming.Name;
@@ -35,15 +34,15 @@ import javax.naming.directory.ModificationItem;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
+import javax.naming.ldap.Rdn;
 
 import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.Provisioner;
-import edu.internet2.middleware.ldappc.ProvisionerConfiguration;
+import edu.internet2.middleware.ldappc.ProvisionerConfiguration.GroupDNStructure;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.ldappc.ldap.OrganizationalUnit;
@@ -158,21 +157,10 @@ public class GroupEntrySynchronizer extends Synchronizer {
     mappedLdapAttributes = new BasicAttributes(true);
 
     //
-    // Get the Name of the root ou
-    //
-    String rootDnStr = configuration.getGroupDnRoot();
-    if (rootDnStr == null) {
-      throw new ConfigurationException("Group root DN is not defined.");
-    }
-
-    rootDn = ldapCtx.getNameParser(LdapUtil.EMPTY_NAME).parse(rootDnStr);
-
-    //
     // If provisioning with "flat" structure, verify that a group naming
     // attribute is defined for the group ldap entry
     //
-    if (ProvisionerConfiguration.GROUP_DN_FLAT
-        .equals(configuration.getGroupDnStructure())) {
+    if (GroupDNStructure.flat.equals(configuration.getGroupDnStructure())) {
       if (configuration.getGroupDnGrouperAttribute() == null) {
         throw new ConfigurationException("Group DN grouper attribute is not defined.");
       }
@@ -595,8 +583,10 @@ public class GroupEntrySynchronizer extends Synchronizer {
         //
         if (memberDnMods != null) {
           try {
-            Name subjectDn = subjectCache.findSubjectDn(subject);
-            memberDnMods.store(subjectDn.toString());
+            Name subjectDn = subjectCache.findSubjectDn(member);
+            if (subjectDn != null) {
+              memberDnMods.store(subjectDn.toString());
+            }
           } catch (Exception e) {
             LOG.warn(getErrorData(subject), e);
           }
@@ -874,54 +864,20 @@ public class GroupEntrySynchronizer extends Synchronizer {
    *           thrown if the RDN attribute is not defined for the group.
    */
   protected Name buildGroupDn(Group group) throws NamingException, LdappcException {
-    //
-    // Initialize return value
-    //
-    Name groupDn = null;
 
     //
     // If DN structure is bushy, build stem Ou's and initialize the group DN
     // with the parent OU DN. Else, initialize the group DN with the root
     // DN.
     //
-    if (ProvisionerConfiguration.GROUP_DN_BUSHY.equals(configuration
-        .getGroupDnStructure())) {
-      groupDn = buildStemOuEntries(group);
-    } else {
-      groupDn = (Name) rootDn.clone();
+    if (GroupDNStructure.bushy.equals(configuration.getGroupDnStructure())) {
+      buildStemOuEntries(group);
     }
 
-    //
-    // Get the group's rdn value
-    //
-    String rdnString = null;
-    if (ProvisionerConfiguration.GROUP_DN_FLAT
-        .equals(configuration.getGroupDnStructure())) {
-      if (ProvisionerConfiguration.GROUPER_NAME_ATTRIBUTE.equals(configuration
-          .getGroupDnGrouperAttribute())) {
-        rdnString = group.getName();
-      } else {
-        String attr = group.getAttributeOrFieldValue(configuration
-            .getGroupDnGrouperAttribute(), true, false);
-        if (attr != null) {
-          rdnString = attr;
-        } else {
-          rdnString = group.getUuid();
-        }
-      }
-    } else {
-      //
-      // Structure must be bushy so use the extension
-      //
-      rdnString = group.getExtension();
-    }
+    Name groupDn = provisioner.calculateGroupDn(group);
 
-    //
-    // Add the rdn to the group Dn and the rdnMods
-    //
-    rdnMods.store(rdnString);
-    groupDn = groupDn.add(rdnMods.getAttributeName() + "="
-        + LdapUtil.makeLdapNameSafe(rdnString));
+    Rdn rdn = new Rdn(groupDn.get(groupDn.size() - 1));
+    rdnMods.store(rdn.getValue().toString());
 
     return groupDn;
   }
@@ -940,7 +896,7 @@ public class GroupEntrySynchronizer extends Synchronizer {
    *           thrown if a Naming exception occured.
    * @see #updateProcessedOus(Name)
    */
-  protected Name buildStemOuEntries(Group group) throws NamingException {
+  protected void buildStemOuEntries(Group group) throws NamingException {
     //
     // Build an attribute list once for creating new ou entries
     // below. Note, the "ou" attribute is added below.
@@ -949,31 +905,8 @@ public class GroupEntrySynchronizer extends Synchronizer {
     attributes.put(new BasicAttribute(LdapUtil.OBJECT_CLASS_ATTRIBUTE,
         OrganizationalUnit.OBJECT_CLASS));
 
-    //
-    // Initialize the stemDn to be the root DN. This stemDn
-    // is updated for each element of the group's stem below
-    //
-    Name stemDn = (Name) rootDn.clone();
-
-    //
-    // Get the group's parent stem, and tokenize it's name to build
-    // the ou's for the group.
-    //
-    Stem stem = group.getParentStem();
-    StringTokenizer stemTokens = new StringTokenizer(stem.getName(), Stem.DELIM);
-    while (stemTokens.hasMoreTokens()) {
-      //
-      // Get next stem token for the rdn value making sure it is Ldap name
-      // safe
-      //
-      String rdnString = stemTokens.nextToken();
-      String rdnValue = LdapUtil.makeLdapNameSafe(rdnString);
-
-      //
-      // Build the new name (keep adding on to previous)
-      //
-      stemDn = stemDn.add(OrganizationalUnit.Attribute.OU + "=" + rdnValue);
-
+    List<Name> stemDns = provisioner.calculateStemDns(group);
+    for (Name stemDn : stemDns) {
       //
       // If stemDn hasn't been processed, process it based on whether it
       // already exists
@@ -986,7 +919,8 @@ public class GroupEntrySynchronizer extends Synchronizer {
           //
           // Build the new OU
           //
-          attributes.put(OrganizationalUnit.Attribute.OU, rdnString);
+          Rdn rdn = new Rdn(stemDn.get(stemDn.size() - 1));
+          attributes.put(OrganizationalUnit.Attribute.OU, rdn.getValue().toString());
           LOG.info("Creating '" + stemDn + "' attrs " + attributes);
           ldapCtx.createSubcontext(stemDn, attributes);
 
@@ -999,8 +933,6 @@ public class GroupEntrySynchronizer extends Synchronizer {
         }
       }
     }
-
-    return stemDn;
   }
 
   /**
@@ -1065,8 +997,7 @@ public class GroupEntrySynchronizer extends Synchronizer {
     String filter = "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "="
         + configuration.getGroupDnObjectClass() + ")";
 
-    if (ProvisionerConfiguration.GROUP_DN_BUSHY.equals(configuration
-        .getGroupDnStructure())) {
+    if (GroupDNStructure.bushy.equals(configuration.getGroupDnStructure())) {
       filter = "(|" + filter + "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "="
           + OrganizationalUnit.OBJECT_CLASS + "))";
     }
@@ -1166,8 +1097,7 @@ public class GroupEntrySynchronizer extends Synchronizer {
     //
     // If necessary, populate the stem ou deletes
     //
-    if (ProvisionerConfiguration.GROUP_DN_BUSHY.equals(configuration
-        .getGroupDnStructure())) {
+    if (GroupDNStructure.bushy.equals(configuration.getGroupDnStructure())) {
       filter = "(" + LdapUtil.OBJECT_CLASS_ATTRIBUTE + "="
           + OrganizationalUnit.OBJECT_CLASS + ")";
       populateDns(deleteOus, filter, searchControls);
