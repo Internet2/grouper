@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditEntry.java,v 1.8 2009-04-15 15:56:21 mchyzer Exp $
+ * $Id: AuditEntry.java,v 1.9 2009-05-26 06:50:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -360,8 +360,8 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned {
     } else if (StringUtils.equals(label, auditType.getLabelString08())) {
       this.string08 = value;
     } else {
-      throw new RuntimeException("Cant find string label: " + label 
-          + " in audit type: " + auditType.getAuditCategory() + " - " + auditType.getActionName());
+      throw new RuntimeException("Cant find string label: '" + label 
+          + "' in audit type: " + auditType.getAuditCategory() + " - " + auditType.getActionName());
     }
   }
   

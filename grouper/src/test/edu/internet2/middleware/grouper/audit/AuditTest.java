@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTest.java,v 1.16 2009-03-23 02:59:25 mchyzer Exp $
+ * $Id: AuditTest.java,v 1.17 2009-05-26 06:50:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -55,7 +55,8 @@ public class AuditTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AuditTest("testStemPrivileges"));
+    TestRunner.run(new AuditTest("testGroupPrivileges"));
+    TestRunner.run(new AuditTest("testFields"));
   }
   
   /**

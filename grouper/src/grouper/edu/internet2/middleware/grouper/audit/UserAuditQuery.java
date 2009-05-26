@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: UserAuditQuery.java,v 1.3 2009-05-13 13:17:08 mchyzer Exp $
+ * $Id: UserAuditQuery.java,v 1.4 2009-05-26 06:50:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Expression;
@@ -47,6 +48,11 @@ public class UserAuditQuery {
    * query by audit type action
    */
   private Set<AuditType> auditTypeActionList;
+  
+  /**
+   * audit type string, and value pairs
+   */
+  private Map<String, String> auditTypeFieldValue;
   
   /**
    * query options
@@ -207,9 +213,15 @@ public class UserAuditQuery {
       
       for (String fieldName : this.auditFieldValue.keySet()) {
         Object value = this.auditFieldValue.get(fieldName);
+
         //find the field name for this fieldName in all audit types
-        String translatedFieldName = this.translateFieldName(fieldName);
-        criterionList.add(Restrictions.eq(translatedFieldName, value));
+        Criterion criterion = AuditFieldType.criterion(fieldName, value);
+        if (criterion == null) {
+          throw new RuntimeException("Cant find audit type for '" + fieldName + "'");
+        }
+        
+        criterionList.add(criterion);
+        
       }
     }
     

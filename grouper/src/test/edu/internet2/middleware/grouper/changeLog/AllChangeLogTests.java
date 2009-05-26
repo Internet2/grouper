@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AllChangeLogTests.java,v 1.1 2009-05-12 06:35:26 mchyzer Exp $
+ * $Id: AllChangeLogTests.java,v 1.2 2009-05-26 06:50:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -20,6 +20,7 @@ public class AllChangeLogTests {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.changeLog");
     //$JUnit-BEGIN$
     suite.addTestSuite(ChangeLogTypeTest.class);
+    suite.addTestSuite(ChangeLogIdTest.class);
     suite.addTestSuite(ChangeLogTest.class);
     //$JUnit-END$
     return suite;
