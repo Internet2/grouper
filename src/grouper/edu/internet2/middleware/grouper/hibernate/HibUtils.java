@@ -277,6 +277,26 @@ public class HibUtils {
   }
 
   /**
+   * make a list of criterions.  e.g. listCrit(crit1, crit2, etc).  will OR them together
+   * this is null and empty safe
+   * @param criterions
+   * @return the criterion containing the list or null if none passed in
+   */
+  public static Criterion listCritOr(Criterion... criterions) {
+    return listCritHelper(Restrictions.disjunction(), criterions);
+  }
+
+  /**
+   * make a list of criterions.  e.g. listCrit(crits).  will OR them together
+   * this is null and empty safe
+   * @param criterions
+   * @return the criterion containing the list or null if none passed in
+   */
+  public static Criterion listCritOr(List<Criterion> criterions) {
+    return listCritHelper(Restrictions.disjunction(), GrouperUtil.toArray(criterions, Criterion.class));
+  }
+
+  /**
    * make a list of criterions.  e.g. listCrit(crit1, crit2, etc).  will AND or OR them together
    * this is null and empty safe
    * @param junction either conjunction or disjunction

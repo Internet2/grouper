@@ -100,7 +100,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.195 2009-04-24 13:08:19 shilen Exp $
+ * @version $Id: Stem.java,v 1.196 2009-05-26 06:50:56 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -904,10 +904,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
               
               Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj, false);
               
-              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_ADD, "privilegeName", 
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_STEM_ADD, "privilegeName", 
                   priv.getName(),  "memberId",  member.getUuid(),
-                      "privilegeType", "naming", "ownerType", "stem", 
-                      "ownerId", Stem.this.getUuid(), "ownerName", Stem.this.getName());
+                      "privilegeType", "naming", 
+                      "stemId", Stem.this.getUuid(), "stemName", Stem.this.getName());
                       
               auditEntry.setDescription("Added privilege: stem: " + Stem.this.getName()
                   + ", subject: " + subj.getSource().getId() + "." + subj.getId() + ", privilege: "
@@ -1161,10 +1161,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
               
               Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj, false);
               
-              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_DELETE, "privilegeName", 
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_STEM_DELETE, "privilegeName", 
                   priv.getName(),  "memberId",  member.getUuid(),
-                      "privilegeType", "naming", "ownerType", "stem", 
-                      "ownerId", Stem.this.getUuid(), "ownerName", Stem.this.getName());
+                      "privilegeType", "naming", 
+                      "stemId", Stem.this.getUuid(), "stemName", Stem.this.getName());
                       
               auditEntry.setDescription("Deleted privilege: stem: " + Stem.this.getName()
                   + ", subject: " + subj.getSource().getId() + "." + subj.getId() + ", privilege: "

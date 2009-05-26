@@ -123,7 +123,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.247 2009-04-29 12:09:57 mchyzer Exp $
+ * @version $Id: Group.java,v 1.248 2009-05-26 06:50:56 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -726,11 +726,11 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
                 EVENT_LOG.groupAddMember(GrouperSession.staticGrouperSession(), Group.this.getName(), subj, f, sw);
                 if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                   
-                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_ADD, "id", 
+                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_GROUP_ADD, "id", 
                       membership == null ? null : membership.getUuid(), "fieldId", f.getUuid(),
                           "fieldName", f.getName(), "memberId",  membership.getMemberUuid(),
-                          "membershipType", membership.getType(), "ownerType", "group", 
-                          "ownerId", Group.this.getUuid(), "ownerName", Group.this.getName());
+                          "membershipType", membership.getType(), 
+                          "groupId", Group.this.getUuid(), "groupName", Group.this.getName());
                           
                   auditEntry.setDescription("Added membership: group: " + Group.this.getName()
                       + ", subject: " + subj.getSource().getId() + "." + subj.getId() + ", field: "
@@ -1108,8 +1108,8 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
                 if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                   
                   AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ATTRIBUTE_DELETE, "id", 
-                      Group.this.getUuid(), "name", Group.this.getName(), "groupId", Group.this.getParentUuid(), 
-                      "groupName", Group.this.getDisplayName(), "fieldId", Group.this.getDescription(),
+                      Group.this.getUuid(), "groupId", Group.this.getParentUuid(), 
+                      "groupName", Group.this.getName(), "fieldId", Group.this.getDescription(),
                       "fieldName", attrName,  "value", attribute.getValue());
                   
                   auditEntry.setDescription("Deleted group attribute: " + attrName + " on group: " 
@@ -1577,11 +1577,11 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
                 
                 Membership membership = mof.getMembership();
                 
-                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_DELETE, "id", 
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_GROUP_DELETE, "id", 
                     membership == null ? null : membership.getUuid(), "fieldId", f.getUuid(),
                         "fieldName", f.getName(), "memberId",  membership.getMemberUuid(),
-                        "membershipType", membership.getType(), "ownerType", "group", 
-                        "ownerId", Group.this.getUuid(), "ownerName", Group.this.getName());
+                        "membershipType", membership.getType(), 
+                        "groupId", Group.this.getUuid(), "groupName", Group.this.getName());
                         
                 auditEntry.setDescription("Added membership: group: " + Group.this.getName()
                     + ", subject: " + subj.getSource().getId() + "." + subj.getId() + ", field: "
@@ -2945,10 +2945,10 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
               
               Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj, false);
               
-              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_ADD, "privilegeName", 
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_GROUP_ADD, "privilegeName", 
                   priv.getName(),  "memberId",  member.getUuid(),
-                      "privilegeType", "access", "ownerType", "group", 
-                      "ownerId", Group.this.getUuid(), "ownerName", Group.this.getName());
+                      "privilegeType", "access", 
+                      "groupId", Group.this.getUuid(), "groupName", Group.this.getName());
                       
               auditEntry.setDescription("Added privilege: group: " + Group.this.getName()
                   + ", subject: " + subj.getSource().getId() + "." + subj.getId() + ", privilege: "
@@ -3438,10 +3438,10 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
             
             Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj, false);
             
-            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_DELETE, "privilegeName", 
+            AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PRIVILEGE_GROUP_DELETE, "privilegeName", 
                 priv.getName(),  "memberId",  member.getUuid(),
-                    "privilegeType", "access", "ownerType", "group", 
-                    "ownerId", Group.this.getUuid(), "ownerName", Group.this.getName());
+                    "privilegeType", "access", 
+                    "groupId", Group.this.getUuid(), "groupName", Group.this.getName());
                     
             auditEntry.setDescription("Deleted privilege: group: " + Group.this.getName()
                 + ", subject: " + subj.getSource().getId() + "." + subj.getId() + ", privilege: "
@@ -3626,8 +3626,8 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                 
                 AuditEntry auditEntry = new AuditEntry(auditTypeBuiltin, "id", 
-                    Group.this.getUuid(), "name", Group.this.getName(), "groupId", Group.this.getParentUuid(), 
-                    "groupName", Group.this.getDisplayName(), "fieldId", Group.this.getDescription(),
+                    Group.this.getUuid(), "groupId", Group.this.getParentUuid(), 
+                    "groupName", Group.this.getName(), "fieldId", Group.this.getDescription(),
                     "fieldName", attributeName,  "value", attribute.getValue(), oldValueName, oldValue);
                 
                 auditEntry.setDescription(verb + " group attribute: " + attributeName + " on group: " 
