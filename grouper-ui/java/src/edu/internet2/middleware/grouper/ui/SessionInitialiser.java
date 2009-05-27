@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.17 2008-11-05 05:10:40 mchyzer Exp $
+ * @version $Id: SessionInitialiser.java,v 1.17.2.1 2009-05-27 16:32:45 isgwb Exp $
  */
 
 public class SessionInitialiser {
@@ -54,7 +54,11 @@ public class SessionInitialiser {
 
 		String localeStr = request.getParameter("lang");
 		HttpSession session = request.getSession();
-		Locale locale = createLocale(localeStr);
+		Locale locale = null;
+		
+		if(localeStr!=null && !"".equals(localeStr)) {
+			locale=createLocale(localeStr);
+		}
 		
 		session.setAttribute("org.apache.struts.action.LOCALE", locale);
 
@@ -63,7 +67,11 @@ public class SessionInitialiser {
 		String module = "";
 		if (configx != null)
 			module = configx.getPrefix();
-		SessionInitialiser.init(module, locale.toString(), session);
+		if(locale!=null) {
+			SessionInitialiser.init(module, locale.toString(), session);
+		}else{
+			SessionInitialiser.init(module, null, session);
+		}
 		session.setAttribute("javax.servlet.jsp.jstl.fmt.locale", locale);
 
 		//session.setAttribute("sessionInited", localeStr);
@@ -103,13 +111,17 @@ public class SessionInitialiser {
 		ResourceBundle defaultInit = ResourceBundle
 				.getBundle("/resources/init");
 		if (module == null || module.equals("")) {
+			LOG.debug("Selecting default module");
 			module = defaultInit.getString("default.module");
 		}
+		LOG.debug("module="+module);
 		ResourceBundle moduleInit = ResourceBundle.getBundle("/resources/"
 				+ module + "/init");
 		if (locale == null || locale.equals("")) {
 			locale = moduleInit.getString("default.locale");
+			LOG.debug("Selecting default locale");
 		}
+		LOG.debug("locale=" + locale);
 		Locale localeObj = createLocale(locale);
 		ResourceBundle grouperBundle = ResourceBundle.getBundle(
 				"resources.grouper.nav", localeObj);
