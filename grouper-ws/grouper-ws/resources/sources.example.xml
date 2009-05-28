@@ -2,7 +2,7 @@
 
 <!--
 Grouper's subject resolver configuration
-$Id: sources.example.xml,v 1.2 2008-10-21 03:50:59 mchyzer Exp $
+$Id: sources.example.xml,v 1.2.2.1 2009-05-28 21:07:49 mchyzer Exp $
 -->
 
 <sources>
@@ -134,6 +134,32 @@ where
         <searchType>search</searchType>
          <param>
              <param-name>sql</param-name>
+             
+             <!--  for postgres, use this query since no concat() exists:
+             
+             select
+   subject.subjectid as id, subject.name as name,
+   lfnamet.lfname as lfname, loginidt.loginid as loginid,
+   desct.description as description
+from
+   subject
+   left join (select subjectid, value as lfname from subjectattribute
+     where name='name') lfnamet
+     on subject.subjectid=lfnamet.subjectid
+   left join (select subjectid, value as loginid from subjectattribute
+     where name='loginid') loginidt
+     on subject.subjectid=loginidt.subjectid
+   left join (select subjectid, value as description from subjectattribute
+      where name='description') desct
+     on subject.subjectid=desct.subjectid
+where
+   (lower(name) like '%' || ? || '%')
+   or (lower(lfnamet.lfname) like '%' || ? || '%')
+   or (lower(loginidt.loginid) like '%' || ? || '%')
+   or (lower(desct.description) like '%' || ? || '%')
+             
+              -->
+             
              <param-value>
 select
    s.subjectid as id, s.name as name,
@@ -151,6 +177,69 @@ where
          </param>
      </search>
    </source>
+   
+   <!--  
+    <!- - This is an alternate jdbc source which allows for more complex searches, assumes 
+      all data is in one table or view, and that all attributes are single valued.  There are
+      not queries to configure in sources.xml - - >
+    <source adapterClass="edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter2">
+    <id>sourceId</id>
+    <name>Source name</name>
+     <type>person</type>
+     <init-param>
+       <param-name>jdbcConnectionProvider</param-name>
+       <param-value>edu.internet2.middleware.grouper.subj.GrouperJdbcConnectionProvider</param-value>
+     </init-param>
+
+      <init-param>
+       <param-name>dbTableOrView</param-name>
+       <param-value>person_source_v</param-value>
+     </init-param>
+      <init-param>
+       <param-name>subjectIdCol</param-name>
+       <param-value>some_id</param-value>
+     </init-param>
+     <init-param>
+       <param-name>nameCol</param-name>
+       <param-value>name</param-value>
+     </init-param>
+     <init-param>
+       <param-name>descriptionCol</param-name>
+       <param-value>description</param-value>
+     </init-param>
+     <init-param>
+       <!- - search col where general searches take place, lower case - - >
+       <param-name>lowerSearchCol</param-name>
+       <param-value>description_lower</param-value>
+     </init-param>
+     <init-param>
+       <!- - optional col if you want the search results sorted in the API (note, UI might override) - - >
+       <param-name>defaultSortCol</param-name>
+       <param-value>description</param-value>
+     </init-param>
+     <init-param>
+       <!- - col which identifies the row, perhaps not subjectId, add multiple by incrementing the 0 index - - >
+       <param-name>subjectIdentifierCol0</param-name>
+       <param-value>pennname</param-value>
+     </init-param>
+     <init-param>
+       <!- - col which identifies the row, perhaps not subjectId, add multiple by incrementing the 0 index - - >
+       <param-name>subjectIdentifierCol1</param-name>
+       <param-value>penn_id</param-value>
+     </init-param>
+     <!- - now you can count up from 0 to N of attributes for various cols.  
+          The name is how to reference in subject.getAttribute() - - >
+     <init-param>
+       <param-name>subjectAttributeCol0</param-name>
+       <param-value>pennname</param-value>
+     </init-param>
+     <init-param>
+       <param-name>subjectAttributeName0</param-name>
+       <param-value>PENNNAME</param-value>
+     </init-param>
+
+   </source>
+   -->
    
    <!--
   <source adapterClass="edu.internet2.middleware.grouper.subj.GrouperJndiSourceAdapter">
