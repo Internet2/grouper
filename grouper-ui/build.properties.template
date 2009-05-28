@@ -64,6 +64,10 @@ grouper.folder=../grouper
 #grouper.compile.api=true
 ui.folder=${basedir}
 
+#Compile UI Java files into temporary folder, JAR and copy to WEB-INF/lib
+#Comment out to compile UI Java files direct to WEB-INF/classes
+ui.make.jar=true
+
 #Determines the name of the web application
 webapp.name=grouper
 
