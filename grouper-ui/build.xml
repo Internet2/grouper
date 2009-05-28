@@ -326,6 +326,14 @@
       </fileset>    
 
 		</path>
+		
+		<!-- don't want grouper-ui.jar when compiling ui source - but do when running ui code or compiling dependent (custom) code -->
+		<path id="ui.class.path.for.run">
+		<path refid="ui.class.path"/>
+		  <fileset dir="${webapp.folder}/WEB-INF/lib">
+			  <include if="ui.make.jar" name="grouper-ui.jar"/>
+	    </fileset>
+		</path>
 		<antcall target="-compileGrouper"/>
 		<!-- Compile ui code - mostly Struts actions -->
 		
@@ -397,7 +405,7 @@
 		</condition>
 		<echo message="web.xmls.isempty=:${web.xmls.isempty}:"/>
 		<antcall target="-merge-xmls">
-			<reference refid="ui.class.path" torefid="merge.class.path"/>
+			<reference refid="ui.class.path.for.run" torefid="merge.class.path"/>
 		</antcall>
 		<antcall target="-copy-core-web-xml"/>
 		
@@ -432,12 +440,7 @@
 	<target name="-merge-xmls" unless="web.xmls.isempty">
 	<copy file="${ui.folder}/webapp/WEB-INF/web.core.xml" tofile="${temp.dir}/50.web.core.xml" filtering="true"/>
 	
-	<path id="final.merge.class.path">
-	  <path refid="merge.class.path"/>
-			<fileset dir="${webapp.folder}/WEB-INF/lib">
-				<include if="ui.make.jar" name="grouper-ui.jar"/>
-			</fileset>
-	</path>
+	
 	
 	<path id="final.web.xml.files">
 			<fileset dir="${temp.dir}">
@@ -445,7 +448,7 @@
 			</fileset>
 		</path>
 		<property name="final.web.xmls" refid="final.web.xml.files"/>
-		<java classname="edu.internet2.middleware.grouper.ui.util.MergeWebXmls" classpathref="final.merge.class.path" outputproperty="mergeOutput" resultProperty="result">
+		<java classname="edu.internet2.middleware.grouper.ui.util.MergeWebXmls" classpathref="merge.class.path" outputproperty="mergeOutput" resultProperty="result">
 			<arg value="${temp.dir}"/>
 			<arg value="${final.web.xmls}"/>
 			<arg value="${ui.folder}/web-xml-merge.xsl"/>
