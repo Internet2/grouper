@@ -31,8 +31,10 @@
 		  	  	<fileset dir="java/lib">
 		  	  		<include name="**/*.jar"/>
 		  	  	</fileset>
+		  	  	
+		  	  	
 		  	  	<!-- leverage the class path used for the core UI -->
-		  	  	<path refid="ui.class.path"/>	
+		  	  	<path refid="ui.class.path.for.run"/>	
 		  	  </path>
 		  	  <javac 
 			    srcdir="java/src"
