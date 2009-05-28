@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * Internal <i>Subject</i> returned by an {@link InternalSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: InternalSubject.java,v 1.3 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: InternalSubject.java,v 1.3.2.1 2009-05-28 05:13:25 mchyzer Exp $
  */
 public class InternalSubject implements Subject {
 
@@ -89,6 +89,7 @@ public class InternalSubject implements Subject {
     Iterator  iter  = this.attrs.keySet().iterator();
     while (iter.hasNext()) {
       name = (String) iter.next();
+      //TODO shouldnt this be a String to a Set<String>, not a String to a String?
       attrs.put( name, this.getAttributeValue(name) );
     }
     return attrs;

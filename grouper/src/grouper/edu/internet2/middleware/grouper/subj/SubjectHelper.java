@@ -34,7 +34,7 @@ import edu.internet2.middleware.subject.Subject;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.2.2.3 2009-05-22 19:27:34 mchyzer Exp $
+ * @version $Id: SubjectHelper.java,v 1.2.2.4 2009-05-28 05:13:25 mchyzer Exp $
  */
 public class SubjectHelper {
 
@@ -68,10 +68,22 @@ public class SubjectHelper {
     while (iterator.hasNext()) {
       Subject subject = iterator.next();
       Map<String, Set<String>> attributes = subject.getAttributes();
-      for (Set<String> attributeValues: attributes.values()) {
-        if (attributeValues != null && attributeValues.contains(searchTerm)) {
-          subjectsOut.add(subject);
-          iterator.remove();
+      Object valuesObject = attributes.values();
+      if (valuesObject instanceof Collection) {
+        Collection values = (Collection)valuesObject;
+        for (Object attributeValues: values) {
+          if (attributeValues instanceof Set) {
+            Set<String> attributeValuesSet = (Set<String>)attributeValues;
+            if (attributeValuesSet != null && attributeValuesSet.contains(searchTerm)) {
+              subjectsOut.add(subject);
+              iterator.remove();
+            }
+          } else if (attributeValues instanceof String) {
+            if (StringUtils.equals(searchTerm, (String)attributeValues)) {
+              subjectsOut.add(subject);
+              iterator.remove();
+            }
+          }
         }
       }
     }
