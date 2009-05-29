@@ -23,8 +23,8 @@
 				<include name="**/*.jar"/>
 			</fileset>
 			</path>
-			<java  dir="." classname="org.hsqldb.Server" classpathref="db.class.path" fork="true">
-				<arg line="-database grouper/dist/run/grouper"/>
+			<java  dir="grouper" classname="org.hsqldb.Server" classpathref="db.class.path" fork="true">
+				<arg line="-database.0 file:/dist/run/grouper -dbname.0 grouper"/>
 			</java>
 	 </target>
 	 
@@ -36,7 +36,7 @@
 			</fileset>
 			</path>
 			<java  dir="." classname="org.hsqldb.util.DatabaseManager" classpathref="db.class.path" fork="true">
-				<arg line="-url jdbc:hsqldb:hsql://localhost:9001"/>
+				<arg line="-url jdbc:hsqldb:hsql://localhost:9001/grouper"/>
 			</java>
 	 </target>
 	
