@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderSecurityTest.java,v 1.1 2008-11-11 07:27:32 mchyzer Exp $
+ * $Id: GrouperLoaderSecurityTest.java,v 1.1.2.1 2009-05-29 01:09:01 shilen Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -171,6 +171,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
   public void testSecurityUserEditTypeNonGroupFail() throws Exception {
 
     ApiConfig.testConfig.put("security.types.groupType.allowOnlyGroup", this.groupToBeInToEdit.getName());
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.use", "true");
     GroupTypeSecurityHook.registerHookIfNecessary(true);
     GroupTypeSecurityHook.resetCacheSettings();
 
@@ -308,6 +309,7 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
   public void testSecurityUserEditTypeWheelFail() throws Exception {
 
     ApiConfig.testConfig.put("security.types.groupType.wheelOnly", "true");
+    ApiConfig.testConfig.put("grouperIncludeExclude.requireGroups.use", "true");
     GroupTypeSecurityHook.registerHookIfNecessary(true);
     GroupTypeSecurityHook.resetCacheSettings();
 
