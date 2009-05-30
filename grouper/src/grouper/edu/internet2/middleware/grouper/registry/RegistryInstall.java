@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.exception.GrouperRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -38,7 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * this will put the base records that grouper needs to operate (e.g. root stem)
  * <p/>
  * @author  blair christensen.
- * @version $Id: RegistryInstall.java,v 1.8 2008-11-13 20:26:10 mchyzer Exp $    
+ * @version $Id: RegistryInstall.java,v 1.8.2.1 2009-05-30 04:48:19 mchyzer Exp $    
  */
 public class RegistryInstall {
 
@@ -88,6 +89,7 @@ public class RegistryInstall {
       LOG.fatal(msg, throwable);
       throw new GrouperRuntimeException(msg, throwable);
     }
+    GrouperCacheUtils.clearAllCaches();
 
   }
   

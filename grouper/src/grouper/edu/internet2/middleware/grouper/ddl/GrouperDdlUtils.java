@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.30.2.5 2009-04-28 19:37:37 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.30.2.6 2009-05-30 04:48:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -548,7 +549,7 @@ public class GrouperDdlUtils {
                     && !alreadyInsertedForObjectName.contains(objectName)) {
                 
                   result.append("\ninsert into grouper_ddl (id, object_name, db_version, " +
-                  		"last_updated, history) values ('" + GrouperUuid.getUuid() 
+                      "last_updated, history) values ('" + GrouperUuid.getUuid() 
                       +  "', '" + objectName + "', 1, '" + timestamp + "', \n'" + historyString + "');\n");
                   //dont insert again for this object
                   alreadyInsertedForObjectName.add(objectName);
@@ -794,6 +795,10 @@ public class GrouperDdlUtils {
         System.out.println(logMessage);
       }
     }
+    
+    //clear all caches
+    GrouperCacheUtils.clearAllCaches();
+    
     return logMessage;
   } 
   
@@ -1237,7 +1242,7 @@ public class GrouperDdlUtils {
       } catch (Exception e) {
         //just log, maybe the table isnt there
         LOG.error("maybe the grouper_ddl table isnt there... if that is the reason its ok.  " +
-        		"info level logging will show underlying reason." + e.getMessage());
+            "info level logging will show underlying reason." + e.getMessage());
         //send this as info, since most of the time it isnt needed
         LOG.info("ddl issue: ", e);
       }
@@ -1874,7 +1879,7 @@ public class GrouperDdlUtils {
     if (column == null) {
       if (exceptionIfNotFound) {
         throw new RuntimeException("Cant find column '" + columnName + "' in table '" + tableName + "'," +
-        		" perhaps you need to rollback your ddl version in the DB and sync up");
+            " perhaps you need to rollback your ddl version in the DB and sync up");
       }
       return null;
     }
