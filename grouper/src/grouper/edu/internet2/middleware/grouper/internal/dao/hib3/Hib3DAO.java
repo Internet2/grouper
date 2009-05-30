@@ -40,7 +40,7 @@ import edu.internet2.middleware.morphString.Morph;
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.25 2009-05-12 06:35:26 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.26 2009-05-30 05:49:02 mchyzer Exp $
  * @since   @HEAD@
  */
 public abstract class Hib3DAO {
@@ -101,6 +101,7 @@ public abstract class Hib3DAO {
         .addProperties(p);
       addClass(CFG, Hib3AuditEntryDAO.class);
       addClass(CFG, Hib3AuditTypeDAO.class);
+      addClass(CFG, Hib3AuditTypeDAO.class, "Hib3AuditTypeDAO2");
       addClass(CFG, Hib3AttributeDAO.class);
       addClass(CFG, Hib3ChangeLogEntryDAO.class);
       addClass(CFG, Hib3ChangeLogTypeDAO.class);
@@ -161,11 +162,22 @@ public abstract class Hib3DAO {
   
   /**
    * 
-   * @param CFG
+   * @param _CFG
    * @param mappedClass
    */
-  private static void addClass(Configuration CFG, Class<?> mappedClass) {
-    String resourceName = resourceNameFromClassName(mappedClass);
+  private static void addClass(Configuration _CFG, Class<?> mappedClass) {
+    addClass(_CFG, mappedClass, null);
+  }
+
+  /**
+   * 
+   * @param _CFG
+   * @param mappedClass
+   * @param entityNameXmlFileNameOverride send in an entity name if the entity name and xml file are different than
+   * the class file.
+   */
+  private static void addClass(Configuration _CFG, Class<?> mappedClass, String entityNameXmlFileNameOverride) {
+    String resourceName = resourceNameFromClassName(mappedClass, entityNameXmlFileNameOverride);
     String xml = GrouperUtil.readResourceIntoString(resourceName, false);
     
     if (xml.contains("<version")) {
@@ -185,7 +197,7 @@ public abstract class Hib3DAO {
         xml = StringUtils.replace(xml, optimisiticLockVersion, "optimistic-lock=\"none\"");
       }
     }
-    CFG.addXML(xml);
+    _CFG.addXML(xml);
 
   }
 
@@ -193,10 +205,15 @@ public abstract class Hib3DAO {
    * class is e.g. edu.internet2.middleware.grouper.internal.dto.Attribute,
    * must return e.g. edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDAO
    * @param theClass
+   * @param entityNameXmlFileNameOverride pass in an override if the entity name and xml file are different than
+   * the class file
    * @return the string of resource
    */
-  public static String resourceNameFromClassName(Class theClass) {
+  public static String resourceNameFromClassName(Class theClass, String entityNameXmlFileNameOverride) {
     String daoClass = theClass.getName();
+    if (!StringUtils.isBlank(entityNameXmlFileNameOverride)) {
+      daoClass = StringUtils.replace(daoClass, theClass.getSimpleName(), entityNameXmlFileNameOverride);
+    }
     //replace with hbm
     String result = StringUtils.replace(daoClass, ".", "/") + ".hbm.xml";
     
