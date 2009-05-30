@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: UserAuditQueryTest.java,v 1.2 2009-05-13 12:15:01 mchyzer Exp $
+ * $Id: UserAuditQueryTest.java,v 1.3 2009-05-30 05:49:12 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -23,7 +23,7 @@ public class UserAuditQueryTest extends TestCase {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new UserAuditQueryTest("testMembershipMemberQuery"));
+    TestRunner.run(new UserAuditQueryTest("testQueries"));
   }
   
   /**
