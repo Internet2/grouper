@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.44 2009-05-12 06:35:27 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.45 2009-05-31 02:27:30 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -3615,6 +3615,68 @@ public enum GrouperDdl implements DdlVersionable {
 
     }
     
+    {
+      Table grouperChangeLogTempEntryTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
+          "change_log_type_id", Types.VARCHAR, "128", false, true); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
+          "context_id", Types.VARCHAR, "128", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
+          "created_on", Types.BIGINT, "20", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
+          "string01", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
+          "string02", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
+          "string03", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
+          "string04", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
+          "string05", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
+          "string06", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
+          "string07", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
+          "string08", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
+          "string09", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
+          "string10", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
+          "string11", Types.VARCHAR, "4000", false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
+          "string12", Types.VARCHAR, "4000", false, false); 
+
+      //do 5 string indexes, probably dont need them on the other string cols
+      for (int i=1;i<=5;i++) {
+        //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
+        String scriptOverride = ddlVersionBean.isMysql() ? "\nCREATE INDEX change_log_entry_temp_string0" + i + "_idx " +
+            "ON grouper_change_log_entry_temp (string0" + i + "(333));\n" : null;
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogTempEntryTable.getName(), 
+            "change_log_entry_temp_string0" + i + "_idx", scriptOverride, false, "string0" + i);
+        
+      }
+
+    }
+
     {
       Table grouperChangeLogEntryTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
           ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY);

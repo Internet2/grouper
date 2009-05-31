@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.hibernate;
 import java.io.Serializable;
 import java.util.Collection;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.Session;
 
@@ -14,13 +15,17 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * @version $Id: ByObject.java,v 1.10 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: ByObject.java,v 1.11 2009-05-31 02:27:31 mchyzer Exp $
  * @author harveycg
  */
 public class ByObject extends HibernateDelegate {
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(ByObject.class);
+  /**
+   * assign if this query is cacheable or not.
+   */
+  private String entityName = null;
 
   /**
    * @param theHibernateSession
@@ -86,7 +91,11 @@ public class ByObject extends HibernateDelegate {
       }
       GrouperContext.incrementQueryCount();
 
-      session.delete(object);
+      if (StringUtils.isBlank(this.entityName)) {
+        session.delete(object);
+      } else {
+        session.delete(this.entityName, object);
+      }
       
       if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
         ((HibGrouperLifecycle)object).onPostDelete(hibernateSession);
@@ -166,7 +175,15 @@ public class ByObject extends HibernateDelegate {
       }
 
       GrouperContext.incrementQueryCount();
-      Serializable id = session.save(object);
+      
+      Serializable id = null;
+      if (StringUtils.isBlank(this.entityName)) {
+
+        id = session.save(object);
+      } else {
+        id = session.save(this.entityName, object);
+      }
+
       session.flush();
       
       if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
@@ -253,7 +270,12 @@ public class ByObject extends HibernateDelegate {
 
       GrouperContext.incrementQueryCount();
 
-      session.saveOrUpdate(object);
+      if (StringUtils.isBlank(this.entityName)) {
+        session.saveOrUpdate(object);
+      } else {
+        session.saveOrUpdate(this.entityName, object);
+      }
+
       try {
         session.flush(); //TODO remove
       } catch (RuntimeException re) {
@@ -296,9 +318,13 @@ public class ByObject extends HibernateDelegate {
     try {
       HibernateSession hibernateSession = this.getHibernateSession();
       Session session  = hibernateSession.getSession();
-
       GrouperContext.incrementQueryCount();
-      T result = (T)session.load(theClass, id);
+      T result = null;
+      if (StringUtils.isBlank(this.entityName)) {
+        result = (T)session.load(theClass, id);
+      } else {
+        result = (T)session.load(this.entityName, id);
+      }
       
       return result;
 
@@ -364,7 +390,13 @@ public class ByObject extends HibernateDelegate {
       }
 
       GrouperContext.incrementQueryCount();
-      session.update(object);
+
+      if (StringUtils.isBlank(this.entityName)) {
+
+        session.update(object);
+      } else {
+        session.update(this.entityName, object);
+      }
       
       if (!this.isIgnoreHooks() && object instanceof HibGrouperLifecycle) {
         ((HibGrouperLifecycle)object).onPostUpdate(hibernateSession);
@@ -391,5 +423,15 @@ public class ByObject extends HibernateDelegate {
   @Override
   public ByObject setIgnoreHooks(boolean theIgnoreHooks) {
     return (ByObject)super.setIgnoreHooks(theIgnoreHooks);
+  }
+
+  /**
+   * entity name if the object is mapped to more than one table
+   * @param theEntityName the entity name of the object
+   * @return this object for chaining
+   */
+  public ByObject setEntityName(String theEntityName) {
+    this.entityName = theEntityName;
+    return this;
   }
 }

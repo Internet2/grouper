@@ -43,6 +43,11 @@ public class ByObjectStatic extends ByQueryBase {
   private Boolean cacheable = null;
   
   /**
+   * assign if this query is cacheable or not.
+   */
+  private String entityName = null;
+  
+  /**
    * assign a different grouperTransactionType (e.g. for autonomous transactions)
    * @param theGrouperTransactionType
    * @return the same object for chaining
@@ -72,6 +77,7 @@ public class ByObjectStatic extends ByQueryBase {
   public String toString() {
     StringBuilder result = new StringBuilder("ByObjectStatic, query: ', cacheable: ").append(this.cacheable);
     result.append(", cacheRegion: ").append(this.cacheRegion);
+    result.append(", entityName: ").append(this.entityName);
     result.append(", tx type: ").append(this.grouperTransactionType);
     return result.toString();
   }
@@ -88,6 +94,16 @@ public class ByObjectStatic extends ByQueryBase {
    */
   public ByObjectStatic setCacheRegion(String cacheRegion) {
     this.cacheRegion = cacheRegion;
+    return this;
+  }
+
+  /**
+   * entity name if the object is mapped to more than one table
+   * @param theEntityName the entity name of the object
+   * @return this object for chaining
+   */
+  public ByObjectStatic setEntityName(String theEntityName) {
+    this.entityName = theEntityName;
     return this;
   }
 
@@ -498,7 +514,17 @@ public class ByObjectStatic extends ByQueryBase {
     }
     
   }
-  
+
+  /**
+   * copy field to, better by a ByObject...
+   */
+  @Override
+  protected void copyFieldsTo(ByQueryBase byQueryBase) {
+    super.copyFieldsTo(byQueryBase);
+    ((ByObject)byQueryBase).setEntityName(this.entityName);
+  }
+
+
   /**
    * <pre>
    * call hibernate method "delete" on a list of objects
