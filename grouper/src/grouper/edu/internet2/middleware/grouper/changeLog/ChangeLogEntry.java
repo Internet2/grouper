@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogEntry.java,v 1.2 2009-05-12 06:35:26 mchyzer Exp $
+ * $Id: ChangeLogEntry.java,v 1.3 2009-05-31 02:27:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -12,7 +12,6 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -22,6 +21,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 @SuppressWarnings("serial")
 public class ChangeLogEntry extends GrouperAPI {
+  
+  /** entity name for change log temp */
+  public static final String CHANGE_LOG_ENTRY_TEMP_ENTITY_NAME = "ChangeLogEntryTemp";
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -205,6 +207,9 @@ public class ChangeLogEntry extends GrouperAPI {
   
   /** name of the grouper changeLog entry table in the db */
   public static final String TABLE_GROUPER_CHANGE_LOG_ENTRY = "grouper_change_log_entry";
+
+  /** name of the grouper changeLog entry temp table in the db, where records go first before being moved to the real table */
+  public static final String TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP = "grouper_change_log_entry_temp";
 
   /** foreign key to the type of changeLog entry this is */
   private String changeLogTypeId;

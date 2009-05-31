@@ -20,20 +20,19 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3ChangeLogEntryDAO.hbm.xml,v 1.2 2009-05-31 02:27:31 mchyzer Exp $ -->
+<!-- $Id: Hib3ChangeLogEntryTempDAO.hbm.xml,v 1.1 2009-05-31 02:27:31 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.changeLog">
 
   <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
     based on the grouper.properties, so dont remove that attribute  -->
-  <class name="ChangeLogEntry" table="grouper_change_log_entry">
+  <class name="ChangeLogEntry" table="grouper_change_log_entry_temp" entity-name="ChangeLogEntryTemp">
 
     <!-- composite id: just put all the columns in there, no id -->
     <composite-id>
       <key-property name="changeLogTypeId" column="change_log_type_id"/>
       <key-property name="contextId" column="context_id"/>
       <key-property name="createdOnDb" column="created_on"/>
-      <key-property name="sequenceNumber" column="sequence_number"/>
       <key-property name="string01" column="string01"/>
       <key-property name="string02" column="string02"/>
       <key-property name="string03" column="string03"/>

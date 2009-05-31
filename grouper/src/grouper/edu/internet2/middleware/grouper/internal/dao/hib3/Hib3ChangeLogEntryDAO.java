@@ -6,7 +6,7 @@ import edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO;
 /**
  * Data Access Object for audit entry
  * @author  mchyzer
- * @version $Id: Hib3ChangeLogEntryDAO.java,v 1.2 2009-05-12 06:35:26 mchyzer Exp $
+ * @version $Id: Hib3ChangeLogEntryDAO.java,v 1.3 2009-05-31 02:27:31 mchyzer Exp $
  */
 public class Hib3ChangeLogEntryDAO extends Hib3DAO implements ChangeLogEntryDAO {
   
@@ -31,6 +31,7 @@ public class Hib3ChangeLogEntryDAO extends Hib3DAO implements ChangeLogEntryDAO 
    */
   static void reset(HibernateSession hibernateSession) {
     hibernateSession.byHql().createQuery("delete from ChangeLogEntry").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
   }
 
 } 
