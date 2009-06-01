@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.19.2.1 2009-04-10 18:44:21 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.19.2.2 2009-06-01 13:54:42 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -596,7 +596,7 @@ public class TestStem extends GrouperTest {
   } // public void testSetBadStemDisplayExtension()
 
   /**
-   * 
+   * NOTE, THIS ASSUMES CACHING IS ENABLED IN THE GROUPER HIBERNATE PROPERTIES
    * @throws Exception
    */
   public void testCache() throws Exception {
