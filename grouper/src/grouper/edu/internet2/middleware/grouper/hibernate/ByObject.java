@@ -15,15 +15,16 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * @version $Id: ByObject.java,v 1.11 2009-05-31 02:27:31 mchyzer Exp $
+ * @version $Id: ByObject.java,v 1.12 2009-06-02 12:33:36 mchyzer Exp $
  * @author harveycg
  */
 public class ByObject extends HibernateDelegate {
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(ByObject.class);
+
   /**
-   * assign if this query is cacheable or not.
+   * assign the entity name to refer to this mapping (multiple mappings per object)
    */
   private String entityName = null;
 

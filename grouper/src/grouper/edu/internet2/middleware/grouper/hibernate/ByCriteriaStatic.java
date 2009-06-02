@@ -127,6 +127,7 @@ public class ByCriteriaStatic {
     result.append(this.persistentClass).append("', criterions: ").append(this.criterions)
       .append("', cacheable: ").append(this.cacheable);
     result.append(", cacheRegion: ").append(this.cacheRegion);
+    result.append(", entityName: ").append(this.entityName);
     result.append(", tx type: ").append(this.grouperTransactionType);
     if (this.queryOptions != null) {
       result.append(", options: ").append(this.queryOptions.toString());
@@ -151,6 +152,11 @@ public class ByCriteriaStatic {
 
   /** if we are sorting, paging, resultSize, etc */
   private QueryOptions queryOptions = null;
+
+  /**
+   * assign the entity name to refer to this mapping (multiple mappings per object)
+   */
+  private String entityName = null;
 
   /**
    * add a paging/sorting/resultSetSize, etc to the query
@@ -356,7 +362,14 @@ public class ByCriteriaStatic {
    * @return the query
    */
   private Criteria attachCriteriaInfo(Session session) {
-    Criteria   query = session.createCriteria(this.persistentClass);
+    Criteria query = null;
+    
+    if (StringUtils.isBlank(this.entityName)) {
+      query = session.createCriteria(this.persistentClass);
+    } else {
+      query = session.createCriteria(this.entityName);
+    }
+    
     //add criterions
     if (this.criterions != null) {
       query.add(this.criterions);
@@ -393,6 +406,17 @@ public class ByCriteriaStatic {
     
   }
   
+  /**
+   * entity name if the object is mapped to more than one table
+   * @param theEntityName the entity name of the object
+   * @return this object for chaining
+   */
+  public ByCriteriaStatic setEntityName(String theEntityName) {
+    this.entityName = theEntityName;
+    return this;
+  }
+
+
   /**
    * constructor
    *
