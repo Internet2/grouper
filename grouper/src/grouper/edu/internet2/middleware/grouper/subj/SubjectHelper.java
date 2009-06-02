@@ -34,7 +34,7 @@ import edu.internet2.middleware.subject.Subject;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.2.2.4 2009-05-28 05:13:25 mchyzer Exp $
+ * @version $Id: SubjectHelper.java,v 1.2.2.5 2009-06-02 21:35:02 mchyzer Exp $
  */
 public class SubjectHelper {
 
@@ -65,31 +65,37 @@ public class SubjectHelper {
     
     //look for any attribute
     iterator = subjectsIn.iterator();
+    Set<Subject> subjectsInExtra = new LinkedHashSet<Subject>();
     while (iterator.hasNext()) {
       Subject subject = iterator.next();
       Map<String, Set<String>> attributes = subject.getAttributes();
       Object valuesObject = attributes.values();
+      boolean foundMatch = false;
       if (valuesObject instanceof Collection) {
         Collection values = (Collection)valuesObject;
         for (Object attributeValues: values) {
           if (attributeValues instanceof Set) {
             Set<String> attributeValuesSet = (Set<String>)attributeValues;
             if (attributeValuesSet != null && attributeValuesSet.contains(searchTerm)) {
-              subjectsOut.add(subject);
-              iterator.remove();
+              foundMatch = true;
             }
           } else if (attributeValues instanceof String) {
             if (StringUtils.equals(searchTerm, (String)attributeValues)) {
-              subjectsOut.add(subject);
-              iterator.remove();
+              foundMatch = true;
             }
           }
         }
       }
+      //lets not remove from result set... 
+      if (foundMatch) {
+        subjectsOut.add(subject);
+      } else {
+        subjectsInExtra.add(subject);
+      }
     }
     
     //add the rest
-    subjectsOut.addAll(subjectsIn);
+    subjectsOut.addAll(subjectsInExtra);
     return subjectsOut;
     
   }
