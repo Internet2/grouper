@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogEntry.java,v 1.3 2009-05-31 02:27:31 mchyzer Exp $
+ * $Id: ChangeLogEntry.java,v 1.4 2009-06-02 05:47:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -9,6 +9,8 @@ import java.text.SimpleDateFormat;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -17,13 +19,90 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
+ * <pre>
  * represents a user change log record.  This is a change to a record in the DB (insert/update/delete).
+ * 
+ * note: if this object is headed for the temp table, then the getters in the composite key will not be null, will be empty.
+ * this is a hibernate constraint
+ * 
+ * </pre>
  */
 @SuppressWarnings("serial")
 public class ChangeLogEntry extends GrouperAPI {
   
+  /**
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    
+    if (!(obj instanceof ChangeLogEntry)) {
+      return false;
+    }
+    
+    ChangeLogEntry objChangeLogEntry = (ChangeLogEntry)obj;
+    
+    //if there is a sequence, then it is a ChangeLogEntryEntity
+    if (this.sequenceNumber != null || objChangeLogEntry.sequenceNumber != null) {
+      return new EqualsBuilder().append(this.sequenceNumber, objChangeLogEntry.sequenceNumber).isEquals();
+    } 
+    //else it is a ChangeLogEntryTemp
+    return new EqualsBuilder()
+      .append(this.changeLogTypeId, objChangeLogEntry.changeLogTypeId)
+      .append(this.contextId, objChangeLogEntry.contextId)
+      .append(this.createdOnDb, objChangeLogEntry.createdOnDb)
+      .append(this.string01, objChangeLogEntry.string01)
+      .append(this.string02, objChangeLogEntry.string02)
+      .append(this.string03, objChangeLogEntry.string03)
+      .append(this.string04, objChangeLogEntry.string04)
+      .append(this.string05, objChangeLogEntry.string05)
+      .append(this.string06, objChangeLogEntry.string06)
+      .append(this.string07, objChangeLogEntry.string07)
+      .append(this.string08, objChangeLogEntry.string08)
+      .append(this.string09, objChangeLogEntry.string09)
+      .append(this.string10, objChangeLogEntry.string10)
+      .append(this.string11, objChangeLogEntry.string11)
+      .append(this.string12, objChangeLogEntry.string12)
+      .isEquals();
+  }
+
+  /**
+   * 
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    
+    //if there is a sequence, then it is a ChangeLogEntryEntity
+    if (this.sequenceNumber != null) {
+      return new HashCodeBuilder().append(this.sequenceNumber).toHashCode();
+    } 
+    //else it is a ChangeLogEntryTemp
+    return new HashCodeBuilder()
+      .append(this.changeLogTypeId)
+      .append(this.contextId)
+      .append(this.createdOnDb)
+      .append(this.string01)
+      .append(this.string02)
+      .append(this.string03)
+      .append(this.string04)
+      .append(this.string05)
+      .append(this.string06)
+      .append(this.string07)
+      .append(this.string08)
+      .append(this.string09)
+      .append(this.string10)
+      .append(this.string11)
+      .append(this.string12)
+      .toHashCode();
+  }
+
   /** entity name for change log temp */
   public static final String CHANGE_LOG_ENTRY_TEMP_ENTITY_NAME = "ChangeLogEntryTemp";
+  
+  /** entity name for change log */
+  public static final String CHANGE_LOG_ENTRY_ENTITY_NAME = "ChangeLogEntryEntity";
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -321,12 +400,16 @@ public class ChangeLogEntry extends GrouperAPI {
     this.changeLogTypeId = changeLogTypeId1;
   }
 
+  /** if this object is bound for the temp table, or regular table */
+  private boolean tempObject = true;
+  
   /**
    * context id ties multiple db changes
    * @return id
    */
   public String getContextId() {
-    return this.contextId;
+    
+    return tempConvert(this.contextId);
   }
 
   /**
@@ -342,7 +425,20 @@ public class ChangeLogEntry extends GrouperAPI {
    * @return field
    */
   public String getString01() {
-    return this.string01;
+    return tempConvert(this.string01);
+  }
+
+  /**
+   * if temp object, then with hibernate composite id, cant be null
+   * @param theString to convert if temp object
+   * @return the string, if temp object, then make sure not null
+   */
+  private String tempConvert(String theString) {
+    if (this.tempObject) {
+      return StringUtils.defaultString(theString);
+    }
+
+    return theString;
   }
 
   /**
@@ -358,7 +454,7 @@ public class ChangeLogEntry extends GrouperAPI {
    * @return field
    */
   public String getString02() {
-    return this.string02;
+    return tempConvert(this.string02);
   }
 
   /**
@@ -374,7 +470,7 @@ public class ChangeLogEntry extends GrouperAPI {
    * @return field
    */
   public String getString03() {
-    return this.string03;
+    return tempConvert(this.string03);
   }
 
   /**
@@ -390,7 +486,7 @@ public class ChangeLogEntry extends GrouperAPI {
    * @return field
    */
   public String getString04() {
-    return this.string04;
+    return tempConvert(this.string04);
   }
 
   /**
@@ -406,7 +502,7 @@ public class ChangeLogEntry extends GrouperAPI {
    * @return field
    */
   public String getString05() {
-    return this.string05;
+    return tempConvert(this.string05);
   }
 
   /**
@@ -422,7 +518,7 @@ public class ChangeLogEntry extends GrouperAPI {
    * @return field
    */
   public String getString06() {
-    return this.string06;
+    return tempConvert(this.string06);
   }
 
   /**
@@ -438,7 +534,7 @@ public class ChangeLogEntry extends GrouperAPI {
    * @return field
    */
   public String getString07() {
-    return this.string07;
+    return tempConvert(this.string07);
   }
 
   /**
@@ -454,7 +550,7 @@ public class ChangeLogEntry extends GrouperAPI {
    * @return field
    */
   public String getString08() {
-    return this.string08;
+    return tempConvert(this.string08);
   }
 
   /**
@@ -524,11 +620,36 @@ public class ChangeLogEntry extends GrouperAPI {
   @Override
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
+    this.truncate();
     if (this.createdOnDb == null) {
       this.createdOnDb = System.currentTimeMillis();
     }
+    if (!this.tempObject && this.sequenceNumber == null) {
+      this.sequenceNumber = nextSequenceNumber();
+    }
   }
 
+  /**
+   * max sequence number of the entry table
+   */
+  private static Long nextSequenceNumber = null;
+  
+  /**
+   * find the max sequence number in the entry table
+   * @return the max sequence number (plus one)
+   */
+  private synchronized static long nextSequenceNumber() {
+    if (nextSequenceNumber == null) {
+      nextSequenceNumber = HibernateSession.byHqlStatic().createQuery(
+          "select max(sequenceNumber) from ChangeLogEntryEntity").uniqueResult(Long.class);
+      if (nextSequenceNumber == null) {
+        nextSequenceNumber = 0l;
+      }
+    }
+    //we can cache this in memory since we are the only process that is inserting into the table
+    return nextSequenceNumber++;
+  }
+  
   /**
    * 
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPreUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
@@ -536,6 +657,7 @@ public class ChangeLogEntry extends GrouperAPI {
   @Override
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
+    this.truncate();
   }
 
   /**
@@ -559,7 +681,7 @@ public class ChangeLogEntry extends GrouperAPI {
    * @return the string 09
    */
   public String getString09() {
-    return this.string09;
+    return tempConvert(this.string09);
   }
 
   /**
@@ -575,7 +697,7 @@ public class ChangeLogEntry extends GrouperAPI {
    * @return string 10
    */
   public String getString10() {
-    return this.string10;
+    return tempConvert(this.string10);
   }
 
   /**
@@ -591,7 +713,7 @@ public class ChangeLogEntry extends GrouperAPI {
    * @return string 11
    */
   public String getString11() {
-    return this.string11;
+    return tempConvert(this.string11);
   }
 
   /**
@@ -607,7 +729,7 @@ public class ChangeLogEntry extends GrouperAPI {
    * @return string 12
    */
   public String getString12() {
-    return this.string12;
+    return tempConvert(this.string12);
   }
 
   /**
@@ -616,6 +738,22 @@ public class ChangeLogEntry extends GrouperAPI {
    */
   public void setString12(String _string12) {
     this.string12 = _string12;
+  }
+
+  /**
+   * if this is a temp object, destined for the temp table
+   * @return temp object
+   */
+  public boolean isTempObject() {
+    return this.tempObject;
+  }
+
+  /**
+   * if this is a temp object headed for the temp table
+   * @param tempObject1
+   */
+  public void setTempObject(boolean tempObject1) {
+    this.tempObject = tempObject1;
   }
 
 }

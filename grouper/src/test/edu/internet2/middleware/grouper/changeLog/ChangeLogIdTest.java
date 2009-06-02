@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogIdTest.java,v 1.2 2009-05-31 02:27:31 mchyzer Exp $
+ * $Id: ChangeLogIdTest.java,v 1.3 2009-06-02 05:47:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -86,7 +86,9 @@ public class ChangeLogIdTest extends GrouperTest {
     changeLogEntryTemp.setContextId("abc");
     changeLogEntryTemp.setString01("string1");
     changeLogEntryTemp.setString02("string2");
-    HibernateSession.byObjectStatic().setEntityName(ChangeLogEntry.CHANGE_LOG_ENTRY_TEMP_ENTITY_NAME).save(changeLogEntryTemp);
+    changeLogEntryTemp.setSequenceNumber(1l);
+    
+    changeLogEntryTemp.save();
     
     ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic().createQuery(
         "from ChangeLogEntryTemp where string01 = 'string1'").uniqueResult(ChangeLogEntry.class);
@@ -94,18 +96,22 @@ public class ChangeLogIdTest extends GrouperTest {
     assertEquals("string1", changeLogEntry.getString01());
 
     //put this in the Change log table, and delete from change log temp
-    
-    HibernateSession.byObjectStatic().save(changeLogEntry);
+    changeLogEntry.setTempObject(false);
+    changeLogEntry.save();
     HibernateSession.byObjectStatic().setEntityName("ChangeLogEntryTemp").delete(changeLogEntry);
     
     //select from change log
     
     changeLogEntry = HibernateSession.byHqlStatic().createQuery(
-        "from ChangeLogEntry where string01 = 'string1'").uniqueResult(ChangeLogEntry.class);
+        "from ChangeLogEntryEntity where string01 = 'string1'").uniqueResult(ChangeLogEntry.class);
     
     assertEquals("string1", changeLogEntry.getString01());
     
-    
+    //shouldnt be in temp anymore
+    changeLogEntry = HibernateSession.byHqlStatic().createQuery(
+      "from ChangeLogEntryTemp where string01 = 'string1'").uniqueResult(ChangeLogEntry.class);
+
+    assertNull(changeLogEntry);
   }
   
 }

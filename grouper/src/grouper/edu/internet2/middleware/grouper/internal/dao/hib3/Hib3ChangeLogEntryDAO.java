@@ -6,7 +6,7 @@ import edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO;
 /**
  * Data Access Object for audit entry
  * @author  mchyzer
- * @version $Id: Hib3ChangeLogEntryDAO.java,v 1.3 2009-05-31 02:27:31 mchyzer Exp $
+ * @version $Id: Hib3ChangeLogEntryDAO.java,v 1.4 2009-06-02 05:47:44 mchyzer Exp $
  */
 public class Hib3ChangeLogEntryDAO extends Hib3DAO implements ChangeLogEntryDAO {
   
@@ -21,8 +21,12 @@ public class Hib3ChangeLogEntryDAO extends Hib3DAO implements ChangeLogEntryDAO 
    * @see edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO#save(edu.internet2.middleware.grouper.changeLog.ChangeLogEntry)
    */
   public void save(ChangeLogEntry changeLogEntry) {
-    changeLogEntry.truncate();
-    HibernateSession.byObjectStatic().save(changeLogEntry);
+    if (changeLogEntry.isTempObject()) {
+      HibernateSession.byObjectStatic().setEntityName(ChangeLogEntry.CHANGE_LOG_ENTRY_TEMP_ENTITY_NAME).save(changeLogEntry);
+    } else {
+      HibernateSession.byObjectStatic().setEntityName(ChangeLogEntry.CHANGE_LOG_ENTRY_ENTITY_NAME).save(changeLogEntry);
+    }
+
   }
 
   /**
@@ -30,7 +34,7 @@ public class Hib3ChangeLogEntryDAO extends Hib3DAO implements ChangeLogEntryDAO 
    * @param hibernateSession
    */
   static void reset(HibernateSession hibernateSession) {
-    hibernateSession.byHql().createQuery("delete from ChangeLogEntry").executeUpdate();
+    hibernateSession.byHql().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     hibernateSession.byHql().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
   }
 

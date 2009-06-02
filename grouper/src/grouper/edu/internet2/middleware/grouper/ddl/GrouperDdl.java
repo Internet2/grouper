@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.45 2009-05-31 02:27:30 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.46 2009-06-02 05:47:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -3626,7 +3626,7 @@ public enum GrouperDdl implements DdlVersionable {
           "context_id", Types.VARCHAR, "128", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
-          "created_on", Types.BIGINT, "20", false, false); 
+          "created_on", Types.BIGINT, "20", false, true); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
           "string01", Types.VARCHAR, "4000", false, false); 
