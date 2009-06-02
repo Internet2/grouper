@@ -20,34 +20,33 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3ChangeLogEntryDAO.hbm.xml,v 1.2 2009-05-31 02:27:31 mchyzer Exp $ -->
+<!-- $Id: Hib3ChangeLogEntryDAO.hbm.xml,v 1.3 2009-06-02 05:47:44 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.changeLog">
 
   <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
     based on the grouper.properties, so dont remove that attribute  -->
-  <class name="ChangeLogEntry" table="grouper_change_log_entry">
+  <class name="ChangeLogEntry" table="grouper_change_log_entry" entity-name="ChangeLogEntryEntity">
 
-    <!-- composite id: just put all the columns in there, no id -->
-    <composite-id>
-      <key-property name="changeLogTypeId" column="change_log_type_id"/>
-      <key-property name="contextId" column="context_id"/>
-      <key-property name="createdOnDb" column="created_on"/>
-      <key-property name="sequenceNumber" column="sequence_number"/>
-      <key-property name="string01" column="string01"/>
-      <key-property name="string02" column="string02"/>
-      <key-property name="string03" column="string03"/>
-      <key-property name="string04" column="string04"/>
-      <key-property name="string05" column="string05"/>
-      <key-property name="string06" column="string06"/>
-      <key-property name="string07" column="string07"/>
-      <key-property name="string08" column="string08"/>
-      <key-property name="string09" column="string09"/>
-      <key-property name="string10" column="string10"/>
-      <key-property name="string11" column="string11"/>
-      <key-property name="string12" column="string12"/>
-    </composite-id>
+    <id name="sequenceNumber" column="sequence_number">
+      <generator class="assigned" />
+    </id>
 
+      <property name="changeLogTypeId" column="change_log_type_id"/>
+      <property name="contextId" column="context_id"/>
+      <property name="createdOnDb" column="created_on"/>
+      <property name="string01" column="string01"/>
+      <property name="string02" column="string02"/>
+      <property name="string03" column="string03"/>
+      <property name="string04" column="string04"/>
+      <property name="string05" column="string05"/>
+      <property name="string06" column="string06"/>
+      <property name="string07" column="string07"/>
+      <property name="string08" column="string08"/>
+      <property name="string09" column="string09"/>
+      <property name="string10" column="string10"/>
+      <property name="string11" column="string11"/>
+      <property name="string12" column="string12"/>
   </class>
 </hibernate-mapping>
 
