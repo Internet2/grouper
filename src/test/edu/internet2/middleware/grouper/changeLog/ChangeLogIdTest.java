@@ -1,11 +1,13 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogIdTest.java,v 1.3 2009-06-02 05:47:44 mchyzer Exp $
+ * $Id: ChangeLogIdTest.java,v 1.4 2009-06-02 12:33:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import org.hibernate.criterion.Restrictions;
 
 import junit.textui.TestRunner;
 
@@ -107,6 +109,11 @@ public class ChangeLogIdTest extends GrouperTest {
     
     assertEquals("string1", changeLogEntry.getString01());
     
+    changeLogEntry = HibernateSession.byCriteriaStatic().setEntityName("ChangeLogEntryEntity").uniqueResult(
+        ChangeLogEntry.class, Restrictions.eq("string01", "string1"));
+
+    assertEquals("string1", changeLogEntry.getString01());
+
     //shouldnt be in temp anymore
     changeLogEntry = HibernateSession.byHqlStatic().createQuery(
       "from ChangeLogEntryTemp where string01 = 'string1'").uniqueResult(ChangeLogEntry.class);
