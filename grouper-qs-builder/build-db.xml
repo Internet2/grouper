@@ -24,7 +24,7 @@
 			</fileset>
 			</path>
 			<java  dir="grouper" classname="org.hsqldb.Server" classpathref="db.class.path" fork="true">
-				<arg line="-database.0 file:/dist/run/grouper -dbname.0 grouper"/>
+				<arg line="-database.0 file:dist/run/grouper -dbname.0 grouper"/>
 			</java>
 	 </target>
 	 
