@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: DdlVersionBean.java,v 1.5 2008-09-19 06:28:17 mchyzer Exp $
+ * $Id: DdlVersionBean.java,v 1.6 2009-06-05 12:32:56 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -64,6 +64,13 @@ public class DdlVersionBean {
    */
   public boolean isOracle() {
     return this.getPlatform().getName().toLowerCase().contains("oracle");
+  }
+  
+  /**
+   * @return true if hsql
+   */
+  public boolean isHsql() {
+    return this.getPlatform().getName().toLowerCase().contains("hsqldb");
   }
   
   /**
