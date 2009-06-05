@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.40 2009-04-28 20:08:08 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.41 2009-06-05 12:32:56 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1336,33 +1336,38 @@ public class GrouperDdlUtils {
       return;
     }
     
-    //only do this if oracle, mysql, or postgres
-    if (ddlVersionBean.isPostgres() || ddlVersionBean.isOracle() || ddlVersionBean.isMysql()) {
-      
-      //if this is postgres, we need to drop first because if the number of columns change, it bombs
-      //if (ddlVersionBean.isPostgres()) {
-      //  boolean exists = assertTablesThere(false, false, viewName);
-      //  if (exists) {
-      //    ddlVersionBean.appendAdditionalScriptUnique("\nDROP VIEW " + viewName + ";\n");
-      //  }
-      //  LOG.debug("Postgres, and view " + viewName + " exists? " + exists);
-      //}
-      String aliasesString = StringUtils.join(aliases.iterator(), ", ");
-      String fullSql = "\nCREATE OR REPLACE VIEW " + viewName + " (" + aliasesString
-        + ") AS " + sql + ";\n";
-      ddlVersionBean.appendAdditionalScriptUnique(fullSql);
-      
-      ddlutilsViewComment(ddlVersionBean, viewName, viewComment);
-      
-      Iterator<String> aliasIterator = aliases.iterator();
-      Iterator<String> columnCommentsIterator = columnComments.iterator();
-      
-      while (aliasIterator.hasNext() && columnCommentsIterator.hasNext()) {
-        String alias = aliasIterator.next();
-        String columnComment = columnCommentsIterator.next();
-        ddlutilsColumnComment(ddlVersionBean, viewName, alias, columnComment);
-      }
+    //if this is postgres, we need to drop first because if the number of columns change, it bombs
+    //if (ddlVersionBean.isPostgres()) {
+    //  boolean exists = assertTablesThere(false, false, viewName);
+    //  if (exists) {
+    //    ddlVersionBean.appendAdditionalScriptUnique("\nDROP VIEW " + viewName + ";\n");
+    //  }
+    //  LOG.debug("Postgres, and view " + viewName + " exists? " + exists);
+    //}
+    String aliasesString = StringUtils.join(aliases.iterator(), ", ");
+    
+    String fullSql;
+    if (ddlVersionBean.isHsql()) {
+      fullSql = "\nCREATE VIEW ";
+    } else {
+      // since views are being dropped before creation, maybe this should just be "CREATE VIEW" also...
+      fullSql = "\nCREATE OR REPLACE VIEW ";
     }
+    
+    fullSql += viewName + " (" + aliasesString + ") AS " + sql + ";\n";
+    ddlVersionBean.appendAdditionalScriptUnique(fullSql);
+
+    ddlutilsViewComment(ddlVersionBean, viewName, viewComment);
+    
+    Iterator<String> aliasIterator = aliases.iterator();
+    Iterator<String> columnCommentsIterator = columnComments.iterator();
+    
+    while (aliasIterator.hasNext() && columnCommentsIterator.hasNext()) {
+      String alias = aliasIterator.next();
+      String columnComment = columnCommentsIterator.next();
+      ddlutilsColumnComment(ddlVersionBean, viewName, alias, columnComment);
+    }
+  
   }
   
   /**
