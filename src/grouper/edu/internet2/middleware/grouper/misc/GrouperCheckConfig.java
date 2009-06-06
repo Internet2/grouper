@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.24 2009-05-15 18:29:00 tzeller Exp $
+ * $Id: GrouperCheckConfig.java,v 1.25 2009-06-06 22:00:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -207,7 +207,7 @@ public class GrouperCheckConfig {
     
     //dont penalize activation.jar if the class is found...  sometimes its in java
     if (!StringUtils.equals("activation.jar", name)) {
-      String error = "jarfile mismath, expecting name: '" + name + "' size: " + size 
+      String error = "jarfile mismatch, expecting name: '" + name + "' size: " + size 
         + " manifest version: " + manifestVersion + ".  However the jar detected is: " 
         + jarFileFullName + ", name: " + jarFileName + " size: " + jarFileSize
         + " manifest version: " + jarVersion;
