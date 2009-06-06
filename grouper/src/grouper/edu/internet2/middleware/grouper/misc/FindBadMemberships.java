@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.misc;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -870,6 +871,7 @@ public class FindBadMemberships {
   private static void writeFile(StringWriter data, String filename) {
     FileWriter fw = null;
     try {
+      out.println("Writing file: " + GrouperUtil.fileCanonicalPath(new File(filename)));
       fw = new FileWriter(filename, false);
       fw.write(data.toString());
     } catch (IOException e) {
