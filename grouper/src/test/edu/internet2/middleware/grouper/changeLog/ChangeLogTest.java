@@ -1,16 +1,23 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogTest.java,v 1.2 2009-05-26 06:50:56 mchyzer Exp $
+ * $Id: ChangeLogTest.java,v 1.3 2009-06-08 12:16:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
 import junit.textui.TestRunner;
+import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -61,59 +68,101 @@ public class ChangeLogTest extends GrouperTest {
    * 
    */
   public void testTypes() throws Exception {
-    //TODO finish this
-//    //delete all change log records
-//    HibernateSession.bySqlStatic().executeSql("delete from grouper_change_log_entry");
-//
-//    int changeLogCount = HibernateSession.bySqlStatic().select(int.class, 
-//        "select count(1) from grouper_change_log_entry");
-//    
-//    //add a type
-//    GrouperSession grouperSession = SessionHelper.getRootSession();
-//    GroupType groupType = GroupType.createType(grouperSession, "test1");
-//    
-//    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
-//      "select count(1) from grouper_change_log_entry");
-//    
-//    assertEquals("Should have added exactly one change log", changeLogCount+1, newChangeLogCount);
-//    
-//    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
-//      .createQuery("from AuditEntry").uniqueResult(ChangeLogEntry.class);
-//    
-//    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry.getContextId()));
-//
-//    assertEquals("Context id's should match", changeLogEntry.getContextId(), groupType.getContextId());
-//    
-//    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
-//
-//    GroupType.createType(grouperSession, "test1", false);
-//    
-//    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
-//      "select count(1) from grouper_change_log_entry");
-//
-//    assertEquals("Shouldnt have changed since type didnt change", changeLogCount+1, newChangeLogCount);
-//    
-//    //make sure date is different
-//    GrouperUtil.sleep(1000);
-//    
-//    groupType.delete(grouperSession);
-//
-//    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
-//      "select count(1) from grouper_change_log_entry");
-//  
-//    assertEquals("Should have added exactly two change logs", changeLogCount+2, newChangeLogCount);
-//  
-//    List<ChangeLogEntry> auditEntries = HibernateSession.byHqlStatic()
-//      .createQuery("from AuditEntry order by createdOnDb").list(ChangeLogEntry.class);
-//    ChangeLogEntry changeLogEntry2 = auditEntries.get(1);
-//
-//    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry2.getContextId()));
-//    
-//    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
-//        changeLogEntry2.getContextId()));
-//    
-//    assertEquals("Context id's should match", changeLogEntry2.getContextId(), groupType.getContextId());
-//    
+
+    int changeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_change_log_entry_temp");
+    int changeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+    
+    //add a type
+    GrouperSession grouperSession = SessionHelper.getRootSession();
+    GroupType groupType = GroupType.createType(grouperSession, "test1");
+    
+    int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+
+    assertEquals("Should have added exactly one change log temp", changeLogTempCount+1, newChangeLogTempCount);
+    assertEquals("Should be the same", changeLogCount, newChangeLogCount);
+
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryTemp").uniqueResult(ChangeLogEntry.class);
+
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+
+    assertNull(changeLogEntry.getSequenceNumber());
+
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), groupType.getContextId());
+
+    assertEquals(groupType.getName(), changeLogEntry.retrieveValueForLabel("name"));
+    assertEquals(groupType.getUuid(), changeLogEntry.retrieveValueForLabel("id"));
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    //#########################
+    // Check the change log table, and temp table, see the record moved over
+    
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have nothing in temp table", changeLogTempCount, newChangeLogTempCount);
+    assertEquals("Should have one record in the change log table", changeLogCount+1, newChangeLogCount);
+  
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity").uniqueResult(ChangeLogEntry.class);
+    
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+    
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), groupType.getContextId());
+    
+    //##################################
+    // try a delete
+    
+    groupType.delete(grouperSession);
+
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", changeLogTempCount+1, newChangeLogTempCount);
+    assertEquals("Should have one record in the change log table", changeLogCount+1, newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity order by createdOnDb").list(ChangeLogEntry.class);
+    ChangeLogEntry changeLogEntry2 = changeLogEntries.get(1);
+
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry2.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+        changeLogEntry2.getContextId()));
+    
+    assertEquals("Context id's should match", changeLogEntry2.getContextId(), groupType.getContextId());
+    
     
   }
 

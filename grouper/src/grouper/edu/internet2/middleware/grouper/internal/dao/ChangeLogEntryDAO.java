@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogEntryDAO.java,v 1.2 2009-05-12 06:35:26 mchyzer Exp $
+ * $Id: ChangeLogEntryDAO.java,v 1.3 2009-06-08 12:16:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -13,9 +13,15 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 public interface ChangeLogEntryDAO extends GrouperDAO {
   
   /** 
-   * insert or update an change log entry object 
+   * insert or update a change log entry object 
    * @param changeLogEntry 
    */
   public void save(ChangeLogEntry changeLogEntry);
+  
+  /** 
+   * delete change log entry object 
+   * @param changeLogEntry 
+   */
+  public void delete(ChangeLogEntry changeLogEntry);
   
 }

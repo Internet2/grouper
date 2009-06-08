@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogEntry.java,v 1.4 2009-06-02 05:47:44 mchyzer Exp $
+ * $Id: ChangeLogEntry.java,v 1.5 2009-06-08 12:16:18 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -13,6 +13,8 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -214,10 +216,21 @@ public class ChangeLogEntry extends GrouperAPI {
   }
 
   /**
+   * save this object to the temp table if configured to do so, and set context id and other things
    * save (insert) this object
    */
   public void save() {
-    GrouperDAOFactory.getFactory().getChangeLogEntry().save(this);
+    if (GrouperConfig.getPropertyBoolean("changeLog.enabled", true)) {
+      
+      GrouperDAOFactory.getFactory().getChangeLogEntry().save(this);
+    }
+  }
+  
+  /**
+   * delete the change log entry from either the temp table or the entity table
+   */
+  public void delete() {
+    GrouperDAOFactory.getFactory().getChangeLogEntry().delete(this);
   }
   
   /**
@@ -248,6 +261,20 @@ public class ChangeLogEntry extends GrouperAPI {
     }
   }
 
+  /**
+   * reutrn the value based on friendly label.  ChangeLogEntry keeps data in 
+   * string01, string02, etc.  But it is more useful when querying by group id.
+   * so pass in the fiendly label from the ChangeLogType, and it will look up which field,
+   * and return the value of that field
+   * @param label
+   * @return the value
+   */
+  public String retrieveValueForLabel(String label) {
+    ChangeLogType changeLogType = this.getChangeLogType();
+    String fieldName = changeLogType.retrieveChangeLogEntryFieldForLabel(label);
+    return (String)this.fieldValue(fieldName);
+  }
+  
   /**
    * @param changeLogType
    * @param label
@@ -437,7 +464,10 @@ public class ChangeLogEntry extends GrouperAPI {
     if (this.tempObject) {
       return StringUtils.defaultString(theString);
     }
-
+    //why would be have empty string?
+    if ("".equals(theString)) {
+      return null;
+    }
     return theString;
   }
 
@@ -566,11 +596,11 @@ public class ChangeLogEntry extends GrouperAPI {
    * @return timestamp
    */
   public Timestamp getCreatedOn() {
-    return this.createdOnDb == null ? null : new Timestamp(this.createdOnDb);
+    return this.createdOnDb == null ? null : new Timestamp(this.createdOnDb / 1000);
   }
 
   /**
-   * when created
+   * when created, microseconds since 1970
    * @return timestamp
    */
   public Long getCreatedOnDb() {
@@ -582,7 +612,7 @@ public class ChangeLogEntry extends GrouperAPI {
    * @param createdOn1
    */
   public void setCreatedOn(Timestamp createdOn1) {
-    this.createdOnDb = createdOn1 == null ? null : createdOn1.getTime();
+    this.createdOnDb = createdOn1 == null ? null : (createdOn1.getTime() * 1000);
   }
 
   /**
@@ -621,11 +651,18 @@ public class ChangeLogEntry extends GrouperAPI {
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
     this.truncate();
-    if (this.createdOnDb == null) {
-      this.createdOnDb = System.currentTimeMillis();
+    if (this.tempObject) {
+      if (this.createdOnDb == null) {
+        this.createdOnDb = ChangeLogId.changeLogId();
+      }
+      if (StringUtils.isBlank(this.contextId)) {
+        this.contextId = GrouperContext.retrieveContextId(true);
+      }
     }
-    if (!this.tempObject && this.sequenceNumber == null) {
-      this.sequenceNumber = nextSequenceNumber();
+    if (!this.tempObject) {
+      if (this.sequenceNumber == null) {
+        this.sequenceNumber = nextSequenceNumber();
+      }
     }
   }
 
@@ -661,7 +698,7 @@ public class ChangeLogEntry extends GrouperAPI {
   }
 
   /**
-   * when created
+   * when created, microseconds since 1970
    * @param createdOn1
    */
   public void setCreatedOnDb(Long createdOn1) {
@@ -754,6 +791,16 @@ public class ChangeLogEntry extends GrouperAPI {
    */
   public void setTempObject(boolean tempObject1) {
     this.tempObject = tempObject1;
+  }
+
+  /**
+   * if this is a temp object headed for the temp table
+   * @param tempObject1
+   * @return this for chaining
+   */
+  public ChangeLogEntry assignTempObject(boolean tempObject1) {
+    this.tempObject = tempObject1;
+    return this;
   }
 
 }

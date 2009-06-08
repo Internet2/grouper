@@ -33,6 +33,9 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -66,7 +69,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.86 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.87 2009-06-08 12:16:18 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements GrouperHasContext, Serializable, Hib3GrouperVersioned, Comparable {
 
@@ -1069,6 +1072,9 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
         GroupTypeHooks.METHOD_GROUP_TYPE_PRE_DELETE, HooksGroupTypeBean.class, 
         this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_PRE_DELETE, false, false);
   
+    //change log into temp table
+    new ChangeLogEntry(ChangeLogTypeBuiltin.GROUP_TYPE_DELETE, "id", 
+        this.getUuid(), "name", this.getName()).assignTempObject(true).save();
   }
 
   /**
@@ -1083,7 +1089,11 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
         GroupTypeHooks.METHOD_GROUP_TYPE_PRE_INSERT, HooksGroupTypeBean.class, 
         this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_PRE_INSERT, false, false);
-  
+
+    //change log into temp table
+    new ChangeLogEntry(ChangeLogTypeBuiltin.GROUP_TYPE_ADD, "id", 
+        this.getUuid(), "name", this.getName()).assignTempObject(true).save();
+    
   }
 
   /**
