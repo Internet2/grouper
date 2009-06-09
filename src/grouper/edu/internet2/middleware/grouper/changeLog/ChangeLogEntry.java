@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogEntry.java,v 1.6 2009-06-09 04:19:23 mchyzer Exp $
+ * $Id: ChangeLogEntry.java,v 1.7 2009-06-09 06:18:54 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -746,7 +746,7 @@ public class ChangeLogEntry extends GrouperAPI {
       }
     }
     //we can cache this in memory since we are the only process that is inserting into the table
-    return nextSequenceNumber++;
+    return ++nextSequenceNumber;
   }
   
   /**

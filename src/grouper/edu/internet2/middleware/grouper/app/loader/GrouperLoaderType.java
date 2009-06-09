@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.17 2009-04-28 20:08:08 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.18 2009-06-09 06:18:54 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset.Row;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
@@ -214,6 +215,13 @@ public enum GrouperLoaderType {
           
           hib3GrouploaderLog.setJobMessage("Ran the grouper report, isRunUnresolvable: " 
               + isRunUsdu + ", isRunBadMembershipFinder: " + isRunBadMember + ", sent to: " + emailTo);
+          
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+        } else if (StringUtils.equals(GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG, hib3GrouploaderLog.getJobName())) {
+
+          ChangeLogTempToEntity.convertRecords(hib3GrouploaderLog);
+
+          hib3GrouploaderLog.setJobMessage("Ran the changeLogTempToChangeLog daemon");
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
         } else {
@@ -593,9 +601,14 @@ public enum GrouperLoaderType {
   public static final String MAINTENANCE_CLEAN_LOGS = GrouperLoaderType.MAINTENANCE.name() + "_cleanLogs";
 
   /**
-   * maintenance clean logs name
+   * maintenance grouper report name
    */
   public static final String GROUPER_REPORT = GrouperLoaderType.MAINTENANCE.name() + "_grouperReport";
+
+  /**
+   * maintenance clean log temp to change log
+   */
+  public static final String GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG = GrouperLoaderType.MAINTENANCE.name() + "_changeLogTempToChangeLog";
 
   /**
    * see if an attribute if required or not

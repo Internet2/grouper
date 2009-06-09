@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.changeLog;
 
 import java.util.List;
 
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -19,8 +20,21 @@ public class ChangeLogTempToEntity {
 
   /**
    * convert the temps to regulars, assign id's
+   * @param hib3GrouperLoaderLog is the log object to post updates, can be null
+   * @return the number of records converted
    */
-  public static void convertRecords() {
+  public static int convertRecords() {
+    return convertRecords(null);
+  }
+
+  /**
+   * convert the temps to regulars, assign id's
+   * @param hib3GrouperLoaderLog is the log object to post updates, can be null
+   * @return the number of records converted
+   */
+  public static int convertRecords(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+    
+    int count = 0;
     
     //first select the temp records
     List<ChangeLogEntry> changeLogEntryList = HibernateSession.byHqlStatic().createQuery("from ChangeLogEntryTemp order by createdOnDb")
@@ -48,10 +62,18 @@ public class ChangeLogTempToEntity {
       });
     }
     
-    if (changeLogEntryList.size() == 1000) {
-      convertRecords();
+    count += changeLogEntryList.size();
+
+    if (count > 0 && hib3GrouperLoaderLog != null) {
+      hib3GrouperLoaderLog.addTotalCount(count);
+      hib3GrouperLoaderLog.store();
     }
     
+    if (changeLogEntryList.size() == 1000) {
+      count += convertRecords(hib3GrouperLoaderLog);
+    }
+    
+    return count;
   }
   
 }

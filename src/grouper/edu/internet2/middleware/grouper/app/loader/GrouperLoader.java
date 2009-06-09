@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoader.java,v 1.12 2009-03-15 06:37:23 mchyzer Exp $
+ * $Id: GrouperLoader.java,v 1.13 2009-06-09 06:18:54 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -170,8 +170,79 @@ public class GrouperLoader {
 
     scheduleLogCleanerJob();
     scheduleDailyReportJob();
+    scheduleChangeLogTempToChangeLogJob();
 
   }
+
+  /**
+   * schedule maintenance job for moving records from change log to change log temp
+   */
+  public static void scheduleChangeLogTempToChangeLogJob() {
+
+    String cronString = null;
+
+    //this is a medium priority job
+    int priority = 5;
+
+    //schedule the log delete job
+    try {
+      
+      if (!GrouperLoaderConfig.getPropertyBoolean("changeLog.changeLogTempToChangeLog.enable", false)) {
+        LOG.warn("grouper-loader.properties key: changeLog.changeLogTempToChangeLog.enable is not " +
+          "filled in or false so the change log temp to change log daemon will not run");
+        return;
+      }
+      
+      cronString = GrouperLoaderConfig.getPropertyString("changeLog.changeLogTempToChangeLog.quartz.cron");
+
+      if (StringUtils.isBlank(cronString)) {
+        cronString = "50 * * * * ?";
+        
+      }
+      
+      //at this point we have all the attributes and we know the required ones are there, and logged when 
+      //forbidden ones are there
+      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+
+      //the name of the job must be unique, so use the group name since one job per group (at this point)
+      JobDetail jobDetail = new JobDetail(GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG, null, GrouperLoaderJob.class);
+
+      //schedule this job
+      GrouperLoaderScheduleType grouperLoaderScheduleType = GrouperLoaderScheduleType.CRON;
+
+      Trigger trigger = grouperLoaderScheduleType.createTrigger(cronString, null);
+
+      trigger.setName("triggerMaintenance_grouperChangeLogTempToChangeLog");
+
+      trigger.setPriority(priority);
+
+      scheduler.scheduleJob(jobDetail, trigger);
+
+
+    } catch (Exception e) {
+      String errorMessage = "Could not schedule job: '" + GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG + "'";
+      LOG.error(errorMessage, e);
+      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+      try {
+        //lets enter a log entry so it shows up as error in the db
+        Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+        hib3GrouploaderLog.setJobMessage(errorMessage);
+        hib3GrouploaderLog.setJobName(GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+        hib3GrouploaderLog.setJobSchedulePriority(priority);
+        hib3GrouploaderLog.setJobScheduleQuartzCron(cronString);
+        hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());
+        hib3GrouploaderLog.setJobType(GrouperLoaderType.MAINTENANCE.name());
+        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+        hib3GrouploaderLog.store();
+        
+      } catch (Exception e2) {
+        LOG.error("Problem logging to loader db log", e2);
+      }
+    }
+
+  }
+
 
   /**
    * schedule maintenance job
