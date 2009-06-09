@@ -1,11 +1,12 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogEntry.java,v 1.5 2009-06-08 12:16:18 mchyzer Exp $
+ * $Id: ChangeLogEntry.java,v 1.6 2009-06-09 04:19:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -31,6 +32,64 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 @SuppressWarnings("serial")
 public class ChangeLogEntry extends GrouperAPI {
+  
+  /**
+   * 
+   * @param changeLogTypeIdentifier
+   * @param theObject
+   * @param dbVersion
+   * @param labelNamesAndValues
+   * @param objectPropertyNames
+   * @param changeLogPropertyNames
+   */
+  public static void saveTempUpdates(ChangeLogTypeIdentifier changeLogTypeIdentifier, 
+      Object theObject, Object dbVersion,
+      List<String> labelNamesAndValues,
+      List<String> objectPropertyNames,
+      List<String> changeLogPropertyNames) {
+    
+    if (GrouperUtil.length(objectPropertyNames) != GrouperUtil.length(changeLogPropertyNames)) {
+      throw new RuntimeException("Object property names length if not equal " +
+      		"to changeLog property names length: " + GrouperUtil.length(objectPropertyNames) 
+      		+ " != " +  GrouperUtil.length(changeLogPropertyNames));
+    }
+    
+    //since this is an update, why would either be null???
+    if (theObject == null || dbVersion == null) {
+      throw new RuntimeException("theObject and dbVersion cannot be null: "
+          + (theObject == null) + ", " + (dbVersion == null));
+    }
+    
+    int index = 0;
+    for (String objectPropertyName: objectPropertyNames) {
+      
+      //get the values of the property
+      Object propertyValue = GrouperUtil.propertyValue(theObject, objectPropertyName);
+      Object dbPropertyValue = GrouperUtil.propertyValue(dbVersion, objectPropertyName);
+      
+      //see if different
+      if (!GrouperUtil.equals(propertyValue, dbPropertyValue)) {
+        
+        String[] labelsAndValuesArray = new String[labelNamesAndValues.size() + 4];
+        
+        for (int i=0;i<labelNamesAndValues.size();i++) {
+          labelsAndValuesArray[i] = labelNamesAndValues.get(i);
+        }
+        //last two cols are twhats different, and the old value
+        labelsAndValuesArray[labelsAndValuesArray.length-4] = "propertyChanged";
+        labelsAndValuesArray[labelsAndValuesArray.length-3] = changeLogPropertyNames.get(index);
+        labelsAndValuesArray[labelsAndValuesArray.length-2] = "propertyOldValue";
+        labelsAndValuesArray[labelsAndValuesArray.length-1] = GrouperUtil.stringValue(dbPropertyValue);
+        
+        //if so, add a change log entry to temp table
+        new ChangeLogEntry(true, changeLogTypeIdentifier, labelsAndValuesArray).save();
+
+      }
+      
+      index++;
+    }
+    
+  }
   
   /**
    * 
@@ -235,12 +294,15 @@ public class ChangeLogEntry extends GrouperAPI {
   
   /**
    * construct, assign an id
+   * @param tempObject1 if this is a temp object, or a normal change log entry
    * @param changeLogTypeIdentifier points to changeLog type
    * @param labelNamesAndValues alternate label name and value
    */
-  public ChangeLogEntry(ChangeLogTypeIdentifier changeLogTypeIdentifier, 
+  public ChangeLogEntry(boolean tempObject1, ChangeLogTypeIdentifier changeLogTypeIdentifier, 
       String... labelNamesAndValues) {
     
+    this.tempObject = tempObject1;
+
     ChangeLogType changeLogType = ChangeLogTypeFinder.find(changeLogTypeIdentifier.getChangeLogCategory(),
         changeLogTypeIdentifier.getActionName(), true);
     
@@ -791,16 +853,6 @@ public class ChangeLogEntry extends GrouperAPI {
    */
   public void setTempObject(boolean tempObject1) {
     this.tempObject = tempObject1;
-  }
-
-  /**
-   * if this is a temp object headed for the temp table
-   * @param tempObject1
-   * @return this for chaining
-   */
-  public ChangeLogEntry assignTempObject(boolean tempObject1) {
-    this.tempObject = tempObject1;
-    return this;
   }
 
 }

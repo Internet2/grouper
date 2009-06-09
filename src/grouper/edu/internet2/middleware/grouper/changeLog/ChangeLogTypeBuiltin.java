@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogTypeBuiltin.java,v 1.2 2009-06-08 12:16:18 mchyzer Exp $
+ * $Id: ChangeLogTypeBuiltin.java,v 1.3 2009-06-09 04:19:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -19,7 +19,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   /**
    * update group type
    */
-  GROUP_TYPE_UPDATE(new ChangeLogType("groupType", "updateGroupType", "id", "name")),
+  GROUP_TYPE_UPDATE(new ChangeLogType("groupType", "updateGroupType", "id", "name", "propertyChanged", "propertyOldValue")),
   
   /**
    * delete group type

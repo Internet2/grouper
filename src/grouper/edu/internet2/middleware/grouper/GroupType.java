@@ -69,7 +69,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.87 2009-06-08 12:16:18 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.88 2009-06-09 04:19:23 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements GrouperHasContext, Serializable, Hib3GrouperVersioned, Comparable {
 
@@ -1073,8 +1073,8 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
         this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_PRE_DELETE, false, false);
   
     //change log into temp table
-    new ChangeLogEntry(ChangeLogTypeBuiltin.GROUP_TYPE_DELETE, "id", 
-        this.getUuid(), "name", this.getName()).assignTempObject(true).save();
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_TYPE_DELETE, "id", 
+        this.getUuid(), "name", this.getName()).save();
   }
 
   /**
@@ -1091,8 +1091,8 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
         this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_PRE_INSERT, false, false);
 
     //change log into temp table
-    new ChangeLogEntry(ChangeLogTypeBuiltin.GROUP_TYPE_ADD, "id", 
-        this.getUuid(), "name", this.getName()).assignTempObject(true).save();
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_TYPE_ADD, "id", 
+        this.getUuid(), "name", this.getName()).save();
     
   }
 
@@ -1106,6 +1106,13 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE, 
         GroupTypeHooks.METHOD_GROUP_TYPE_PRE_UPDATE, HooksGroupTypeBean.class, 
         this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_PRE_UPDATE, false, false);
+    
+    //change log into temp table
+    ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.GROUP_TYPE_UPDATE, 
+        this, this.dbVersion(),
+        GrouperUtil.toList("id",this.getUuid(), "name", this.getName()),
+        GrouperUtil.toList(FIELD_NAME),
+        GrouperUtil.toList("name"));    
   }
 
   /**

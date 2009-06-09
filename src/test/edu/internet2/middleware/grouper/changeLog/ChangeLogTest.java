@@ -1,14 +1,15 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogTest.java,v 1.3 2009-06-08 12:16:18 mchyzer Exp $
+ * $Id: ChangeLogTest.java,v 1.4 2009-06-09 04:19:23 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
 import java.util.List;
 
+import junit.textui.TestRunner;
+
 import org.apache.commons.lang.StringUtils;
 
-import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -16,7 +17,12 @@ import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -138,9 +144,23 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("Context id's should match", changeLogEntry.getContextId(), groupType.getContextId());
     
     //##################################
-    // try a delete
-    
-    groupType.delete(grouperSession);
+    // try an update
+
+    //try an update of one field
+    groupType.setName("test3");
+
+    final GroupType GROUP_TYPE = groupType;
+
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        hibernateHandlerBean.getHibernateSession().byObject().update(GROUP_TYPE);
+        return null;
+      }
+    });
 
     newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry_temp");
@@ -155,15 +175,46 @@ public class ChangeLogTest extends GrouperTest {
     List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity order by createdOnDb").list(ChangeLogEntry.class);
     ChangeLogEntry changeLogEntry2 = changeLogEntries.get(1);
-
+  
     assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry2.getContextId()));
     
     assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
         changeLogEntry2.getContextId()));
     
-    assertEquals("Context id's should match", changeLogEntry2.getContextId(), groupType.getContextId());
+    assertEquals(groupType.getName(), changeLogEntry2.retrieveValueForLabel("name"));
+    assertEquals(groupType.getUuid(), changeLogEntry2.retrieveValueForLabel("id"));
+    assertEquals("name", changeLogEntry2.retrieveValueForLabel("propertyChanged"));
+    assertEquals("test1", changeLogEntry2.retrieveValueForLabel("propertyOldValue"));
     
     
+    //##################################
+    // try a delete
+    
+    groupType.delete(grouperSession);
+
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", changeLogTempCount+1, newChangeLogTempCount);
+    assertEquals("Should have two record in the change log table", changeLogCount+2, newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    changeLogEntries = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity order by createdOnDb").list(ChangeLogEntry.class);
+    ChangeLogEntry changeLogEntry3 = changeLogEntries.get(2);
+
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry3.getContextId()));
+    
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+        changeLogEntry3.getContextId()));
+    
+    assertEquals("Context id's should match", changeLogEntry3.getContextId(), groupType.getContextId());
+        
+    assertEquals(groupType.getName(), changeLogEntry3.retrieveValueForLabel("name"));
+    assertEquals(groupType.getUuid(), changeLogEntry3.retrieveValueForLabel("id"));
   }
 
   /** top level stem */
