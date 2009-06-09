@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.47 2009-06-05 12:32:56 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.48 2009-06-09 06:18:54 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -3665,17 +3665,6 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogTempEntryTable, 
           "string12", Types.VARCHAR, "4000", false, false); 
 
-      //do 5 string indexes, probably dont need them on the other string cols
-      for (int i=1;i<=5;i++) {
-        //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
-        String scriptOverride = ddlVersionBean.isMysql() ? "\nCREATE INDEX change_log_entry_temp_string0" + i + "_idx " +
-            "ON grouper_change_log_entry_temp (string0" + i + "(333));\n" : null;
-        
-        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogTempEntryTable.getName(), 
-            "change_log_entry_temp_string0" + i + "_idx", scriptOverride, false, "string0" + i);
-        
-      }
-
     }
 
     {
@@ -3692,7 +3681,7 @@ public enum GrouperDdl implements DdlVersionable {
           "created_on", Types.BIGINT, "20", false, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
-          "sequence_number", Types.BIGINT, "20", false, false); 
+          "sequence_number", Types.BIGINT, "20", true, false); 
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
           "string01", Types.VARCHAR, "4000", false, false); 
@@ -3730,19 +3719,23 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogEntryTable, 
           "string12", Types.VARCHAR, "4000", false, false); 
 
-      //do 5 string indexes, probably dont need them on the other string cols
-      for (int i=1;i<=5;i++) {
+      //do 12 string indexes
+      for (int i=1;i<=12;i++) {
         //see if we have a custom script here, do this since some versions of mysql cant handle indexes on columns that large
-        String scriptOverride = ddlVersionBean.isMysql() ? "\nCREATE INDEX change_log_entry_string0" + i + "_idx " +
-            "ON grouper_change_log_entry (string0" + i + "(333));\n" : null;
+        String scriptOverride = ddlVersionBean.isMysql() ? "\nCREATE INDEX change_log_entry_string" + StringUtils.leftPad(i + "", 2, '0') + "_idx " +
+            "ON grouper_change_log_entry (string" + StringUtils.leftPad(i + "", 2, '0') + "(333));\n" : null;
         
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogEntryTable.getName(), 
-            "change_log_entry_string0" + i + "_idx", scriptOverride, false, "string0" + i);
+            "change_log_entry_string" + StringUtils.leftPad(i + "", 2, '0') 
+            + "_idx", scriptOverride, false, "string" + StringUtils.leftPad(i + "", 2, '0'));
         
       }
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogEntryTable.getName(), 
           "change_log_sequence_number_idx", null, false, "sequence_number", "created_on");
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogEntryTable.getName(), 
+          "change_log_context_id_idx", null, false, "context_id");
       
     }
 
