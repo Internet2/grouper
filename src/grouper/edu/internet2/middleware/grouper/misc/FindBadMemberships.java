@@ -184,17 +184,13 @@ public class FindBadMemberships {
   public static void checkAll(PrintStream printStream) throws SessionException {
     PrintStream oldPrintStream = out;
     out = printStream;
-    try {
+    try {  
       out.println();
-      out.println("PHASE 1: Find memberships with invalid owners.");
-      checkMembershipsWithInvalidOwners();
-  
-      out.println();
-      out.println("PHASE 2: Check list and access memberships for groups.");
+      out.println("PHASE 1: Check list and access memberships for groups.");
       checkGroups();
   
       out.println();
-      out.println("PHASE 3: Check naming memberships for stems.");
+      out.println("PHASE 2: Check naming memberships for stems.");
       checkStems();
     } finally {
       out = oldPrintStream;
@@ -209,22 +205,6 @@ public class FindBadMemberships {
     printErrorsToSTOUT = v;
   }
 
-  /**
-   * Find all membership entries that have invalid owner uuids.
-   * 
-   * @return number of errors found
-   */
-  public static int checkMembershipsWithInvalidOwners() {
-    //out.println("Querying all memberships with invalid owners");
-    List<Membership> invalid = GrouperDAOFactory.getFactory().getMembership().findAllMembershipsWithInvalidOwners();
-    Iterator<Membership> invalidIterator = invalid.iterator();
-    while (invalidIterator.hasNext()) {
-      Membership ms = invalidIterator.next();
-      foundError(ms);
-    }
-
-    return invalid.size();
-  } 
 
   /**
    * Find bad memberships for all stems.  This will check all naming privileges.
@@ -585,6 +565,7 @@ public class FindBadMemberships {
    * @return true if the memberships are the same.
    */
   private static boolean checkEquality(Set<Membership> should, Set<Membership> current, Map<String,String> uuidMap) {
+    /*
     // if the size of the two sets are different, we can just return false.
     if (should.size() != current.size()) {
       return false;
@@ -683,7 +664,7 @@ public class FindBadMemberships {
         break;
       }
       uuidsToProcess = newUuidsToProcess;
-    }
+    }*/
 
     return true;
   }

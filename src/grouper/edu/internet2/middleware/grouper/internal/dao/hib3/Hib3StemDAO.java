@@ -26,6 +26,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeTuple;
@@ -34,6 +36,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.ByObject;
@@ -44,6 +47,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.StemDAO;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -52,7 +56,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.27 2009-04-14 07:41:24 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.28 2009-06-09 22:55:40 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -130,7 +134,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     throws  GrouperDAOException {
 
     HibernateSession.byObjectStatic().save(_child);
-
+    
+    createGroupSetsForStem(_child);
   } 
 
 
@@ -147,13 +152,41 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         + ", " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
+    
+    createGroupSetsForStem(_root);
   } 
+  
+  private void createGroupSetsForStem(Stem stem) {
+    
+    // add group sets
+    Set<Field> fields = FieldFinder.findAll();
+    Iterator<Field> iter = fields.iterator();
+    
+    while (iter.hasNext()) {
+      Field field = iter.next();
+      if (field.isStemListField()) {
+        GroupSet groupSet = new GroupSet();
+        groupSet.setId(GrouperUuid.getUuid());
+        groupSet.setCreatorId(GrouperSession.staticGrouperSession().getMemberUuid());
+        groupSet.setDepth(0);
+        groupSet.setMemberStemId(stem.getUuid());
+        groupSet.setOwnerStemId(stem.getUuid());
+        groupSet.setParentId(groupSet.getId());
+        groupSet.setFieldId(field.getUuid());
+        GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
+      }
+    }
+  }
 
   /**
    * @since   @HEAD@
    */
   public void delete(Stem _ns)
     throws  GrouperDAOException {
+    
+    // delete the group set
+    GrouperDAOFactory.getFactory().getGroupSet().deleteByOwnerStem(_ns.getUuid());
+    
     try {
       HibernateSession.byObjectStatic().delete(_ns);
     } catch (GrouperDAOException e) {

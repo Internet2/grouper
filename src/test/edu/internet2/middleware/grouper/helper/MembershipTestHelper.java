@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipTestHelper.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: MembershipTestHelper.java,v 1.2 2009-06-09 22:55:40 shilen Exp $
  */
 public class MembershipTestHelper {
 
@@ -500,7 +500,8 @@ public class MembershipTestHelper {
       Iterator<Membership> it = memberships.iterator();
       while (it.hasNext()) {
         Membership curr = it.next();
-        if (curr.getParentUuid().equals(parent.getUuid())) {
+        Membership parentOfCurr = curr.getParentMembership();
+        if (parent.equals(parentOfCurr)) {
           return curr;
         }
       }

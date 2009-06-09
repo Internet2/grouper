@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.internal.dao.ChangeLogTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
+import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
@@ -45,7 +46,7 @@ import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
  * Factory for returning <code>GrouperDAO</code> objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOFactory.java,v 1.6 2009-06-09 17:24:13 mchyzer Exp $
+ * @version $Id: GrouperDAOFactory.java,v 1.7 2009-06-09 22:55:40 shilen Exp $
  * @since   1.2.0
  */
 public abstract class GrouperDAOFactory {
@@ -210,6 +211,12 @@ public abstract class GrouperDAOFactory {
    */
   public abstract TransactionDAO getTransaction();
 
+
+  /**
+   * @since 1.5.0
+   * @return group set dao
+   */
+  public abstract GroupSetDAO getGroupSet();
 
 } 
 

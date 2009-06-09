@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.46 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: FieldFinder.java,v 1.47 2009-06-09 22:55:39 shilen Exp $
  */
 public class FieldFinder {
 
@@ -282,6 +282,23 @@ public class FieldFinder {
     }
     return fields;
   }
+  
+  /** 
+   * @param groupTypeId
+   * @return set of fields
+   * @throws GrouperDAOException 
+   */
+  public static Set<Field> findAllByGroupType(String groupTypeId)
+      throws  GrouperDAOException {
+    Set<Field> fields  = new LinkedHashSet();
+    
+    for (Field field : fieldCache().values()) {
+      if (StringUtils.equals(groupTypeId,field.getGroupTypeUuid())) {
+        fields.add(field);
+      }
+    }
+    return fields;
+  }
 
   /**
    * Find all fields of the specified type.
@@ -334,13 +351,12 @@ public class FieldFinder {
   public static void clearCache() {
 
     //if not there dont worry
-    if (fieldGrouperCache == null) {
+    if (fieldGrouperCache == null || fieldGrouperCache.get(Boolean.TRUE) == null ||
+        fieldGrouperCache.get(Boolean.TRUE).size() == 0) {
       return;
     }
-    Map<String, Field> theFieldCache = fieldCache();
-    if (theFieldCache != null) {
-      theFieldCache.clear();
-    }
+
+    fieldGrouperCache().get(Boolean.TRUE).clear();
   }
   
   /**

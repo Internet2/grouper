@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  * memberships
  * 
  * @author  blair christensen.
- * @version $Id: ImmediateMembershipValidator.java,v 1.3 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: ImmediateMembershipValidator.java,v 1.4 2009-06-09 22:55:40 shilen Exp $
  * @since   1.2.0
  */
 public class ImmediateMembershipValidator extends MembershipValidator {
@@ -78,9 +78,6 @@ public class ImmediateMembershipValidator extends MembershipValidator {
     }
     else if ( _ms.getViaCompositeId() != null )                      { // must not have a via
       v.setErrorMessage(INVALID_VIAUUID);
-    }
-    else if ( _ms.getParentUuid() != null )                   { // must not have a parent
-      v.setErrorMessage(INVALID_PARENTUUID);
     }
     else if ( v._isCircular(_ms) )                            { // cannot be a direct member of oneself
       v.setErrorMessage(INVALID_CIRCULAR);

@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Field</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3FieldDAO.java,v 1.14 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: Hib3FieldDAO.java,v 1.15 2009-06-09 22:55:39 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
@@ -145,7 +145,7 @@ public class Hib3FieldDAO extends Hib3DAO implements FieldDAO {
       qry.createQuery("select a from Attribute as a, Field as field where field.name = :name and field.uuid = a.fieldId");
     }
     else if ( f.getType().equals(FieldType.LIST) )      {
-      qry.createQuery("select ms from Membership as ms, Field as field where field.name = :name and field.uuid = ms.fieldId");
+      qry.createQuery("select ms from MembershipEntry as ms, Field as field where field.name = :name and field.uuid = ms.fieldId");
     } else {
       throw new SchemaException( f.getType().toString() );
     }

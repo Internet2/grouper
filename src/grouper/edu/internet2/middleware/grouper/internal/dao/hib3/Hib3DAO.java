@@ -40,7 +40,7 @@ import edu.internet2.middleware.morphString.Morph;
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.28 2009-06-09 17:24:13 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.29 2009-06-09 22:55:39 shilen Exp $
  * @since   @HEAD@
  */
 public abstract class Hib3DAO {
@@ -113,11 +113,13 @@ public abstract class Hib3DAO {
       addClass(CFG, Hib3GroupTypeTupleDAO.class);
       addClass(CFG, Hib3MemberDAO.class);
       addClass(CFG, Hib3MembershipDAO.class);
+      addClass(CFG, Hib3MembershipDAO.class, "Hib3ImmediateMembershipDAO");
       addClass(CFG, Hib3RegistrySubjectDAO.class);
       addClass(CFG, Hib3RegistrySubjectAttributeDAO.class);
       addClass(CFG, Hib3StemDAO.class);
       addClass(CFG, Hib3GrouperDdl.class);
       addClass(CFG, Hib3GrouperLoaderLog.class);
+      addClass(CFG, Hib3GroupSetDAO.class);
       CFG.setInterceptor(new Hib3SessionInterceptor());
       
       //if we are testing, map these classes to the table (which may or may not exist)

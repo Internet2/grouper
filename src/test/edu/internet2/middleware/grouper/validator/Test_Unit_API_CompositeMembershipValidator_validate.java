@@ -24,7 +24,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Unit_API_CompositeMembershipValidator_validate.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: Test_Unit_API_CompositeMembershipValidator_validate.java,v 1.2 2009-06-09 22:55:40 shilen Exp $
  * @since   1.2.0
  */
 public class Test_Unit_API_CompositeMembershipValidator_validate extends GrouperTest {
@@ -91,22 +91,6 @@ public class Test_Unit_API_CompositeMembershipValidator_validate extends Grouper
     }
   } // public void testValidate_InvalidViaUuid()
 
-  public void testValidate_InvalidParentUuid() {
-    try {
-      LOG.info("testValidate_InvalidParentUuid");
-      Membership _ms = new Membership();
-      _ms.setType(Membership.COMPOSITE);
-      _ms.setDepth(0);
-      _ms.setViaCompositeId("viaUuid");
-      _ms.setParentUuid("parentUuid");
-      GrouperValidator v = CompositeMembershipValidator.validate(_ms);
-      assertTrue( "v is invalid", v.isInvalid() );
-      assertEquals( "v error msg", CompositeMembershipValidator.INVALID_PARENTUUID, v.getErrorMessage() );
-    }
-    catch (Exception e) {
-      unexpectedException(e);
-    }
-  } // public void testValidate_InvalidParentUuid()
 
   public void testValidate_InvalidMembership() {
     try {
@@ -115,7 +99,6 @@ public class Test_Unit_API_CompositeMembershipValidator_validate extends Grouper
       _ms.setType(Membership.COMPOSITE);
       _ms.setDepth(0);
       _ms.setViaCompositeId("viaUuid");
-      _ms.setParentUuid(null);
       GrouperValidator v = CompositeMembershipValidator.validate(_ms);
       assertTrue( "v is invalid", v.isInvalid() );
     }

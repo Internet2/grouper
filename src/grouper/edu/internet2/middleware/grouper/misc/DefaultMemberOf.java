@@ -34,21 +34,17 @@ import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipAlreadyExistsException;
-import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
-import edu.internet2.middleware.grouper.exception.SchemaException;
-import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
+import edu.internet2.middleware.grouper.group.GroupSet;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.CompositeMembershipValidator;
-import edu.internet2.middleware.grouper.validator.EffectiveMembershipValidator;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
 
@@ -56,7 +52,7 @@ import edu.internet2.middleware.grouper.validator.ImmediateMembershipValidator;
  * Perform <i>member of</i> calculation.
  * <p/>
  * @author  blair christensen.
- * @version $Id: DefaultMemberOf.java,v 1.17 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: DefaultMemberOf.java,v 1.18 2009-06-09 22:55:40 shilen Exp $
  * @since   1.2.0
  */
 @GrouperIgnoreDbVersion
@@ -67,11 +63,11 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
 
   /** */
   @GrouperIgnoreFieldConstant @GrouperIgnoreClone @GrouperIgnoreDbVersion
-  private Map<MultiKey, Set> groupsAndMembersSaves = new HashMap<MultiKey, Set>();
+  private Map<MultiKey, Boolean> groupsAndMembersSaves = new HashMap<MultiKey, Boolean>();
 
   /** */
   @GrouperIgnoreFieldConstant @GrouperIgnoreClone @GrouperIgnoreDbVersion
-  private Map<MultiKey, Set> groupsAndMembersDeletes = new HashMap<MultiKey, Set>();
+  private Map<MultiKey, Boolean> groupsAndMembersDeletes = new HashMap<MultiKey, Boolean>();
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -290,119 +286,93 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
    * @return set
    * @throws IllegalStateException
    */
-  private Set _addHasMembersToOwner(Set<Membership> hasMembers) 
+  private Set _addHasMembersToOwner(GroupSet immediateGroupSet, Set<GroupSet> hasMembers) 
     throws  IllegalStateException
   {
-    Set<Membership> mships = new LinkedHashSet();
-    Membership hasMS;
-    Iterator<Membership> it = hasMembers.iterator();
+    Set<GroupSet> groupSets = new LinkedHashSet();
+    Iterator<GroupSet> it = hasMembers.iterator();
 
     // cache values outside of iterator
-    String ownerGroupId = this.getMembership().getOwnerGroupId();
-    String ownerStemId = this.getMembership().getOwnerStemId();
+    String ownerGroupId = immediateGroupSet.getOwnerGroupId();
+    String ownerStemId = immediateGroupSet.getOwnerStemId();
     String creatorUUID = GrouperSession.staticGrouperSession().getMember().getUuid();
-    String fieldId = this.getMembership().getFieldId();
+    String fieldId = immediateGroupSet.getFieldId();
 
-    Map<String, Set> parentToChildrenMap = _getParentToChildrenMap(hasMembers);
+    Map<String, Set<GroupSet>> parentToChildrenMap = _getParentToChildrenMap(hasMembers);
    
     while (it.hasNext()) {
-      hasMS = it.next();
-      if (hasMS.getDepth() == 0) {
-        Set<Membership> newAdditions = _addHasMembersRecursively(this.getMembership(), hasMS, 
-          this.getMembership(), parentToChildrenMap, ownerGroupId, ownerStemId, creatorUUID, fieldId);
-        mships.addAll(newAdditions);
+      GroupSet gs = it.next();
+      if (gs.getDepth() == 1) {
+        Set<GroupSet> newAdditions = _addHasMembersRecursively(immediateGroupSet, gs, 
+            immediateGroupSet, parentToChildrenMap, ownerGroupId, ownerStemId, creatorUUID, fieldId);
+        groupSets.addAll(newAdditions);
       }
     }
 
-    return mships;
+    return groupSets;
   }
 
   /**
-   * Given a set of memberships, return a map that will allow retrieval of 
-   * the children of a parent membership.
+   * Given a set of group sets, return a map that will allow retrieval of 
+   * the children of a parent group set.
    * @param members
    * @return the map
    */
-  private Map<String, Set> _getParentToChildrenMap(Set<Membership> members) {
-    Map<String, Set> parentToChildrenMap = new HashMap<String, Set>();
+  private Map<String, Set<GroupSet>> _getParentToChildrenMap(Set<GroupSet> members) {
+    Map<String, Set<GroupSet>> parentToChildrenMap = new HashMap<String, Set<GroupSet>>();
 
-    Iterator<Membership> iterator = members.iterator();
+    Iterator<GroupSet> iterator = members.iterator();
     while (iterator.hasNext()) {
-      Membership m = iterator.next();
-      String parentUUID = m.getParentUuid();
+      GroupSet gs = iterator.next();
+      String parentId = gs.getParentId();
 
-      if (parentUUID != null && !parentUUID.equals("")) {
-        Set<Membership> children = parentToChildrenMap.get(parentUUID);
+      if (parentId != null && !parentId.equals("")) {
+        Set<GroupSet> children = parentToChildrenMap.get(parentId);
         if (children == null) {
-          children = new LinkedHashSet<Membership>();
+          children = new LinkedHashSet<GroupSet>();
         }
 
-        children.add(m);
-        parentToChildrenMap.put(parentUUID, children);
+        children.add(gs);
+        parentToChildrenMap.put(parentId, children);
       }
     }
 
     return parentToChildrenMap;
   }
-
-  /**
-   * Check if the given memberUUID is the memberUUID for the group with a UUID of ownerUUID.
-   *
-   * @param memberUUID
-   * @param ownerGroupId
-   * @return if equal
-   */
-  private boolean checkEquality(String memberUUID, String ownerGroupId) {
-    try {
-      String memberUUID2 = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerGroupId, true).toMember().getUuid();
-      if (memberUUID.equals(memberUUID2)) {
-        return true;
-      }
-    } catch (GroupNotFoundException e) {
-      throw new IllegalStateException("Group object not found while testing for circular membership.", e);
-    }
-
-    return false;
-  }
   
   /**
-   * Check if the new membership being added will cause a circular membership.
+   * Check if the new group set being added will cause a circular group set.
    *
-   * @param newMembership membership being added
-   * @param startMembership membership that's a parent of newMembership which will be used
-   *                        as a starting point to check if we're forming a circular membership
-   * @return if circular
-   * @returns true if the new membership will cause a circular membership.
+   * @param newGroupSet group set being added
+   * @param startGroupSet group set that's a parent of newGroupSet which will be used
+   *                        as a starting point to check if we're forming a circular group set
+   * @return true if the new group set will cause a circular group set.
    */
-  private boolean isCircular(Membership newMembership, Membership startMembership) {
+  private boolean isCircular(GroupSet newGroupSet, GroupSet startGroupSet) {
+    
     // for the default list, a group should not be an indirect member of itself ....
-
-    if (newMembership.getFieldId().equals(Group.getDefaultList().getUuid()) && 
-      checkEquality(newMembership.getMemberUuid(), newMembership.getOwnerGroupId())) {
+    if (newGroupSet.getFieldId().equals(Group.getDefaultList().getUuid()) && 
+        newGroupSet.getMemberGroupId().equals(newGroupSet.getOwnerGroupId())) {
       return true;
     }
 
-    // now let's go through the parent memberships... 
-    // if the member uuid of a parent is equal to the member uuid of the new membership,
-    // then we have a circular membership.
-    if (newMembership.getDepth() < 2) {
+    // now let's go through the parents... 
+    // if the member of a parent is equal to the member of the new group set,
+    // then we have a circular group set.
+    if (newGroupSet.getDepth() < 3) {
       return false;
     }
 
-    try {
-      Membership currentMembership = startMembership;
-      while (true) {
-        if (currentMembership.getMemberUuid().equals(newMembership.getMemberUuid())) {
-          return true;
-        }
-        if (currentMembership.getDepth() > 0) {
-          currentMembership = currentMembership.getParentMembership();
-        } else {
-          break;
-        }
+    GroupSet currentGroupSet = startGroupSet;
+    while (true) {
+      if (currentGroupSet.getMemberGroupId().equals(newGroupSet.getMemberGroupId())) {
+        return true;
       }
-    } catch (MembershipNotFoundException e) {
-      throw new IllegalStateException(e.getMessage(), e);
+      if (currentGroupSet.getDepth() > 0) {
+        currentGroupSet = currentGroupSet.getParentGroupSet();
+      } else {
+        break;
+      }
     }
 
     return false;
@@ -410,9 +380,9 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
 
   /**
    * 
-   * @param startMembership
-   * @param currentMembership
-   * @param parentMembership
+   * @param startGroupSet
+   * @param gs
+   * @param parentGroupSet
    * @param parentToChildrenMap
    * @param ownerGroupId 
    * @param ownerStemId 
@@ -420,180 +390,118 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
    * @param fieldId
    * @return set of memberships
    */
-  private Set<Membership> _addHasMembersRecursively(Membership startMembership, 
-    Membership currentMembership, Membership parentMembership, Map<String, Set> parentToChildrenMap, 
+  private Set<GroupSet> _addHasMembersRecursively(GroupSet startGroupSet, 
+    GroupSet gs, GroupSet parentGroupSet, Map<String, Set<GroupSet>> parentToChildrenMap, 
     String ownerGroupId, String ownerStemId, String creatorUUID, String fieldId) {
 
-    Membership _newMembership = new Membership();
-    _newMembership.setCreatorUuid(creatorUUID);
-    _newMembership.setFieldId(fieldId);
-    _newMembership.setOwnerGroupId(ownerGroupId);
-    _newMembership.setOwnerStemId(ownerStemId);
-    _newMembership.setType(Membership.EFFECTIVE);
-    _newMembership.setMemberUuid(currentMembership.getMemberUuid());
-    _newMembership.setDepth(parentMembership.getDepth() + 1);
-    _newMembership.setParentUuid(parentMembership.getUuid());
-
-    if (currentMembership.getDepth() == 0) {
-      _newMembership.setViaGroupId(currentMembership.getOwnerGroupId());
-    } else {
-      _newMembership.setViaGroupId(currentMembership.getViaGroupId());
-      _newMembership.setViaCompositeId(currentMembership.getViaCompositeId());
-    }
+    GroupSet newGroupSet = new GroupSet();
+    newGroupSet.setId(GrouperUuid.getUuid());
+    newGroupSet.setCreatorId(creatorUUID);
+    newGroupSet.setFieldId(fieldId);
+    newGroupSet.setOwnerGroupId(ownerGroupId);
+    newGroupSet.setOwnerStemId(ownerStemId);
+    newGroupSet.setMemberGroupId(gs.getMemberGroupId());
+    newGroupSet.setDepth(parentGroupSet.getDepth() + 1);
+    newGroupSet.setParentId(parentGroupSet.getId());
+    newGroupSet.setType(Membership.EFFECTIVE);
 
     // if we're forming a circular path, return an empty Set.
-    if (isCircular(_newMembership, startMembership)) {
-      return new LinkedHashSet<Membership>();
+    if (isCircular(newGroupSet, startGroupSet)) {
+      return new LinkedHashSet<GroupSet>();
     }
 
-    
-    GrouperValidator v = EffectiveMembershipValidator.validate(_newMembership);
-    if (v.isInvalid()) {
-      throw new IllegalStateException( v.getErrorMessage() );
-    }
+    Set<GroupSet> newGroupSets = new LinkedHashSet<GroupSet>();
+    newGroupSets.add(newGroupSet);
 
-    Set<Membership> newMemberships = new LinkedHashSet();
-    newMemberships.add(_newMembership);
-
-    Set<Membership> children = parentToChildrenMap.get(currentMembership.getUuid());
+    Set<GroupSet> children = parentToChildrenMap.get(gs.getId());
     if (children != null) {
-      Iterator<Membership> it = children.iterator();
+      Iterator<GroupSet> it = children.iterator();
       while (it.hasNext()) {
-        Membership hasMS = it.next();
-        Set<Membership> newAdditions = _addHasMembersRecursively(startMembership, hasMS, _newMembership, 
+        GroupSet nextGroupSet = it.next();
+        Set<GroupSet> newAdditions = _addHasMembersRecursively(startGroupSet, nextGroupSet, newGroupSet, 
           parentToChildrenMap, ownerGroupId, ownerStemId, creatorUUID, fieldId);
-        newMemberships.addAll(newAdditions);
+        newGroupSets.addAll(newAdditions);
       }
     }
     
-    return newMemberships;
+    return newGroupSets;
   }
 
   /**
    * Add members of <i>member</i> to where <i>group</i> is a member.
-   * @param   isMember    <i>Set</i> of <i>Membership</i> objects.
-   * @param   hasMembers   <i>Set</i> of <i>Membership</i> objects.
-   * @param   isComposite <i>boolean</i> true if adding a composite membership
-   * @return  set
+   * @param memberGroup 
+   * @param groupSetIsMember    <i>Set</i> of <i>GroupSet</i> objects.
+   * @param groupSetHasMembers   <i>Set</i> of <i>GroupSet</i> objects.
+   * @return set
    * @throws IllegalStateException 
    * @since   1.2.0
    */
-  private Set _addHasMembersToWhereGroupIsMember(Set<Membership> isMember, Set<Membership> hasMembers, boolean isComposite) 
+  private Set<GroupSet> _addHasMembersToWhereGroupIsMember(Group memberGroup, Set<GroupSet> groupSetIsMember, Set<GroupSet> groupSetHasMembers) 
     throws  IllegalStateException
   {
-    Set<Membership> mships = new LinkedHashSet();
+    Set<GroupSet> groupSets = new LinkedHashSet();
 
     String creatorUUID  = GrouperSession.staticGrouperSession().getMember().getUuid();
-    Membership hasMS;
-    Membership isMS;
-    Membership _ms = null;
-    Iterator<Membership> itIM = isMember.iterator();
-    Map<String, Set> parentToChildrenMap = _getParentToChildrenMap(hasMembers);
+    
+    Iterator<GroupSet> isMembersIter = groupSetIsMember.iterator();
+    Map<String, Set<GroupSet>> parentToChildrenMap = _getParentToChildrenMap(groupSetHasMembers);
 
-    // lets get all the hasMembers with a depth of 0 before the while loop
-    Set<Membership> hasMembersZeroDepth = new LinkedHashSet<Membership>();
-    Iterator<Membership> iterator = hasMembers.iterator();
-    while (iterator.hasNext()) {
-      Membership m = iterator.next();
-      if (m.getDepth() == 0) {
-        hasMembersZeroDepth.add(m);
+    // lets get all the hasMembers with a depth of 1 before the while loop
+    Set<GroupSet> hasMembersOneDepth = new LinkedHashSet<GroupSet>();
+    Iterator<GroupSet> hasMembersIter = groupSetHasMembers.iterator();
+    while (hasMembersIter.hasNext()) {
+      GroupSet gs = hasMembersIter.next();
+      if (gs.getDepth() == 1) {
+        hasMembersOneDepth.add(gs);
       }
     }
 
-    while (itIM.hasNext()) {
-      isMS = itIM.next();
-      boolean isViaGroupComposite = isViaGroupComposite(isMS);
+    while (isMembersIter.hasNext()) {
+      GroupSet isGS = isMembersIter.next();
 
-      String ownerGroupId = isMS.getOwnerGroupId();
-      String ownerStemId = isMS.getOwnerStemId();
-      String fieldId = isMS.getFieldId();
-      String type = isMS.getType();
-      String uuid = isMS.getUuid();
-      int depth = isMS.getDepth();
+      String ownerGroupId = isGS.getOwnerGroupId();
+      String ownerStemId = isGS.getOwnerStemId();
+      String fieldId = isGS.getFieldId();
+      String id = isGS.getId();
+      int depth = isGS.getDepth();
 
       // If the isMember's owner is the same as the immediate member's owner and this is for a default member, 
       // then we can skip this isMember.
-      if (fieldId.equals(Group.getDefaultList().getUuid()) && StringUtils.equals(isMS.getOwnerGroupId(),this.getGroup().getUuid())) {
+      if (fieldId.equals(Group.getDefaultList().getUuid()) && StringUtils.equals(isGS.getOwnerGroupId(), this.getGroup().getUuid())) {
+        continue;
+      }
+      
+      GroupSet groupSet = new GroupSet();
+      groupSet.setId(GrouperUuid.getUuid());
+      groupSet.setCreatorId(creatorUUID);
+      groupSet.setDepth(depth + 1);
+      groupSet.setParentId(id);
+      groupSet.setFieldId(fieldId);
+      groupSet.setMemberGroupId(memberGroup.getUuid());
+      groupSet.setOwnerGroupId(ownerGroupId);
+      groupSet.setOwnerStemId(ownerStemId);
+      groupSet.setType(Membership.EFFECTIVE);
+
+
+      // if we're forming a circular path, skip this isMember
+      if (isCircular(groupSet, isGS)) {
         continue;
       }
 
-      // we're handling composites separately based on a factor membership changing
-      if (type.equals(Membership.COMPOSITE) || isViaGroupComposite) {
-        continue;
-      }
-      if (!isComposite) {
-        _ms = new Membership();
-        _ms.setCreatorUuid( creatorUUID );
-        _ms.setDepth( depth + 1 );
-        _ms.setViaGroupId( this.getMembership().getOwnerGroupId() );
-        _ms.setParentUuid( uuid );
-        _ms.setFieldId( fieldId );
-        _ms.setMemberUuid( this.getMembership().getMemberUuid() );
-        _ms.setOwnerGroupId( ownerGroupId );
-        _ms.setOwnerStemId( ownerStemId );
-        _ms.setType(Membership.EFFECTIVE);
+      groupSets.add(groupSet);
 
-        GrouperValidator v = EffectiveMembershipValidator.validate(_ms);
-        if (v.isInvalid()) {
-          throw new IllegalStateException( v.getErrorMessage() );
-        }
-
-        // if we're forming a circular path, skip this isMember
-        if (isCircular(_ms, isMS)) {
-          continue;
-        }
-
-        mships.add(_ms);
-      }
-
-      Iterator<Membership> itHM = hasMembersZeroDepth.iterator();
+      Iterator<GroupSet> itHM = hasMembersOneDepth.iterator();
       while (itHM.hasNext()) {
-        hasMS = itHM.next();
-        if (isComposite) {
-          Set<Membership> newAdditions = _addHasMembersRecursively(isMS, hasMS, isMS, parentToChildrenMap,
-              ownerGroupId, ownerStemId, creatorUUID, fieldId);
-          mships.addAll(newAdditions);
-        } else {
-          Set<Membership> newAdditions = _addHasMembersRecursively(isMS, hasMS, _ms, parentToChildrenMap,
-              ownerGroupId, ownerStemId, creatorUUID, fieldId);
-          mships.addAll(newAdditions);
-        }
+        GroupSet hasGS = itHM.next();
+        Set<GroupSet> newAdditions = _addHasMembersRecursively(isGS, hasGS, groupSet, parentToChildrenMap,
+            ownerGroupId, ownerStemId, creatorUUID, fieldId);
+        groupSets.addAll(newAdditions);
       }
     }
 
-    return mships;
+    return groupSets;
   } 
 
-
-  /**
-   * Checks if the membership is via a composite group.
-   *
-   * @param membership the membership to check
-   * @return true if the membership is via a composite group.
-   * @throws IllegalStateException
-   */
-  private boolean isViaGroupComposite(Membership membership) 
-    throws IllegalStateException {
-
-    // return false if there's no via uuid.
-    String uuid = membership.getViaGroupId();
-    if (uuid == null) {
-      return false;
-    }
-
-    // we might be adding the composite group right now...
-    if (this.getComposite() != null && this.getGroup().getUuid().equals(uuid)) {
-      return true;
-    }
-
-    // check the database to see if the via uuid is a composite group.
-    Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(uuid, true);
-    Composite composite = GrouperDAOFactory.getFactory().getComposite().findAsOwner(group, false);
-    if (composite != null) {
-      return true;
-    }
-    return false;
-  }
 
   /**
    * 
@@ -632,7 +540,6 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
       this.getField().getType().toString(), true));
     _ms.setMemberUuid(memberUuid);
     _ms.setOwnerGroupId(ownerGroupId);
-    _ms.setParentUuid(null);
     _ms.setType(Membership.COMPOSITE);
     _ms.setViaCompositeId(viaCompositeId);
 
@@ -695,23 +602,21 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
       throw new IllegalStateException( E.MOF_CTYPE + this.getComposite().getType().toString() );
     }
     this.addEffectiveSaves(composites);
-    // we also need to propogate changes up to where the composite owner is a member
-    this.addEffectiveSaves( 
-      this._addHasMembersToWhereGroupIsMember(
-        GrouperDAOFactory.getFactory().getMembership().findAllByMember( this.getGroup().toMember().getUuid() ), 
-        composites,
-        true
-      )
-    );
 
     this.addSaves( this.getEffectiveSaves() );
-    DefaultMemberOf.this.fixComposites(this.getSaves(), new LinkedHashSet());
+    DefaultMemberOf.this.fixComposites(this.getSaves(), new LinkedHashSet(), false);
     
     Set<Group> modifiedGroups = new LinkedHashSet<Group>();
     modifiedGroups.add(this.getGroup());
     
     this.setModifiedGroups(modifiedGroups);
-
+    
+    // update the membership type of the group set to 'composite'
+    GroupSet selfGroupSet = 
+      GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(this.getGroup(), Group.getDefaultList());
+    selfGroupSet.setType(Membership.COMPOSITE);
+    this.addUpdate(selfGroupSet);
+    
     this._identifyGroupsAndStemsWithMembershipChanges();
   } 
 
@@ -779,47 +684,74 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         _ms.setMemberUuid( _m.getUuid() );
         _ms.setOwnerGroupId( DefaultMemberOf.this.getOwnerGroupId() );
         _ms.setOwnerStemId( DefaultMemberOf.this.getOwnerStemId() );
+        _ms.setMember(_m);
 
-    if (DefaultMemberOf.this.validateImmediateMembership == true) {
-        GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
-        if (v.isInvalid()) {
-          //throw a specific exception so we can trap this case
-          if (StringUtils.equals(v.getErrorMessage(), ImmediateMembershipValidator.INVALID_EXISTS)) {
-            throw new MembershipAlreadyExistsException(v.getErrorMessage());
-          }
-          throw new IllegalStateException( v.getErrorMessage() );
+        if (DefaultMemberOf.this.validateImmediateMembership == true) {
+            GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
+            if (v.isInvalid()) {
+              //throw a specific exception so we can trap this case
+              if (StringUtils.equals(v.getErrorMessage(), ImmediateMembershipValidator.INVALID_EXISTS)) {
+                throw new MembershipAlreadyExistsException(v.getErrorMessage());
+              }
+              throw new IllegalStateException( v.getErrorMessage() );
+            }
         }
-    }
 
         DefaultMemberOf.this.setField( FieldFinder.find( _ms.getListName(), true ) );
 
         DefaultMemberOf.this.setMember(_m);
         DefaultMemberOf.this.setMembership(_ms);
 
-        Set<GrouperAPI> results = new LinkedHashSet();
-
-        // Members of _m if owner is a group
-        Set<Membership> hasMembers = DefaultMemberOf.this._findMembersOfMember();
-
-        // Add members of _m to owner
-        results.addAll(DefaultMemberOf.this._addHasMembersToOwner(hasMembers));
-
-        // If we are working on a group, where is it a member and f = "members"
-        if (DefaultMemberOf.this.getGroup() != null && DefaultMemberOf.this.getField().equals(Group.getDefaultList())) {
-          Set<Membership> isMember = GrouperDAOFactory.getFactory().getMembership().findAllByMember( DefaultMemberOf.this.getGroup().toMember().getUuid() );
-
-          // Add _m and members of _m to where owner is member
-          results.addAll( DefaultMemberOf.this._addHasMembersToWhereGroupIsMember(isMember, hasMembers, false) );
+        if (_m.getSubjectTypeId().equals("group")) {
+  
+          Set<GroupSet> results = new LinkedHashSet();
+  
+          Group memberGroup = _m.toGroup();
+          GroupSet parent = null;
+          
+          // add the immediate group set
+          GroupSet immediateGroupSet = new GroupSet();
+          immediateGroupSet.setId(GrouperUuid.getUuid());
+          immediateGroupSet.setCreatorId(GrouperSession.staticGrouperSession().getMemberUuid());
+          immediateGroupSet.setDepth(1);
+          immediateGroupSet.setFieldId(f.getUuid());
+          immediateGroupSet.setMemberGroupId(memberGroup.getUuid());
+          immediateGroupSet.setType(Membership.EFFECTIVE);
+          
+          if (DefaultMemberOf.this.getGroup() != null) {
+            immediateGroupSet.setOwnerGroupId(DefaultMemberOf.this.getGroup().getUuid());
+            parent = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(DefaultMemberOf.this.getGroup(), f);
+          } else {
+            immediateGroupSet.setOwnerStemId(DefaultMemberOf.this.getStem().getUuid());
+            parent = GrouperDAOFactory.getFactory().getGroupSet().findSelfStem(DefaultMemberOf.this.getStem(), f);
+          }
+          
+          immediateGroupSet.setParentId(parent.getId());
+          results.add(immediateGroupSet);
+          
+          // Members of _m which are groups
+          Set<GroupSet> groupSetHasMembers = DefaultMemberOf.this._findGroupSetsOfMember(memberGroup);
+  
+          // Add members of _m to owner group set
+          results.addAll(DefaultMemberOf.this._addHasMembersToOwner(immediateGroupSet, groupSetHasMembers));
+  
+          // If we are working on a group, where is it a member and f = "members"
+          if (DefaultMemberOf.this.getGroup() != null && DefaultMemberOf.this.getField().equals(Group.getDefaultList())) {
+            Set<GroupSet> groupSetIsMember = GrouperDAOFactory.getFactory().getGroupSet().findAllByMemberGroup(DefaultMemberOf.this.getGroup());
+  
+            // Add _m and members of _m to where owner is member
+            results.addAll(DefaultMemberOf.this._addHasMembersToWhereGroupIsMember(memberGroup, groupSetIsMember, groupSetHasMembers));
+          }
+  
+          DefaultMemberOf.this.addEffectiveSaves(results);
         }
-
-        DefaultMemberOf.this.addEffectiveSaves(results);
 
         DefaultMemberOf.this.addSave(_ms); // Save the immediate
         DefaultMemberOf.this.addSaves( DefaultMemberOf.this.getEffectiveSaves() );
 
         // Fix composites
         if (DefaultMemberOf.this.getGroup() != null && DefaultMemberOf.this.getField().equals(Group.getDefaultList())) {
-          DefaultMemberOf.this.fixComposites(DefaultMemberOf.this.getSaves(), new LinkedHashSet());
+          DefaultMemberOf.this.fixComposites(DefaultMemberOf.this.getSaves(), new LinkedHashSet(), true);
         }
 
         DefaultMemberOf.this._identifyGroupsAndStemsWithMembershipChanges();
@@ -832,13 +764,13 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
  
   /**
    * If memberships are being added to a factor, this method makes sure that the composite
-   * membership is correct and also corrects all groups and stems that have the composite group
-   * as a member.
+   * membership is correct.
    *
    * @param existingSaves The saves prior to calling this method.
    * @param existingDeletes The deletes prior to calling this method.
+   * @param searchMembersOfMember
    */
-  private void fixComposites(Set<GrouperAPI> existingSaves, Set<GrouperAPI> existingDeletes) {
+  private void fixComposites(Set<GrouperAPI> existingSaves, Set<GrouperAPI> existingDeletes, boolean searchMembersOfMember) {
 
     Set<Membership> existingUpdates = new LinkedHashSet<Membership>();
 
@@ -850,12 +782,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         Membership m = (Membership)next;
         if (m.getFieldId().equals(Group.getDefaultList().getUuid())) {
           existingUpdates.add(m);
-          Set<Membership> mships = groupsAndMembersSaves.get(new MultiKey(m.getOwnerGroupId(), m.getMemberUuid()));
-          if (mships == null) {
-            mships = new LinkedHashSet<Membership>();
-          }
-          mships.add(m);
-          groupsAndMembersSaves.put(new MultiKey(m.getOwnerGroupId(), m.getMemberUuid()), mships);
+          groupsAndMembersSaves.put(new MultiKey(m.getOwnerGroupId(), m.getMemberUuid()), true);
         }
       }
     }
@@ -867,12 +794,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         Membership m = (Membership)next;
         if (m.getFieldId().equals(Group.getDefaultList().getUuid())) {
           existingUpdates.add(m);
-          Set<Membership> mships = groupsAndMembersDeletes.get(new MultiKey(m.getOwnerGroupId(), m.getMemberUuid()));
-          if (mships == null) {
-            mships = new LinkedHashSet<Membership>();
-          }
-          mships.add(m);
-          groupsAndMembersDeletes.put(new MultiKey(m.getOwnerGroupId(), m.getMemberUuid()), mships);
+          groupsAndMembersDeletes.put(new MultiKey(m.getOwnerGroupId(), m.getMemberUuid()), true);
         }
       }
     }
@@ -883,29 +805,83 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
 
     Set<GrouperAPI> newSaves = new LinkedHashSet<GrouperAPI>();
     Set<GrouperAPI> newDeletes = new LinkedHashSet<GrouperAPI>();
-
-    // cache to keep track of the composites for some factors.
-    // this should probably be done using ehcache...
-    Map<String, Set> factorsToComposites = new HashMap<String, Set>();
     
     Iterator<Membership> existingUpdatesIterator = existingUpdates.iterator();
     while (existingUpdatesIterator.hasNext()) {
       Membership existingMembership = existingUpdatesIterator.next();
+      
+      boolean isSave = true;
+      if (existingDeletes.contains(existingMembership)) {
+        isSave = false;
+      }
 
-      String memberUuid = existingMembership.getMemberUuid();
-      String ownerGroupId = existingMembership.getOwnerGroupId();
+      String existingMembershipMemberId = existingMembership.getMemberUuid();
+      String existingMembershipOwnerGroupId = existingMembership.getOwnerGroupId();
 
-      try {
-        Iterator<Composite> factorsIterator;
-
-        if (factorsToComposites.containsKey(ownerGroupId)) {
-          factorsIterator = factorsToComposites.get(ownerGroupId).iterator();
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(existingMembershipOwnerGroupId, true);
+      Set<Composite> factorsSet = GrouperDAOFactory.getFactory().getComposite().findAsFactor(group);
+    
+      Set<GroupSet> isMemberOfOwnerGroup = GrouperDAOFactory.getFactory().getGroupSet()
+          .findAllByMemberGroupAndField(group.getUuid(), Group.getDefaultList());
+      
+      Iterator<GroupSet> isMemberOfOwnerGroupIter = isMemberOfOwnerGroup.iterator();
+      while (isMemberOfOwnerGroupIter.hasNext()) {
+        String isMemberOfOwnerGroupId = isMemberOfOwnerGroupIter.next().getOwnerGroupId();
+        factorsSet.addAll(GrouperDAOFactory.getFactory().getComposite().findAsFactor(isMemberOfOwnerGroupId)); 
+        
+        if (isSave) {
+          groupsAndMembersSaves.put(new MultiKey(isMemberOfOwnerGroupId, existingMembershipMemberId), true);
         } else {
-          Group g = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerGroupId, true);
-          Set<Composite> factorsSet = GrouperDAOFactory.getFactory().getComposite().findAsFactor(g);
-          factorsIterator = factorsSet.iterator();
-          factorsToComposites.put(ownerGroupId, factorsSet);
+          groupsAndMembersDeletes.put(new MultiKey(isMemberOfOwnerGroupId, existingMembershipMemberId), true);
         }
+        
+        if (searchMembersOfMember) {
+          Member member = existingMembership.getMember();
+          try {
+            Group g2 = member.toGroup();
+            Iterator<Member> members = g2.getMembers().iterator();
+            while (members.hasNext()) {
+              Member currMember = members.next();
+              if (isSave) {
+                groupsAndMembersSaves.put(new MultiKey(isMemberOfOwnerGroupId, currMember.getUuid()), true);
+              } else {
+                groupsAndMembersDeletes.put(new MultiKey(isMemberOfOwnerGroupId, currMember.getUuid()), true);
+              }
+            }
+          } catch (GroupNotFoundException e) {
+            // this is okay.
+          }
+        }
+      }
+            
+      Set<String> memberUuids = new LinkedHashSet<String>();
+      memberUuids.add(existingMembershipMemberId);
+      
+      if (searchMembersOfMember) {
+        Member member = existingMembership.getMember();
+        try {
+          Group g = member.toGroup();
+          Iterator<Member> members = g.getMembers().iterator();
+          while (members.hasNext()) {
+            Member currMember = members.next();
+            memberUuids.add(currMember.getUuid());
+            
+            if (isSave) {
+              groupsAndMembersSaves.put(new MultiKey(group.getUuid(), currMember.getUuid()), true);
+            } else {
+              groupsAndMembersDeletes.put(new MultiKey(group.getUuid(), currMember.getUuid()), true);
+            }
+          }
+        } catch (GroupNotFoundException e) {
+          // this is okay.
+        }
+      }
+      
+      Iterator<String> memberUuidsIter = memberUuids.iterator();
+      while (memberUuidsIter.hasNext()) {
+        String memberUuid = memberUuidsIter.next();
+        
+        Iterator<Composite> factorsIterator = factorsSet.iterator();
 
         while (factorsIterator.hasNext()) {
           // check to see if the composite and the factors have the member.
@@ -915,7 +891,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
           Group owner = GrouperDAOFactory.getFactory().getGroup().findByUuid(c.getFactorOwnerUuid(), true);
 
           // we're not allowing membership paths from a factor to the composite
-          if (checkEquality(memberUuid, owner.getUuid()) == true) {
+          if (StringUtils.equals(memberUuid, owner.toMember().getUuid())) {
             throw new IllegalStateException("Membership paths from a factor to the composite are not allowed.");
           }
 
@@ -937,29 +913,12 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
           if (compositeShouldHaveMember && !ownerHasMember) {
             Membership ms = _createNewCompositeMembershipObject(owner.getUuid(), memberUuid, c.getUuid());
             newSaves.add(ms);
-
-            Set<Membership> isMember = GrouperDAOFactory.getFactory().getMembership().findAllByMember(ms.getGroup().toMember().getUuid());
-            Set<Membership> hasMember = new LinkedHashSet<Membership>();
-            hasMember.add(ms);
-            newSaves.addAll(_addHasMembersToWhereGroupIsMember(isMember, hasMember, true));
           } else if (!compositeShouldHaveMember && ownerHasMember) {
             Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
               owner.getUuid(), memberUuid, Group.getDefaultList(), Membership.COMPOSITE, true);
             newDeletes.add(ms);
-
-            Set<Membership> forwardMemberships = MembershipFinder.internal_findAllForwardMembershipsNoPriv(ms, new LinkedHashSet());
-            newDeletes.addAll(forwardMemberships);
           }
         }
-      } catch (GroupNotFoundException e) {
-        // this should not happen
-        throw new IllegalStateException(e.getMessage(), e);
-      } catch (MembershipNotFoundException e) {
-        // this should not happen
-        throw new IllegalStateException(e.getMessage(), e);
-      } catch (SchemaException e) {
-        // this should not happen
-        throw new IllegalStateException(e.getMessage(), e);
       }
     }
 
@@ -969,7 +928,7 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
     DefaultMemberOf.this.addEffectiveDeletes(newDeletes);
     DefaultMemberOf.this.addDeletes(newDeletes);
 
-    fixComposites(newSaves, newDeletes);
+    fixComposites(newSaves, newDeletes, false);
   }
 
   /**
@@ -983,26 +942,20 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   private boolean hasMember(Group g, String memberUuid) {
     Set mships = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndMemberAndField(
       g.getUuid(), memberUuid, Group.getDefaultList());
+    
+    int count = mships.size();
 
-    Set<Membership> saves = groupsAndMembersSaves.get(new MultiKey(g.getUuid(), memberUuid));
+    Boolean saves = groupsAndMembersSaves.get(new MultiKey(g.getUuid(), memberUuid));
     if (saves != null) {
-      Iterator<Membership> i = saves.iterator();
-      while (i.hasNext()) {
-        Membership m = i.next();
-        mships.add(m);
-      }
+      count++;
     }
 
-    Set<Membership> deletes = groupsAndMembersDeletes.get(new MultiKey(g.getUuid(), memberUuid));
+    Boolean deletes = groupsAndMembersDeletes.get(new MultiKey(g.getUuid(), memberUuid));
     if (deletes != null) {
-      Iterator<Membership> i = deletes.iterator();
-      while (i.hasNext()) {
-        Membership m = i.next();
-        mships.remove(m);
-      }
+      count--;
     }
 
-    if (mships.size() > 0) {
+    if (count > 0) {
       return true;
     }
 
@@ -1016,32 +969,24 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   private void _evaluateDeleteCompositeMembership() 
     throws  IllegalStateException
   {
-    Membership _ms;
-    DefaultMemberOf      mof;
-    Iterator      it  = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndField( 
-      this.getGroup().getUuid(), Group.getDefaultList() 
-    ).iterator();
-    try {
-      MemberDAO dao = GrouperDAOFactory.getFactory().getMember();
-      while (it.hasNext()) {
-        _ms = (Membership) it.next();
-        mof = new DefaultMemberOf();
-        mof.deleteImmediate( 
-          GrouperSession.staticGrouperSession(), this.getGroup(), _ms, dao.findByUuid( _ms.getMemberUuid(), true ) 
-        );
-        this.addDeletes( mof.getDeletes() );
-      }
-    }
-    catch (MemberNotFoundException eMNF) {
-      throw new IllegalStateException( eMNF.getMessage(), eMNF );
+    Iterator<Membership> mshipsIter = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndField( 
+      this.getGroup().getUuid(), Group.getDefaultList()).iterator();
+    while (mshipsIter.hasNext()) {
+      this.addDelete(mshipsIter.next());
     }
 
-    this.fixComposites(new LinkedHashSet(), this.getDeletes());
+    this.fixComposites(new LinkedHashSet(), this.getDeletes(), false);
 
     Set<Group> modifiedGroups = new LinkedHashSet<Group>();
     modifiedGroups.add(this.getGroup());
     
     this.setModifiedGroups(modifiedGroups);
+    
+    // update the membership type of the group set to 'immediate'
+    GroupSet selfGroupSet = 
+      GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(this.getGroup(), Group.getDefaultList());
+    selfGroupSet.setType(Membership.IMMEDIATE);
+    this.addUpdate(selfGroupSet);
     
     this._identifyGroupsAndStemsWithMembershipChanges();
   } // private void _evalulateDeleteCompositeMembership()
@@ -1064,30 +1009,52 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
         DefaultMemberOf.this.setMember(_m);
         DefaultMemberOf.this.setMembership(_ms);
 
-        // Find child memberships that need deletion
-        Set       children  = new LinkedHashSet();
-        Iterator  it        = MembershipFinder.internal_findAllChildrenNoPriv(_ms).iterator();
-        while (it.hasNext()) {
-          children.add( (Membership) it.next() );
-        }
-        DefaultMemberOf.this.addEffectiveDeletes(children);
-        // Find all effective memberships that need deletion
-        try {
-          if (DefaultMemberOf.this.getGroup() != null && DefaultMemberOf.this.getField().equals(Group.getDefaultList())) {
-          DefaultMemberOf.this.addEffectiveDeletes( MembershipFinder.internal_findAllForwardMembershipsNoPriv(_ms, children) );
-        }
-        }
-        catch (SchemaException eS) {
-          throw new IllegalStateException( eS.getMessage(), eS );
-        }
+        if (_m.getSubjectTypeId().equals("group")) {
+          Set<GroupSet> groupSetsToDelete = new LinkedHashSet<GroupSet>();
+          
+          Group memberGroup = _m.toGroup();
 
-        // And now set everything else
-        DefaultMemberOf.this.addDeletes( DefaultMemberOf.this.getEffectiveDeletes() );
+          // get the immediate group set (depth = 1)
+          GroupSet groupSet = null;
+          if (DefaultMemberOf.this.getGroup() != null) {
+            groupSet = GrouperDAOFactory.getFactory().getGroupSet()
+              .findImmediateByOwnerGroupAndMemberGroupAndField(_ms.getOwnerGroupId(), memberGroup.getUuid(), DefaultMemberOf.this.getField());
+          } else {
+            groupSet = GrouperDAOFactory.getFactory().getGroupSet()
+              .findImmediateByOwnerStemAndMemberGroupAndField(_ms.getOwnerStemId(), memberGroup.getUuid(), DefaultMemberOf.this.getField());
+          }
+
+          // Get all children of this group set
+          Set<GroupSet> childResults = GrouperDAOFactory.getFactory().getGroupSet().findAllChildren(groupSet);
+
+          groupSetsToDelete.addAll(childResults);
+          groupSetsToDelete.add(groupSet);
+
+          // Find all effective memberships that need deletion
+          if (DefaultMemberOf.this.getGroup() != null && DefaultMemberOf.this.getField().equals(Group.getDefaultList())) {
+            Set<GroupSet> groupSetIsMember = GrouperDAOFactory.getFactory().getGroupSet().findAllByMemberGroup(DefaultMemberOf.this.getGroup());
+            
+            Iterator<GroupSet> groupSetIsMemberIter = groupSetIsMember.iterator();
+            while (groupSetIsMemberIter.hasNext()) {
+              GroupSet currGroupSet = groupSetIsMemberIter.next();
+              GroupSet childToDelete = GrouperDAOFactory.getFactory().getGroupSet().findImmediateChildByParentAndMemberGroup(currGroupSet, groupSet.getMemberGroupId());
+
+              Set<GroupSet> childrenOfChildResults = GrouperDAOFactory.getFactory().getGroupSet().findAllChildren(childToDelete);
+
+              groupSetsToDelete.addAll(childrenOfChildResults);
+              groupSetsToDelete.add(childToDelete);
+            }
+          }
+
+          DefaultMemberOf.this.addEffectiveDeletes(groupSetsToDelete);
+          DefaultMemberOf.this.addDeletes(DefaultMemberOf.this.getEffectiveDeletes());
+        }
+        
         DefaultMemberOf.this.addDelete(_ms); // Delete the immediate
 
         // Fix composites
         if (DefaultMemberOf.this.getGroup() != null && DefaultMemberOf.this.getField().equals(Group.getDefaultList())) {
-          DefaultMemberOf.this.fixComposites(new LinkedHashSet(), DefaultMemberOf.this.getDeletes());
+          DefaultMemberOf.this.fixComposites(new LinkedHashSet(), DefaultMemberOf.this.getDeletes(), true);
         }
 
         DefaultMemberOf.this._identifyGroupsAndStemsWithMembershipChanges();
@@ -1098,41 +1065,13 @@ public class DefaultMemberOf extends BaseMemberOf implements GrouperCloneable {
   } // private void _evaluateDeleteImmediateMembership(s, _ms, _m)
 
   /**
-   * Find m's hasMembers
-   * @return set of memberships
+   * Find m's hasMembers which are groups
+   * @param memberGroup
+   * @return set of GroupSet
    */
-  private Set<Membership> _findMembersOfMember() {
-    Set<Membership> hasMembers = new LinkedHashSet();
-    if (this.getMember().getSubjectTypeId().equals("group")) {
-      hasMembers = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndField(
-        this.getMember().getSubjectId(), Group.getDefaultList()
-      );
-    }
-    return hasMembers;
-  } 
-
-  /**
-   * Given a group uuid, find the uuids of all of its members
-   * @param groupUUID
-   * @return set
-   * @throws IllegalStateException
-   */
-  private Set _findMemberUUIDs(String groupUUID) 
-    throws  IllegalStateException {
-    try {
-      Set       memberUUIDs = new LinkedHashSet();
-      Group  _g          = GrouperDAOFactory.getFactory().getGroup().findByUuid(groupUUID, true);
-      Iterator  it          = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndField(
-         _g.getUuid(), Group.getDefaultList() 
-      ).iterator();
-      while (it.hasNext()) {
-        memberUUIDs.add( ( (Membership) it.next() ).getMemberUuid() );  
-      }
-      return memberUUIDs;
-    }
-    catch (GroupNotFoundException eGNF) {
-      throw new IllegalStateException( eGNF.getMessage(), eGNF );
-    }
+  private Set<GroupSet> _findGroupSetsOfMember(Group memberGroup) {
+    return GrouperDAOFactory.getFactory().getGroupSet().findAllByGroupOwnerAndField(
+        memberGroup, Group.getDefaultList());
   } 
 
   /**

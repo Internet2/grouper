@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperReport.java,v 1.6 2008-12-22 05:50:42 mchyzer Exp $
+ * $Id: GrouperReport.java,v 1.7 2009-06-09 22:55:40 shilen Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -86,7 +86,7 @@ public class GrouperReport {
       result.append("environment:           ").append(GrouperConfig.getProperty("grouper.env.name")).append("\n");
       
       Long membershipCountTotal = HibernateSession.byHqlStatic().createQuery(
-        "select count(*) from Membership").uniqueResult(Long.class);
+        "select count(*) from MembershipEntry").uniqueResult(Long.class);
       result.append("memberships:           ").append(formatCommas(membershipCountTotal)).append("\n");
   
       Long groupCountTotal = HibernateSession.byHqlStatic().createQuery(
@@ -138,7 +138,7 @@ public class GrouperReport {
       result.append("WITHIN LAST DAY:\n");
       result.append("----------------\n");
       Long membershipNewCountDay = HibernateSession.byHqlStatic().createQuery(
-        "select count(*) from Membership where createTimeLong > :createTime")
+        "select count(*) from MembershipEntry where createTimeLong > :createTime or groupSetCreateTimeLong > :createTime")
         .setLong("createTime", yesterday.getTime()).uniqueResult(Long.class);
       result.append("new memberships:       ").append(formatCommas(membershipNewCountDay)).append("\n");
     

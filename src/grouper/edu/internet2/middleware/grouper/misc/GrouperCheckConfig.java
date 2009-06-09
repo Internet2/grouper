@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.26 2009-06-09 17:24:13 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.27 2009-06-09 22:55:40 shilen Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -346,7 +346,6 @@ public class GrouperCheckConfig {
     GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.dropBackupFieldNameTypeCols", true);
     GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.dropAttributeBackupTableFromGroupUpgrade", true);
     GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.disableComments", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "ddlutils.disableViews", true);
     
     GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "grouperIncludeExclude.use", true);
     GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "grouperIncludeExclude.requireGroups.use", true);

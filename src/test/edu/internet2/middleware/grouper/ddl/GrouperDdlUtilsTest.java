@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdlUtilsTest.java,v 1.19 2009-03-24 17:12:08 mchyzer Exp $
+ * $Id: GrouperDdlUtilsTest.java,v 1.20 2009-06-09 22:55:40 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -344,7 +344,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
    * @throws SchemaException 
    */
   public void testMembershipOwnerViaUpgrade() throws Exception {
-    
+    fail ("need to fix this test");
     if (GrouperDdlUtils.tableExists(GrouperDdl.BAK_GROUPER_ATTRIBUTES)) {
       GrouperDdlUtils.changeDatabase(GrouperDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
 
@@ -368,13 +368,13 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     GrouperDdlUtils.assertTablesThere(false, false);
   
     //get up to v12...  note if cols are added, they should be added pre-v12 also...
-    GrouperDdl.addMembershipOwnerViaColumns = false;
+//    GrouperDdl.addMembershipOwnerViaColumns = false;
     
     try {
       GrouperDdlUtils.bootstrapHelper(false, true, false, true, true, false, false, 
           GrouperDdlUtils.maxVersionMap(GrouperDdl.V15), false);
     }finally {
-      GrouperDdl.addMembershipOwnerViaColumns = true;
+//      GrouperDdl.addMembershipOwnerViaColumns = true;
     }
 
     //add owner id and via id

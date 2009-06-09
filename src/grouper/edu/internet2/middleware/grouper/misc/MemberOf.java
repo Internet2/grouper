@@ -21,6 +21,7 @@ import  java.util.Set;
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
@@ -34,7 +35,7 @@ import edu.internet2.middleware.grouper.Stem;
  * <b>THIS IS AN ALPHA INTERFACE THAT MAY CHANGE AT ANY TIME.</b> 
  * <p/>
  * @author  blair christensen.
- * @version $Id: MemberOf.java,v 1.2 2009-03-18 18:51:58 shilen Exp $
+ * @version $Id: MemberOf.java,v 1.3 2009-06-09 22:55:40 shilen Exp $
  * @since   1.2.0
  */
 public interface MemberOf {
@@ -140,6 +141,12 @@ public interface MemberOf {
    * @since   1.2.0
    */
   Set getDeletes();
+  
+  /**
+   * @since   1.5.0
+   * @return updates to objects
+   */
+  Set<GrouperAPI> getUpdates();
   
   /**
    * @return set of group ids that have modified memberships

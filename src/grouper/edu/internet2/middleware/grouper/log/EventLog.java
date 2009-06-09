@@ -51,7 +51,7 @@ import edu.internet2.middleware.subject.Subject;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.7 2009-03-15 06:37:24 mchyzer Exp $
+ * @version $Id: EventLog.java,v 1.8 2009-06-09 22:55:40 shilen Exp $
  */
 public class EventLog {
 
@@ -345,7 +345,11 @@ public class EventLog {
     Membership   eff;
     Iterator        iter  = effs.iterator();
     while (iter.hasNext()) {
-      eff = (Membership) iter.next();
+      Object object = iter.next();
+      if (!(object instanceof Membership)) {
+        continue;
+      }
+      eff = (Membership) object;
       if      ( eff.getListType().equals(FieldType.ACCESS.toString()) )  {
         this._eff(s, M.G_GP_E, name, subj, f, eff, "priv="); 
       }
@@ -370,7 +374,11 @@ public class EventLog {
     Membership   eff;
     Iterator        iter  = effs.iterator();
     while (iter.hasNext()) {
-      eff = (Membership) iter.next();
+      Object object = iter.next();
+      if (!(object instanceof Membership)) {
+        continue;
+      }
+      eff = (Membership) object;
       if      ( eff.getListType().equals(FieldType.ACCESS.toString()) )  {
         this._eff(s, M.G_RP_E, name, subj, f, eff, "priv="); 
       }
