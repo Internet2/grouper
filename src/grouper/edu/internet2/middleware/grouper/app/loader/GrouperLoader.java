@@ -1,10 +1,12 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoader.java,v 1.13 2009-06-09 06:18:54 mchyzer Exp $
+ * $Id: GrouperLoader.java,v 1.14 2009-06-09 17:24:13 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.regex.Matcher;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -23,6 +25,7 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -59,11 +62,13 @@ public class GrouperLoader {
         "grouper-loader.example.properties");
     
     GrouperCheckConfig.checkGrouperLoaderConfigDbs();
+    GrouperCheckConfig.checkGrouperLoaderConsumers();
     
     //this will find all schedulable groups, and schedule them
     GrouperLoaderType.scheduleLoads();
     
     scheduleMaintenanceJobs();
+    scheduleChangeLogJobs();
   }
 
   /**
@@ -170,10 +175,17 @@ public class GrouperLoader {
 
     scheduleLogCleanerJob();
     scheduleDailyReportJob();
-    scheduleChangeLogTempToChangeLogJob();
 
   }
 
+  /**
+   * schedule change log jobs
+   */
+  public static void scheduleChangeLogJobs() {
+    scheduleChangeLogTempToChangeLogJob();
+    scheduleChangeLogConsumers();
+  }
+  
   /**
    * schedule maintenance job for moving records from change log to change log temp
    */
@@ -212,7 +224,7 @@ public class GrouperLoader {
 
       Trigger trigger = grouperLoaderScheduleType.createTrigger(cronString, null);
 
-      trigger.setName("triggerMaintenance_grouperChangeLogTempToChangeLog");
+      trigger.setName("triggerChangeLog_grouperChangeLogTempToChangeLog");
 
       trigger.setPriority(priority);
 
@@ -232,7 +244,7 @@ public class GrouperLoader {
         hib3GrouploaderLog.setJobSchedulePriority(priority);
         hib3GrouploaderLog.setJobScheduleQuartzCron(cronString);
         hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());
-        hib3GrouploaderLog.setJobType(GrouperLoaderType.MAINTENANCE.name());
+        hib3GrouploaderLog.setJobType(GrouperLoaderType.CHANGE_LOG.name());
         hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
         hib3GrouploaderLog.store();
         
@@ -240,6 +252,113 @@ public class GrouperLoader {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
+
+  }
+
+  /**
+   * schedule change log consumer jobs
+   */
+  public static void scheduleChangeLogConsumers() {
+
+    //changeLog.consumer.ldappc.class = 
+    //changeLog.consumer.ldappc.quartz.cron
+    
+    //make sure sequences are ok
+    Map<String, String> consumerMap = GrouperCheckConfig.retrievePropertiesKeys("grouper-loader.properties", 
+        GrouperCheckConfig.grouperLoaderConsumerPattern);
+    
+    int index = 0;
+    
+    while (consumerMap.size() > 0) {
+      
+      //get one
+      String consumerKey = consumerMap.keySet().iterator().next();
+      //get the database name
+      Matcher matcher = GrouperCheckConfig.grouperLoaderConsumerPattern.matcher(consumerKey);
+      matcher.matches();
+      String consumerName = matcher.group(1);
+      boolean missingOne = false;
+      //now find all 4 required keys
+      String classKey = "changeLog.consumer." + consumerName + ".class";
+      if (!consumerMap.containsKey(classKey)) {
+        String error = "cannot find grouper-loader.properties key: " + classKey; 
+        System.out.println("Grouper error: " + error);
+        LOG.error(error);
+        missingOne = true;
+      }
+      String cronKey = "changeLog.consumer." + consumerName + ".quartzCron";
+
+      //check the classname
+      Class<?> theClass = null;
+      String className = consumerMap.get(classKey);
+      String cronString = consumerMap.get(cronKey);
+      
+      String jobName = GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX + consumerName;
+      
+      //this is a medium priority job
+      int priority = 5;
+
+      try {
+        if (missingOne) {
+          throw new RuntimeException("Cant find config param" );
+        }
+        
+        theClass = GrouperUtil.forName(className);
+        if (!ChangeLogConsumerBase.class.isAssignableFrom(theClass)) {
+          throw new RuntimeException("not a subclass of ChangeLogConsumerBase");
+        }
+
+        //default to every minute on the minute, though add a couple of seconds for each one
+        if (StringUtils.isBlank(cronString)) {
+          cronString = ((index * 2) % 60) + " * * * * ?";
+        }
+        //at this point we have all the attributes and we know the required ones are there, and logged when 
+        //forbidden ones are there
+        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+
+        //the name of the job must be unique, so use the group name since one job per group (at this point)
+        JobDetail jobDetail = new JobDetail(jobName, null, GrouperLoaderJob.class);
+
+        //schedule this job
+        GrouperLoaderScheduleType grouperLoaderScheduleType = GrouperLoaderScheduleType.CRON;
+
+        Trigger trigger = grouperLoaderScheduleType.createTrigger(cronString, null);
+
+        trigger.setName("triggerChangeLog_" + jobName);
+
+        trigger.setPriority(priority);
+
+        scheduler.scheduleJob(jobDetail, trigger);
+
+      } catch (Exception e) {
+
+        String errorMessage = "Could not schedule job: '" + jobName + "'";
+        LOG.error(errorMessage, e);
+        errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
+        try {
+          //lets enter a log entry so it shows up as error in the db
+          Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+          hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+          hib3GrouploaderLog.setJobMessage(errorMessage);
+          hib3GrouploaderLog.setJobName(jobName);
+          hib3GrouploaderLog.setJobSchedulePriority(priority);
+          hib3GrouploaderLog.setJobScheduleQuartzCron(cronString);
+          hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());
+          hib3GrouploaderLog.setJobType(GrouperLoaderType.CHANGE_LOG.name());
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+          hib3GrouploaderLog.store();
+          
+        } catch (Exception e2) {
+          LOG.error("Problem logging to loader db log", e2);
+        }
+
+      }
+      
+      consumerMap.remove(classKey);
+      consumerMap.remove(cronKey);
+      index++;
+    }
+      
 
   }
 

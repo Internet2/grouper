@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.25 2009-06-06 22:00:56 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.26 2009-06-09 17:24:13 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.SessionException;
@@ -795,6 +796,73 @@ public class GrouperCheckConfig {
   }
   
   /**
+   * check the grouper loader consumer configs
+   */
+  public static void checkGrouperLoaderConsumers() {
+
+    //changeLog.consumer.ldappc.class = 
+    //changeLog.consumer.ldappc.quartz.cron
+    
+    //make sure sequences are ok
+    Map<String, String> consumerMap = retrievePropertiesKeys("grouper-loader.properties", 
+        grouperLoaderConsumerPattern);
+    while (consumerMap.size() > 0) {
+      //get one
+      String consumerKey = consumerMap.keySet().iterator().next();
+      //get the database name
+      Matcher matcher = grouperLoaderConsumerPattern.matcher(consumerKey);
+      matcher.matches();
+      String consumerName = matcher.group(1);
+      boolean missingOne = false;
+      //now find all 4 required keys
+      String classKey = "changeLog.consumer." + consumerName + ".class";
+      if (!consumerMap.containsKey(classKey)) {
+        String error = "cannot find grouper-loader.properties key: " + classKey; 
+        System.out.println("Grouper error: " + error);
+        LOG.error(error);
+        missingOne = true;
+      }
+      String cronKey = "changeLog.consumer." + consumerName + ".quartzCron";
+      if (!consumerMap.containsKey(cronKey)) {
+        String error = "cannot find grouper-loader.properties key: " + cronKey; 
+        System.out.println("Grouper error: " + error);
+        LOG.error(error);
+        missingOne = true;
+      }
+      if (missingOne) {
+        return;
+      }
+      String className = consumerMap.get(classKey);
+      @SuppressWarnings("unused")
+      String cronName = consumerMap.get(cronKey);
+      
+      //check the classname
+      try {
+        
+        Class<?> theClass = GrouperUtil.forName(className);
+        if (!ChangeLogConsumerBase.class.isAssignableFrom(theClass)) {
+          String error = "class in grouper-loader.properties: " + classKey + " must extend : " 
+            + ChangeLogConsumerBase.class.getName() + " : offendingClass: " + className; 
+          System.out.println("Grouper error: " + error);
+          LOG.error(error);
+        }
+        
+      } catch (Exception e) {
+        String error = "problem finding class: " + classKey + " from grouper-loader.properties: " + className 
+          + ", " + ExceptionUtils.getFullStackTrace(e);
+        System.out.println("Grouper error: " + error);
+        LOG.error(error);
+        
+      }
+      
+      consumerMap.remove(classKey);
+      consumerMap.remove(cronKey);
+
+    }
+    
+  }
+  
+  /**
    * check the grouper config group name validators
    */
   private static void checkGrouperConfigGroupNameValidators() {
@@ -1197,6 +1265,12 @@ public class GrouperCheckConfig {
    */
   private static Pattern grouperLoaderDbPattern = Pattern.compile(
       "^db\\.(\\w+)\\.(pass|url|driver|user)$");
+  
+  /**
+   * match something like this: changeLog.consumer.ldappc.class, changeLog.consumer.ldappc.quartzCron
+   */
+  public static Pattern grouperLoaderConsumerPattern = Pattern.compile(
+      "^changeLog\\.consumer\\.(\\w+)\\.(class|quartzCron)$");
   
   /**
    * <pre>

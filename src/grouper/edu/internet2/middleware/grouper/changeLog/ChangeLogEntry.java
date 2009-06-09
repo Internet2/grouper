@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogEntry.java,v 1.7 2009-06-09 06:18:54 mchyzer Exp $
+ * $Id: ChangeLogEntry.java,v 1.8 2009-06-09 17:24:13 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -739,14 +739,22 @@ public class ChangeLogEntry extends GrouperAPI {
    */
   private synchronized static long nextSequenceNumber() {
     if (nextSequenceNumber == null) {
-      nextSequenceNumber = HibernateSession.byHqlStatic().createQuery(
-          "select max(sequenceNumber) from ChangeLogEntryEntity").uniqueResult(Long.class);
+      nextSequenceNumber = maxSequenceNumber();
       if (nextSequenceNumber == null) {
         nextSequenceNumber = 0l;
       }
     }
     //we can cache this in memory since we are the only process that is inserting into the table
     return ++nextSequenceNumber;
+  }
+
+  /**
+   * max sequence number in DB
+   * @return the max sequence number (or null if not there)
+   */
+  public static Long maxSequenceNumber() {
+    return HibernateSession.byHqlStatic().createQuery(
+        "select max(sequenceNumber) from ChangeLogEntryEntity").uniqueResult(Long.class);
   }
   
   /**

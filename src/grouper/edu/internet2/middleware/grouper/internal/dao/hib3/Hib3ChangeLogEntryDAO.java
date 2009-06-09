@@ -1,12 +1,15 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.util.List;
+
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 
 /**
  * Data Access Object for audit entry
  * @author  mchyzer
- * @version $Id: Hib3ChangeLogEntryDAO.java,v 1.5 2009-06-08 12:16:18 mchyzer Exp $
+ * @version $Id: Hib3ChangeLogEntryDAO.java,v 1.6 2009-06-09 17:24:13 mchyzer Exp $
  */
 public class Hib3ChangeLogEntryDAO extends Hib3DAO implements ChangeLogEntryDAO {
   
@@ -49,6 +52,19 @@ public class Hib3ChangeLogEntryDAO extends Hib3DAO implements ChangeLogEntryDAO 
       HibernateSession.byObjectStatic()
         .setEntityName(ChangeLogEntry.CHANGE_LOG_ENTRY_ENTITY_NAME).delete(changeLogEntry);
     }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO#retrieveBatch(long, int)
+   */
+  public List<ChangeLogEntry> retrieveBatch(long afterSequenceNumber, int batchSize) {
+    
+    List<ChangeLogEntry> changeLogEntryList = HibernateSession.byHqlStatic().createQuery(
+        "from ChangeLogEntryEntity theEntity where theEntity.sequenceNumber > :afterSequenceNumber")
+        .options(new QueryOptions().paging(batchSize, 1, false))
+        .setLong("afterSequenceNumber", afterSequenceNumber).list(ChangeLogEntry.class);
+    
+    return changeLogEntryList;
   }
 
 } 

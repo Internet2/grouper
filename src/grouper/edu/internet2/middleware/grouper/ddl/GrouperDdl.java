@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.48 2009-06-09 06:18:54 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.49 2009-06-09 17:24:13 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -3615,7 +3616,33 @@ public enum GrouperDdl implements DdlVersionable {
           "change_log_type_cat_type_idx", true, "change_log_category", "action_name");
 
     }
-    
+    {
+      Table grouperChangeLogConsumerTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
+          ChangeLogConsumer.TABLE_GROUPER_CHANGE_LOG_CONSUMER);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogConsumerTable, "name", 
+          Types.VARCHAR, "100", false, true); 
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogConsumerTable, "last_sequence_processed", 
+          Types.BIGINT, "20", false, false); 
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogConsumerTable, "last_updated", 
+          Types.BIGINT, "20", false, false); 
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogConsumerTable, "created_on", 
+          Types.BIGINT, "20", false, false); 
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogConsumerTable, "id", 
+          Types.VARCHAR, "128", true, true); 
+  
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperChangeLogConsumerTable, 
+          "hibernate_version_number", Types.INTEGER, null, false, false); 
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperChangeLogConsumerTable.getName(), 
+          "change_log_consumer_name_idx", true, "name");
+  
+    }
+
     {
       Table grouperChangeLogTempEntryTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
           ChangeLogEntry.TABLE_GROUPER_CHANGE_LOG_ENTRY_TEMP);
