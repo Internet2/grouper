@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -23,6 +24,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupTypeTupleHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupTypeTupleBean;
@@ -30,13 +32,15 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * Basic Hibernate <code>Group</code> and <code>GroupType</code> tuple DTO implementation.
  * @author  blair christensen.
- * @version $Id: GroupTypeTuple.java,v 1.10 2009-03-24 17:12:07 mchyzer Exp $
+ * @version $Id: GroupTypeTuple.java,v 1.11 2009-06-09 22:55:39 shilen Exp $
  * @since   @HEAD@
  */
 @SuppressWarnings("serial")
@@ -293,6 +297,17 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
     
+    // remove group sets
+    Set<Field> fields = FieldFinder.findAllByGroupType(this.getTypeUuid());
+    Iterator<Field> iter = fields.iterator();
+    
+    while (iter.hasNext()) {
+      Field field = iter.next();
+      if (field.isGroupListField()) {
+        GrouperDAOFactory.getFactory().getGroupSet().deleteByOwnerGroupAndField(this.getGroupUuid(), field.getUuid());
+      }
+    }
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_PRE_DELETE, HooksGroupTypeTupleBean.class, 
         this, GroupTypeTuple.class, VetoTypeGrouper.GROUP_TYPE_TUPLE_PRE_DELETE, false, false);
@@ -306,7 +321,26 @@ public class GroupTypeTuple extends GrouperAPI implements GrouperHasContext, Hib
   @Override
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
+      
+    // add group sets
+    Set<Field> fields = FieldFinder.findAllByGroupType(this.getTypeUuid());
+    Iterator<Field> iter = fields.iterator();
     
+    while (iter.hasNext()) {
+      Field field = iter.next();
+      
+      if (field.isGroupListField()) {
+        GroupSet groupSet = new GroupSet();
+        groupSet.setId(GrouperUuid.getUuid());
+        groupSet.setCreatorId(GrouperSession.staticGrouperSession().getMemberUuid());
+        groupSet.setDepth(0);
+        groupSet.setMemberGroupId(this.getGroupUuid());
+        groupSet.setOwnerGroupId(this.getGroupUuid());
+        groupSet.setParentId(groupSet.getId());
+        groupSet.setFieldId(field.getUuid());
+        GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
+      }
+    }
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP_TYPE_TUPLE, 
         GroupTypeTupleHooks.METHOD_GROUP_TYPE_TUPLE_PRE_INSERT, HooksGroupTypeTupleBean.class, 

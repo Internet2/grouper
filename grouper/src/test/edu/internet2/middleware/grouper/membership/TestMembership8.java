@@ -345,7 +345,6 @@ public class TestMembership8 extends GrouperTest {
     goodGroups.add(gD);
 
     MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-    Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
   }
 
   public void deleteMemberships() throws Exception {

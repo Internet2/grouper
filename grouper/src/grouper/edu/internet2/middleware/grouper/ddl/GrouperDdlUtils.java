@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.41 2009-06-05 12:32:56 shilen Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.42 2009-06-09 22:55:39 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1332,9 +1332,10 @@ public class GrouperDdlUtils {
           + " for db view: " + viewName);
     }
 
-    if (GrouperConfig.getPropertyBoolean("ddlutils.disableViews", false)) {
-      return;
-    }
+    // views are required now
+    // if (GrouperConfig.getPropertyBoolean("ddlutils.disableViews", false)) {
+    //  return;
+    // }
     
     //if this is postgres, we need to drop first because if the number of columns change, it bombs
     //if (ddlVersionBean.isPostgres()) {

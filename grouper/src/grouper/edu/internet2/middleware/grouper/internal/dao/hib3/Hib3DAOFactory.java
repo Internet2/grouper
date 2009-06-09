@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.internal.dao.ChangeLogTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
 import edu.internet2.middleware.grouper.internal.dao.FieldDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
+import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.GroupTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.MemberDAO;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
@@ -40,7 +41,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAOFactory.java,v 1.10 2009-06-09 17:24:13 mchyzer Exp $
+ * @version $Id: Hib3DAOFactory.java,v 1.11 2009-06-09 22:55:39 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3DAOFactory extends GrouperDAOFactory {
@@ -187,12 +188,19 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   }
 
   /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getGroupSet()
+   */
+  @Override
+  public GroupSetDAO getGroupSet() {
+    return new Hib3GroupSetDAO();
+  }
+
+  /**
    * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getChangeLogConsumer()
    */
   @Override
   public ChangeLogConsumerDAO getChangeLogConsumer() {
     return new Hib3ChangeLogConsumerDAO();
   }
-
 } 
 

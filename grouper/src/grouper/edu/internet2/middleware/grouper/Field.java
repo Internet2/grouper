@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -28,6 +29,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.FieldHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksFieldBean;
@@ -35,6 +37,8 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -45,7 +49,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Reference to members list is: Group.getDefaultList()
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.42 2009-04-13 16:53:08 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.43 2009-06-09 22:55:39 shilen Exp $    
  */
 public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -495,6 +499,17 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
     
+    // remove group sets
+    if (this.isGroupListField()) {
+      Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().findAllByType(this.getGroupType());
+      Iterator<Group> iter = groups.iterator();
+      
+      while (iter.hasNext()) {
+        Group group = iter.next();
+        GrouperDAOFactory.getFactory().getGroupSet().deleteByOwnerGroupAndField(group.getUuid(), this.getUuid());  
+      }
+    }
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.FIELD, 
         FieldHooks.METHOD_FIELD_PRE_DELETE, HooksFieldBean.class, 
         this, Field.class, VetoTypeGrouper.FIELD_PRE_DELETE, false, false);
@@ -509,6 +524,25 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
     
+    // add group sets
+    if (this.isGroupListField()) {
+      Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().findAllByType(this.getGroupType());
+      Iterator<Group> iter = groups.iterator();
+      
+      while (iter.hasNext()) {
+        Group group = iter.next();
+        GroupSet groupSet = new GroupSet();
+        groupSet.setId(GrouperUuid.getUuid());
+        groupSet.setCreatorId(GrouperSession.staticGrouperSession().getMemberUuid());
+        groupSet.setDepth(0);
+        groupSet.setMemberGroupId(group.getUuid());
+        groupSet.setOwnerGroupId(group.getUuid());
+        groupSet.setParentId(groupSet.getId());
+        groupSet.setFieldId(this.getUuid());
+        GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);   
+      }
+    }
+
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.FIELD, 
         FieldHooks.METHOD_FIELD_PRE_INSERT, HooksFieldBean.class, 

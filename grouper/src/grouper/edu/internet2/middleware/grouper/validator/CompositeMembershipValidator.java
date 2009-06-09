@@ -23,7 +23,7 @@ import edu.internet2.middleware.grouper.Membership;
  * A member of a group (aka composite member) has either or both of
  * an immediate (direct) membership, or an effective (indirect) membership
  * @author  blair christensen.
- * @version $Id: CompositeMembershipValidator.java,v 1.2 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: CompositeMembershipValidator.java,v 1.3 2009-06-09 22:55:40 shilen Exp $
  * @since   1.2.0
  */
 public class CompositeMembershipValidator extends MembershipValidator {
@@ -56,9 +56,6 @@ public class CompositeMembershipValidator extends MembershipValidator {
     }
     else if ( _ms.getViaGroupId() != null )                      { // must have a via
       v.setErrorMessage(INVALID_VIAUUID);
-    }
-    else if ( _ms.getParentUuid() != null )                   { // must not have a parent
-      v.setErrorMessage(INVALID_PARENTUUID);
     }
     else {
       // Perform generic Membership validation

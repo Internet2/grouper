@@ -117,7 +117,6 @@ public class TestMembership7 extends TestCase {
       verifyMemberships();
 
       MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
 
       // clear out memberships
       gA.deleteMember(gB.toSubject());
@@ -153,7 +152,6 @@ public class TestMembership7 extends TestCase {
       verifyMemberships();
 
       MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
   
       // clear out memberships
       gA.deleteMember(gB.toSubject());
@@ -189,7 +187,6 @@ public class TestMembership7 extends TestCase {
       verifyMemberships();
   
       MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
 
       // clear out memberships
       gA.deleteMember(gB.toSubject());
@@ -225,7 +222,6 @@ public class TestMembership7 extends TestCase {
       verifyMemberships();
 
       MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
   
       // clear out memberships
       gA.deleteMember(gB.toSubject());
@@ -261,7 +257,6 @@ public class TestMembership7 extends TestCase {
       verifyMemberships();
 
       MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
   
       // clear out memberships
       gA.deleteMember(gB.toSubject());
@@ -297,7 +292,6 @@ public class TestMembership7 extends TestCase {
       verifyMemberships();
 
       MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
   
       // clear out memberships
       gA.deleteMember(gB.toSubject());
@@ -333,7 +327,6 @@ public class TestMembership7 extends TestCase {
       verifyMemberships();
 
       MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
   
       // clear out memberships
       gA.deleteMember(gB.toSubject());
@@ -369,7 +362,6 @@ public class TestMembership7 extends TestCase {
       verifyMemberships();
 
       MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
  
       // clear out memberships
       gA.deleteMember(gB.toSubject());
@@ -405,7 +397,6 @@ public class TestMembership7 extends TestCase {
       verifyMemberships();
 
       MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
     
       // clear out memberships
       gA.deleteMember(gB.toSubject());

@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.16 2009-04-14 07:41:24 mchyzer Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.17 2009-06-09 22:55:39 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
@@ -348,7 +348,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     Set<String> memberUuids = HibernateSession.byHqlStatic()
     .createQuery("select distinct theMember.uuid " +
     		"from Member theMember, " +
-        "Membership theMembership, Membership theMembership2 " +
+        "MembershipEntry theMembership, MembershipEntry theMembership2 " +
         "where theMembership.ownerGroupId = :group1uuid " +
         "and theMembership2.ownerGroupId = :group2uuid " +
         "and theMember.uuid = theMembership.memberUuid " +
@@ -370,7 +370,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     Set<String> memberUuids = HibernateSession.byHqlStatic()
     .createQuery("select distinct theMember.uuid " +
         "from Member theMember, " +
-        "Membership theMembership " +
+        "MembershipEntry theMembership " +
         "where theMembership.ownerGroupId in (:group1uuid, " +
         " :group2uuid) " +
         "and theMember.uuid = theMembership.memberUuid " +
@@ -389,11 +389,11 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   public Set<String> _internal_membersComplement(String groupUuid1, String groupUuid2) {
     Set<String> memberUuids = HibernateSession.byHqlStatic()
     .createQuery("select distinct theMember.uuid from Member theMember, " +
-        "Membership theMembership " +
+        "MembershipEntry theMembership " +
         "where theMembership.ownerGroupId = :group1uuid " +
         "and theMember.uuid = theMembership.memberUuid " +
         "and theMembership.fieldId = :fuuid " +
-        "and not exists (select theMembership2.memberUuid from Membership theMembership2 " +
+        "and not exists (select theMembership2.memberUuid from MembershipEntry theMembership2 " +
         "where theMembership2.memberUuid = theMember.uuid and theMembership2.fieldId = :fuuid " +
         "and theMembership2.ownerGroupId = :group2uuid) ")
         .setString("group1uuid", groupUuid1)

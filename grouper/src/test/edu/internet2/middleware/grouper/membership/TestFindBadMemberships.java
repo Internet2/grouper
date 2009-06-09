@@ -64,6 +64,7 @@ public class TestFindBadMemberships extends GrouperTest {
 
   public void testFindBadMemberships0() {
     LOG.info("testFindBadMemberships0");
+    fail("need to fix this test");
     try {
       R r = R.populateRegistry(1, 12, 1);
       Group gA = r.getGroup("a", "a");
@@ -117,7 +118,7 @@ public class TestFindBadMemberships extends GrouperTest {
           gE.toSubject(), gD, 4, Group.getDefaultList());
       Membership gCgI = MembershipTestHelper.findEffectiveMembership(r.rs, gI, 
           gC.toSubject(), gH, 1, Group.getDefaultList());
-      String gEgIParent = gEgI.getParentUuid();
+//      String gEgIParent = gEgI.getParentUuid();
       DefaultMemberOf mof = new DefaultMemberOf();
       mof.addDelete(gEgI);
       GrouperDAOFactory.getFactory().getMembership().update(mof);
@@ -127,7 +128,7 @@ public class TestFindBadMemberships extends GrouperTest {
 
       // gE -> gI gets added back with the wrong parent uuid.
       gEgI.setHibernateVersionNumber(-1L);
-      gEgI.setParentUuid(gCgI.getUuid());
+//      gEgI.setParentUuid(gCgI.getUuid());
       mof = new DefaultMemberOf();
       mof.addSave(gEgI);
       GrouperDAOFactory.getFactory().getMembership().update(mof);
@@ -140,7 +141,7 @@ public class TestFindBadMemberships extends GrouperTest {
       mof.addDelete(gEgI);
       GrouperDAOFactory.getFactory().getMembership().update(mof);
       gEgI.setHibernateVersionNumber(-1L);
-      gEgI.setParentUuid(gEgIParent);
+//      gEgI.setParentUuid(gEgIParent);
       gEgI.setViaGroupId(gC.getUuid());
       mof = new DefaultMemberOf();
       mof.addSave(gEgI);
@@ -444,7 +445,6 @@ public class TestFindBadMemberships extends GrouperTest {
   
       MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
       MembershipTestHelper.checkBadStemMemberships("All should be good", goodStems, badStems);
-      Assert.assertEquals("There should not be any invalid memberships", 0, FindBadMemberships.checkMembershipsWithInvalidOwners());
   
       // gD -> gH gets deleted
       Membership gDgH = MembershipTestHelper.findEffectiveMembership(r.rs, gH, 

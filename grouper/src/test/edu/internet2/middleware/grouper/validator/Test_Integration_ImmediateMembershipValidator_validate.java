@@ -33,7 +33,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.3 2009-04-14 07:41:24 mchyzer Exp $
+ * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.4 2009-06-09 22:55:40 shilen Exp $
  * @since   1.2.0
  */
 public class Test_Integration_ImmediateMembershipValidator_validate extends GrouperTest {
@@ -105,7 +105,6 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       Membership _ms = new Membership();
       _ms.setType(Membership.IMMEDIATE);
       _ms.setDepth(0);
-      _ms.setParentUuid(null);
       _ms.setFieldId(FieldFinder.findFieldId("members", 
           FieldType.LIST.getType(), true));
       _ms.setOwnerGroupId( g.getUuid() );
@@ -132,7 +131,6 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       Membership _ms = new Membership();
       _ms.setType(Membership.IMMEDIATE);
       _ms.setDepth(0);
-      _ms.setParentUuid(null);
       _ms.setFieldId(FieldFinder.findFieldId("members", 
           FieldType.LIST.getType(), true));
       _ms.setOwnerGroupId( g.getUuid() );
@@ -158,7 +156,6 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       Membership _ms = new Membership();
       _ms.setType(Membership.IMMEDIATE);
       _ms.setDepth(0);
-      _ms.setParentUuid(null);
       _ms.setFieldId(FieldFinder.findFieldId("members", 
           FieldType.LIST.getType(), true));
       _ms.setOwnerGroupId( g.getUuid() );
@@ -207,7 +204,6 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       Membership _ms = new Membership();
       _ms.setType(Membership.IMMEDIATE);
       _ms.setDepth(0);
-      _ms.setParentUuid(null);
       _ms.setFieldId(FieldFinder.findFieldId("members", 
           FieldType.LIST.getType(), true));
       _ms.setOwnerGroupId( g.getUuid() );

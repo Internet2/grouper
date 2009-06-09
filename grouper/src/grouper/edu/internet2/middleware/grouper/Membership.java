@@ -18,11 +18,9 @@
 package edu.internet2.middleware.grouper;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import net.sf.ehcache.Element;
@@ -68,13 +66,10 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
-import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -88,7 +83,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.120 2009-04-14 07:41:24 mchyzer Exp $
+ * @version $Id: Membership.java,v 1.121 2009-06-09 22:55:39 shilen Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -137,6 +132,12 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   /** constant for field name for: creatorUUID */
   public static final String FIELD_CREATOR_UUID = "creatorUUID";
 
+  /** constant for field name for: groupSetCreateTimeLong */
+  public static final String FIELD_GROUP_SET_CREATE_TIME_LONG = "groupSetCreateTimeLong";
+
+  /** constant for field name for: groupSetCreatorUUID */
+  public static final String FIELD_GROUP_SET_CREATOR_UUID = "groupSetCreatorUUID";
+  
   /** constant for field name for: dbVersion */
   public static final String FIELD_DB_VERSION = "dbVersion";
 
@@ -155,14 +156,20 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   /** constant for field name for: ownerStemId */
   public static final String FIELD_OWNER_STEM_ID = "ownerStemId";
 
-  /** constant for field name for: parentUUID */
-  public static final String FIELD_PARENT_UUID = "parentUUID";
+  /** constant for field name for: ownerGroupIdNull */
+  public static final String FIELD_OWNER_GROUP_ID_NULL = "ownerGroupIdNull";
+
+  /** constant for field name for: ownerStemIdNull */
+  public static final String FIELD_OWNER_STEM_ID_NULL = "ownerStemIdNull";
 
   /** constant for field name for: type */
   public static final String FIELD_TYPE = "type";
 
   /** constant for field name for: uuid */
   public static final String FIELD_UUID = "uuid";
+  
+  /** constant for field name for: groupSetId */
+  public static final String FIELD_GROUP_SET_ID = "groupSetId";
 
   /** constant for field name for: viaCompositeId */
   public static final String FIELD_VIA_COMPOSITE_ID = "viaCompositeId";
@@ -170,13 +177,18 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   /** constant for field name for: viaGroupId */
   public static final String FIELD_VIA_GROUP_ID = "viaGroupId";
 
+  /** constant for field name for: groupSetParentId */
+  public static final String FIELD_GROUPSET_PARENT_ID = "groupSetParentId";
+
   /**
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DEPTH, FIELD_FIELD_ID, 
-      FIELD_MEMBER_UUID, FIELD_OWNER_GROUP_ID, FIELD_OWNER_STEM_ID, FIELD_PARENT_UUID, 
-      FIELD_TYPE, FIELD_UUID, FIELD_VIA_COMPOSITE_ID, FIELD_VIA_GROUP_ID);
+      FIELD_MEMBER_UUID, FIELD_OWNER_GROUP_ID, FIELD_OWNER_STEM_ID, 
+      FIELD_TYPE, FIELD_UUID, FIELD_VIA_COMPOSITE_ID, FIELD_VIA_GROUP_ID,
+      FIELD_GROUP_SET_CREATE_TIME_LONG, FIELD_GROUP_SET_CREATOR_UUID, FIELD_GROUP_SET_ID,
+      FIELD_OWNER_GROUP_ID_NULL, FIELD_OWNER_STEM_ID_NULL, FIELD_GROUPSET_PARENT_ID);
 
   /**
    * fields which are included in clone method
@@ -184,8 +196,10 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DB_VERSION, FIELD_DEPTH, 
       FIELD_FIELD_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MEMBER_UUID, FIELD_OWNER_GROUP_ID, 
-      FIELD_OWNER_STEM_ID, FIELD_PARENT_UUID, FIELD_TYPE, FIELD_UUID, 
-      FIELD_VIA_COMPOSITE_ID, FIELD_VIA_GROUP_ID);
+      FIELD_OWNER_STEM_ID, FIELD_TYPE, FIELD_UUID, 
+      FIELD_VIA_COMPOSITE_ID, FIELD_VIA_GROUP_ID, FIELD_GROUP_SET_CREATE_TIME_LONG, 
+      FIELD_GROUP_SET_CREATOR_UUID, FIELD_GROUP_SET_ID, FIELD_OWNER_GROUP_ID_NULL,
+      FIELD_OWNER_STEM_ID_NULL, FIELD_GROUPSET_PARENT_ID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
@@ -240,6 +254,11 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   public static final String IMMEDIATE = "immediate";
 
 
+  /**
+   * the value we're storing in the db for nulls that need a value so that we can add a unique constraint.
+   */
+  public static final String nullColumnValue = "<NULL>";
+
   /** */
   private static final EventLog EL = new EventLog();
   
@@ -256,6 +275,14 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
 
   /** */
   private String  creatorUUID;
+  
+
+  /** create time for group set entry if this is an effective membership */
+  private long groupSetCreateTimeLong;
+  
+  /** creator uuid for group set entry if this is an effective membership */
+  private String groupSetCreatorUUID;
+  
 
   /** */
   private int     depth       = 0;                              // reasonable default
@@ -279,8 +306,20 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    */
   private String ownerStemId;
   
-  /** */
-  private String  parentUUID  = null;                           // reasonable default
+  /**
+   * group set parent id
+   */
+  private String groupSetParentId;
+
+  /** 
+   * if group membership, this is the group id. Otherwise, this is a constant string.
+   */
+  private String ownerGroupIdNull = Membership.nullColumnValue;
+
+  /** 
+   * if stem membership, this is the stem id.  Otherwise, this is a constant string.
+   */
+  private String ownerStemIdNull = Membership.nullColumnValue;
 
   /** either composite, immediate, effective */
   private String  type        = Membership.IMMEDIATE;           // reasonable default
@@ -312,6 +351,10 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   /** */
   private String  uuid        = GrouperUuid.getUuid(); // reasonable default
 
+  /** group set id if this is an effective membership */
+  private String groupSetId;
+  
+
   /** */
   private String  viaGroupId     = null; 
 
@@ -341,17 +384,22 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   /**
    * 
    */
-  public static final String COLUMN_VIA_GROUP_ID = "via_group_id";
-
+  public static final String COLUMN_OWNER_STEM_ID = "owner_stem_id";
+  
   /**
    * 
    */
-  public static final String COLUMN_OWNER_STEM_ID = "owner_stem_id";
+  public static final String COLUMN_OWNER_STEM_ID_NULL = "owner_stem_id_null";
 
   /**
    * 
    */
   public static final String COLUMN_OWNER_GROUP_ID = "owner_group_id";
+  
+  /**
+   * 
+   */
+  public static final String COLUMN_OWNER_GROUP_ID_NULL = "owner_group_id_null";
 
   /**
    * 
@@ -362,6 +410,31 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * 
    */
   public static final String COLUMN_VIA_ID = "via_id";
+  
+  /**
+   * 
+   */
+  public static final String COLUMN_DEPTH = "depth";
+  
+  /**
+   * 
+   */
+  public static final String COLUMN_DEPTH_BAK = "depth_bak";
+
+  /**
+   * 
+   */
+  public static final String COLUMN_PARENT_MEMBERSHIP = "parent_membership";
+  
+  /**
+   * 
+   */
+  public static final String COLUMN_PARENT_MEMBERSHIP_BAK = "parent_membership_bak";
+  
+  /**
+   * 
+   */
+  public static final String COLUMN_MEMBER_ID = "member_id";
 
   /** 
    * Get child memberships of this membership. 
@@ -384,6 +457,23 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     );
   } // public Set getChildMemberships()
 
+
+  
+  /**
+   * @return group set parent id
+   */
+  public String getGroupSetParentId() {
+    return groupSetParentId;
+  }
+
+  
+  /**
+   * @param groupSetParentId
+   */
+  public void setGroupSetParentId(String groupSetParentId) {
+    this.groupSetParentId = groupSetParentId;
+  }
+  
   /**
    * @return create time
    * @since   1.2.0
@@ -556,11 +646,10 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   public Membership getParentMembership() 
     throws MembershipNotFoundException
   {
-    String uuid = this.getParentUuid();
-    if (uuid == null) {
+    if (depth == 0) {
       throw new MembershipNotFoundException("no parent");
     }
-    Membership parent = GrouperDAOFactory.getFactory().getMembership().findByUuid(uuid, true) ;
+    Membership parent = GrouperDAOFactory.getFactory().getMembership().findParentMembership(this) ;
     return parent;
   } // public Membership getParentMembership()
 
@@ -1063,7 +1152,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       .append( this.ownerStemId,  that.ownerStemId  )
       .append( this.viaGroupId,    that.viaGroupId    )
       .append( this.viaCompositeId,    that.viaCompositeId    )
-      .append( this.parentUUID,    that.parentUUID    )
+      .append( this.groupSetId,    that.groupSetId    )
       .isEquals();
   } 
 
@@ -1121,13 +1210,20 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     return this.memberUUID;
   }
 
-  /**
-   * @return parent uuid
-   * @since   1.2.0
-   */
-  public String getParentUuid() {
-    return this.parentUUID;
   
+  /**
+   * @return string
+   */
+  public String getGroupSetId() {
+    return groupSetId;
+  }
+
+  
+  /**
+   * @param groupSetId
+   */
+  public void setGroupSetId(String groupSetId) {
+    this.groupSetId = groupSetId;
   }
 
   /**
@@ -1142,7 +1238,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       .append( this.ownerStemId  )
       .append( this.viaGroupId    )
       .append( this.viaCompositeId    )
-      .append( this.parentUUID    )
+      .append( this.groupSetId    )
       .toHashCode();
   } // public int hashCode()
 
@@ -1178,6 +1274,37 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     this.creatorUUID = creatorUUID;
   
   }
+  
+  /**
+   * @return long
+   */
+  public long getGroupSetCreateTimeLong() {
+    return groupSetCreateTimeLong;
+  }
+
+  
+  /**
+   * @param groupSetCreateTimeLong
+   */
+  public void setGroupSetCreateTimeLong(long groupSetCreateTimeLong) {
+    this.groupSetCreateTimeLong = groupSetCreateTimeLong;
+  }
+
+  
+  /**
+   * @return string
+   */
+  public String getGroupSetCreatorUuid() {
+    return groupSetCreatorUUID;
+  }
+
+  
+  /**
+   * @param groupSetCreatorUUID
+   */
+  public void setGroupSetCreatorUuid(String groupSetCreatorUUID) {
+    this.groupSetCreatorUUID = groupSetCreatorUUID;
+  }
 
   /**
    * @param depth 
@@ -1203,15 +1330,6 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    */
   public void setMemberUuid(String memberUUID) {
     this.memberUUID = memberUUID;
-  
-  }
-
-  /**
-   * @param parentUUID 
-   * @since   1.2.0
-   */
-  public void setParentUuid(String parentUUID) {
-    this.parentUUID = parentUUID;
   
   }
 
@@ -1279,7 +1397,6 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       .append( "memberUuid",  this.getMemberUuid()  )
       .append( "groupId",   this.getOwnerGroupId()   )
       .append( "stemId",   this.getOwnerStemId()   )
-      .append( "parentUuid",  this.getParentUuid()  )
       .append( "type",        this.getType()        )
       .append( "uuid",        this.getUuid()        )
       .append( "viaGroupId",     this.getViaGroupId()     )
@@ -1438,6 +1555,11 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    */
   public void setOwnerGroupId(String groupId1) {
     this.ownerGroupId = groupId1;
+    
+    setOwnerGroupIdNull(ownerGroupId);
+    if (ownerGroupId == null) {
+      setOwnerGroupIdNull(Membership.nullColumnValue);
+    }
   }
 
 
@@ -1455,6 +1577,11 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    */
   public void setOwnerStemId(String stemId1) {
     this.ownerStemId = stemId1;
+    
+    setOwnerStemIdNull(ownerStemId);
+    if (ownerStemId == null) {
+      setOwnerStemIdNull(Membership.nullColumnValue);
+    }
   }
 
   /** context id of the transaction */
@@ -1476,4 +1603,38 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     this.contextId = contextId1;
   }
   
+  /**
+   * This is for internal use only.  This is the same as getOwnerStemId() except nulls are replaced with
+   * a constant string.
+   * @return stem id for the owner if this is a stem membership
+   */
+  public String getOwnerStemIdNull() {
+    return ownerStemIdNull;
+  }
+
+  /**
+   * Set stem id for the owner if this is a stem membership.  This is for internal use only.
+   * @param ownerStemIdNull
+   */
+  public void setOwnerStemIdNull(String ownerStemIdNull) {
+    this.ownerStemIdNull = ownerStemIdNull;
+  }
+  
+  /**
+   * This is for internal use only.  This is the same as getOwnerGroupId() except nulls are replaced with
+   * a constant string.
+   * @return group id for the owner if this is a group membership
+   */
+  public String getOwnerGroupIdNull() {
+    return ownerGroupIdNull;
+  }
+
+  
+  /**
+   * Set group id for the owner if this is a group membership.  This is for internal use only.
+   * @param ownerGroupIdNull
+   */
+  public void setOwnerGroupIdNull(String ownerGroupIdNull) {
+    this.ownerGroupIdNull = ownerGroupIdNull;
+  }
 }

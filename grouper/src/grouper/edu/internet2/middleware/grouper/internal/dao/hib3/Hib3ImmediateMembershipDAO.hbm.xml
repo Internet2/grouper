@@ -20,42 +20,47 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.14 2009-06-09 22:55:39 shilen Exp $ -->
+<!-- $Id: Hib3ImmediateMembershipDAO.hbm.xml,v 1.1 2009-06-09 22:55:39 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
 
   <!-- note: optimistic-lock defaults to version, but will be dynamically replaced
     based on the grouper.properties, so dont remove that attribute  -->
   <!-- TODO 20070124 revisit the batch-size setting now that i've completely altered this mapping -->
-  <class name="Membership" table="grouper_memberships_all_v" batch-size="5" optimistic-lock="version" entity-name="MembershipEntry">
+  <class name="Membership" table="grouper_memberships" batch-size="5" optimistic-lock="version" entity-name="ImmediateMembershipEntry">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>
 
     <cache usage="read-write"/>
-    
-    <composite-id>
-      <key-property name="uuid" type="string" column="membership_id" />
-      <key-property name="groupSetId" type="string" column="group_set_id" />    
-    </composite-id>
-    
+
+    <!-- id -->
+    <id name="uuid" 
+        column="id"
+        type="string"
+        unsaved-value="none"
+        length="128"
+    >
+      <generator class="assigned" />
+    </id>
+    <!-- id -->
+
     <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
-    <version name="hibernateVersionNumber" type="long" column="hibernate_version_number" />
-    
+    <version name="hibernateVersionNumber" type="long" column="hibernate_version_number"/>
+
     <property name="ownerGroupId" type="string" column="owner_group_id" />
+    <property name="ownerGroupIdNull" type="string" column="owner_group_id_null" />
     <property name="ownerStemId" type="string" column="owner_stem_id" />
+    <property name="ownerStemIdNull" type="string" column="owner_stem_id_null" />
+    
     <property name="memberUuid" type="string" column="member_id" />
     <property name="fieldId" type="string" column="field_id" />
-    <property name="viaCompositeId" type="string" column="via_composite_id" />
-    <property name="creatorUuid" type="string" column="membership_creator_id" />
-    <property name="createTimeLong" type="long" column="membership_create_time" />
-    <property name="groupSetCreatorUuid" type="string" column="groupset_creator_id" />
-    <property name="groupSetCreateTimeLong" type="long" column="groupset_create_time" />
-    <property name="contextId" column="context_id" />
-    <property name="groupSetParentId" column="groupset_parent_id" />
-    <property name="viaGroupId" type="string" column="via_group_id" />
-    <property name="depth" type="integer" column="depth" />
     <property name="type" type="string" column="mship_type" />
+    <property name="viaCompositeId" type="string" column="via_composite_id" />
+    <property name="creatorUuid" type="string" column="creator_id" />
+    <property name="createTimeLong" type="long" column="create_time" />
+    <property name="contextId" column="context_id" />
+
   </class>
 </hibernate-mapping>
 
