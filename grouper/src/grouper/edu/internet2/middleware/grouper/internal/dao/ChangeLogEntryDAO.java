@@ -1,8 +1,10 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogEntryDAO.java,v 1.3 2009-06-08 12:16:18 mchyzer Exp $
+ * $Id: ChangeLogEntryDAO.java,v 1.4 2009-06-09 17:24:13 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
+
+import java.util.List;
 
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 
@@ -24,4 +26,11 @@ public interface ChangeLogEntryDAO extends GrouperDAO {
    */
   public void delete(ChangeLogEntry changeLogEntry);
   
+  /**
+   * get the change log records after a sequence number, not including the sequence number
+   * @param afterSequenceNumber
+   * @param batchSize is the size of the batch
+   * @return the records
+   */
+  public List<ChangeLogEntry> retrieveBatch(long afterSequenceNumber, int batchSize);
 }

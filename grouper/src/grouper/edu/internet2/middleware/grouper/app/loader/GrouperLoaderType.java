@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.18 2009-06-09 06:18:54 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.19 2009-06-09 17:24:13 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -39,6 +39,10 @@ import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderResultset.Row;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
@@ -47,6 +51,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperReport;
 import edu.internet2.middleware.grouper.misc.GrouperReportException;
 import edu.internet2.middleware.grouper.misc.SaveMode;
@@ -215,13 +220,6 @@ public enum GrouperLoaderType {
           
           hib3GrouploaderLog.setJobMessage("Ran the grouper report, isRunUnresolvable: " 
               + isRunUsdu + ", isRunBadMembershipFinder: " + isRunBadMember + ", sent to: " + emailTo);
-          
-          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
-        } else if (StringUtils.equals(GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG, hib3GrouploaderLog.getJobName())) {
-
-          ChangeLogTempToEntity.convertRecords(hib3GrouploaderLog);
-
-          hib3GrouploaderLog.setJobMessage("Ran the changeLogTempToChangeLog daemon");
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
         } else {
@@ -570,7 +568,112 @@ public enum GrouperLoaderType {
           hib3GrouploaderLogOverall.setStatus(statusOverall.name());
         }
       }
-    };
+    }, 
+    
+    /** 
+     * various change log jobs on the system
+     */
+    CHANGE_LOG {
+          
+          /**
+           * 
+           * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeRequired(java.lang.String)
+           */
+          @Override
+          public boolean attributeRequired(String attributeName) {
+            return false;
+          }
+      
+          /**
+           * 
+           * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeOptional(java.lang.String)
+           */
+          @Override
+          public boolean attributeOptional(String attributeName) {
+            return false;
+          }
+          
+          /**
+           * sync up a group membership based on query and db
+           * @param loaderJobBean
+           */
+          @SuppressWarnings("unchecked")
+          @Override
+          public void syncGroupMembership(LoaderJobBean loaderJobBean) {
+            
+            Hib3GrouperLoaderLog hib3GrouploaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
+            
+            if (StringUtils.equals(GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG, hib3GrouploaderLog.getJobName())) {
+    
+              ChangeLogTempToEntity.convertRecords(hib3GrouploaderLog);
+    
+              hib3GrouploaderLog.setJobMessage("Ran the changeLogTempToChangeLog daemon");
+              
+              hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+            } else if (hib3GrouploaderLog.getJobName().startsWith(GROUPER_CHANGE_LOG_CONSUMER_PREFIX)) {
+              
+              String consumerName = GrouperUtil.stripStart(hib3GrouploaderLog.getJobName(), GROUPER_CHANGE_LOG_CONSUMER_PREFIX);
+              ChangeLogConsumer changeLogConsumer = GrouperDAOFactory.getFactory().getChangeLogConsumer().findByName(consumerName, false);
+              
+              //if this is a new job
+              if (changeLogConsumer == null) {
+                changeLogConsumer = new ChangeLogConsumer();
+                changeLogConsumer.setName(consumerName);
+                GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
+              }
+              
+              //if the sequence number is not set
+              if (changeLogConsumer.getLastSequenceProcessed() == null) {
+                changeLogConsumer.setLastSequenceProcessed(GrouperUtil.defaultIfNull(ChangeLogEntry.maxSequenceNumber(), 0l));
+                GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
+              }
+              
+              //ok, we have the sequence, and the job name, lets get the change log records after that sequence, and give them to the 
+              //consumer
+              String theClassName = GrouperLoaderConfig.getPropertyString("changeLog.consumer." + consumerName + ".class");
+              Class<?> theClass = GrouperUtil.forName(theClassName);
+              ChangeLogConsumerBase changeLogConsumerBase = (ChangeLogConsumerBase)GrouperUtil.newInstance(theClass);
+              
+              ChangeLogProcessorMetadata changeLogProcessorMetadata = new ChangeLogProcessorMetadata();
+              changeLogProcessorMetadata.setHib3GrouperLoaderLog(hib3GrouploaderLog);
+              
+              //lets only do 100k records at a time
+              for (int i=0;i<1000;i++) {
+                
+                //lets get 100 records
+                List<ChangeLogEntry> changeLogEntryList = GrouperDAOFactory.getFactory().getChangeLogEntry()
+                  .retrieveBatch(changeLogConsumer.getLastSequenceProcessed(), 100);
+                
+                if (changeLogEntryList.size() == 0) {
+                  break;
+                }
+                
+                //pass this to the consumer
+                long lastProcessed = changeLogConsumerBase.processChangeLogEntries(changeLogEntryList, changeLogProcessorMetadata);
+                
+                changeLogConsumer.setLastSequenceProcessed(lastProcessed);
+                GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
+                
+                long lastSequenceInBatch = changeLogEntryList.get(changeLogEntryList.size()-1).getSequenceNumber();
+                if (lastProcessed != lastSequenceInBatch) {
+                  hib3GrouploaderLog.appendJobMessage("Did not get all the way through the batch! " + lastProcessed
+                      + " != " + lastSequenceInBatch);
+                  hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+                  //didnt get al the way through
+                  break;
+                }
+                
+                if (changeLogEntryList.size() < 100) {
+                  break;
+                }
+              }
+              
+            } else {
+              throw new RuntimeException("Cant find implementation for job: " + hib3GrouploaderLog.getJobName());
+            }
+            
+          }
+        };
   
   /**
    * if this job name is for this type
@@ -606,10 +709,18 @@ public enum GrouperLoaderType {
   public static final String GROUPER_REPORT = GrouperLoaderType.MAINTENANCE.name() + "_grouperReport";
 
   /**
-   * maintenance clean log temp to change log
+   * change log temp to change log
    */
-  public static final String GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG = GrouperLoaderType.MAINTENANCE.name() + "_changeLogTempToChangeLog";
+  public static final String GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG = GrouperLoaderType.CHANGE_LOG.name() + "_changeLogTempToChangeLog";
 
+  
+  /**
+   * change log consumer prefix
+   */
+  public static final String GROUPER_CHANGE_LOG_CONSUMER_PREFIX = GrouperLoaderType.CHANGE_LOG.name() + "_consumer_";
+
+  
+  
   /**
    * see if an attribute if required or not
    * @param attributeName

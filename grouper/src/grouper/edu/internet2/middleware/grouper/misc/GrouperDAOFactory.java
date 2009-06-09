@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO;
+import edu.internet2.middleware.grouper.internal.dao.ChangeLogConsumerDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
@@ -44,7 +45,7 @@ import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
  * Factory for returning <code>GrouperDAO</code> objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOFactory.java,v 1.5 2009-05-08 05:28:10 mchyzer Exp $
+ * @version $Id: GrouperDAOFactory.java,v 1.6 2009-06-09 17:24:13 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class GrouperDAOFactory {
@@ -127,6 +128,12 @@ public abstract class GrouperDAOFactory {
    */
   public abstract ChangeLogTypeDAO getChangeLogType();
 
+  /**
+   * change log consumer dao
+   * @return the change log consumer dao
+   */
+  public abstract ChangeLogConsumerDAO getChangeLogConsumer();
+  
   /**
    * @return field
    * @since   1.2.0

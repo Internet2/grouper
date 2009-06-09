@@ -22,6 +22,7 @@ import org.hibernate.cfg.Configuration;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO;
+import edu.internet2.middleware.grouper.internal.dao.ChangeLogConsumerDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.CompositeDAO;
@@ -39,7 +40,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAOFactory.java,v 1.9 2009-05-08 05:28:10 mchyzer Exp $
+ * @version $Id: Hib3DAOFactory.java,v 1.10 2009-06-09 17:24:13 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3DAOFactory extends GrouperDAOFactory {
@@ -183,6 +184,14 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public ChangeLogTypeDAO getChangeLogType() {
     return new Hib3ChangeLogTypeDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getChangeLogConsumer()
+   */
+  @Override
+  public ChangeLogConsumerDAO getChangeLogConsumer() {
+    return new Hib3ChangeLogConsumerDAO();
   }
 
 } 

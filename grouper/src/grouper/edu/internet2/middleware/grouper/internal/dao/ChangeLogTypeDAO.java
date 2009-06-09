@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogTypeDAO.java,v 1.1 2009-05-08 05:28:10 mchyzer Exp $
+ * $Id: ChangeLogTypeDAO.java,v 1.2 2009-06-09 17:24:13 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -10,13 +10,13 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
 
 
 /**
- * audit type data access methods
+ * change log type data access methods
  */
 public interface ChangeLogTypeDAO extends GrouperDAO {
   
   /**
-   * find all audit types
-   * @return all audit types
+   * find all change log types
+   * @return all change log types
    */
   public Set<ChangeLogType> findAll();
   
