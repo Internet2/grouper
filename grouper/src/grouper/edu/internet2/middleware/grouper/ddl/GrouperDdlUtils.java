@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.42 2009-06-09 22:55:39 shilen Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.43 2009-06-10 16:44:59 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1348,12 +1348,12 @@ public class GrouperDdlUtils {
     String aliasesString = StringUtils.join(aliases.iterator(), ", ");
     
     String fullSql;
-    if (ddlVersionBean.isHsql()) {
+//    if (ddlVersionBean.isHsql()) {
       fullSql = "\nCREATE VIEW ";
-    } else {
-      // since views are being dropped before creation, maybe this should just be "CREATE VIEW" also...
-      fullSql = "\nCREATE OR REPLACE VIEW ";
-    }
+//    } else {
+//      // since views are being dropped before creation, maybe this should just be "CREATE VIEW" also...
+//      fullSql = "\nCREATE OR REPLACE VIEW ";
+//    }
     
     fullSql += viewName + " (" + aliasesString + ") AS " + sql + ";\n";
     ddlVersionBean.appendAdditionalScriptUnique(fullSql);
