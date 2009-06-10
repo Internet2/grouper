@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogType.java,v 1.2 2009-05-12 06:35:26 mchyzer Exp $
+ * $Id: ChangeLogType.java,v 1.3 2009-06-10 05:31:35 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -252,6 +252,29 @@ public class ChangeLogType extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public String toString() {
     return "ChangeLog type: " + this.changeLogCategory + ": " + this.actionName;
+  }
+
+  /**
+   * construct with more params
+   * @param changeLogCategory1
+   * @param actionName1
+   * @param enumStrings up to 8 label strings
+   */
+  public ChangeLogType(String changeLogCategory1, String actionName1, ChangeLogLabel... enumStrings) {
+    this(changeLogCategory1, actionName1, enumArrayToStringArray(enumStrings));
+  }
+  
+  /**
+   * convert an enum array to a string array
+   * @param enumStrings
+   * @return the string array
+   */
+  private static String[] enumArrayToStringArray(ChangeLogLabel... enumStrings) {
+    String[] labelStrings = new String[enumStrings.length];
+    for (int i=0;i<enumStrings.length;i++) {
+      labelStrings[i] = enumStrings[i].name();
+    }
+    return labelStrings;
   }
   
   /**
@@ -737,6 +760,18 @@ public class ChangeLogType extends GrouperAPI implements Hib3GrouperVersioned {
    */
   public void setLabelString12(String _labelString12) {
     this.labelString12 = _labelString12;
+  }
+
+  /**
+   * see if this identifier matches the change log type by category and action
+   * @param changeLogTypeIdentifier
+   * @return true if matches
+   */
+  public boolean equalsCategoryAndAction(ChangeLogTypeIdentifier changeLogTypeIdentifier) {
+    return this.getChangeLogCategory().equals(
+        changeLogTypeIdentifier.getChangeLogCategory() )
+      && this.getActionName().equals(
+          changeLogTypeIdentifier.getActionName() );
   }
 
 }

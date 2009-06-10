@@ -9,7 +9,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 /**
  * Data Access Object for audit entry
  * @author  mchyzer
- * @version $Id: Hib3ChangeLogEntryDAO.java,v 1.6 2009-06-09 17:24:13 mchyzer Exp $
+ * @version $Id: Hib3ChangeLogEntryDAO.java,v 1.7 2009-06-10 05:31:35 mchyzer Exp $
  */
 public class Hib3ChangeLogEntryDAO extends Hib3DAO implements ChangeLogEntryDAO {
   
@@ -25,9 +25,26 @@ public class Hib3ChangeLogEntryDAO extends Hib3DAO implements ChangeLogEntryDAO 
    */
   public void save(ChangeLogEntry changeLogEntry) {
     if (changeLogEntry.isTempObject()) {
-      HibernateSession.byObjectStatic().setEntityName(ChangeLogEntry.CHANGE_LOG_ENTRY_TEMP_ENTITY_NAME).save(changeLogEntry);
+      HibernateSession.byObjectStatic().setEntityName(
+          ChangeLogEntry.CHANGE_LOG_ENTRY_TEMP_ENTITY_NAME).save(changeLogEntry);
     } else {
-      HibernateSession.byObjectStatic().setEntityName(ChangeLogEntry.CHANGE_LOG_ENTRY_ENTITY_NAME).save(changeLogEntry);
+      HibernateSession.byObjectStatic().setEntityName(
+          ChangeLogEntry.CHANGE_LOG_ENTRY_ENTITY_NAME).save(changeLogEntry);
+    }
+
+  }
+
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.ChangeLogEntryDAO#update(edu.internet2.middleware.grouper.changeLog.ChangeLogEntry)
+   */
+  public void update(ChangeLogEntry changeLogEntry) {
+    if (changeLogEntry.isTempObject()) {
+      HibernateSession.byObjectStatic().setEntityName(
+          ChangeLogEntry.CHANGE_LOG_ENTRY_TEMP_ENTITY_NAME).update(changeLogEntry);
+    } else {
+      HibernateSession.byObjectStatic().setEntityName(
+          ChangeLogEntry.CHANGE_LOG_ENTRY_ENTITY_NAME).update(changeLogEntry);
     }
 
   }
@@ -42,7 +59,7 @@ public class Hib3ChangeLogEntryDAO extends Hib3DAO implements ChangeLogEntryDAO 
   }
 
   /**
-   * 
+   * @param changeLogEntry 
    */
   public void delete(ChangeLogEntry changeLogEntry) {
     if (changeLogEntry.isTempObject()) {

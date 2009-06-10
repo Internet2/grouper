@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogTypeBuiltin.java,v 1.3 2009-06-09 04:19:23 mchyzer Exp $
+ * $Id: ChangeLogTypeBuiltin.java,v 1.4 2009-06-10 05:31:35 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -14,17 +14,21 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   /**
    * add group type
    */
-  GROUP_TYPE_ADD(new ChangeLogType("groupType", "addGroupType", "id", "name")),
+  GROUP_TYPE_ADD(new ChangeLogType("groupType", "addGroupType", ChangeLogLabels.GROUP_TYPE_ADD.id, 
+      ChangeLogLabels.GROUP_TYPE_ADD.name)),
   
   /**
    * update group type
    */
-  GROUP_TYPE_UPDATE(new ChangeLogType("groupType", "updateGroupType", "id", "name", "propertyChanged", "propertyOldValue")),
+  GROUP_TYPE_UPDATE(new ChangeLogType("groupType", "updateGroupType", ChangeLogLabels.GROUP_TYPE_UPDATE.id, 
+      ChangeLogLabels.GROUP_TYPE_UPDATE.name, ChangeLogLabels.GROUP_TYPE_UPDATE.propertyChanged, 
+      ChangeLogLabels.GROUP_TYPE_UPDATE.propertyOldValue, ChangeLogLabels.GROUP_TYPE_UPDATE.propertyNewValue)),
   
   /**
    * delete group type
    */
-  GROUP_TYPE_DELETE(new ChangeLogType("groupType", "deleteGroupType", "id", "name")),
+  GROUP_TYPE_DELETE(new ChangeLogType("groupType", "deleteGroupType", 
+      ChangeLogLabels.GROUP_TYPE_DELETE.id, ChangeLogLabels.GROUP_TYPE_DELETE.name)),
   
   /**
    * add group field
@@ -116,17 +120,25 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   /**
    * add group
    */
-  GROUP_ADD(new ChangeLogType("group", "addGroup", "id", "name", "parentStemId", "displayName", "description")),
+  GROUP_ADD(new ChangeLogType("group", "addGroup", 
+      ChangeLogLabels.GROUP_ADD.id, ChangeLogLabels.GROUP_ADD.name, ChangeLogLabels.GROUP_ADD.parentStemId,
+      ChangeLogLabels.GROUP_ADD.displayName, ChangeLogLabels.GROUP_ADD.description)),
   
   /**
    * update group
    */
-  GROUP_UPDATE(new ChangeLogType("group", "updateGroup", "id", "name", "parentStemId", "displayName", "description")),
+  GROUP_UPDATE(new ChangeLogType("group", "updateGroup", 
+      ChangeLogLabels.GROUP_UPDATE.id, ChangeLogLabels.GROUP_UPDATE.name, ChangeLogLabels.GROUP_UPDATE.parentStemId,
+      ChangeLogLabels.GROUP_UPDATE.displayName, ChangeLogLabels.GROUP_UPDATE.description, 
+      ChangeLogLabels.GROUP_UPDATE.propertyChanged, ChangeLogLabels.GROUP_UPDATE.propertyOldValue, 
+      ChangeLogLabels.GROUP_UPDATE.propertyNewValue)),
   
   /**
    * delete group
    */
-  GROUP_DELETE(new ChangeLogType("group", "deleteGroup", "id", "name", "parentStemId", "displayName", "description")),
+  GROUP_DELETE(new ChangeLogType("group", "deleteGroup", 
+      ChangeLogLabels.GROUP_DELETE.id, ChangeLogLabels.GROUP_DELETE.name, ChangeLogLabels.GROUP_DELETE.parentStemId,
+      ChangeLogLabels.GROUP_DELETE.displayName, ChangeLogLabels.GROUP_DELETE.description)),
   
   /**
    * stem add
@@ -217,7 +229,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   public String getActionName() {
     return this.getChangeLogType().getActionName();
   }
-  
+
   /**
    * 
    */
