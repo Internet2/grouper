@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogEntry.java,v 1.8 2009-06-09 17:24:13 mchyzer Exp $
+ * $Id: ChangeLogEntry.java,v 1.9 2009-06-10 05:31:35 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -70,16 +70,18 @@ public class ChangeLogEntry extends GrouperAPI {
       //see if different
       if (!GrouperUtil.equals(propertyValue, dbPropertyValue)) {
         
-        String[] labelsAndValuesArray = new String[labelNamesAndValues.size() + 4];
+        String[] labelsAndValuesArray = new String[labelNamesAndValues.size() + 6];
         
         for (int i=0;i<labelNamesAndValues.size();i++) {
           labelsAndValuesArray[i] = labelNamesAndValues.get(i);
         }
         //last two cols are twhats different, and the old value
-        labelsAndValuesArray[labelsAndValuesArray.length-4] = "propertyChanged";
-        labelsAndValuesArray[labelsAndValuesArray.length-3] = changeLogPropertyNames.get(index);
-        labelsAndValuesArray[labelsAndValuesArray.length-2] = "propertyOldValue";
-        labelsAndValuesArray[labelsAndValuesArray.length-1] = GrouperUtil.stringValue(dbPropertyValue);
+        labelsAndValuesArray[labelsAndValuesArray.length-6] = "propertyChanged";
+        labelsAndValuesArray[labelsAndValuesArray.length-5] = changeLogPropertyNames.get(index);
+        labelsAndValuesArray[labelsAndValuesArray.length-4] = "propertyOldValue";
+        labelsAndValuesArray[labelsAndValuesArray.length-3] = GrouperUtil.stringValue(dbPropertyValue);
+        labelsAndValuesArray[labelsAndValuesArray.length-2] = "propertyNewValue";
+        labelsAndValuesArray[labelsAndValuesArray.length-1] = GrouperUtil.stringValue(propertyValue);
         
         //if so, add a change log entry to temp table
         new ChangeLogEntry(true, changeLogTypeIdentifier, labelsAndValuesArray).save();
@@ -275,13 +277,24 @@ public class ChangeLogEntry extends GrouperAPI {
   }
 
   /**
-   * save this object to the temp table if configured to do so, and set context id and other things
+   * save this object (insert) to the temp table if configured to do so, and set context id and other things
    * save (insert) this object
    */
   public void save() {
     if (GrouperConfig.getPropertyBoolean("changeLog.enabled", true)) {
       
       GrouperDAOFactory.getFactory().getChangeLogEntry().save(this);
+    }
+  }
+
+  /**
+   * update this object to the temp or entity table if configured to do so, and set context id and other things
+   * save (insert) this object
+   */
+  public void update() {
+    if (GrouperConfig.getPropertyBoolean("changeLog.enabled", true)) {
+      
+      GrouperDAOFactory.getFactory().getChangeLogEntry().update(this);
     }
   }
   
@@ -321,6 +334,18 @@ public class ChangeLogEntry extends GrouperAPI {
 
       assignStringValue(changeLogType, label, value);
     }
+  }
+
+  /**
+   * reutrn the value based on friendly label.  ChangeLogEntry keeps data in 
+   * string01, string02, etc.  But it is more useful when querying by group id.
+   * so pass in the fiendly label from the ChangeLogType, and it will look up which field,
+   * and return the value of that field
+   * @param changeLogLabel is probably from ChangeLogLabels constants
+   * @return the value
+   */
+  public String retrieveValueForLabel(ChangeLogLabel changeLogLabel) {
+    return retrieveValueForLabel(changeLogLabel.name());
   }
 
   /**
@@ -861,6 +886,16 @@ public class ChangeLogEntry extends GrouperAPI {
    */
   public void setTempObject(boolean tempObject1) {
     this.tempObject = tempObject1;
+  }
+
+  /**
+   * see if this identifier matches the change log type by category and action
+   * @param changeLogTypeIdentifier
+   * @return true if matches
+   */
+  public boolean equalsCategoryAndAction(ChangeLogTypeIdentifier changeLogTypeIdentifier) {
+    return this.getChangeLogType() != null 
+      && this.getChangeLogType().equalsCategoryAndAction(changeLogTypeIdentifier);
   }
 
 }

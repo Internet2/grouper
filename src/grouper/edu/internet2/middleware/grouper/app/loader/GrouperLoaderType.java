@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.19 2009-06-09 17:24:13 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.20 2009-06-10 05:31:35 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -634,11 +634,11 @@ public enum GrouperLoaderType {
               Class<?> theClass = GrouperUtil.forName(theClassName);
               ChangeLogConsumerBase changeLogConsumerBase = (ChangeLogConsumerBase)GrouperUtil.newInstance(theClass);
               
-              ChangeLogProcessorMetadata changeLogProcessorMetadata = new ChangeLogProcessorMetadata();
-              changeLogProcessorMetadata.setHib3GrouperLoaderLog(hib3GrouploaderLog);
-              
               //lets only do 100k records at a time
               for (int i=0;i<1000;i++) {
+                
+                ChangeLogProcessorMetadata changeLogProcessorMetadata = new ChangeLogProcessorMetadata();
+                changeLogProcessorMetadata.setHib3GrouperLoaderLog(hib3GrouploaderLog);
                 
                 //lets get 100 records
                 List<ChangeLogEntry> changeLogEntryList = GrouperDAOFactory.getFactory().getChangeLogEntry()
@@ -649,23 +649,51 @@ public enum GrouperLoaderType {
                 }
                 
                 //pass this to the consumer
-                long lastProcessed = changeLogConsumerBase.processChangeLogEntries(changeLogEntryList, changeLogProcessorMetadata);
-                
+                boolean error = false;
+                long lastProcessed = -1;
+                try {
+                  lastProcessed = changeLogConsumerBase.processChangeLogEntries(changeLogEntryList, changeLogProcessorMetadata);
+                } catch (Exception e) {
+                  LOG.error("Error", e);
+                  hib3GrouploaderLog.appendJobMessage("Error: " 
+                      + ExceptionUtils.getFullStackTrace(e));
+                  error = true;
+                }
                 changeLogConsumer.setLastSequenceProcessed(lastProcessed);
                 GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
                 
                 long lastSequenceInBatch = changeLogEntryList.get(changeLogEntryList.size()-1).getSequenceNumber();
+
+                
+                if (changeLogProcessorMetadata.isHadProblem()) {
+                  String errorString = "Error: " 
+                      + changeLogProcessorMetadata.getRecordProblemText()
+                      + ", sequenceNumber: " + changeLogProcessorMetadata.getRecordExceptionSequence()
+                      + ", " + ExceptionUtils.getFullStackTrace(changeLogProcessorMetadata.getRecordException());
+                  LOG.error(errorString);
+                  hib3GrouploaderLog.appendJobMessage(errorString);
+                  error = true;
+                }
                 if (lastProcessed != lastSequenceInBatch) {
-                  hib3GrouploaderLog.appendJobMessage("Did not get all the way through the batch! " + lastProcessed
-                      + " != " + lastSequenceInBatch);
+                  String errorString = "Did not get all the way through the batch! " + lastProcessed
+                      + " != " + lastSequenceInBatch;
+                  LOG.error(errorString);
+                  hib3GrouploaderLog.appendJobMessage(errorString);
+                  //didnt get all the way through
+                  error = true;
+                }
+                
+                if (error) {
                   hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
-                  //didnt get al the way through
                   break;
                 }
                 
+                hib3GrouploaderLog.addTotalCount(changeLogEntryList.size());
+
                 if (changeLogEntryList.size() < 100) {
                   break;
                 }
+                hib3GrouploaderLog.store();
               }
               
             } else {

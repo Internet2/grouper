@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -69,7 +69,7 @@ import edu.internet2.middleware.grouper.validator.ModifyGroupTypeValidator;
  * Schema specification for a Group type.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GroupType.java,v 1.88 2009-06-09 04:19:23 mchyzer Exp $
+ * @version $Id: GroupType.java,v 1.89 2009-06-10 05:31:35 mchyzer Exp $
  */
 public class GroupType extends GrouperAPI implements GrouperHasContext, Serializable, Hib3GrouperVersioned, Comparable {
 
@@ -1073,8 +1073,10 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
         this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_PRE_DELETE, false, false);
   
     //change log into temp table
-    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_TYPE_DELETE, "id", 
-        this.getUuid(), "name", this.getName()).save();
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_TYPE_DELETE, 
+        ChangeLogLabels.GROUP_TYPE_DELETE.id.name(), 
+        this.getUuid(), ChangeLogLabels.GROUP_TYPE_DELETE.name.name(), 
+        this.getName()).save();
   }
 
   /**
@@ -1091,8 +1093,10 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
         this, GroupType.class, VetoTypeGrouper.GROUP_TYPE_PRE_INSERT, false, false);
 
     //change log into temp table
-    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_TYPE_ADD, "id", 
-        this.getUuid(), "name", this.getName()).save();
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_TYPE_ADD, 
+        ChangeLogLabels.GROUP_TYPE_ADD.id.name(), 
+        this.getUuid(), ChangeLogLabels.GROUP_TYPE_ADD.name.name(), 
+        this.getName()).save();
     
   }
 
@@ -1110,9 +1114,10 @@ public class GroupType extends GrouperAPI implements GrouperHasContext, Serializ
     //change log into temp table
     ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.GROUP_TYPE_UPDATE, 
         this, this.dbVersion(),
-        GrouperUtil.toList("id",this.getUuid(), "name", this.getName()),
+        GrouperUtil.toList(ChangeLogLabels.GROUP_TYPE_UPDATE.id.name(),this.getUuid(), 
+            ChangeLogLabels.GROUP_TYPE_UPDATE.name.name(), this.getName()),
         GrouperUtil.toList(FIELD_NAME),
-        GrouperUtil.toList("name"));    
+        GrouperUtil.toList(ChangeLogLabels.GROUP_TYPE_UPDATE.name.name()));    
   }
 
   /**
