@@ -37,6 +37,9 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
@@ -100,7 +103,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.196 2009-05-26 06:50:56 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.197 2009-06-11 04:17:40 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -2352,6 +2355,13 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
         StemHooks.METHOD_STEM_PRE_DELETE, HooksStemBean.class, 
         this, Stem.class, VetoTypeGrouper.STEM_PRE_DELETE, false, false);
   
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.STEM_DELETE, 
+        ChangeLogLabels.STEM_DELETE.id.name(), 
+        this.getUuid(), ChangeLogLabels.STEM_DELETE.name.name(), 
+        this.getName(), ChangeLogLabels.STEM_DELETE.parentStemId.name(), this.getParentUuid(),
+        ChangeLogLabels.STEM_DELETE.displayName.name(), this.getDisplayName(),
+        ChangeLogLabels.STEM_DELETE.description.name(), this.getDescription()).save();
   }
 
   /**
@@ -2362,11 +2372,17 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
     
-    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_PRE_INSERT, HooksStemBean.class, 
         this, Stem.class, VetoTypeGrouper.STEM_PRE_INSERT, false, false);
   
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.STEM_ADD, 
+        ChangeLogLabels.STEM_ADD.id.name(), 
+        this.getUuid(), ChangeLogLabels.STEM_ADD.name.name(), 
+        this.getName(), ChangeLogLabels.STEM_ADD.parentStemId.name(), this.getParentUuid(),
+        ChangeLogLabels.STEM_ADD.displayName.name(), this.getDisplayName(),
+        ChangeLogLabels.STEM_ADD.description.name(), this.getDescription()).save();
   }
 
   /** see if already in onPreUpdate, dont go in again */
@@ -2420,6 +2436,20 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.STEM, 
         StemHooks.METHOD_STEM_PRE_UPDATE, HooksStemBean.class, 
         this, Stem.class, VetoTypeGrouper.STEM_PRE_UPDATE, false, false);
+    
+    //change log into temp table
+    ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.STEM_UPDATE, 
+        this, this.dbVersion(),
+        GrouperUtil.toList(ChangeLogLabels.STEM_UPDATE.id.name(),this.getUuid(), 
+            ChangeLogLabels.STEM_UPDATE.name.name(), this.getName(),
+            ChangeLogLabels.STEM_UPDATE.parentStemId.name(), this.getParentUuid(),
+            ChangeLogLabels.STEM_UPDATE.displayName.name(), this.getDisplayName(),
+            ChangeLogLabels.STEM_UPDATE.description.name(), this.getDescription()),
+        GrouperUtil.toList(FIELD_NAME, FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION),
+        GrouperUtil.toList(ChangeLogLabels.STEM_UPDATE.name.name(),
+            ChangeLogLabels.STEM_UPDATE.description.name(), 
+            ChangeLogLabels.STEM_UPDATE.displayExtension.name()));    
+    
   }
 
   /**

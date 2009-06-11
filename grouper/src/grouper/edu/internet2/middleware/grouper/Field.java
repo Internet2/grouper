@@ -52,7 +52,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Reference to members list is: Group.getDefaultList()
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.44 2009-06-11 03:19:40 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.45 2009-06-11 04:17:40 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -92,7 +92,7 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
   public static final String FIELD_DB_VERSION = "dbVersion";
 
   /** constant for field name for: groupTypeUUID */
-  public static final String FIELD_GROUP_TYPE_UUID = "groupTypeUUID";
+  public static final String FIELD_GROUP_TYPE_UUID = "groupTypeUuid";
 
   /** constant for field name for: isNullable */
   public static final String FIELD_IS_NULLABLE = "isNullable";
@@ -159,7 +159,7 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
   }
 
   /** */
-  private String    groupTypeUUID;
+  private String    groupTypeUuid;
   /** */
   private boolean   isNullable;
   /** */
@@ -256,7 +256,7 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
     }
     Field that = (Field) other;
     return new EqualsBuilder()
-      .append( this.groupTypeUUID, that.groupTypeUUID )
+      .append( this.groupTypeUuid, that.groupTypeUuid )
       .append( this.name, that.name )
       .append( this.type, that.type )
      .isEquals();
@@ -267,7 +267,7 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
    * @since   1.2.0
    */
   public String getGroupTypeUuid() {
-    return this.groupTypeUUID;
+    return this.groupTypeUuid;
   }
 
   /**
@@ -325,7 +325,7 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
   @Override
   public int hashCode() {
     return new HashCodeBuilder()
-      .append( this.groupTypeUUID )
+      .append( this.groupTypeUuid )
       .append( this.name )
       .append( this.type )
       .toHashCode();
@@ -336,7 +336,7 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
    * @since   1.2.0
    */
   public void setGroupTypeUuid(String groupTypeUUID) {
-    this.groupTypeUUID = groupTypeUUID;
+    this.groupTypeUuid = groupTypeUUID;
   }
 
   /**
@@ -597,7 +597,7 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
             ChangeLogLabels.GROUP_FIELD_ADD.groupTypeName.name(), 
             this.getGroupType().getName(),
             ChangeLogLabels.GROUP_FIELD_ADD.type.name(), this.getTypeString()),
-        GrouperUtil.toList(FIELD_NAME, "groupTypeUuid", FIELD_TYPE, FIELD_READ_PRIVILEGE, FIELD_WRITE_PRIVILEGE, FIELD_IS_NULLABLE),
+        GrouperUtil.toList(FIELD_NAME, FIELD_GROUP_TYPE_UUID, FIELD_TYPE, FIELD_READ_PRIVILEGE, FIELD_WRITE_PRIVILEGE, FIELD_IS_NULLABLE),
         GrouperUtil.toList(ChangeLogLabels.GROUP_FIELD_UPDATE.name.name(),
             ChangeLogLabels.GROUP_FIELD_UPDATE.groupTypeId.name(),
             ChangeLogLabels.GROUP_FIELD_UPDATE.type.name(), ChangeLogLabels.GROUP_FIELD_UPDATE.readPrivilege.name(),
