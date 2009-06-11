@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogLabels.java,v 1.1 2009-06-10 05:31:35 mchyzer Exp $
+ * $Id: ChangeLogLabels.java,v 1.2 2009-06-11 03:19:40 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -39,7 +39,7 @@ public class ChangeLogLabels {
 
     /** new value of the property */
     propertyNewValue;
-  }
+  };
       
   /**
    * labels for group type delete
@@ -103,7 +103,7 @@ public class ChangeLogLabels {
     
     /** new value of the property */
     propertyNewValue;
-  }
+  };
       
   /**
    * labels for group delete
@@ -124,6 +124,86 @@ public class ChangeLogLabels {
     
     /** description */
     description;
+  };
+  
+  /**
+   * label for group field add
+   */
+  public static enum GROUP_FIELD_ADD implements ChangeLogLabel {
+
+    /** id of the group type */
+    id, 
+    
+    /** name */
+    name,
+    
+    /** group type id */
+    groupTypeId,
+    
+    /** group type name */
+    groupTypeName, 
+    
+    /** type */
+    type;
+  };
+  
+  /** labels for a group field update */
+  public static enum GROUP_FIELD_UPDATE implements ChangeLogLabel {
+    
+    /** id */
+    id, 
+    
+    /** name */
+    name, 
+    
+    /** groupTypeId */
+    groupTypeId,
+    
+    /** groupTypeName */
+    groupTypeName, 
+    
+    /** type */
+    type,
+    
+    /** readPrivilege */
+    readPrivilege,
+    
+    /** writePrivilege */
+    writePrivilege,
+    
+    /** isNullable */
+    isNullable,
+    
+    /** property which changed */
+    propertyChanged, 
+    
+    /** old value of the property */
+    propertyOldValue,
+
+    /** new value of the property */
+    propertyNewValue;
+  };
+  
+  /**
+   * labels for group field delete
+   */
+  public static enum GROUP_FIELD_DELETE implements ChangeLogLabel {
+    
+    /** id of the group type */
+    id,
+    
+    /** name */
+    name,
+    
+    /** groupTypeId */
+    groupTypeId,
+    
+    /** groupTypeName */
+    groupTypeName,
+    
+    /** type */
+    type;
+  
   };
 
 }

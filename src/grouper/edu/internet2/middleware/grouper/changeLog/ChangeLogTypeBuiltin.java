@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogTypeBuiltin.java,v 1.4 2009-06-10 05:31:35 mchyzer Exp $
+ * $Id: ChangeLogTypeBuiltin.java,v 1.5 2009-06-11 03:19:40 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -33,19 +33,25 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   /**
    * add group field
    */
-  GROUP_FIELD_ADD(new ChangeLogType("groupField", "addGroupField", "id", "name", 
-      "groupTypeId", "groupTypeName", "type")),
+  GROUP_FIELD_ADD(new ChangeLogType("groupField", "addGroupField", ChangeLogLabels.GROUP_FIELD_ADD.id, 
+      ChangeLogLabels.GROUP_FIELD_ADD.name, ChangeLogLabels.GROUP_FIELD_ADD.groupTypeId, 
+      ChangeLogLabels.GROUP_FIELD_ADD.groupTypeName, ChangeLogLabels.GROUP_FIELD_ADD.type)),
   
   /**
    * update group field
    */
-  GROUP_FIELD_UPDATE(new ChangeLogType("groupField", "updateGroupField", "id", "name", 
-      "groupTypeId", "groupTypeName", "type")),
+  GROUP_FIELD_UPDATE(new ChangeLogType("groupField", "updateGroupField", ChangeLogLabels.GROUP_FIELD_UPDATE.id, 
+      ChangeLogLabels.GROUP_FIELD_UPDATE.name, ChangeLogLabels.GROUP_FIELD_UPDATE.groupTypeId, 
+      ChangeLogLabels.GROUP_FIELD_UPDATE.groupTypeName, ChangeLogLabels.GROUP_FIELD_UPDATE.type,
+      ChangeLogLabels.GROUP_FIELD_UPDATE.propertyChanged, 
+      ChangeLogLabels.GROUP_FIELD_UPDATE.propertyOldValue, ChangeLogLabels.GROUP_FIELD_UPDATE.propertyNewValue)),
   
   /**
    * delete group field
    */
-  GROUP_FIELD_DELETE(new ChangeLogType("groupField", "deleteGroupField", "id", "name", "groupTypeId", "groupTypeName", "type")),
+  GROUP_FIELD_DELETE(new ChangeLogType("groupField", "deleteGroupField", ChangeLogLabels.GROUP_FIELD_DELETE.id, 
+      ChangeLogLabels.GROUP_FIELD_DELETE.name, ChangeLogLabels.GROUP_FIELD_DELETE.groupTypeId, 
+      ChangeLogLabels.GROUP_FIELD_DELETE.groupTypeName, ChangeLogLabels.GROUP_FIELD_DELETE.type)),
   
   /**
    * add group attribute
