@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogLabels.java,v 1.3 2009-06-11 04:17:40 mchyzer Exp $
+ * $Id: ChangeLogLabels.java,v 1.4 2009-06-11 05:47:02 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -204,7 +204,7 @@ public class ChangeLogLabels {
     /** type */
     type;
   
-  }
+  };
 
   /**
    * label for stem add
@@ -277,6 +277,94 @@ public class ChangeLogLabels {
     
     /** description */
     description;
-  }
+  };
 
+  /**
+   * 
+   * label for membership add
+   */
+  public static enum MEMBERSHIP_ADD implements ChangeLogLabel {
+  
+    /** id of the stem */
+    id, 
+    
+    /** fieldName */
+    fieldName,
+    
+    /** subjectId */
+    subjectId,
+    
+    /** sourceId */
+    sourceId,
+    
+    /** membershipType */
+    membershipType,
+
+    /** groupId */
+    groupId,
+    
+    /** groupName */
+    groupName;
+  };
+
+  /** labels for a membership update */
+  public static enum MEMBERSHIP_UPDATE implements ChangeLogLabel {
+    
+    /** id of the stem */
+    id, 
+    
+    /** fieldName */
+    fieldName,
+    
+    /** subjectId */
+    subjectId,
+    
+    /** sourceId */
+    sourceId,
+    
+    /** membershipType */
+    membershipType,
+
+    /** groupId */
+    groupId,
+    
+    /** groupName */
+    groupName,
+    
+    /** property which changed */
+    propertyChanged, 
+    
+    /** old value of the property */
+    propertyOldValue,
+    
+    /** new value of the property */
+    propertyNewValue;
+  };
+
+  /**
+   * labels for membership delete
+   */
+  public static enum MEMBERSHIP_DELETE implements ChangeLogLabel {
+    
+    /** id of the stem */
+    id, 
+    
+    /** fieldName */
+    fieldName,
+    
+    /** subjectId */
+    subjectId,
+    
+    /** sourceId */
+    sourceId,
+    
+    /** membershipType */
+    membershipType,
+
+    /** groupId */
+    groupId,
+    
+    /** groupName */
+    groupName;
+  };
 }

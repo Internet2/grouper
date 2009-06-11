@@ -29,11 +29,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -83,7 +87,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.121 2009-06-09 22:55:39 shilen Exp $
+ * @version $Id: Membership.java,v 1.122 2009-06-11 05:47:02 mchyzer Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -506,7 +510,15 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   public int getDepth() {
     return this.depth;
   }
-   
+
+  /**
+   * getter for group name if group membership
+   * @return group name
+   */
+  public String getGroupName() {
+    return this.getGroup().getName();
+  }
+  
   /**
    * Get this membership's group.  To get the groups of a bunch of membership, might want to try
    * retrieveGroups()
@@ -598,6 +610,31 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     return FieldFinder.find( this.getListName(), true );
   } // public Field getList()
 
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(Membership.class);
+
+  /**
+   * @return the subject id of the member
+   */
+  public String getMemberSubjectId() {
+    try {
+      return this.getMember().getSubjectIdDb();
+    } catch (Exception e) {
+      LOG.info("error getting member: " + this.getMemberUuid(), e);
+    }
+    return null;
+  }
+  
+  /** @return the source id of the member*/
+  public String getMemberSourceId() {
+    try {
+      return this.getMember().getSubjectSourceIdDb();
+    } catch (Exception e) {
+      LOG.info("error getting member: " + this.getMemberUuid(), e);
+    }
+    return null;
+  }
+  
   /**
    * Get this membership's member.
    * 
@@ -1255,8 +1292,19 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
         MembershipHooks.METHOD_MEMBERSHIP_PRE_INSERT, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_INSERT, false, false);
 
+    //change log into temp table if a group list membership
+    if ("list".equals(this.getListType())) {
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBERSHIP_ADD, 
+          ChangeLogLabels.MEMBERSHIP_ADD.id.name(), 
+          this.getUuid(), ChangeLogLabels.MEMBERSHIP_ADD.fieldName.name(), 
+          this.getField().getName(), ChangeLogLabels.MEMBERSHIP_ADD.subjectId.name(), this.getMember().getSubjectId(),
+          ChangeLogLabels.MEMBERSHIP_ADD.sourceId.name(), this.getMember().getSubjectSourceId(),
+          ChangeLogLabels.MEMBERSHIP_ADD.membershipType.name(), this.getType(),
+          ChangeLogLabels.MEMBERSHIP_ADD.groupId.name(), this.getOwnerGroupId(),
+          ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), this.getGroup().getName()).save();
+    }        
   }
-
+    
   /**
    * @param createTime 
    * @since   1.2.0
@@ -1468,6 +1516,17 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
         MembershipHooks.METHOD_MEMBERSHIP_PRE_DELETE, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_DELETE, false, false);
 
+    //change log into temp table if a group list membership
+    if ("list".equals(this.getListType())) {
+      new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE, 
+          ChangeLogLabels.MEMBERSHIP_DELETE.id.name(), 
+          this.getUuid(), ChangeLogLabels.MEMBERSHIP_DELETE.fieldName.name(), 
+          this.getField().getName(), ChangeLogLabels.MEMBERSHIP_DELETE.subjectId.name(), this.getMember().getSubjectId(),
+          ChangeLogLabels.MEMBERSHIP_DELETE.sourceId.name(), this.getMember().getSubjectSourceId(),
+          ChangeLogLabels.MEMBERSHIP_DELETE.membershipType.name(), this.getType(),
+          ChangeLogLabels.MEMBERSHIP_DELETE.groupId.name(), this.getOwnerGroupId(),
+          ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), this.getGroup().getName()).save();
+    }        
   }
 
   /**
@@ -1480,6 +1539,27 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_PRE_UPDATE, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_UPDATE, false, false);
+    
+    
+    //change log into temp table if a group list membership
+    if ("list".equals(this.getListType())) {
+      ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.MEMBERSHIP_UPDATE, 
+          this, this.dbVersion(),
+          GrouperUtil.toList(ChangeLogLabels.MEMBERSHIP_UPDATE.id.name(),this.getUuid(), 
+              ChangeLogLabels.MEMBERSHIP_UPDATE.fieldName.name(), 
+              this.getField().getName(), ChangeLogLabels.MEMBERSHIP_UPDATE.subjectId.name(), 
+              this.getMember().getSubjectId(),
+              ChangeLogLabels.MEMBERSHIP_UPDATE.sourceId.name(), this.getMember().getSubjectSourceId(),
+              ChangeLogLabels.MEMBERSHIP_UPDATE.membershipType.name(), this.getType(),
+              ChangeLogLabels.MEMBERSHIP_UPDATE.groupId.name(), this.getOwnerGroupId(),
+              ChangeLogLabels.MEMBERSHIP_UPDATE.groupName.name(), this.getGroup().getName()),
+          GrouperUtil.toList("listName", "memberSubjectId", "memberSourceId", "groupName"),
+          GrouperUtil.toList(ChangeLogLabels.MEMBERSHIP_UPDATE.fieldName.name(),
+              ChangeLogLabels.MEMBERSHIP_UPDATE.subjectId.name(), 
+              ChangeLogLabels.MEMBERSHIP_UPDATE.sourceId.name(),
+              ChangeLogLabels.MEMBERSHIP_UPDATE.groupName.name()));    
+    }
+    
   }
 
   /**

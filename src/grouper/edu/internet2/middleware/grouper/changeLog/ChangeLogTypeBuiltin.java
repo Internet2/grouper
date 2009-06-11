@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogTypeBuiltin.java,v 1.6 2009-06-11 04:17:40 mchyzer Exp $
+ * $Id: ChangeLogTypeBuiltin.java,v 1.7 2009-06-11 05:47:02 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -96,17 +96,31 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   /**
    * add membership
    */
-  MEMBERSHIP_ADD(new ChangeLogType("membership", "addMembership", "id", "fieldId", "fieldName", "memberId", "membershipType", "ownerType", "ownerId", "ownerName")),
+  MEMBERSHIP_ADD(new ChangeLogType("membership", "addMembership", 
+      ChangeLogLabels.MEMBERSHIP_ADD.id, ChangeLogLabels.MEMBERSHIP_ADD.fieldName,  
+      ChangeLogLabels.MEMBERSHIP_ADD.subjectId, 
+      ChangeLogLabels.MEMBERSHIP_ADD.sourceId, ChangeLogLabels.MEMBERSHIP_ADD.membershipType, 
+      ChangeLogLabels.MEMBERSHIP_ADD.groupId, ChangeLogLabels.MEMBERSHIP_ADD.groupName)),
   
   /**
    * update membership
    */
-  MEMBERSHIP_UPDATE(new ChangeLogType("membership", "updateMembership", "id", "fieldId", "fieldName", "memberId", "membershipType", "ownerType", "ownerId", "ownerName")),
+  MEMBERSHIP_UPDATE(new ChangeLogType("membership", "updateMembership", 
+      ChangeLogLabels.MEMBERSHIP_UPDATE.id, ChangeLogLabels.MEMBERSHIP_UPDATE.fieldName,  
+      ChangeLogLabels.MEMBERSHIP_UPDATE.subjectId, 
+      ChangeLogLabels.MEMBERSHIP_UPDATE.sourceId, ChangeLogLabels.MEMBERSHIP_UPDATE.membershipType, 
+      ChangeLogLabels.MEMBERSHIP_UPDATE.groupId, ChangeLogLabels.MEMBERSHIP_UPDATE.groupName,
+      ChangeLogLabels.MEMBERSHIP_UPDATE.propertyChanged, ChangeLogLabels.MEMBERSHIP_UPDATE.propertyOldValue, 
+      ChangeLogLabels.MEMBERSHIP_UPDATE.propertyNewValue)),
 
   /**
    * delete membership
    */
-  MEMBERSHIP_DELETE(new ChangeLogType("membership", "deleteMembership", "id", "fieldId", "fieldName", "memberId", "membershipType", "ownerType", "ownerId", "ownerName")),
+  MEMBERSHIP_DELETE(new ChangeLogType("membership", "deleteMembership", 
+      ChangeLogLabels.MEMBERSHIP_DELETE.id, ChangeLogLabels.MEMBERSHIP_DELETE.fieldName,  
+      ChangeLogLabels.MEMBERSHIP_DELETE.subjectId, 
+      ChangeLogLabels.MEMBERSHIP_DELETE.sourceId, ChangeLogLabels.MEMBERSHIP_DELETE.membershipType, 
+      ChangeLogLabels.MEMBERSHIP_DELETE.groupId, ChangeLogLabels.MEMBERSHIP_DELETE.groupName)),
 
   /**
    * add privilege
