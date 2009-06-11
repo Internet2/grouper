@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogLabels.java,v 1.2 2009-06-11 03:19:40 mchyzer Exp $
+ * $Id: ChangeLogLabels.java,v 1.3 2009-06-11 04:17:40 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -58,7 +58,7 @@ public class ChangeLogLabels {
    */
   public static enum GROUP_ADD implements ChangeLogLabel {
 
-    /** id of the group type */
+    /** id of the group */
     id, 
     
     /** name */
@@ -204,6 +204,79 @@ public class ChangeLogLabels {
     /** type */
     type;
   
+  }
+
+  /**
+   * label for stem add
+   */
+  public static enum STEM_ADD implements ChangeLogLabel {
+  
+    /** id of the stem */
+    id, 
+    
+    /** name */
+    name,
+    
+    /** parent stem id */
+    parentStemId,
+    
+    /** display name */
+    displayName,
+    
+    /** description */
+    description;
+  }
+
+  /** labels for a stem update */
+  public static enum STEM_UPDATE implements ChangeLogLabel {
+    
+    /** id */
+    id, 
+    
+    /** name */
+    name, 
+    
+    /** parent stem id */
+    parentStemId,
+    
+    /** display name */
+    displayName,
+    
+    /** display extension (not stored in col, but yes stored in diffs on update */
+    displayExtension,
+    
+    /** description */
+    description,
+    
+    /** property which changed */
+    propertyChanged, 
+    
+    /** old value of the property */
+    propertyOldValue,
+    
+    /** new value of the property */
+    propertyNewValue;
   };
+
+  /**
+   * labels for stem delete
+   */
+  public static enum STEM_DELETE implements ChangeLogLabel {
+    
+    /** id of the stem */
+    id,
+    
+    /** name */
+    name,
+    
+    /** parent stem id */
+    parentStemId, 
+  
+    /** display name */
+    displayName, 
+    
+    /** description */
+    description;
+  }
 
 }

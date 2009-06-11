@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogTypeBuiltin.java,v 1.5 2009-06-11 03:19:40 mchyzer Exp $
+ * $Id: ChangeLogTypeBuiltin.java,v 1.6 2009-06-11 04:17:40 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -149,17 +149,25 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   /**
    * stem add
    */
-  STEM_ADD(new ChangeLogType("stem", "addStem", "id", "name", "parentStemId", "displayName", "description")),
+  STEM_ADD(new ChangeLogType("stem", "addStem", 
+      ChangeLogLabels.STEM_ADD.id, ChangeLogLabels.STEM_ADD.name, ChangeLogLabels.STEM_ADD.parentStemId,
+      ChangeLogLabels.STEM_ADD.displayName, ChangeLogLabels.STEM_ADD.description)),
 
   /**
    * stem update
    */
-  STEM_UPDATE(new ChangeLogType("stem", "updateStem", "id", "name", "parentStemId", "displayName", "description")),
+  STEM_UPDATE(new ChangeLogType("stem", "updateStem", 
+      ChangeLogLabels.STEM_UPDATE.id, ChangeLogLabels.STEM_UPDATE.name, ChangeLogLabels.STEM_UPDATE.parentStemId,
+      ChangeLogLabels.STEM_UPDATE.displayName, ChangeLogLabels.STEM_UPDATE.description, 
+      ChangeLogLabels.STEM_UPDATE.propertyChanged, ChangeLogLabels.STEM_UPDATE.propertyOldValue, 
+      ChangeLogLabels.STEM_UPDATE.propertyNewValue)),
   
   /**
    * stem delete
    */
-  STEM_DELETE(new ChangeLogType("stem", "deleteStem", "id", "name", "parentStemId", "displayName", "description")),
+  STEM_DELETE(new ChangeLogType("stem", "deleteStem", 
+      ChangeLogLabels.STEM_DELETE.id, ChangeLogLabels.STEM_DELETE.name, ChangeLogLabels.STEM_DELETE.parentStemId,
+      ChangeLogLabels.STEM_DELETE.displayName, ChangeLogLabels.STEM_DELETE.description)),
   
   /**
    * member change subject
