@@ -28,6 +28,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -49,7 +52,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Reference to members list is: Group.getDefaultList()
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.43 2009-06-09 22:55:39 shilen Exp $    
+ * @version $Id: Field.java,v 1.44 2009-06-11 03:19:40 mchyzer Exp $    
  */
 public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -514,6 +517,16 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
         FieldHooks.METHOD_FIELD_PRE_DELETE, HooksFieldBean.class, 
         this, Field.class, VetoTypeGrouper.FIELD_PRE_DELETE, false, false);
   
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_FIELD_DELETE, 
+        ChangeLogLabels.GROUP_FIELD_DELETE.id.name(), 
+        this.getUuid(), ChangeLogLabels.GROUP_FIELD_DELETE.name.name(), 
+        this.getName(), ChangeLogLabels.GROUP_FIELD_DELETE.groupTypeId.name(), 
+        this.getGroupTypeUuid(),
+        ChangeLogLabels.GROUP_FIELD_DELETE.groupTypeName.name(), 
+        this.getGroupType().getName(),
+        ChangeLogLabels.GROUP_FIELD_DELETE.type.name(), this.getTypeString()
+    ).save();
   }
 
   /**
@@ -548,6 +561,19 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
         FieldHooks.METHOD_FIELD_PRE_INSERT, HooksFieldBean.class, 
         this, Field.class, VetoTypeGrouper.FIELD_PRE_INSERT, false, false);
   
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_FIELD_ADD, 
+        ChangeLogLabels.GROUP_FIELD_ADD.id.name(), 
+        this.getUuid(), ChangeLogLabels.GROUP_FIELD_ADD.name.name(), 
+        this.getName(), ChangeLogLabels.GROUP_FIELD_ADD.groupTypeId.name(), 
+        this.getGroupTypeUuid(),
+        ChangeLogLabels.GROUP_FIELD_ADD.groupTypeName.name(), 
+        this.getGroupType().getName(),
+        ChangeLogLabels.GROUP_FIELD_ADD.type.name(), this.getTypeString()
+    ).save();
+    
+   
+
   }
 
   /**
@@ -560,6 +586,23 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.FIELD, 
         FieldHooks.METHOD_FIELD_PRE_UPDATE, HooksFieldBean.class, 
         this, Field.class, VetoTypeGrouper.FIELD_PRE_UPDATE, false, false);
+
+    //change log into temp table
+    ChangeLogEntry.saveTempUpdates(ChangeLogTypeBuiltin.GROUP_FIELD_UPDATE, 
+        this, this.dbVersion(),
+        GrouperUtil.toList(ChangeLogLabels.GROUP_FIELD_UPDATE.id.name(),this.getUuid(), 
+            ChangeLogLabels.GROUP_FIELD_UPDATE.name.name(), this.getName(),
+            ChangeLogLabels.GROUP_FIELD_ADD.groupTypeId.name(), 
+            this.getGroupTypeUuid(),
+            ChangeLogLabels.GROUP_FIELD_ADD.groupTypeName.name(), 
+            this.getGroupType().getName(),
+            ChangeLogLabels.GROUP_FIELD_ADD.type.name(), this.getTypeString()),
+        GrouperUtil.toList(FIELD_NAME, "groupTypeUuid", FIELD_TYPE, FIELD_READ_PRIVILEGE, FIELD_WRITE_PRIVILEGE, FIELD_IS_NULLABLE),
+        GrouperUtil.toList(ChangeLogLabels.GROUP_FIELD_UPDATE.name.name(),
+            ChangeLogLabels.GROUP_FIELD_UPDATE.groupTypeId.name(),
+            ChangeLogLabels.GROUP_FIELD_UPDATE.type.name(), ChangeLogLabels.GROUP_FIELD_UPDATE.readPrivilege.name(),
+            ChangeLogLabels.GROUP_FIELD_UPDATE.writePrivilege.name(), ChangeLogLabels.GROUP_FIELD_UPDATE.isNullable.name()
+            ));    
   }
 
   /**
