@@ -28,7 +28,7 @@ import javax.naming.directory.SearchControls;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
 import edu.internet2.middleware.ldappc.ConfigManager;
-import edu.internet2.middleware.ldappc.ProvisionerConfiguration.GroupDNStructure;
+import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
 import edu.internet2.middleware.ldappc.exception.ConfigurationException;
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 

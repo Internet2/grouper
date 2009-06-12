@@ -11,7 +11,7 @@
  * KIND, either express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  * 
- * $Id: SubjectCache.java,v 1.6 2009-05-25 20:40:36 tzeller Exp $
+ * $Id: SubjectCache.java,v 1.7 2009-06-12 13:02:01 tzeller Exp $
  */
 package edu.internet2.middleware.ldappc.util;
 
@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.ldappc.Provisioner;
+import edu.internet2.middleware.ldappc.Ldappc;
 import edu.internet2.middleware.ldappc.exception.LdappcException;
 import edu.internet2.middleware.subject.Subject;
 
@@ -62,20 +62,19 @@ public class SubjectCache {
    */
   private int subjectIdTableHits;
 
-  private Provisioner provisioner;
+  private Ldappc ldappc;
 
-  public SubjectCache(Provisioner provisioner) {
+  public SubjectCache(Ldappc ldappc) {
 
-    this.provisioner = provisioner;
+    this.ldappc = ldappc;
 
     //
     // Initialize the hash tables mapping between RDN and subject ID.
     // Use the estimate in the config file if present
     //
-    Map<String, Integer> estimates = provisioner.getConfiguration()
+    Map<String, Integer> estimates = ldappc.getConfig()
         .getSourceSubjectHashEstimates();
-    for (String source : provisioner.getConfiguration().getSourceSubjectLdapFilters()
-        .keySet()) {
+    for (String source : ldappc.getConfig().getSourceSubjectLdapFilters().keySet()) {
       int estimate = DEFAULT_HASH_ESTIMATE;
       if (estimates.get(source) != null) {
         estimate = estimates.get(source);
@@ -156,7 +155,7 @@ public class SubjectCache {
 
     // return null if we aren't provisioning member groups and source is g:gsa
     if (sourceId.equals("g:gsa")
-        && (!provisioner.getConfiguration().getProvisionMemberGroups())) {
+        && (!ldappc.getConfig().getProvisionMemberGroups())) {
       return null;
     }
 
@@ -181,7 +180,7 @@ public class SubjectCache {
 
     if (sourceId.equals("g:gsa")) {
 
-      Name groupDN = provisioner.calculateGroupDn(member.toGroup());
+      Name groupDN = ldappc.calculateGroupDn(member.toGroup());
       filter = new LdapSearchFilter(groupDN.toString(), SearchControls.OBJECT_SCOPE,
           "(objectclass=*)");
 
@@ -190,7 +189,7 @@ public class SubjectCache {
       //
       // Get the LDAP search filter for the source
       //
-      filter = provisioner.getConfiguration().getSourceSubjectLdapFilter(sourceId);
+      filter = ldappc.getConfig().getSourceSubjectLdapFilter(sourceId);
       if (filter == null) {
         throw new LdappcException("Ldap search filter not found using sourceId '"
             + sourceId + "'");
@@ -199,8 +198,8 @@ public class SubjectCache {
       //
       // Get the source name attribute
       //
-      String sourceNameAttr = provisioner.getConfiguration()
-          .getSourceSubjectNamingAttribute(sourceId);
+      String sourceNameAttr = ldappc.getConfig().getSourceSubjectNamingAttribute(
+          sourceId);
       if (sourceNameAttr == null) {
         throw new LdappcException("Subject source [ " + sourceId
             + " ] does not identify a source subject naming attribute");
@@ -251,7 +250,7 @@ public class SubjectCache {
     subjectIdLookups++;
 
     // base
-    NameParser parser = provisioner.getContext().getNameParser(LdapUtil.EMPTY_NAME);
+    NameParser parser = ldappc.getContext().getNameParser(LdapUtil.EMPTY_NAME);
     Name baseName = parser.parse(filter.getBase());
 
     // filter
@@ -273,7 +272,7 @@ public class SubjectCache {
     // Perform the search
     //
     LOG.debug(msg);
-    NamingEnumeration namingEnum = provisioner.getContext().search(baseName, filterExpr,
+    NamingEnumeration namingEnum = ldappc.getContext().search(baseName, filterExpr,
         filterArgs, searchControls);
 
     //

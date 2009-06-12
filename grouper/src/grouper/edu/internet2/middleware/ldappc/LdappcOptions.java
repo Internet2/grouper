@@ -34,7 +34,7 @@ import edu.internet2.middleware.ldappc.exception.LdappcException;
  * Class for processing command line input arguments, to verify them, and to make them or
  * values calculated from them available to the rest of the code.
  */
-public class ProvisionerOptions {
+public class LdappcOptions {
 
   /**
    * The subjectId.
@@ -133,7 +133,7 @@ public class ProvisionerOptions {
   private Option dryRunOption = new Option("n", "dry-run", false,
       "Show what would be done without doing it");
 
-  public ProvisionerOptions() {
+  public LdappcOptions() {
 
     subjectOption.setArgName("subjectId");
     options.addOption(subjectOption);
@@ -168,7 +168,7 @@ public class ProvisionerOptions {
    * @throws org.apache.commons.cli.ParseException
    * @throws ParseException
    */
-  public ProvisionerOptions(String[] args) throws org.apache.commons.cli.ParseException,
+  public LdappcOptions(String[] args) throws org.apache.commons.cli.ParseException,
       ParseException {
     this();
     init(args);

@@ -5,7 +5,7 @@ import java.io.File;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
-import edu.internet2.middleware.ldappc.ProvisionerConfiguration.GroupDNStructure;
+import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
 
 public class CRUDTest extends BaseLdappcTestCase {
 
@@ -28,8 +28,6 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCalculateBushy() throws Exception {
 
-    setUpLdappc(LDAPPC_TEST_XML);
-
     loadLdif("CRUDTest.before.ldif");
 
     File ldif = calculate(GroupDNStructure.bushy);
@@ -43,8 +41,6 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCreateBushy() throws Exception {
 
-    setUpLdappc(LDAPPC_TEST_XML);
-
     loadLdif("CRUDTest.before.ldif");
 
     provision(GroupDNStructure.bushy);
@@ -54,8 +50,6 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCreateFlat() throws Exception {
 
-    setUpLdappc(LDAPPC_TEST_XML);
-
     loadLdif("CRUDTest.before.ldif");
 
     provision(GroupDNStructure.flat);
@@ -64,8 +58,6 @@ public class CRUDTest extends BaseLdappcTestCase {
   }
 
   public void testCreateSubgroupBushy() throws Exception {
-
-    setUpLdappc(LDAPPC_TEST_XML);
 
     loadLdif("CRUDTest.before.ldif");
 
@@ -78,13 +70,11 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCreateSubgroupBushyNoMemberGroups() throws Exception {
 
-    setUpLdappc(LDAPPC_TEST_XML);
-
     loadLdif("CRUDTest.before.ldif");
 
     groupB.addMember(groupA.toSubject());
 
-    configuration.setProvisionMemberGroups(false);
+    ((ConfigManager) ldappc.getConfig()).setProvisionMemberGroups(false);
 
     provision(GroupDNStructure.bushy);
 
@@ -92,8 +82,6 @@ public class CRUDTest extends BaseLdappcTestCase {
   }
 
   public void testCreateSubgroupFlat() throws Exception {
-
-    setUpLdappc(LDAPPC_TEST_XML);
 
     loadLdif("CRUDTest.before.ldif");
 
@@ -106,13 +94,11 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCreateSubgroupFlatNoMemberGroups() throws Exception {
 
-    setUpLdappc(LDAPPC_TEST_XML);
-
     loadLdif("CRUDTest.before.ldif");
 
     groupB.addMember(groupA.toSubject());
 
-    configuration.setProvisionMemberGroups(false);
+    ((ConfigManager) ldappc.getConfig()).setProvisionMemberGroups(false);
 
     provision(GroupDNStructure.flat);
 
@@ -121,23 +107,16 @@ public class CRUDTest extends BaseLdappcTestCase {
 
   public void testCreateSubgroupPhasingFlat() throws Exception {
 
-    setUpLdappc(LDAPPC_TEST_XML);
-
     loadLdif("CRUDTest.before.ldif");
 
     groupA.addMember(groupB.toSubject());
 
     provision(GroupDNStructure.flat);
 
-    // TODO GRP-275 will need to provision twice
-    provision(GroupDNStructure.flat);
-
     verify("CRUDTest.testCreateSubgroupPhasingFlat.after.ldif");
   }
 
   public void testDeleteGroupsBushy() throws Exception {
-
-    setUpLdappc(LDAPPC_TEST_XML);
 
     loadLdif("CRUDTest.testDeleteGroupsBushy.before.ldif");
 
@@ -150,8 +129,6 @@ public class CRUDTest extends BaseLdappcTestCase {
   }
 
   public void testModifyMemberBushy() throws Exception {
-
-    setUpLdappc(LDAPPC_TEST_XML);
 
     loadLdif("CRUDTest.testModifyMemberBushy.before.ldif");
 

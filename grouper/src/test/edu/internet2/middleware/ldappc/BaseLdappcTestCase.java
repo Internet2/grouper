@@ -62,7 +62,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.ldappc.ProvisionerConfiguration.GroupDNStructure;
+import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
 
@@ -82,15 +82,13 @@ public class BaseLdappcTestCase extends GrouperTest {
 
   protected Stem root;
 
+  protected Ldappc ldappc;
+
   protected LdapContext ldapContext;
 
   private DirectoryService directoryService;
 
   private LdapService ldapService;
-
-  protected ConfigManager configuration;
-
-  protected ProvisionerOptions options = new ProvisionerOptions();
 
   protected String className = getClass().getSimpleName();
 
@@ -99,6 +97,12 @@ public class BaseLdappcTestCase extends GrouperTest {
     grouperSession = SessionHelper.getRootSession();
     root = StemHelper.findRootStem(grouperSession);
     edu = StemHelper.addChildStem(root, "edu", "education");
+
+    try {
+      setUpLdappc(null);
+    } catch (Exception e) {
+      fail("An error occurred : " + e);
+    }
   }
 
   /**
@@ -110,15 +114,20 @@ public class BaseLdappcTestCase extends GrouperTest {
    */
   public void setUpLdappc(String file) throws Exception {
 
+    LdappcOptions options = new LdappcOptions();
     options.setDoGroups(true);
     options.setDoMemberships(true);
     options.setIsTest(true);
     options.setSubjectId("GrouperSystem");
 
+    if (file == null) {
+      file = LDAPPC_TEST_XML;
+    }
+
     String configManagerLocation = GrouperUtil.fileFromResourceName(file)
         .getAbsolutePath();
     options.setConfigManagerLocation(configManagerLocation);
-    configuration = new ConfigManager(configManagerLocation);
+    ConfigManager configuration = new ConfigManager(configManagerLocation);
 
     if (useEmbedded()) {
       this.setUpEmbeddedServer();
@@ -139,6 +148,8 @@ public class BaseLdappcTestCase extends GrouperTest {
           .getString("test.security_credentials"));
       ldapContext = LdapUtil.getLdapContext(env, null);
     }
+
+    ldappc = new Ldappc(options, configuration, ldapContext);
   }
 
   private void setUpEmbeddedServer() throws Exception {
@@ -226,7 +237,9 @@ public class BaseLdappcTestCase extends GrouperTest {
 
   public File calculate(GroupDNStructure structure) throws Exception {
 
-    return getProvisioner(structure).calculate();
+    ((ConfigManager) ldappc.getConfig()).setGroupDnStructure(structure);
+
+    return ldappc.calculate();
   }
 
   /**
@@ -255,21 +268,6 @@ public class BaseLdappcTestCase extends GrouperTest {
     }
 
     return tree;
-  }
-
-  public Provisioner getProvisioner(GroupDNStructure structure) throws Exception {
-    return getProvisioner(structure, true, true);
-  }
-
-  public Provisioner getProvisioner(GroupDNStructure structure, boolean doGroups,
-      boolean doMemberships) throws Exception {
-
-    options.setDoGroups(doGroups);
-    options.setDoMemberships(doMemberships);
-
-    configuration.setGroupDnStructure(structure);
-
-    return new Provisioner(configuration, options, ldapContext);
   }
 
   public void loadLdif(String file) throws Exception {
@@ -312,7 +310,10 @@ public class BaseLdappcTestCase extends GrouperTest {
   }
 
   public void provision(GroupDNStructure structure) throws Exception {
-    getProvisioner(structure).provision();
+
+    ((ConfigManager) ldappc.getConfig()).setGroupDnStructure(structure);
+
+    ldappc.provision();
   }
 
   /**
