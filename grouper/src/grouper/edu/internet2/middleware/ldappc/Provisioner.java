@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.Vector;
+import java.util.TreeSet;
 
 import javax.naming.Name;
 import javax.naming.NameParser;
@@ -40,7 +40,6 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
-import org.doomdark.uuid.UUIDGenerator;
 import org.slf4j.Logger;
 
 import edu.internet2.middleware.grouper.Group;
@@ -50,9 +49,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
-import edu.internet2.middleware.grouper.exception.QueryException;
-import edu.internet2.middleware.grouper.exception.SchemaException;
-import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.filter.ChildGroupFilter;
 import edu.internet2.middleware.grouper.filter.GroupAttributeExactFilter;
@@ -111,6 +107,8 @@ public class Provisioner {
    */
   protected Name rootDn;
 
+  private GrouperSession grouperSession;
+
   /**
    * Constructs a <code>GrouperProvisioner</code> with the given provisioning
    * configuration, options and Ldap context.
@@ -144,88 +142,111 @@ public class Provisioner {
     } catch (NamingException e) {
       throw new ConfigurationException("Unable to parse root DN.");
     }
-  }
-
-  /**
-   * This provisions Grouper data to a directory. This uses provisioning options to
-   * determine the Grouper data to provision to the directory, and the provisioning
-   * configuration to determine how the data is represented in the directory.
-   * 
-   * @throws edu.internet2.middleware.grouper.SessionException
-   *           thrown if a Grouper session error occurs
-   * @throws edu.internet2.middleware.grouper.SchemaException
-   *           thrown if a Grouper Registry schema error occurs
-   * @throws javax.naming.NamingException
-   *           thrown if an error occured interacting with the directory.
-   * @throws edu.internet2.middleware.grouper.AttributeNotFoundException
-   *           thrown if a group attribute is not found.
-   */
-  public void provision() throws QueryException, SchemaException, NamingException,
-      AttributeNotFoundException, SessionException, LdappcException {
 
     Subject subject = SubjectFinder.findById(options.getSubjectId(), false);
 
-    GrouperSession grouperSession = GrouperSession.start(subject);
+    grouperSession = GrouperSession.start(subject);
+  }
+
+  /**
+   * Provision Grouper data to a directory.
+   * 
+   * @throws NamingException
+   * @throws LdappcException
+   * @throws IOException
+   */
+  public void provision() throws LdappcException, NamingException, IOException {
 
     //
-    // Try to provision data
+    // Find the set of Groups to be provisioned
     //
-    try {
-      //
-      // Find the set of Groups to be provisioned
-      //
-      Set<Group> groups = buildGroupSet(grouperSession);
+    Set<Group> groups = buildGroupSet();
 
-      //
-      // If provisioning Groups, do so
-      //
-      if (options.getDoGroups()) {
-        provisionGroups(groups);
-      }
-
-      //
-      // If provisioning memberships do so
-      //
-      if (options.getDoMemberships()) {
-        provisionMemberships(groups);
-      }
-    } finally {
-      //
-      // Stop the Grouper session; log any errors
-      //
-      grouperSession.stop();
+    //
+    // If provisioning Groups, do so
+    //
+    if (options.getDoGroups()) {
+      provisionGroups(groups);
     }
+
+    //
+    // If provisioning memberships do so
+    //
+    if (options.getDoMemberships()) {
+      provisionMemberships(groups);
+    }
+
+    //
+    // Stop the Grouper session
+    //
+    grouperSession.stop();
+  }
+
+  /**
+   * Calculate provisioning and write to a file. No changes are made to the target
+   * directory.
+   * 
+   * @return File the ldif file
+   * @throws IOException
+   * @throws ConfigurationException
+   * @throws NamingException
+   */
+  public File calculate() throws IOException, ConfigurationException, NamingException {
+
+    File file = new File(options.getCalculateOutputFileLocation());
+
+    if (!file.createNewFile()) {
+      throw new LdappcException("File '" + options.getCalculateOutputFileLocation()
+          + "' already exists.");
+    }
+
+    BufferedWriter writer = openMembershipWriter(file);
+
+    GroupEntrySynchronizer synchronizer = new GroupEntrySynchronizer(this);
+
+    //
+    // Find the set of Groups to be provisioned
+    //
+    Set<Group> groups = buildGroupSet();
+
+    //
+    // If provisioning Groups, do so
+    //
+    if (options.getDoGroups()) {
+      for (Group group : groups) {
+        writer.write(synchronizer.calculateLdif(group));
+      }
+    }
+
+    //
+    // If provisioning memberships do so
+    //
+    if (options.getDoMemberships()) {
+      File membershipFile = buildMembershipFile(groups);
+      parseMembershipUpdates(membershipFile, writer);
+    }
+
+    writer.close();
+
+    //
+    // Stop the Grouper session
+    //
+    grouperSession.stop();
+
+    return file;
   }
 
   /**
    * This builds the set of Groups to be provisioned.
    * 
-   * @param session
-   *          Grouper session for querying Grouper
    * @return {@link java.util.Set} of Groups, possibly empty, to be provisioned.
-   * @throws edu.internet2.middleware.grouper.QueryException
-   *           thrown if a Grouper Query error occurs
    */
-  protected Set<Group> buildGroupSet(GrouperSession session) throws QueryException {
-    return buildQueryGroupList(session);
-  }
+  private Set<Group> buildGroupSet() {
 
-  /**
-   * This builds the set of Groups identified by the subordinate stem and attribute value
-   * queries defined in the provisioning configuration.
-   * 
-   * @param session
-   *          Grouper session for querying Grouper
-   * @return {@link java.util.Set} of Groups, possibly empty, matching the defined
-   *         subordinate stem and attribute value queries.
-   * @throws QueryException
-   *           thrown if grouper query can't be constructed.
-   */
-  protected Set<Group> buildQueryGroupList(GrouperSession session) throws QueryException {
     //
     // Find the root stem for building filters
     //
-    Stem rootStem = StemFinder.findRootStem(session);
+    Stem rootStem = StemFinder.findRootStem(grouperSession);
 
     //
     // Init the query filter
@@ -253,7 +274,7 @@ public class Provisioner {
     Set<String> subStems = configuration.getGroupSubordinateStemQueries();
     for (String stemName : subStems) {
       try {
-        Stem stem = StemFinder.findByName(session, stemName, true);
+        Stem stem = StemFinder.findByName(grouperSession, stemName, true);
         groupFilter = new UnionFilter(groupFilter, new ChildGroupFilter(stem));
       } catch (StemNotFoundException snfe) {
         LOG.error(snfe.getMessage(), snfe);
@@ -263,7 +284,7 @@ public class Provisioner {
     //
     // Build and execute the query
     //
-    GrouperQuery query = GrouperQuery.createQuery(session, groupFilter);
+    GrouperQuery query = GrouperQuery.createQuery(grouperSession, groupFilter);
 
     return query.getGroups();
   }
@@ -276,12 +297,10 @@ public class Provisioner {
    * 
    * @throws javax.naming.NamingException
    *           thrown if an error occured interacting with the directory.
-   * @throws ConfigurationException
-   *           thrown if an Ldappc configuration error occurs
    * @throws LdappcException
    *           thrown if an error occurs
    */
-  protected void provisionGroups(Set groups) throws NamingException, LdappcException {
+  private void provisionGroups(Set groups) throws NamingException, LdappcException {
 
     //
     // Synchronize the root
@@ -291,22 +310,18 @@ public class Provisioner {
   }
 
   /**
-   * Provision the memberships from a set of Groups.
+   * Provision the memberships based on the given set of Groups.
    * 
    * @param groups
    *          Set of Groups to be provisioned
    * 
    * @throws NamingException
    *           thrown if an error occured interacting with the directory.
-   * @throws MultiErrorException
-   *           thrown if we catch exceptions while doing provisioning.
+   * @throws IOException
+   *           thrown if an error occurrs writing to the memberships file.
    */
-  protected void provisionMemberships(Set<Group> groups) throws NamingException {
-    //
-    // Initialize a vector to hold all caught exceptions that should be
-    // reported, but not immediately thrown
-    //
-    Vector<Exception> caughtExceptions = new Vector<Exception>();
+  private void provisionMemberships(Set<Group> groups) throws NamingException,
+      IOException {
 
     //
     // Build the set of all subjects with memberships
@@ -316,25 +331,51 @@ public class Provisioner {
     buildSourceSubjectDnSet(existingSubjectDns);
     LOG.debug("found " + existingSubjectDns.size() + " existing subjectDns");
 
+    // 
+    // Build membership updates file
     //
-    // File for writing memberships to when provisioning memberships. Each
-    // line of the file contains tab-delimited data consisting of the
-    // subject DN, the modify operator, and the group name string to be
-    // provisioned. This can then be sorted and read, batched by subject DN,
-    // to efficiently update the memberships for each subject.
-    //
-    File updatesFile = getUpdatesFile();
+    File updatesFile = buildMembershipFile(groups);
 
-    // DebugLog.info("Collecting grouper memberships");
+    //
+    // Read the updates and make the changes to the LDAP objects.
+    //
+    Set<Name> subjectDNs = performActualMembershipUpdates(updatesFile);
+
+    //
+    // Remove provisioned subjects from list of existing subjects
+    //
+    for (Name subjectDN : subjectDNs) {
+      existingSubjectDns.remove(subjectDN);
+    }
+
+    //
+    // Clear the memberships from any subject not processed above.
+    //
+    LOG.debug("Clearing old memberships");
+    clearSubjectEntryMemberships(existingSubjectDns);
+  }
+
+  /**
+   * File for writing memberships to when provisioning memberships. Each line of the file
+   * contains tab-delimited data consisting of the subject DN and the group name string to
+   * be provisioned. This can then be sorted and read, batched by subject DN, to
+   * efficiently update the memberships for each subject.
+   * 
+   * @param groups
+   * @return
+   * @throws NamingException
+   * @throws IOException
+   */
+  private File buildMembershipFile(Set<Group> groups) throws NamingException, IOException {
+
+    File updatesFile = getTempFile();
+
     BufferedWriter updatesWriter = openMembershipWriter(updatesFile);
     String groupNamingAttribute = configuration.getMemberGroupsNamingAttribute();
     if (groupNamingAttribute == null) {
       throw new ConfigurationException("The name of the group naming attribute is null.");
     }
 
-    //
-    // Iterate over the groups.
-    //
     for (Group group : groups) {
       //
       // Get the value corresponding to the group to be provisioned as a
@@ -345,58 +386,20 @@ public class Provisioner {
         continue;
       }
 
-      //
-      // Iterate over the members in the group.
-      //
       for (Member member : group.getMembers()) {
-        //
-        // Look for subject in the directory
-        //
         Name subjectDn = subjectCache.findSubjectDn(member);
         if (subjectDn != null) {
-          //
-          // Add subject DN to members and remove it from the list of
-          // existing subjects.
-          //
-          try {
-            updatesWriter.write(subjectDn.toString() + "\t" + groupNameString + "\n");
-          } catch (IOException e) {
-            caughtExceptions.add(e);
-          }
-          existingSubjectDns.remove(subjectDn);
+          updatesWriter.write(subjectDn.toString() + "\t" + groupNameString + "\n");
+          // existingSubjectDns.remove(subjectDn);
         }
       }
     }
 
-    //
-    // Close the memberships file.
-    //
-    try {
-      updatesWriter.close();
-    } catch (IOException e) {
-      throw new LdappcException("Unable to close membershps file", e);
-    }
+    updatesWriter.close();
 
-    //
-    // Sort the memberships file.
-    //
-    try {
-      ExternalSort.sort(updatesFile.getAbsolutePath(), SORT_BATCH_SIZE);
-    } catch (IOException e) {
-      throw new LdappcException("Unable to sort membershps file", e);
-    }
+    ExternalSort.sort(updatesFile.getAbsolutePath(), SORT_BATCH_SIZE);
 
-    //
-    // Read the updates and make the changes to the LDAP objects.
-    //
-    performActualMembershipUpdates(updatesFile);
-
-    //
-    // Clear the memberships from any subject not processed above.
-    //
-    LOG.debug("Clearing old memberships");
-    clearSubjectEntryMemberships(existingSubjectDns);
-
+    return updatesFile;
   }
 
   /**
@@ -431,15 +434,14 @@ public class Provisioner {
   }
 
   /**
-   * Generate the updates file name and return a File.
+   * Create a temporary file in the configured temporary directory.
    * 
-   * @return File for membership updates.
+   * @return File the file
+   * @throws IOException
    */
-  private File getUpdatesFile() {
-    //
-    // Generate random filename.
-    //
-    String filename = UUIDGenerator.getInstance().generateRandomBasedUUID().toString();
+  private File getTempFile() throws IOException {
+
+    File tempFile = null;
 
     //
     // Get the directory for the temporary file. Make sure it exists and is
@@ -447,17 +449,83 @@ public class Provisioner {
     //
     String tempDir = configuration.getMemberGroupsListTemporaryDirectory();
     if (tempDir != null) {
-      File tempFile = new File(tempDir);
+      tempFile = new File(tempDir);
       if (!tempFile.exists()) {
         tempFile.mkdirs();
       } else if (!tempFile.isDirectory()) {
         throw new ConfigurationException("Temporary directory " + tempDir
             + " is not a directory");
       }
-      filename = tempDir + "/" + filename;
     }
-    File updatesFile = new File(filename);
-    return updatesFile;
+
+    return File.createTempFile("ldappc", ".tmp", tempFile);
+  }
+
+  /**
+   * Read the memberships file and write an LDIF representation to the given writer.
+   * 
+   * @param updatesFile
+   * @param writer
+   * @throws NamingException
+   */
+  private void parseMembershipUpdates(File updatesFile, BufferedWriter writer)
+      throws NamingException {
+
+    //
+    // Re-open the sorted memberships file for reading.
+    //
+    BufferedReader updatesReader = openMembershipReader(updatesFile);
+
+    //
+    // Read the memberships from the file, batching by subject DN.
+
+    try {
+      Set<String> groups = new TreeSet<String>();
+
+      String currentSubjectDn = null;
+      for (String s = null; (s = updatesReader.readLine()) != null;) {
+        String[] parts = s.split("\t", 2);
+        String subjectDn = parts[0];
+        String groupNameString = parts[1];
+
+        if (!subjectDn.equals(currentSubjectDn)) {
+          if (currentSubjectDn != null) {
+            writer.write("dn: " + currentSubjectDn + "\n");
+            for (String group : groups) {
+              writer.write(configuration.getMemberGroupsListAttribute() + ": " + group
+                  + "\n");
+            }
+            writer.write("\n");
+          }
+          currentSubjectDn = subjectDn;
+          groups.clear();
+        }
+        groups.add(groupNameString);
+      }
+      if (currentSubjectDn != null) {
+        writer.write("dn: " + currentSubjectDn + "\n");
+        for (String group : groups) {
+          writer
+              .write(configuration.getMemberGroupsListAttribute() + ": " + group + "\n");
+        }
+        writer.write("\n");
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    try {
+      //
+      // Close and delete the memberships file.
+      //
+      updatesReader.close();
+      if (!LOG.isDebugEnabled()) {
+        updatesFile.delete();
+      }
+    } catch (IOException e) {
+      throw new LdappcException("IOException reading membership file", e);
+    }
+
   }
 
   /**
@@ -465,10 +533,15 @@ public class Provisioner {
    * 
    * @param updatesFile
    *          File containing the updates.
-   * @param existingObjectDns
-   *          Set containing subject DNs that have the list object class.
+   * @throws NamingException
    */
-  private void performActualMembershipUpdates(File updatesFile) {
+  private Set<Name> performActualMembershipUpdates(File updatesFile)
+      throws NamingException {
+
+    Set<Name> subjectDNs = new HashSet<Name>();
+
+    NameParser parser = ldapCtx.getNameParser(LdapUtil.EMPTY_NAME);
+
     //
     // Re-open the sorted memberships file for reading.
     //
@@ -478,7 +551,6 @@ public class Provisioner {
     // Read the memberships from the file, batching by subject DN.
     // Synchronize the memberships for each subject.
     //
-    // DebugLog.info("Beginning memberships updates");
     try {
       Set<String> groups = new HashSet<String>();
 
@@ -487,6 +559,8 @@ public class Provisioner {
         String[] parts = s.split("\t", 2);
         String subjectDn = parts[0];
         String groupNameString = parts[1];
+
+        subjectDNs.add(parser.parse(subjectDn));
 
         if (!subjectDn.equals(currentSubjectDn)) {
           if (currentSubjectDn != null) {
@@ -515,6 +589,8 @@ public class Provisioner {
     } catch (IOException e) {
       throw new LdappcException("IOException reading membership file", e);
     }
+
+    return subjectDNs;
   }
 
   /**
@@ -622,7 +698,7 @@ public class Provisioner {
    * @throws NamingException
    *           thrown if a Naming error occurs
    */
-  protected void buildSourceSubjectDnSet(Set<Name> subjectDns) throws NamingException {
+  private void buildSourceSubjectDnSet(Set<Name> subjectDns) throws NamingException {
     //
     // Get the source to subject ldap filter mapping from the configuration
     //
@@ -780,7 +856,7 @@ public class Provisioner {
    *          DN of <code>subject</code>'s LDAP entry
    * @return data string
    */
-  protected String getErrorData(Member member, Subject subject, Name subjectDn) {
+  private String getErrorData(Member member, Subject subject, Name subjectDn) {
     String errorData = "MEMBER";
 
     if (member != null) {

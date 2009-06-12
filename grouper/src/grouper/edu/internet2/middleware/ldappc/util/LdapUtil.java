@@ -22,6 +22,8 @@ import javax.naming.Name;
 import javax.naming.NameParser;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
@@ -420,4 +422,45 @@ public final class LdapUtil {
     //
     return parser.parse(entryName);
   }
+
+  /**
+   * Create an LDIF representation.
+   * 
+   * @param attribute
+   * @return the LDIF representation
+   * @throws NamingException
+   */
+  public static String getLdif(Attribute attribute) throws NamingException {
+
+    StringBuffer ldif = new StringBuffer();
+
+    NamingEnumeration<?> values = attribute.getAll();
+    while (values.hasMore()) {
+      String value = values.next().toString();
+      ldif.append(attribute.getID() + ": " + value + "\n");
+    }
+
+    return ldif.toString();
+  }
+
+  /**
+   * Create an LDIF representation.
+   * 
+   * @param attributes
+   * @return the LDIF representation
+   * @throws NamingException
+   */
+  public static String getLdif(Attributes attributes) throws NamingException {
+
+    StringBuffer ldif = new StringBuffer();
+
+    NamingEnumeration<?> ae = attributes.getAll();
+    while (ae.hasMore()) {
+      Attribute attribute = (Attribute) ae.next();
+      ldif.append(LdapUtil.getLdif(attribute));
+    }
+
+    return ldif.toString();
+  }
+
 }

@@ -1,5 +1,7 @@
 package edu.internet2.middleware.ldappc;
 
+import java.io.File;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.helper.StemHelper;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -24,6 +26,21 @@ public class CRUDTest extends BaseLdappcTestCase {
     groupB.store();
   }
 
+  public void testCalculateBushy() throws Exception {
+
+    setUpLdappc(LDAPPC_TEST_XML);
+
+    loadLdif("CRUDTest.before.ldif");
+
+    File ldif = calculate(GroupDNStructure.bushy);
+
+    verify("CRUDTest.testCalculateBushy.after.ldif", ldif);
+
+    if (!ldif.delete()) {
+      fail("could not delete " + ldif.getAbsolutePath());
+    }
+  }
+
   public void testCreateBushy() throws Exception {
 
     setUpLdappc(LDAPPC_TEST_XML);
@@ -31,8 +48,6 @@ public class CRUDTest extends BaseLdappcTestCase {
     loadLdif("CRUDTest.before.ldif");
 
     provision(GroupDNStructure.bushy);
-
-    print();
 
     verify("CRUDTest.testCreateBushy.after.ldif");
   }

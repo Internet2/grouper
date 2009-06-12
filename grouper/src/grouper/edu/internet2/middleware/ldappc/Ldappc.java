@@ -15,6 +15,9 @@
 
 package edu.internet2.middleware.ldappc;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Timer;
@@ -41,8 +44,37 @@ public final class Ldappc extends TimerTask {
 
   private ProvisionerOptions options;
 
+  private ProvisionerConfiguration configuration;
+
+  private LdapContext ldapContext;
+
+  private Provisioner provisioner;
+
   public Ldappc(ProvisionerOptions options) {
+    this(options, null, null);
+  }
+
+  public Ldappc(ProvisionerOptions options, ProvisionerConfiguration configuration,
+      LdapContext ldapContext) {
+
     this.options = options;
+
+    if (configuration == null) {
+      configuration = new ConfigManager(options.getConfigManagerLocation());
+    }
+    this.configuration = configuration;
+
+    try {
+      if (ldapContext == null) {
+        ldapContext = LdapUtil.getLdapContext(configuration.getLdapContextParameters(),
+            null);
+      }
+      this.ldapContext = ldapContext;
+    } catch (NamingException e) {
+      throw new LdappcException(e);
+    }
+
+    provisioner = new Provisioner(configuration, options, ldapContext);
   }
 
   public static void main(String[] args) {
@@ -100,12 +132,7 @@ public final class Ldappc extends TimerTask {
 
     Date now = new Date();
 
-    LdapContext ldapContext = null;
-
     try {
-
-      ProvisionerConfiguration configuration = new ConfigManager(options
-          .getConfigManagerLocation());
 
       if (LOG.isInfoEnabled()) {
         for (String source : configuration.getSourceSubjectHashEstimates().keySet()) {
@@ -114,12 +141,30 @@ public final class Ldappc extends TimerTask {
         }
       }
 
-      ldapContext = LdapUtil.getLdapContext(configuration.getLdapContextParameters(),
-          null);
+      switch (options.getMode()) {
 
-      Provisioner provisioner = new Provisioner(configuration, options, ldapContext);
+        case PROVISION:
 
-      provisioner.provision();
+          provisioner.provision();
+          break;
+
+        case CALCULATE:
+
+          File file = provisioner.calculate();
+
+          BufferedReader in = new BufferedReader(new FileReader(file));
+          String str;
+          while ((str = in.readLine()) != null) {
+            System.out.println(str);
+          }
+          in.close();
+          break;
+
+        case DRYRUN:
+
+          System.out.println("not yet implemented");
+          break;
+      }
 
       options.setLastModifyTime(now);
 
@@ -139,7 +184,7 @@ public final class Ldappc extends TimerTask {
       cancel();
     } finally {
       try {
-        if (null != ldapContext) {
+        if (!(options.isTest()) && ldapContext != null) {
           ldapContext.close();
         }
       } catch (NamingException e) {

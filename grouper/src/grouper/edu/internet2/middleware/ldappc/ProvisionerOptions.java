@@ -72,6 +72,39 @@ public class ProvisionerOptions {
    */
   private String configManagerLocation;
 
+  /**
+   * The path to the file written when calculating provisioning.
+   */
+  private String calculateOutputFileLocation = "ldappc.ldif";
+
+  /**
+   * Modes of operation.
+   */
+  public enum ProvisioningMode {
+    /**
+     * Calculate and print provisioning.
+     */
+    CALCULATE,
+
+    /**
+     * Show what would be provisioned but don't provision.
+     */
+    DRYRUN,
+
+    /**
+     * Provision, the default.
+     */
+    PROVISION,
+  };
+
+  /**
+   * The mode of operation.
+   */
+  private ProvisioningMode mode = ProvisioningMode.PROVISION;
+
+  /**
+   * CLI options follow
+   */
   private Options options = new Options();
 
   private Option subjectOption = new Option("s", "subject", true,
@@ -94,6 +127,12 @@ public class ProvisionerOptions {
       true,
       "Number of seconds between provisioning cycles. If omitted, only one provisioning cycle is performed.");
 
+  private Option calculateOption = new Option("calc", "calculate", true,
+      "Calculate provisioning and write to file, defaults to ldappc.ldif");
+
+  private Option dryRunOption = new Option("n", "dry-run", false,
+      "Show what would be done without doing it");
+
   public ProvisionerOptions() {
 
     subjectOption.setArgName("subjectId");
@@ -113,6 +152,12 @@ public class ProvisionerOptions {
 
     configManagerOption.setArgName("path");
     options.addOption(configManagerOption);
+
+    OptionGroup modeOptionGroup = new OptionGroup();
+    calculateOption.setArgName("ldappc.ldif");
+    modeOptionGroup.addOption(calculateOption);
+    modeOptionGroup.addOption(dryRunOption);
+    options.addOptionGroup(modeOptionGroup);
   }
 
   /**
@@ -145,11 +190,7 @@ public class ProvisionerOptions {
 
     CommandLine line = parser.parse(options, args);
 
-    if (line.hasOption(subjectOption.getOpt())) {
-      this.setSubjectId(line.getOptionValue(subjectOption.getOpt()));
-    } else {
-      this.setSubjectId(line.getOptionValue("GrouperSystem"));
-    }
+    this.setSubjectId(line.getOptionValue(subjectOption.getOpt(), "GrouperSystem"));
 
     if (line.hasOption(groupsOption.getOpt())) {
       this.setDoGroups(true);
@@ -188,6 +229,16 @@ public class ProvisionerOptions {
       } else {
         throw new LdappcException("Cannot find config file : " + file);
       }
+    }
+
+    if (line.hasOption(calculateOption.getOpt())) {
+      String file = line.getOptionValue(calculateOption.getOpt());
+      this.setCalculateOutputFileLocation(file);
+      this.setMode(ProvisioningMode.CALCULATE);
+    }
+
+    if (line.hasOption(this.dryRunOption.getOpt())) {
+      this.setMode(ProvisioningMode.DRYRUN);
     }
   }
 
@@ -282,5 +333,31 @@ public class ProvisionerOptions {
   public void printUsage() {
     HelpFormatter formatter = new HelpFormatter();
     formatter.printHelp("ldappc", options, true);
+  }
+
+  /**
+   * The mode of operation.
+   * 
+   * @return {@link #mode}
+   */
+  public ProvisioningMode getMode() {
+    return mode;
+  }
+
+  protected void setMode(ProvisioningMode mode) {
+    this.mode = mode;
+  }
+
+  /**
+   * The path to the file written during calculate mode.
+   * 
+   * @return the path
+   */
+  public String getCalculateOutputFileLocation() {
+    return calculateOutputFileLocation;
+  }
+
+  protected void setCalculateOutputFileLocation(String calculateOutputFileLocation) {
+    this.calculateOutputFileLocation = calculateOutputFileLocation;
   }
 }
