@@ -26,7 +26,6 @@ import java.util.Map;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
@@ -91,6 +90,8 @@ public class BaseLdappcTestCase extends GrouperTest {
 
   protected ConfigManager configuration;
 
+  protected ProvisionerOptions options = new ProvisionerOptions();
+
   protected String className = getClass().getSimpleName();
 
   public void setUp() {
@@ -109,8 +110,15 @@ public class BaseLdappcTestCase extends GrouperTest {
    */
   public void setUpLdappc(String file) throws Exception {
 
-    configuration = new ConfigManager(GrouperUtil.fileFromResourceName(file)
-        .getAbsolutePath());
+    options.setDoGroups(true);
+    options.setDoMemberships(true);
+    options.setIsTest(true);
+    options.setSubjectId("GrouperSystem");
+
+    String configManagerLocation = GrouperUtil.fileFromResourceName(file)
+        .getAbsolutePath();
+    options.setConfigManagerLocation(configManagerLocation);
+    configuration = new ConfigManager(configManagerLocation);
 
     if (useEmbedded()) {
       this.setUpEmbeddedServer();
@@ -216,6 +224,11 @@ public class BaseLdappcTestCase extends GrouperTest {
     }
   }
 
+  public File calculate(GroupDNStructure structure) throws Exception {
+
+    return getProvisioner(structure).calculate();
+  }
+
   /**
    * Return a list of child DNs under the given DN, in (reverse) order suitable for
    * deletion.
@@ -251,11 +264,8 @@ public class BaseLdappcTestCase extends GrouperTest {
   public Provisioner getProvisioner(GroupDNStructure structure, boolean doGroups,
       boolean doMemberships) throws Exception {
 
-    ProvisionerOptions options = new ProvisionerOptions();
     options.setDoGroups(doGroups);
     options.setDoMemberships(doMemberships);
-    options.setIsTest(true);
-    options.setSubjectId("GrouperSystem");
 
     configuration.setGroupDnStructure(structure);
 
@@ -332,6 +342,47 @@ public class BaseLdappcTestCase extends GrouperTest {
     for (LdapDN currentDN : currentMap.keySet()) {
       assertEquals("current", correctMap.get(currentDN), currentMap.get(currentDN));
     }
+  }
+
+  public void verify(String file, String ldif) throws Exception {
+
+    File ldifFile = new File(getClass().getResource(file).toURI());
+
+    LdifReader reader = new LdifReader();
+
+    Map<LdapDN, Entry> correctMap = buildMap(reader.parseLdifFile(ldifFile
+        .getAbsolutePath()));
+
+    Map<LdapDN, Entry> currentMap = buildMap(reader.parseLdif(ldif));
+
+    for (LdapDN dnA : correctMap.keySet()) {
+      assertEquals("correct ", correctMap.get(dnA), currentMap.get(dnA));
+    }
+
+    for (LdapDN dnB : currentMap.keySet()) {
+      assertEquals("current", correctMap.get(dnB), currentMap.get(dnB));
+    }
+
+  }
+
+  public void verify(String file, File ldif) throws Exception {
+
+    File ldifFile = new File(getClass().getResource(file).toURI());
+
+    LdifReader reader = new LdifReader();
+
+    Map<LdapDN, Entry> correctMap = buildMap(reader.parseLdifFile(ldifFile
+        .getAbsolutePath()));
+
+    Map<LdapDN, Entry> currentMap = buildMap(reader.parseLdifFile(ldif.getAbsolutePath()));
+
+    for (LdapDN dnA : correctMap.keySet()) {
+      assertEquals("correct ", correctMap.get(dnA), currentMap.get(dnA));
+    }
+
+    for (LdapDN dnB : currentMap.keySet()) {
+      assertEquals("current", correctMap.get(dnB), currentMap.get(dnB));
+    }
 
   }
 
@@ -350,16 +401,7 @@ public class BaseLdappcTestCase extends GrouperTest {
     for (String currentDn : currentDns) {
       ldif.append("dn: " + currentDn + "\n");
       Attributes attributes = ldapContext.getAttributes(currentDn);
-      NamingEnumeration<String> ids = attributes.getIDs();
-      while (ids.hasMore()) {
-        String id = ids.next();
-        Attribute attribute = attributes.get(id);
-        NamingEnumeration<?> values = attribute.getAll();
-        while (values.hasMore()) {
-          String value = values.next().toString();
-          ldif.append(id + ": " + value + "\n");
-        }
-      }
+      ldif.append(LdapUtil.getLdif(attributes));
       ldif.append("\n");
     }
 

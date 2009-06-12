@@ -279,6 +279,43 @@ public class GroupEntrySynchronizer extends Synchronizer {
   }
 
   /**
+   * Create an LDIF representation of the given group.
+   * 
+   * @param group
+   * @return the LDIF
+   * @throws LdappcException
+   * @throws NamingException
+   */
+  public String calculateLdif(Group group) throws LdappcException, NamingException {
+
+    initializeInclude(group);
+
+    Name groupDn = buildGroupDn(group);
+
+    storeGroupData(group);
+
+    StringBuffer ldif = new StringBuffer();
+
+    ldif.append("dn: " + groupDn + "\n");
+
+    ldif.append(LdapUtil.getLdif(objectClassMods.getAdditions()));
+    ldif.append(LdapUtil.getLdif(memberDnMods.getAdditions()));
+    ldif.append(LdapUtil.getLdif(memberNameMods.getAdditions()));
+    ldif.append(LdapUtil.getLdif(rdnMods.getAdditions()));
+
+    NamingEnumeration<Attribute> ldapAttrEnum = mappedLdapAttributes.getAll();
+    while (ldapAttrEnum.hasMore()) {
+      Attribute attribute = ldapAttrEnum.next();
+      AttributeModifier modifier = (AttributeModifier) attribute.get();
+      ldif.append(LdapUtil.getLdif(modifier.getAdditions()));
+    }
+
+    ldif.append("\n");
+
+    return ldif.toString();
+  }
+
+  /**
    * This identifies the underlying group as one that must remain or, if need be, must be
    * added to the subject's LDAP entry. If the group has already been provisioned to the
    * entry, it will remain within the subject's LDAP entry.
