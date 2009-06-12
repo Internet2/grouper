@@ -22,7 +22,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.ldappc.util.LdapSearchFilter;
 
-public interface ProvisionerConfiguration {
+public interface LdappcConfig {
 
   /**
    * Indicates creating either a flat or bushy Group DN structure.

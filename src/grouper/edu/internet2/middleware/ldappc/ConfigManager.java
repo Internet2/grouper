@@ -48,7 +48,7 @@ import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
 /**
  * Class for accessing values from the Auth2Ldap configuration file.
  */
-public class ConfigManager implements ProvisionerConfiguration {
+public class ConfigManager implements LdappcConfig {
 
   private static final Logger LOG = GrouperUtil.getLogger(ConfigManager.class);
 
@@ -124,9 +124,9 @@ public class ConfigManager implements ProvisionerConfiguration {
 
   /**
    * Grouper attribute whose value is the Group DN RDN value. Must have a value of
-   * {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUPER_ID_ATTRIBUTE}
+   * {@link edu.internet2.middleware.ldappc.LdappcConfig#GROUPER_ID_ATTRIBUTE}
    * or
-   * {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUPER_NAME_ATTRIBUTE}
+   * {@link edu.internet2.middleware.ldappc.LdappcConfig#GROUPER_NAME_ATTRIBUTE}
    * .
    */
   private String groupDnGrouperAttribute;
@@ -820,9 +820,9 @@ public class ConfigManager implements ProvisionerConfiguration {
    * This returns the defined Group DN structure.
    * 
    * @return Group DN structure, either
-   *         {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUP_DN_FLAT}
+   *         {@link edu.internet2.middleware.ldappc.LdappcConfig#GROUP_DN_FLAT}
    *         or
-   *         {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUP_DN_BUSHY}
+   *         {@link edu.internet2.middleware.ldappc.LdappcConfig#GROUP_DN_BUSHY}
    */
   public GroupDNStructure getGroupDnStructure() {
     return groupDnStructure;
@@ -863,7 +863,7 @@ public class ConfigManager implements ProvisionerConfiguration {
 
   /**
    * Returns the name of the object class for the Group entry when
-   * {@link #getGroupDnStructure()} returns {@link ProvisionerConfiguration#GROUP_DN_FLAT}
+   * {@link #getGroupDnStructure()} returns {@link LdappcConfig#GROUP_DN_FLAT}
    * .
    * 
    * @return Name of the object class for a Group
@@ -915,9 +915,9 @@ public class ConfigManager implements ProvisionerConfiguration {
    * 
    * @param attribute
    *          Either
-   *          {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUPER_ID_ATTRIBUTE}
+   *          {@link edu.internet2.middleware.ldappc.LdappcConfig#GROUPER_ID_ATTRIBUTE}
    *          or
-   *          {@link edu.internet2.middleware.ldappc.ProvisionerConfiguration#GROUPER_NAME_ATTRIBUTE}
+   *          {@link edu.internet2.middleware.ldappc.LdappcConfig#GROUPER_NAME_ATTRIBUTE}
    */
   private void setGroupDnGrouperAttribute(String attribute) {
     this.groupDnGrouperAttribute = attribute;

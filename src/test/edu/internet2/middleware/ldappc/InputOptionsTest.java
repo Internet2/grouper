@@ -36,17 +36,17 @@ public class InputOptionsTest extends TestCase {
   /*
    * An instance of the main class, just to check that it can be created.
    */
-  private ProvisionerOptions inputOptions;
+  private LdappcOptions inputOptions;
 
   /*
    * An instance of the main class, to check for property setting of options.
    */
-  private ProvisionerOptions inputOptions1;
+  private LdappcOptions inputOptions1;
 
   /*
    * An instance of the main class, to check for property setting of options.
    */
-  private ProvisionerOptions inputOptions2;
+  private LdappcOptions inputOptions2;
 
   /**
    * InputOptions Test
@@ -71,9 +71,9 @@ public class InputOptionsTest extends TestCase {
     String args2[] = { "-subject", "subjectIdB", "-groups", "-interval", "123" };
 
     try {
-      inputOptions = new ProvisionerOptions(args);
-      inputOptions1 = new ProvisionerOptions(args1);
-      inputOptions2 = new ProvisionerOptions(args2);
+      inputOptions = new LdappcOptions(args);
+      inputOptions1 = new LdappcOptions(args1);
+      inputOptions2 = new LdappcOptions(args2);
     } catch (Exception e) {
       fail(e.toString());
     }
