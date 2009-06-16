@@ -52,11 +52,6 @@ public class StringMembershipSynchronizer {
   private AttributeModifier objectClassMods;
 
   /**
-   * Name of the group naming attribute.
-   */
-  private String groupNamingAttribute;
-
-  /**
    * DN of the subject whose permissions are being synchronized.
    */
   private String subject;
@@ -104,14 +99,6 @@ public class StringMembershipSynchronizer {
     // membershipMods = new AttributeModifier(listAttrName,
     // configuration.getMemberGroupsListEmptyValue());
     membershipMods = new AttributeModifier(listAttrName);
-
-    //
-    // Get the group naming attribute
-    //
-    groupNamingAttribute = ldappc.getConfig().getMemberGroupsNamingAttribute();
-    if (groupNamingAttribute == null) {
-      throw new ConfigurationException("The name of the group naming attribute is null.");
-    }
   }
 
   /**
