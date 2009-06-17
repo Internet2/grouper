@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Perform arbitrary queries against the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperQuery.java,v 1.2 2008-09-29 03:38:31 mchyzer Exp $
+ * @version $Id: GrouperQuery.java,v 1.2.2.1 2009-06-17 03:27:01 mchyzer Exp $
  */
 public class GrouperQuery {
 
@@ -117,12 +117,14 @@ public class GrouperQuery {
     Iterator  iter        = candidates.iterator();
     while (iter.hasNext()) {
       o = iter.next();
-      if      (o.getClass().equals(Group.class)) {
-        Group g = (Group) o;
-        groups.add(g);
-      }
-      else {
-        LOG.error(E.NI + E.Q_G + o.getClass());
+      if (o!=null) {
+        if      (o.getClass().equals(Group.class)) {
+          Group g = (Group) o;
+          groups.add(g);
+        }
+        else {
+          LOG.error(E.NI + E.Q_G + o.getClass());
+        }
       }
     }
     return groups;
