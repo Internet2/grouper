@@ -11,19 +11,16 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 public enum AttributeDefType {
+    
+  /** if this is an attribute */
+  attr, 
   
-  /** whole number type, can be used for date/timestamp or other things */
-  INT, 
+  /** if this is a limit of an attribute */
+  limit, 
   
-  /** text */
-  STRING, 
-  
-  /** floating point number */
-  DOUBLE, 
-  
-  /** no value type, the attribute itself is all that is needed */
-  MARKER; 
-  
+  /** if this is a privilege */
+  priv;
+
   /**
    * do a case-insensitive matching
    * 

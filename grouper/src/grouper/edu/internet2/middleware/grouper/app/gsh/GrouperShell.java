@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Grouper Management Shell.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperShell.java,v 1.14 2009-04-15 15:56:21 mchyzer Exp $
+ * @version $Id: GrouperShell.java,v 1.15 2009-06-24 06:22:25 mchyzer Exp $
  * @since   0.0.1
  */
 public class GrouperShell {
@@ -339,6 +339,7 @@ private static boolean handleSpecialCase(String[] args) {
       this.interpreter.eval(  "importCommands(\"edu.internet2.middleware.subject\")");
       this.interpreter.eval(  "importCommands(\"edu.internet2.middleware.subject.provider\")");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.*;");
+      this.interpreter.eval(  "import edu.internet2.middleware.grouper.attr.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.audit.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.xml.*;");
       this.interpreter.eval(  "import edu.internet2.middleware.grouper.registry.*;");

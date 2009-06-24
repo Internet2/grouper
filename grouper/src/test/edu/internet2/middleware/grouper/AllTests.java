@@ -27,6 +27,7 @@ import junit.textui.TestRunner;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.AllAppTests;
+import edu.internet2.middleware.grouper.attr.AllAttributeDefTests;
 import edu.internet2.middleware.grouper.audit.AllAuditTests;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.AllConfigTests;
@@ -54,7 +55,7 @@ import edu.internet2.middleware.ldappc.AllLdappcJunitTests;
 /**
  * Run default tests.
  * @author  blair christensen.
- * @version $Id: AllTests.java,v 1.8 2009-05-12 06:35:27 mchyzer Exp $
+ * @version $Id: AllTests.java,v 1.9 2009-06-24 06:22:25 mchyzer Exp $
  */
 public class AllTests extends GrouperTest {
 
@@ -178,6 +179,7 @@ public class AllTests extends GrouperTest {
 
     suite.addTest(AllAppTests.suite());
     suite.addTest(AllAuditTests.suite());
+    suite.addTest(AllAttributeDefTests.suite());
     suite.addTest(AllChangeLogTests.suite());
     suite.addTest(AllConfigTests.suite());
 

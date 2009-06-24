@@ -3,11 +3,15 @@
  */
 package edu.internet2.middleware.grouper.attr;
 
+import java.sql.Timestamp;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -18,24 +22,124 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author mchyzer
  *
  */
+@SuppressWarnings("serial")
 public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(AttributeDef.class);
+
+  /** name of the groups attribute def table in the db */
+  public static final String TABLE_GROUPER_ATTRIBUTE_DEF = "grouper_attribute_def";
+
+  /** actions col in db */
+  public static final String COLUMN_ACTIONS = "actions";
+
+  /** assignable_to col in db */
+  public static final String COLUMN_ASSIGNABLE_TO = "assignable_to";
+
+  /** if the attribute def is public */
+  public static final String COLUMN_ATTRIBUTE_DEF_PUBLIC = "attribute_def_public";
+
+  /** column */
+  public static final String COLUMN_ATTRIBUTE_DEF_TYPE = "attribute_def_type";
+
+  /** column */
+  public static final String COLUMN_CONTEXT_ID = "context_id";
+
+  /** column */
+  public static final String COLUMN_CREATED_ON = "created_on";
+
+  /** column */
+  public static final String COLUMN_LAST_UPDATED = "last_updated";
+
+  /** column */
+  public static final String COLUMN_DESCRIPTION = "description";
+
+  /** column */
+  public static final String COLUMN_EXTENSION = "extension";
+
+  /** column */
+  public static final String COLUMN_NAME = "name";
+
+  /** column */
+  public static final String COLUMN_MULTI_ASSIGNABLE = "multi_assignable";
+
+  /** column */
+  public static final String COLUMN_MULTI_VALUED = "multi_valued";
+
+  /** column */
+  public static final String COLUMN_STEM_ID = "stem_id";
+
+  /** column */
+  public static final String COLUMN_VALUE_TYPE = "value_type";
+
+  /** column */
+  public static final String COLUMN_ID = "id";
+
+  
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
+
+  /** constant for field name for: assignableTo */
+  public static final String FIELD_ASSIGNABLE_TO = "assignableTo";
+
+  /** constant for field name for: attributeDefPublic */
+  public static final String FIELD_ATTRIBUTE_DEF_PUBLIC = "attributeDefPublic";
+
+  /** constant for field name for: attributeDefType */
+  public static final String FIELD_ATTRIBUTE_DEF_TYPE = "attributeDefType";
+
+  /** constant for field name for: contextId */
+  public static final String FIELD_CONTEXT_ID = "contextId";
+
+  /** constant for field name for: createTime */
+  public static final String FIELD_CREATE_TIME = "createTime";
+
+  /** constant for field name for: description */
+  public static final String FIELD_DESCRIPTION = "description";
+
+  /** constant for field name for: extension */
+  public static final String FIELD_EXTENSION = "extension";
 
   /** constant for field name for: id */
   public static final String FIELD_ID = "id";
 
+  /** constant for field name for: modifyTime */
+  public static final String FIELD_MODIFY_TIME = "modifyTime";
+
+  /** constant for field name for: multiAssignable */
+  public static final String FIELD_MULTI_ASSIGNABLE = "multiAssignable";
+
+  /** constant for field name for: multiValued */
+  public static final String FIELD_MULTI_VALUED = "multiValued";
+
+  /** constant for field name for: stemId */
+  public static final String FIELD_STEM_ID = "stemId";
+
+  /** constant for field name for: valueType */
+  public static final String FIELD_VALUE_TYPE = "valueType";
+
+  /** constant for field name for: actions */
+  public static final String FIELD_ACTIONS = "actions";
+
   /**
    * fields which are included in db version
    */
+  @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_ID);
+      FIELD_ASSIGNABLE_TO, FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
+      FIELD_CREATE_TIME, FIELD_DESCRIPTION, FIELD_EXTENSION, 
+      FIELD_ID, FIELD_MODIFY_TIME, FIELD_MULTI_ASSIGNABLE, 
+      FIELD_MULTI_VALUED, FIELD_STEM_ID, FIELD_VALUE_TYPE, FIELD_ACTIONS);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID);
+      FIELD_ASSIGNABLE_TO, FIELD_ATTRIBUTE_DEF_PUBLIC, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_CONTEXT_ID, 
+      FIELD_CREATE_TIME, FIELD_DESCRIPTION, FIELD_EXTENSION, 
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_MODIFY_TIME, 
+      FIELD_MULTI_ASSIGNABLE, FIELD_MULTI_VALUED, FIELD_STEM_ID, FIELD_VALUE_TYPE, 
+      FIELD_ACTIONS);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -54,7 +158,11 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   /** context id of the transaction */
   private String contextId;
 
-  /** type that this attribute value is assignable to */
+  /** 
+   * AttributeDefAssignableTo type that this attribute value is assignable to,
+   * group, stem, membership, member, groupAttribute, 
+   * stemAttribute, membershipAttribute, memberAttribute
+   */
   private AttributeDefAssignableTo assignableTo;
   
   /** stem that this attribute is in */
@@ -63,17 +171,12 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   /**
    * time in millis when this attribute was last modified
    */
-  private long modifyTime = 0;
+  private Long lastUpdatedDb;
 
   /**
    * time in millis when this attribute was created
    */
-  private long createTime = 0;
-
-  /**
-   * member id of the member who created this 
-   */
-  private String creatorId;
+  private Long createdOnDb;
 
   /**
    * description of attribute, friendly description, e.g. in sentence form, 
@@ -82,14 +185,14 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   private String description;
 
   /**
-   * extension of attribute expireTime
+   * extension of attribute
    */
   private String extension;
 
   /**
-   * member id of the person who last modified this attribute
+   * name of attribute
    */
-  private String modifierId;
+  private String name;
 
   /**
    * if the attribute def is public, otherwise you just see it in this stem and substem
@@ -150,6 +253,22 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   }
 
   /**
+   * type of this attribute (e.g. attribute or privilege)
+   * @return
+   */
+  public String getAttributeDefTypeDb() {
+    return this.attributeDefType == null ? null : this.attributeDefType.name();
+  }
+
+  /**
+   * type of this attribute (e.g. attr or priv or limit)
+   * @param theAttributeDefType
+   */
+  public void setAttributeDefTypeDb(String theAttributeDefType) {
+    this.attributeDefType = AttributeDefType.valueOfIgnoreCase(theAttributeDefType, false);
+  }
+
+  /**
    * if the attribute def is public, otherwise you just see it in this stem and substem
    * @return if public
    */
@@ -163,24 +282,6 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
    */
   public void setAttributeDefIsPublic(boolean attributeDefIsPublic1) {
     this.attributeDefPublic = attributeDefIsPublic1;
-  }
-
-  /**
-   * group that can see that the attribute def exists
-   * "public" for public
-   * @return group
-   */
-  public String getSecurityUpdateGroup() {
-    return securityUpdateGroup;
-  }
-
-  /**
-   * group that can see that the attribute def exists
-   * "public" for public
-   * @param securityUpdateGroup1
-   */
-  public void setSecurityUpdateGroup(String securityUpdateGroup1) {
-    this.securityUpdateGroup = securityUpdateGroup1;
   }
 
   /**
@@ -200,7 +301,9 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   }
 
   /**
-   * type that this attribute value is assignable to AttributeDefAssignTo
+   * AttributeDefAssignableTo type that this attribute value is assignable to,
+   * group, stem, membership, member, groupAttribute, 
+   * stemAttribute, membershipAttribute, memberAttribute
    * @return attribute value
    */
   public String getAssignableToDb() {
@@ -208,7 +311,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   }
   
   /**
-   * if this attribute can be assigned to the same verb to the same object more than once
+   * if this attribute can be assigned to the same action to the same object more than once
    */
   private boolean multiAssignable;
   
@@ -217,41 +320,17 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
    */
   private boolean multiValued;
 
-  /** 
-   * group that can read data from this attribute (blank for default behavior)
-   * "public" for public
-   */
-  private String securityReadGroup;
-  
-  /** 
-   * group that can write data from this attribute (blank for default behavior)
-   * "public" for public
-   */
-  private String securityUpdateGroup;
-  
   /**
-   * group that can admin data from this attribute (blank for default behavior).
-   * "public" for public
-   */
-  private String securityAdminGroup;
-  
-  /**
-   * group that can see that the attribute def exists
-   * "public" for public
-   */
-  private String securityViewGroup;
-  
-  /**
-   * comma separated list of verbs for this attribute.  at least there needs to be one.
-   * default is "assign"  verbs must contain only alphanumeric or underscore, case sensitive
+   * comma separated list of actions for this attribute.  at least there needs to be one.
+   * default is "assign"  actions must contain only alphanumeric or underscore, case sensitive
    * e.g. read,write,admin
    */
-  private String verbs = "assign";
+  private String actions = "assign";
   
   /**
    * type of the value,  int, double, string, marker
    */
-  private AttributeDefValueType valueType;
+  private AttributeDefValueType valueType = AttributeDefValueType.marker;
   
   /**
    * type of the value,  int, double, string, marker
@@ -286,41 +365,41 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   }
 
   /**
-   * comma separated list of verbs for this attribute.  at least there needs to be one.
-   * default is "assign"  verbs must contain only alphanumeric or underscore, case sensitive
+   * comma separated list of actions for this attribute.  at least there needs to be one.
+   * default is "assign"  actions must contain only alphanumeric or underscore, case sensitive
    * e.g. read, write, admin
-   * @return the verbs
+   * @return the actions
    */
-  public String getVerbs() {
-    if (StringUtils.isBlank(this.verbs)) {
-      this.verbs = "assign";
+  public String getActions() {
+    if (StringUtils.isBlank(this.actions)) {
+      this.actions = "assign";
     }
-    return verbs;
+    return actions;
   }
 
   /**
-   * get the verbs for this attribute def in an array
-   * @return the array of verbs
+   * get the actions for this attribute def in an array
+   * @return the array of actions
    */
-  public String[] getVerbsArray() {
-    return GrouperUtil.splitTrim(this.verbs, ",");
+  public String[] getActionsArray() {
+    return GrouperUtil.splitTrim(this.actions, ",");
   }
   
   /**
-   * comma separated list of verbs for this attribute.  at least there needs to be one.
-   * default is "assign" verbs must contain only alphanumeric or underscore, case sensitive
+   * comma separated list of actions for this attribute.  at least there needs to be one.
+   * default is "assign" actions must contain only alphanumeric or underscore, case sensitive
    * e.g. read,write,admin
-   * @param verbs
+   * @param actions
    */
-  public void setVerbs(String verbs) {
-    this.verbs = verbs;
-    if (StringUtils.isBlank(this.verbs)) {
-      this.verbs = "assign";
+  public void setActions(String actions) {
+    this.actions = actions;
+    if (StringUtils.isBlank(this.actions)) {
+      this.actions = "assign";
     }
   }
 
   /**
-   * if this attribute can be assigned to the same verb to the same object more than once
+   * if this attribute can be assigned to the same action to the same object more than once
    * @return if multiassignable
    */
   public boolean isMultiAssignable() {
@@ -328,7 +407,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   }
   
   /**
-   * if this attribute can be assigned to the same verb to the same object more than once
+   * if this attribute can be assigned to the same action to the same object more than once
    * convert to string for hibernate
    * @return the string value
    */
@@ -337,7 +416,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   }
 
   /**
-   * if this attribute can be assigned to the same verb to the same object more than once
+   * if this attribute can be assigned to the same action to the same object more than once
    * convert to string for hibernate
    * @param multiAssignableDb
    */
@@ -346,7 +425,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   }
   
   /**
-   * if this attribute can be assigned to the same verb to the same object more than once
+   * if this attribute can be assigned to the same action to the same object more than once
    * @param multiAssignable1
    */
   public void setMultiAssignable(boolean multiAssignable1) {
@@ -388,7 +467,9 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   }
 
   /**
-   * type that this attribute value is assignable to AttributeDefAssignTo
+   * AttributeDefAssignableTo type that this attribute value is assignable to,
+   * group, stem, membership, member, groupAttribute, 
+   * stemAttribute, membershipAttribute, memberAttribute
    * @param assignableToString
    */
   public void setAssignableToDb(String assignableToString) {
@@ -397,7 +478,9 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   }
   
   /**
-   * type that this attribute value is assignable to
+   * AttributeDefAssignableTo type that this attribute value is assignable to,
+   * group, stem, membership, member, groupAttribute, 
+   * stemAttribute, membershipAttribute, memberAttribute
    * @return the type
    */
   public AttributeDefAssignableTo getAssignableTo() {
@@ -405,7 +488,9 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   }
 
   /**
-   * type that this attribute value is assignable to
+   * AttributeDefAssignableTo type that this attribute value is assignable to,
+   * group, stem, membership, member, groupAttribute, 
+   * stemAttribute, membershipAttribute, memberAttribute
    * @param assignableTo1
    */
   public void setAssignableTo(AttributeDefAssignableTo assignableTo1) {
@@ -445,46 +530,68 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   }
 
   
-  public long getModifyTime() {
-    return modifyTime;
+  /**
+   * when last updated
+   * @return timestamp
+   */
+  public Timestamp getLastUpdated() {
+    return this.lastUpdatedDb == null ? null : new Timestamp(this.lastUpdatedDb);
   }
 
+  /**
+   * when last updated
+   * @return timestamp
+   */
+  public Long getLastUpdatedDb() {
+    return this.lastUpdatedDb;
+  }
+
+  /**
+   * when last updated
+   * @param lastUpdated1
+   */
+  public void setLastUpdated(Timestamp lastUpdated1) {
+    this.lastUpdatedDb = lastUpdated1 == null ? null : lastUpdated1.getTime();
+  }
+
+  /**
+   * when last updated
+   * @param lastUpdated1
+   */
+  public void setLastUpdatedDb(Long lastUpdated1) {
+    this.lastUpdatedDb = lastUpdated1;
+  }
   
-  public void setModifyTime(long modifyTime) {
-    this.modifyTime = modifyTime;
-  }
-
-  
   /**
-   * time in millis when this attribute was created
-   * @return the create time
+   * when created
+   * @return timestamp
    */
-  public long getCreateTime() {
-    return createTime;
+  public Timestamp getCreatedOn() {
+    return this.createdOnDb == null ? null : new Timestamp(this.createdOnDb);
   }
 
   /**
-   * time in millis when this attribute was created
-   * @param createTime1
+   * when created
+   * @return timestamp
    */
-  public void setCreateTime(long createTime1) {
-    this.createTime = createTime1;
+  public Long getCreatedOnDb() {
+    return this.createdOnDb;
   }
 
   /**
-   * member id of the member who created this 
-   * @return the creator id
+   * when created
+   * @param createdOn1
    */
-  public String getCreatorId() {
-    return creatorId;
+  public void setCreatedOn(Timestamp createdOn1) {
+    this.createdOnDb = createdOn1 == null ? null : createdOn1.getTime();
   }
 
   /**
-   * member id of the member who created this 
-   * @param creatorId1
+   * when created
+   * @param createdOn1
    */
-  public void setCreatorId(String creatorId1) {
-    this.creatorId = creatorId1;
+  public void setCreatedOnDb(Long createdOn1) {
+    this.createdOnDb = createdOn1;
   }
 
   /**
@@ -515,6 +622,14 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
 
   /**
    * extension of attribute expireTime
+   * @return extension
+   */
+  public String getExtensionDb() {
+    return extension;
+  }
+
+  /**
+   * extension of attribute expireTime
    * @param extension1
    */
   public void setExtension(String extension1) {
@@ -522,71 +637,50 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   }
 
   /**
-   * member id of the person who last modified this attribute
-   * @return modifier id
+   * extension of attribute expireTime
+   * @param extension1
    */
-  public String getModifierId() {
-    return modifierId;
+  public void setExtensionDb(String extension1) {
+    this.extension = extension1;
   }
 
   /**
-   * member id of the person who last modified this attribute
-   * @param modifierId1
+   * 
+   * @return the name for hibernate
    */
-  public void setModifierId(String modifierId1) {
-    this.modifierId = modifierId1;
+  public String getNameDb() {
+    return name;
   }
 
   /**
-   * group that can read data from this attribute (blank for default behavior)
-   * @return security read group
+   * 
+   * @param name1
    */
-  public String getSecurityReadGroup() {
-    return securityReadGroup;
-  }
-
-  /**
-   * group that can read data from this attribute (blank for default behavior)
-   * @param securityReadGroup1
-   */
-  public void setSecurityReadGroup(String securityReadGroup1) {
-    this.securityReadGroup = securityReadGroup1;
-  }
-
-  /**
-   * group that can admin this attribute def (blank for default behavior)
-   * "public" for public
-   * @return group
-   */
-  public String getSecurityAdminGroup() {
-    return this.securityAdminGroup;
-  }
-
-  /**
-   * group that can admin this attribute def (blank for default behavior)
-   * "public" for public
-   * @param securityAdminGroup1
-   */
-  public void setSecurityAdminGroup(String securityAdminGroup1) {
-    this.securityAdminGroup = securityAdminGroup1;
-  }
-
-  /**
-   * group that can see that the attribute def exists
-   * "public" for public
-   * @return the security view group
-   */
-  public String getSecurityViewGroup() {
-    return this.securityViewGroup;
-  }
-
-  /**
-   * group that can see that the attribute def exists
-   * "public" for public
-   * @param securityViewGroup1
-   */
-  public void setSecurityViewGroup(String securityViewGroup1) {
-    this.securityViewGroup = securityViewGroup1;
+  public void setNameDb(String name1) {
+    this.name = name1;
   }
   
+
+  /**
+   * Get group name.
+   * @return  Group name.
+   * @throws  GrouperException
+   */
+  public String getName() throws GrouperException  {
+
+    if (StringUtils.isBlank(this.name)) {
+      LOG.error( "attributeDef is blank");
+      throw new GrouperException("attributeDef is blank");
+    }
+    return this.name;
+  } // public String getName()
+
+  /**
+   * Set attributeDef <i>name</i>.  This should not be called
+   * @param   value   Set <i>extension</i> to this value.
+   */
+  public void setName(String value) {
+    throw new InsufficientPrivilegeException("group name is system maintained: " + this.name + ", " + value);
+  }
+
 }

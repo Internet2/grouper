@@ -34,12 +34,17 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.exception.AttributeDefAddException;
+import edu.internet2.middleware.grouper.exception.AttributeDefNameAddException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
@@ -89,6 +94,8 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.validator.AddAttributeDefNameValidator;
+import edu.internet2.middleware.grouper.validator.AddAttributeDefValidator;
 import edu.internet2.middleware.grouper.validator.AddGroupValidator;
 import edu.internet2.middleware.grouper.validator.AddStemValidator;
 import edu.internet2.middleware.grouper.validator.DeleteStemValidator;
@@ -103,7 +110,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.197 2009-06-11 04:17:40 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.198 2009-06-24 06:22:24 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -299,6 +306,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
 
   // PUBLIC INSTANCE METHODS //
 
+  // PUBLIC INSTANCE METHODS //
+  
   /**
    * Add a new group to the registry.
    * <pre class="eg">
@@ -325,6 +334,32 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
   {
     return this.internal_addChildGroup(extension, displayExtension, null);
   } // public Group addChildGroup(extension, displayExtension)
+
+  /**
+   * Add a new attribute def to the registry.
+   * @param   extension attributeDef's extension
+   * @return  The added {@link AttributeDef}
+   * @throws  InsufficientPrivilegeException
+   */
+  public AttributeDef addChildAttributeDef(String extension, 
+      AttributeDefType attributeDefType) 
+    throws InsufficientPrivilegeException {
+    return this.internal_addChildAttributeDef(GrouperSession.staticGrouperSession(true), 
+        extension, null, attributeDefType, null);
+  }
+
+  /**
+   * Add a new attribute def to the registry.
+   * @param attributeDef is the definition of this attribute
+   * @param   extension attributeDef's extension
+   * @return  The added {@link AttributeDef}
+   * @throws  InsufficientPrivilegeException
+   */
+  public AttributeDefName addChildAttributeDefName(AttributeDef attributeDef, String extension, String displayExtension) 
+    throws InsufficientPrivilegeException {
+    return this.internal_addChildAttributeDefName(GrouperSession.staticGrouperSession(true), attributeDef,
+        extension, displayExtension, null, null);
+  }
 
   /**
    * Add a new stem to the registry.
@@ -1582,7 +1617,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
     return (Group)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
-
+  
           public Object callback(HibernateHandlerBean hibernateHandlerBean)
               throws GrouperDAOException {
             try {
@@ -1605,7 +1640,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
               _g.setCreateTimeLong(new Date().getTime());
               _g.setCreatorUuid(session.getMember().getUuid());
               _g.setTypes(types);
-
+  
               v = NotNullOrEmptyValidator.validate(uuid);
               if (v.isInvalid()) {
                 _g.setUuid( GrouperUuid.getUuid() );
@@ -1657,6 +1692,164 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
               throw new GroupAddException( E.CANNOT_CREATE_GROUP + errorMessageSuffix + eDAO.getMessage(), eDAO );
             } catch (SourceUnavailableException eSU)  {
               throw new GroupAddException(E.CANNOT_CREATE_GROUP + errorMessageSuffix + eSU.getMessage(), eSU);
+            }
+          }
+        });
+  }
+
+  /**
+   * @param attributeDef
+   * @param session
+   * @param extension
+   * @param displayExtension
+   * @param id
+   * @param description
+   * @param types
+   * @param attributes
+   * @return group
+   * @throws AttributeDefNameAddException
+   * @throws InsufficientPrivilegeException
+   */
+  protected AttributeDefName internal_addChildAttributeDefName(final GrouperSession session, final AttributeDef attributeDef,
+      final String extension, final String displayExtension,
+      final String id, final String description)
+      throws InsufficientPrivilegeException {
+
+    final String errorMessageSuffix = ", stem name: " + this.name + ", attrDefName extension: " + extension
+      + ", uuid: " + id + ", ";
+
+    return (AttributeDefName)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            try {
+              StopWatch sw = new StopWatch();
+              sw.start();
+              if (!PrivilegeHelper.canCreate(session,
+                  Stem.this, session.getSubject())) {
+                throw new InsufficientPrivilegeException(E.CANNOT_CREATE + errorMessageSuffix);
+              }
+              GrouperValidator v = AddAttributeDefNameValidator.validate(Stem.this, extension);
+              if (v.isInvalid()) {
+                throw new AttributeDefNameAddException( v.getErrorMessage() + errorMessageSuffix );
+              }
+        
+              AttributeDefName attributeDefName = new AttributeDefName();
+              attributeDefName.setAttributeDefId(attributeDef.getId());
+              attributeDefName.setStemId(Stem.this.getUuid());
+              attributeDefName.setExtensionDb(extension);
+              attributeDefName.setDisplayExtensionDb(displayExtension);
+              attributeDefName.setDescription(description);
+              attributeDefName.setNameDb(Stem.this.getName() + ":" + extension);
+              attributeDefName.setDisplayNameDb(Stem.this.getDisplayName() + ":" + displayExtension);
+
+              String theId = id;
+              if (StringUtils.isBlank(theId)) {
+                theId = GrouperUuid.getUuid();
+              }
+              
+              attributeDefName.setId(theId);
+                              
+              //CH 20080220: this will start saving the attributeDef
+              GrouperDAOFactory.getFactory().getStem().createChildAttributeDefName( Stem.this, attributeDefName );
+                
+              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_DEF_NAME_ADD, "id", 
+                    attributeDefName.getId(), "name", attributeDefName.getName(), 
+                    "displayName", attributeDefName.getDisplayName(),
+                    "description", attributeDefName.getDescription(),
+                    "parentStemId", Stem.this.getUuid(), 
+                    "parentAttributeDefId", attributeDef.getId(),
+                    "parentAttributeDefName", attributeDef.getName()
+                );
+                auditEntry.setDescription("Added attributeDefName: " + attributeDefName.getName());
+                auditEntry.saveOrUpdate(true);
+              }
+              
+              sw.stop();
+              
+              return attributeDefName;
+            } catch (AttributeDefNameAddException adnae) {
+              throw adnae;
+            } catch (Exception e) {
+              throw new AttributeDefNameAddException( "Cannot create attribute def name: " + errorMessageSuffix + e.getMessage(), e );
+            }
+          }
+        });
+  } 
+
+  
+  /**
+   * 
+   * @param session
+   * @param extn
+   * @param dExtn
+   * @param id
+   * @param description
+   * @param types
+   * @param attributes
+   * @param addDefaultGroupPrivileges
+   * @return group
+   * @throws AttributeDefAddException
+   * @throws InsufficientPrivilegeException
+   */
+  protected AttributeDef internal_addChildAttributeDef(final GrouperSession session, final String extn,
+      final String id, final AttributeDefType attributeDefType, final String description)
+      throws InsufficientPrivilegeException {
+    
+    final String errorMessageSuffix = ", stem name: " + this.name + ", attrDef extension: " + extn
+      + ", uuid: " + id + ", ";
+    
+    return (AttributeDef)HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            try {
+              StopWatch sw = new StopWatch();
+              sw.start();
+              if (!PrivilegeHelper.canCreate(session, 
+                  Stem.this, session.getSubject())) {
+                throw new InsufficientPrivilegeException(E.CANNOT_CREATE + errorMessageSuffix);
+              } 
+              GrouperValidator v = AddAttributeDefValidator.validate(Stem.this, extn);
+              if (v.isInvalid()) {
+                throw new AttributeDefAddException( v.getErrorMessage() + errorMessageSuffix );
+              }
+        
+              AttributeDef attributeDef = new AttributeDef();
+              attributeDef.setStemId(Stem.this.getUuid());
+              attributeDef.setExtensionDb(extn);
+              attributeDef.setDescription(description);
+              attributeDef.setNameDb(Stem.this.getName() + ":" + extn);
+              attributeDef.setAttributeDefType(attributeDefType);
+
+              String theId = id;
+              if (StringUtils.isBlank(theId)) {
+                theId = GrouperUuid.getUuid();
+              }
+              
+              attributeDef.setId(theId);
+                              
+              //CH 20080220: this will start saving the attributeDef
+              GrouperDAOFactory.getFactory().getStem().createChildAttributeDef( Stem.this, attributeDef );
+                
+              if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_DEF_ADD, "id", 
+                    attributeDef.getId(), "name", attributeDef.getName(), "parentStemId", Stem.this.getUuid(), 
+                    "description", attributeDef.getDescription());
+                auditEntry.setDescription("Added attributeDef: " + attributeDef.getName());
+                auditEntry.saveOrUpdate(true);
+              }
+              
+              sw.stop();
+              
+              return attributeDef;
+            } catch (Exception e) {
+              throw new AttributeDefAddException( "Cannot create attribute def: " + errorMessageSuffix + e.getMessage(), e );
             }
           }
         });

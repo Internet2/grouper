@@ -20,6 +20,8 @@ import org.hibernate.Session;
 import org.hibernate.cfg.Configuration;
 
 import edu.internet2.middleware.grouper.internal.dao.AttributeDAO;
+import edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO;
+import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogConsumerDAO;
@@ -41,7 +43,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAOFactory.java,v 1.11 2009-06-09 22:55:39 shilen Exp $
+ * @version $Id: Hib3DAOFactory.java,v 1.12 2009-06-24 06:22:24 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3DAOFactory extends GrouperDAOFactory {
@@ -201,6 +203,22 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public ChangeLogConsumerDAO getChangeLogConsumer() {
     return new Hib3ChangeLogConsumerDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getAttributeDef()
+   */
+  @Override
+  public AttributeDefDAO getAttributeDef() {
+    return new Hib3AttributeDefDAO();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.misc.GrouperDAOFactory#getAttributeDefName()
+   */
+  @Override
+  public AttributeDefNameDAO getAttributeDefName() {
+    return new Hib3AttributeDefNameDAO();
   }
 } 
 

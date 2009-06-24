@@ -46,7 +46,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Basic Hibernate <code>Registry</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3RegistryDAO.java,v 1.18 2009-06-09 22:55:40 shilen Exp $
+ * @version $Id: Hib3RegistryDAO.java,v 1.19 2009-06-24 06:22:24 mchyzer Exp $
  * @since   @HEAD@
  */
 class Hib3RegistryDAO implements RegistryDAO {
@@ -128,6 +128,8 @@ class Hib3RegistryDAO implements RegistryDAO {
               throws GrouperDAOException {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
+            Hib3AttributeDefNameDAO.reset(hibernateSession);
+            Hib3AttributeDefDAO.reset(hibernateSession);
             Hib3AuditEntryDAO.reset(hibernateSession);
             Hib3AuditTypeDAO.reset(hibernateSession);
             Hib3ChangeLogConsumerDAO.reset(hibernateSession);
