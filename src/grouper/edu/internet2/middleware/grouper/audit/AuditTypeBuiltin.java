@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTypeBuiltin.java,v 1.7 2009-05-26 06:50:56 mchyzer Exp $
+ * $Id: AuditTypeBuiltin.java,v 1.8 2009-06-24 06:22:25 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -146,6 +146,18 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   PRIVILEGE_STEM_DELETE(new AuditType("privilege", "deleteStemPrivilege", null, "privilegeName", "memberId", 
       "privilegeType", "stemId", "stemName")),
 
+  /**
+   * add attribute def
+   */
+  ATTRIBUTE_DEF_ADD(new AuditType("attributeDef", "addAttributeDef", null, 
+      "id", "name", "description", "parentStemId")),
+  
+  /**
+   * 
+   */
+  ATTRIBUTE_DEF_NAME_ADD(new AuditType("attributeDefName", "addAttributeDefName", null, 
+      "id", "name", "displayName", "description", "parentStemId", "parentAttributeDefId", "parentAttributeDefName")),
+  
   /**
    * add group
    */

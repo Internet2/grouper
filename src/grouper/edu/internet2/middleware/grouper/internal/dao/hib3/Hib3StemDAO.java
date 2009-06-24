@@ -35,6 +35,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -56,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.28 2009-06-09 22:55:40 shilen Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.29 2009-06-24 06:22:24 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -80,21 +82,20 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       HibernateSession.callbackHibernateSession(
           GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
           new HibernateHandler() {
-
+  
             public Object callback(HibernateHandlerBean hibernateHandlerBean)
                 throws GrouperDAOException {
               HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
               ByObject byObject = hibernateSession.byObject();
               
-              //MCH 2009/03/23 remove this for optimistic locking
               byObject.save(_group);
               
               // add group-type tuples
               Iterator                    it    = _group.getTypesDb().iterator();
               while (it.hasNext()) {
-
+  
                 GroupType groupType = (GroupType) it.next();
-
+  
                 //see if that record exists
                 if (null == Hib3GroupTypeTupleDAO.findByGroupAndType(_group, groupType, false)) {
                   GroupTypeTuple tuple = new GroupTypeTuple();
@@ -120,9 +121,43 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         
       });
     } catch (GrouperDAOException e) {
-      String error = "Problem create child stem: " + GrouperUtil.toStringSafe(_stem)
+      String error = "Problem create child group: " + GrouperUtil.toStringSafe(_stem)
         + ", child: " + GrouperUtil.toStringSafe(_group) + ", memberDto: " 
         + GrouperUtil.toStringSafe(_member) + ", " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+  }
+
+  /**
+   * @param _stem 
+   * @param attributeDef 
+   * @param _member 
+   * @throws GrouperDAOException 
+   * @since   
+   */
+  public void createChildAttributeDef(final Stem _stem, final AttributeDef attributeDef)
+    throws  GrouperDAOException {
+    
+    try {
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+          new HibernateHandler() {
+
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+              ByObject byObject = hibernateSession.byObject();
+              
+              byObject.save(attributeDef);
+              
+              hibernateSession.misc().flush();
+              return null;
+            }
+        
+      });
+    } catch (GrouperDAOException e) {
+      String error = "Problem create child attributeDef: " + GrouperUtil.toStringSafe(_stem)
+        + ", child: " + GrouperUtil.toStringSafe(attributeDef) + ", " + e.getMessage();
       throw new GrouperDAOException( error, e );
     }
   } 
@@ -983,6 +1018,36 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       .postHqlFilterStems(stems, subject, inPrivSet);
 
     return filteredStems;
+  }
+
+  /**
+   * 
+   */
+  public void createChildAttributeDefName(Stem _parent, final AttributeDefName attributeDefName)
+      throws GrouperDAOException {
+    try {
+      HibernateSession.callbackHibernateSession(
+          GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
+          new HibernateHandler() {
+
+            public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                throws GrouperDAOException {
+              HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
+              ByObject byObject = hibernateSession.byObject();
+              
+              byObject.save(attributeDefName);
+              
+              hibernateSession.misc().flush();
+              return null;
+            }
+        
+      });
+    } catch (GrouperDAOException e) {
+      String error = "Problem create child attributeDef: " + GrouperUtil.toStringSafe(_parent)
+        + ", child: " + GrouperUtil.toStringSafe(attributeDefName) + ", " + e.getMessage();
+      throw new GrouperDAOException( error, e );
+    }
+    
   }
 
 } 

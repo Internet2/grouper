@@ -69,6 +69,7 @@ import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtilsMapping;
@@ -126,7 +127,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.249 2009-06-10 05:31:35 mchyzer Exp $
+ * @version $Id: Group.java,v 1.250 2009-06-24 06:22:24 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -151,6 +152,9 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   
   /** an alternate name for this group */
   public static final String COLUMN_ALTERNATE_NAME = "alternate_name";
+  
+  /** if this is a group or role */
+  public static final String COLUMN_TYPE_OF_GROUP = "type_of_group";
   
   /**
    * if this is a composite group, get the composite object for this group
@@ -276,6 +280,9 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   /** */
   private String    parentUUID;
 
+  /** default to group type, as opposed to role */
+  private TypeOfGroup typeOfGroup = TypeOfGroup.group;
+  
   /** */
   @GrouperIgnoreDbVersion 
   @GrouperIgnoreFieldConstant
@@ -5224,5 +5231,37 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
   public Group copy(Stem stem) throws GroupAddException, InsufficientPrivilegeException {
     GroupCopy groupCopy = new GroupCopy(this, stem);
     return groupCopy.save();
+  }
+
+  /**
+   * type of group, group or role 
+   * @return group or role
+   */
+  public TypeOfGroup getTypeOfGroup() {
+    return this.typeOfGroup;
+  }
+
+  /**
+   * type of group, group or role
+   * @param typeOfGroup1
+   */
+  public void setTypeOfGroup(TypeOfGroup typeOfGroup1) {
+    this.typeOfGroup = typeOfGroup1;
+  } 
+
+  /**
+   * type of group, group or role 
+   * @return group or role
+   */
+  public String getTypeOfGroupDb() {
+    return this.typeOfGroup == null ? TypeOfGroup.group.name() : this.typeOfGroup.name();
+  }
+
+  /**
+   * type of group, group or role
+   * @param typeOfGroup1
+   */
+  public void setTypeOfGroupDb(String typeOfGroup1) {
+    this.typeOfGroup = TypeOfGroup.valueOfIgnoreCase(typeOfGroup1, false);
   } 
 }

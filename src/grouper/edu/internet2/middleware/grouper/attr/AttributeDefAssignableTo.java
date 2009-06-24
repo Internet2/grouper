@@ -3,7 +3,6 @@
  */
 package edu.internet2.middleware.grouper.attr;
 
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderScheduleType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 

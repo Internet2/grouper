@@ -20,23 +20,33 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.Attribute;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Subject;
 
 /** 
  * Basic <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: StemDAO.java,v 1.21 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: StemDAO.java,v 1.22 2009-06-24 06:22:24 mchyzer Exp $
  * @since   1.2.0
  */
 public interface StemDAO extends GrouperDAO {
+
+  /**
+   */
+  void createChildAttributeDef(Stem _parent, AttributeDef _child)
+    throws  GrouperDAOException;
+
+  /**
+   */
+  void createChildAttributeDefName(Stem _parent, AttributeDefName _child)
+    throws  GrouperDAOException;
 
   /**
    * @since   1.2.0

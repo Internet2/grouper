@@ -22,6 +22,8 @@ import org.hibernate.cfg.Configuration;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDAO;
+import edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO;
+import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogConsumerDAO;
@@ -46,7 +48,7 @@ import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
  * Factory for returning <code>GrouperDAO</code> objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOFactory.java,v 1.7 2009-06-09 22:55:40 shilen Exp $
+ * @version $Id: GrouperDAOFactory.java,v 1.8 2009-06-24 06:22:24 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class GrouperDAOFactory {
@@ -98,6 +100,16 @@ public abstract class GrouperDAOFactory {
    * @since   1.2.0
    */
   public abstract AttributeDAO getAttribute();
+
+  /**
+   * @return attributeDef
+   */
+  public abstract AttributeDefDAO getAttributeDef();
+
+  /**
+   * @return attributeDefName
+   */
+  public abstract AttributeDefNameDAO getAttributeDefName();
 
   /**
    * @return composite

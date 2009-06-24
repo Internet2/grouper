@@ -39,11 +39,15 @@ import edu.internet2.middleware.grouper.util.GrouperUtil.FieldValuable;
  * Base Grouper API class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAPI.java,v 1.21 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: GrouperAPI.java,v 1.22 2009-06-24 06:22:24 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class GrouperAPI implements FieldValuable, Serializable, HibGrouperLifecycle, Lifecycle, GrouperCloneable {
 
+  /** column */
+  public static final String COLUMN_HIBERNATE_VERSION_NUMBER = "hibernate_version_number";
+
+  
   /** save the state when retrieving from DB */
   @GrouperIgnoreDbVersion
   @GrouperIgnoreClone

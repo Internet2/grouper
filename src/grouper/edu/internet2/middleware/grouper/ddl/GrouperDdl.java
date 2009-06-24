@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.50 2009-06-09 22:55:39 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.51 2009-06-24 06:22:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -25,6 +25,8 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -435,6 +437,26 @@ public enum GrouperDdl implements DdlVersionable {
         DdlVersionBean ddlVersionBean) {
 
       addChangeLogTables(ddlVersionBean, database);
+      
+    }
+  },
+  
+  /**
+   * <pre>
+   * add privilege management
+   * </pre>
+   */
+  V22 {
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.ddl.DdlVersionable#updateVersionFromPrevious(org.apache.ddlutils.model.Database, DdlVersionBean)
+     */
+    @Override
+    public void updateVersionFromPrevious(Database database, 
+        DdlVersionBean ddlVersionBean) {
+
+      addPrivilegeManagement(ddlVersionBean, database, false);
       
     }
   },
@@ -1089,7 +1111,9 @@ public enum GrouperDdl implements DdlVersionable {
       int buildingToVersion = ddlVersionBean.getBuildingToVersion();
       
       boolean buildingToThisVersion = V4.getVersion() >= buildingToVersion;
-      
+
+      boolean groupsTableNew = database.findTable(Group.TABLE_GROUPER_GROUPS) == null;
+
       {
         
         boolean attributesTableNew = database.findTable(Attribute.TABLE_GROUPER_ATTRIBUTES) == null;
@@ -1608,6 +1632,8 @@ public enum GrouperDdl implements DdlVersionable {
       addAuditTables(ddlVersionBean, database);
 
       addChangeLogTables(ddlVersionBean, database);
+
+      addPrivilegeManagement(ddlVersionBean, database, groupsTableNew);
     }
 
   }, 
@@ -2252,6 +2278,8 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
         COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
     
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, Group.TABLE_GROUPER_GROUPS, 
+        Group.COLUMN_TYPE_OF_GROUP, "if this is a group or role");
     
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, 
         "grouper_groups_types", "holds the association between group and type");
@@ -3907,6 +3935,140 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperChangeLogEntryTable.getName(), 
           "change_log_context_id_idx", null, false, "context_id");
+      
+    }
+
+  }
+
+  /**
+   * add privilege management in v2 or when needed
+   * @param ddlVersionBean
+   * @param database
+   */
+  private static void addPrivilegeManagement(DdlVersionBean ddlVersionBean, 
+      Database database, boolean groupsTableNew) {
+    {
+      Table groupTable = GrouperDdlUtils.ddlutilsFindTable(database, Group.TABLE_GROUPER_GROUPS);
+      
+      boolean columnNew = !groupsTableNew && groupTable.findColumn("type_of_group") == null;
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "type_of_group", 
+          Types.VARCHAR, "10", false, groupsTableNew, "group"); 
+      
+      //see if we need to add a script on top to massage data
+      if (columnNew) {
+        ddlVersionBean.appendAdditionalScriptUnique(
+          "\nupdate grouper_groups set type_of_group = 'group' where " +
+      		"type_of_group is null;\ncommit;\n");
+      }
+    }
+    
+    {
+      Table attributeDefTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(
+          database, AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ACTIONS, Types.VARCHAR, "512", false, true, "assign");
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ASSIGNABLE_TO, Types.VARCHAR, "32", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ATTRIBUTE_DEF_PUBLIC, Types.VARCHAR, "1", false, true, "F");
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ATTRIBUTE_DEF_TYPE, Types.VARCHAR, "32", false, true, "attr");
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_CONTEXT_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable, AttributeDef.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, "12", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_ID, Types.VARCHAR, "128", true, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_DESCRIPTION, Types.VARCHAR, "1024", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_EXTENSION, Types.VARCHAR, "255", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_NAME, Types.VARCHAR, "1024", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_MULTI_ASSIGNABLE, Types.VARCHAR, "1", false, true, "F");
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_MULTI_VALUED, Types.VARCHAR, "1", false, true, "F");
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_STEM_ID, Types.VARCHAR, "128", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefTable,
+          AttributeDef.COLUMN_VALUE_TYPE, Types.VARCHAR, "32", false, true, "marker");
+          
+      String scriptOverrideName = ddlVersionBean.isMysql() ? "\nCREATE unique INDEX attribute_def_name_idx " +
+          "ON grouper_attribute_def (name(333));\n" : null;
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, attributeDefTable.getName(), 
+          "attribute_def_name_idx", scriptOverrideName, true, "name");
+      
+    }
+
+    {
+      Table attributeDefNameTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(
+          database, AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+          AttributeDefName.COLUMN_CONTEXT_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+          AttributeDefName.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable, 
+          AttributeDefName.COLUMN_HIBERNATE_VERSION_NUMBER, 
+          Types.BIGINT, "12", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+          AttributeDefName.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+          AttributeDefName.COLUMN_ID, Types.VARCHAR, "128", true, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+          AttributeDefName.COLUMN_DESCRIPTION, Types.VARCHAR, "1024", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+          AttributeDefName.COLUMN_EXTENSION, Types.VARCHAR, "255", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+          AttributeDefName.COLUMN_NAME, Types.VARCHAR, "1024", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+          AttributeDefName.COLUMN_STEM_ID, Types.VARCHAR, "128", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+          AttributeDefName.COLUMN_ATTRIBUTE_DEF_ID, Types.VARCHAR, "128", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+          AttributeDefName.COLUMN_DISPLAY_EXTENSION, Types.VARCHAR, "128", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameTable,
+          AttributeDefName.COLUMN_DISPLAY_NAME, Types.VARCHAR, "1024", false, true);
+
+      String scriptOverrideName = ddlVersionBean.isMysql() ? "\nCREATE unique INDEX attribute_def_name_name_idx " +
+          "ON grouper_attribute_def_name (name(333));\n" : null;
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, attributeDefNameTable.getName(), 
+          "attribute_def_name_name_idx", scriptOverrideName, true, "name");
       
     }
 

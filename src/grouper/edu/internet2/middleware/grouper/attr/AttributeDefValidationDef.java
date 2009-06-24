@@ -1,85 +1,375 @@
 package edu.internet2.middleware.grouper.attr;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.WordUtils;
+
 
 /**
  * definitions of validations
  * @author mchyzer
  */
-public enum AttributeDefValidationDef {
+public enum AttributeDefValidationDef implements AttributeDefValidationInterface {
   
   /** length in chars must be a certain value, not less not more */
-  exactLength,
+  exactLength {
+
+    /**
+     * @see AttributeDefValidationDef#validate(Object, String, String)
+     */
+    @Override
+    public String validate(Object input, String argument0, String argument1) {
+      
+      int length = argumentOneInt(this, argument0, argument1);
+      
+      if (length == length(input)) {
+        return null;
+      }
+      return "Length should be " + length + " but instead is " + length(input);
+    }
+    
+  },
 
   /** length in chars must be at least this amount */
-  minLength,
+  minLength {
+
+    /**
+     * @see AttributeDefValidationDef#validate(Object, String, String)
+     */
+    @Override
+    public String validate(Object input, String argument0, String argument1) {
+      
+      int length = argumentOneInt(this, argument0, argument1);
+      
+      if (length <= length(input)) {
+        return null;
+      }
+      return "Length should be at least " + length + " but instead is " + length(input);
+    }
+    
+  },
 
   /** length in chars cannot be more than this amount */
-  maxLength,
+  maxLength {
+
+    /**
+     * @see AttributeDefValidationDef#validate(Object, String, String)
+     */
+    @Override
+    public String validate(Object input, String argument0, String argument1) {
+      
+      int length = argumentOneInt(this, argument0, argument1);
+      
+      if (length >= length(input)) {
+        return null;
+      }
+      return "Length should be at most " + length + " but instead is " + length(input);
+    }
+    
+  },
 
   /** validate based on regex */
-  regex,
+  regex {
+
+    /**
+     * @see AttributeDefValidationDef#validate(Object, String, String)
+     */
+    @Override
+    public String validate(Object input, String argument0, String argument1) {
+      
+      String regex = argumentOneString(this, argument0, argument1);
+      
+      input = input == null ? "" : input;
+      
+      String inputString = input.toString();
+      
+      if (!inputString.matches(regex)) {
+        return "Input needs to match the regex: '" + regex + "'";
+      }
+      //has no problems
+      return null;
+    }
+    
+  },
   
   /** if the value is required when the attribute is assigned */
-  required,
-  
-  /** if this is a date (day/month/year) */
-  date,
-  
-  /** if thids is a date (day/month/year) and time (to seconds) */
-  dateTimeSeconds,
-  
-  /** if this is a date (day/month/year) and time (to minutes) */
-  dateTimeMinutes,
+  required {
+
+    /**
+     * @see AttributeDefValidationDef#validate(Object, String, String)
+     */
+    @Override
+    public String validate(Object input, String argument0, String argument1) {
+      
+      argumentNone(this, argument0, argument1);
+      
+      if (0 == length(input)) {
+        return null;
+      }
+      return "This is a required field";
+
+      
+    }
+    
+  },
   
   /** formatting of dateTime, the mask.  Like a java SimpleDateFormat, e.g. mm/dd/ccyy */
-  dateTimeMask,
+  dateTimeMask {
+
+    /**
+     * 
+     */
+    @Override
+    public String formatFromDb(Object input, String argument0, String argument1) {
+      if (input == null) {
+        return "";
+
+      }
+        
+      if (!(input instanceof Long)) {
+        throw new RuntimeException("Why is this not Long??? " 
+            + input.getClass().getName());
+      }
+      
+      long inputLong = (Long)input;
+      String mask = argumentOneString(this, argument0, argument1);
+      SimpleDateFormat simpleDateFormat = new SimpleDateFormat(mask);
+      
+      String result = simpleDateFormat.format(new Date(inputLong));
+      return result;
+    }
+
+    /**
+     * 
+     */
+    @Override
+    public String validate(Object input, String argument0, String argument1) {
+      if (input == null || input instanceof Long) {
+        return null;
+      }
+      return "DateTime must be in the format: " + argument0 + ", but was: '" + input + "'"; 
+    }
+
+    /**
+     * 
+     */
+    @Override
+    public Object formatToDb(Object input, String argument0, String argument1) {
+      
+      if (input == null || input instanceof Long ) {
+        return input;
+      }
+      
+      if (!(input instanceof String)) {
+        throw new RuntimeException("Why is this not null, integer or string??? " 
+            + input.getClass().getName());
+      }
+      String inputString = (String)input;
+      String mask = argumentOneString(this, argument0, argument1);
+      SimpleDateFormat simpleDateFormat = new SimpleDateFormat(mask);
+      
+      try {
+        Date date = simpleDateFormat.parse(inputString);
+        return date.getTime();
+      } catch (ParseException pe) {
+        //dont worry
+      }
+      return input;
+    }
+    
+  },
   
-  /** dont trim the value before saving */
+  /** dont trim the value before saving.  note: the logic will look at this one */
   dontTrim,
   
-  /** number of decimal places on a number */
-  numberDecimalPlaces,
-  
-  /** number must be greater than arg0 */
-  numberGreaterThan,
-  
-  /** number must be greater than or equal to arg0 */
-  numberGreaterThanOrEqual,
-  
-  /** input must be less than arg0 */
-  numberLessThan,
-  
-  /** input must be less than or equal to arg0 */
-  numberLessThanOrEqual,
-  
-  /** on the screen display the number with commas.  Store it without commas */
-  numberFormatWithCommas,
-  
-  /** onorafter yyyymmdd arg0 value */
-  dateOnOrAfter,
-  
-  /** onorbefore yyyymmdd arg0 value */
-  dateRangeOnOrBefore,
-  
-  /** truncate the number instead of rounding if too many decimals */
-  numberTruncate,
-  
   /** make the string caps */
-  stringToUpper,
+  stringToUpper {
+
+    @Override
+    public String formatFromDb(Object input, String argument0, String argument1) {
+      argumentNone(this, argument0, argument1);
+      
+      input = input == null ? "" : input;
+      
+      String inputString = input.toString();
+
+      return inputString.toUpperCase();
+    }
+
+    @Override
+    public Object formatToDb(Object input, String argument0, String argument1) {
+      argumentNone(this, argument0, argument1);
+      input = input == null ? "" : input;
+      
+      String inputString = input.toString();
+
+      return inputString.toUpperCase();
+    }
+    
+  },
   
   /** make the string to lower */
-  stringToLower,
+  stringToLower  {
+
+    @Override
+    public String formatFromDb(Object input, String argument0, String argument1) {
+      argumentNone(this, argument0, argument1);
+      input = input == null ? "" : input;
+      
+      String inputString = input.toString();
+
+      return inputString.toLowerCase();
+    }
+
+    @Override
+    public Object formatToDb(Object input, String argument0, String argument1) {
+      argumentNone(this, argument0, argument1);
+      input = input == null ? "" : input;
+      
+      String inputString = input.toString();
+
+      return inputString.toLowerCase();
+    }
+    
+  },
   
   /** capitalize words so each is lower and starts with upper */
-  stringCapitalizeWords,
+  stringCapitalizeWords {
+
+    @Override
+    public String formatFromDb(Object input, String argument0, String argument1) {
+      argumentNone(this, argument0, argument1);
+      input = input == null ? "" : input;
+      
+      String inputString = input.toString();
+
+      return WordUtils.capitalizeFully(inputString);
+    }
+
+    @Override
+    public Object formatToDb(Object input, String argument0, String argument1) {
+      argumentNone(this, argument0, argument1);
+      input = input == null ? "" : input;
+      
+      String inputString = input.toString();
+
+      return inputString.toLowerCase();
+    }
+    
+  };
   
-  /** strip out chars which arent in the regex in arg0 */
-  stringStripViaIncludeRegex,
+  /**
+   * @see AttributeDefValidationDef#formatFromDb(Object, String, String)
+   */
+  public String formatFromDb(Object input, String argument0, String argument1) {
+    throw AttributeDefValidationNotImplemented.instance();
+  }
+
+  /**
+   * @see AttributeDefValidationDef#formatToDb(String, String, String)
+   */
+  public Object formatToDb(Object input, String argument0, String argument1) {
+    throw AttributeDefValidationNotImplemented.instance();
+  }
   
-  /** strip out chars which are in the regex in arg0 */
-  stringStripViaExcludeRegex,
+  /**
+   * @see AttributeDefValidationDef#validate(Object, String, String)
+   */
+  public String validate(Object input, String argument0, String argument1) {
+    throw AttributeDefValidationNotImplemented.instance();
+  }
   
-  /** if this is a timestamp with time and millis */
-  dateTimeMillis;
+  /**
+   * should have 1 argument, as int
+   * @param argument0
+   * @param argument1
+   * @return the int
+   */
+  public static int argumentOneInt(
+      AttributeDefValidationInterface attributeDefValidationInterface, 
+      String argument0, String argument1) {
+    //make sure one arg
+    argumentOne(attributeDefValidationInterface, argument0, argument1);
+    return argumentInt(attributeDefValidationInterface, argument0, 0);
+    
+  }
+  
+  /**
+   * should have 1 argument, as string
+   * @param argument0
+   * @param argument1
+   * @return the string
+   */
+  public static String argumentOneString(
+      AttributeDefValidationInterface attributeDefValidationInterface, 
+      String argument0, String argument1) {
+    //make sure one arg
+    argumentOne(attributeDefValidationInterface, argument0, argument1);
+    return argument0;
+    
+  }
+  
+  /**
+   * make sure this argument is an int
+   * @param attributeDefValidationInterface
+   * @param argument
+   * @param argumentIndex
+   */
+  public static int argumentInt(AttributeDefValidationInterface attributeDefValidationInterface, 
+      String argument, int argumentIndex) {
+    
+    try {
+      Integer integer = Integer.valueOf(argument);
+      return integer.intValue();
+    } catch (Exception e) {
+      throw new RuntimeException("Cant convert " + attributeDefValidationInterface.name() 
+          + " arg " + argumentIndex + ", " + argument, e);
+    }
+  }
+
+  /**
+   * make sure there is one argument
+   */
+  public static void argumentOne(AttributeDefValidationInterface attributeDefValidationInterface, 
+      String argument0, String argument1) {
+    if (StringUtils.isNotBlank(argument1)) {
+      throw new RuntimeException(attributeDefValidationInterface.name() 
+          + " should not have a second argument: " + argument1);
+    }
+    if (StringUtils.isBlank(argument0)) {
+      throw new RuntimeException(attributeDefValidationInterface.name() 
+          + " should have a first argument");
+    }
+  }
+  
+  /**
+   * make sure there are no argument
+   */
+  public static void argumentNone(AttributeDefValidationInterface attributeDefValidationInterface, 
+      String argument0, String argument1) {
+    if (StringUtils.isNotBlank(argument1)) {
+      throw new RuntimeException(attributeDefValidationInterface.name() 
+          + " should not have a second argument: " + argument1);
+    }
+    if (StringUtils.isNotBlank(argument0)) {
+      throw new RuntimeException(attributeDefValidationInterface.name() 
+          + " should not have a first argument: " + argument0);
+    }
+  }
+  
+  /**
+   * 
+   * @param object
+   * @return
+   */
+  public static int length(Object object) {
+    if (object == null || "".equals(object)) {
+      return 0;
+    }
+    return object.toString().length();
+  }
   
 }
