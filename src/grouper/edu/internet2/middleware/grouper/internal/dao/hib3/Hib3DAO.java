@@ -40,7 +40,7 @@ import edu.internet2.middleware.morphString.Morph;
 /**
  * Base Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAO.java,v 1.30 2009-06-24 06:22:24 mchyzer Exp $
+ * @version $Id: Hib3DAO.java,v 1.31 2009-06-28 19:02:17 mchyzer Exp $
  * @since   @HEAD@
  */
 public abstract class Hib3DAO {
@@ -99,6 +99,8 @@ public abstract class Hib3DAO {
       // And now load all configuration information
       CFG = new Configuration()
         .addProperties(p);
+      addClass(CFG, Hib3AttributeAssignDAO.class);
+      addClass(CFG, Hib3AttributeAssignValueDAO.class);
       addClass(CFG, Hib3AttributeDAO.class);
       addClass(CFG, Hib3AttributeDefDAO.class);
       addClass(CFG, Hib3AttributeDefNameDAO.class);

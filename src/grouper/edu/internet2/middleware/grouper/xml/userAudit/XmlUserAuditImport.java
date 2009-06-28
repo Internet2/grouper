@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: XmlUserAuditImport.java,v 1.1 2009-03-31 06:58:28 mchyzer Exp $
+ * $Id: XmlUserAuditImport.java,v 1.2 2009-06-28 19:02:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.xml.userAudit;
 
@@ -406,7 +406,7 @@ public class XmlUserAuditImport {
   private void processXmlAuditEntryFromFile(XmlAuditEntry xmlAuditEntryFromFile) {
 
     AuditEntry auditEntryInDb = GrouperDAOFactory.getFactory().getAuditEntry()
-      .retrieveById(xmlAuditEntryFromFile.getId());
+      .findById(xmlAuditEntryFromFile.getId(), false);
 
     AuditEntry auditEntryFromFile = xmlAuditEntryFromFile.toAuditEntry();
 

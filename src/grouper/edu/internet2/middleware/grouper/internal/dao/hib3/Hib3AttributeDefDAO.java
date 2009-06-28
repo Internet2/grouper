@@ -9,7 +9,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Data Access Object for attribute def
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefDAO.java,v 1.1 2009-06-24 06:22:24 mchyzer Exp $
+ * @version $Id: Hib3AttributeDefDAO.java,v 1.2 2009-06-28 19:02:17 mchyzer Exp $
  */
 public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
   
@@ -29,11 +29,16 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
 
   /**
    * retrieve by id
+   * @param id id to find
+   * @param exceptionIfNotFound
    */
-  public AttributeDef retrieveById(String id) {
+  public AttributeDef findById(String id, boolean exceptionIfNotFound) {
     AttributeDef attributeDef = HibernateSession.byHqlStatic().createQuery(
         "from AttributeDef where id = :theId")
       .setString("theId", id).uniqueResult(AttributeDef.class);
+    if (attributeDef == null && exceptionIfNotFound) {
+      throw new AttributeDefNotFoundException("Cant find by id: " + id);
+    }
     return attributeDef;
   }
 

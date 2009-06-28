@@ -17,6 +17,9 @@ public class AllAttributeDefTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.attr");
     //$JUnit-BEGIN$
+    suite.addTestSuite(AttributeAssignTest.class);
+    suite.addTestSuite(AttributeAssignValueTest.class);
+    suite.addTestSuite(AttributeDefNameTest.class);
     suite.addTestSuite(AttributeDefTest.class);
     //$JUnit-END$
     return suite;

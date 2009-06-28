@@ -25,6 +25,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
+  /** default action */
+  public static final String ACTION_DEFAULT = "assign";
+
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(AttributeDef.class);
 
@@ -325,7 +328,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
    * default is "assign"  actions must contain only alphanumeric or underscore, case sensitive
    * e.g. read,write,admin
    */
-  private String actions = "assign";
+  private String actions = ACTION_DEFAULT;
   
   /**
    * type of the value,  int, double, string, marker
@@ -372,7 +375,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
    */
   public String getActions() {
     if (StringUtils.isBlank(this.actions)) {
-      this.actions = "assign";
+      this.actions = ACTION_DEFAULT;
     }
     return actions;
   }
@@ -394,7 +397,7 @@ public class AttributeDef extends GrouperAPI implements GrouperHasContext, Hib3G
   public void setActions(String actions) {
     this.actions = actions;
     if (StringUtils.isBlank(this.actions)) {
-      this.actions = "assign";
+      this.actions = ACTION_DEFAULT;
     }
   }
 
