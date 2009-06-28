@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.51 2009-06-24 06:22:24 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.52 2009-06-28 19:02:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -25,6 +25,8 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.attr.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
@@ -4072,5 +4074,142 @@ public enum GrouperDdl implements DdlVersionable {
       
     }
 
+    {
+      Table attributeAssignTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(
+          database, AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_ACTION, Types.VARCHAR, "32", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_ATTRIBUTE_DEF_NAME_ID, Types.VARCHAR, "128", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_CONTEXT_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_DISABLED_TIME, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_ENABLED, Types.VARCHAR, "1", false, true, "T");
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_ENABLED_TIME, Types.VARCHAR, "1", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable, 
+          AttributeAssign.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_ID, Types.VARCHAR, "128", true, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_NOTES, Types.VARCHAR, "1024", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_ASSIGN_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_DEF_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_OWNER_GROUP_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_OWNER_MEMBER_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_OWNER_MEMBERSHIP_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
+          AttributeAssign.COLUMN_OWNER_STEM_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
+          "attribute_asgn_attr_name_idx", false, 
+          AttributeAssign.COLUMN_ATTRIBUTE_DEF_NAME_ID, AttributeAssign.COLUMN_ACTION);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
+          "attr_asgn_own_asgn_idx", false, 
+          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_ASSIGN_ID, AttributeAssign.COLUMN_ACTION);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
+          "attr_asgn_own_def_idx", false, 
+          AttributeAssign.COLUMN_OWNER_ATTRIBUTE_DEF_ID, AttributeAssign.COLUMN_ACTION);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
+          "attr_asgn_own_group_idx", false, 
+          AttributeAssign.COLUMN_OWNER_GROUP_ID, AttributeAssign.COLUMN_ACTION);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
+          "attr_asgn_own_mem_idx", false, 
+          AttributeAssign.COLUMN_OWNER_MEMBER_ID, AttributeAssign.COLUMN_ACTION);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
+          "attr_asgn_own_mship_idx", false, 
+          AttributeAssign.COLUMN_OWNER_MEMBERSHIP_ID, AttributeAssign.COLUMN_ACTION);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignTable.getName(), 
+          "attr_asgn_own_stem_idx", false, 
+          AttributeAssign.COLUMN_OWNER_STEM_ID, AttributeAssign.COLUMN_ACTION);
+
+    }
+
+    {
+      Table attributeAssignValueTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(
+          database, AttributeAssignValue.TABLE_GROUPER_ATTRIBUTE_ASSIGN_VALUE);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
+          AttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID, Types.VARCHAR, "128", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
+          AttributeAssignValue.COLUMN_CONTEXT_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
+          AttributeAssignValue.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable, 
+          AttributeAssignValue.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
+          AttributeAssignValue.COLUMN_ID, Types.VARCHAR, "128", true, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
+          AttributeAssignValue.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
+          AttributeAssignValue.COLUMN_VALUE_INTEGER, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
+          AttributeAssignValue.COLUMN_VALUE_STRING, Types.VARCHAR, "4000", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignValueTable,
+          AttributeAssignValue.COLUMN_VALUE_MEMBER_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignValueTable.getName(), 
+          "attribute_val_assign_idx", false, 
+          AttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID);
+
+      {
+        String scriptOverrideName = ddlVersionBean.isMysql() ? "\nCREATE unique INDEX attribute_val_string_idx " +
+            "ON grouper_attribute_assign_value (value_string(333));\n" : null;
+        
+        GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, attributeAssignValueTable.getName(), 
+            "attribute_val_string_idx", scriptOverrideName, false, AttributeAssignValue.COLUMN_VALUE_STRING);
+      }
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignValueTable.getName(), 
+          "attribute_val_integer_idx", false, 
+          AttributeAssignValue.COLUMN_VALUE_INTEGER);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeAssignValueTable.getName(), 
+          "attribute_val_member_id_idx", false, 
+          AttributeAssignValue.COLUMN_VALUE_MEMBER_ID);
+
+    }
   }
 }

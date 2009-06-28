@@ -8,28 +8,27 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.exception.AttributeDefAddException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 
 /**
  * @author mchyzer
  *
  */
-public class AttributeDefTest extends GrouperTest {
+public class AttributeAssignValueTest extends GrouperTest {
 
   /**
    * 
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefTest("testHibernate"));
+    TestRunner.run(new AttributeAssignValueTest("testHibernate"));
   }
   
   /**
    * 
    */
-  public AttributeDefTest() {
+  public AttributeAssignValueTest() {
     super();
   }
 
@@ -37,7 +36,7 @@ public class AttributeDefTest extends GrouperTest {
    * 
    * @param name
    */
-  public AttributeDefTest(String name) {
+  public AttributeAssignValueTest(String name) {
     super(name);
   }
 
@@ -59,34 +58,24 @@ public class AttributeDefTest extends GrouperTest {
     this.root = StemFinder.findRootStem(this.grouperSession);
     this.top = this.root.addChildStem("top", "top display name");
   }
-
+  
   /**
    * attribute def
    */
   public void testHibernate() {
     AttributeDef attributeDef = this.top.addChildAttributeDef("test", AttributeDefType.attr);
 
-    assertNotNull(attributeDef.getId());
+    AttributeDefName attributeDefName = this.top.addChildAttributeDefName(attributeDef, "testName", "test name");
 
-    //lets retrieve by id
-    AttributeDef attributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findById(attributeDef.getId(), true);
-
-    assertEquals(attributeDef.getId(), attributeDef2.getId());
+    AttributeAssign attributeAssign = new AttributeAssign(this.top, AttributeDef.ACTION_DEFAULT, attributeDefName);
+    attributeAssign.saveOrUpdate();
     
-    //lets retrieve by name
-    attributeDef2 = GrouperDAOFactory.getFactory().getAttributeDef().findByName("top:test", true);
+    AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
+    attributeAssignValue.setAttributeAssignId(attributeAssign.getId());
+    attributeAssignValue.setValueString("hello");
+    attributeAssignValue.setId(GrouperUuid.getUuid());
+    attributeAssignValue.saveOrUpdate();
     
-    assertEquals("top:test", attributeDef2.getName());
-    assertEquals(attributeDef.getId(), attributeDef2.getId());
-
-    //try to add another
-    try {
-      attributeDef2 = this.top.addChildAttributeDef("test", AttributeDefType.attr);
-    } catch (AttributeDefAddException adae) {
-      assertTrue(adae.getMessage().startsWith("attribute def already exists"));
-    }
-
-    attributeDef2 = this.top.addChildAttributeDef("test2", AttributeDefType.attr);
     
     
   }

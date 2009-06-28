@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GenerateFieldConstants.java,v 1.14 2009-06-24 06:22:24 mchyzer Exp $
+ * $Id: GenerateFieldConstants.java,v 1.15 2009-06-28 19:02:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.util;
 
@@ -12,7 +12,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
-import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeAssignValue;
 
 
 /**
@@ -24,7 +24,7 @@ public class GenerateFieldConstants {
    * @param args
    */
   public static void main(String[] args) {
-    generateConstants(AttributeDefName.class);
+    generateConstants(AttributeAssignValue.class);
   }
   
   /**

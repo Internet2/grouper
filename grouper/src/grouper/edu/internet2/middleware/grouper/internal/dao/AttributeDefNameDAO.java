@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AttributeDefNameDAO.java,v 1.1 2009-06-24 06:22:24 mchyzer Exp $
+ * $Id: AttributeDefNameDAO.java,v 1.2 2009-06-28 19:02:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -20,9 +20,10 @@ public interface AttributeDefNameDAO extends GrouperDAO {
   
   /**
    * @param id
+   * @param exceptionIfNotFound
    * @return the attribute def name or null if not there
    */
-  public AttributeDefName retrieveById(String id);
+  public AttributeDefName findById(String id, boolean exceptionIfNotFound);
   
   /**
    * find an attribute def name by name

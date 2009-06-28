@@ -10,7 +10,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Data Access Object for attribute def name
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefNameDAO.java,v 1.1 2009-06-24 06:22:24 mchyzer Exp $
+ * @version $Id: Hib3AttributeDefNameDAO.java,v 1.2 2009-06-28 19:02:17 mchyzer Exp $
  */
 public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefNameDAO {
   
@@ -29,12 +29,17 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
   }
 
   /**
+   * @param exceptionIfNotFound
    * retrieve by id
    */
-  public AttributeDefName retrieveById(String id) {
+  public AttributeDefName findById(String id, boolean exceptionIfNotFound) {
     AttributeDefName attributeDefName = HibernateSession.byHqlStatic().createQuery(
         "from AttributeDefName where id = :theId")
       .setString("theId", id).uniqueResult(AttributeDefName.class);
+    if (attributeDefName == null && exceptionIfNotFound) {
+      throw new AttributeDefNotFoundException("Cant find attribute def name by id: " + id);
+   }
+
     return attributeDefName;
   }
 

@@ -13,26 +13,27 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameAddException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /**
  * @author mchyzer
  *
  */
-public class AttributeDefNameTest extends GrouperTest {
+public class AttributeAssignTest extends GrouperTest {
 
   /**
    * 
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefNameTest("testHibernate"));
+    TestRunner.run(new AttributeAssignTest("testHibernate"));
   }
   
   /**
    * 
    */
-  public AttributeDefNameTest() {
+  public AttributeAssignTest() {
     super();
   }
 
@@ -40,7 +41,7 @@ public class AttributeDefNameTest extends GrouperTest {
    * 
    * @param name
    */
-  public AttributeDefNameTest(String name) {
+  public AttributeAssignTest(String name) {
     super(name);
   }
 
@@ -71,29 +72,8 @@ public class AttributeDefNameTest extends GrouperTest {
 
     AttributeDefName attributeDefName = this.top.addChildAttributeDefName(attributeDef, "testName", "test name");
     
-    assertNotNull(attributeDefName.getId());
-
-    //lets retrieve by id
-    AttributeDefName attributeDefName2 = GrouperDAOFactory.getFactory().getAttributeDefName().findById(attributeDefName.getId(), true);
-
-    assertEquals(attributeDefName.getId(), attributeDefName2.getId());
-    
-    //lets retrieve by name
-    attributeDefName2 = GrouperDAOFactory.getFactory().getAttributeDefName().findByName("top:testName", true);
-    
-    assertEquals("top:testName", attributeDefName2.getName());
-    assertEquals("top display name:test name", attributeDefName2.getDisplayName());
-    assertEquals(attributeDefName.getId(), attributeDefName2.getId());
-
-    //try to add another
-    try {
-      attributeDefName2 = this.top.addChildAttributeDefName(attributeDef, "testName", "test name");
-    } catch (AttributeDefNameAddException adae) {
-      assertTrue(ExceptionUtils.getFullStackTrace(adae), adae.getMessage().startsWith("attribute def name already exists"));
-    }
-
-    attributeDefName2 = this.top.addChildAttributeDefName(attributeDef, "testName2", "test name2");
-    
+    AttributeAssign attributeAssign = new AttributeAssign(this.top, AttributeDef.ACTION_DEFAULT, attributeDefName);
+    attributeAssign.saveOrUpdate();
     
   }
 
