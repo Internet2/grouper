@@ -11,7 +11,13 @@ public enum AttributeDefScopeType {
   /** for member type attributes, filter on sourceId (none means allow all) */
   sourceId,
   
-  /** matching generally on namepsace names, its a like string in DB */
+  /** this attribute can be assigned only if another attribute def name id is assigned */
+  attributeDefNameIdAssigned,
+  
+  /** stemId of the stem the object needs to be in for this attribute to be assigned */
+  inStem,
+  
+  /** matching generally on namepsace names, its a like string in DB.  Can be stem or substem */
   nameLike;
 
   /**

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.52 2009-06-28 19:02:17 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.53 2009-06-29 15:58:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.attr.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefScope;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -4211,5 +4212,43 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeAssignValue.COLUMN_VALUE_MEMBER_ID);
 
     }
+
+    {
+      Table attributeDefScopeTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(
+          database, AttributeDefScope.TABLE_GROUPER_ATTRIBUTE_DEF_SCOPE);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefScopeTable,
+          AttributeDefScope.COLUMN_ATTRIBUTE_DEF_ID, Types.VARCHAR, "128", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefScopeTable,
+          AttributeDefScope.COLUMN_CONTEXT_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefScopeTable,
+          AttributeDefScope.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefScopeTable, 
+          AttributeDefScope.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefScopeTable,
+          AttributeDefScope.COLUMN_ID, Types.VARCHAR, "128", true, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefScopeTable,
+          AttributeDefScope.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefScopeTable,
+          AttributeDefScope.COLUMN_ATTRIBUTE_DEF_SCOPE_TYPE, Types.VARCHAR, "32", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefScopeTable,
+          AttributeDefScope.COLUMN_SCOPE_STRING, Types.VARCHAR, "1024", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefScopeTable,
+          AttributeDefScope.COLUMN_SCOPE_STRING2, Types.VARCHAR, "1024", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeDefScopeTable.getName(), 
+          "attribute_def_scope_atdef_idx", false, 
+          AttributeDefScope.COLUMN_ATTRIBUTE_DEF_ID);
+
+    }
+
   }
 }
