@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.internal.dao.AttributeAssignValueDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO;
+import edu.internet2.middleware.grouper.internal.dao.AttributeDefScopeDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO;
 import edu.internet2.middleware.grouper.internal.dao.ChangeLogConsumerDAO;
@@ -45,7 +46,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAOFactory.java,v 1.13 2009-06-28 19:02:17 mchyzer Exp $
+ * @version $Id: Hib3DAOFactory.java,v 1.14 2009-06-29 15:58:24 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3DAOFactory extends GrouperDAOFactory {
@@ -237,6 +238,14 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   @Override
   public AttributeAssignValueDAO getAttributeAssignValue() {
     return new Hib3AttributeAssignValueDAO();
+  }
+
+  /**
+   * 
+   */
+  @Override
+  public AttributeDefScopeDAO getAttributeDefScope() {
+    return new Hib3AttributeDefScopeDAO();
   }
 } 
 
