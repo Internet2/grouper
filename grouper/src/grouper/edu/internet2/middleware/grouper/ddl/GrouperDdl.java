@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.53 2009-06-29 15:58:24 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.54 2009-06-30 05:15:15 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.attr.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.attr.AttributeDefScope;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
@@ -4250,5 +4251,58 @@ public enum GrouperDdl implements DdlVersionable {
 
     }
 
+    {
+      Table attributeDefNameSetTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(
+          database, AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
+          AttributeDefNameSet.COLUMN_CONTEXT_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
+          AttributeDefNameSet.COLUMN_CREATED_ON, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable, 
+          AttributeDefNameSet.COLUMN_HIBERNATE_VERSION_NUMBER, Types.BIGINT, "12", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
+          AttributeDefNameSet.COLUMN_ID, Types.VARCHAR, "128", true, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
+          AttributeDefNameSet.COLUMN_LAST_UPDATED, Types.BIGINT, "20", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
+          AttributeDefNameSet.COLUMN_DEPTH, Types.BIGINT, "10", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
+          AttributeDefNameSet.COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID, Types.VARCHAR, "128", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
+          AttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, Types.VARCHAR, "128", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
+          AttributeDefNameSet.COLUMN_PARENT_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
+          AttributeDefNameSet.COLUMN_TYPE, Types.VARCHAR, "32", false, true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeDefNameSetTable.getName(), 
+          "attr_def_name_set_ifhas_idx", false, 
+          AttributeDefNameSet.COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeDefNameSetTable.getName(), 
+          "attr_def_name_set_then_idx", false, 
+          AttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeDefNameSetTable.getName(), 
+          "attr_def_name_set_parent_idx", false, 
+          AttributeDefNameSet.COLUMN_PARENT_ID);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeDefNameSetTable.getName(), 
+          "attr_def_name_set_unq_idx", true, 
+          AttributeDefNameSet.COLUMN_PARENT_ID, AttributeDefNameSet.COLUMN_DEPTH,
+          AttributeDefNameSet.COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID, AttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID,
+          AttributeDefNameSet.COLUMN_TYPE);
+
+    }
   }
 }

@@ -5,7 +5,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * type of assignment, immediate for a direct assignment, 
  * effective for an assignment due to another assignment (e.g. a set of attributes, 
- * or a role hierarchy)
+ * or a role hierarchy), or self for each attribute def (so we can do a simple join)
  * @author mchyzer
  *
  */
@@ -13,6 +13,9 @@ public enum AttributeDefAssignmentType {
 
   /** immediate for a direct assignment */
   immediate,
+  
+  /** row for self so we can do a simple join */
+  self,
   
   /** 
    * effective for an assignment due to another assignment (e.g. a set of attributes, 
