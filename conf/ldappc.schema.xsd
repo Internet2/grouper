@@ -178,7 +178,7 @@
                 type="ldap-objectclass-name-type" />
             <xs:attribute name="ldap-rdn-attribute" use="required"
                 type="ldap-attribute-name-type" />
-            <xs:attribute name="grouper-attribute" use="required"
+            <xs:attribute name="grouper-attribute"
                 type="grouper-attribute-name-type" />
 			<xs:attribute name="initial-cache-size" use="optional" type="xs:integer" />
             <xs:attribute name="create-then-modify-members" type="xs:boolean" />
