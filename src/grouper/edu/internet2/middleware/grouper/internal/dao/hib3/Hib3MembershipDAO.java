@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.37 2009-06-09 22:55:39 shilen Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.38 2009-07-02 17:22:47 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -1050,12 +1050,18 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    */
   public Membership findByUuid(String uuid, boolean exceptionIfNull)
       throws GrouperDAOException, MembershipNotFoundException {
+    
+    int index = uuid.indexOf(Membership.membershipIdSeparator);
+    String immediateMembershipId = uuid.substring(0, index);
+    String groupSetId = uuid.substring(index + 1);
+    
     Object[] result = HibernateSession.byHqlStatic()
-      .createQuery("select ms, m from MembershipEntry as ms, Member as m where ms.uuid = :uuid "
-             + "and ms.memberUuid = m.uuid")
+      .createQuery("select ms, m from MembershipEntry as ms, Member as m where ms.immediateMembershipId = :immediateMembershipId "
+             + "and ms.groupSetId = :groupSetId and ms.memberUuid = m.uuid")
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByUuid")
-      .setString("uuid", uuid)
+      .setString("immediateMembershipId", immediateMembershipId)
+      .setString("groupSetId", groupSetId)
       .uniqueResult(Object[].class);
     if (result==null || result[0] == null) {
       if (exceptionIfNull) {
