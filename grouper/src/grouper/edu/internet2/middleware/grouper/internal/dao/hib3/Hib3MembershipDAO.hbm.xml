@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.14 2009-06-09 22:55:39 shilen Exp $ -->
+<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.15 2009-07-02 17:22:47 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
 
@@ -36,6 +36,7 @@
     
     <composite-id>
       <key-property name="uuid" type="string" column="membership_id" />
+      <key-property name="immediateMembershipId" type="string" column="immediate_membership_id" />
       <key-property name="groupSetId" type="string" column="group_set_id" />    
     </composite-id>
     
@@ -49,10 +50,10 @@
     <property name="viaCompositeId" type="string" column="via_composite_id" />
     <property name="creatorUuid" type="string" column="membership_creator_id" />
     <property name="createTimeLong" type="long" column="membership_create_time" />
-    <property name="groupSetCreatorUuid" type="string" column="groupset_creator_id" />
-    <property name="groupSetCreateTimeLong" type="long" column="groupset_create_time" />
+    <property name="groupSetCreatorUuid" type="string" column="group_set_creator_id" />
+    <property name="groupSetCreateTimeLong" type="long" column="group_set_create_time" />
     <property name="contextId" column="context_id" />
-    <property name="groupSetParentId" column="groupset_parent_id" />
+    <property name="groupSetParentId" column="group_set_parent_id" />
     <property name="viaGroupId" type="string" column="via_group_id" />
     <property name="depth" type="integer" column="depth" />
     <property name="type" type="string" column="mship_type" />

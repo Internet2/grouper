@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.43 2009-06-10 16:44:59 mchyzer Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.44 2009-07-02 17:22:47 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -105,6 +105,14 @@ public class GrouperDdlUtils {
    */
   public static boolean isMysql() {
     return GrouperConfig.getHibernateProperty("hibernate.connection.url").toLowerCase().contains(":mysql:");
+  }
+  
+  /**
+   * see if the config file seems to be sql server
+   * @return see if sql server
+   */
+  public static boolean isSQLServer() {
+    return GrouperConfig.getHibernateProperty("hibernate.connection.url").toLowerCase().contains(":sqlserver:");
   }
   
   /**
@@ -2293,6 +2301,24 @@ public class GrouperDdlUtils {
     }
     return dbMetadataBean;
     
+  }
+  
+  /**
+   * Returns the sql to concatenate these two fields separated by the separator
+   * @param field1
+   * @param field2
+   * @param separator
+   * @return sql for concatenation
+   */
+  public static String sqlConcatenation(String field1, String field2, String separator) {
+    if (GrouperDdlUtils.isSQLServer()) {
+      return field1 + " + '" + separator + "' + " + field2;
+    } else if (GrouperDdlUtils.isMysql()) {
+      return "concat(" + field1 + ", '" + separator + "', " + field2 + ")";
+    } else {
+      // this should work for Oracle, Hsql, and Postgres
+      return field1 + " || '" + separator + "' || " + field2;
+    }
   }
   
 }

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.54 2009-06-30 05:15:15 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.55 2009-07-02 17:22:47 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -2876,7 +2876,8 @@ public enum GrouperDdl implements DdlVersionable {
             + " from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID ");
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_all_v", 
         "Grouper_memberships_all_v holds one record for each immediate and effective membership or privilege in the system for members to groups or stems (for privileges).",
-        GrouperUtil.toSet("MEMBERSHIP_ID", 
+        GrouperUtil.toSet("MEMBERSHIP_ID",
+        		"IMMEDIATE_MEMBERSHIP_ID", 
             "GROUP_SET_ID", 
             "MEMBER_ID", 
             "FIELD_ID", 
@@ -2886,14 +2887,15 @@ public enum GrouperDdl implements DdlVersionable {
             "VIA_COMPOSITE_ID",
             "DEPTH", 
             "MSHIP_TYPE", 
-            "GROUPSET_PARENT_ID", 
+            "GROUP_SET_PARENT_ID", 
             "MEMBERSHIP_CREATOR_ID", 
             "MEMBERSHIP_CREATE_TIME",
-            "GROUPSET_CREATOR_ID", 
-            "GROUPSET_CREATE_TIME", 
+            "GROUP_SET_CREATOR_ID", 
+            "GROUP_SET_CREATE_TIME", 
             "HIBERNATE_VERSION_NUMBER", 
             "CONTEXT_ID"),
-        GrouperUtil.toSet("MEMBERSHIP_ID: ", 
+        GrouperUtil.toSet("MEMBERSHIP_ID: ",
+        		"IMMEDIATE_MEMBERSHIP_ID: ", 
             "GROUP_SET_ID: ", 
             "MEMBER_ID: ", 
             "FIELD_ID: ", 
@@ -2903,14 +2905,16 @@ public enum GrouperDdl implements DdlVersionable {
             "VIA_COMPOSITE_ID: ",
             "DEPTH: ", 
             "MSHIP_TYPE: ", 
-            "GROUPSET_PARENT_ID: ", 
+            "GROUP_SET_PARENT_ID: ", 
             "MEMBERSHIP_CREATOR_ID: ", 
             "MEMBERSHIP_CREATOR_TIME: ",
-            "GROUPSET_CREATOR_ID: ", 
-            "GROUPSET_CREATE_TIME: ", 
+            "GROUP_SET_CREATOR_ID: ", 
+            "GROUP_SET_CREATE_TIME: ", 
             "HIBERNATE_VERSION_NUMBER: ", 
             "CONTEXT_ID: "),
-            "select ms.id as membership_id, "
+            "select "
+            + GrouperDdlUtils.sqlConcatenation("ms.id", "gs.id", Membership.membershipIdSeparator) + " as membership_id, "
+            + "ms.id as immediate_membership_id, "
             + "gs.id as group_set_id, "
             + "ms.member_id, "
             + "gs.field_id, "
@@ -2920,11 +2924,11 @@ public enum GrouperDdl implements DdlVersionable {
             + "ms.via_composite_id, " 
             + "gs.depth, " 
             + "gs.mship_type, " 
-            + "gs.parent_id, "
+            + "gs.parent_id as group_set_parent_id, "
             + "ms.creator_id as membership_creator_id, "
             + "ms.create_time as membership_create_time, "
-            + "ms.creator_id as groupset_creator_id, "
-            + "ms.create_time as groupset_create_time, "
+            + "ms.creator_id as group_set_creator_id, "
+            + "ms.create_time as group_set_create_time, "
             + "ms.hibernate_version_number, "
             + "ms.context_id "
             + "from grouper_memberships ms, grouper_group_set gs, grouper_fields f1, grouper_fields f2 "
@@ -2948,7 +2952,8 @@ public enum GrouperDdl implements DdlVersionable {
             "CREATOR_SOURCE", 
             "CREATOR_SUBJECT_ID", 
             "MEMBERSHIP_ID", 
-            "PARENT_MEMBERSHIP_ID", 
+            "IMMEDIATE_MEMBERSHIP_ID", 
+            "GROUP_SET_ID", 
             "STEM_ID", 
             "GROUP_ID", 
             "CREATE_TIME", 
@@ -2969,7 +2974,8 @@ public enum GrouperDdl implements DdlVersionable {
             "CREATOR_SOURCE: subject source where the creator of the group is from", 
             "CREATOR_SUBJECT_ID: subject id of the creator of the group, e.g. 12345", 
             "MEMBERSHIP_ID: uuid unique id of this membership", 
-            "PARENT_MEMBERSHIP_ID: if this is an effective membership, then this is the group_set id of the cause of this membership", 
+            "IMMEDIATE_MEMBERSHIP_ID: uuid of the immediate membership that causes this membership", 
+            "GROUP_SET_ID: uuid of the group set that causes this membership", 
             "STEM_ID: if this is a stem privilege, this is the stem uuid unique id", 
             "GROUP_ID: if this is a group list or privilege, this is the group uuid unique id", 
             "CREATE_TIME: number of millis since 1970 since this membership was created", 
@@ -2994,8 +3000,9 @@ public enum GrouperDdl implements DdlVersionable {
             + "depth,   "
             + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gms.membership_creator_ID) as creator_source,  "
             + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gms.membership_creator_ID) as creator_subject_id,  "
+            + "gms.immediate_membership_id as immediate_membership_id,   "
             + "gms.membership_id as membership_id,   "
-            + "gms.GROUPSET_PARENT_ID as parent_id,  "
+            + "gms.GROUP_SET_ID as group_set_id,  "
             + "(select gs.id from grouper_stems gs where gs.ID = gms.owner_stem_id) as stem_id,  "
             + "(select gg.id from grouper_groups gg where gg.id = gms.owner_group_id) as group_id,  "
             + "gms.membership_create_time,  "
