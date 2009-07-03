@@ -36,7 +36,9 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefAssignmentType;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -58,7 +60,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.29 2009-06-24 06:22:24 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.30 2009-07-03 21:15:13 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -1036,6 +1038,15 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               ByObject byObject = hibernateSession.byObject();
               
               byObject.save(attributeDefName);
+              
+              AttributeDefNameSet attributeDefNameSet = new AttributeDefNameSet();
+              attributeDefNameSet.setId(GrouperUuid.getUuid());
+              attributeDefNameSet.setDepth(0);
+              attributeDefNameSet.setIfHasAttributeDefNameId(attributeDefName.getId());
+              attributeDefNameSet.setThenHasAttributeDefNameId(attributeDefName.getId());
+              attributeDefNameSet.setType(AttributeDefAssignmentType.self);
+              attributeDefNameSet.setParentId(attributeDefNameSet.getId());
+              attributeDefNameSet.saveOrUpdate();
               
               hibernateSession.misc().flush();
               return null;

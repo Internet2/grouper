@@ -15,6 +15,9 @@ public enum AttributeDefType {
   /** if this is an attribute */
   attr, 
   
+  /** if this is a type */
+  type, 
+  
   /** if this is a limit of an attribute */
   limit, 
   
