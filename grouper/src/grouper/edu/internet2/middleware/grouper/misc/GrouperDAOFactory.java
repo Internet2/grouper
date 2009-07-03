@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.internal.dao.AttributeDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetViewDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefScopeDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO;
@@ -52,7 +53,7 @@ import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
  * Factory for returning <code>GrouperDAO</code> objects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperDAOFactory.java,v 1.11 2009-06-30 05:15:15 mchyzer Exp $
+ * @version $Id: GrouperDAOFactory.java,v 1.12 2009-07-03 21:15:13 mchyzer Exp $
  * @since   1.2.0
  */
 public abstract class GrouperDAOFactory {
@@ -126,9 +127,14 @@ public abstract class GrouperDAOFactory {
   public abstract AttributeDefScopeDAO getAttributeDefScope();
 
   /**
-   * @return attributeDefScope
+   * @return attributeDefNameSet
    */
   public abstract AttributeDefNameSetDAO getAttributeDefNameSet();
+
+  /**
+   * @return attributeDefNameSetView
+   */
+  public abstract AttributeDefNameSetViewDAO getAttributeDefNameSetView();
 
   /**
    * @return attributeDefName

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.55 2009-07-02 17:22:47 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.56 2009-07-03 21:15:13 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -2876,7 +2876,7 @@ public enum GrouperDdl implements DdlVersionable {
             + " from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID ");
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_all_v", 
         "Grouper_memberships_all_v holds one record for each immediate and effective membership or privilege in the system for members to groups or stems (for privileges).",
-        GrouperUtil.toSet("MEMBERSHIP_ID",
+        GrouperUtil.toSet("MEMBERSHIP_ID", 
         		"IMMEDIATE_MEMBERSHIP_ID", 
             "GROUP_SET_ID", 
             "MEMBER_ID", 
@@ -2894,7 +2894,7 @@ public enum GrouperDdl implements DdlVersionable {
             "GROUP_SET_CREATE_TIME", 
             "HIBERNATE_VERSION_NUMBER", 
             "CONTEXT_ID"),
-        GrouperUtil.toSet("MEMBERSHIP_ID: ",
+        GrouperUtil.toSet("MEMBERSHIP_ID: ", 
         		"IMMEDIATE_MEMBERSHIP_ID: ", 
             "GROUP_SET_ID: ", 
             "MEMBER_ID: ", 
@@ -3195,8 +3195,29 @@ public enum GrouperDdl implements DdlVersionable {
         + "gt.id as group_type_id "
         + "from grouper_types gt ");
 
-
-    
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_attr_def_name_set_v", 
+        "grouper_attr_def_name_set_v: shows all attribute def name set relationships",
+        GrouperUtil.toSet("if_has_attr_def_name_name", 
+            "then_has_attr_def_name_name", 
+            "depth", "type", "id", "if_has_attr_def_name_id", "then_has_attr_def_name_id",
+            "parent_id"),
+        GrouperUtil.toSet("if_has_attr_def_name_name: name of the set attribute def name", 
+            "then_has_attr_def_name_name: name of the member attribute def name", 
+            "depth: number of hops in the directed graph",
+            "type: self, immediate, effective",
+            "id: id of the set record", "if_has_attr_def_name_id: id of the set attribute def name",
+            "then_has_attr_def_name_id: id of the member attribute def name", 
+            "parent_id: id of the attribute def name set record which is the immediate record this derives from"
+        ),
+        "select ifHas.name if_has_attr_def_name_name, thenHas.name then_has_attr_def_name_name, " 
+        + "gadns.depth, "
+        + "gadns.type, gadns.id, "
+        + "ifHas.id if_has_attr_def_name_id, thenHas.id then_has_attr_def_name_id, gadns.parent_id "
+        + "from grouper_attribute_def_name_set gadns, "
+        + "grouper_attribute_def_name ifHas, grouper_attribute_def_name thenHas "
+        + "where  thenHas.id = gadns.then_has_attribute_def_name_id "
+        + "and ifHas.id = gadns.if_has_attribute_def_name_id "
+        + "order by ifHas.name, thenHas.name, gadns.depth");
   }
 
   /**

@@ -4,10 +4,14 @@
 package edu.internet2.middleware.grouper.attr;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -438,6 +442,43 @@ public class AttributeDefName extends GrouperAPI implements GrouperHasContext, H
    */
   public void setAttributeDefId(String attributeDefId) {
     this.attributeDefId = attributeDefId;
+  }
+  
+  /**
+   * 
+   * @param attributeDefName
+   */
+  public void addToAttributeDefNameSet(AttributeDefName newAttributeDefName) {
+    
+    //TODO, see/test if already in set
+    //TODO, check/test for circular references
+    
+    //lets see what implies having this existing def name
+    Set<AttributeDefNameSet> existingAttributeDefNameSetList = 
+      GrouperDAOFactory.getFactory().getAttributeDefNameSet().findByThenHasAttributeDefNameId(this.getId());
+
+    //lets see what having this new def name implies
+    Set<AttributeDefNameSet> newAttributeDefNameSetList = 
+      GrouperDAOFactory.getFactory().getAttributeDefNameSet().findByIfHasAttributeDefNameId(newAttributeDefName.getId());
+    
+    //now lets merge the two lists
+    //they each must have one member
+    for (AttributeDefNameSet parent : existingAttributeDefNameSetList) {
+      for (AttributeDefNameSet child : newAttributeDefNameSetList) {
+        
+        AttributeDefNameSet attributeDefNameSet = new AttributeDefNameSet();
+        attributeDefNameSet.setId(GrouperUuid.getUuid());
+        attributeDefNameSet.setDepth(1 + parent.getDepth() + child.getDepth());
+        attributeDefNameSet.setIfHasAttributeDefNameId(parent.getIfHasAttributeDefNameId());
+        attributeDefNameSet.setThenHasAttributeDefNameId(child.getThenHasAttributeDefNameId());
+        attributeDefNameSet.setType(attributeDefNameSet.getDepth() == 1 ? 
+            AttributeDefAssignmentType.immediate : AttributeDefAssignmentType.effective);
+        attributeDefNameSet.setParentId(parent.getId());
+        attributeDefNameSet.saveOrUpdate();
+        
+      }
+    }
+    
   }
   
 }

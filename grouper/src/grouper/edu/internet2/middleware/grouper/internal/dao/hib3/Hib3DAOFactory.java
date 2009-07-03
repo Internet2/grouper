@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.internal.dao.AttributeDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO;
+import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetViewDAO;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefScopeDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditEntryDAO;
 import edu.internet2.middleware.grouper.internal.dao.AuditTypeDAO;
@@ -47,7 +48,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 /** 
  * Basic Hibernate DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3DAOFactory.java,v 1.15 2009-06-30 05:15:15 mchyzer Exp $
+ * @version $Id: Hib3DAOFactory.java,v 1.16 2009-07-03 21:15:13 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3DAOFactory extends GrouperDAOFactory {
@@ -250,11 +251,19 @@ public class Hib3DAOFactory extends GrouperDAOFactory {
   }
 
   /**
-   * 
+   * @see GrouperDAOFactory#getAttributeDefNameSet()
    */
   @Override
   public AttributeDefNameSetDAO getAttributeDefNameSet() {
     return new Hib3AttributeDefNameSetDAO();
+  }
+
+  /**
+   * @see GrouperDAOFactory#getAttributeDefNameSetView()
+   */
+  @Override
+  public AttributeDefNameSetViewDAO getAttributeDefNameSetView() {
+    return new Hib3AttributeDefNameSetViewDAO();
   }
 } 
 

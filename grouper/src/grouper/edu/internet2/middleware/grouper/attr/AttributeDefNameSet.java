@@ -12,8 +12,21 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
+//select gg.name, gadn.name
+//from grouper_attribute_assign gaa, grouper_attribute_def_name_set gadns, grouper_groups gg, 
+//grouper_attribute_def_name gadn
+//where gaa.owner_group_id = gg.id and gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id
+//and gadn.id = gadns.then_has_attribute_def_name_id
+
+
+//select gaa.id attribute_assign_id, gaa.owner_group_id, gaa.owner_membership_id, gadn.name, gadn.id attribute_def_name_id
+//from grouper_attribute_assign gaa, grouper_attribute_def_name_set gadns,
+//grouper_attribute_def_name gadn
+//where gaa.attribute_def_name_id = gadns.if_has_attribute_def_name_id
+//and gadn.id = gadns.then_has_attribute_def_name_id;
+
 /**
- * @author mchyzer $Id: AttributeDefNameSet.java,v 1.1 2009-06-30 05:15:15 mchyzer Exp $
+ * @author mchyzer $Id: AttributeDefNameSet.java,v 1.2 2009-07-03 21:15:13 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersioned {

@@ -1,4 +1,6 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameSetNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -7,7 +9,7 @@ import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO;
 /**
  * Data Access Object for attribute def name set
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.1 2009-06-30 05:15:15 mchyzer Exp $
+ * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.2 2009-07-03 21:15:13 mchyzer Exp $
  */
 public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefNameSetDAO {
   
@@ -43,6 +45,28 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
    */
   public void saveOrUpdate(AttributeDefNameSet attributeDefNameSet) {
     HibernateSession.byObjectStatic().saveOrUpdate(attributeDefNameSet);
+  }
+
+  /**
+   * @see AttributeDefNameSetDAO#findByIfHasAttributeDefNameId(String)
+   */
+  public Set<AttributeDefNameSet> findByIfHasAttributeDefNameId(String id) {
+    Set<AttributeDefNameSet> attributeDefNameSets = HibernateSession.byHqlStatic().createQuery(
+      "from AttributeDefNameSet where ifHasAttributeDefNameId = :theId")
+      .setString("theId", id).listSet(AttributeDefNameSet.class);
+    return attributeDefNameSets;
+
+  }
+
+  /**
+   * @see AttributeDefNameSetDAO#findByThenHasAttributeDefNameId(String)
+   */
+  public Set<AttributeDefNameSet> findByThenHasAttributeDefNameId(String id) {
+    Set<AttributeDefNameSet> attributeDefNameSets = HibernateSession.byHqlStatic().createQuery(
+      "from AttributeDefNameSet where thenHasAttributeDefNameId = :theId")
+      .setString("theId", id).listSet(AttributeDefNameSet.class);
+    return attributeDefNameSets;
+
   }
 
 } 
