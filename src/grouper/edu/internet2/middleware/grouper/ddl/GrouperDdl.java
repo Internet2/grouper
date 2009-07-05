@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.56 2009-07-03 21:15:13 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.57 2009-07-05 21:23:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1940,6 +1940,7 @@ public enum GrouperDdl implements DdlVersionable {
    */
   public void dropAllViews(DdlVersionBean ddlVersionBean) {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attributes_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_attr_def_name_set_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_audit_entry_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_composites_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_types_v");
