@@ -87,7 +87,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.123 2009-07-02 17:22:47 shilen Exp $
+ * @version $Id: Membership.java,v 1.124 2009-07-08 18:45:46 shilen Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -125,7 +125,15 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   
   /** old uuid id col for id conversion */
   public static final String COLUMN_OLD_MEMBERSHIP_UUID = "old_membership_uuid";
+
+  /** epoch time of when to disable membership */
+  public static final String COLUMN_DISABLED_TIMESTAMP = "disabled_timestamp";
   
+  /** epoch time of when to enable membership */
+  public static final String COLUMN_ENABLED_TIMESTAMP = "enabled_timestamp";
+  
+  /** whether the membership is enabled or disabled: T|F */
+  public static final String COLUMN_ENABLED = "enabled";
 
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
@@ -416,6 +424,16 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * 
    */
   public static final String COLUMN_OWNER_GROUP_ID_NULL = "owner_group_id_null";
+  
+  /**
+   * 
+   */
+  public static final String COLUMN_OWNER_ATTRIBUTE_ID = "owner_attribute_id";
+  
+  /**
+   * 
+   */
+  public static final String COLUMN_OWNER_ATTRIBUTE_ID_NULL = "owner_attribute_id_null";
 
   /**
    * 

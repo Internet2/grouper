@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.57 2009-07-05 21:23:58 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.58 2009-07-08 18:45:46 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -3373,6 +3373,12 @@ public enum GrouperDdl implements DdlVersionable {
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
         "membership_owner_stem_idx", false, Membership.COLUMN_OWNER_STEM_ID);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OWNER_ATTRIBUTE_ID, 
+        Types.VARCHAR, "128", false, false);
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
+        "membership_owner_attr_idx", false, Membership.COLUMN_OWNER_ATTRIBUTE_ID);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_VIA_COMPOSITE_ID, 
         Types.VARCHAR, "128", false, false);
@@ -3389,6 +3395,9 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OWNER_STEM_ID_NULL, 
         Types.VARCHAR, "128", false, requireNewMembershipColumns, GroupSet.nullColumnValue);
     
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable, Membership.COLUMN_OWNER_ATTRIBUTE_ID_NULL, 
+        Types.VARCHAR, "128", false, requireNewMembershipColumns, GroupSet.nullColumnValue);
+    
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
         "membership_gowner_member_idx", false, Membership.COLUMN_OWNER_GROUP_ID, "member_id",
         "field_id");
@@ -3398,23 +3407,55 @@ public enum GrouperDdl implements DdlVersionable {
         "field_id");
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
+        "membership_aowner_member_idx", false, Membership.COLUMN_OWNER_ATTRIBUTE_ID, "member_id",
+        "field_id");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
         "membership_uniq_idx", true, Membership.COLUMN_OWNER_GROUP_ID_NULL, Membership.COLUMN_OWNER_STEM_ID_NULL,
-        Membership.COLUMN_MEMBER_ID, Membership.COLUMN_FIELD_ID);
+        Membership.COLUMN_OWNER_ATTRIBUTE_ID_NULL, Membership.COLUMN_MEMBER_ID, Membership.COLUMN_FIELD_ID);
     
     
     // copy data from owner group id and owner stem id to the null columns
     ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_memberships \n"
         + "set owner_group_id_null = owner_group_id, \n"
-        + "owner_stem_id_null = owner_stem_id \n"
-        + "where owner_group_id_null is null and owner_stem_id_null is null;\n");
+        + "owner_stem_id_null = owner_stem_id, \n"
+        + "owner_attribute_id_null = owner_attribute_id \n"
+        + "where owner_group_id_null is null and owner_stem_id_null is null and owner_attribute_id_null is null;\n");
     
     ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_memberships \n"
         + "set owner_group_id_null = '" + GroupSet.nullColumnValue + "' \n"
         + "where owner_group_id_null is null;\n");
+
+    ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_memberships \n"
+        + "set owner_attribute_id_null = '" + GroupSet.nullColumnValue + "' \n"
+        + "where owner_attribute_id_null is null;\n");
     
     ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_memberships \n"
         + "set owner_stem_id_null = '" + GroupSet.nullColumnValue + "' \n"
         + "where owner_stem_id_null is null;\ncommit;\n");
+    
+    // add columns for membership expiration
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable,
+        Membership.COLUMN_ENABLED, Types.VARCHAR, "1", false, requireNewMembershipColumns, "T");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable,
+        Membership.COLUMN_ENABLED_TIMESTAMP, Types.BIGINT, "20", false, false);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membershipsTable,
+        Membership.COLUMN_DISABLED_TIMESTAMP, Types.BIGINT, "20", false, false);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
+        "membership_enabled_idx", false, Membership.COLUMN_ENABLED);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
+        "membership_enabled_time_idx", false, Membership.COLUMN_ENABLED_TIMESTAMP);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, membershipsTable.getName(), 
+        "membership_disabled_time_idx", false, Membership.COLUMN_DISABLED_TIMESTAMP);
+    
+    ddlVersionBean.appendAdditionalScriptUnique("\nupdate grouper_memberships \n"
+        + "set enabled = 'T' \n"
+        + "where enabled is null;\ncommit;\n");
     
     addGroupSetTable(database);
   }
