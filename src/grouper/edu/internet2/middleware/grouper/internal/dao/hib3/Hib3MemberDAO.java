@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Member</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MemberDAO.java,v 1.17 2009-06-09 22:55:39 shilen Exp $
+ * @version $Id: Hib3MemberDAO.java,v 1.18 2009-07-10 14:53:07 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
@@ -354,7 +354,9 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         "and theMember.uuid = theMembership.memberUuid " +
         "and theMember.uuid = theMembership2.memberUuid " +
         "and theMembership.fieldId = :fuuid " +
-        "and theMembership2.fieldId = :fuuid ")
+        "and theMembership2.fieldId = :fuuid " +
+        "and theMembership.enabledDb = 'T' " +
+        "and theMembership2.enabledDb = 'T' ")
         .setString("group1uuid", groupUuid1)
         .setString("group2uuid", groupUuid2)
         .setString("fuuid", Group.getDefaultList().getUuid())
@@ -374,7 +376,8 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         "where theMembership.ownerGroupId in (:group1uuid, " +
         " :group2uuid) " +
         "and theMember.uuid = theMembership.memberUuid " +
-        "and theMembership.fieldId = :fuuid ")
+        "and theMembership.fieldId = :fuuid " +
+        "and theMembership.enabledDb = 'T' ")
         .setString("group1uuid", groupUuid1)
         .setString("group2uuid", groupUuid2)
         .setString("fuuid", Group.getDefaultList().getUuid())
@@ -393,9 +396,10 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         "where theMembership.ownerGroupId = :group1uuid " +
         "and theMember.uuid = theMembership.memberUuid " +
         "and theMembership.fieldId = :fuuid " +
+        "and theMembership.enabledDb = 'T' " +
         "and not exists (select theMembership2.memberUuid from MembershipEntry theMembership2 " +
         "where theMembership2.memberUuid = theMember.uuid and theMembership2.fieldId = :fuuid " +
-        "and theMembership2.ownerGroupId = :group2uuid) ")
+        "and theMembership2.ownerGroupId = :group2uuid and theMembership2.enabledDb = 'T') ")
         .setString("group1uuid", groupUuid1)
         .setString("group2uuid", groupUuid2)
         .setString("fuuid", Group.getDefaultList().getUuid())

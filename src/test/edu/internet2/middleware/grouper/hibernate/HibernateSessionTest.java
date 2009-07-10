@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HibernateSessionTest.java,v 1.5 2009-06-09 22:55:40 shilen Exp $
+ * $Id: HibernateSessionTest.java,v 1.6 2009-07-10 14:53:07 shilen Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
@@ -74,7 +74,7 @@ public class HibernateSessionTest extends GrouperTest {
     List<Member> members = HibernateSession.byHqlStatic()
       .createQuery("select distinct theMember from Member as theMember, MembershipEntry as theMembership, Field theField "
       + "where theMembership.ownerGroupId = :ownerId and theMember.uuid = theMembership.memberUuid" +
-          " and theMembership.fieldId = theField.uuid and theField.typeString = 'list' and theField.name = 'members'")
+          " and theMembership.fieldId = theField.uuid and theField.typeString = 'list' and theField.name = 'members' and theMembership.enabledDb = 'T'")
           .setString("ownerId", i2.getUuid())
       .options(queryOptions).list(Member.class);
     
@@ -126,7 +126,7 @@ public class HibernateSessionTest extends GrouperTest {
     List<Member> members = HibernateSession.byHqlStatic()
       .createQuery("select distinct theMember from Member as theMember, MembershipEntry as theMembership, Field theField "
       + "where theMembership.ownerGroupId = :ownerId and theMember.uuid = theMembership.memberUuid" +
-      		" and theMembership.fieldId = theField.uuid and theField.typeString = 'list' and theField.name = 'members'")
+      		" and theMembership.fieldId = theField.uuid and theField.typeString = 'list' and theField.name = 'members' and theMembership.enabledDb = 'T'")
       		.setString("ownerId", i2.getUuid())
       .options(new QueryOptions().sortAsc("theMember.subjectIdDb").paging(queryPaging)).list(Member.class);
     
@@ -138,11 +138,11 @@ public class HibernateSessionTest extends GrouperTest {
     //intersection in one query
     List<String> memberUuids = HibernateSession.byHqlStatic()
       .createQuery("select distinct theMember.uuid from Member theMember, " +
-      		"MembershipEntry theMembership, Membership theMembership2, Field theField " +
+      		"MembershipEntry theMembership, MembershipEntry theMembership2, Field theField " +
       		"where theMembership.ownerGroupId = :group1uuid and theMembership2.ownerGroupId = :group2uuid " +
       		"and theMember.uuid = theMembership.memberUuid and theMember.uuid = theMembership2.memberUuid " +
       		"and theMembership.fieldId = theField.uuid and theMembership2.fieldId = theField.uuid " +
-      		"and theField.typeString = 'list' and theField.name = 'members'")
+      		"and theField.typeString = 'list' and theField.name = 'members' and theMembership.enabledDb = 'T' and theMembership2.enabledDb = 'T'")
       		.setString("group1uuid", i2.getUuid())
       		.setString("group2uuid", i3.getUuid())
           .list(String.class);
@@ -157,10 +157,10 @@ public class HibernateSessionTest extends GrouperTest {
         "where theMembership.ownerGroupId = :group1uuid " +
         "and theMember.uuid = theMembership.memberUuid " +
         "and theMembership.fieldId = theField.uuid " +
-        "and theField.typeString = 'list' and theField.name = 'members' " +
+        "and theField.typeString = 'list' and theField.name = 'members' and theMembership.enabledDb = 'T' " +
         "and not exists (select theMembership2.memberUuid from MembershipEntry theMembership2 " +
         "where theMembership2.memberUuid = theMember.uuid and theMembership.fieldId = theField.uuid " +
-        "and theMembership2.ownerGroupId = :group2uuid) ")
+        "and theMembership2.ownerGroupId = :group2uuid and theMembership2.enabledDb = 'T') ")
         .setString("group1uuid", i3.getUuid())
         .setString("group2uuid", i2.getUuid())
         .list(String.class);
@@ -175,7 +175,7 @@ public class HibernateSessionTest extends GrouperTest {
         "where theMembership.ownerGroupId = :group1uuid and theMembership2.ownerGroupId = :group2uuid " +
         "and (theMember.uuid = theMembership.memberUuid or theMember.uuid = theMembership2.memberUuid) " +
         "and theMembership.fieldId = theField.uuid and theMembership2.fieldId = theField.uuid " +
-        "and theField.typeString = 'list' and theField.name = 'members'")
+        "and theField.typeString = 'list' and theField.name = 'members' and theMembership.enabledDb = 'T' and theMembership2.enabledDb = 'T'")
         .setString("group1uuid", i2.getUuid())
         .setString("group2uuid", i3.getUuid())
         .list(String.class);
@@ -200,7 +200,7 @@ public class HibernateSessionTest extends GrouperTest {
     .createQuery("select distinct g from Group as g, MembershipEntry as m, Field as f " +
     		"where g.parentUuid = :parent " +
     		"and m.ownerGroupId = g.uuid and m.fieldId = f.uuid and f.typeString = 'access' " +
-    		"and (m.memberUuid = :sessionMemberId or m.memberUuid = :grouperAllUuid)")
+    		"and (m.memberUuid = :sessionMemberId or m.memberUuid = :grouperAllUuid) and m.enabledDb = 'T'")
     		.setString("parent", edu.getUuid())
         .setString("sessionMemberId", MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid())
         .setString("grouperAllUuid", MemberFinder.findBySubject(grouperSession, SubjectFinder.findAllSubject(), true).getUuid())
