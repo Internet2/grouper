@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3ImmediateMembershipDAO.hbm.xml,v 1.2 2009-07-02 17:22:47 shilen Exp $ -->
+<!-- $Id: Hib3ImmediateMembershipDAO.hbm.xml,v 1.3 2009-07-10 14:53:07 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
 
@@ -52,6 +52,10 @@
     <property name="ownerGroupIdNull" type="string" column="owner_group_id_null" />
     <property name="ownerStemId" type="string" column="owner_stem_id" />
     <property name="ownerStemIdNull" type="string" column="owner_stem_id_null" />
+
+    <property name="enabledDb" type="string" column="enabled" />
+    <property name="enabledTimeDb" type="string" column="enabled_timestamp" />
+    <property name="disabledTimeDb" type="string" column="disabled_timestamp" />
     
     <property name="memberUuid" type="string" column="member_id" />
     <property name="fieldId" type="string" column="field_id" />

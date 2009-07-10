@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.58 2009-07-08 18:45:46 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.59 2009-07-10 14:53:07 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -2888,6 +2888,9 @@ public enum GrouperDdl implements DdlVersionable {
             "VIA_COMPOSITE_ID",
             "DEPTH", 
             "MSHIP_TYPE", 
+            "IMMEDIATE_MSHIP_ENABLED",
+            "IMMEDIATE_MSHIP_ENABLED_TIME",
+            "IMMEDIATE_MSHIP_DISABLED_TIME",
             "GROUP_SET_PARENT_ID", 
             "MEMBERSHIP_CREATOR_ID", 
             "MEMBERSHIP_CREATE_TIME",
@@ -2906,6 +2909,9 @@ public enum GrouperDdl implements DdlVersionable {
             "VIA_COMPOSITE_ID: ",
             "DEPTH: ", 
             "MSHIP_TYPE: ", 
+            "IMMEDIATE_MSHIP_ENABLED: ",
+            "IMMEDIATE_MSHIP_ENABLED_TIME: ",
+            "IMMEDIATE_MSHIP_DISABLED_TIME: ",
             "GROUP_SET_PARENT_ID: ", 
             "MEMBERSHIP_CREATOR_ID: ", 
             "MEMBERSHIP_CREATOR_TIME: ",
@@ -2925,6 +2931,9 @@ public enum GrouperDdl implements DdlVersionable {
             + "ms.via_composite_id, " 
             + "gs.depth, " 
             + "gs.mship_type, " 
+            + "ms.enabled, " 
+            + "ms.enabled_timestamp, " 
+            + "ms.disabled_timestamp, "
             + "gs.parent_id as group_set_parent_id, "
             + "ms.creator_id as membership_creator_id, "
             + "ms.create_time as membership_create_time, "

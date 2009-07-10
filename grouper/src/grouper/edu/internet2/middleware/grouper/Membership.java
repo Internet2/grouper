@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -87,7 +88,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.124 2009-07-08 18:45:46 shilen Exp $
+ * @version $Id: Membership.java,v 1.125 2009-07-10 14:53:07 shilen Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -345,7 +346,176 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
 
   /** either composite, immediate, effective */
   private String  type        = Membership.IMMEDIATE;           // reasonable default
+  
+  /**
+   * If the membership is enabled.  Only applies to immediate memberships.
+   */
+  private boolean enabled = true;
+  
+  /**
+   * Time to enable this membership.  Only applies to immediate memberships.
+   */
+  private Long enabledTimeDb;
+  
+  /**
+   * Time to disable this membership.  Only applies to immediate memberships.
+   */
+  private Long disabledTimeDb;
 
+  /**
+   * Is this membership enabled?  Only applies to immediate memberships.
+   * @return boolean
+   */
+  public boolean isEnabled() {
+    if (!this.isImmediate()) {
+      throw new RuntimeException("This only applies to immediate memberships.");
+    }
+    
+    //currently this is based on timestamp
+    long now = System.currentTimeMillis();
+    if (this.enabledTimeDb != null && this.enabledTimeDb > now) {
+      return false;
+    }
+    if (this.disabledTimeDb != null && this.disabledTimeDb < now) {
+      return false;
+    }
+    return true;
+  }
+  
+  /**
+   * Whether to enable or disable this membership.  Only applies to immediate memberships.
+   * @param enabled
+   */
+  public void setEnabled(boolean enabled) {
+    if (!this.isImmediate()) {
+      throw new RuntimeException("This only applies to immediate memberships.");
+    }
+    
+    this.enabled = enabled;
+  }
+
+  /**
+   * Whether or not this membership is enabled.  Only applies to immediate memberships.
+   * @return the enabled
+   */
+  public String getEnabledDb() {
+    if (this.enabled) {
+      return "T";
+    }
+    
+    return "F";
+  }
+
+  
+  /**
+   * Whether to enable or disable this membership.  Only applies to immediate memberships.
+   * @param enabled
+   */
+  public void setEnabledDb(String enabled) {
+    this.enabled = GrouperUtil.booleanValue(enabled);
+  }
+
+  /**
+   * Time when this membership is enabled if the value is in the future.  Only applies to immediate memberships.
+   * @return Long
+   */
+  public Long getEnabledTimeDb() {
+    return this.enabledTimeDb;
+  }
+
+  /**
+   * Time when this membership is enabled if the value is in the future.  Only applies to immediate memberships.
+   * @return Timestamp
+   */
+  public Timestamp getEnabledTime() {
+    if (!this.isImmediate()) {
+      throw new RuntimeException("This only applies to immediate memberships.");
+    }
+    
+    if (this.enabledTimeDb == null) {
+      return null;
+    }
+    
+    return new Timestamp(this.enabledTimeDb);
+  }
+  
+  /**
+   * Set the time when this membership should be enabled.  Only applies to immediate memberships.
+   * @param enabledTimeDb
+   */
+  public void setEnabledTimeDb(Long enabledTimeDb) {
+    this.enabledTimeDb = enabledTimeDb;
+  }
+
+  /**
+   * Set the time when this membership should be enabled.  Only applies to immediate memberships.
+   * @param enabledTimeDb
+   */
+  public void setEnabledTime(Timestamp enabledTimeDb) {
+    if (!this.isImmediate()) {
+      throw new RuntimeException("This only applies to immediate memberships.");
+    }
+    
+    if (enabledTimeDb == null) {
+      this.enabledTimeDb = null;
+    } else {
+      this.enabledTimeDb = enabledTimeDb.getTime();
+    }
+    
+    setEnabled(isEnabled());
+  }
+  
+  /**
+   * Time when this membership is disabled if the value is in the future.  Only applies to immediate memberships.
+   * @return Long
+   */
+  public Long getDisabledTimeDb() {
+    return this.disabledTimeDb;
+  }
+
+  /**
+   * Time when this membership is disabled if the value is in the future.  Only applies to immediate memberships.
+   * @return Timestamp
+   */
+  public Timestamp getDisabledTime() {
+    if (!this.isImmediate()) {
+      throw new RuntimeException("This only applies to immediate memberships.");
+    }
+    
+    if (this.disabledTimeDb == null) {
+      return null;
+    }
+    
+    return new Timestamp(this.disabledTimeDb);
+  }
+  
+  /**
+   * Set the time to disable this membership.  Only applies to immediate memberships.
+   * @param disabledTimeDb
+   */
+  public void setDisabledTimeDb(Long disabledTimeDb) {
+    this.disabledTimeDb = disabledTimeDb;
+  }
+  
+  /**
+   * Set the time to disable this membership.  Only applies to immediate memberships.
+   * @param disabledTimeDb
+   */
+  public void setDisabledTime(Timestamp disabledTimeDb) {
+    if (!this.isImmediate()) {
+      throw new RuntimeException("This only applies to immediate memberships.");
+    }
+    
+    if (disabledTimeDb == null) {
+      this.disabledTimeDb = null;
+    } else {
+      this.disabledTimeDb = disabledTimeDb.getTime();
+    }
+    
+    setEnabled(isEnabled());
+  }
+  
+  
   /**
    * if this is a composite membership
    * @return true if composite
