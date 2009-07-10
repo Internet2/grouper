@@ -27,9 +27,9 @@ import edu.internet2.middleware.grouper.exception.QueryException;
  * Interface for querying the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: QueryFilter.java,v 1.2 2008-07-21 05:32:20 mchyzer Exp $
+ * @version $Id: QueryFilter.java,v 1.3 2009-07-10 17:49:31 tzeller Exp $
  */
-public interface QueryFilter {
+public interface QueryFilter<ValueType> {
 
   // Public Instance Methods
 
@@ -40,7 +40,7 @@ public interface QueryFilter {
    * @return  Objects that match filter constraints.
    * @throws  QueryException
    */
-  Set getResults(GrouperSession s) throws QueryException;
+  Set<ValueType> getResults(GrouperSession s) throws QueryException;
 
 }
 
