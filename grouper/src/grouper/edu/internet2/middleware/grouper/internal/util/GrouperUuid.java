@@ -18,14 +18,16 @@
 package edu.internet2.middleware.grouper.internal.util;
 import java.util.UUID;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+
 /** 
  * Generate UUIDs.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperUuid.java,v 1.1.10.1 2009-05-18 16:05:32 mchyzer Exp $
+ * @version $Id: GrouperUuid.java,v 1.1.10.2 2009-07-14 14:49:53 mchyzer Exp $
  * @since   1.2.0
  *     
-*/
+ */
 public class GrouperUuid {
 
   /**
@@ -34,14 +36,25 @@ public class GrouperUuid {
    */
   public static String getUuid() {
     String uuid = UUID.randomUUID().toString();
-    StringBuilder result = new StringBuilder(uuid.length());
+    
+    //config option to do that
+    if (GrouperConfig.getPropertyBoolean("uuid.use.dashes", false)) {
+      return uuid;
+    }
+
+    char[] result = new char[32];
+    int resultIndex = 0;
     for (int i=0;i<uuid.length();i++) {
       char theChar = uuid.charAt(i);
       if (theChar != '-') {
-        result.append(theChar);
+        if (resultIndex >= result.length) {
+          throw new RuntimeException("Why is resultIndex greater than result.length ???? " 
+              + resultIndex + " , " + result.length + ", " + uuid);
+        }
+        result[resultIndex++] = theChar;
       }
     }
-    return result.toString();
+    return new String(result);
   } 
 
 }

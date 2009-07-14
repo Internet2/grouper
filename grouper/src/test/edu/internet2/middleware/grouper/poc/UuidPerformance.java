@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: UuidPerformance.java,v 1.1.2.1 2009-05-18 16:05:32 mchyzer Exp $
+ * $Id: UuidPerformance.java,v 1.1.2.2 2009-07-14 14:49:53 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.poc;
 
@@ -51,6 +51,29 @@ public class UuidPerformance {
       }
     }
     System.out.println("New2 took " + ((System.nanoTime() - now)/1000000d) + "millis");
+
+    now = System.nanoTime();
+    GrouperUuid.getUuid();
+
+    for (int i=0;i<100000;i++) {
+      uuid = GrouperUuid.getUuid();
+      if (i<5) {
+        System.out.println(uuid);
+      }
+    }
+    System.out.println("New3 took " + ((System.nanoTime() - now)/1000000d) + "millis");
+
+    now = System.nanoTime();
+    GrouperUuid.getUuid();
+
+    for (int i=0;i<100000;i++) {
+      uuid = GrouperUuid.getUuid();
+      if (i<5) {
+        System.out.println(uuid);
+      }
+    }
+    System.out.println("New4 took " + ((System.nanoTime() - now)/1000000d) + "millis");
+
   }
 
 }
