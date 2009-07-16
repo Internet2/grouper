@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTypeBuiltin.java,v 1.8 2009-06-24 06:22:25 mchyzer Exp $
+ * $Id: AuditTypeBuiltin.java,v 1.9 2009-07-16 20:11:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -203,25 +203,25 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   /**
    * copy a group to another stem
    */
-  GROUP_COPY(new AuditType("group", "copy", "attributes", "oldGroupUuid", "oldGroupName", "newGroupUuid", "newGroupName", 
+  GROUP_COPY(new AuditType("group", "copy", "attributes", "oldGroupId", "oldGroupName", "newGroupId", "newGroupName", 
       "privilegesOfGroup", "groupAsPrivilege", "listMembersOfGroup", "listGroupAsMember")),
   
   /**
    * move a group to another stem
    */
-  GROUP_MOVE(new AuditType("group", "move", null, "groupUuid", "oldGroupName", "newGroupName", "newStemUuid", 
+  GROUP_MOVE(new AuditType("group", "move", null, "groupId", "oldGroupName", "newGroupName", "newStemId", 
       "assignAlternateName")),
   
   /**
    * copy a stem to another stem
    */
-  STEM_COPY(new AuditType("stem", "copy", "attributes", "oldStemUuid", "oldStemName", "newStemName", "newStemUuid", 
+  STEM_COPY(new AuditType("stem", "copy", "attributes", "oldStemId", "oldStemName", "newStemName", "newStemId", 
       "privilegesOfStem", "privilegesOfGroup", "listMembersOfGroup", "listGroupAsMember")),
   
   /**
    * move a stem to another stem
    */
-  STEM_MOVE(new AuditType("stem", "move", null, "stemUuid", "oldStemName", "newStemName", "newParentStemUuid", 
+  STEM_MOVE(new AuditType("stem", "move", null, "stemId", "oldStemName", "newStemName", "newParentStemId", 
       "assignAlternateName"));
   
   /**
