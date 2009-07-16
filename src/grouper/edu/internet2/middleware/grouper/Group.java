@@ -127,7 +127,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.250 2009-06-24 06:22:24 mchyzer Exp $
+ * @version $Id: Group.java,v 1.251 2009-07-16 19:54:23 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -1593,7 +1593,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
                         "membershipType", membership.getType(), 
                         "groupId", Group.this.getUuid(), "groupName", Group.this.getName());
                         
-                auditEntry.setDescription("Added membership: group: " + Group.this.getName()
+                auditEntry.setDescription("Deleted membership: group: " + Group.this.getName()
                     + ", subject: " + subj.getSource().getId() + "." + subj.getId() + ", field: "
                     + f.getName());
                 auditEntry.saveOrUpdate(true);
