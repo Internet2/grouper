@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: UserAuditQueryTest.java,v 1.3 2009-05-30 05:49:12 mchyzer Exp $
+ * $Id: UserAuditQueryTest.java,v 1.4 2009-07-16 20:25:06 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -72,4 +72,16 @@ public class UserAuditQueryTest extends TestCase {
     System.out.println(result);
 
   }
+
+
+  /**
+   * 
+   */
+  public void testStemQuery() {
+    String result = new UserAuditQuery().addAuditTypeCategory("stem")
+      .addAuditTypeFieldValue("stemId", "123").executeReport();
+    System.out.println(result);
+
+  }
+
 }
