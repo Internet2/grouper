@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditFieldType.java,v 1.2 2009-07-16 20:11:21 mchyzer Exp $
+ * $Id: AuditFieldType.java,v 1.3 2009-07-16 20:25:06 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -26,6 +26,9 @@ public class AuditFieldType {
   /** audit type for group id */
   public static final String AUDIT_TYPE_GROUP_ID = "groupId";
   
+  /** audit type for group id */
+  public static final String AUDIT_TYPE_STEM_ID = "stemId";
+  
   /** audit type for member id */
   public static final String AUDIT_TYPE_MEMBER_ID = "memberId";
   
@@ -45,6 +48,25 @@ public class AuditFieldType {
 
     initAuditFieldTypesDone = true;
     
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.PRIVILEGE_STEM_ADD, "stemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.PRIVILEGE_STEM_UPDATE, "stemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.PRIVILEGE_STEM_DELETE, "stemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_ADD, "parentStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_DELETE, "parentStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_UPDATE, "parentStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_ADD, "id");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_ADD, "parentStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_DELETE, "id");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_DELETE, "parentStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_UPDATE, "id");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_UPDATE, "parentStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_COPY, "oldStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_COPY, "newStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_MOVE, "stemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.STEM_MOVE, "newParentStemId");
+    addAuditFieldType(AUDIT_TYPE_STEM_ID, AuditTypeBuiltin.GROUP_MOVE, "newStemId");
+    
+        
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ADD, "id");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_UPDATE, "id");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_DELETE, "id");
