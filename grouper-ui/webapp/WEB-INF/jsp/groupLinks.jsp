@@ -3,7 +3,7 @@
 		 	on the privileges of the current user for the current group
 --%><%--
   @author Gary Brown.
-  @version $Id: groupLinks.jsp,v 1.13 2009-04-18 16:33:46 shilen Exp $
+  @version $Id: groupLinks.jsp,v 1.14 2009-07-16 11:33:34 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -82,6 +82,14 @@
 	<c:if test="${groupPrivs.ADMIN || groupPrivs.READ}">
 		<html:link page="/populateCopyGroup.do"  name="group">
 			<grouper:message bundle="${nav}" key="groups.action.copy"/>
+		</html:link>
+	</c:if>
+	<c:if test="${groupPrivs.ADMIN}">
+		<jsp:useBean id="auditParams" class="java.util.HashMap" scope="page"></jsp:useBean>
+		<c:set target="${auditParams}" property="origCallerPageId" value="${thisPageId}"/>
+		<c:set target="${auditParams}" property="groupId" value="${group.id}"/>
+		<html:link page="/userAudit.do"  name="auditParams">
+			<grouper:message bundle="${nav}" key="groups.action.audit"/>
 		</html:link>
 	</c:if>
 	<jsp:useBean id="subjSum" class="java.util.HashMap"/>

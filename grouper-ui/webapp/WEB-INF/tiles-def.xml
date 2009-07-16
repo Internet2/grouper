@@ -177,6 +177,13 @@
     <put name="content" type="page" value="/WEB-INF/jsp/DebugPrefs.jsp"/>
   </definition>
   
+  <definition extends="BaseDef" name="AuditQueryDef">
+  	 <description>
+		 Show audit query results
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/AuditQuery.jsp"/>
+  </definition>
+  
   <definition extends="BaseDef" name="DebugNotAllowedDef">
   	 <description>
 		 Show instead of debug page if not enabled
@@ -399,7 +406,11 @@
 				   <put name="maintainModule" type="String" value="y"/>
 </definition>
 
- 
+   <definition name="auditSearchDef" path="/WEB-INF/jsp/audit/auditSearch.jsp">
+	  <description>
+		  Form embedded in another page which allows the audit log to be searched	  
+	  </description>
+  </definition>
 
   <definition name="groupMemberPrivsDef" path="/WEB-INF/jsp/modifyGroupMemberPrivilegesView.jsp">
 	  <description>

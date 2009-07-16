@@ -83,7 +83,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.61 2009-05-08 12:03:37 shilen Exp $
+ * @version $Id: GrouperHelper.java,v 1.62 2009-07-16 11:33:34 isgwb Exp $
  */
 
 
@@ -3318,6 +3318,30 @@ public class GrouperHelper {
     }
 
     stemMove.save();
+  }
+  
+  public static String getMemberDisplayValue(Member member, ResourceBundle bundle) {
+	  String field="description";
+	  
+	  String value="unknown";
+	  try {
+		  field = bundle.getString("subject.display." + member.getSubjectSourceId());
+	  }catch (MissingResourceException e) {
+		  try {
+		  field = bundle.getString("subject.display.default");
+		  }catch(MissingResourceException ee) {
+			  
+		  }
+	  }
+	  try {
+	  value=member.getSubject().getAttributeValue(field);
+	  }catch(Exception e) {
+		  
+	  }
+	  if(value==null){
+		  value=member.getSubjectId().toString();
+	  }
+	  return value;
   }
 }
 

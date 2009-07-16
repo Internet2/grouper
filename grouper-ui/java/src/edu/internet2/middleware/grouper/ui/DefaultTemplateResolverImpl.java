@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.GroupType;
+import edu.internet2.middleware.grouper.audit.AuditType;
 import edu.internet2.middleware.grouper.ui.util.GroupAsMap;
 import edu.internet2.middleware.grouper.ui.util.MembershipAsMap;
 import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
@@ -300,6 +301,28 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 
 		if (tName == null) {
 			tName = getResource(mediaResources, "composite.view.default");
+		}
+
+		return tName;
+	}
+	
+	
+	public String getAuditEntryTemplateName(Object obj, String view,
+			ResourceBundle mediaResources, HttpServletRequest request) {
+
+		ObjectAsMap entry = (ObjectAsMap) obj;
+		AuditType auditType = (AuditType)entry.get("auditType");
+		String type = auditType.getActionName() + "-" + auditType.getAuditCategory();
+		String tName = null;
+		
+		tName = getResource(mediaResources, "auditEntry.view." + view + ".type." + type);
+		
+		if (tName == null) {
+			tName = getResource(mediaResources, "auditEntry.view." + view);
+		}
+		
+		if (tName == null) {
+			tName = getResource(mediaResources, "auditEntry.view.default");
 		}
 
 		return tName;

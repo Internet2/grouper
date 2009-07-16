@@ -2,7 +2,7 @@
 		  	Tile which displays a standard set of links for a subject summary
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectLinks.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: subjectLinks.jsp,v 1.5 2009-07-16 11:33:34 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -13,11 +13,34 @@
 				<html:link page="/addSavedSubject.do" name="saveParams">
 					<grouper:message bundle="${nav}" key="saved-subjects.add.subject"/>
 				</html:link>
+			<c:if test="${activeWheelGroupMember || AuthSubject.id == 'GrouperSystem'}">
+				<jsp:useBean id="auditParams" class="java.util.HashMap" scope="page"></jsp:useBean>
+		<c:set target="${auditParams}" property="origCallerPageId" value="${thisPageId}"/>
+		<c:set target="${auditParams}" property="subjectId" value="${subject.id}"/>
+		<c:set target="${auditParams}" property="subjectType" value="${subject.subjectType}"/>
+		<c:set target="${auditParams}" property="sourceId" value="${subject.source.id}"/>
+		<c:set target="${auditParams}" property="filterType" value="actions"/>
+		<html:link page="/userAudit.do"  name="auditParams">
+			<grouper:message bundle="${nav}" key="subject.action.audit.actions"/>
+		</html:link>
+		
+		<c:set target="${auditParams}" property="filterType" value="memberships"/>
+		<html:link page="/userAudit.do"  name="auditParams">
+			<grouper:message bundle="${nav}" key="subject.action.audit.memberships"/>
+		</html:link>
+		<c:set target="${auditParams}" property="filterType" value="privileges"/>
+		<html:link page="/userAudit.do"  name="auditParams">
+			<grouper:message bundle="${nav}" key="subject.action.audit.privileges"/>
+		</html:link>
+		</c:if>
 			</c:if>
 		
 			<html:link page="/populateSearchSubjects.do" >
 				<grouper:message bundle="${nav}" key="subject.action.new-search"/>
 			</html:link>
+			
+		
+			
 <c:if test="${!empty pager.params.returnTo}">		
 			<html:link page="${pager.params.returnTo}" >
 				<grouper:message bundle="${nav}" key="${pager.params.returnToLinkKey}"/>

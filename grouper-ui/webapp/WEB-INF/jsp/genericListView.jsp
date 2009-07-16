@@ -3,7 +3,7 @@
 		  items and footer
 --%><%--
   @author Gary Brown.
-  @version $Id: genericListView.jsp,v 1.3 2007-09-30 08:58:17 isgwb Exp $
+  @version $Id: genericListView.jsp,v 1.4 2009-07-16 11:33:34 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -27,7 +27,11 @@
 	<c:choose>
 		<c:when test="${useTable=='true'}">
 			<table class="<c:out value="${tableClass}"/>">
+				<c:if test="${!empty headerRow}">
+					<c:out value="${headerRow}" escapeXml="false"/>
+				</c:if>
 			<c:forEach var="listItem" items="${viewObject}">
+			
 				<tiles:insert definition="dynamicTileDef" flush="false">
 					<tiles:put name="view" beanName="itemView"/>
 					<tiles:put name="viewObject" beanName="listItem"/>

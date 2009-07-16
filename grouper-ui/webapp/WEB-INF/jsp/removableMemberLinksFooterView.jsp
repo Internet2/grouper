@@ -2,7 +2,7 @@
 		  ynamic tile used  to provide footer, including form buttons, for removing all, or selected members
 --%><%--
   @author Gary Brown.
-  @version $Id: removableMemberLinksFooterView.jsp,v 1.4 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: removableMemberLinksFooterView.jsp,v 1.5 2009-07-16 11:33:34 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute />
@@ -17,7 +17,7 @@
 </c:if>
 </div>
 <div class="linkButton">
-<tiles:insert definition="callerPageButtonDef"/>
+<tiles:insert definition="callerPageButtonDef"><tiles:put name="forceCallerPageId" beanName="forceCallerPageId"/></tiles:insert>
 </div>
 
 <c:if test="${removableMembers}">

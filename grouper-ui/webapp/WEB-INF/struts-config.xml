@@ -31,7 +31,27 @@
 	   <form-property name="outputDir" type="java.lang.String"/>
         <form-property name="JSPEditor" type="java.lang.String"/>
         <form-property name="callerPageId" type="java.lang.String"/>
-    </form-bean>  
+    </form-bean>
+
+	<form-bean dynamic="true" name="AuditQueryFormBean"
+               type="org.apache.struts.action.DynaActionForm">
+      <form-property name="groupId" type="java.lang.String"/>
+	  <form-property name="stemId" type="java.lang.String"/>
+      <form-property name="memberId" type="java.lang.String"/>
+	  <form-property name="subjectId" type="java.lang.String"/>
+	   <form-property name="subjectType" type="java.lang.String"/>
+	  <form-property name="sourceId" type="java.lang.String"/>
+      <form-property name="filterType" type="java.lang.String"/>
+	  <form-property name="sort" type="java.lang.String"/>
+      <form-property name="dateQualifier" type="java.lang.String"/>
+      <form-property name="date1" type="java.lang.String"/>
+      <form-property name="date2" type="java.lang.String"/>
+      <form-property name="callerPageId" type="java.lang.String"/>
+	  <form-property name="origCallerPageId" type="java.lang.String"/>
+	  <form-property name="pageSize" type="java.lang.String"/>
+	  
+    </form-bean> 
+	
     <form-bean dynamic="true" name="BrowseFormBean"
                type="org.apache.struts.action.DynaActionForm">
       <form-property name="groupId" type="java.lang.String"/>
@@ -233,6 +253,12 @@
             type="edu.internet2.middleware.grouper.ui.actions.PopulateHelpAction"
             unknown="false" validate="false">
       <forward name="Help" path="HelpDef" redirect="false"/>
+    </action>
+	<action  path="/userAudit" name="AuditQueryFormBean"
+            scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.DoUserAuditReportAction"
+            unknown="false" validate="false">
+      <forward name="AuditQuery" path="AuditQueryDef" redirect="false"/>
     </action>
     
         <action path="/populateDebugPrefs"  scope="request" name="DebugPrefsFormBean"

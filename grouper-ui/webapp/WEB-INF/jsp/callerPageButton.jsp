@@ -2,7 +2,7 @@
 		  Shows 'back' button - can pass in text and title
 --%><%--
   @author Gary Brown.
-  @version $Id: callerPageButton.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: callerPageButton.jsp,v 1.3 2009-07-16 11:33:34 isgwb Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -19,10 +19,18 @@
 	<c:set var="buttonText"><grouper:message bundle="${nav}" key="cancel.to.caller-page"/></c:set>
 </c:if>
 
-
-<c:if test="${!empty form.map.callerPageId}">
+<c:choose>
+	<c:when test="${!empty forceCallerPageId}">
+		<jsp:useBean id="linkParams" class="java.util.HashMap" scope="page"/>
+		<c:set target="${linkParams}" property="forceCallerPageId" value="${form.map.origCallerPageId}"/>
+		<html:link page="/gotoCallerPage" paramId="pageId" paramName="linkParams" paramProperty="forceCallerPageId" title="${buttonTitle}">
+				<c:out value="${buttonText}"/>
+	</html:link>
+	</c:when>
+	<c:when test="${!empty form.map.callerPageId}">
 	<html:link page="/gotoCallerPage" paramId="pageId" paramName="form" paramProperty="callerPageId" title="${buttonTitle}">
 				<c:out value="${buttonText}"/>
 	</html:link>	
-</c:if>
+</c:when>
+</c:choose>
 </grouper:recordTile>
