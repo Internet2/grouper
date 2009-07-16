@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogTypeBuiltin.java,v 1.7 2009-06-11 05:47:02 mchyzer Exp $
+ * $Id: ChangeLogTypeBuiltin.java,v 1.8 2009-07-16 20:11:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -191,25 +191,25 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   /**
    * copy a group to another stem
    */
-  GROUP_COPY(new ChangeLogType("group", "copy", "attributes", "oldGroupUuid", "oldGroupName", "newGroupUuid", "newGroupName", 
+  GROUP_COPY(new ChangeLogType("group", "copy", "attributes", "oldGroupId", "oldGroupName", "newGroupId", "newGroupName", 
       "privilegesOfGroup", "groupAsPrivilege", "listMembersOfGroup", "listGroupAsMember")),
   
   /**
    * move a group to another stem
    */
-  GROUP_MOVE(new ChangeLogType("group", "move", "groupUuid", "oldGroupName", "newGroupName", "newStemUuid", 
+  GROUP_MOVE(new ChangeLogType("group", "move", "groupId", "oldGroupName", "newGroupName", "newStemId", 
       "assignAlternateName")),
   
   /**
    * copy a stem to another stem
    */
-  STEM_COPY(new ChangeLogType("stem", "copy", "attributes", "oldStemUuid", "oldStemName", "newStemName", "newStemUuid", 
+  STEM_COPY(new ChangeLogType("stem", "copy", "attributes", "oldStemId", "oldStemName", "newStemName", "newStemId", 
       "privilegesOfStem", "privilegesOfGroup", "listMembersOfGroup", "listGroupAsMember")),
   
   /**
    * move a stem to another stem
    */
-  STEM_MOVE(new ChangeLogType("stem", "move", "stemUuid", "oldStemName", "newStemName", "newParentStemUuid", 
+  STEM_MOVE(new ChangeLogType("stem", "move", "stemId", "oldStemName", "newStemName", "newParentStemId", 
       "assignAlternateName"));
   
   /**

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditFieldType.java,v 1.1 2009-05-26 06:50:56 mchyzer Exp $
+ * $Id: AuditFieldType.java,v 1.2 2009-07-16 20:11:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -60,9 +60,9 @@ public class AuditFieldType {
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_COMPOSITE_DELETE, "ownerId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_COMPOSITE_DELETE, "leftFactorId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_COMPOSITE_DELETE, "rightFactorId");
-    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_COPY, "oldGroupUuid");
-    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_COPY, "newGroupUuid");
-    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_MOVE, "groupUuid");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_COPY, "oldGroupId");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_COPY, "newGroupId");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_MOVE, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_TYPE_ASSIGN, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_TYPE_UNASSIGN, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.MEMBERSHIP_GROUP_ADD, "groupId");

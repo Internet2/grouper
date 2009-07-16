@@ -127,7 +127,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.251 2009-07-16 19:54:23 mchyzer Exp $
+ * @version $Id: Group.java,v 1.252 2009-07-16 20:11:21 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -3636,8 +3636,8 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                 
                 AuditEntry auditEntry = new AuditEntry(auditTypeBuiltin, "id", 
-                    Group.this.getUuid(), "groupId", Group.this.getParentUuid(), 
-                    "groupName", Group.this.getName(), "fieldId", Group.this.getDescription(),
+                    attribute.getId(), "groupId", Group.this.getUuid(), 
+                    "groupName", Group.this.getName(), "fieldId", f.getUuid(),
                     "fieldName", attributeName,  "value", attribute.getValue(), oldValueName, oldValue);
                 
                 auditEntry.setDescription(verb + " group attribute: " + attributeName + " on group: " 
@@ -4953,8 +4953,8 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
             if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
 
               AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_MOVE,
-                  "groupUuid", Group.this.getUuid(), "oldGroupName", 
-                  oldName, "newGroupName", Group.this.getName(), "newStemUuid",
+                  "groupId", Group.this.getUuid(), "oldGroupName", 
+                  oldName, "newGroupName", Group.this.getName(), "newStemId",
                   stem.getUuid(), 
                   "assignAlternateName", assignAlternateName ? "T" : "F");
               auditEntry.setDescription("Move group " + oldName + " to name: " + Group.this.getName()
@@ -5104,8 +5104,8 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
             if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
 
               AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_COPY,
-                  "oldGroupUuid", Group.this.getUuid(), "oldGroupName", 
-                  Group.this.getName(), "newGroupUuid", newGroup.getUuid(), "newGroupName",
+                  "oldGroupId", Group.this.getUuid(), "oldGroupName", 
+                  Group.this.getName(), "newGroupId", newGroup.getUuid(), "newGroupName",
                   newGroup.getName(), 
                   "privilegesOfGroup", privilegesOfGroup ? "T" : "F", "groupAsPrivilege",
                   groupAsPrivilege ? "T" : "F", "listMembersOfGroup",

@@ -110,7 +110,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * A namespace within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Stem.java,v 1.198 2009-06-24 06:22:24 mchyzer Exp $
+ * @version $Id: Stem.java,v 1.199 2009-07-16 20:11:21 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -2878,8 +2878,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
             if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
 
               AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_MOVE,
-                  "stemUuid", Stem.this.getUuid(), "oldStemName", 
-                  oldName, "newStemName", Stem.this.getName(), "newParentStemUuid",
+                  "stemId", Stem.this.getUuid(), "oldStemName", 
+                  oldName, "newStemName", Stem.this.getName(), "newParentStemId",
                   stem.getUuid(), 
                   "assignAlternateName", assignAlternateName ? "T" : "F");
               auditEntry.setDescription("Move stem " + oldName + " to name: " + Stem.this.getName()
@@ -3017,8 +3017,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner, Hib3Gr
             if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
               
               AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.STEM_COPY,
-                  "oldStemUuid", Stem.this.getUuid(), "oldStemName", 
-                  Stem.this.getName(), "newStemName", newStem.getName(), "newStemUuid",
+                  "oldStemId", Stem.this.getUuid(), "oldStemName", 
+                  Stem.this.getName(), "newStemName", newStem.getName(), "newStemId",
                   newStem.getUuid(), 
                   "privilegesOfStem", privilegesOfStem ? "T" : "F", "privilegesOfGroup",
                       privilegesOfGroup ? "T" : "F", "listMembersOfGroup",
