@@ -1,13 +1,16 @@
 /*
  * @author mchyzer
- * $Id: XmlUserAuditExportTest.java,v 1.1 2009-03-31 06:58:28 mchyzer Exp $
+ * $Id: XmlUserAuditExportTest.java,v 1.2 2009-07-16 19:51:05 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.xml.userAudit;
 
 import java.io.File;
 
+import junit.textui.TestRunner;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.helper.StemHelper;
@@ -20,6 +23,14 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class XmlUserAuditExportTest extends GrouperTest {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new XmlUserAuditExportTest("testExportImport"));
+  }
+  
   /**
    * @param name
    */
@@ -42,6 +53,8 @@ public class XmlUserAuditExportTest extends GrouperTest {
       Stem edu = StemHelper.addChildStem(root, "edu", "education");
       StemHelper.addChildGroup(edu, "i2", "internet2");
 
+      HibernateSession.bySqlStatic().executeSql("update grouper_audit_entry set logged_in_member_id = 'abc'");
+      
       //export
       XmlUserAuditExport.writeUserAudits(file);
       
@@ -55,6 +68,12 @@ public class XmlUserAuditExportTest extends GrouperTest {
       //import
       new XmlUserAuditImport().readUserAudits(file);
 
+      //see if all have abc
+      int abcRecords = (Integer)HibernateSession.bySqlStatic().select(int.class, 
+          "select count(*) from grouper_audit_entry where logged_in_member_id = 'abc'");
+      
+      assertTrue("Need to find some abc's: " + abcRecords, abcRecords > 5);
+      
     } finally {
       GrouperUtil.deleteFile(file);
     }
