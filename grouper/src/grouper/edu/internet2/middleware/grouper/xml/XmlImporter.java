@@ -56,6 +56,9 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditType;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
@@ -74,7 +77,12 @@ import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemModifyException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.internal.util.U;
@@ -102,7 +110,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p><b>The API for this class will change in future Grouper releases.</b></p>
  * @author  Gary Brown.
  * @author  blair christensen.
- * @version $Id: XmlImporter.java,v 1.20 2009-05-13 12:18:21 mchyzer Exp $
+ * @version $Id: XmlImporter.java,v 1.21 2009-07-17 03:00:29 mchyzer Exp $
  * @since   1.0
  */
 public class XmlImporter {
@@ -220,7 +228,7 @@ public class XmlImporter {
    * @param   args    args[0] = name of Xml file to process
    * @since   1.1.0
    */
-  public static void main(String[] args) {
+  public static void main(final String[] args) {
     
     //set this and leave it...
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.IMPORT, false, true);
@@ -230,7 +238,7 @@ public class XmlImporter {
       //System.exit(0);
       return;
     }
-    Properties rc = new Properties();
+    final Properties rc;
     try {
       rc = XmlArgs.internal_getXmlImportArgs(args);
     }
@@ -246,32 +254,49 @@ public class XmlImporter {
     if(!"true".equals(rc.getProperty(XmlArgs.RC_NOPROMPT))) {
     GrouperUtil.promptUserAboutDbChanges("import data from xml", true);
     }
-    XmlImporter importer = null;
-    try {
-      importer  = new XmlImporter(
-        GrouperSession.start(
-          SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ), true ), false
-        ),
-        XmlUtils.internal_getUserProperties(LOG, rc.getProperty(XmlArgs.RC_UPROPS))
-      );
-      _handleArgs(importer, rc);
-      LOG.debug("Finished import of [" + rc.getProperty(XmlArgs.RC_IFILE) + "]");
-    }
-    catch (Exception e) {
-      LOG.fatal("unable to import from xml: " + e.getMessage(), e);
-      //System.exit(1);
-      return;
-    }
-    finally {
-      if (importer != null) {
-        try {
-          importer.s.stop();
-        }
-        catch (SessionException eS) {
-          LOG.error(eS.getMessage());
-        }
-      }
-    }
+    final XmlImporter[] importer = new XmlImporter[1];
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.NONE, AuditControl.WILL_AUDIT,
+        new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            try {
+              
+              importer[0]  = new XmlImporter(
+                GrouperSession.start(
+                  SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ), true ), false
+                ),
+                XmlUtils.internal_getUserProperties(LOG, rc.getProperty(XmlArgs.RC_UPROPS))
+              );
+              _handleArgs(importer[0], rc);
+              
+              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.XML_IMPORT, "fileName", 
+                  rc.getProperty(XmlArgs.RC_IFILE), "subjectId", rc.getProperty(XmlArgs.RC_SUBJ));
+              auditEntry.setDescription("Imported xml: " + GrouperUtil.toStringForLog(args));
+              auditEntry.saveOrUpdate(true);
+
+              
+            } catch (Exception e) {
+              LOG.fatal("unable to import from xml: " + e.getMessage(), e);
+              System.out.println("unable to import from xml: " + e.getMessage());
+              e.printStackTrace();
+              //System.exit(1);
+            } finally {
+              if (importer[0] != null) {
+                try {
+                  importer[0].s.stop();
+                }
+                catch (SessionException eS) {
+                  LOG.error(eS.getMessage());
+                }
+              }
+            }
+            return null;
+          }
+        });
+      
+    LOG.debug("Finished import of [" + rc.getProperty(XmlArgs.RC_IFILE) + "]");
     System.exit(0);
     return;
   } // public static void main(args)

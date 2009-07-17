@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTypeBuiltin.java,v 1.9 2009-07-16 20:11:21 mchyzer Exp $
+ * $Id: AuditTypeBuiltin.java,v 1.10 2009-07-17 03:00:29 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -199,6 +199,11 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
    */
   MEMBER_CHANGE_SUBJECT(new AuditType("member", "changeSubject", null, "oldMemberId", 
       "oldSubjectId", "oldSourceId", "newMemberId", "newSubjectId", "newSourceId", "deleteOldMember", "memberIdChanged")),
+  
+  /**
+   * import from xml
+   */
+  XML_IMPORT(new AuditType("importExport", "import", null, "fileName", "subjectId")),
   
   /**
    * copy a group to another stem
