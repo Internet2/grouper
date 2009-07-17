@@ -42,7 +42,6 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.audit.AuditCriterionHelper;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -216,7 +215,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: DoUserAuditReportAction.java,v 1.1 2009-07-16 11:33:34 isgwb Exp $
+ * @version $Id: DoUserAuditReportAction.java,v 1.2 2009-07-17 15:02:02 isgwb Exp $
  */
 public class DoUserAuditReportAction extends GrouperCapableAction {
 
