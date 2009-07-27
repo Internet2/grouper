@@ -413,10 +413,10 @@ public class GrouperServiceJ2ee implements Filter {
           if (StringUtils.contains(groupEntry, GrouperWsConfig.WS_SEPARATOR)) {
 
             //it is the group the user is in, and the group the act as has to be in
-            String userMustBeInGroupName = GrouperUtil.prefixOrSuffix(groupEntry,
-                GrouperWsConfig.WS_SEPARATOR, true);
-            String actAsMustBeInGroupName = GrouperUtil.prefixOrSuffix(groupEntry,
-                GrouperWsConfig.WS_SEPARATOR, false);
+            String userMustBeInGroupName = StringUtils.trim(GrouperUtil.prefixOrSuffix(groupEntry,
+                GrouperWsConfig.WS_SEPARATOR, true));
+            String actAsMustBeInGroupName = StringUtils.trim(GrouperUtil.prefixOrSuffix(groupEntry,
+                GrouperWsConfig.WS_SEPARATOR, false));
 
             Group userMustBeInGroup = GroupFinder.findByName(session,
                 userMustBeInGroupName);
