@@ -42,7 +42,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.security.WsCustomAuthentication;
 import edu.internet2.middleware.grouper.ws.security.WsGrouperDefaultAuthentication;
-import edu.internet2.middleware.grouper.ws.soap.GrouperService;
 import edu.internet2.middleware.grouper.ws.soap.WsSubjectLookup;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -414,10 +413,10 @@ public class GrouperServiceJ2ee implements Filter {
           if (StringUtils.contains(groupEntry, GrouperWsConfig.WS_SEPARATOR)) {
 
             //it is the group the user is in, and the group the act as has to be in
-            String[] groupEntryArray = GrouperUtil.splitTrim(groupEntry,
-                GrouperWsConfig.WS_SEPARATOR);
-            String userMustBeInGroupName = groupEntryArray[0];
-            String actAsMustBeInGroupName = groupEntryArray[1];
+            String userMustBeInGroupName = GrouperUtil.prefixOrSuffix(groupEntry,
+                GrouperWsConfig.WS_SEPARATOR, true);
+            String actAsMustBeInGroupName = GrouperUtil.prefixOrSuffix(groupEntry,
+                GrouperWsConfig.WS_SEPARATOR, false);
 
             Group userMustBeInGroup = GroupFinder.findByName(session,
                 userMustBeInGroupName);

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperRestServlet.java,v 1.10.2.1 2009-01-25 12:58:49 mchyzer Exp $
+ * @author mchyzer $Id: GrouperRestServlet.java,v 1.10.2.2 2009-07-27 09:49:05 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ws.rest;
 
@@ -267,7 +267,7 @@ public class GrouperRestServlet extends HttpServlet {
    * @param request is the request to get the url strings out of
    * @return the list of url strings
    */
-  private static List<String> extractUrlStrings(HttpServletRequest request) {
+  public static List<String> extractUrlStrings(HttpServletRequest request) {
     String requestResourceFull = request.getRequestURI();
     return extractUrlStrings(requestResourceFull);
   }
@@ -283,7 +283,7 @@ public class GrouperRestServlet extends HttpServlet {
    * @param requestResourceFull
    * @return the url strings
    */
-  private static List<String> extractUrlStrings(String requestResourceFull) {
+  public static List<String> extractUrlStrings(String requestResourceFull) {
     String[] requestResources = StringUtils.split(requestResourceFull, '/');
     List<String> urlStrings = new ArrayList<String>();
     //loop through and decode
