@@ -57,7 +57,7 @@ public class GrouperServiceJ2ee implements Filter {
 
   /** logger */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(GrouperService.class);
+  private static final Log LOG = LogFactory.getLog(GrouperServiceJ2ee.class);
 
   /**
    * if in request, get the start time
@@ -434,7 +434,7 @@ public class GrouperServiceJ2ee implements Filter {
           } else {
             //else this is a straightforward rule where the logged in user just has to be in a group and
             //can act as anyone
-            Group actAsGroup = GroupFinder.findByName(session, actAsGroupName);
+            Group actAsGroup = GroupFinder.findByName(session, groupEntry);
 
             // if the logged in user is a member of the actAs group, then allow
             // the actAs
