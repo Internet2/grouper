@@ -135,10 +135,12 @@ public final class Ldappc extends TimerTask {
       } catch (ParseException e) {
         options.printUsage();
         System.err.println(e.getMessage());
+        e.printStackTrace();
         return;
       } catch (java.text.ParseException e) {
         options.printUsage();
         System.err.println(e.getMessage());
+        e.printStackTrace();
         return;
       }
 
@@ -263,7 +265,7 @@ public final class Ldappc extends TimerTask {
     try {
       rootDn = getContext().getNameParser(LdapUtil.EMPTY_NAME).parse(rootDnStr);
     } catch (NamingException e) {
-      throw new ConfigurationException("Unable to parse root DN.");
+      throw new ConfigurationException("Unable to parse root DN.", e);
     }
 
     Subject subject = SubjectFinder.findById(options.getSubjectId(), false);
