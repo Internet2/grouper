@@ -26,6 +26,8 @@ import javax.naming.Name;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.ldappc.GrouperProvisioner;
 import edu.internet2.middleware.ldappc.GrouperProvisionerConfiguration;
@@ -169,7 +171,7 @@ public abstract class GroupSynchronizer extends GrouperSynchronizer
             catch(Exception e)
             {
                 ErrorLog.error(getClass(),"GROUP[" + GrouperProvisioner
-                        .getGroupData(group) + "] :: " + e.toString() );
+                        .getGroupData(group) + "] :: " + e.toString() + ", " + ExceptionUtils.getFullStackTrace(e) );
                 caughtExceptions.add(e);
             }
         }

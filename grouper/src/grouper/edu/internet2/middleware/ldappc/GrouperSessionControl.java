@@ -88,7 +88,7 @@ public class GrouperSessionControl
             catch (SessionException se)
             {
                 ErrorLog.error(this.getClass(), "Failed to start GrouperSession for subjectId= " + subjectId + ":    "
-                        + se.getMessage());
+                        + se.getMessage() + ", " + ExceptionUtils.getFullStackTrace(se));
                 started = false;
             }
             if (session == null)
@@ -125,7 +125,7 @@ public class GrouperSessionControl
         }
         catch (SessionException se)
         {
-            ErrorLog.error(this.getClass(), "Failed to stop GrouperSession: " + se.getMessage());
+            ErrorLog.error(this.getClass(), "Failed to stop GrouperSession: " + se.getMessage() + ", " + ExceptionUtils.getFullStackTrace(se));
             stopped = false;
         }
         sessionGoing = !stopped;

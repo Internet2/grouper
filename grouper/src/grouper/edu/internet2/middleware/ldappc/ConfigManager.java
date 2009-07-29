@@ -38,6 +38,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.digester.CallMethodRule;
 import org.apache.commons.digester.Digester;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -623,7 +624,7 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
             // 
             // Fatal if file can't be parsed
             //
-            ErrorLog.fatal(ConfigManager.class, se.getMessage());
+            ErrorLog.fatal(ConfigManager.class, se.getMessage() + ", " + ExceptionUtils.getFullStackTrace(se));
             throw new LdappcConfigurationException(se);
         }
         catch (IOException ioe)
@@ -631,7 +632,7 @@ public class ConfigManager implements SignetProvisionerConfiguration, GrouperPro
             // 
             // Fatal if a file can't be read
             //
-            ErrorLog.fatal(ConfigManager.class, ioe.getMessage());
+            ErrorLog.fatal(ConfigManager.class, ioe.getMessage() + ", " + ExceptionUtils.getFullStackTrace(ioe));
             throw new LdappcConfigurationException(ioe);
         }
 

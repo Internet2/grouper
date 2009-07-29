@@ -49,7 +49,7 @@ public class GetNextPrime
         }
         catch (NumberFormatException nfx)
         {
-            System.out.println("Invalid integer");
+            System.out.println("Invalid integer: '" + args[0] + "'");
             System.exit(1);
         }
         if (input <= 2)

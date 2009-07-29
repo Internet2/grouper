@@ -39,6 +39,7 @@ import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -612,7 +613,8 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
                   }
                   catch (Exception e)
                   {
-                      ErrorLog.warn(getClass(), getErrorData(subject) + " " + e.getMessage());
+                      ErrorLog.warn(getClass(), getErrorData(subject) + " " + e.getMessage() 
+                          + ", " + ExceptionUtils.getFullStackTrace(e));
                   }
               }
 
@@ -1184,7 +1186,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
                 }
                 catch (Exception e)
                 {
-                    ErrorLog.error(getClass(), "Unable to delete " + entryDn);
+                    ErrorLog.error(getClass(), "Unable to delete " + entryDn + ", " + ExceptionUtils.getFullStackTrace(e));
                 }
             }
             else
@@ -1358,7 +1360,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             }
             catch (NamingException ne)
             {
-                ErrorLog.error(getClass(), "Failed to delete " + dn + " for " + getRoot() + " :: " + ne.getMessage());
+                ErrorLog.error(getClass(), "Failed to delete " + dn + " for " + getRoot() + " :: " + ne.getMessage() + ", " + ExceptionUtils.getFullStackTrace(ne));
                 namingExceptions.add(ne);
             }
         }
@@ -1393,7 +1395,7 @@ public class GroupEntrySynchronizer extends GroupSynchronizer
             }
             catch (NamingException ne)
             {
-                ErrorLog.error(getClass(), "Failed to delete " + dn + " for " + getRoot() + " :: " + ne.getMessage());
+                ErrorLog.error(getClass(), "Failed to delete " + dn + " for " + getRoot() + " :: " + ne.getMessage() + ", " + ExceptionUtils.getFullStackTrace(ne));
                 namingExceptions.add(ne);
             }
         }

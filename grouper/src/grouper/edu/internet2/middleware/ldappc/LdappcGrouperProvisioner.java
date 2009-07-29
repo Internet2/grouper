@@ -22,6 +22,8 @@ import javax.naming.NameNotFoundException;
 import javax.naming.NamingException;
 import javax.naming.ldap.LdapContext;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
+
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
@@ -121,11 +123,11 @@ class LdappcGrouperProvisioner
         catch (NameNotFoundException nnfe)
         {
             ErrorLog.fatal(this.getClass(), "Grouper Provision Failed: " + nnfe.getMessage() + "  Exception data: "
-                    + nnfe.toString());
+                    + nnfe.toString() + ", " + ExceptionUtils.getFullStackTrace(nnfe));
         }
         catch (Exception e)
         {
-            ErrorLog.fatal(this.getClass(), "Grouper Provision Failed: " + e.getMessage());
+            ErrorLog.fatal(this.getClass(), "Grouper Provision Failed: " + e.getMessage() + ", " + ExceptionUtils.getFullStackTrace(e));
         }
         finally
         {

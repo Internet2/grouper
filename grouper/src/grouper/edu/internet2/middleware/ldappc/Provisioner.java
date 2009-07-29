@@ -18,6 +18,8 @@
 
 package edu.internet2.middleware.ldappc;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
+
 import edu.internet2.middleware.ldappc.logging.ErrorLog;
 import edu.internet2.middleware.ldappc.util.SubjectCache;
 
@@ -117,6 +119,6 @@ public abstract class Provisioner
     protected String buildThrowableMsg(Throwable throwable, String errorData)
     {
         return throwable.getClass().getName() + MSG_DELIMITER + throwable.getMessage()
-                + (errorData == null ? "" : MSG_DELIMITER + errorData);
+                + (errorData == null ? "" : MSG_DELIMITER + errorData) + ", " + ExceptionUtils.getFullStackTrace(throwable);
     }
 }
