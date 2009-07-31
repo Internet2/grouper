@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/penn-ui"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/grouper-ui/ezmorph.jar"/>
+	<classpathentry kind="lib" path="lib/grouper-ui/json-lib.jar"/>
+	<classpathentry kind="lib" path="lib/grouper-ws-non-webapp/servlet.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/grouper-ws_v1_4"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -1,0 +1,158 @@
+body {
+  font-family:Verdana,Geneva,Arial,Helvetica,sans-serif;
+  font-size:11px;
+  padding: 0;
+  margin: 0;
+}
+
+#topLeftLogo {
+  padding: 8px;
+  float: left;
+}
+#topRightLogo {
+  padding: 8px;
+  float: right;
+}
+#navbar, #navbar a {
+  background-color:#015782;
+  color:#FFFFFF;
+}
+#navbar {
+  clear: both;  
+  text-align: right;
+  padding: 2px 20px 2px 0;
+  font-style:normal;
+  font-weight:normal;
+  height:15px;
+  margin: 0;
+}
+#simpleMain {
+  padding: 8px;
+}
+
+h1 {
+  color:#007994;
+  font-size:16px;
+  font-weight:bold;
+  margin-bottom:10px;
+}
+.helpText {
+  background-color:#FFFFCC;
+  margin:7px 0 5px;
+  padding:10px 6px;
+}
+.sectionBody {
+  padding:5px 10px 8px;
+}
+.section {
+  background-color:#F2F2F2;
+  height:0.01%;
+  margin-left:20px;
+  margin-right:20px;
+  margin-top:20px;
+}
+.browseStemsLocation {
+  margin-bottom: 5px;
+}
+.groupIcon, .subjectIcon {
+  margin-right:2px;
+  position:relative;
+  top:3px;
+}
+img {
+  border-width:0;
+}
+#logout {
+  padding: 10px;
+  font-size: 13px;
+  color: red;
+  font-weight: bold;
+}
+
+.formTable tr {
+  /* makes the negative border */
+  background-color: #e8e8e8;
+  
+}
+
+.tooltip {
+  border-bottom-color: #056496;
+  border-bottom-style: dashed;
+  border-bottom-width: 1px;
+}
+
+td {
+  padding:3px;
+}
+.formTableSpaced {
+  
+  margin-top: 20px;
+  margin-bottom: 20px;  
+}
+
+.formTable .formTableRow, .formTable .formTableRow td {
+  vertical-align: top;
+}
+
+.formTable .formTableLeft {
+  text-align: right;  
+  font-weight: bold;
+  width: 238px;
+  color: #015782;
+}
+
+.formTable .formTableRight {
+  width: 390px;
+}
+
+.formLeft {
+  display:block;
+  float:left;
+  clear:left;
+  line-height:20px;
+  width:140px;
+  margin-right:10px;
+}
+.formRight {
+  display:block;
+  float:left;
+  clear:right;
+  line-height:20px;
+}
+
+.formRow {
+  display:block;
+  clear:both;
+  margin-top:0px;
+}
+
+/* Make sure that form tags do not affect display -
+  most browsers include a line return after a form tag. */
+form {
+  display: inline;
+  margin: 0px;
+}
+
+/* start this out hidden, then show later */
+.groupHidden {
+  display: none;  
+}
+
+/* small links at bottom of things to show/hide */
+a.smallLink {
+  font-size: 9px;
+}
+
+/* blue header on top of sections */
+.sectionHeader {  
+  background-color:#DFEFF4;
+  color:#056496;
+  font-size:13px;
+  font-weight:bold;
+  margin:0;
+  padding:3px 3px 3px 10px;
+  text-decoration:none;
+  text-transform:none;
+}
+
+}
