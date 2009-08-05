@@ -182,11 +182,29 @@
 		<fail unless="webapp.folder">webapp.folder must be set</fail>
 		<fail unless="grouper.folder">grouper.folder must be set</fail>
 		<fail unless="ui.folder">ui.folder must be set</fail>
+		
+		<if>
+		   <equals arg1="true" arg2="${grouper.compile.api}"/>
+		   <then>
+		      <available file="${grouper.folder}/src/grouper" property="grouper.is.available"/> 
+		      <fail unless="grouper.is.available">grouper.compile.api is true so must have grouper source files i.e. cannot use this option with
+		      a binary distribution</fail>
+		   </then>
+		   <else>
+		     <available file="${grouper.folder}/dist/lib/grouper.jar" property="grouper.is.available"/>
+		   </else>
+		</if>
 		<available file="${grouper.folder}/dist/lib/grouper.jar" property="grouper.is.available"/>
 		<antcall target="-dist-grouper"/>
 		<available file="${grouper.folder}/dist/lib/grouper.jar" property="grouper.is.now.available"/>
-		<fail unless="grouper.is.now.available" message="${grouper.folder}/dist/lib/grouper.jar does not exist. You must
+		<if>
+		  <not><equals arg1="true" arg2="${grouper.compile.api}"/></not>
+		  <then>
+		    <fail unless="grouper.is.now.available" message="${grouper.folder}/dist/lib/grouper.jar does not exist. You must
 			   build and configure Grouper before running this script"/>
+		  </then>
+		</if>
+
 
 		<echo message="Creating  ${webapp.folder}"/>
 		<mkdir dir="${webapp.folder}"/>
@@ -195,7 +213,7 @@
 		<echo message="Copying Grouper configuration files to ${webapp.class.folder}"/>
 		<copy todir="${webapp.class.folder}" overwrite="true">
 			<fileset dir="${grouper.folder}/conf">
-				<exclude name="*.example.*"/>
+	
 			</fileset>
 		</copy>
 		<!-- Allow local log4j.properties -->
@@ -287,34 +305,65 @@
 		  		     may happen when additional-build called -->
 			<fileset dir="${webapp.folder}/WEB-INF/lib">
 				<include name="**/*.jar"/>
+				<exclude name="**/grouper.jar"/>
+				<exclude name="**/grouper-ui.jar"/>
 			</fileset>
 			<!-- make available any classes / resources already placed in the build folder -->
 			<pathelement location="${webapp.class.folder}"/>
-			<!-- Last, but not least, make Grouper API available -->
-			<pathelement location="${grouper.folder}/dist/lib/grouper.jar"/>
+			
+			<fileset dir="${grouper.folder}/dist/lib">
+    			<!-- Last, but not least, make Grouper API available -->
+				<include unless="grouper.compile.api" name="grouper.jar"/>
+			</fileset>
+			
+			
+			 
+			
+			
 		
       <fileset dir="${ui.folder}/contrib">
         <include name="**/*.jar"/>
       </fileset>    
 
 		</path>
+		
+		<!-- don't want grouper-ui.jar when compiling ui source - but do when running ui code or compiling dependent (custom) code -->
+		<path id="ui.class.path.for.run">
+		<path refid="ui.class.path"/>
+		  <fileset dir="${webapp.folder}/WEB-INF/lib">
+			  <include if="ui.make.jar" name="grouper-ui.jar"/>
+	    </fileset>
+		</path>
 		<antcall target="-compileGrouper"/>
 		<!-- Compile ui code - mostly Struts actions -->
 		
-	  <mkdir dir="${temp.dir}/jarBin"/>
+	  <if><equals arg1="${ui.make.jar}" arg2="true"/>
+	  	<then>
+	  	<mkdir dir="${temp.dir}/jarBin"/>
+	  	<property name="ui.javac.dest" value="${temp.dir}/jarBin"/>
+	  </then>
+	  <else>
+	  	<property name="ui.javac.dest" value="${webapp.folder}/WEB-INF/classes"/>	
+	  </else>
+	  </if>
 	  
-		<javac destdir="${temp.dir}/jarBin" classpathref="ui.class.path" 
+		<javac destdir="${ui.javac.dest}" classpathref="ui.class.path" 
 		  debuglevel="${debug.level}" debug="true" target="1.5">
 		  <src path="${ui.folder}/contrib/penn-auth/java/src"/>
-      <src path="${ui.folder}/contrib/struts-patch/java/src"/>
-      <src path="${ui.folder}/contrib/yale-cas-auth/java/src"/>
-      <src path="${ui.folder}/java/src" />
+                <src path="${ui.folder}/contrib/struts-patch/java/src"/>
+                <src path="${ui.folder}/contrib/yale-cas-auth/java/src"/>
+                <src path="${ui.folder}/java/src" />
 		</javac>
-
-    <jar file="${webapp.folder}/WEB-INF/lib/grouper-ui.jar">
-      <fileset dir="${temp.dir}/jarBin" />
-      <fileset dir="${ui.folder}/java/src" />
-    </jar>
+	
+		<if><equals arg1="${ui.make.jar}" arg2="true"/>
+		  	<then>
+			    <jar file="${webapp.folder}/WEB-INF/lib/grouper-ui.jar">
+			      <fileset dir="${temp.dir}/jarBin" />
+			      <fileset dir="${ui.folder}/java/src" />
+			    </jar>
+			</then>
+		</if>
+	  
 	  
 		
 		<!-- Call any site specific build script. This may be used to introduce site specific Struts action,
@@ -326,8 +375,7 @@
 		<!-- Make all necessary jar files available to the webapp itself -->
 		<copy todir="${webapp.folder}/WEB-INF/lib" overwrite="${overwiteLib}">
 			<fileset dir="${grouper.folder}/dist/lib">
-				<include name="*.jar"/>
-				<exclude name="grouper-2*.jar"/>
+				<include unless="grouper.compile.api" name="grouper.jar"/>
 			</fileset>
 			<fileset dir="${grouper.folder}/lib/grouper">
 				<include name="**/*.jar"/>
@@ -358,7 +406,7 @@
 		</condition>
 		<echo message="web.xmls.isempty=:${web.xmls.isempty}:"/>
 		<antcall target="-merge-xmls">
-			<reference refid="ui.class.path" torefid="merge.class.path"/>
+			<reference refid="ui.class.path.for.run" torefid="merge.class.path"/>
 		</antcall>
 		<antcall target="-copy-core-web-xml"/>
 		
