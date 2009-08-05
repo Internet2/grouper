@@ -64,7 +64,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.42 2009-06-28 19:02:17 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.43 2009-08-05 15:06:07 isgwb Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -1540,7 +1540,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     String listId = Group.getDefaultList().getUuid();
   
     StringBuilder sql = new StringBuilder("select distinct theGroup from Group theGroup, " +
-    		" Membership listMembership ");
+    		" MembershipEntry listMembership ");
   
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
   
@@ -1604,7 +1604,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     String listId = Group.getDefaultList().getUuid();
 
     StringBuilder sql = new StringBuilder("select distinct theGroup from Group theGroup," +
-    		" Membership listMembership ");
+    		" MembershipEntry listMembership ");
   
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
   
