@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.2 2009-08-05 00:57:20 mchyzer Exp $
+ * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.3 2009-08-05 06:38:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi;
 
@@ -58,7 +58,8 @@ public class GrouperUiRestServlet extends HttpServlet {
   private static final Log LOG = LogFactory.getLog(GrouperUiRestServlet.class);
 
   /** uris that it is ok to get (e.g. auto complete and other ajax components */
-  private static Set<String> operationsOkGet = GrouperUtil.toSet("SimpleMembershipUpdate.filterUsers");
+  private static Set<String> operationsOkGet = GrouperUtil.toSet(
+      "SimpleMembershipUpdate.filterUsers", "SimpleMembershipUpdate.filterGroups");
   
   /**
    * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)

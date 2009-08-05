@@ -1,34 +1,22 @@
 /*
  * @author mchyzer
- * $Id: Misc.java,v 1.2 2009-08-05 00:57:19 mchyzer Exp $
+ * $Id: Misc.java,v 1.3 2009-08-05 06:38:25 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import java.io.File;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.grouperUi.GrouperUiCustomizer;
-import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
-import edu.internet2.middleware.grouper.grouperUi.json.AppState;
 import edu.internet2.middleware.grouper.grouperUi.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.json.GuiScreenAction;
-import edu.internet2.middleware.grouper.grouperUi.json.GuiSettings;
-import edu.internet2.middleware.grouper.grouperUi.json.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.json.LogoutObject;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
-import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -36,6 +24,18 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class Misc {
 
+  /**
+   * index page of application
+   * @param request
+   * @param response
+   */
+  public void index(HttpServletRequest request, HttpServletResponse response) {
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
+        "/WEB-INF/grouperUi/templates/misc/index.jsp"));
+
+  }
+  
   /**
    * 
    * @param request

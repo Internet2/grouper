@@ -16,7 +16,7 @@
     ><img src="../public/assets/page_cross.gif" height="14px" border="0"/></a>
     &nbsp;
     <grouperGui:subjectIcon guiSubject="${theMember.subject}" /> 
-    <span class=simpleMembershipUpdateMemberDescription>${fn:escapeXml(theMember.subject.description)}</span></div> 
+    <span class=simpleMembershipUpdateMemberDescription>${fn:escapeXml(theMember.subject.screenLabel)}</span></div> 
 
   </c:forEach>
  

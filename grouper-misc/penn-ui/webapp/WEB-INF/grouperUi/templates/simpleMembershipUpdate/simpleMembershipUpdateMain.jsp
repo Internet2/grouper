@@ -8,10 +8,16 @@
 ${guiSettings.text.simpleMembershipUpdateMainHelp}</div>
 <div class="section">
 <div class="sectionHeader">Group</div>
-<div class="sectionBody"><grouperGui:groupBreadcrumb
+<div class="sectionBody">
+<table border="0" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td>
+<grouperGui:groupBreadcrumb
   groupName="${simpleMembershipUpdateContainer.group.displayName}"
-/>
-
+/></td><td> &nbsp; &nbsp; &nbsp; <a class="smallLink" href="#operation=SimpleMembershipUpdate.index">Change location</a>
+</td>
+</tr>
+</table>
 <table class="formTable" cellspacing="2" style="margin-bottom: 0;">
   <tbody>
     <tr class="formTableRow">

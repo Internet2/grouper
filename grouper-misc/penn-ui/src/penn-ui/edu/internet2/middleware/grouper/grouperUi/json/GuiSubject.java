@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiSubject.java,v 1.2 2009-08-05 00:57:19 mchyzer Exp $
+ * $Id: GuiSubject.java,v 1.3 2009-08-05 06:38:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
 
@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -27,6 +28,14 @@ public class GuiSubject {
   public GuiSubject(Subject subject1) {
     this.subject = subject1;
   }
+  /**
+   * get screen label
+   * @return screen label
+   */
+  public String getScreenLabel() {
+    return GuiUtils.convertSubjectToLabel(this.subject);
+  }
+  
 
   /**
    * Gets this Subject's ID.

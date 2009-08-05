@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.2 2009-08-05 00:57:19 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.3 2009-08-05 06:38:25 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -19,7 +19,10 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -36,6 +39,7 @@ import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -48,6 +52,80 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 public class SimpleMembershipUpdate {
 
+  /**
+   * index page of application
+   * @param request
+   * @param response
+   */
+  public void index(HttpServletRequest request, HttpServletResponse response) {
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
+        "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipUpdateIndex.jsp"));
+
+  }
+
+  /**
+   * filter groups to pick one to edit
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void filterGroups(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+    
+    
+    GrouperSession grouperSession = null;
+
+    String searchTerm = httpServletRequest.getParameter("mask");
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      
+      Set<Group> groups = null;
+      
+      StringBuilder xmlBuilder = new StringBuilder(GuiUtils.DHTMLX_OPTIONS_START);
+
+      QueryOptions queryOptions = null;
+      
+      if (StringUtils.defaultString(searchTerm).length() < 2) {
+        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", "Enter 2 or more characters", null);
+      } else {
+        Stem stem = StemFinder.findRootStem(grouperSession);
+        queryOptions = new QueryOptions().paging(200, 1, true).sortAsc("displayName");
+        groups = stem.getChildGroups(Scope.SUB, GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions);
+        
+      }
+      
+      for (Group group : GrouperUtil.nonNull(groups)) {
+
+        String value = group.getUuid();
+        String label = group.getDisplayName();
+        String imageName = GuiUtils.imageFromSubjectSource("g:gsa");
+
+        GuiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
+      }
+
+      //add one more for more options if we didnt get them all
+      if (queryOptions != null && queryOptions.getCount() != null 
+          && groups != null && queryOptions.getCount() > groups.size()) {
+        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", "Not all results returned, narrow your query", "bullet_error.png");
+      }
+      
+      xmlBuilder.append(GuiUtils.DHTMLX_OPTIONS_END);
+      
+      GuiUtils.printToScreen(xmlBuilder.toString(), "text/xml", false, false);
+
+    } catch (Exception se) {
+      throw new RuntimeException("Error searching for groups: '" + searchTerm + "', " + se.getMessage(), se);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+    //dont print the regular JSON
+    throw new ControllerDone();
+
+  }
+  
   /**
    * 
    * @param request

@@ -1,10 +1,11 @@
 /*
  * @author mchyzer
- * $Id: GuiMember.java,v 1.2 2009-08-05 00:57:19 mchyzer Exp $
+ * $Id: GuiMember.java,v 1.3 2009-08-05 06:38:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
 
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 

@@ -31,10 +31,11 @@
 
     <script>  window.dhx_globalImgPath="../public/assets/dhtmlx/imgs/"; </script> 
 
-    <title><!--  note, title is set from ${guiSettings.text.screenTitle} --></title>
+    <!--  note, title is set from ajax -->
+    <title></title>
   </head>
 
-  <body>
+  <body onload="document.getElementById('javascriptMessage').style.display = 'none'">
     <script type="text/javascript" src="../public/assets/wz_tooltip.js"></script>
 
     <div id="topDiv">
@@ -43,7 +44,7 @@
         
     <div id="bodyDiv">
       <!-- this is the body of the current operation, via template -->
-      Loading...    note that Javascipt is required...    
+      Loading...    <span id="javascriptMessage">Javascipt is required...</span>    
     </div>
 
   </body>

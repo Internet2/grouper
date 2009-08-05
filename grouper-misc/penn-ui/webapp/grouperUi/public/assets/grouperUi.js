@@ -2,8 +2,16 @@
 $(document).ready(function(){
   // Initialize history plugin.
   // The callback is called at once by present location.hash. 
+
+  var urlArgObjectMap = allObjects.appState.urlArgObjectMap();
+  if (typeof urlArgObjectMap.operation == 'undefined') {
+    location.href = "grouper.html#operation=Misc.index";
+    //dont return since in FF document.ready will not be called again
+  }
+  
   $.historyInit(pageload, "grouper.html");
 
+  
 });
 
 /** init is called when app starts */
@@ -47,8 +55,8 @@ function processUrl() {
     $("#bodyDiv").html = "";
     alert("invalid URL, no operation");
   } else {
-    //replace the dont for a slash
-    ajax('../app/' + urlArgObjectMap.operation);
+    var ajaxUrl = '../app/' + urlArgObjectMap.operation;
+    ajax(ajaxUrl);
   }
 }
 
@@ -69,37 +77,36 @@ function AppState() {
   /** function to get the map of url args */
   this.urlArgObjectMap = function() {
     //see if up to date
-    if (this.urlInCache == location.href) {
-      return this.urlArgObjects
+    if (allObjects.appState.urlInCache == location.href) {
+      return allObjects.appState.urlArgObjects;
     }
+    var argObject = new Object();
+    allObjects.appState.urlArgObjects = argObject;  
+
     //lets get url
     var url = location.href;
     var poundIndex = url.indexOf("#");
     if (poundIndex == -1) {
-      //TODO fix this to some default screen
-      alert("invalid url");
+      return allObjects.appState.urlArgObjects;
     }
     var poundString = url.substring(poundIndex + 1, url.length);
     poundString = URLDecode(poundString);
     //split out by ampersand
     var args = guiSplitTrim(poundString, "&");
-    var argObject = new Object();
-  
     for (var i=0;i<args.length;i++) {
       //split by =
       var equalsIndex = args[i].indexOf("=");
       if (equalsIndex == -1) {
-        //TODO fix this to some default
-        alert("invalid url, no equals in param: " + args[i]);
+        return allObjects.appState.urlArgObjects;
       }
       var key = args[i].substring(0,equalsIndex);
       var value = args[i].substring(equalsIndex+1,args[i].length);
       argObject[URLDecode(key)] = URLDecode(value);
       //alert(URLDecode(key) + " -> " + URLDecode(value));
     }
-    this.urlInCache = url;
-    this.urlArgObjects = argObject;  
-    return this.urlArgObjects;
+    allObjects.appState.urlInCache = url;
+    
+    return allObjects.appState.urlArgObjects;
   };
 
 }
@@ -526,5 +533,17 @@ function guiFieldValue(theField) {
      return "";
    }
    return theField.value;
+}
+/** get an element from the document object by name.  if no elements, null, if multiple, then alert */
+function guiGetElementByName(theName) {
+   var theElements = document.getElementsByName(theName);
+   if (theElements != null) {
+      if (theElements.length == 1) {
+         return theElements[0];
+      } else if (theElements.length > 1) {
+         fastAlert("Elements should be 1 for element " + theName + " but instead it is " + theElements.length);
+      }
+   }
+   return null;
 }
 
