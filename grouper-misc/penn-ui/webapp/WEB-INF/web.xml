@@ -1,17 +1,9 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-
-
-<!DOCTYPE web-app PUBLIC 
-          "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
-          "http://java.sun.com/dtd/web-app_2_3.dtd">
-
-<web-app>
-  <filter>
-    <!-- keeps the request and response in threadlocal so they dont have to be passed around -->
-    <filter-name>Grouper service filter</filter-name>
-    <filter-class>edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee</filter-class>
-  </filter>
-  
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- $Id: web.xml,v 1.2 2009-08-05 00:57:20 mchyzer Exp $ -->
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+    version="2.4">
   <filter>
     <!-- keeps the request and response in threadlocal so they dont have to be passed around -->
     <filter-name>Grouper UI filter</filter-name>
@@ -23,67 +15,15 @@
     <filter-name>Grouper UI filter</filter-name>
     <url-pattern>/grouperUi/app/*</url-pattern>
   </filter-mapping>
-  <filter-mapping>
-    <filter-name>Grouper service filter</filter-name>
-    <url-pattern>/servicesRest/*</url-pattern>
-  </filter-mapping>
-	<servlet>
-		<servlet-name>AxisServlet</servlet-name>
-		<display-name>Apache-Axis Servlet</display-name>
-		<servlet-class>edu.internet2.middleware.grouper.ws.GrouperServiceAxisServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-    <!-- hint that this is the wssec servlet -->
-    <!-- init-param>
-      <param-name>wssec</param-name>
-      <param-value>true</param-value>
-    </init-param --> 
-	</servlet>
-  <servlet>
-    <servlet-name>RestServlet</servlet-name>
-    <display-name>WS REST Servlet</display-name>
-    <servlet-class>edu.internet2.middleware.grouper.ws.rest.GrouperRestServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet>
   <servlet>
     <servlet-name>UiServlet</servlet-name>
-    <display-name>UI REST Servlet</display-name>
     <servlet-class>edu.internet2.middleware.grouper.grouperUi.GrouperUiRestServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
   <servlet-mapping>
-    <servlet-name>AxisServlet</servlet-name>
-    <url-pattern>/services/*</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>RestServlet</servlet-name>
-    <url-pattern>/servicesRest/*</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
     <servlet-name>UiServlet</servlet-name>
     <url-pattern>/grouperUi/app/*</url-pattern>
   </servlet-mapping>
-
-
-	<security-constraint>
-		<web-resource-collection>
-			<web-resource-name>Web services</web-resource-name>
-			<url-pattern>/services/*</url-pattern>
-		</web-resource-collection>
-		<auth-constraint>
-			<role-name>grouper_user</role-name>
-		</auth-constraint>
-	</security-constraint>
-
-  <security-constraint>
-    <web-resource-collection>
-      <web-resource-name>Web services</web-resource-name>
-      <url-pattern>/servicesRest/*</url-pattern>
-    </web-resource-collection>
-    <auth-constraint>
-      
-      <role-name>grouper_user</role-name>
-    </auth-constraint>
-  </security-constraint>
 
   <security-constraint>
     <web-resource-collection>
@@ -104,7 +44,6 @@
       <role-name>grouper_user</role-name>
     </auth-constraint>
   </security-constraint>
-
 
 	<!-- Define the Login Configuration for this Application -->
 	<login-config>

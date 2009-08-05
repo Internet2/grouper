@@ -1,14 +1,61 @@
 /*
  * @author mchyzer
- * $Id: GuiMember.java,v 1.1 2009-07-31 14:27:27 mchyzer Exp $
+ * $Id: GuiMember.java,v 1.2 2009-08-05 00:57:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
+
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+
 
 
 /**
  * member bean to be shipped to gui
  */
 public class GuiMember {
+
+  /**
+   * default constructor
+   */
+  public GuiMember() {
+    
+  }
+  
+  /**
+   * construct from member
+   * @param member
+   */
+  public GuiMember(Member member) {
+    GuiSubject guiSubject = null;
+    try {
+      guiSubject = new GuiSubject(member.getSubject());
+    } catch (SubjectNotFoundException snfe) {
+      guiSubject = new GuiSubject(new SubjectWrapper(member));
+    }
+    this.setSubject(guiSubject);
+    this.setUuid(member.getUuid());
+  }
+  
+  /** member uuid */
+  private String uuid;
+  
+  
+  /**
+   * member uuid
+   * @return the uuid
+   */
+  public String getUuid() {
+    return this.uuid;
+  }
+
+  
+  /**
+   * member uuid
+   * @param uuid1 the uuid to set
+   */
+  public void setUuid(String uuid1) {
+    this.uuid = uuid1;
+  }
 
   /** the subject for this member */
   private GuiSubject subject;
@@ -34,7 +81,7 @@ public class GuiMember {
 
   /**
    * if there is an immediate membership which can be deleted
-   * @return
+   * @return if deletable
    */
   public boolean isDeletable() {
     return this.deletable;

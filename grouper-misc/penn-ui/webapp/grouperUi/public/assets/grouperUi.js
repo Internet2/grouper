@@ -8,28 +8,9 @@ $(document).ready(function(){
 
 /** init is called when app starts */
 function init() {
-  if (allObjects.guiSettings == null) {
-    //alert('initting');
-    ajax('../app/Misc/settings', initResult);
-  } else {
-    //skip that step
-    processUrl();
-  }
-}
 
-/** initResult is called in async callback to init */
-function initResult(theGuiSettings) {
-
-  allObjects.guiSettings = theGuiSettings;
-
+  //skip that step
   processUrl();
-}
-
-function initScreenHeaders() {
-  document.title = allObjects.guiSettings.text.screenTitle;
-
-  replaceHtmlWithTemplate('#topDiv', 'common.commonTop.html');
-  
 }
 
 /** when the history button is pressed, just init for now I guess */
@@ -55,8 +36,6 @@ function replaceHtmlWithTemplate(jqueryKey, templateName) {
 
 function processUrl() {
   
-  initScreenHeaders();
-  
   //operation%3DsimpleUpdate%26groupName%3Dtest%253Atest1
   //operation=simpleUpdate&groupName=test:test1
   //http://localhost:8089/grouperWs/grouperUi/appHtml/grouper.html#operation%3DsimpleMembershipUpdate%26groupName%3Dtest%253Atest1
@@ -67,72 +46,21 @@ function processUrl() {
   if (typeof urlArgObjectMap.operation == 'undefined') {
     $("#bodyDiv").html = "";
     alert("invalid URL, no operation");
-  } else if (urlArgObjectMap.operation == 'simpleMembershipUpdate') {
-    allObjects.simpleMembershipUpdateObj().init();
-  } else if (urlArgObjectMap.operation == 'logout') {
-    allObjects.pageHelpers.logoutAction();
   } else {
-    $("#bodyDiv").html = "";
-    alert("invalid URL, do not recognize operation: '" + urlArgObjectMap.operation + "'");
+    //replace the dont for a slash
+    ajax('../app/' + urlArgObjectMap.operation);
   }
-
-}
-
-
-function SimpleMembershipUpdate() {
-  this.initted=false;                
-
-  this.simpleMembershipUpdateInit = null;
-  this.simpleMembershipList = null;
-
-  this.init=function() {
-    //only init if needed
-    if (!allObjects.simpleMembershipUpdateObj().initted) {
-    
-      //clear this out since it looks weird if previous screen for a sec
-      $("#bodyDiv").html("");
-      
-      ajax('../app/SimpleMembershipUpdate/init', this.initResult, this.requestParams());
-    }
-    this.refreshMemberList();
-  };
-  
-  /** get the base params for a URL call */
-  this.requestParams=function() {
-    var theRequestParams = {};
-    var urlArgObjectMap = allObjects.appState.urlArgObjectMap();
-    
-    if (typeof urlArgObjectMap.groupId != 'undefined') {
-      theRequestParams.groupId = urlArgObjectMap.groupId;
-    } else if (typeof urlArgObjectMap.groupName != 'undefined') {
-      theRequestParams.groupName = urlArgObjectMap.groupName;
-    } else {
-      var error = "Error: need to pass in groupId or groupName in URL!";
-      alert(error);
-      throw error;
-    }
-    return theRequestParams;  
-  };
-  
-  this.initResult=function(theSimpleMembershipUpdateInit) {
-    allObjects.simpleMembershipUpdateObj().simpleMembershipUpdateInit = theSimpleMembershipUpdateInit;
-    replaceHtmlWithTemplate('#bodyDiv', 'simpleMembershipUpdate.simpleMembershipUpdateMain.html');
-    allObjects.simpleMembershipUpdateObj().initted = true;
-  };
-  
-  this.refreshMemberList=function() {
-      ajax('../app/SimpleMembershipUpdate/retrieveMembers', this.refreshMemberListResult, this.requestParams());
-  };
-  
-  this.refreshMemberListResult=function(theSimpleMembershipList) {
-    allObjects.simpleMembershipUpdateObj().simpleMembershipList = theSimpleMembershipList;
-    replaceHtmlWithTemplate('#simpleMembershipResultsList', 'simpleMembershipUpdate.simpleMembershipMembershipList.html');
-  };
 }
 
 /** object represents state of application */
 function AppState() {
 
+  /** if the app is initted or not */
+  this.initted = false;
+
+  /** if the simple membership update is initted */
+  this.inittedSimpleMembershipUpdate = false
+  
   this.urlInCache = null;
   
   /** dont access this directly, access with method: urlArgObjectMap() */
@@ -176,6 +104,27 @@ function AppState() {
 
 }
 
+/** list of combos by id */
+
+/**
+ * register a combobox div
+ * @param divId
+ * @param width
+ * @param useImages true or false, if images are in the combobox
+ * @param filterUrl
+ */
+function guiRegisterDhtmlxCombo(divId, width, useImages, filterUrl ) {
+  /* long hand...
+   var simpleMembershipUpdateAddMemberSelect=new dhtmlXCombo(
+      "simpleMembershipUpdateAddMember","simpleMembershipUpdateAddMember",200, 'image');
+    simpleMembershipUpdateAddMemberSelect.enableFilteringMode(
+       true,"../app/SimpleMembershipUpdate.filterUsers",false); */
+  var theCombo=new dhtmlXCombo(
+      divId,divId,width, useImages ? 'image' : undefined);
+  theCombo.enableFilteringMode(true,filterUrl,false);
+  
+}
+
 /** object represents helpers in drawing html etc */
 function PageHelpers() {
 
@@ -191,7 +140,7 @@ function PageHelpers() {
     
     if (theLogout) {
       allObjects.clearActionObjects();
-      ajax('../app/Misc/logout', this.pageHelpersLogoutActionResult);
+      ajax('../app/Misc/logout');
     }
   }
 
@@ -219,37 +168,6 @@ function PageHelpers() {
     return false;
   }
 
-  /** function to return the HTML for browse stems location */
-  this.browseStemsLocation = function(groupName) {
-        //<div class="browseStemsLocation">
-        //  <strong>Current location is:</strong>
-        //  <br><div class="currentLocationList">
-        //    <img onmouseover="grouperTooltip('Folder - A tree structure used to organize groups, subfolders, and folder-level permissions');" onmouseout="UnTip()" src="../public/assets/folderOpen.gif" class="groupIcon" alt="">Root:  
-        //    <img onmouseover="grouperTooltip('Folder - A tree structure used to organize groups, subfolders, and folder-level permissions');" onmouseout="UnTip()" src="../public/assets/folderOpen.gif" class="groupIcon" alt="">penn:
-        //    <img onmouseover="grouperTooltip('Folder - A tree structure used to organize groups, subfolders, and folder-level permissions');" onmouseout="UnTip()" src="../public/assets/folderOpen.gif" class="groupIcon" alt="Folder">etc:  
-        //<span class="browseStemsLocationHere">
-        //    <img onmouseover="grouperTooltip('Group - A collection of entities (members) which can be people, other groups or other things (e.g., resources)');" onmouseout="UnTip()" src="../public/assets/group.gif" class="groupIcon" alt="Folder">ldapUsers</span>
-        //</div></div>
-    var result = '<div class="browseStemsLocation"><strong>' + allObjects.guiSettings.text.browseStemsLocationLabel
-      + ' </strong> &nbsp; \n';
-    var theArray = guiSplitTrim(groupName, ":");
-    for (var i=0;theArray!=null && i<theArray.length;i++) {
-      //if its a folder
-      if (i != theArray.length-1) {
-        result += '<img onmouseover="grouperTooltip(\'Folder - A tree structure used to organize groups, '
-          + 'subfolders, and folder-level permissions\');" onmouseout="UnTip()" src="../public/assets/folderOpen.gif" '
-          + 'class="groupIcon" alt="Folder">' + guiEscapeHtml(theArray[i]) + ': ';
-        
-      } else {
-        result += '<span class="browseStemsLocationHere">\n'
-          + '<img onmouseover="grouperTooltip(\'Group - A collection of entities (members) which'
-          + ' can be people, other groups or other things (e.g., resources)\');" onmouseout="UnTip()"'
-          + ' src="../public/assets/group.gif" class="groupIcon" alt="Object">' + guiEscapeHtml(theArray[i]) + '</span>\n';
-      }
-    }
-    result += '</div>\n';
-    return result;
-  };
 }
 
 
@@ -288,32 +206,120 @@ var allObjects = new AllObjects();
 
 
 /** generic ajax method takes a url, callback function, and params or forms */
-function ajax(theUrl, successResultFunction, requestParams) {
+function ajax(theUrl, options) {
   
-  if (typeof requestParams == 'undefined') {
-    requestParams = {};
+  if (!guiStartsWith(theUrl, "../app/" )) {
+    theUrl = "../app/" + theUrl; 
   }
+  
+  if (typeof options == 'undefined') {
+    options = {};
+  }
+  
+  if (typeof options.requestParams == 'undefined') {
+    options.requestParams = {};
+  }
+  
+  if (!guiIsEmpty(options.formIds)) {
+    
+    var formIdsArray = guiSplitTrim(options.formIds, ",");
+    for (var i = 0; i<formIdsArray.length; i++) {
+      var formId = formIdsArray[i];
+      
+      //get elements in form
+      var theForm = $("#" + formId);
+      if (!theForm || theForm.length == 0) {
+        fastAlert('Cant find form by id: "' + formId + '"!');
+        return;
+      }
+      theForm = theForm[0];
+      for(var j=0;j<theForm.elements.length;j++) {
+        var element = theForm.elements[j];
+        
+        options.requestParams[element.name] = guiFieldValues(element);
+        
+        //alert(element.id + ' - ' + element.nodeName.toUpperCase() + " - " + element.name + " - " + element.type + " - " + options.requestParams[element.name]);
+        
+        //see if dhtmlx
+//        if (element.type == "hidden") {
+//
+//          var theCombo = dhtmlxCombos[element.name];
+//          if (typeof theCombo != 'undefined') {
+//            //it is dhtmlx, get the label too just in case
+//            options.requestParams[element.name + '_dhtmlxComboLabel'] = theCombo.getComboText();
+//          }
+//        }
+      }
+    }
+  }
+  
+  //send over form data
+  
+  var appState = allObjects.appState;
+  
+  options.requestParams.appState = JSON.stringify(appState);
   
   var result = null;
 
+  $.blockUI();  
   $.ajax({
     url: theUrl,
     type: 'POST',
     cache: false,
     dataType: 'json',
-    data: requestParams,
+    data: options.requestParams,
     timeout: 30000,
     async: true,
     //TODO handle errors success better.  probably non modal disappearing reusable window
     error: function(error){
+      $.unblockUI(); 
       alert('error' + error);        
     },
     //TODO process the response object
     success: function(json){
-      successResultFunction.call(this, json);
+      var guiResponseJs = json;
+      for (var i=0; i<guiArrayLength(guiResponseJs.actions); i++ ) {
+        
+        var action = guiResponseJs.actions[i];
+        guiProcessAction(action);
+        
+      }
+
+      //see if there are actions
+      //if (successResultFunction) {
+      //  successResultFunction.call(this, json);
+      //}
+
     }
   });
   return result;
+}
+
+/**
+ * process an action
+ * @param action
+ */
+function guiProcessAction(guiScreenAction) {
+  //make an assignment to something
+  if (!guiIsEmpty(guiScreenAction.assignmentName)) {
+    eval(guiScreenAction.assignmentName + " = guiScreenAction.assignmentObject");
+  }
+  //evaluate an arbitrary script
+  if (!guiIsEmpty(guiScreenAction.script)) {
+    eval(guiScreenAction.script);
+  }
+  //replace some html
+  if (!guiIsEmpty(guiScreenAction.innerHtmlJqueryHandle)) {
+     $(guiScreenAction.innerHtmlJqueryHandle).html(guiScreenAction.innerHtml);
+  }
+  //do an alert
+  if (!guiIsEmpty(guiScreenAction.alert)) {
+    $.unblockUI(); 
+    //alert(guiScreenAction.alert);
+    //$.modal.close();
+    $('<div style="text-align=center"><div class="simplemodal-guiinner">' + guiScreenAction.alert + '</div><div class="simplemodal-buttonrow"><button class=\'simplemodal-close blueButton\'>OK</button></div></div>').modal();
+  }
+  
 }
 
 /** when a javascript link click happens, dont let the a href click happen */
@@ -415,3 +421,110 @@ function guiEscapeHtml(html) {
   escaped = escaped.replace(/"/g, "&quot;"); 
   return escaped;
 }
+
+/**
+ * find array length
+ * @param x
+ * @return the length of array x
+ */
+function guiArrayLength(x) {
+  if (guiIsEmpty(x)) {
+    return 0;
+  }
+  if (!x.sort) {
+    alert('This is not an array: ' + x); 
+  }
+  return x.length;
+}
+
+/**
+ * see if  variable is empty
+ * @param x to see if empty
+ * @return true if variable is empty
+ */
+function guiIsEmpty(x) {
+  if (typeof x == "number" && x == 0) {
+     return false;
+  }
+ return typeof x == "undefined" || x == null 
+   || (typeof x == "string" && x == "");
+}
+
+/**
+ * see if a string starts with another string
+ * @param a
+ * @param b
+ * @return true if starts with
+ */
+function guiStartsWith(a, b) {
+  if (a.indexOf(b) == 0) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+/** Get the value of the field, if it is a radio or checkbox, 
+get all of the same name and aggregate the values.  if nothing
+in there will return an empty array. */
+function guiFieldValues(theField) {
+   if (theField.nodeName.toUpperCase() == "INPUT" 
+     && (theField.type.toUpperCase() == "RADIO"
+     || theField.type.toUpperCase() == "CHECKBOX")) {
+     var result = new Array();
+     var elements = document.getElementsByName(theField.name);
+     var index = 0;
+     for (var i=0;i<elements.length;i++) {
+        if (elements[i].checked) {
+           result[index++] = elements[i].value;
+        }
+     }  
+     return result;     
+   }
+   
+   if (theField.nodeName.toUpperCase() == "SELECT" && theField.multiple==true) {
+     var result = new Array();
+     var index = 0;
+     if (theField.options) {
+       for (i=0; i<theField.options.length; i++) {
+         if (theField.options[i].selected) {
+           result[index++] = theField.options[i].value;
+         }
+       }
+     }
+     
+     return result;
+   }   
+
+   //else just to jquery
+   var theValue = guiFieldValue(theField);
+   return theValue;
+}
+
+
+/** Get the value of the field whether it is a textfield or select */
+function guiFieldValue(theField) {
+   if (theField.nodeName.toUpperCase() == "SELECT") {
+      var selectedIndex = theField.selectedIndex;
+      selectedIndex = selectedIndex < 0 ? 0 : selectedIndex;
+      //there isnt even an option there...
+      if (theField.options.length <= selectedIndex) {
+         return "";
+      }
+      return theField.options[selectedIndex].value;
+   } else if (theField.nodeName.toUpperCase() == "TEXTAREA"
+        && theField.innerText && fastIsEmpty(theField.value)) {
+     return theField.innerText;
+   } else if (theField.type.toUpperCase() == "CHECKBOX") {      
+     var checkboxes = document.getElementsByName(theField.name);
+     for (var i=0;i<checkboxes.length;i++) {
+        if (checkboxes[i].checked) {
+           //just set one, good enough for required valid
+           return checkboxes[i].value;
+        }
+     }  
+     return "";
+   }
+   return theField.value;
+}
+

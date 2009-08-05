@@ -1,6 +1,6 @@
 body {
   font-family:Verdana,Geneva,Arial,Helvetica,sans-serif;
-  font-size:11px;
+  font-size:13px;
   padding: 0;
   margin: 0;
 }
@@ -155,4 +155,52 @@ a.smallLink {
   text-transform:none;
 }
 
+/** members in a member list, e.g. simple membership update */
+.memberLink {
+  margin: 4px 0px 0px 0px;
+}
+
+/** note the buttons are in grouper.css */
+.blueButton, .redButton {
+    font-family: Tahoma, Arial, Helvetica, sans-serif;
+    text-decoration: none;
+    color: #FFFFFF;
+    font-weight: bold;
+    white-space: nowrap;
+    font-size: 11px;
+    cursor: pointer;
+}
+/** there is a slight underline on tooltips in buttons that should be removed in certain cases */
+.blueButton .tooltip, .redButton .tooltip, .linkButton a .tooltip {
+  border-bottom: none;
+}
+
+
+.blueButton, .redButton {
+    border:1px solid black;
+    border-top-color:#666;
+    border-left-color:#666;
+}
+.blueButton {
+  background-color: #015782;
+}
+.redButton {
+  background-color: #990000;
+}
+
+/** simple membership update combo box for add member */
+#simpleMembershipUpdateAddMember {
+  width: 400px;  
+}
+
+.simplemodal-guiinner {
+  padding: 20px;
+}
+.simplemodal-buttonrow {
+  margin-top: 20px;
+  text-align: center; 
+}
+
+.simpleMembershipUpdateMemberDescription {
+  padding-bottom: 10px;
 }

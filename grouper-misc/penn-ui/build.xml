@@ -1,0 +1,146 @@
+<project name="penn-ui" default="local" basedir=".">
+  <!-- sets DSTAMP etc -->
+  <tstamp/>
+  <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+    <classpath>
+      <pathelement location="${basedir}/lib/ant/ant-contrib.jar" />
+    </classpath>
+  </taskdef>
+
+  <!-- 
+  provides all environment variables as Ant properties prefixed by "env.". 
+  For example, CLASSPATH would be accessible in Ant as ${env.CLASSPATH}. 
+  -->
+  <property environment="env" />
+  
+  <if><not><available file="build.properties" /></not>
+    <then><copy file="build.example.properties" tofile="build.properties" /></then>
+  </if> 
+  
+  <property file="build.properties" />
+  <property file="${basedir}/misc/version.properties"/>
+
+
+  <!-- validate the build.properties -->
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): webapp.name" unless="webapp.name" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): dist.home" unless="dist.home" />
+    <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.home" unless="grouper.home" />
+  
+  <path id="ws.class.path">
+    <!-- Make available jar files that Grouper needs -->
+    <fileset dir="${basedir}/lib">
+      <include name="**/*.jar" />
+    </fileset>
+    <fileset dir="${grouper.home}">
+      <include name="lib/**/*.jar" />
+      <include name="dist/lib/grouper.jar" />
+    </fileset>
+
+    <!-- make available any classes / resources already placed in the build folder -->
+    <pathelement location="webapp/WEB-INF/classes" />
+  </path>
+
+  <target name="local" description="copies libs to WEB-INF/lib so you can run a dev webapp from /webapp">
+    <mkdir dir="webapp/WEB-INF/lib" />
+    <delete dir="webapp/WEB-INF/lib" />
+    <mkdir dir="webapp/WEB-INF/lib" />
+    <copy todir="webapp/WEB-INF/lib">
+      <fileset dir="lib/grouper-ui" includes="*.jar" />
+      <fileset dir="${grouper.home}/lib/custom" includes="*.jar" />
+      <fileset dir="${grouper.home}/lib/grouper" includes="*.jar" />
+      <fileset dir="${grouper.home}/dist/lib">
+        <include name="grouper.jar" />
+      </fileset>
+    </copy>
+    <copy todir="webapp/WEB-INF/classes">
+      <fileset dir="${grouper.home}/conf" includes="*" />
+    </copy>
+  </target>
+
+
+  <target name="help" description="targets and their description">
+    <echo>Please ensure you have read the documentation - </echo>
+    <echo>and created a build.properties file based on the template provided</echo>
+
+    <echo>
+    </echo>
+    <echo>The following targets are available - type the appropriate name:</echo>
+    <echo>
+    </echo>
+    <echo>1) default (dist) </echo>
+    <echo>     Simply cleans, builds, to the dist folder, a warfile</echo>
+    <echo>2) local </echo>
+    <echo>     Simply copies the libs to the WEB-INF/lib folder</echo>
+    <echo>3) javadoc</echo>
+    <echo>     Generate javadoc to the doc/api dir</echo>
+    <echo>4) help</echo>
+    <echo>     This message</echo>
+    <echo>5) grouper</echo>
+    <echo>     Build the grouper jar from build.properties</echo>
+    <echo>
+    </echo>
+  </target>
+  <target name="grouperJarAndConf" description="build the grouper jar and copy to the lib dir">
+    <echo message="Building grouper from: ${grouper.home}, target is dist, dist dir is: ${grouper.dist.dir}" />
+    <ant dir="${grouper.home}" inheritall="false" target="dist" />
+    <!-- now the grouper jar is in   -->
+    <!-- copy it to ws, and rename -->
+    <copy file="${grouper.home}/dist/lib/grouper.jar" 
+       tofile="webapp/WEB-INF/lib/grouper.jar" failonerror="true"/>
+    <copy todir="webapp/WEB-INF/classes">
+      <fileset dir="${grouper.home}/conf" includes="*" />
+    </copy>
+  </target>
+  <target name="javadoc" description="generate public api docs to doc/api">
+    <!-- Let's be sure we clear out old cruft first... -->
+    <mkdir dir="doc/api" />
+    <delete dir="doc/api" />
+    <mkdir dir="doc/api" />
+    <!-- header="&lt;script&gt;alert('whatever');&lt;/script&gt;" -->
+    <javadoc destdir="doc/api" classpathref="ws.class.path" access="public"
+      additionalparam="-notimestamp" >
+      <packageset dir="src/grouper-ws" defaultexcludes="yes">
+        <include name="edu/internet2/middleware/grouper/**" />
+
+      </packageset>
+
+      <link href="http://struts.apache.org/1.2.x/api/" />
+      <link href="http://java.sun.com/j2ee/sdk_1.3/techdocs/api" />
+      <link href="http://java.sun.com/j2se/1.4.2/docs/api" />
+
+    </javadoc>
+
+    <!-- replace .html?edu/internet2/middleware/grouper/webservices/GrouperService.html" with 
+    .html" -->
+    <!-- take out existing params, these are used by javascript to go to frames gracefully, trash them -->
+    <replaceregexp flags="g">
+      <regexp pattern="\.html\?[^&quot; ]*&quot;" />
+      <substitution expression="\.html&quot;" />
+      <fileset dir="doc/api" includes="**/*.html" />
+    </replaceregexp>
+    <!-- replace relative links, e.g. method links -->
+    <replaceregexp flags="g">
+      <regexp pattern="\.html#([^&quot;>]*)&quot;" />
+      <substitution expression="\.html?root=I2MI&amp;view=co&amp;pathrev=${cvs.branch}#\1&quot;" />
+      <fileset dir="doc/api" includes="**/*.html" />
+    </replaceregexp>
+    <!-- replace onLoad="top.loadFrames()" with onLoad="", this javascript messes things up with viewvc params -->
+    <replace file="doc/api/index.html">
+      <replacetoken><![CDATA[onLoad="top.loadFrames()"]]></replacetoken>
+      <replacevalue><![CDATA[onLoad=""]]></replacevalue>
+    </replace>
+    <!-- replace for cvs web: .html" with .html?root=I2MI&view=co&pathrev=HEAD"   -->
+    <replace dir="doc/api" value=".html?root=I2MI&amp;view=co&amp;pathrev=${cvs.branch}&quot;">
+      <include name="**/*.html" />
+      <replacetoken><![CDATA[.html"]]></replacetoken>
+    </replace>
+    <replace dir="doc/api" value=".css?root=I2MI&amp;view=co&amp;pathrev=${cvs.branch}&quot;">
+      <include name="**/*.html" />
+      <replacetoken><![CDATA[.css"]]></replacetoken>
+    </replace>
+
+
+  </target>
+
+
+</project>

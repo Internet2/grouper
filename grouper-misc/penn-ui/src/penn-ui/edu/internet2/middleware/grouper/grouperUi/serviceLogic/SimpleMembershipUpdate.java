@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.1 2009-07-31 14:27:27 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.2 2009-08-05 00:57:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -17,23 +17,30 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
+import edu.internet2.middleware.grouper.grouperUi.exceptions.ControllerDone;
+import edu.internet2.middleware.grouper.grouperUi.json.AppState;
+import edu.internet2.middleware.grouper.grouperUi.json.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.json.GuiMember;
-import edu.internet2.middleware.grouper.grouperUi.json.GuiSubject;
-import edu.internet2.middleware.grouper.grouperUi.json.SimpleMembershipList;
-import edu.internet2.middleware.grouper.grouperUi.json.SimpleMembershipUpdateInit;
+import edu.internet2.middleware.grouper.grouperUi.json.GuiResponseJs;
+import edu.internet2.middleware.grouper.grouperUi.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.grouperUi.json.SimpleMembershipUpdateContainer;
+import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.soap.WsGroup;
+import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 
 /**
@@ -45,20 +52,27 @@ public class SimpleMembershipUpdate {
    * 
    * @param request
    * @param response
-   * @return the bean to go to the screen, or null if none
+   * @throws SchemaException 
+   * @throws SubjectNotFoundException 
    */
-  public SimpleMembershipUpdateInit init(HttpServletRequest request, HttpServletResponse response) {
+  public void init(HttpServletRequest request, HttpServletResponse response) throws SchemaException, SubjectNotFoundException {
     
-    final SimpleMembershipUpdateInit simpleMembershipUpdateInit = new SimpleMembershipUpdateInit();
+    final SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromRequest();
     
     final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
     
+    AppState appState = AppState.retrieveFromRequest();
+    
     //lets get the group
-    String id = request.getParameter("groupId");
-    String name = request.getParameter("groupName");
+    String id = null;
+    String name = null;
+    if (appState.getUrlArgObjects() != null) {
+      id = appState.getUrlArgObjects().get("groupId");
+      name = appState.getUrlArgObjects().get("groupName");
+    }
 
     if (StringUtils.isBlank(id) && StringUtils.isBlank(name)) {
-      throw new RuntimeException("Need to pass in name or id");
+      throw new RuntimeException("Need to pass in groupName or groupId in url, e.g. #operation=SimpleMembershipUpdate.init&groupName=some:group:name");
     }
     
     Group group = null;
@@ -76,17 +90,17 @@ public class SimpleMembershipUpdate {
     } catch (GroupNotFoundException gnfe) {
       //ignore
     } catch (Exception e) {
-      throw new RuntimeException("Problem in simpleMembershipUpdateInit.init : " + id + ", " + name, e);
+      throw new RuntimeException("Problem in simpleMembershipUpdateInit.init : " + id + ", " + name + ", " + e.getMessage(), e);
     }
     
     if (group == null) {
-      simpleMembershipUpdateInit.setCanFindGroup(false);
+      simpleMembershipUpdateContainer.setCanFindGroup(false);
     } else {
-      simpleMembershipUpdateInit.setCanFindGroup(true);
+      simpleMembershipUpdateContainer.setCanFindGroup(true);
       if (group.isComposite()) {
-        simpleMembershipUpdateInit.setCompositeGroup(true);
+        simpleMembershipUpdateContainer.setCompositeGroup(true);
       } else {
-        simpleMembershipUpdateInit.setCompositeGroup(false);
+        simpleMembershipUpdateContainer.setCompositeGroup(false);
         
         final Group GROUP = group;
         
@@ -99,52 +113,49 @@ public class SimpleMembershipUpdate {
             boolean hasUpdate = GROUP.hasUpdate(loggedInSubject);
             boolean hasAdmin = GROUP.hasAdmin(loggedInSubject);
             
-            simpleMembershipUpdateInit.setCanReadGroup(hasAdmin || hasRead);
-            simpleMembershipUpdateInit.setCanUpdateGroup(hasAdmin || hasUpdate);
+            simpleMembershipUpdateContainer.setCanReadGroup(hasAdmin || hasRead);
+            simpleMembershipUpdateContainer.setCanUpdateGroup(hasAdmin || hasUpdate);
             return null;
           }
           
         });
         
-        if (simpleMembershipUpdateInit.isCanReadGroup() && simpleMembershipUpdateInit.isCanUpdateGroup()) {
-          WsGroup wsGroup = new WsGroup(group, null, false);
-          simpleMembershipUpdateInit.setGroup(wsGroup);
+        if (simpleMembershipUpdateContainer.isCanReadGroup() && simpleMembershipUpdateContainer.isCanUpdateGroup()) {
+          GuiGroup wsGroup = new GuiGroup(group, false);
+          simpleMembershipUpdateContainer.setGroup(wsGroup);
         }
         
       }
     }
     
-    return simpleMembershipUpdateInit;
-
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
+        "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipUpdateMain.jsp"));
+    
+    retrieveMembers(request, response);
+    
   }
 
   /**
-   * retrieve members
-   * @param request
-   * @param response
-   * @return the bean to go to the screen, or null if none
-   * @throws SchemaException TODO dont throw subjectNotfoundException
+   * get a group from app state
+   * @param grouperSession
+   * @return the group
    */
-  public SimpleMembershipList retrieveMembers(HttpServletRequest request, HttpServletResponse response) 
-      throws SchemaException, SubjectNotFoundException {
-    
-    final SimpleMembershipList simpleMembershipList = new SimpleMembershipList();
-    
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
-    
+  public Group retrieveGroup(GrouperSession grouperSession) {
+    AppState appState = AppState.retrieveFromRequest();
     //lets get the group
-    String id = request.getParameter("groupId");
-    String name = request.getParameter("groupName");
-  
-    if (StringUtils.isBlank(id) && StringUtils.isBlank(name)) {
-      throw new RuntimeException("Need to pass in name or id");
+    String id = null;
+    String name = null;
+    if (appState.getUrlArgObjects() != null) {
+      id = appState.getUrlArgObjects().get("groupId");
+      name = appState.getUrlArgObjects().get("groupName");
     }
-    
+
+    if (StringUtils.isBlank(id) && StringUtils.isBlank(name)) {
+      throw new RuntimeException("Need to pass in groupName or groupId in url, e.g. #operation=SimpleMembershipUpdate.init&groupName=some:group:name");
+    }
     Group group = null;
-    GrouperSession grouperSession = null;
     try {
-      grouperSession = GrouperSession.start(loggedInSubject);
-  
       if (!StringUtils.isBlank(id)) {
         group = GroupFinder.findByUuid(grouperSession, id);
       } else if (!StringUtils.isBlank(name)) {
@@ -155,60 +166,252 @@ public class SimpleMembershipUpdate {
     } catch (GroupNotFoundException gnfe) {
       //ignore
     } catch (Exception e) {
-      throw new RuntimeException("Problem in simpleMembershipUpdateInit.init : " + id + ", " + name, e);
+      throw new RuntimeException("Problem in simpleMembershipUpdateInit : " + id + ", " + name + ", " + e.getMessage(), e);
     }
     
     if (group == null) {
       throw new RuntimeException("Cant find group: " + id + ", " + name);
     }
+    return group;
+  }
+  
+  /**
+   * retrieve members
+   * @param request
+   * @param response
+   */
+  public void retrieveMembers(HttpServletRequest request, HttpServletResponse response) {
     
-    int[] numberOfRecords = new int[1];
+    final SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromRequest();
     
-    //we have the group, now get the members
+    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
     
-    Set<Membership> allChildren;
-    //get the size
-    QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
-    group.getMembers(Group.getDefaultList(), queryOptions);
-    int totalSize = queryOptions.getCount().intValue();
     
-    if (GrouperUtil.length(numberOfRecords) > 0) {
-      numberOfRecords[0] = totalSize;
-    }
-    
-    //if there are less than the sort limit, then just get all, no problem
-    int sortLimit = 200;
-//    if (totalSize <= 200) {
-//      allChildren = group.getMemberships(Group.getDefaultList());
-//    } else {
-      QueryPaging queryPaging = new QueryPaging();
-      queryPaging.setPageSize(100);
-      queryPaging.setFirstIndexOnPage(0);
+    GrouperSession grouperSession = null;
+    Group group = null;
+    String groupName = null;
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
 
-      //.sortAsc("m.subjectIdDb")   this kills performance
-      queryOptions = new QueryOptions().paging(queryPaging);
-
-      List<Member> members = new ArrayList<Member>(group.getMembers(Group.getDefaultList(), queryOptions));
-      //allChildren = group.getMemberships(field, members);
-//    }
-//    return allChildren;
-
+      group = this.retrieveGroup(grouperSession);
+      groupName = group.getName();
       
-      GuiMember[] guiMembers = new GuiMember[members.size()];
-      for (int i=0;i<guiMembers.length;i++) {
-        guiMembers[i] = new GuiMember();
-        //TODO update this
-        guiMembers[i].setDeletable(true);
-        GuiSubject guiSubject = new GuiSubject(members.get(i).getSubject());
-        guiMembers[i].setSubject(guiSubject);
+      int[] numberOfRecords = new int[1];
+      
+      //we have the group, now get the members
+      
+      Set<Membership> allChildren;
+      //get the size
+      QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+      group.getMembers(Group.getDefaultList(), queryOptions);
+      int totalSize = queryOptions.getCount().intValue();
+      
+      if (GrouperUtil.length(numberOfRecords) > 0) {
+        numberOfRecords[0] = totalSize;
       }
-      simpleMembershipList.setMembers(guiMembers);
-    
-//    Set<edu.internet2.middleware.grouper.Membership> memberships  = MembershipFinder.internal_findAllByGroupAndFieldAndPage(
-//        group, Group.getDefaultList(), 0, 100, 200, numberOfRecords);
-    
-    return simpleMembershipList;
+      
+      //if there are less than the sort limit, then just get all, no problem
+      int sortLimit = 200;
+  //    if (totalSize <= 200) {
+  //      allChildren = group.getMemberships(Group.getDefaultList());
+  //    } else {
+        QueryPaging queryPaging = new QueryPaging();
+        queryPaging.setPageSize(100);
+        queryPaging.setFirstIndexOnPage(0);
+  
+        //.sortAsc("m.subjectIdDb")   this kills performance
+        queryOptions = new QueryOptions().paging(queryPaging);
+  
+        List<Member> members = new ArrayList<Member>(group.getMembers(Group.getDefaultList(), queryOptions));
+        //allChildren = group.getMemberships(field, members);
+  //    }
+  //    return allChildren;
+  
+        
+        GuiMember[] guiMembers = new GuiMember[members.size()];
+        for (int i=0;i<guiMembers.length;i++) {
+          guiMembers[i] = new GuiMember(members.get(i));
+          //TODO update this
+          guiMembers[i].setDeletable(true);
+          
+        }
+        simpleMembershipUpdateContainer.setMembers(guiMembers);
+      
+  //    Set<edu.internet2.middleware.grouper.Membership> memberships  = MembershipFinder.internal_findAllByGroupAndFieldAndPage(
+  //        group, Group.getDefaultList(), 0, 100, 200, numberOfRecords);
+  
+        GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#simpleMembershipResultsList", 
+            "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipMembershipList.jsp"));
+    } catch (Exception e) {
+      throw new RuntimeException("Error with group: " + groupName + ", " + e.getMessage(), e);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+      
   
   }
 
+  /**
+   * delete a single member
+   * @param request
+   * @param response
+   */
+  public void deleteSingle(HttpServletRequest request, HttpServletResponse response) {
+    String memberId = request.getParameter("memberId");
+    if (StringUtils.isBlank(memberId)) {
+      throw new RuntimeException("memberId is required");
+    }
+    
+    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+    
+    
+    GrouperSession grouperSession = null;
+    Group group = null;
+    String groupName = null;
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      group = this.retrieveGroup(grouperSession);
+      groupName = group.getName();
+      Member member = MemberFinder.findByUuid(grouperSession, memberId);
+      group.deleteMember(member);
+      
+      GuiMember guiMember = new GuiMember(member);
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      guiResponseJs.addAction(GuiScreenAction.newAlert("The member was deleted: " + guiMember.getSubject().getDescription()));
+      
+    } catch (Exception se) {
+      throw new RuntimeException("Error deleting member: " + memberId + " from group: " + groupName + ", " + se.getMessage(), se);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+    retrieveMembers(request, response);
+    
+  }
+  
+  /**
+   * 
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void addMember(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    
+    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+    
+    
+    GrouperSession grouperSession = null;
+
+    String comboValue = httpServletRequest.getParameter("simpleMembershipUpdateAddMember");
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    Subject subject = null;
+    Group group = null;
+    String groupName = null;
+
+    String subjectLabel = comboValue;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      group = this.retrieveGroup(grouperSession);
+      groupName = group.getName();
+      
+      subject = GuiUtils.findSubject(comboValue);
+      subjectLabel = GuiUtils.convertSubjectToLabel(subject);
+      if (group.hasImmediateMember(subject)) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newAlert(
+            "Subject already a member: '" + GuiUtils.escapeHtml(subjectLabel, true, false) + "'"));
+        return;
+      }
+      
+      group.addMember(subject);
+      
+      guiResponseJs.addAction(GuiScreenAction.newAlert("Member added: " 
+          + GuiUtils.escapeHtml(subjectLabel, true)));
+
+
+    } catch (SubjectNotFoundException snfe) {
+      
+      guiResponseJs.addAction(GuiScreenAction.newAlert(
+          "Subject not found: '" + GuiUtils.escapeHtml(subjectLabel, true, false) + "'"));
+      return;
+    } catch (SourceUnavailableException sue) {
+
+      guiResponseJs.addAction(GuiScreenAction.newAlert(
+          "Source unavailable"));
+      return;
+
+    } catch (SubjectNotUniqueException snue) {
+      
+      guiResponseJs.addAction(GuiScreenAction.newAlert(
+          "Subject not unique: '" + GuiUtils.escapeHtml(subjectLabel, true, false) + "'"));
+      return;
+
+    } catch (Exception se) {
+      throw new RuntimeException("Error adding member to group: " + groupName + ", " + subjectLabel + ", " + se.getMessage(), se);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+    retrieveMembers(httpServletRequest, httpServletResponse);
+    
+  }
+  
+  /**
+   * 
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void filterUsers(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    
+    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+    
+    
+    GrouperSession grouperSession = null;
+
+    String searchTerm = httpServletRequest.getParameter("mask");
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      
+      Set<Subject> subjects = null;
+      
+      StringBuilder xmlBuilder = new StringBuilder(GuiUtils.DHTMLX_OPTIONS_START);
+      
+      if (StringUtils.defaultString(searchTerm).length() < 2) {
+        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", "Enter 2 or more characters", null);
+      } else {
+        subjects = SubjectFinder.findAll(searchTerm);
+      }
+      
+      for (Subject subject : GrouperUtil.nonNull(subjects)) {
+        String value = GuiUtils.convertSubjectToValue(subject);
+
+        String imageName = GuiUtils.imageFromSubjectSource(subject.getSource().getId());
+        String label = GuiUtils.convertSubjectToLabel(subject);
+
+        GuiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
+      }
+
+      xmlBuilder.append(GuiUtils.DHTMLX_OPTIONS_END);
+      
+      GuiUtils.printToScreen(xmlBuilder.toString(), "text/xml", false, false);
+
+    } catch (Exception se) {
+      throw new RuntimeException("Error searching for members: '" + searchTerm + "', " + se.getMessage(), se);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+    //dont print the regular JSON
+    throw new ControllerDone();
+
+  }
+  
 }

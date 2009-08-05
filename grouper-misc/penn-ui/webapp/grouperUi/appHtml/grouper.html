@@ -1,13 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
-    <script type="text/javascript" src="../public/assets/trimpath-template.js"></script>
+  
+    <script type="text/javascript" src="../public/assets/dhtmlx/dhtmlxcommon.js"></script>
+    <script type="text/javascript" src="../public/assets/dhtmlx/dhtmlxcombo.js"></script>
+    <script type="text/javascript" src="../public/assets/dhtmlx/ext/dhtmlxcombo_extra.js"></script>
+    
+    
     <script type="text/javascript" src="../public/assets/jquery.js"></script>
     <script type="text/javascript" src="../public/assets/jquery.history.js"></script>
     <script type="text/javascript" src="../public/assets/json.js"></script>
+    <script type="text/javascript" src="../public/assets/jquery.blockUI.js"></script>
+    <script type="text/javascript">
+        $().ajaxStop($.unblockUI); 
+        $.blockUI.defaults.message = "<img src='../public/assets/busy.gif' alt='busy'/>";
+        $.blockUI.defaults.css.border = 'none';
+        $.blockUI.defaults.css.backgroundColor = 'transparent';
+        $.blockUI.defaults.overlayCSS.opacity = '0.02';
+        $.blockUI.defaults.fadeIn = '200';
+        $.blockUI.defaults.fadeOut = '400';
+        $.blockUI.defaults.timeout = '30000';
+    </script>
+
+    <script type="text/javascript" src="../public/assets/jquery.simplemodal.js"></script>
+    <link rel="stylesheet" type="text/css" href="../public/assets/jquery.simplemodal.css" />
     <script type="text/javascript" src="../public/assets/grouperUi.js"></script>
     <link rel="stylesheet" type="text/css" href="../public/assets/grouperUi.css" />
+    <link rel="stylesheet" type="text/css" href="../public/assets/dhtmlx/dhtmlxcombo.css" />
+
+    <script>  window.dhx_globalImgPath="../public/assets/dhtmlx/imgs/"; </script> 
+
     <title><!--  note, title is set from ${guiSettings.text.screenTitle} --></title>
   </head>
 

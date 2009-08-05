@@ -1,12 +1,9 @@
 /*
- * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.1 2009-07-31 14:27:27 mchyzer Exp $
+ * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.2 2009-08-05 00:57:20 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -24,11 +21,16 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.grouperUi.exceptions.ControllerDone;
+import edu.internet2.middleware.grouper.grouperUi.json.AppState;
+import edu.internet2.middleware.grouper.grouperUi.json.GuiResponseJs;
+import edu.internet2.middleware.grouper.grouperUi.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.json.GuiSettings;
+import edu.internet2.middleware.grouper.grouperUi.json.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.soap.WsGroup;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * servlet for rest ui web services
@@ -52,43 +54,61 @@ public class GrouperUiRestServlet extends HttpServlet {
   public static final String X_GROUPER_RESULT_CODE2 = "X-Grouper-resultCode2";
 
   /** logger */
+  @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(GrouperUiRestServlet.class);
 
+  /** uris that it is ok to get (e.g. auto complete and other ajax components */
+  private static Set<String> operationsOkGet = GrouperUtil.toSet("SimpleMembershipUpdate.filterUsers");
+  
   /**
    * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
    */
-  @SuppressWarnings({ "unchecked", "cast" })
+  @SuppressWarnings({ "unchecked" })
   @Override
   protected void service(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
     GrouperUiJ2ee.assignHttpServlet(this);
     
-    //I think we are all post all the time, right?
-    if (!StringUtils.equalsIgnoreCase("post", request.getMethod() )) {
-      throw new RuntimeException("Cant process method: " + request.getMethod());
-    }
-    
     List<String> urlStrings = extractUrlStrings(request);
     
-    Object objectToPrint = null;
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    String appStateString = request.getParameter("appState");
+    JSONObject jsonObject = JSONObject.fromObject(appStateString);
+
+    AppState appState = (AppState)JSONObject.toBean( jsonObject, AppState.class ); 
+
+    //app state isnt there e.g. for ajax components
+    if (appState == null) {
+      appState = new AppState();
+    }
+    appState.storeToRequest();
+    
+    initGui();
+    
+    boolean printToScreen = true;
 
     //see what operation we are doing
-    if (GrouperUtil.length(urlStrings) == 3 
+    if (GrouperUtil.length(urlStrings) == 2 
         && StringUtils.equals("app", urlStrings.get(0))) {
 
-      String className = urlStrings.get(1);
-      
-      //lets do some simple validation
-      if (!className.matches("^[a-zA-Z0-9]+$")) {
-        throw new RuntimeException("Invalid classname: '" + className + "'");
+      String classAndMethodName = urlStrings.get(1);
+
+      //lets do some simple validation, text dot text
+      if (!classAndMethodName.matches("^[a-zA-Z0-9]+\\.[a-zA-Z0-9]+$")) {
+        throw new RuntimeException("Invalid class and method name: '" + classAndMethodName + "'");
+      }
+
+      //I think we are all post all the time, right?
+      if (!StringUtils.equalsIgnoreCase("post", request.getMethod() )) {
+        if (!operationsOkGet.contains(classAndMethodName)) {
+          throw new RuntimeException("Cant process method: " + request.getMethod() + " for operation: " + classAndMethodName);
+        }
       }
       
-      String methodName = urlStrings.get(2);
-      
-      if (!methodName.matches("^[a-zA-Z0-9]+$")) {
-        throw new RuntimeException("Invalid methodName: '" + methodName + "'");
-      }
+      String className = GrouperUtil.prefixOrSuffix(classAndMethodName, ".", true);
+      String methodName = GrouperUtil.prefixOrSuffix(classAndMethodName, ".", false);
       
       //now lets call some simple reflection, must be public static void and take a request and response
       className = "edu.internet2.middleware.grouper.grouperUi.serviceLogic." + className;
@@ -97,32 +117,38 @@ public class GrouperUiRestServlet extends HttpServlet {
       
       try {
         
-        objectToPrint = GrouperUtil.callMethod(instance.getClass(), instance, methodName, 
+        GrouperUtil.callMethod(instance.getClass(), instance, methodName, 
             new Class<?>[]{HttpServletRequest.class, HttpServletResponse.class}, 
             new Object[]{request, response}, true, false);
+
+        
+
+      } catch (ControllerDone cd) {
+        printToScreen = false;
+        //do nothing, this is ok
       } catch (RuntimeException re) {
-        GrouperUtil.injectInException(re, "Problem calling reflection from URL: " + className + "." + methodName);
-        throw re;
+        LOG.error("Problem calling reflection from URL: " + className + "." + methodName, re);
+        
+        //print out error message for user, a new one
+        guiResponseJs = new GuiResponseJs();
+        guiResponseJs.addAction(GuiScreenAction.newAlert("Error: " + GuiUtils.escapeHtml(re.getMessage(), true)));
+        
       }
     } else {
-      throw new RuntimeException("Cant find logic for URL: " 
-          + GrouperUtil.toStringForLog(urlStrings));
+      //print out error message for user, a new one
+      guiResponseJs = new GuiResponseJs();
+      String error = "Cant find logic for URL: " 
+        + GrouperUtil.toStringForLog(urlStrings);
+      guiResponseJs.addAction(GuiScreenAction.newAlert("Error: " + error));
+      LOG.error(error);
     }
     
-    if (objectToPrint == null) {
-      throw new RuntimeException("Why is objectToPrint null???");
-    }
-    
-    //for some controls we arent even sending json
-    if (objectToPrint != null) {
+    if (printToScreen) {
       //take the object to print (bean) and print it
-      JSONObject jsonObject = net.sf.json.JSONObject.fromObject( objectToPrint );  
+      jsonObject = net.sf.json.JSONObject.fromObject( guiResponseJs );  
       String json = jsonObject.toString();
       
-      PrintWriter printWriter = response.getWriter();
-  
-      printWriter.write(json);
-      printWriter.flush();
+      GuiUtils.printToScreen(json, "application/json", false, false);
     }
     
     HttpSession httpSession = request.getSession(false);
@@ -132,6 +158,44 @@ public class GrouperUiRestServlet extends HttpServlet {
 
   }
 
+  /**
+   * init stuff on gui
+   */
+  @SuppressWarnings("unchecked")
+  public static void initGui() {
+    GuiSettings guiSettings = new GuiSettings();
+    
+    guiSettings.storeToRequest();
+    
+    guiSettings.setAuthnKey(GrouperUuid.getUuid());
+    
+    Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+    guiSettings.setLoggedInSubject(new GuiSubject(loggedInSubject));
+    
+    //read the properties file
+    Properties properties = GuiUtils.propertiesUiTextGui();
+    for (String key : (Set<String>)(Object)properties.keySet()) {
+      guiSettings.getText().put(key, properties.getProperty(key));
+    }
+    
+    // lets see where the templates are: assume grouperUiText.properties is in WEB-INF/classes,
+    // and templates are WEB-INF/templates
+    AppState appState = AppState.retrieveFromRequest();
+    if (!appState.isInitted()) {
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      guiResponseJs.addAction(GuiScreenAction.newAssign("allObjects.guiSettings", guiSettings));
+      guiResponseJs.addAction(GuiScreenAction.newScript("document.title = '" 
+          + GuiUtils.escapeSingleQuotes(properties.getProperty("screenTitle")) + "'"));
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#topDiv", 
+          "/WEB-INF/grouperUi/templates/common/commonTop.jsp"));
+  
+      
+      guiResponseJs.addAction(GuiScreenAction.newAssign("allObjects.appState.initted", true));
+    }
+    
+  }
+  
   /**
    * for error messages, get a detailed report of the request
    * @param request

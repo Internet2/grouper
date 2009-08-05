@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiSubject.java,v 1.1 2009-07-31 14:27:27 mchyzer Exp $
+ * $Id: GuiSubject.java,v 1.2 2009-08-05 00:57:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
 
@@ -89,7 +89,7 @@ public class GuiSubject {
    * @return the name of source
    */
   public String getSourceString() {
-    return this.subject.getSource().getName();
+    return this.subject.getSource().getId();
   }
 
   

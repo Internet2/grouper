@@ -1,17 +1,27 @@
 /*
  * @author mchyzer
- * $Id: GuiUtils.java,v 1.1 2009-07-31 14:27:27 mchyzer Exp $
+ * $Id: GuiUtils.java,v 1.2 2009-08-05 00:57:20 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -19,8 +29,15 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.grouperUi.GenericServletResponseWrapper;
 import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.SourceUnavailableException;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 
 /**
@@ -28,11 +45,160 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GuiUtils {
 
+  
+  /**
+   * convert a subject to string for screen
+   * @param subject
+   * @return the string
+   */
+  public static String convertSubjectToValue(Subject subject) {
+    String value = subject.getSource().getId() + "||||" + subject.getId();
+    return value;
+  }
+  
+  /**
+   * convert a subject to string for screen
+   * @param subject
+   * @return the string
+   */
+  public static String convertSubjectToLabel(Subject subject) {
+    String label = subject.getDescription();
+    if (StringUtils.isBlank(label)) {
+      
+      if ("g:gsa".equals(subject.getSource().getId())) {
+        label = subject.getName();
+      } else {
+      
+        label = subject.getSource().getId() + " - " + subject.getId();
+      }
+    }
+    return label;
+  }
+  
+  /** pattern of a subject: sourceId||||subjectId  (slashes escape the pipes) */
+  private static Pattern subjectPattern = Pattern.compile("^(.*)\\|\\|\\|\\|(.*)$");
+  
+  /**
+   * find a subject based on search string.  must be sourceId||||subjectId 
+   * or a subjectId or subjectIdentifier which is unique
+   * @param searchString
+   * @return the subject
+   * @throws SubjectNotFoundException 
+   * @throws SubjectNotUniqueException 
+   * @throws SourceUnavailableException 
+   */
+  public static Subject findSubject(String searchString) 
+      throws SubjectNotFoundException, SubjectNotUniqueException, SourceUnavailableException {
+    if (searchString == null) {
+      throw new SubjectNotFoundException("Cant find null string");
+    }
+    Matcher matcher = subjectPattern.matcher(searchString);
+
+    //if it matches sourceId||||subjectId then we know exactly which subject
+    if (matcher.matches()) {
+      String sourceId = matcher.group(1);
+      String subjectId = matcher.group(2);
+      Source source = SubjectFinder.getSource(sourceId);
+      return source.getSubject(subjectId);
+    }
+    
+    //if not, then try to get by subjectId or identifier
+    return SubjectFinder.findByIdOrIdentifier(searchString, true);
+  }
+  
+  /**
+   * dhtmlx option end of xml
+   */
+  public static final String DHTMLX_OPTIONS_END = "</complete>";
+  
+  /**
+   * dhtmlx option start of xml 
+   */
+  public static final String DHTMLX_OPTIONS_START = "<?xml version=\"1.0\" ?>\n<complete>\n";
+
+  /**
+   * make one dhtmlx option
+   * @param result to append to
+   * @param value
+   * @param label
+   * @param imageUrl
+   */
+  public static void dhtmlxOptionAppend(StringBuilder result, String value, String label, String imageUrl) {
+    
+    //<option value="1">one</option>
+    result.append("   <option value=\"").append(escapeHtml(StringUtils.defaultString(value), true, false))
+      .append("\"");
+    
+    //only append image if there is one
+    if (!StringUtils.isBlank(imageUrl)) {
+      result.append(" img_src=\"" + escapeHtml(imageUrl, true) + "\"");
+    }
+    result.append(">").append(escapeHtml(label, true, false)).append("</option>\n");
+  }
+  
+  /**
+   * Print some text to the screen
+   * @param string 
+   * @param contentType e.g. "text/html", "text/xml"
+   * @param includeXmlTag 
+   * @param includeHtmlTag 
+   * 
+   */
+  public static void printToScreen(String string, String contentType, boolean includeXmlTag, boolean includeHtmlTag) {
+  
+    HttpServletResponse response = GrouperUiJ2ee.retrieveHttpServletResponse(); 
+    
+    //say it is HTML, if not too late
+    if (!response.isCommitted()) {
+      response.setContentType(contentType);
+    }
+  
+    //just write some stuff
+    PrintWriter out = null;
+  
+    try {
+      out = response.getWriter();
+    } catch (Exception e) {
+      throw new RuntimeException("Cant get response.getWriter: ", e);
+    }
+    
+    if (includeXmlTag) {
+      out.println("<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n"
+        + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 "
+              + "Transitional//EN\" " +
+                  "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
+    }
+    
+    //see if we should add <html> etc
+    if (includeHtmlTag) {
+      out.println("<html><head></head><body>");
+      out.println(string);
+      out.println("</body></html>");
+    } else {
+      out.println(string);
+    }
+  
+    out.close();
+  
+  }
+
+  /**
+   * escape single quotes for javascript
+   * @param input
+   * @return the escaped string
+   */
+  public static String escapeSingleQuotes(String input) {
+    return StringUtils.replace(input, "'", "\\'");
+  }
+  
   /**
    * logger 
    */
-  @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(GuiUtils.class);
+  /**
+   * web service format string
+   */
+  private static final String DATE_FORMAT = "yyyy/MM/dd HH:mm:ss.SSS";
 
   /**
    * get a cookie value by name, null if not there
@@ -92,20 +258,65 @@ public class GuiUtils {
     return cookieList;
   }
 
+  /** subject image map */
+  private static Map<String, String> subjectImageMap = null;
+  
+  /**
+   * get the image name from subject source
+   * @param sourceId
+   * @return the relative path to image path
+   */
+  public static String imageFromSubjectSource(String sourceId) {
+    if (subjectImageMap == null) {
+      Map<String, String> theSubjectImageMap = new HashMap<String, String>();
+      Properties propertiesSettings = propertiesGrouperUiSettings();
+      
+      int index = 0;
+      while (true) {
+        
+        String sourceName = GrouperUtil.propertiesValue(propertiesSettings, 
+            "grouperUi.subjectImg.sourceId." + index);
+        String imageName = GrouperUtil.propertiesValue(propertiesSettings, 
+            "grouperUi.subjectImg.image." + index);
+        
+        if (StringUtils.isBlank(imageName)) {
+          break;
+        }
+        
+        theSubjectImageMap.put(sourceName, imageName);
+        
+        index++;
+      }
+      subjectImageMap = theSubjectImageMap;
+    }
+    String imageName = subjectImageMap.get(sourceId);
+    if (!StringUtils.isBlank(imageName)) {
+      imageName = "../public/assets/" + imageName;
+    }
+    return imageName;
+  }
   
   /**
    * get the text properties, might be cached
    * @return the properties
    */
   public static Properties propertiesUiTextGui() {
-    Properties propertiesSettings = GrouperUtil.propertiesFromResourceName(
-      "grouperUiSettings.properties");
+    Properties propertiesSettings = propertiesGrouperUiSettings();
     boolean cache = GrouperUtil.propertiesValueBoolean(propertiesSettings, 
       "grouperUi.cache.uiText", true);
   
     Properties properties = GrouperUtil.propertiesFromResourceName(
         "grouperUiText.properties", cache , true);
     return properties;
+  }
+
+  /**
+   * properties object for grouper ui settings
+   * @return properties
+   */
+  public static Properties propertiesGrouperUiSettings() {
+    return GrouperUtil.propertiesFromResourceName(
+      "grouperUiSettings.properties");
   }
 
   /** class file dir cached */
@@ -251,5 +462,113 @@ public class GuiUtils {
     return dir.listFiles(fileFilter);
   }
 
+  /**
+   * convert a boolean to a T or F
+   * 
+   * @param theBoolean
+   * @return the one char booloean string
+   */
+  public static String booleanToStringOneChar(Boolean theBoolean) {
+    if (theBoolean == null) {
+      return null;
+    }
+    return theBoolean ? "T" : "F";
+  }
+
+  /**
+   * convert a date to a string using the standard web service pattern
+   * yyyy/MM/dd HH:mm:ss.SSS Note that HH is 0-23
+   * 
+   * @param date
+   * @return the string, or null if the date is null
+   */
+  public static String dateToString(Date date) {
+    if (date == null) {
+      return null;
+    }
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(DATE_FORMAT);
+    return simpleDateFormat.format(date);
+  }
+
+  /**
+   * convert a jsp to string.  This doesnt work from unit tests, but will work from web requests or daemons
+   * @param jspName e.g. whatever.jsp, or /assetsJsp/something.jsp
+   * @return the eval version of the jsp
+   */
+  public static String convertJspToString(String jspName) {
+    
+    //default is in the jsp dir
+    if (!jspName.contains("/")) {
+      jspName = "/jsp/" + jspName;
+    }
+    
+    HttpServlet servlet = GrouperUiJ2ee.retrieveHttpServlet();
+    ServletContext servletContext = servlet.getServletContext();
+    
+    //get this from context not request, since could be in daemon
+    RequestDispatcher dispatcher = servletContext.getRequestDispatcher(jspName);
+
+    HttpServletRequest request = GrouperUiJ2ee.retrieveHttpServletRequest();
+    HttpServletResponse response = GrouperUiJ2ee.retrieveHttpServletResponse();
+    
+    //RequestDispatcher dispatcher = request.getRequestDispatcher(jspName);
+    //wrap the response so that the output goes to a string
+    GenericServletResponseWrapper responseWrapper = new GenericServletResponseWrapper(response);
+      
+    try {
+      dispatcher.include(request, responseWrapper);
+    } catch (Exception e) {
+      throw new RuntimeException("Problem converting JSP to string: " + jspName, e);
+    }
+
+    return responseWrapper.resultString();
+  }
+
+  /** array for converting HTML to string */
+  private static final String[] HTML_REPLACE = new String[]{"&amp;","&lt;","&gt;","&#39;","&quot;"};
+
+  /**
+   * Convert an XML string to HTML to display on the screen
+   * 
+   * @param input
+   *          is the XML to convert
+   * @param isEscape true to escape chars, false to unescape
+   * 
+   * @return the HTML converted string
+   */
+  public static String escapeHtml(String input, boolean isEscape) {
+    return escapeHtml(input, isEscape, true);
+  }
+
+  /** array for converting HTML to string */
+  private static final String[] HTML_REPLACE_NO_SINGLE = new String[]{"&amp;","&lt;","&gt;","&quot;"};
+  /** array for converting HTML to string */
+  private static final String[] HTML_SEARCH = new String[]{"&","<",">","'","\""};
+  /** array for converting HTML to string */
+  private static final String[] HTML_SEARCH_NO_SINGLE = new String[]{"&","<",">","\""};
+
+  /**
+   * Convert an XML string to HTML to display on the screen
+   * 
+   * @param input
+   *          is the XML to convert
+   * @param isEscape true to escape chars, false to unescape
+   * @param escapeSingleQuotes true to escape single quotes too
+   * 
+   * @return the HTML converted string
+   */
+  public static String escapeHtml(String input, boolean isEscape, boolean escapeSingleQuotes) {
+    if (escapeSingleQuotes) {
+      if (isEscape) {
+        return GrouperUtil.replace(input, HTML_SEARCH, HTML_REPLACE);
+      }
+      return GrouperUtil.replace(input, HTML_REPLACE, HTML_SEARCH);
+    }
+    if (isEscape) {
+      return GrouperUtil.replace(input, HTML_SEARCH_NO_SINGLE, HTML_REPLACE_NO_SINGLE);
+    }
+    return GrouperUtil.replace(input, HTML_REPLACE_NO_SINGLE, HTML_SEARCH_NO_SINGLE);
+    
+  }
 
 }
