@@ -60,7 +60,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.29 2009-03-15 06:37:21 mchyzer Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.30 2009-08-06 11:34:34 isgwb Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -254,6 +254,12 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
 
   // @since   1.1.0
   private GrouperSession _getSession() {
+	//If we have a thread local session then let's use it to ensure 
+	//proper VIEW privilege enforcement
+	GrouperSession activeSession = GrouperSession.staticGrouperSession(false);
+	if(activeSession !=null) {
+		return activeSession;
+	}
     if (this.rootSession == null) {
       try {
         //dont replace the currently active session
