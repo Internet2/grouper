@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.3 2009-08-05 06:38:25 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.4 2009-08-06 04:49:40 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.grouperUi.json.SimpleMembershipUpdateCon
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -92,7 +93,8 @@ public class SimpleMembershipUpdate {
       } else {
         Stem stem = StemFinder.findRootStem(grouperSession);
         queryOptions = new QueryOptions().paging(200, 1, true).sortAsc("displayName");
-        groups = stem.getChildGroups(Scope.SUB, GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions);
+        groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure("%" + searchTerm + "%", grouperSession, loggedInSubject, 
+            GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions);
         
       }
       
@@ -109,6 +111,11 @@ public class SimpleMembershipUpdate {
       if (queryOptions != null && queryOptions.getCount() != null 
           && groups != null && queryOptions.getCount() > groups.size()) {
         GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", "Not all results returned, narrow your query", "bullet_error.png");
+      }
+      
+      if (GrouperUtil.length(groups) == 0) {
+        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", "No results found", "bullet_error.png");
+        
       }
       
       xmlBuilder.append(GuiUtils.DHTMLX_OPTIONS_END);

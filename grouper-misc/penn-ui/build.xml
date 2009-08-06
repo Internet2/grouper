@@ -26,7 +26,7 @@
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): dist.home" unless="dist.home" />
     <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.home" unless="grouper.home" />
   
-  <path id="ws.class.path">
+  <path id="ui.class.path">
     <!-- Make available jar files that Grouper needs -->
     <fileset dir="${basedir}/lib">
       <include name="**/*.jar" />
@@ -40,7 +40,7 @@
     <pathelement location="webapp/WEB-INF/classes" />
   </path>
 
-  <target name="local" description="copies libs to WEB-INF/lib so you can run a dev webapp from /webapp">
+  <target name="local" description="copies libs (including grouper) to WEB-INF/lib so you can run a dev webapp from /webapp, also copies grouper conf to WEB-INF classes">
     <mkdir dir="webapp/WEB-INF/lib" />
     <delete dir="webapp/WEB-INF/lib" />
     <mkdir dir="webapp/WEB-INF/lib" />
@@ -80,7 +80,7 @@
     <echo>
     </echo>
   </target>
-  <target name="grouperJarAndConf" description="build the grouper jar and copy to the lib dir">
+  <target name="grouper" description="build the grouper jar and copy to the lib dir, and conf dir to classes dir">
     <echo message="Building grouper from: ${grouper.home}, target is dist, dist dir is: ${grouper.dist.dir}" />
     <ant dir="${grouper.home}" inheritall="false" target="dist" />
     <!-- now the grouper jar is in   -->
@@ -97,9 +97,9 @@
     <delete dir="doc/api" />
     <mkdir dir="doc/api" />
     <!-- header="&lt;script&gt;alert('whatever');&lt;/script&gt;" -->
-    <javadoc destdir="doc/api" classpathref="ws.class.path" access="public"
+    <javadoc destdir="doc/api" classpathref="ui.class.path" access="public"
       additionalparam="-notimestamp" >
-      <packageset dir="src/grouper-ws" defaultexcludes="yes">
+      <packageset dir="src/penn-ui" defaultexcludes="yes">
         <include name="edu/internet2/middleware/grouper/**" />
 
       </packageset>
@@ -142,5 +142,58 @@
 
   </target>
 
+  <target name="dist" description="generate a warfile">
+    <mkdir dir="build"/>
+    <delete dir="build"/>
+    <mkdir dir="build"/>
 
+    <mkdir dir="dist"/>
+    <delete dir="dist"/>
+    <mkdir dir="dist"/>
+
+    <mkdir dir="build/bin"/>
+    
+    <!-- compile -->
+    <javac  srcdir="src/penn-ui" destdir="build/bin" debug="true">
+          <classpath refid="ui.class.path" />
+    </javac>
+    
+    <mkdir dir="build/jar"/>
+    
+    <!-- jar -->
+    <jar destfile="build/jar/${webapp.name}.jar">
+      <fileset dir="src/penn-ui" />
+      <fileset dir="build/bin" />
+    </jar>
+
+    <mkdir dir="build/war"/>
+    <mkdir dir="build/war/WEB-INF"/>
+
+    <copy todir="build/war">
+      <fileset dir="webapp">
+        <exclude name="WEB-INF/lib/**" />
+        <exclude name="WEB-INF/classes/**" />
+      </fileset>
+    </copy>
+    
+    <mkdir dir="build/war/WEB-INF/lib"/>
+    <copy todir="build/war/WEB-INF/lib">
+      <fileset dir="lib/grouper-ui" includes="*.jar" />
+      <fileset dir="${grouper.home}/lib/custom" includes="*.jar" />
+      <fileset dir="${grouper.home}/lib/grouper" includes="*.jar" />
+      <fileset file="build/jar/${webapp.name}.jar" />
+      <fileset dir="${grouper.home}/dist/lib">
+        <include name="grouper.jar" />
+      </fileset>
+    </copy>
+    <mkdir dir="build/war/WEB-INF/classes"/>
+    <copy todir="build/war/WEB-INF/classes">
+      <fileset dir="${grouper.home}/conf" includes="*" />
+      <fileset dir="conf" includes="*" />
+    </copy>
+    
+    <jar destfile="dist/${webapp.name}.war" basedir="build/war"/>
+    
+    <echo message="Build warfile: dist/${webapp.name}.war" />
+  </target>
 </project>

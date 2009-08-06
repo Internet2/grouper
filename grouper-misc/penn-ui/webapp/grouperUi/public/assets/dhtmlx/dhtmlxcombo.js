@@ -42,7 +42,19 @@ function dhtmlXComboFromSelect(parent,size){if (typeof(parent)=="string")
  return false};return true};dhtmlXCombo.prototype._onKey = function(e){var that=this.parentNode.combo;(e||event).cancelBubble=true;var ev=(e||event).keyCode;if (ev>15 && ev<19)return true;if (ev==27)return;if ((that.DOMlist.style.display!="block")&&(ev!="13")&&(ev!="9")&&((!that._filter)||(that._filterAny)))
  that.DOMelem.onclick(e||event);if ((ev!="13")&&(ev!="9")){window.setTimeout(function(){that._onKeyB(ev)},1);if (ev=="40" || ev=="38")return false}else if (ev==9){that.closeAll();(e||event).cancelBubble=false}};dhtmlXCombo.prototype._onKeyB = function(ev)
  {if (ev=="40"){var z=this.selectNext(1)}else if (ev=="38"){this.selectNext(-1)}else{this.callEvent("onKeyPressed",[ev])
- if (this._filter)return this.filterSelf((ev==8)||(ev==46));for(var i=0;i<this.optionsArr.length;i++)if (this.optionsArr[i].data()[1]==this.DOMelem_input.value){this.selectOption(i,false,false);return false};this.unSelectOption()};return true};dhtmlXCombo.prototype._onBlur = function()
+
+ //if (this._filter)return this.filterSelf((ev==8)||(ev==46));
+ 
+ //MCH put in a delay:
+   
+ var self=this;
+ var km = (ev==8)||(ev==46);
+ if (self._suggest) clearTimeout(self._suggest);
+ self._suggest = setTimeout(function(){
+   if (self._filter) return self.filterSelf(km);
+ },500)
+   
+ for(var i=0;i<this.optionsArr.length;i++)if (this.optionsArr[i].data()[1]==this.DOMelem_input.value){this.selectOption(i,false,false);return false};this.unSelectOption()};return true};dhtmlXCombo.prototype._onBlur = function()
  {var self = this.parentNode._self;window.setTimeout(function(){if (self.DOMlist._skipBlur)return !(self.DOMlist._skipBlur=false);self._confirmSelection();self.callEvent("onBlur",[])},100)
  
  };dhtmlXCombo.prototype.redrawOptions = function(){if (this._skiprender)return;for(var i=this.DOMlist.childNodes.length-1;i>=0;i--)this.DOMlist.removeChild(this.DOMlist.childNodes[i]);for(var i=0;i<this.optionsArr.length;i++)this.DOMlist.appendChild(this.optionsArr[i].render())};dhtmlXCombo.prototype.loadXML = function(url,afterCall){this._load=true;this.callEvent("onXLS",[]);if ((this._xmlCache)&&(this._xmlCache[url])){this._fillFromXML(this,null,null,null,this._xmlCache[url]);if (afterCall)afterCall()}else{var xml=(new dtmlXMLLoaderObject(this._fillFromXML,this,true,true));if (afterCall)xml.waitCall=afterCall;if (this._prs)for (var i=0;i<this._prs.length;i++)url+=[getUrlSymbol(url),escape(this._prs[i][0]),"=",escape(this._prs[i][1])].join("");xml._cPath=url;xml.loadXML(url)}};dhtmlXCombo.prototype.loadXMLString = function(astring){var xml=(new dtmlXMLLoaderObject(this._fillFromXML,this,true,true));xml.loadXMLString(astring)};dhtmlXCombo.prototype._fillFromXML = function(obj,b,c,d,xml){if (obj._xmlCache)obj._xmlCache[xml._cPath]=xml;var toptag=xml.getXMLTopNode("complete");if (toptag.tagName!="complete")return;var top=xml.doXPath("//complete");var options=xml.doXPath("//option");obj.render(false);if ((!top[0])||(!top[0].getAttribute("add"))){obj.clearAll();obj._lastLength=options.length;if (obj._xml){if ((!options)|| (!options.length)) 
