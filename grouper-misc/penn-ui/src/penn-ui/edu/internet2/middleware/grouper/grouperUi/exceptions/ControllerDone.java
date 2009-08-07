@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: ControllerDone.java,v 1.1 2009-08-05 00:57:20 mchyzer Exp $
+ * $Id: ControllerDone.java,v 1.2 2009-08-07 07:36:02 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.exceptions;
 
@@ -11,34 +11,31 @@ package edu.internet2.middleware.grouper.grouperUi.exceptions;
 public class ControllerDone extends RuntimeException {
 
   /**
+   * if this should be printed
+   */
+  private boolean printGuiReponseJs = false;
+  
+  /**
    * 
    */
   public ControllerDone() {
   }
 
   /**
-   * @param message
+   * @param printGuiReponseJs1
    */
-  public ControllerDone(String message) {
-    super(message);
-
+  public ControllerDone(boolean printGuiReponseJs1) {
+    super();
+    this.printGuiReponseJs = printGuiReponseJs1;
   }
 
+  
   /**
-   * @param cause
+   * @return the printGuiReponseJs
    */
-  public ControllerDone(Throwable cause) {
-    super(cause);
-
+  public boolean isPrintGuiReponseJs() {
+    return this.printGuiReponseJs;
   }
 
-  /**
-   * @param message
-   * @param cause
-   */
-  public ControllerDone(String message, Throwable cause) {
-    super(message, cause);
-
-  }
-
+  
 }

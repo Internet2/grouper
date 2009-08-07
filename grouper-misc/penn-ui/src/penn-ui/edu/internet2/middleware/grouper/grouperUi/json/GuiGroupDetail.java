@@ -137,7 +137,6 @@ public class GuiGroupDetail {
    * 
    * @param group is what to construct from
    */
-  @SuppressWarnings("unchecked")
   public GuiGroupDetail(Group group) {
     if (group != null) {
       //this group method isnt implemented, so dont send in web service
@@ -170,8 +169,8 @@ public class GuiGroupDetail {
         this.setCompositeType(composite.getType().getName());
         
         try {
-          this.setLeftGroup(new GuiGroup(composite.getLeftGroup(), false));
-          this.setRightGroup(new GuiGroup(composite.getRightGroup(), false));
+          this.setLeftGroup(new GuiGroup(composite.getLeftGroup()));
+          this.setRightGroup(new GuiGroup(composite.getRightGroup()));
         } catch (GroupNotFoundException gnfe) {
           //this means something bad is happening
           throw new RuntimeException(gnfe);

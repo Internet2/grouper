@@ -101,6 +101,73 @@ public class AppState {
   }
   
   /**
+   * <pre>
+   * hide shows, the name, and if showing, text, etc.  Anything with class:
+   * shows_hideShowName, e.g. shows_simpleMembershipAdvanced
+   * Anything with class: hides_hideShowName, e.g. hides_simpleMembershipAdvanced
+   * will show if false.
+   * </pre>
+   */
+  private Map<String, GuiHideShow> hideShows = new LinkedHashMap<String,GuiHideShow>();
+
+  
+  /**
+   * <pre>
+   * hide shows, the name, and if showing, text, etc.  Anything with class:
+   * shows_hideShowName, e.g. shows_simpleMembershipAdvanced
+   * Anything with class: hides_hideShowName, e.g. hides_simpleMembershipAdvanced
+   * will show if false.
+   * </pre>
+   * @return the hideShows
+   */
+  public Map<String, GuiHideShow> getHideShows() {
+    return this.hideShows;
+  }
+
+  
+  /**
+   * <pre>
+   * hide shows, the name, and if showing, text, etc.  Anything with class:
+   * shows_hideShowName, e.g. shows_simpleMembershipAdvanced
+   * Anything with class: hides_hideShowName, e.g. hides_simpleMembershipAdvanced
+   * will show if false.
+   * </pre>
+   * @param hideShows1 the hideShows to set
+   */
+  public void setHideShows(Map<String, GuiHideShow> hideShows1) {
+    this.hideShows = hideShows1;
+  }
+
+  
+  /**
+   * <pre>
+   * pagers keep track of which page and how many on a page
+   * </pre>
+   * @return the pagers
+   */
+  public Map<String, GuiPaging> getPagers() {
+    return this.pagers;
+  }
+
+  
+  /**
+   * <pre>
+   * pagers keep track of which page and how many on a page
+   * </pre>
+   * @param pagers1 the pagers to set
+   */
+  public void setPagers(Map<String, GuiPaging> pagers1) {
+    this.pagers = pagers1;
+  }
+
+  /**
+   * <pre>
+   * pagers keep track of which page and how many on a page
+   * </pre>
+   */
+  private Map<String, GuiPaging> pagers = new LinkedHashMap<String,GuiPaging>();
+
+  /**
    * url split out into args
    */
   private Map<String, String> urlArgObjects = new LinkedHashMap<String,String>();

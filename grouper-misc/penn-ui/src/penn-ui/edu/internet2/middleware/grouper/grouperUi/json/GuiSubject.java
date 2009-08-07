@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiSubject.java,v 1.3 2009-08-05 06:38:26 mchyzer Exp $
+ * $Id: GuiSubject.java,v 1.4 2009-08-07 07:36:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
 
@@ -36,39 +36,17 @@ public class GuiSubject {
     return GuiUtils.convertSubjectToLabel(this.subject);
   }
   
+  /** attributes in string - string format */
+  private Map<String, String> attributes = null;
 
   /**
-   * Gets this Subject's ID.
-   * @return the id
+   * subject
+   * @return the subject
    */
-  public String getId() {
-    return this.subject.getId();
+  public Subject getSubject() {
+    return this.subject;
   }
-
-  /**
-   * Gets this Subject's type.
-   * @return the type string
-   */
-  public String getTypeString() {
-    return this.subject.getType().getName();
-  }
-
-  /**
-   * Gets this Subject's name.
-   * @return the name of subject
-   */
-  public String getName() {
-    return this.subject.getName();
-  }
-
-  /**
-   * Gets this Subject's description.
-   * @return the description
-   */
-  public String getDescription() {
-    return this.subject.getDescription();
-  }
-
+  
   /**
    * Gets a map attribute names and value. The map's key
    * contains the attribute name and the map's value
@@ -77,28 +55,23 @@ public class GuiSubject {
    */
   @SuppressWarnings({ "cast", "unchecked" })
   public Map<String, String> getAttributes() {
-    Map<String, String> result = new LinkedHashMap<String, String>();
-    for (String key : (Set<String>)(Object)GrouperUtil.nonNull(this.subject.getAttributes().keySet())) {
-      Object value = this.subject.getAttributes().get(key);
-      if (value instanceof String) {
-        //if a string
-        result.put(key, (String)value);
-      } else if (value instanceof Set) {
-        //if set of one string, then add it
-        if (((Set)value).size() == 1) {
-          result.put(key, (String)((Set)value).iterator().next());
+    if (this.attributes == null) {
+      Map<String, String> result = new LinkedHashMap<String, String>();
+      for (String key : (Set<String>)(Object)GrouperUtil.nonNull(this.subject.getAttributes().keySet())) {
+        Object value = this.subject.getAttributes().get(key);
+        if (value instanceof String) {
+          //if a string
+          result.put(key, (String)value);
+        } else if (value instanceof Set) {
+          //if set of one string, then add it
+          if (((Set)value).size() == 1) {
+            result.put(key, (String)((Set)value).iterator().next());
+          }
         }
       }
+      this.attributes = result;
     }
-    return null;
-  }
-
-  /**
-   * Returns the Source of this Subject.
-   * @return the name of source
-   */
-  public String getSourceString() {
-    return this.subject.getSource().getId();
+    return this.attributes;
   }
 
   

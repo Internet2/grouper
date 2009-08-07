@@ -1,10 +1,11 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdateContainer.java,v 1.1 2009-08-05 00:57:19 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateContainer.java,v 1.2 2009-08-07 07:36:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
 
@@ -16,24 +17,24 @@ import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
 public class SimpleMembershipUpdateContainer {
 
   /**
-   * store to request scope (called from retrieveFromRequest)
+   * store to session scope
    */
-  private void storeToRequest() {
+  public void storeToSession() {
     HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
-    httpServletRequest.setAttribute("simpleMembershipUpdateContainer", this);
+    httpServletRequest.getSession().setAttribute("simpleMembershipUpdateContainer", this);
   }
 
   /**
-   * retrieveFromRequest, can be null
+   * retrieveFromSession, cannot be null
    * @return the app state in request scope
    */
-  public static SimpleMembershipUpdateContainer retrieveFromRequest() {
+  public static SimpleMembershipUpdateContainer retrieveFromSession() {
     HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
-    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = (SimpleMembershipUpdateContainer)httpServletRequest
+    HttpSession httpSession = httpServletRequest.getSession();
+    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = (SimpleMembershipUpdateContainer)httpSession
       .getAttribute("simpleMembershipUpdateContainer");
     if (simpleMembershipUpdateContainer == null) {
-      simpleMembershipUpdateContainer = new SimpleMembershipUpdateContainer();
-      simpleMembershipUpdateContainer.storeToRequest();
+      throw new RuntimeException("simpleMembershipUpdateContainer is null");
     }
     return simpleMembershipUpdateContainer;
   }
@@ -44,57 +45,30 @@ public class SimpleMembershipUpdateContainer {
   /** if can update group */
   private boolean canUpdateGroup;
 
-  /** if can find group */
-  private boolean canFindGroup;
-
-  /** if this is a composite group */
-  private boolean isCompositeGroup;
-  
   /**
    * group object
    */
-  private GuiGroup group;
+  private GuiGroup guiGroup;
 
   /**
    * members in result
    */
-  private GuiMember[] members;
+  private GuiMember[] guiMembers;
 
-  /**
-   * paging data
-   */
-  private GuiPaging paging;
-  
   /**
    * 
    * @return the group
    */
-  public GuiGroup getGroup() {
-    return this.group;
+  public GuiGroup getGuiGroup() {
+    return this.guiGroup;
   }
 
   /**
    * group object
    * @param group1
    */
-  public void setGroup(GuiGroup group1) {
-    this.group = group1;
-  }
-
-  /**
-   * if this is a composite group
-   * @return true if composite group
-   */
-  public boolean isCompositeGroup() {
-    return this.isCompositeGroup;
-  }
-
-  /**
-   * if this is a composite group
-   * @param isCompositeGroup1
-   */
-  public void setCompositeGroup(boolean isCompositeGroup1) {
-    this.isCompositeGroup = isCompositeGroup1;
+  public void setGuiGroup(GuiGroup group1) {
+    this.guiGroup = group1;
   }
 
   /**
@@ -130,51 +104,19 @@ public class SimpleMembershipUpdateContainer {
   }
 
   /**
-   * if can find group
-   * @return if can find group
-   */
-  public boolean isCanFindGroup() {
-    return this.canFindGroup;
-  }
-
-  /**
-   * if can find group
-   * @param canFindGroup1
-   */
-  public void setCanFindGroup(boolean canFindGroup1) {
-    this.canFindGroup = canFindGroup1;
-  }
-
-  /**
    * members in result
    * @return members
    */
-  public GuiMember[] getMembers() {
-    return this.members;
-  }
-
-  /**
-   * paging in result
-   * @return paging
-   */
-  public GuiPaging getPaging() {
-    return this.paging;
+  public GuiMember[] getGuiMembers() {
+    return this.guiMembers;
   }
 
   /**
    * members in result
    * @param members1
    */
-  public void setMembers(GuiMember[] members1) {
-    this.members = members1;
-  }
-
-  /**
-   * paging in result
-   * @param paging1
-   */
-  public void setPaging(GuiPaging paging1) {
-    this.paging = paging1;
+  public void setGuiMembers(GuiMember[] members1) {
+    this.guiMembers = members1;
   }
   
 }

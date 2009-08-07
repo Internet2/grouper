@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiUtils.java,v 1.2 2009-08-05 00:57:20 mchyzer Exp $
+ * $Id: GuiUtils.java,v 1.3 2009-08-07 07:36:02 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
@@ -10,11 +10,14 @@ import java.io.FilenameFilter;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -25,13 +28,19 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.jexl.Expression;
+import org.apache.commons.jexl.ExpressionFactory;
+import org.apache.commons.jexl.JexlContext;
+import org.apache.commons.jexl.JexlHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.grouperUi.GenericServletResponseWrapper;
 import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -45,7 +54,179 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 public class GuiUtils {
 
+  /**
+   * 
+   * @param subjects to sort and page
+   * @param queryPaging
+   * @return the set of subject, or empty set (never null)
+   */
+  @SuppressWarnings("unchecked")
+  public static Set<Subject> subjectsSortedPaged(Set<Subject> subjects, QueryPaging queryPaging) {
+    
+    subjects = GrouperUtil.nonNull(subjects);
+    
+    //if we are getting size, set it
+    if (queryPaging.isDoTotalCount()) {
+      queryPaging.setTotalRecordCount(subjects.size());
+      queryPaging.calculateIndexes();
+    }
+
+    if (subjects.size() == 0) {
+      return subjects;
+    }
+    
+    Properties propertiesSettings = propertiesGrouperUiSettings(); 
+    String maxSubjectSortSizeString = GrouperUtil.propertiesValue(propertiesSettings, "grouperUi.max.subject.sort.size");
+    int maxSubjectSortSize = GrouperUtil.intValue(maxSubjectSortSizeString, 200);
+    
+    //see if we should sort
+    if (subjects.size() < maxSubjectSortSize) {
+      
+      //lets convert to a wrapper which has a sort field
+      List<SubjectSortWrapper> subjectsSorted = new ArrayList<SubjectSortWrapper>();
+      for (Subject subject : subjects) {
+        subjectsSorted.add(new SubjectSortWrapper(subject));
+      }
+      
+      //sort it
+      Collections.sort(subjectsSorted);
+      
+      //convert back to set
+      subjects = new LinkedHashSet<Subject>(subjectsSorted);
+    }
+    
+    //get the page
+    
+    int numberOfPages = GrouperUtil.batchNumberOfBatches(subjects.size(), queryPaging.getPageSize());
+    
+    //dont let a dynamic query let the page number go off the screen
+    int pageNumber = numberOfPages >= queryPaging.getPageNumber() ? queryPaging.getPageNumber() : numberOfPages;
+    
+    List<Subject> subjectsList = GrouperUtil.batchList(subjects, queryPaging.getPageSize(), pageNumber-1);
+    //convert yet again back to set
+    subjects = new LinkedHashSet<Subject>(subjectsList);
+    
+    return subjects;
+  }
   
+  /**
+   * 
+   * @param members to sort and page
+   * @param queryPaging
+   * @return the set of subject, or empty set (never null)
+   */
+  @SuppressWarnings("unchecked")
+  public static Set<Member> membersSortedPaged(Set<Member> members, QueryPaging queryPaging) {
+    
+    members = GrouperUtil.nonNull(members);
+    
+    //if we are getting size, set it
+    if (queryPaging.isDoTotalCount()) {
+      queryPaging.setTotalRecordCount(members.size());
+      queryPaging.calculateIndexes();
+    }
+
+    if (members.size() == 0) {
+      return members;
+    }
+    
+    Properties propertiesSettings = propertiesGrouperUiSettings(); 
+    String maxSubjectSortSizeString = GrouperUtil.propertiesValue(propertiesSettings, "grouperUi.max.members.sort.size");
+    int maxSubjectSortSize = GrouperUtil.intValue(maxSubjectSortSizeString, 200);
+    
+    //see if we should sort
+    if (members.size() < maxSubjectSortSize) {
+
+      List<MemberSortWrapper> membersSorted = new ArrayList<MemberSortWrapper>();
+
+      //lets convert to a wrapper which has a sort field
+      for (Member member : members) {
+        membersSorted.add(new MemberSortWrapper(member));
+      }
+      
+      //sort it
+      Collections.sort(membersSorted);
+      
+      //convert back to set
+      members = new LinkedHashSet<Member>();
+      for (MemberSortWrapper memberSortWrapper : membersSorted) {
+        members.add(memberSortWrapper.getWrappedMember());
+      }
+    }
+    
+    //get the page
+    
+    int numberOfPages = GrouperUtil.batchNumberOfBatches(members.size(), queryPaging.getPageSize());
+    
+    //dont let a dynamic query let the page number go off the screen
+    int pageNumber = numberOfPages >= queryPaging.getPageNumber() ? queryPaging.getPageNumber() : numberOfPages;
+    
+    List<Member> membersList = GrouperUtil.batchList(members, queryPaging.getPageSize(), pageNumber-1);
+    //convert yet again back to set
+    members = new LinkedHashSet<Member>(membersList);
+    
+    return members;
+  }
+
+  /**
+   * substitute an EL for objects
+   * @param stringToParse
+   * @param variableMap
+   * @return the string
+   */
+  @SuppressWarnings("unchecked")
+  public static String substituteExpressionLanguage(String stringToParse, Map<String, Object> variableMap) {
+    if (GrouperUtil.isBlank(stringToParse)) {
+      return stringToParse;
+    }
+    try {
+      JexlContext jc = JexlHelper.createContext();
+
+      int index = 0;
+      
+      for (String key: variableMap.keySet()) {
+        jc.getVars().put(key, variableMap.get(key));
+      }
+      
+      //allow utility methods
+      jc.getVars().put("guiUtils", new GuiUtils());
+      
+      // matching ${ exp }   (non-greedy)
+      Pattern pattern = Pattern.compile("\\$\\{(.*?)\\}");
+      Matcher matcher = pattern.matcher(stringToParse);
+      
+      StringBuilder result = new StringBuilder();
+
+      //loop through and find each script
+      while(matcher.find()) {
+        result.append(stringToParse.substring(index, matcher.start()));
+        
+        //here is the script inside the curlies
+        String script = matcher.group(1);
+        
+        Expression e = ExpressionFactory.createExpression(script);
+
+        //this is the result of the evaluation
+        Object o = e.evaluate(jc);
+  
+        if (o == null) {
+          LOG.warn("expression returned null: " + script + ", in pattern: '" + stringToParse + "', available variables are: "
+              + GrouperUtil.toStringForLog(variableMap.keySet()));
+        }
+        
+        result.append(o);
+        
+        index = matcher.end();
+      }
+      
+      result.append(stringToParse.substring(index, stringToParse.length()));
+      return result.toString();
+      
+    } catch (Exception e) {
+      throw new RuntimeException("Error substituting string: '" + stringToParse + "'", e);
+    }
+  }
+
   /**
    * convert a subject to string for screen
    * @param subject
@@ -69,7 +250,7 @@ public class GuiUtils {
         label = subject.getName();
       } else {
       
-        label = subject.getSource().getId() + " - " + subject.getId();
+        label = subject.getSource().getId() + " - " + subject.getId() + " - " + subject.getName();
       }
     }
     return label;
@@ -131,6 +312,10 @@ public class GuiUtils {
     
     //only append image if there is one
     if (!StringUtils.isBlank(imageUrl)) {
+      if (!imageUrl.contains("/")) {
+        imageUrl = "../public/assets/" + imageUrl;
+      }
+
       result.append(" img_src=\"" + escapeHtml(imageUrl, true) + "\"");
     }
     result.append(">").append(escapeHtml(label, true, false)).append("</option>\n");
@@ -296,6 +481,53 @@ public class GuiUtils {
     return imageName;
   }
   
+  /** map from source to subject screen EL */
+  private static Map<String, String> subjectToScreenEl = null;
+  
+  /**
+   * get a label from a subject based on grouperUiSettings.properties
+   * @param subject
+   * @return the relative path to image path
+   */
+  public static String convertSubjectToLabelConfigured(Subject subject) {
+    
+    //see if it is already computed
+    if (subject instanceof SubjectSortWrapper) {
+      return ((SubjectSortWrapper)subject).getScreenLabel();
+    }
+
+    if (subjectToScreenEl == null) {
+      Map<String, String> theSubjectToScreenEl = new HashMap<String, String>();
+      Properties propertiesSettings = propertiesGrouperUiSettings();
+      
+      int index = 0;
+      while (true) {
+        
+        String sourceName = GrouperUtil.propertiesValue(propertiesSettings, 
+            "grouperUi.subjectImg.sourceId." + index);
+        String screenEl = GrouperUtil.propertiesValue(propertiesSettings, 
+            "grouperUi.subjectImg.screenEl." + index);
+        
+        if (StringUtils.isBlank(screenEl)) {
+          break;
+        }
+        
+        theSubjectToScreenEl.put(sourceName, screenEl);
+        
+        index++;
+      }
+      subjectToScreenEl = theSubjectToScreenEl;
+    }
+    String screenEl = subjectToScreenEl.get(subject.getSource().getId());
+    if (StringUtils.isBlank(screenEl)) {
+      return convertSubjectToLabel(subject);
+    }
+    //run the screen EL
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+    variableMap.put("subject", subject);
+    return substituteExpressionLanguage(screenEl, variableMap);
+  }
+
   /**
    * get the text properties, might be cached
    * @return the properties

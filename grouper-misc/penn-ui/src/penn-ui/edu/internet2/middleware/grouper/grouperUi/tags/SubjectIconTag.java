@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: SubjectIconTag.java,v 1.1 2009-08-05 00:57:20 mchyzer Exp $
+ * $Id: SubjectIconTag.java,v 1.2 2009-08-07 07:36:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.tags;
 
@@ -31,7 +31,7 @@ public class SubjectIconTag extends SimpleTagSupport  {
     
     String sourceId = this.subject != null ? this.subject.getSource().getId() : null;
 
-    sourceId = this.guiSubject != null ? this.guiSubject.getSourceString() : sourceId;
+    sourceId = this.guiSubject != null ? this.guiSubject.getSubject().getSource().getId() : sourceId;
     
     String icon = GuiUtils.imageFromSubjectSource(sourceId);
 

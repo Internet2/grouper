@@ -14,4 +14,11 @@
 	<natures>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>grouperConf</name>
+			<type>2</type>
+			<location>C:/software/dev_inst2/eclipse/workspace/grouper_v1_4/grouper/conf</location>
+		</link>
+	</linkedResources>
 </projectDescription>

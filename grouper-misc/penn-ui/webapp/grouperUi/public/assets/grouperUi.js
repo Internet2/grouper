@@ -74,6 +74,12 @@ function AppState() {
   /** dont access this directly, access with method: urlArgObjectMap() */
   this.urlArgObjects = null;
   
+  /** map of hide shows by name */
+  this.hideShows = {};
+  
+  /** map of pagers by name */
+  this.pagers = {};
+  
   /** function to get the map of url args */
   this.urlArgObjectMap = function() {
     //see if up to date
@@ -129,7 +135,6 @@ function guiRegisterDhtmlxCombo(divId, width, useImages, filterUrl ) {
   var theCombo=new dhtmlXCombo(
       divId,divId,width, useImages ? 'image' : undefined);
   theCombo.enableFilteringMode(true,filterUrl,false);
-  
 }
 
 /** object represents helpers in drawing html etc */
@@ -285,6 +290,21 @@ function ajax(theUrl, options) {
     //TODO process the response object
     success: function(json){
       var guiResponseJs = json;
+      
+      //put new pagers in the app state
+      if (guiResponseJs.pagers) {
+        for(var pagerName in guiResponseJs.pagers) {
+          allObjects.appState.pagers[pagerName] = guiResponseJs.pagers[pagerName];
+        }
+      }
+      
+      //put new pagers in the app state
+      if (guiResponseJs.hideShows) {
+        for(var hideShowName in guiResponseJs.hideShows) {
+          allObjects.appState.hideShows[hideShowName] = guiResponseJs.hideShows[hideShowName];
+        }
+      }
+      
       for (var i=0; i<guiArrayLength(guiResponseJs.actions); i++ ) {
         
         var action = guiResponseJs.actions[i];
@@ -356,6 +376,54 @@ function grouperTooltip(message) {
 function guiToggle(event, jqueryElementKey) {
   eventCancelBubble(event);
   $(jqueryElementKey).toggle('slow'); 
+  return false;
+}
+
+/** call this from button to hide/show some text */
+function guiHideShow(event, hideShowName) {
+  eventCancelBubble(event);
+  
+  //lets get the hide show object 
+  var hideShow = allObjects.appState.hideShows[hideShowName];
+  
+  //this shouldnt happen
+  if (typeof hideShow == 'undefined') {
+    alert("Cant find hideShow: " + hideShowName); 
+  }
+  
+  //get the button
+  var buttons = $('.buttons_' + hideShowName); 
+  if (!buttons) {
+    buttons = new Array(); 
+  }
+  
+  
+  //see if currently showing
+  if (hideShow.showing) {
+    $('.shows_' + hideShowName).hide('slow');
+    $('.hides_' + hideShowName).show('slow');
+    for (var i = 0; i < buttons.length; i++) { 
+      var button = buttons[i];
+      //could be an image or something
+      if (!guiIsEmpty(button.innerHTML)) {
+        $(button).html(hideShow.textWhenHidden); 
+      }
+    }
+  } else {
+    $('.shows_' + hideShowName).show('slow');
+    $('.hides_' + hideShowName).hide('slow');
+    for (var i = 0; i < buttons.length; i++) { 
+      var button = buttons[i];
+      //could be an image or something
+      if (!guiIsEmpty(button.innerHTML)) {
+        $(button).html(hideShow.textWhenShowing); 
+      }
+    }
+  }
+  
+  //toggle
+  hideShow.showing = !hideShow.showing;
+  
   return false;
 }
 
@@ -547,3 +615,20 @@ function guiGetElementByName(theName) {
    return null;
 }
 
+/**
+ * called from paging tag, sets the paging data to send to server, 
+ * and calls the refresh operation
+ * @param pagingName
+ * @param pageNumber is 1 indexed
+ * @param refreshOperation
+ * @return false so it doesnt navigate
+ */
+function guiGoToPage(pagingName, pageNumber, refreshOperation) {
+  var pager = allObjects.appState.pagers[pagingName];
+  if (guiIsEmpty(pager)) {
+    alert("Error: Cant find pager: '" + pagingName + "'"); 
+  }
+  pager.pageNumber = pageNumber;
+  ajax(refreshOperation);
+  return false;
+}

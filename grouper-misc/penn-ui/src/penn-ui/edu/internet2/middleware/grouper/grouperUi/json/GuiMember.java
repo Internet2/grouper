@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiMember.java,v 1.3 2009-08-05 06:38:26 mchyzer Exp $
+ * $Id: GuiMember.java,v 1.4 2009-08-07 07:36:01 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
 
@@ -22,44 +22,33 @@ public class GuiMember {
     
   }
   
+  /** member */
+  private Member member;
+  
   /**
    * construct from member
-   * @param member
+   * @param member1
    */
-  public GuiMember(Member member) {
-    GuiSubject guiSubject = null;
+  public GuiMember(Member member1) {
     try {
-      guiSubject = new GuiSubject(member.getSubject());
+      this.guiSubject = new GuiSubject(member1.getSubject());
     } catch (SubjectNotFoundException snfe) {
-      guiSubject = new GuiSubject(new SubjectWrapper(member));
+      this.guiSubject = new GuiSubject(new SubjectWrapper(member1));
     }
-    this.setSubject(guiSubject);
-    this.setUuid(member.getUuid());
+    this.setGuiSubject(guiSubject);
+    this.member = member1;
   }
-  
-  /** member uuid */
-  private String uuid;
-  
   
   /**
-   * member uuid
-   * @return the uuid
+   * return the member
+   * @return the member
    */
-  public String getUuid() {
-    return this.uuid;
+  public Member getMember() {
+    return this.member;
   }
-
   
-  /**
-   * member uuid
-   * @param uuid1 the uuid to set
-   */
-  public void setUuid(String uuid1) {
-    this.uuid = uuid1;
-  }
-
   /** the subject for this member */
-  private GuiSubject subject;
+  private GuiSubject guiSubject;
   
   /** if this subject is deletable (has an immediate membership) */
   private boolean deletable;
@@ -68,16 +57,16 @@ public class GuiMember {
    * 
    * @return the subject
    */
-  public GuiSubject getSubject() {
-    return this.subject;
+  public GuiSubject getGuiSubject() {
+    return this.guiSubject;
   }
 
   /**
    * subject
    * @param subject1
    */
-  public void setSubject(GuiSubject subject1) {
-    this.subject = subject1;
+  public void setGuiSubject(GuiSubject subject1) {
+    this.guiSubject = subject1;
   }
 
   /**

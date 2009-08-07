@@ -6,7 +6,7 @@
   <img src="../public/assets/grouper.gif" id="topRightLogoImage" />
 </div>
 <div id="navbar"> 
-     ${guiSettings.text.screenWelcome} ${guiSettings.loggedInSubject.description} 
+     ${guiSettings.text.screenWelcome} ${guiSettings.loggedInSubject.subject.description} 
      &nbsp; &nbsp;  
      <a href="#" onclick="return allObjects.pageHelpers.logout();"><img src="../public/assets/logout.gif" border="0" id="logoutImage" alt="Log out" /></a>
      <a href="#" onclick="return allObjects.pageHelpers.logout();">Log out</a>

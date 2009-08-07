@@ -13,7 +13,7 @@ ${guiSettings.text.simpleMembershipUpdateMainHelp}</div>
   <tr valign="top">
     <td>
 <grouperGui:groupBreadcrumb
-  groupName="${simpleMembershipUpdateContainer.group.displayName}"
+  groupName="${simpleMembershipUpdateContainer.guiGroup.group.displayName}"
 /></td><td> &nbsp; &nbsp; &nbsp; <a class="smallLink" href="#operation=SimpleMembershipUpdate.index">Change location</a>
 </td>
 </tr>
@@ -26,13 +26,13 @@ ${guiSettings.text.simpleMembershipUpdateMainHelp}</div>
         onmouseout="UnTip();"
       >${guiSettings.text.labelGroup} ${guiSettings.text.labelGroupDisplayExtension}</span></td>
 
-      <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.group.displayExtension)}</td>
+      <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.guiGroup.group.displayExtension)}</td>
     </tr>
     <tr class="formTableRow">
       <td class="formTableLeft"><span class="tooltip" onmouseout="UnTip();"
         onmouseover="grouperTooltip('${guiSettings.text.tooltipGroupDisplayName}');"
       >${guiSettings.text.labelGroupDisplayName}</span></td>
-      <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.group.displayName)}</td>
+      <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.guiGroup.group.displayName)}</td>
     </tr>
 
     <tr class="formTableRow">
@@ -41,12 +41,13 @@ ${guiSettings.text.simpleMembershipUpdateMainHelp}</div>
         onmouseover="grouperTooltip(
               '${guiSettings.text.tooltipGroupDescription}');"
       >${guiSettings.text.labelGroupDescription}</span></td>
-      <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.group.description)}</td>
+      <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.guiGroup.group.description)}</td>
     </tr>
   </tbody>
 </table>
 
-<table class="formTable groupHidden" cellspacing="2" style="margin: 0;">
+<table class="formTable shows_simpleMembershipUpdateGroupDetails" cellspacing="2" 
+    style="margin: 0; ${grouperGui:hideShowStyle('simpleMembershipUpdateGroupDetails', true)}">
   <tbody>
     <tr class="formTableRow ">
       <td class="formTableLeft"><span class="tooltip" onmouseout="UnTip();"
@@ -54,7 +55,7 @@ ${guiSettings.text.simpleMembershipUpdateMainHelp}</div>
               '${guiSettings.text.tooltipGroupExtension}');"
       >${guiSettings.text.labelGroupExtension}</span></td>
 
-      <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.group.extension)}</td>
+      <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.guiGroup.group.extension)}</td>
 
     </tr>
     <tr class="formTableRow ">
@@ -62,7 +63,7 @@ ${guiSettings.text.simpleMembershipUpdateMainHelp}</div>
         onmouseover="grouperTooltip(
               '${guiSettings.text.tooltipGroupName}');"
       >${guiSettings.text.labelGroupName}</span></td>
-      <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.group.name)}</td>
+      <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.guiGroup.group.name)}</td>
     </tr>
     <tr class="formTableRow ">
       <td class="formTableLeft"><span class="tooltip" onmouseout="UnTip();"
@@ -70,13 +71,13 @@ ${guiSettings.text.simpleMembershipUpdateMainHelp}</div>
               '${guiSettings.text.tooltipGroupId}');"
       >${guiSettings.text.labelGroupId}</span></td>
 
-      <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.group.uuid)}</td>
+      <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.guiGroup.group.uuid)}</td>
     </tr>
 
   </tbody>
 </table>
-<div style="margin-bottom: 8px;"><a class="smallLink"
-  onclick="return guiToggle(event, '.groupHidden');" href="#"
+<div style="margin-bottom: 8px;"><a class="smallLink buttons_simpleMembershipUpdateGroupDetails"
+  onclick="return guiHideShow(event, 'simpleMembershipUpdateGroupDetails');" href="#"
 >Group details</a></div>
 
 </div>

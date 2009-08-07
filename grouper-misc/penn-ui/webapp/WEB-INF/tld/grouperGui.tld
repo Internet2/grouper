@@ -53,4 +53,50 @@ Gui Subject
     </attribute>
   </tag>
 
+  <tag>
+    <description>
+        Prints out paging labels or buttons
+    </description>
+    <name>paging</name>
+    <tag-class>edu.internet2.middleware.grouper.grouperUi.tags.PagingTag</tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+        <description>
+Ajax operation to call to refresh the list when a button is clicked
+        </description>
+        <name>refreshOperation</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+true for summary or false for buttons
+        </description>
+        <name>showSummaryOrButtons</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+name of pager (should be unique in the whole app)
+        </description>
+        <name>pagingName</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+ : String
+
+  <function>
+    <description>
+      Prints out appropriate styles (or none) for hide show.  Note this will print a semi colon at end if something printed.
+      Pass in the name of the hide show and whether or not it needs to show when showing.
+    </description>
+    <name>hideShowStyle</name>
+    <function-class>edu.internet2.middleware.grouper.grouperUi.tags.GrouperUiFunctions</function-class>
+    <function-signature>String hideShowStyle(java.lang.String, boolean)</function-signature>
+    <example>
+      &lt;div style="${grouperGui:hideShowStyle('someName', true)}" ...
+    </example>
+  </function>
 </taglib>

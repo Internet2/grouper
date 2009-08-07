@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/penn-ui"/>
+	<classpathentry kind="src" path="grouperConf"/>
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ui/ezmorph.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ui/json-lib.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ui/jstl.jar"/>
 	<classpathentry kind="lib" path="lib/grouper-ws-non-webapp/j2ee.jar"/>
+	<classpathentry kind="lib" path="lib/grouper-ui/commons-jexl.jar"/>
+	<classpathentry kind="lib" path="lib/grouper-ui/standard.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/grouper_v1_4"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>
