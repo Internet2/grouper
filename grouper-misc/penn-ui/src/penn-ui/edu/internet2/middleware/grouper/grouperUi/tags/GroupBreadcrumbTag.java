@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GroupBreadcrumbTag.java,v 1.1 2009-08-05 00:57:20 mchyzer Exp $
+ * $Id: GroupBreadcrumbTag.java,v 1.2 2009-08-08 06:19:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.tags;
 
@@ -9,7 +9,6 @@ import java.io.IOException;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
-import edu.internet2.middleware.grouper.grouperUi.json.GuiSettings;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -36,22 +35,24 @@ public class GroupBreadcrumbTag extends SimpleTagSupport  {
     //<span class="browseStemsLocationHere">
     //    <img onmouseover="grouperTooltip('Group - A collection of entities (members) which can be people, other groups or other things (e.g., resources)');" onmouseout="UnTip()" src="../public/assets/group.gif" class="groupIcon" alt="Folder">ldapUsers</span>
     //</div></div>
-    GuiSettings guiSettings = GuiSettings.retrieveFromRequest();
-    result.append("<div class=\"browseStemsLocation\"><strong>" + guiSettings.getText().get("browseStemsLocationLabel")
+    result.append("<div class=\"browseStemsLocation\"><strong>" + GuiUtils.message("simpleMembershipUpdate.find.browse.here", false)
         + " </strong> &nbsp; \n");
     String[] names = GrouperUtil.splitTrim(this.groupName, ":");
     for (int i=0; i<GrouperUtil.length(names); i++) {
       //if its a folder
       if (i != GrouperUtil.length(names)-1) {
-        result.append("<img onmouseover=\"grouperTooltip(\'Folder - A tree structure used to organize groups, "
-          + "subfolders, and folder-level permissions\');\" onmouseout=\"UnTip()\" src=\"../public/assets/folderOpen.gif\" "
-          + "class=\"groupIcon\" alt=\"Folder\">" + GuiUtils.escapeHtml(names[i], true, false) + ": ");
+        result.append("<img onmouseover=\"grouperTooltip(\'" 
+            + GuiUtils.escapeHtml(GuiUtils.message("stem.icon.tooltip", false), true, true) 
+            + "\');\" onmouseout=\"UnTip()\" src=\"../public/assets/folderOpen.gif\" "
+          + "class=\"groupIcon\" alt=\"" + GuiUtils.message("stem.icon.alt", false) + "\"/>" 
+          + GuiUtils.escapeHtml(names[i], true, false) + ": ");
         
       } else {
         result.append("<span class=\"browseStemsLocationHere\">\n"
-          + "<img onmouseover=\"grouperTooltip(\'Group - A collection of entities (members) which"
-          + " can be people, other groups or other things (e.g., resources)\');\" onmouseout=\"UnTip()\""
-          + " src=\"../public/assets/group.gif\" class=\"groupIcon\" alt=\"Object\">" + GuiUtils.escapeHtml(names[i], true, false) + "</span>\n");
+          + "<img onmouseover=\"grouperTooltip(\'" 
+          + GuiUtils.escapeHtml(GuiUtils.message("group.icon.tooltip", true), true, true) + "\');\" onmouseout=\"UnTip()\""
+          + " src=\"../public/assets/group.gif\" class=\"groupIcon\" alt=\"" + GuiUtils.message("group.icon.alt", true) 
+          + "\"/>" + GuiUtils.escapeHtml(names[i], true, false) + "</span>\n");
       }
     }
     result.append("</div>\n");

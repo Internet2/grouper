@@ -1,6 +1,6 @@
 body {
-  font-family:Verdana,Geneva,Arial,Helvetica,sans-serif;
-  font-size:13px;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 13px;
   padding: 0;
   margin: 0;
 }
@@ -9,59 +9,74 @@ body {
   padding: 8px;
   float: left;
 }
+
 #topRightLogo {
   padding: 8px;
   float: right;
 }
-#navbar, #navbar a {
-  background-color:#015782;
-  color:#FFFFFF;
+
+#navbar,#navbar a {
+  background-color: #015782;
+  color: #FFFFFF;
 }
+
 #navbar {
-  clear: both;  
+  clear: both;
   text-align: right;
   padding: 2px 20px 2px 0;
-  font-style:normal;
-  font-weight:normal;
-  height:15px;
+  font-style: normal;
+  font-weight: normal;
+  height: 15px;
   margin: 0;
 }
+
 #simpleMain {
   padding: 8px;
 }
 
 h1 {
-  color:#007994;
-  font-size:16px;
-  font-weight:bold;
-  margin-bottom:10px;
+  color: #007994;
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
+
 .helpText {
-  background-color:#FFFFCC;
-  margin:7px 0 5px;
-  padding:10px 6px;
+  background-color: #FFFFCC;
+  margin: 7px 0 5px;
+  padding: 10px 6px;
 }
+
 .sectionBody {
-  padding:5px 10px 8px;
+  padding: 5px 10px 8px;
+  background-color: #F2F2F2;
 }
+
+.sectionHeader .actionheader {
+  background-color: inherit;  
+}
+
 .section {
-  background-color:#F2F2F2;
-  height:0.01%;
-  margin-left:20px;
-  margin-right:20px;
-  margin-top:20px;
+  height: 0.01%;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: 20px;
 }
+
 .browseStemsLocation {
   margin-bottom: 5px;
 }
-.groupIcon, .subjectIcon {
-  margin-right:2px;
-  position:relative;
-  top:3px;
+
+.groupIcon,.subjectIcon {
+  margin-right: 2px;
+  position: relative;
+  top: 3px;
 }
+
 img {
-  border-width:0;
+  border-width: 0;
 }
+
 #logout {
   padding: 10px;
   font-size: 13px;
@@ -69,10 +84,8 @@ img {
   font-weight: bold;
 }
 
-.formTable tr {
-  /* makes the negative border */
+.formTable tr { /* makes the negative border */
   background-color: #e8e8e8;
-  
 }
 
 .tooltip {
@@ -82,20 +95,20 @@ img {
 }
 
 td {
-  padding:3px;
-}
-.formTableSpaced {
-  
-  margin-top: 20px;
-  margin-bottom: 20px;  
+  padding: 3px;
 }
 
-.formTable .formTableRow, .formTable .formTableRow td {
+.formTableSpaced {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.formTable .formTableRow,.formTable .formTableRow td {
   vertical-align: top;
 }
 
 .formTable .formTableLeft {
-  text-align: right;  
+  text-align: right;
   font-weight: bold;
   width: 238px;
   color: #015782;
@@ -106,24 +119,25 @@ td {
 }
 
 .formLeft {
-  display:block;
-  float:left;
-  clear:left;
-  line-height:20px;
-  width:140px;
-  margin-right:10px;
+  display: block;
+  float: left;
+  clear: left;
+  line-height: 20px;
+  width: 140px;
+  margin-right: 10px;
 }
+
 .formRight {
-  display:block;
-  float:left;
-  clear:right;
-  line-height:20px;
+  display: block;
+  float: left;
+  clear: right;
+  line-height: 20px;
 }
 
 .formRow {
-  display:block;
-  clear:both;
-  margin-top:0px;
+  display: block;
+  clear: both;
+  margin-top: 0px;
 }
 
 /* Make sure that form tags do not affect display -
@@ -135,7 +149,7 @@ form {
 
 /* start this out hidden, then show later */
 .groupHidden {
-  display: none;  
+  display: none;
 }
 
 /* small links at bottom of things to show/hide */
@@ -144,15 +158,15 @@ a.smallLink {
 }
 
 /* blue header on top of sections */
-.sectionHeader {  
-  background-color:#DFEFF4;
-  color:#056496;
-  font-size:13px;
-  font-weight:bold;
-  margin:0;
-  padding:3px 3px 3px 10px;
-  text-decoration:none;
-  text-transform:none;
+.sectionHeader {
+  background-color: #DFEFF4;
+  color: #056496;
+  font-size: 13px;
+  font-weight: bold;
+  margin: 0;
+  padding: 3px 3px 3px 10px;
+  text-decoration: none;
+  text-transform: none;
 }
 
 /** members in a member list, e.g. simple membership update */
@@ -161,46 +175,129 @@ a.smallLink {
 }
 
 /** note the buttons are in grouper.css */
-.blueButton, .redButton {
-    font-family: Tahoma, Arial, Helvetica, sans-serif;
-    text-decoration: none;
-    color: #FFFFFF;
-    font-weight: bold;
-    white-space: nowrap;
-    font-size: 11px;
-    cursor: pointer;
+.blueButton,.redButton {
+  font-family: Tahoma, Arial, Helvetica, sans-serif;
+  text-decoration: none;
+  color: #FFFFFF;
+  font-weight: bold;
+  white-space: nowrap;
+  font-size: 11px;
+  cursor: pointer;
 }
+
 /** there is a slight underline on tooltips in buttons that should be removed in certain cases */
-.blueButton .tooltip, .redButton .tooltip, .linkButton a .tooltip {
+.blueButton .tooltip,.redButton .tooltip,.linkButton a .tooltip {
   border-bottom: none;
 }
 
-
-.blueButton, .redButton {
-    border:1px solid black;
-    border-top-color:#666;
-    border-left-color:#666;
+.blueButton,.redButton {
+  border: 1px solid black;
+  border-top-color: #666;
+  border-left-color: #666;
 }
+
 .blueButton {
   background-color: #015782;
 }
+
 .redButton {
   background-color: #990000;
 }
 
 /** simple membership update combo box for add member */
 #simpleMembershipUpdateAddMember {
-  width: 400px;  
+  width: 400px;
 }
 
 .simplemodal-guiinner {
   padding: 20px;
 }
+
 .simplemodal-buttonrow {
   margin-top: 20px;
-  text-align: center; 
+  text-align: center;
 }
 
 .simpleMembershipUpdateMemberDescription {
   padding-bottom: 10px;
+}
+
+/*************** GROUPER STYLES **************/
+#title {
+  color: #007994;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+h1 {
+  margin-bottom: 10px;
+  margin-left: 0;
+}
+
+#bodyDiv #TitleBox {
+  margin-left: 20px;
+}
+
+.actionheaderContainer td {
+  text-decoration: none;
+  color: #056496;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  text-transform : none;
+  font-weight: bold;
+  background-color: #dfeff4;
+  margin: 0px;
+  padding: 3px;
+  padding-left: 10px;
+}
+
+/** not, if there is an infodot, it takes vertical space, so remove padding on top */
+.actionheaderContainerInfodot td {
+  padding-top: 0px;
+    
+}
+
+.actionheader {
+  text-decoration: none;
+  color: #056496;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  text-transform : none;
+  font-weight: bold;
+  background-color: #DDD;
+  margin: 0px;
+  padding: 0px;
+}
+.actionheaderContainer td .actionheader {
+  background-color: #dfeff4;
+ 
+}
+.helpText {
+  margin: 7px 0px 5px 0px;
+  padding: 10px 6px 10px 6px;
+  background-color: #ffffcc;
+}
+
+/* this makes infodots go away, but if grouperInfodot.css is disabled via
+javascript, then it will take effect, otherwise grouperInfodot.css will make them shown again */
+.infodotImage {
+  position: relative;
+  top: 3px;
+  
+}
+/* the alignment for infodot in h1 doesnt have to be adjusted */
+h1 .infodotImage {
+  top: 0px;
+}
+
+
+/***************** END GROUPER STYLES **********/
+.section .helpText {
+  margin-top: 0px;
+}
+
+.pagingSummary, .pagingButtons {
+  font-size: 85%;
+  color: #333333;
+  text-align: center;
 }

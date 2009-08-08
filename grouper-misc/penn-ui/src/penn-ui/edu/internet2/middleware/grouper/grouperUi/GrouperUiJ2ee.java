@@ -21,8 +21,12 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
+import edu.internet2.middleware.grouper.grouperUi.util.MapBundleWrapper;
+import edu.internet2.middleware.grouper.grouperUi.util.SessionInitialiser;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -75,8 +79,16 @@ public class GrouperUiJ2ee implements Filter {
    * 
    * @return the subject
    */
-  @SuppressWarnings({ "unchecked", "deprecation" })
+  @SuppressWarnings({ "unchecked" })
   public static Subject retrieveSubjectLoggedIn() {
+    
+    SessionContainer sessionContainer = SessionContainer.retrieveFromSession();
+    
+    Subject subjectLoggedIn = sessionContainer.getSubjectLoggedIn();
+
+    if (subjectLoggedIn != null) {
+      return subjectLoggedIn;
+    }
     
     //currently assumes user is in getUserPrincipal
     HttpServletRequest request = retrieveHttpServletRequest();
@@ -96,19 +108,21 @@ public class GrouperUiJ2ee implements Filter {
       throw new RuntimeException("Cant find logged in user");
     }
     
-    Subject caller = null;
     try {
       try {
-        caller = SubjectFinder.findById(userIdLoggedIn);
+        subjectLoggedIn = SubjectFinder.findById(userIdLoggedIn);
       } catch (SubjectNotFoundException snfe) {
         // if not found, then try any identifier
-        caller = SubjectFinder.findByIdentifier(userIdLoggedIn);
+        subjectLoggedIn = SubjectFinder.findByIdentifier(userIdLoggedIn);
       }
     } catch (Exception e) {
       //this is probably a system error...  not a user error
       throw new RuntimeException("Cant find subject from login id: " + userIdLoggedIn, e);
     }
-    return caller;
+    
+    sessionContainer.setSubjectLoggedIn(subjectLoggedIn);
+    
+    return subjectLoggedIn;
 
   }
 
@@ -213,10 +227,19 @@ public class GrouperUiJ2ee implements Filter {
     HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SESSION, 
         ((HttpServletRequest)request).getSession(), false);
     HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_RESPONSE, response, false);
-
+    SessionContainer sessionContainer = null;
     try {
+
+      sessionContainer = SessionContainer.retrieveFromSession();
+      if (!sessionContainer.isInitted()) {
+        SessionInitialiser.init((HttpServletRequest)request);
+      }
+
       filterChain.doFilter(request, response);
     } finally {
+      if (sessionContainer != null) {
+        sessionContainer.setInitted(true);
+      }
       threadLocalRequest.remove();
       threadLocalResponse.remove();
       threadLocalRequestStartMillis.remove();

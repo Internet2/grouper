@@ -1,6 +1,6 @@
 /**
  * @author Kate
- * $Id: SessionContainer.java,v 1.1 2009-08-07 07:36:01 mchyzer Exp $
+ * $Id: SessionContainer.java,v 1.2 2009-08-08 06:19:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans;
 
@@ -12,12 +12,57 @@ import javax.servlet.http.HttpSession;
 
 import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.grouperUi.json.GuiHideShow;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
  * hold generic stuff about user in session
  */
 public class SessionContainer {
+
+  /**
+   * if initted
+   */
+  private boolean initted = false;
+  
+  /**
+   * logged in subject
+   */
+  private Subject subjectLoggedIn;
+  
+  /**
+   * logged in subject
+   * @return the subjectLoggedIn
+   */
+  public Subject getSubjectLoggedIn() {
+    return this.subjectLoggedIn;
+  }
+
+  /**
+   * logged in subject
+   * @param subjectLoggedIn1 the subjectLoggedIn to set
+   */
+  public void setSubjectLoggedIn(Subject subjectLoggedIn1) {
+    this.subjectLoggedIn = subjectLoggedIn1;
+  }
+
+
+  /**
+   * if initted
+   * @return the initted
+   */
+  public boolean isInitted() {
+    return this.initted;
+  }
+
+  
+  /**
+   * if initted
+   * @param initted1 the initted to set
+   */
+  public void setInitted(boolean initted1) {
+    this.initted = initted1;
+  }
 
   /**
    * retrieveFromSession, will lazy load

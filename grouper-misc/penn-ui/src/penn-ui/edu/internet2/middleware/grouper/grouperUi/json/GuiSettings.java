@@ -1,11 +1,8 @@
 /*
  * @author mchyzer
- * $Id: GuiSettings.java,v 1.2 2009-08-05 00:57:19 mchyzer Exp $
+ * $Id: GuiSettings.java,v 1.3 2009-08-08 06:19:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -38,9 +35,6 @@ public class GuiSettings {
     HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
     httpServletRequest.setAttribute("guiSettings", this);
   }
-
-  /** text strings for screen */
-  private Map<String, String> text = new LinkedHashMap<String, String>();
 
   /** need to send this key back with each request in authnKey param */
   private String authnKey = null;
@@ -78,14 +72,6 @@ public class GuiSettings {
    */
   public void setAuthnKey(String authnKey1) {
     this.authnKey = authnKey1;
-  }
-
-  /**
-   * instantiated test for the settings bean
-   * @return the text
-   */
-  public Map<String, String> getText() {
-    return this.text;
   }
 
 }

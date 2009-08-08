@@ -1,5 +1,16 @@
 
+function guiRoundCorners() {
+  //round those corners
+  Nifty("div.sectionBody", "bottom");   
+  Nifty("div.sectionHeader", "top");   
+  Nifty("div#navbar"); 
+  
+}
+
 $(document).ready(function(){
+
+  guiRoundCorners();
+  
   // Initialize history plugin.
   // The callback is called at once by present location.hash. 
 
@@ -11,7 +22,6 @@ $(document).ready(function(){
   
   $.historyInit(pageload, "grouper.html");
 
-  
 });
 
 /** init is called when app starts */
@@ -135,6 +145,7 @@ function guiRegisterDhtmlxCombo(divId, width, useImages, filterUrl ) {
   var theCombo=new dhtmlXCombo(
       divId,divId,width, useImages ? 'image' : undefined);
   theCombo.enableFilteringMode(true,filterUrl,false);
+  
 }
 
 /** object represents helpers in drawing html etc */
@@ -317,6 +328,8 @@ function ajax(theUrl, options) {
       //  successResultFunction.call(this, json);
       //}
 
+      //round those corners
+      guiRoundCorners();
     }
   });
   return result;
@@ -365,7 +378,13 @@ function eventCancelBubble(event) {
   }
 }
 
+/**
+ * create a tooltip
+ * @param message
+ */
 function grouperTooltip(message) {
+  //NOTE, we need to unescape the HTML, since it is in a javascript call...
+  message = guiEscapeHtml(message, false);
 //  if (!tooltipsEnabled()) {
 //    return;
 //  }
@@ -488,13 +507,25 @@ function URLEncode(string) {
 /**
  * escape html from a string: less than, greater than, ampersand, and quote
  */
-function guiEscapeHtml(html) {
-  var escaped = html;
-  escaped = escaped.replace(/&/g, "&amp;"); 
-  escaped = escaped.replace(/</g, "&lt;"); 
-  escaped = escaped.replace(/>/g, "&gt;"); 
-  escaped = escaped.replace(/"/g, "&quot;"); 
-  return escaped;
+function guiEscapeHtml(html, isEscape) {
+  if (isEscape) {
+    var escaped = html;
+    escaped = escaped.replace(/&/g, "&amp;"); 
+    escaped = escaped.replace(/</g, "&lt;"); 
+    escaped = escaped.replace(/>/g, "&gt;"); 
+    escaped = escaped.replace(/"/g, "&quot;"); 
+    escaped = escaped.replace(/'/g, "&apos;"); 
+    return escaped;
+  } else {
+    var unescaped = html;
+    unescaped = unescaped.replace(/&apos;/g, "'"); 
+    unescaped = unescaped.replace(/&quot;/g, '"'); 
+    unescaped = unescaped.replace(/&gt;/g, ">"); 
+    unescaped = unescaped.replace(/&lt;/g, "<"); 
+    unescaped = unescaped.replace(/&amp;/g, "&"); 
+    return unescaped;
+    
+  }
 }
 
 /**
@@ -632,3 +663,68 @@ function guiGoToPage(pagingName, pageNumber, refreshOperation) {
   ajax(refreshOperation);
   return false;
 }
+
+/** GROUPER UI FUNCTIONS */
+/** see if infodots are enabled, return true or false */
+function infodotsEnabled() {
+  var grouperCookieValue = getCookie(grouperInfodotCookieName);
+  if (isEmpty(grouperCookieValue)) {
+    return true;
+  }
+  return "true" == grouperCookieValue;
+}
+/** hide or show an element by id, return false to not navigate to link */
+function grouperHideShow(event, elementIdToHideShow, forceShow) {
+
+  eventCancelBubble(event);
+
+  var theElement = document.getElementById(elementIdToHideShow + '0');
+  
+  //see if shown or hidden
+  var isHidden = isEmpty(theElement) ? true : theElement.style.display == 'none'
+
+  if (!forceShow || isHidden) {
+  
+    hideShow(isHidden, elementIdToHideShow, true);
+  }
+  
+  return false;
+}
+
+/** hide or show an element.
+ * @param isHidden is the current state of the element (it will change)
+ * @param idPrefix is the prefix of the hideShow id (that can be multiple)
+ * @param alertIfNone is true if you want an alert to go if not exists
+ */
+function hideShow(isHidden, idPrefix, alertIfNone) {
+  var show = false;
+  if (isHidden) {
+    show = true;
+  }
+  var suffix = 0;
+  var currentElement;
+  var didAny = false;
+  while (currentElement = document.getElementById(idPrefix + "" + (suffix++))) {
+    didAny = true;
+    if (show) {
+      $(currentElement).show('slow'); 
+    } else {
+      $(currentElement).hide('slow'); 
+    }
+  }
+  if (!didAny && alertIfNone) {
+    window.alert("Nothing to hide or show for id: " + idPrefix);
+  }
+}
+
+function isEmpty(x) {
+  //fix a false positive
+  if (typeof x == "number" && x == 0) {
+     return false;
+  }
+ return typeof x == "undefined" || x == null 
+   || (typeof x == "string" && x == "");
+}
+
+/** END GROUPER UI FUNCTIONS */
+

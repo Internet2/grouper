@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.5 2009-08-07 07:36:01 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.6 2009-08-08 06:19:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -17,8 +17,6 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundRuntimeException;
@@ -88,15 +86,16 @@ public class SimpleMembershipUpdate {
       QueryOptions queryOptions = null;
       
       if (StringUtils.defaultString(searchTerm).length() < 2) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", "Enter 2 or more characters", "bullet_error.png");
+        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+            GuiUtils.message("simpleMembershipUpdate.errorNotEnoughGroupChars", false), "bullet_error.png");
       } else {
-        Stem stem = StemFinder.findRootStem(grouperSession);
         queryOptions = new QueryOptions().paging(200, 1, true).sortAsc("displayName");
         groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure("%" + searchTerm + "%", grouperSession, loggedInSubject, 
             GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions);
         
         if (GrouperUtil.length(groups) == 0) {
-          GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", "No results found", "bullet_error.png");
+          GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+              GuiUtils.message("simpleMembershipUpdate.errorNoGroupsFound", false), "bullet_error.png");
         }
       }
       
@@ -112,7 +111,8 @@ public class SimpleMembershipUpdate {
       //add one more for more options if we didnt get them all
       if (queryOptions != null && queryOptions.getCount() != null 
           && groups != null && queryOptions.getCount() > groups.size()) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", "Not all results returned, narrow your query", "bullet_error.png");
+        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+            GuiUtils.message("simpleMembershipUpdate.errorTooManyGroups", false), "bullet_error.png");
       }
       
       
@@ -121,7 +121,7 @@ public class SimpleMembershipUpdate {
       GuiUtils.printToScreen(xmlBuilder.toString(), "text/xml", false, false);
 
     } catch (Exception se) {
-      throw new RuntimeException("Error searching for groups: '" + searchTerm + "', " + se.getMessage(), se);
+      throw new RuntimeException("Error searching for groups: '" + GuiUtils.escapeHtml(searchTerm, true) + "', " + se.getMessage(), se);
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }
@@ -149,8 +149,12 @@ public class SimpleMembershipUpdate {
     final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
     
     //setup a hideShow
-    GuiHideShow.init("simpleMembershipUpdateAdvanced", false, "Hide advanced options", "Advanced options", true);
-    GuiHideShow.init("simpleMembershipUpdateGroupDetails", false, "Hide group details", "Group details", true);
+    GuiHideShow.init("simpleMembershipUpdateAdvanced", false, 
+        GuiUtils.message("simpleMembershipUpdate.hideAdvancedOptionsButton", false), 
+        GuiUtils.message("simpleMembershipUpdate.showAdvancedOptionsButton", false), true);
+    GuiHideShow.init("simpleMembershipUpdateGroupDetails", false, 
+        GuiUtils.message("simpleMembershipUpdate.hideGroupDetailsButton", false),
+        GuiUtils.message("simpleMembershipUpdate.showGroupDetailsButton", false), true);
     GuiPaging.init("simpleMemberUpdateMembers", 4);
 
     Group group = null;
@@ -170,7 +174,7 @@ public class SimpleMembershipUpdate {
     } catch (ControllerDone cd) {
       throw cd;
     } catch (Exception e) {
-      throw new RuntimeException("Error with group: " + groupName + ", " + e.getMessage(), e);
+      throw new RuntimeException("Error with group: " + GuiUtils.escapeHtml(groupName, true) + ", " + e.getMessage(), e);
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }
@@ -215,10 +219,10 @@ public class SimpleMembershipUpdate {
 
       if ("".equals(id)) {
         //if the id is there, but empty, maybe they didnt enter anything...
-        guiResponseJs.addAction(GuiScreenAction.newAlert("Enter search criteria in the combobox to search for a group"));
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.groupSearchNothingEntered", false)));
         
       } else {
-        guiResponseJs.addAction(GuiScreenAction.newAlert("Need to pass in groupName or groupId in url, e.g. #operation=SimpleMembershipUpdate.init&groupName=some:group:name"));
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.errorGroupSearchNoParams", false)));
       }
       index(request, response);
       throw new ControllerDone(true);
@@ -235,12 +239,13 @@ public class SimpleMembershipUpdate {
     } catch (GroupNotFoundException gnfe) {
       //ignore
     } catch (Exception e) {
-      throw new RuntimeException("Problem in simpleMembershipUpdateInit : " + id + ", " + name + ", " + e.getMessage(), e);
+      throw new RuntimeException("Problem in simpleMembershipUpdateInit : " + GuiUtils.escapeHtml(id, true) 
+          + ", " + GuiUtils.escapeHtml(name, true) + ", " + e.getMessage(), e);
     }
     
     if (group == null) {
       guiResponseJs.addAction(GuiScreenAction.newScript("location.href = 'grouper.html#operation=SimpleMembershipUpdate.index'"));
-      guiResponseJs.addAction(GuiScreenAction.newAlert("Cant find group, enter search criteria in the combobox to search for a group"));
+      guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.errorGroupSearchCantFindGroup", false)));
       index(request, response);
       throw new ControllerDone(true);
     }
@@ -267,7 +272,7 @@ public class SimpleMembershipUpdate {
 
     if (!simpleMembershipUpdateContainer.isCanReadGroup() && !simpleMembershipUpdateContainer.isCanUpdateGroup()) {
       guiResponseJs.addAction(GuiScreenAction.newScript("location.href = 'grouper.html#operation=SimpleMembershipUpdate.index'"));
-      guiResponseJs.addAction(GuiScreenAction.newAlert("You cannot read and update group, enter search criteria in the combobox to search for a group"));
+      guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.errorGroupSearchPermissions", false)));
       index(request, response);
       throw new ControllerDone(true);
     }
@@ -275,7 +280,7 @@ public class SimpleMembershipUpdate {
     
     if (group.isComposite()) {
       guiResponseJs.addAction(GuiScreenAction.newScript("location.href = 'grouper.html#operation=SimpleMembershipUpdate.index'"));
-      guiResponseJs.addAction(GuiScreenAction.newAlert("This is a composite group, please select a non-composite group"));
+      guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.errorGroupComposite", false)));
       index(request, response);
       throw new ControllerDone(true);
       
@@ -367,7 +372,7 @@ public class SimpleMembershipUpdate {
     } catch (ControllerDone cd) {
       throw cd;
     } catch (Exception e) {
-      throw new RuntimeException("Error with group: " + groupName + ", " + e.getMessage(), e);
+      throw new RuntimeException("Error with group: " + GuiUtils.escapeHtml(groupName, false) + ", " + e.getMessage(), e);
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
     }
@@ -402,7 +407,8 @@ public class SimpleMembershipUpdate {
       GuiMember guiMember = new GuiMember(member);
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      guiResponseJs.addAction(GuiScreenAction.newAlert("The member was deleted: " + guiMember.getGuiSubject().getScreenLabel()));
+      guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.successMemberDeleted",
+          false, true, guiMember.getGuiSubject().getScreenLabel())));
       
     } catch (ControllerDone cd) {
       throw cd;
@@ -435,7 +441,7 @@ public class SimpleMembershipUpdate {
     //maybe they dont know how to use it
     if (StringUtils.isBlank(comboValue)) {
       guiResponseJs.addAction(GuiScreenAction.newAlert(
-          "Enter search criteria into the auto-complete box for an entity to add to the group"));
+          GuiUtils.message("simpleMembershipUpdate.errorUserSearchNothingEntered", false)));
       return;
 
     }
@@ -457,17 +463,18 @@ public class SimpleMembershipUpdate {
       subjectLabel = GuiUtils.convertSubjectToLabel(subject);
       if (group.hasImmediateMember(subject)) {
         
-        guiResponseJs.addAction(GuiScreenAction.newAlert(
-            "Subject already a member: '" + GuiUtils.escapeHtml(subjectLabel, true, false) + "'"));
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.warningSubjectAlreadyMember",
+            false, true, subjectLabel)));
+
         return;
       }
       
       group.addMember(subject);
       
-      guiResponseJs.addAction(GuiScreenAction.newAlert("Member added: " 
-          + GuiUtils.escapeHtml(subjectLabel, true)));
-
-
+      
+      guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.successMemberAdded",
+          false, true, subjectLabel)));
+      
     } catch (ControllerDone cd) {
       throw cd;
     } catch (SubjectNotFoundException snfe) {
@@ -476,9 +483,9 @@ public class SimpleMembershipUpdate {
           "Subject not found: '" + GuiUtils.escapeHtml(subjectLabel, true, false) + "'"));
       return;
     } catch (SourceUnavailableException sue) {
-
       guiResponseJs.addAction(GuiScreenAction.newAlert(
-          "Source unavailable"));
+          GuiUtils.message("simpleMembershipUpdate.errorSourceUnavailable", false)));
+      
       return;
 
     } catch (SubjectNotUniqueException snue) {
@@ -550,9 +557,10 @@ public class SimpleMembershipUpdate {
 
       //maybe add one more if we hit the limit
       if (queryPaging != null && subjects.size() < queryPaging.getTotalRecordCount()) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", "Too many results, narrow your search", "bullet_error.png");
+        GuiUtils.dhtmlxOptionAppend(xmlBuilder, null, GuiUtils.message("simpleMembershipUpdate.errorUserSearchTooManyResults", false), 
+            "bullet_error.png");
       } else if (subjects.size() == 0) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", "No results found, change your search criteria", "bullet_error.png");
+        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", GuiUtils.message("simpleMembershipUpdate.errorUserSearchNoResults", false), "bullet_error.png");
       }
 
       xmlBuilder.append(GuiUtils.DHTMLX_OPTIONS_END);

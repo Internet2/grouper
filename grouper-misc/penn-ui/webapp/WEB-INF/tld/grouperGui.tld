@@ -13,6 +13,40 @@
 
   <tag>
     <description>
+        Creates a dhtmlx combobox
+    </description>
+    <name>combobox</name>
+    <tag-class>edu.internet2.middleware.grouper.grouperUi.tags.ComboboxTag</tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+        <description>
+id and class of elements, and name of combobox.  Make this unique in app
+        </description>
+        <name>id</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+width, int, means pixels
+        </description>
+        <name>width</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <description>
+the operation to call when filtering
+        </description>
+        <name>filterOperation</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+
+
+  <tag>
+    <description>
         Prints out stem or folder location
     </description>
     <name>groupBreadcrumb</name>
@@ -85,8 +119,215 @@ name of pager (should be unique in the whole app)
         <rtexprvalue>true</rtexprvalue>
     </attribute>
   </tag>
- : String
 
+  <tag>
+    <name>message</name>
+    <tagclass>edu.internet2.middleware.grouper.grouperUi.tags.GrouperMessageTag</tagclass>
+    <info>
+        Maps key to localized message and performs parametric replacement, or just prints message
+    </info>
+    
+    <attribute>
+        <name>ignoreTooltipStyle</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>escapeHtml</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>value</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>valueTooltipKey</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>key</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>tooltipDisable</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>bundle</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>var</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>scope</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>tooltipRef</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>useNewTermContext</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>escapeSingleQuotes</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  <tag>
+    <name>param</name>
+    <info>
+        Supplies an argument for parametric replacement to a containing
+        &lt;message&gt; tag
+    </info>
+    <tagclass>edu.internet2.middleware.grouper.grouperUi.tags.GrouperParamTag</tagclass>
+    <bodycontent>JSP</bodycontent>
+    <attribute>
+        <name>value</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+    <tag>
+    <name>infodot</name>
+    <info>
+        This will generate an infodot image which when clicked will hide/show some instructions
+    </info>
+    <tagclass>edu.internet2.middleware.grouper.grouperUi.tags.GrouperInfodotTag</tagclass>
+    <bodycontent>empty</bodycontent>
+    <attribute>
+        <name>hideShowHtmlId</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+    <tag>
+    <name>subtitle</name>
+    <info>
+        This will generate a subtitle and perhaps an infodot
+    </info>
+    <tagclass>edu.internet2.middleware.grouper.grouperUi.tags.GrouperSubtitleTag</tagclass>
+    <attribute>
+        <name>key</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>label</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>param1</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>param2</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+    <tag>
+    <name>title</name>
+    <info>
+        This will generate a title, and perhaps an infodot
+    </info>
+    <tagclass>edu.internet2.middleware.grouper.grouperUi.tags.GrouperTitleTag</tagclass>
+    <attribute>
+        <name>key</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>label</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>param1</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>param2</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+    <tag>
+    <name>tooltip</name>
+    <info>
+        This will generate an onmouseover which is a tooltip in an html element (e.g. image)
+    </info>
+    <tagclass>edu.internet2.middleware.grouper.grouperUi.tags.GrouperTooltipTag</tagclass>
+    <bodycontent>empty</bodycontent>
+    <attribute>
+        <name>key</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>param1</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>param2</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+    <tag>
+    <name>hideShowTarget</name>
+    <info>
+        This will generate an infodot image which when clicked will hide/show some instructions
+    </info>
+    <tagclass>edu.internet2.middleware.grouper.grouperUi.tags.GrouperHideShowTarget</tagclass>
+    <bodycontent>empty</bodycontent>
+    <attribute>
+        <name>hideShowHtmlId</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>showInitially</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+        <name>omitStyle</name>
+        <required>false</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+
+  <function>
+    <description>
+      Prints out a message from the nav bundle.  String is the key, then boolean for if escape HTML,
+      and then boolean for if escaping HTML, if single quotes should be escaped
+    </description>
+    <name>message</name>
+    <function-class>edu.internet2.middleware.grouper.grouperUi.tags.GrouperUiFunctions</function-class>
+    <function-signature>String message(java.lang.String, boolean, boolean)</function-signature>
+    <example>
+      &lt;img alt="${grouperGui:message('some.key', true, false)}" ...
+    </example>
+  </function>
   <function>
     <description>
       Prints out appropriate styles (or none) for hide show.  Note this will print a semi colon at end if something printed.

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.4 2009-08-07 07:36:02 mchyzer Exp $
+ * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.5 2009-08-08 06:19:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi;
 
@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -217,7 +216,6 @@ public class GrouperUiRestServlet extends HttpServlet {
   /**
    * init stuff on gui
    */
-  @SuppressWarnings("unchecked")
   public static void initGui() {
     GuiSettings guiSettings = new GuiSettings();
     
@@ -228,12 +226,6 @@ public class GrouperUiRestServlet extends HttpServlet {
     Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
     guiSettings.setLoggedInSubject(new GuiSubject(loggedInSubject));
     
-    //read the properties file
-    Properties properties = GuiUtils.propertiesUiTextGui();
-    for (String key : (Set<String>)(Object)properties.keySet()) {
-      guiSettings.getText().put(key, properties.getProperty(key));
-    }
-    
     // lets see where the templates are: assume grouperUiText.properties is in WEB-INF/classes,
     // and templates are WEB-INF/templates
     AppState appState = AppState.retrieveFromRequest();
@@ -242,7 +234,7 @@ public class GrouperUiRestServlet extends HttpServlet {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newAssign("allObjects.guiSettings", guiSettings));
       guiResponseJs.addAction(GuiScreenAction.newScript("document.title = '" 
-          + GuiUtils.escapeSingleQuotes(properties.getProperty("screenTitle")) + "'"));
+          + GuiUtils.message("simpleMembershipUpdate.title", false) + "'"));
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#topDiv", 
           "/WEB-INF/grouperUi/templates/common/commonTop.jsp"));
   

@@ -1,10 +1,15 @@
 /**
  * @author Kate
- * $Id: GrouperUiFunctions.java,v 1.1 2009-08-07 07:36:01 mchyzer Exp $
+ * $Id: GrouperUiFunctions.java,v 1.2 2009-08-08 06:19:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.tags;
 
+import javax.servlet.http.HttpServletRequest;
+
+import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.grouperUi.json.GuiHideShow;
+import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.grouperUi.util.MapBundleWrapper;
 
 
 /**
@@ -12,6 +17,26 @@ import edu.internet2.middleware.grouper.grouperUi.json.GuiHideShow;
  */
 public class GrouperUiFunctions {
 
+  /**
+   * prints out a message, assumes it is there
+   * @param key
+   * @param escapeHtml (true to escape html)
+   * @param escapeSingleQuotes if escaping html, should we also escape single quotes?
+   * @return the message string
+   */
+  public static String message(String key, boolean escapeHtml, boolean escapeSingleQuotes) {
+    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+    MapBundleWrapper mapBundleWrapper = (MapBundleWrapper)httpServletRequest.getSession().getAttribute("navNullMap");
+    
+    String value = (String)mapBundleWrapper.get(key);
+
+    if (escapeHtml) {
+      value = GuiUtils.escapeHtml(value, true, escapeSingleQuotes);
+    }
+    
+    return value;
+  }
+  
   /**
    * print out the style value for a hide show
    * @param hideShowName

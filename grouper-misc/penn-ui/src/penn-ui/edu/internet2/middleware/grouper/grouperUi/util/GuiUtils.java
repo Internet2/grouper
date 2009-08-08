@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiUtils.java,v 1.3 2009-08-07 07:36:02 mchyzer Exp $
+ * $Id: GuiUtils.java,v 1.4 2009-08-08 06:19:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
 import java.io.PrintWriter;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +18,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,6 +29,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import org.apache.commons.jexl.Expression;
 import org.apache.commons.jexl.ExpressionFactory;
@@ -53,6 +57,78 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * utils for the gui
  */
 public class GuiUtils {
+
+  /**
+   * lookup something in nav.properties (localized), substitute args
+   * @param key
+   * @param blankIfNotFound true if null or blank if not found, else it will return ???key???
+   * @param escapeHtmlArgs if html should be escaped from args
+   * @param args
+   * @return the message
+   */
+  public static String message(String key, boolean blankIfNotFound, boolean escapeHtmlArgs, Object... args) {
+    String message = message(key, true);
+    
+    //handle blank
+    if (StringUtils.isBlank(message)) {
+      return message(key, blankIfNotFound);
+    }
+    
+    if (GrouperUtil.length(args) == 0) {
+      return message;
+    }
+
+    for (int i=0;i<args.length;i++) {
+      if (args[i] instanceof String) {
+        args[i] = GuiUtils.escapeHtml((String)args[i], true, false);
+      }
+    }
+    
+    MessageFormat formatter = new MessageFormat("");
+    //note, is this correct?
+    HttpServletRequest request = GrouperUiJ2ee.retrieveHttpServletRequest();
+    if (request != null) {
+      formatter.setLocale(request.getLocale());
+    }
+    
+    formatter.applyPattern(message);
+    message = formatter.format(args);
+    return message;
+    
+  }
+  
+  /**
+   * lookup something in nav.properties (localized)
+   * @param key
+   * @param blankIfNotFound true if null or blank if not found, else it will return ???key???
+   * @return the message
+   */
+  public static String message(String key, boolean blankIfNotFound) {
+    
+    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+
+    if (blankIfNotFound) {
+      MapBundleWrapper mapBundleWrapper = (MapBundleWrapper)httpServletRequest.getSession().getAttribute("navNullMap");
+      return (String)mapBundleWrapper.get(key);
+      
+    }
+        
+    LocalizationContext localizationContext = (LocalizationContext)httpServletRequest
+        .getSession().getAttribute("nav");
+    ResourceBundle nav = localizationContext.getResourceBundle();
+    return nav.getString(key);
+  }
+  
+  /**
+   * Convenience method to retrieve nav ResourceBundle
+   * @param session 
+   * @return the bundle
+   */
+  public static ResourceBundle getNavResourcesStatic(HttpSession session) {
+    LocalizationContext localizationContext = (LocalizationContext)session.getAttribute("nav");
+    ResourceBundle nav = localizationContext.getResourceBundle();
+    return nav;
+  }
 
   /**
    * 
@@ -529,20 +605,6 @@ public class GuiUtils {
   }
 
   /**
-   * get the text properties, might be cached
-   * @return the properties
-   */
-  public static Properties propertiesUiTextGui() {
-    Properties propertiesSettings = propertiesGrouperUiSettings();
-    boolean cache = GrouperUtil.propertiesValueBoolean(propertiesSettings, 
-      "grouperUi.cache.uiText", true);
-  
-    Properties properties = GrouperUtil.propertiesFromResourceName(
-        "grouperUiText.properties", cache , true);
-    return properties;
-  }
-
-  /**
    * properties object for grouper ui settings
    * @return properties
    */
@@ -753,7 +815,42 @@ public class GuiUtils {
       throw new RuntimeException("Problem converting JSP to string: " + jspName, e);
     }
 
-    return responseWrapper.resultString();
+    String result = responseWrapper.resultString();
+    
+    //see if we are logging
+    Properties properties = propertiesGrouperUiSettings();
+    if (GrouperUtil.propertiesValueBoolean(properties, "grouperUi.logHtml", false)) {
+      String logDir = GrouperUtil.propertiesValue(properties, "grouperUi.logHtmlDir");
+      
+      if (StringUtils.isBlank(logDir)) {
+        throw new RuntimeException("Cant log html to file with dir to put files in: grouperUi.logHtmlDir");
+      }
+      
+      File htmlFile = null;
+      
+      String jspNameforLog = GrouperUtil.suffixAfterChar(jspName, '/');
+      jspNameforLog = GrouperUtil.suffixAfterChar(jspNameforLog, '\\');
+      
+      logDir = GrouperUtil.stripEnd(logDir, "/");
+      logDir = GrouperUtil.stripEnd(logDir, "\\");
+      Date date = new Date();
+      String logName = logDir  + File.separator + "htmlLog_" 
+        + new SimpleDateFormat("yyyy_MM").format(date)
+        + File.separator + "day_" 
+        + new SimpleDateFormat("dd" + File.separator + "HH_mm_ss_SSS").format(date)
+        + "_" + ((int)(1000 * Math.random())) + "_" + jspNameforLog + ".html";
+        
+      htmlFile = new File(logName);
+      
+      //make parents
+      GrouperUtil.mkdirs(htmlFile.getParentFile());
+      
+      GrouperUtil.saveStringIntoFile(htmlFile, result);
+      
+    }
+
+    return result;
+    
   }
 
   /** array for converting HTML to string */
