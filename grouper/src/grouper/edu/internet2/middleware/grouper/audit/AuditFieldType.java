@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditFieldType.java,v 1.3 2009-07-16 20:25:06 mchyzer Exp $
+ * $Id: AuditFieldType.java,v 1.4 2009-08-10 14:01:17 isgwb Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -31,6 +31,9 @@ public class AuditFieldType {
   
   /** audit type for member id */
   public static final String AUDIT_TYPE_MEMBER_ID = "memberId";
+  
+  /** audit type for group type id */
+  public static final String AUDIT_TYPE_GROUPTYPE_ID = "groupTypeId";
   
   /** map of string (field type, e.g. groupId), to a list of multikey: AuditTypeIdentifier and field label) */
   private static Map<String, Set<MultiKey>> auditFieldTypes = new HashMap<String, Set<MultiKey>>();
@@ -111,6 +114,13 @@ public class AuditFieldType {
     addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.PRIVILEGE_STEM_ADD, "memberId");
     addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.PRIVILEGE_STEM_UPDATE, "memberId");
     addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.PRIVILEGE_STEM_DELETE, "memberId");
+    
+    addAuditFieldType(AUDIT_TYPE_GROUPTYPE_ID, AuditTypeBuiltin.GROUP_TYPE_ADD, "id");
+    addAuditFieldType(AUDIT_TYPE_GROUPTYPE_ID, AuditTypeBuiltin.GROUP_TYPE_DELETE, "id");
+    addAuditFieldType(AUDIT_TYPE_GROUPTYPE_ID, AuditTypeBuiltin.GROUP_TYPE_UPDATE, "id");
+    addAuditFieldType(AUDIT_TYPE_GROUPTYPE_ID, AuditTypeBuiltin.GROUP_FIELD_ADD, "groupTypeId");
+    addAuditFieldType(AUDIT_TYPE_GROUPTYPE_ID, AuditTypeBuiltin.GROUP_FIELD_UPDATE, "groupTypeId");
+    addAuditFieldType(AUDIT_TYPE_GROUPTYPE_ID, AuditTypeBuiltin.GROUP_FIELD_DELETE, "groupTypeId");
 
   }
   
