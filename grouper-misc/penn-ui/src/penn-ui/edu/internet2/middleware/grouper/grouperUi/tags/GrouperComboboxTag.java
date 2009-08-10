@@ -28,7 +28,7 @@ import org.apache.commons.lang.StringUtils;
  * @author mchyzer
  *
  */
-public class ComboboxTag extends SimpleTagSupport {
+public class GrouperComboboxTag extends SimpleTagSupport {
 
   /** id and class of elements, and name of combobox.  Make this unique in app */
   private String id;
@@ -42,7 +42,7 @@ public class ComboboxTag extends SimpleTagSupport {
   /**
    * init fields on construct
    */
-  public ComboboxTag() {
+  public GrouperComboboxTag() {
   }
 
   /**

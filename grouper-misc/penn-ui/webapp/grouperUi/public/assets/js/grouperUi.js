@@ -197,7 +197,14 @@ var allObjects = new AllObjects();
 
 
 
-/** generic ajax method takes a url, callback function, and params or forms */
+/** generic ajax method takes a url, callback function, and params or forms.
+ * 
+ * To pass in params to send to the server, pass in params like this:
+ * Note: menuHtmlId, menuRadioGroup, and menutItemId are the param names, and
+ * zoneId, group, and idClicked are variables whose values will be the param values:
+ * 
+ *  ajax(operation, {requestParams: {menuHtmlId: zoneId, menuRadioGroup: group, menuItemId: idClicked }});
+ */
 function ajax(theUrl, options) {
   
   if (!guiStartsWith(theUrl, "../app/" )) {
@@ -221,7 +228,7 @@ function ajax(theUrl, options) {
       //get elements in form
       var theForm = $("#" + formId);
       if (!theForm || theForm.length == 0) {
-        fastAlert('Cant find form by id: "' + formId + '"!');
+        alert('Cant find form by id: "' + formId + '"!');
         return;
       }
       theForm = theForm[0];
@@ -321,6 +328,20 @@ function guiProcessAction(guiScreenAction) {
   if (!guiIsEmpty(guiScreenAction.innerHtmlJqueryHandle)) {
      $(guiScreenAction.innerHtmlJqueryHandle).html(guiScreenAction.innerHtml);
   }
+
+  //hide/shows
+  if (!guiIsEmpty(guiScreenAction.hideShowNameToShow)) {
+    guiHideShow(null, guiScreenAction.hideShowNameToShow, true);
+  }
+  
+  if (!guiIsEmpty(guiScreenAction.hideShowNameToHide)) {
+    guiHideShow(null, guiScreenAction.hideShowNameToHide, false);
+  }
+  
+  if (!guiIsEmpty(guiScreenAction.hideShowNameToToggle)) {
+    guiHideShow(null, guiScreenAction.hideShowNameToToggle);
+  }
+  
   //do an alert
   if (!guiIsEmpty(guiScreenAction.alert)) {
     $.unblockUI(); 
@@ -396,8 +417,10 @@ function guiToggle(event, jqueryElementKey) {
  * 
  * In the button, use this onclick:
  * onclick="return guiHideShow(event, 'hideShowName');"
+ * 
+ * @param shouldShow is undefined or null to toggle, true to show, false to now show
  */
-function guiHideShow(event, hideShowName) {
+function guiHideShow(event, hideShowName, shouldShow) {
   eventCancelBubble(event);
   
   //lets get the hide show object 
@@ -406,29 +429,25 @@ function guiHideShow(event, hideShowName) {
   //this shouldnt happen
   if (typeof hideShow == 'undefined') {
     alert("Cant find hideShow: " + hideShowName); 
+    return;
   }
-  
+
   //get the button
   var buttons = $('.buttons_' + hideShowName); 
   if (!buttons) {
     buttons = new Array(); 
   }
   
+  //see if we are mandating a show, or if we are leaving it to the object model
+  if (typeof shouldShow == 'undefined' || shouldShow == null) {
+     shouldShow = !hideShow.showing;
+  }
   
   //see if currently showing
-  if (hideShow.showing) {
-    $('.shows_' + hideShowName).hide('slow');
-    $('.hides_' + hideShowName).show('slow');
-    for (var i = 0; i < buttons.length; i++) { 
-      var button = buttons[i];
-      //could be an image or something
-      if (!guiIsEmpty(button.innerHTML)) {
-        $(button).html(hideShow.textWhenHidden); 
-      }
-    }
-  } else {
-    $('.shows_' + hideShowName).show('slow');
-    $('.hides_' + hideShowName).hide('slow');
+  if (shouldShow) {
+    //note: dont use hide('slow') or show('slow') since it turns to block display
+    $('.shows_' + hideShowName).fadeIn('slow');
+    $('.hides_' + hideShowName).fadeOut('slow');
     for (var i = 0; i < buttons.length; i++) { 
       var button = buttons[i];
       //could be an image or something
@@ -436,13 +455,49 @@ function guiHideShow(event, hideShowName) {
         $(button).html(hideShow.textWhenShowing); 
       }
     }
+  } else {
+    $('.shows_' + hideShowName).fadeOut('slow');
+    $('.hides_' + hideShowName).fadeIn('slow');
+    for (var i = 0; i < buttons.length; i++) { 
+      var button = buttons[i];
+      //could be an image or something
+      if (!guiIsEmpty(button.innerHTML)) {
+        $(button).html(hideShow.textWhenHidden); 
+      }
+    }
   }
   
-  //toggle
-  hideShow.showing = !hideShow.showing;
+  //toggle (or hard set)
+  hideShow.showing = shouldShow;
   
   return false;
 }
+
+/**
+ * see if an element is an inline element
+ * @param element
+ * @return true if inline
+ */
+//function guiIsInline(element) {
+//  
+//}
+
+/**
+ * fade out if not span or a tag, or button or whatever
+ */
+//function guiHide(String jqueryHandle) {
+//  
+//  var elements = $(jqueryHandle);
+//
+//  //dont worry if nothing there
+//  if (guiIsEmpty(elements) || elements.length == 0) {
+//    return;
+//  }
+//  
+//  for (var i=0;i<elements.length;i++) {
+//    var element = elements[i];
+//  }
+//}
 
 function guiSplitTrim(input, separator) {
  if (input == null) {
@@ -638,7 +693,7 @@ function guiGetElementByName(theName) {
       if (theElements.length == 1) {
          return theElements[0];
       } else if (theElements.length > 1) {
-         fastAlert("Elements should be 1 for element " + theName + " but instead it is " + theElements.length);
+         alert("Elements should be 1 for element " + theName + " but instead it is " + theElements.length);
       }
    }
    return null;
@@ -656,8 +711,28 @@ function guiGoToPage(pagingName, pageNumber, refreshOperation) {
   var pager = allObjects.appState.pagers[pagingName];
   if (guiIsEmpty(pager)) {
     alert("Error: Cant find pager: '" + pagingName + "'"); 
+    return;
   }
   pager.pageNumber = pageNumber;
+  ajax(refreshOperation);
+  return false;
+}
+
+/**
+ * called from paging tag, sets the paging size
+ * and calls the refresh operation
+ * @param pagingName
+ * @param pageSize
+ * @param refreshOperation
+ * @return false so it doesnt navigate
+ */
+function guiPageSize(pagingName, pageSize, refreshOperation) {
+  var pager = allObjects.appState.pagers[pagingName];
+  if (guiIsEmpty(pager)) {
+    alert("Error: Cant find pager for page size: '" + pagingName + "'"); 
+    return;
+  }
+  pager.pageSize = pageSize;
   ajax(refreshOperation);
   return false;
 }
@@ -705,9 +780,10 @@ function hideShow(isHidden, idPrefix, alertIfNone) {
   while (currentElement = document.getElementById(idPrefix + "" + (suffix++))) {
     didAny = true;
     if (show) {
-      $(currentElement).show('slow'); 
+      //note: dont use hide('slow') or show('slow') since it turns to block display
+      $(currentElement).fadeIn('slow'); 
     } else {
-      $(currentElement).hide('slow'); 
+      $(currentElement).fadeOut('slow'); 
     }
   }
   if (!didAny && alertIfNone) {
@@ -730,9 +806,9 @@ function isEmpty(x) {
  * @param menuId is the id of the HTML element of the menu
  * @param operation is when events occur (onclick), then that operation is called via ajax
  * @param structureOperation is the operation called to define the structure of the menu
- * contextZoneJqueryHandle is the jquery handle (e.g. #someId) which this menu should be attached to.  note
- * that any element you are attaching to must have an id attribute defined
  * @param isContextMenu is true if context menu, false if not
+ * @param contextZoneJqueryHandle is the jquery handle (e.g. #someId) which this menu should be attached to.  note
+ * that any element you are attaching to must have an id attribute defined
  */
 function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu, contextZoneJqueryHandle) {
 // here is the long hand form of this method
@@ -774,10 +850,12 @@ function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu,
       var elements = $(contextZoneJqueryHandle);
       if (guiIsEmpty(elements)) {
         alert("Cant find context zone elements for menu: " + menuId + ", " + contextZoneJqueryHandle);
+        return;
       }
       for (var i=0; i<elements.length; i++) {
         if (guiIsEmpty(elements[i].id)) {
           alert("Cant find id in html context zone element: " + menuId); 
+          return;
         }
         menu.addContextZone(elements[i].id);
       }
@@ -807,7 +885,29 @@ function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu,
     });
   };
   $(document).ready(theFunction);
+}
 
+/**
+ * parse an int if not an int already
+ * @param input
+ * @return
+ */
+function guiInt(input) {
+  if (guiIsEmpty(input)) {
+    return null;
+  }
+  var originalInput = input;
+  
+  //if the string is "09" then we want to ignore the 0's
+  while (input.length > 1 && input.charAt(0) == '0') {
+     input = input.substring(1,input.length);
+  }
+  
+  var theInt = parseInt(input);
+  if (theInt + "" == input + "") {
+    return theInt;
+  }
+  alert("cant convert '" + originalInput + "' to int");
 }
 
 

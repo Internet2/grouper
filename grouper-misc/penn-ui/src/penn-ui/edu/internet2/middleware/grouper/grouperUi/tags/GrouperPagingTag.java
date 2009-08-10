@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: PagingTag.java,v 1.1 2009-08-07 07:36:01 mchyzer Exp $
+ * $Id: GrouperPagingTag.java,v 1.1 2009-08-10 07:40:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.tags;
 
@@ -9,14 +9,17 @@ import java.io.IOException;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
+import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.grouperUi.json.GuiPaging;
+import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
  *
  */
-public class PagingTag extends SimpleTagSupport  {
+public class GrouperPagingTag extends SimpleTagSupport  {
 
   /**
    * 
@@ -44,6 +47,7 @@ public class PagingTag extends SimpleTagSupport  {
     
     QueryPaging queryPaging = guiPaging.queryPaging();
     
+    
     //Previous 1 2 3 4 5 6 7 8 9 10 11 Next
     //Previous 1 2 3 ... 5 6 7 8 9 ... 11 12 13 Next
     //Previous 1 2 3 4 5 6 ... 11 12 13 Next
@@ -57,7 +61,38 @@ public class PagingTag extends SimpleTagSupport  {
       result.append(queryPaging.getPageEndIndex());
       result.append(" of ");
       result.append(queryPaging.getTotalRecordCount());
+      result.append(" &nbsp;&nbsp; ");
+      result.append(GuiUtils.escapeHtml(GuiUtils.message("page.size"), true));
+      result.append(" ");
+      String id = GrouperUtil.uniqueId();
       
+      
+      
+      
+      String pageSizeOptionsString = TagUtils.mediaResourceString(GrouperUiJ2ee.retrieveHttpServletRequest(), "pager.pagesize.selection");
+      String[] pageSizeOptionsStringArray = GrouperUtil.splitTrim(pageSizeOptionsString, " ");
+      
+      result.append("<select class=\"pagingDropdown\" id=\"").append(id).append("\" onchange=\"return guiPageSize('").append(this.pagingName)
+        .append("', guiInt(guiFieldValue(document.getElementById('").append(id).append("'))), '")
+        .append(this.refreshOperation).append("');\">\n");
+      int currentPageSize = queryPaging.getPageSize(); 
+      boolean foundOne = false;
+      for (String pageSizeOption : pageSizeOptionsStringArray) {
+        result.append("<option ");
+        if (Integer.toString(currentPageSize).equals(pageSizeOption)) {
+          result.append(" selected=\"selected\"");
+          foundOne = true;
+        }
+        result.append(">").append(pageSizeOption).append("</option>");
+      }
+      
+      //this is bad
+      if (!foundOne) {
+        
+        throw new RuntimeException("Cant find paging value: '" + currentPageSize + "' in list: " + pageSizeOptionsString);
+        
+      }
+      result.append("</select>");
     } else {
       
       //see if there should be a previous tag

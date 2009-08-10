@@ -1,9 +1,11 @@
 /*
  * @author mchyzer
- * $Id: GuiPaging.java,v 1.2 2009-08-07 07:36:01 mchyzer Exp $
+ * $Id: GuiPaging.java,v 1.3 2009-08-10 07:40:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
 
+import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
+import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -91,12 +93,15 @@ public class GuiPaging {
   /**
    * init a paging object, if it exists, update the page size
    * @param pagingName 
-   * @param pageSize 
    */
-  public static void init(String pagingName, int pageSize) {
+  public static void init(String pagingName) {
     
     GuiPaging guiPaging = new GuiPaging();
-    guiPaging.setPageSize(pageSize);
+    
+    //lets see what the default page size is
+    String pageSizeDefaultString = TagUtils.mediaResourceString(GrouperUiJ2ee.retrieveHttpServletRequest(), "pager.pagesize.default");
+    
+    guiPaging.setPageSize(GrouperUtil.intValue(pageSizeDefaultString));
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     

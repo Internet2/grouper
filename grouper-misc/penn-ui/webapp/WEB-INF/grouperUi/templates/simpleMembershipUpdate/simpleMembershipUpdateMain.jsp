@@ -61,24 +61,31 @@
 
   </tbody>
 </table>
-<div style="margin-bottom: 8px;"><a class="smallLink buttons_simpleMembershipUpdateGroupDetails"
+<div style="margin-bottom: 8px;">
+<%-- Group details button moved to advanced menu <a class="smallLink buttons_simpleMembershipUpdateGroupDetails"
   onclick="return guiHideShow(event, 'simpleMembershipUpdateGroupDetails');" href="#"
->${grouperGui:hideShowButtonText('simpleMembershipUpdateGroupDetails') }</a>
+>${grouperGui:hideShowButtonText('simpleMembershipUpdateGroupDetails') }</a> --%>
 
 <a id="advancedLink" href="#" class="smallLink" onclick="this.oncontextmenu(event); return false">Advanced</a>
 
+<%--
 <span id="advancedMenu" ></span>
 <script type="text/javascript">
 guiInitDhtmlxMenu("advancedMenu", "SimpleMembershipUpdate.advancedMenu", 
     "SimpleMembershipUpdate.advancedMenuStructure", true, "#advancedLink");
 </script>
+--%>
+<grouperGui:menu menuId="advancedMenu"
+operation="SimpleMembershipUpdate.advancedMenu" 
+structureOperation="SimpleMembershipUpdate.advancedMenuStructure" 
+contextZoneJqueryHandle="#advancedLink" contextMenu="true" />
 
 </div>
 
 </div>
 </div>
 
-<div class="section">
+<div class="section" style="min-width: 900px">
 
   <grouperGui:subtitle key="simpleMembershipUpdate.addMemberSubtitle" />
 

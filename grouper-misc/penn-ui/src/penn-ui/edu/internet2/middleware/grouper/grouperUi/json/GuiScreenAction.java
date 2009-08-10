@@ -51,7 +51,69 @@ public class GuiScreenAction {
    */
   private String innerHtml;
   
+  /** hide show name to show */
+  private String hideShowNameToShow;
   
+  /** hide show name to hide */
+  private String hideShowNameToHide;
+  
+  /** hide show name to toggle */
+  private String hideShowNameToToggle;
+  
+  
+  /**
+   * hide show name to show
+   * @return the hideShowNameToShow
+   */
+  public String getHideShowNameToShow() {
+    return this.hideShowNameToShow;
+  }
+
+  
+  /**
+   * hide show name to show
+   * @param hideShowNameToShow1 the hideShowNameToShow to set
+   */
+  public void setHideShowNameToShow(String hideShowNameToShow1) {
+    this.hideShowNameToShow = hideShowNameToShow1;
+  }
+
+  
+  /**
+   * hide show name to hide
+   * @return the hideShowNameToHide
+   */
+  public String getHideShowNameToHide() {
+    return this.hideShowNameToHide;
+  }
+
+  
+  /**
+   * hide show name to hide
+   * @param hideShowNameToHide1 the hideShowNameToHide to set
+   */
+  public void setHideShowNameToHide(String hideShowNameToHide1) {
+    this.hideShowNameToHide = hideShowNameToHide1;
+  }
+
+  
+  /**
+   * hide show name to toggle
+   * @return the hideShowNameToToggle
+   */
+  public String getHideShowNameToToggle() {
+    return this.hideShowNameToToggle;
+  }
+
+  
+  /**
+   * hide show name to toggle
+   * @param hideShowNameToToggle1 the hideShowNameToToggle to set
+   */
+  public void setHideShowNameToToggle(String hideShowNameToToggle1) {
+    this.hideShowNameToToggle = hideShowNameToToggle1;
+  }
+
   /**
    * @return the htmlReplaceJqueryHandle
    */
@@ -109,6 +171,39 @@ public class GuiScreenAction {
     GuiScreenAction guiScreenAction = new GuiScreenAction();
     guiScreenAction.setAssignmentName(theAssignmentName);
     guiScreenAction.setAssignmentObject(theAssignmentObject);
+    return guiScreenAction;
+  }
+  
+  /**
+   * construct with hide show name to show
+   * @param theHideShowName
+   * @return the action
+   */
+  public static GuiScreenAction newHideShowNameToShow(String theHideShowName) {
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    guiScreenAction.setHideShowNameToShow(theHideShowName);
+    return guiScreenAction;
+  }
+  
+  /**
+   * construct with hide show name to hide
+   * @param theHideShowName
+   * @return the action
+   */
+  public static GuiScreenAction newHideShowNameToHide(String theHideShowName) {
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    guiScreenAction.setHideShowNameToHide(theHideShowName);
+    return guiScreenAction;
+  }
+  
+  /**
+   * construct with hide show name to toggle
+   * @param theHideShowName
+   * @return the action
+   */
+  public static GuiScreenAction newHideShowNameToToggle(String theHideShowName) {
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    guiScreenAction.setHideShowNameToToggle(theHideShowName);
     return guiScreenAction;
   }
   

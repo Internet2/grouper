@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.7 2009-08-10 03:27:44 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.8 2009-08-10 07:40:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -149,13 +149,14 @@ public class SimpleMembershipUpdate {
     final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
     
     //setup a hideShow
-    GuiHideShow.init("simpleMembershipUpdateAdvanced", false, 
-        GuiUtils.message("simpleMembershipUpdate.hideAdvancedOptionsButton"), 
-        GuiUtils.message("simpleMembershipUpdate.showAdvancedOptionsButton"), true);
+    GuiHideShow.init("simpleMembershipUpdateDeleteMultiple", false, 
+        "", "", true);
     GuiHideShow.init("simpleMembershipUpdateGroupDetails", false, 
         GuiUtils.message("simpleMembershipUpdate.hideGroupDetailsButton", false),
         GuiUtils.message("simpleMembershipUpdate.showGroupDetailsButton", false), true);
-    GuiPaging.init("simpleMemberUpdateMembers", 4);
+    
+    
+    GuiPaging.init("simpleMemberUpdateMembers");
 
     Group group = null;
     String groupName = null;
@@ -323,7 +324,7 @@ public class SimpleMembershipUpdate {
       group.getMembers(Group.getDefaultList(), queryOptions);
       int totalSize = queryOptions.getCount().intValue();
       
-      int pageSize = 4;
+      int pageSize = guiPaging.getPageSize();
       
       guiPaging.setTotalRecordCount(totalSize);
       guiPaging.setPageSize(pageSize);
@@ -430,8 +431,7 @@ public class SimpleMembershipUpdate {
   public void addMember(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
     
     final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
-    
-    
+
     GrouperSession grouperSession = null;
 
     String comboValue = httpServletRequest.getParameter("simpleMembershipUpdateAddMember");
@@ -586,14 +586,31 @@ public class SimpleMembershipUpdate {
   public void advancedMenu(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     String menuItemId = httpServletRequest.getParameter("menuItemId");
-    String menuHtmlId = httpServletRequest.getParameter("menuHtmlId");
-    String menuRadioGroup = httpServletRequest.getParameter("menuRadioGroup");
+    //String menuHtmlId = httpServletRequest.getParameter("menuHtmlId");
+    //String menuRadioGroup = httpServletRequest.getParameter("menuRadioGroup");
     String menuCheckboxChecked  = httpServletRequest.getParameter("menuCheckboxChecked");
 
-    guiResponseJs.addAction(GuiScreenAction.newAlert("Menu action: menuItemId: " + menuItemId
-        + ", menuHtmlId: " + menuHtmlId 
-        + ", menuRadioGroup: " 
-        + menuRadioGroup + ", menuCheckboxChecked: " + menuCheckboxChecked));
+//    guiResponseJs.addAction(GuiScreenAction.newAlert("Menu action: menuItemId: " + menuItemId
+//        + ", menuHtmlId: " + menuHtmlId 
+//        + ", menuRadioGroup: " 
+//        + menuRadioGroup + ", menuCheckboxChecked: " + menuCheckboxChecked));
+    
+    if (StringUtils.equals(menuItemId, "showGroupDetails")) {
+      if (GrouperUtil.booleanValue(menuCheckboxChecked)) {
+        guiResponseJs.addAction(GuiScreenAction.newHideShowNameToShow("simpleMembershipUpdateGroupDetails"));
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newHideShowNameToHide("simpleMembershipUpdateGroupDetails"));
+      }
+    } else if (StringUtils.equals(menuItemId, "multiDelete")) {
+      if (GrouperUtil.booleanValue(menuCheckboxChecked)) {
+        guiResponseJs.addAction(GuiScreenAction.newHideShowNameToShow("simpleMembershipUpdateDeleteMultiple"));
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newHideShowNameToHide("simpleMembershipUpdateDeleteMultiple"));
+      }
+    } else {
+      throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
+    }
+    
   }
 
   /**
@@ -602,17 +619,149 @@ public class SimpleMembershipUpdate {
    * @param httpServletResponse
    */
   public void advancedMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    
+    //get the text to add to html if showing details
+    GuiHideShow showGroupDetails = GuiHideShow.retrieveHideShow("simpleMembershipUpdateGroupDetails", true);
+    String showGroupDetailsChecked = showGroupDetails.isShowing() ? " checked=\"true\"" : "";
+    
+    //get the text to add to html if showing multi delete
+    GuiHideShow showMultiDelete = GuiHideShow.retrieveHideShow("simpleMembershipUpdateDeleteMultiple", true);
+    String showMultiDeleteChecked = showMultiDelete.isShowing() ? " checked=\"true\"" : "";
+
     GuiUtils.printToScreen(
         "<?xml version=\"1.0\"?>\n"
         + "<menu>\n"
         + "  <item id=\"multiDelete\" text=\"" 
-          + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuDeleteMultiple"), true) 
-          + "\" type=\"checkbox\" ><tooltip>" 
-          + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuDeleteMultipleTooltip"), true) + "</tooltip></item>\n"
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuDeleteMultiple"), true) 
+        + "\" type=\"checkbox\" " + showMultiDeleteChecked + "><tooltip>" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuDeleteMultipleTooltip"), true) + "</tooltip></item>\n"
+        + "  <item id=\"showGroupDetails\" text=\"" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuShowGroupDetails"), true) 
+        + "\" type=\"checkbox\" " + showGroupDetailsChecked + "><tooltip>" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuShowGroupDetailsTooltip"), true) + "</tooltip></item>\n"
         //+ "  <item id=\"m3\" text=\"Help\" type=\"checkbox\" checked=\"true\"/>\n"
         //+ "  <item id=\"radio1\" text=\"Radio1\" type=\"radio\" group=\"hlm\"/>\n"
         //+ "  <item id=\"radio2\" text=\"Radio2\" type=\"radio\" group=\"hlm\"/>\n"
         + "</menu>", "text/xml", false, false);
     throw new ControllerDone();
   }
+  
+  /**
+   * delete selected members
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void deleteMultiple(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    //lets get the selected members
+    Set<String> paramNames = GrouperUiJ2ee.requestParameterNamesByPrefix("deleteMultiple_");
+    if (paramNames.size() == 0) {
+      guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.errorDeleteCheckboxRequired")));
+      return;
+    }
+
+    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    Group group = null;
+    String groupName = null;
+
+    String currentMemberUuid = null;
+    
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      group = this.retrieveGroup(grouperSession);
+      groupName = group.getName();
+      
+      int deleteCount = 0;
+      
+      for (String paramName: paramNames) {
+        
+        currentMemberUuid = GrouperUtil.prefixOrSuffix(paramName, "deleteMultiple_", false);
+        
+        //this should be found
+        Member member = MemberFinder.findByUuid(grouperSession, currentMemberUuid);
+        
+        if (group.deleteMember(member, false)) {
+          deleteCount++;
+        }
+      }      
+      
+      guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.successMembersDeleted",
+          false, true, Integer.toString(deleteCount))));
+      
+    } catch (ControllerDone cd) {
+      throw cd;
+    } catch (Exception se) {
+      throw new RuntimeException("Error deleting members from group: " + groupName 
+          + ", " + currentMemberUuid + ", " + se.getMessage(), se);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+    retrieveMembers(httpServletRequest, httpServletResponse);
+
+    
+  }
+  
+  /**
+   * delete all members.  Not in one transaction so we can make progress here if something bad happens
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  @SuppressWarnings("unchecked")
+  public void deleteAll(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    Group group = null;
+    String groupName = null;
+
+    String currentMemberUuid = null;
+    
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      group = this.retrieveGroup(grouperSession);
+      groupName = group.getName();
+      
+      int deleteCount = 0;
+
+      Set<Member> members = group.getImmediateMembers();
+      
+      for (Member member : members) {
+        currentMemberUuid = member.getUuid();
+        
+        if (group.deleteMember(member, false)) {
+          deleteCount++;
+        }
+      }      
+      
+      guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.successAllMembersDeleted",
+          false, true, Integer.toString(deleteCount))));
+      
+    } catch (ControllerDone cd) {
+      throw cd;
+    } catch (Exception se) {
+      throw new RuntimeException("Error deleting all members from group: " + groupName 
+          + ", " + currentMemberUuid + ", " + se.getMessage(), se);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+    retrieveMembers(httpServletRequest, httpServletResponse);
+
+
+  }
+  
+  
 }

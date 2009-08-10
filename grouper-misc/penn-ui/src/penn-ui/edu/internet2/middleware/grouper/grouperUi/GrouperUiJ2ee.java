@@ -5,6 +5,9 @@ package edu.internet2.middleware.grouper.grouperUi;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.Enumeration;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -21,11 +24,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
-import edu.internet2.middleware.grouper.grouperUi.util.MapBundleWrapper;
 import edu.internet2.middleware.grouper.grouperUi.util.SessionInitialiser;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
@@ -41,6 +42,31 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class GrouperUiJ2ee implements Filter {
 
+  /**
+   * find the request parameter names by prefix
+   * @param prefix
+   * @return the set, never null
+   */
+  @SuppressWarnings("unchecked")
+  public static Set<String> requestParameterNamesByPrefix(String prefix) {
+    HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
+    Set<String> result = new LinkedHashSet<String>();
+    Enumeration<String> paramNames = httpServletRequest.getParameterNames();
+    
+    //cycle through all
+    while(paramNames.hasMoreElements()) {
+      String paramName = paramNames.nextElement();
+      
+      //see if starts with
+      if (paramName.startsWith(prefix)) {
+        result.add(paramName);
+      }
+    }
+    
+    
+    return result;
+  }
+  
   /** logger */
   @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(GrouperUiJ2ee.class);

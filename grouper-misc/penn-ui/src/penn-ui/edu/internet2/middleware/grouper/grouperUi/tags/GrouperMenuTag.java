@@ -23,22 +23,73 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * <pre>
- * This will generate a menu
+ * This will generate a menu.  You need something to attach the context click to, e.g.
+ * 
+ * &lt;a id="advancedLink" href="#" class="smallLink" onclick="this.oncontextmenu(event); return false"&gt;Advanced&lt;/a&gt;
+ * 
  * </pre>
  * @author mchyzer
  *
  */
 public class GrouperMenuTag extends SimpleTagSupport {
 
-  /** id and class of elements, and name of combobox.  Make this unique in app */
-  private String id;
+  /**
+   * the jquery handle (e.g. #someId) which this menu should be attached to.  note
+   * that any element you are attaching to must have an id attribute defined
+   */
+  private String contextZoneJqueryHandle;
   
-  /** width, int, means pixels */
-  private int width = -1;
+  /**
+   * the jquery handle (e.g. #someId) which this menu should be attached to.  note
+   * that any element you are attaching to must have an id attribute defined
+   * @param contextZoneJqueryHandle1 the contextZoneJqueryHandle to set
+   */
+  public void setContextZoneJqueryHandle(String contextZoneJqueryHandle1) {
+    this.contextZoneJqueryHandle = contextZoneJqueryHandle1;
+  }
 
-  /** the operation to call when filtering */
-  private String filterOperation;
+  /** true if context menu, false if not */
+  private boolean contextMenu;
+  
+  /**
+   * true if context menu, false if not
+   * @param contextMenu1 the contextMenu to set
+   */
+  public void setContextMenu(boolean contextMenu1) {
+    this.contextMenu = contextMenu1;
+  }
 
+  /** the operation called to define the structure of the menu */
+  private String structureOperation;
+  
+  /**
+   * the operation called to define the structure of the menu
+   * @param structureOperation1 the structureOperation to set
+   */
+  public void setStructureOperation(String structureOperation1) {
+    this.structureOperation = structureOperation1;
+  }
+
+  /** when events occur (onclick), then that operation is called via ajax */
+  private String operation;
+  
+  /**
+   * when events occur (onclick), then that operation is called via ajax
+   * @param operation1 the operation to set
+   */
+  public void setOperation(String operation1) {
+    this.operation = operation1;
+  }
+  /** the id of the HTML element of the menu */
+  private String menuId;
+  
+  /**
+   * the id of the HTML element of the menu
+   * @param menuId1 the menuId to set
+   */
+  public void setMenuId(String menuId1) {
+    this.menuId = menuId1;
+  }
   /**
    * init fields on construct
    */
@@ -60,46 +111,23 @@ public class GrouperMenuTag extends SimpleTagSupport {
 //    </script>
     
     //if it was shorthand, prefix with the full path
-    if (!StringUtils.contains(this.filterOperation, "/")) {
-      this.filterOperation = "../app/" + this.filterOperation;
+    if (!StringUtils.contains(this.operation, "/")) {
+      this.operation = "../app/" + this.operation;
+    }
+    if (!StringUtils.contains(this.structureOperation, "/")) {
+      this.structureOperation = "../app/" + this.structureOperation;
     }
     
-    result.append("<div id=\"").append(this.id).append("\"");
-    if (this.width != -1) {
-      result.append(" style=\"").append(this.width).append("\"");
-    }
-    result.append("></div>\n");
+    result.append("<span id=\"").append(this.menuId).append("\"");
+    result.append("></span>\n");
     result.append("<script type=\"text/javascript\"> \n");
-    result.append("guiRegisterDhtmlxCombo('").append(this.id).append("', ")
-      .append(this.width == -1 ? null : this.width).append(", true, \"");
-    result.append(this.filterOperation).append("\" );\n");
+    result.append("guiInitDhtmlxMenu('").append(this.menuId).append("', '")
+      .append(this.operation).append("', '").append(this.structureOperation)
+      .append("', ").append(this.contextMenu).append(", '");
+    result.append(this.contextZoneJqueryHandle).append("' );\n");
     result.append("</script>\n");
 
     this.getJspContext().getOut().print(result.toString());
-  }
-  
-  /**
-   * id and class of elements, and name of combobox.  Make this unique in app
-   * @param id1 the id to set
-   */
-  public void setId(String id1) {
-    this.id = id1;
-  }
-  
-  /**
-   * width, int, means pixels
-   * @param width1 the width to set
-   */
-  public void setWidth(int width1) {
-    this.width = width1;
-  }
-  
-  /**
-   * the operation to call when filtering
-   * @param filterOperation1 the filterOperation to set
-   */
-  public void setFilterOperation(String filterOperation1) {
-    this.filterOperation = filterOperation1;
   }
 
 }

@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GuiHideShow.java,v 1.1 2009-08-07 07:36:01 mchyzer Exp $
+ * $Id: GuiHideShow.java,v 1.2 2009-08-10 07:40:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
 
@@ -21,7 +21,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GuiHideShow {
 
   /**
-   * 
+   * init a hide show if not in session (and using session)
    * @param hideShowName
    * @param showing
    * @param textWhenShowing

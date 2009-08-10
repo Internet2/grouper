@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GroupBreadcrumbTag.java,v 1.3 2009-08-10 03:27:44 mchyzer Exp $
+ * $Id: GroupBreadcrumbTag.java,v 1.4 2009-08-10 07:40:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.tags;
 
@@ -43,7 +43,7 @@ public class GroupBreadcrumbTag extends SimpleTagSupport  {
       if (i != GrouperUtil.length(names)-1) {
         result.append("<img onmouseover=\"grouperTooltip(\'" 
             + GuiUtils.escapeHtml(GuiUtils.message("stem.icon.tooltip", false), true, true) 
-            + "\');\" onmouseout=\"UnTip()\" src=\"../public/assets/images/folderOpen.gif\" "
+            + "\');\" onmouseout=\"UnTip()\" src=\"../public/assets/images/folder.gif\" "
           + "class=\"groupIcon\" alt=\"" + GuiUtils.message("stem.icon.alt", false) + "\"/>" 
           + GuiUtils.escapeHtml(names[i], true, false) + ": ");
         
@@ -51,7 +51,7 @@ public class GroupBreadcrumbTag extends SimpleTagSupport  {
         result.append("<span class=\"browseStemsLocationHere\">\n"
           + "<img onmouseover=\"grouperTooltip(\'" 
           + GuiUtils.escapeHtml(GuiUtils.message("group.icon.tooltip", true), true, true) + "\');\" onmouseout=\"UnTip()\""
-          + " src=\"../public/assets/images/group.gif\" class=\"groupIcon\" alt=\"" + GuiUtils.message("group.icon.alt", true) 
+          + " src=\"../public/assets/images/group.png\" class=\"groupIcon\" alt=\"" + GuiUtils.message("group.icon.alt", true) 
           + "\"/>" + GuiUtils.escapeHtml(names[i], true, false) + "</span>\n");
       }
     }

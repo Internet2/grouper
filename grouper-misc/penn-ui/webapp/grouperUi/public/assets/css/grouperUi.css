@@ -301,3 +301,16 @@ h1 .infodotImage {
   color: #333333;
   text-align: center;
 }
+
+.buttonRow {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.memberLink {
+  white-space: nowrap;
+}
+
+.pagingDropdown {
+  padding: 0;
+}
