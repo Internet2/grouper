@@ -10,6 +10,7 @@
 	<classpathentry kind="lib" path="lib/grouper-ws-non-webapp/j2ee.jar"/>
 	<classpathentry kind="lib" path="lib/grouper-ui/commons-jexl.jar"/>
 	<classpathentry kind="lib" path="lib/grouper-ui/standard.jar"/>
+	<classpathentry kind="lib" path="lib/grouper-ui/opencsv.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/grouper_v1_4"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>

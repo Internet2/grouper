@@ -66,7 +66,8 @@
   onclick="return guiHideShow(event, 'simpleMembershipUpdateGroupDetails');" href="#"
 >${grouperGui:hideShowButtonText('simpleMembershipUpdateGroupDetails') }</a> --%>
 
-<a id="advancedLink" href="#" class="smallLink" onclick="this.oncontextmenu(event); return false">Advanced</a>
+<a id="advancedLink" href="#" class="smallLink"
+><grouperGui:message key="simpleMembershipUpdate.advancedButton"/></a>
 
 <%--
 <span id="advancedMenu" ></span>

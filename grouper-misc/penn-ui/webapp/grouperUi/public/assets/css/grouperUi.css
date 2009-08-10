@@ -209,8 +209,35 @@ a.smallLink {
   width: 400px;
 }
 
+
+#simplemodal-overlay {
+  background-color:#000;
+  cursor:wait;
+}
+
+#simplemodal-container {
+  height:90%;
+  width:90%;
+  overflow: auto;
+  background-color:#fff;
+  border:3px solid #ccc;
+}
+
+#simplemodal-container a.modalCloseImg {
+  background:url(../images/x.gif) no-repeat;
+  width:25px;
+  height:29px;
+  display:inline;
+  z-index:3201;
+  position:absolute;
+  top:11px;
+  right:2px;
+  cursor:pointer;
+}
 .simplemodal-guiinner {
   padding: 20px;
+  text-align: center;
+  
 }
 
 .simplemodal-buttonrow {

@@ -1,5 +1,0 @@
-dhtmlXMenuObject.prototype._showContextMenu = function(x, y, zoneId) {y /= 2; x /= 2; if (this
-
-
-the menu doesnt show up correctly if not absolute positioning...  after this patch, try the menu and see it show up correctly
-

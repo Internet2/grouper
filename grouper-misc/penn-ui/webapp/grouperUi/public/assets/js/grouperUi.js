@@ -347,7 +347,7 @@ function guiProcessAction(guiScreenAction) {
     $.unblockUI(); 
     //alert(guiScreenAction.alert);
     //$.modal.close();
-    $('<div style="text-align=center"><div class="simplemodal-guiinner">' + guiScreenAction.alert + '</div><div class="simplemodal-buttonrow"><button class=\'simplemodal-close blueButton\'>OK</button></div></div>').modal();
+    $('<div class="simplemodal-guiinner"><br /><br />asdfasfdasdfsdf sd<br /><br /><br /><br /><br />asdfasdfasdfasdfasdfasdfasdf<br /><br /><br />asdfasdfasdfasdfasdfasdfasdfasdfasdfadsf<br /><br /><br /><br /><br />asdfasdfasdfasdfasdfadfasdfsadfasdfasfasdf<br /><br />' + guiScreenAction.alert + '</div><div class="simplemodal-buttonrow"><button class=\'simplemodal-close blueButton\'>OK</button></div>').modal();
   }
   
 }
@@ -852,13 +852,20 @@ function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu,
         alert("Cant find context zone elements for menu: " + menuId + ", " + contextZoneJqueryHandle);
         return;
       }
-      for (var i=0; i<elements.length; i++) {
-        if (guiIsEmpty(elements[i].id)) {
-          alert("Cant find id in html context zone element: " + menuId); 
-          return;
-        }
-        menu.addContextZone(elements[i].id);
-      }
+      
+      elements.click(function(e){
+        menu.showContextMenu(e.pageX, e.pageY);
+        return false;
+      }); 
+      
+      //cant do it this way since the x,y is wrong
+      //for (var i=0; i<elements.length; i++) {
+      //  if (guiIsEmpty(elements[i].id)) {
+      //    alert("Cant find id in html context zone element: " + menuId); 
+      //    return;
+      //  }
+      //  menu.addContextZone(elements[i].id);
+      //}
     }
     menu.setImagePath("../public/assets/dhtmlx/menu/imgs/");
     menu.setIconsPath("../public/assets/dhtmlx/menu/icons/");

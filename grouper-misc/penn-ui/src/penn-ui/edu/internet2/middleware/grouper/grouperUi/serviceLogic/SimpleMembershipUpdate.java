@@ -1,9 +1,11 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.8 2009-08-10 07:40:42 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.9 2009-08-10 16:48:42 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.Properties;
 import java.util.Set;
 
@@ -12,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 
+import au.com.bytecode.opencsv.CSVWriter;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -321,7 +324,7 @@ public class SimpleMembershipUpdate {
       Set<Member> members;
       //get the size
       QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
-      group.getMembers(Group.getDefaultList(), queryOptions);
+      group.getImmediateMembers(Group.getDefaultList(), queryOptions);
       int totalSize = queryOptions.getCount().intValue();
       
       int pageSize = guiPaging.getPageSize();
@@ -763,5 +766,68 @@ public class SimpleMembershipUpdate {
 
   }
   
+  /**
+   * 
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void exportSubjectIdsCsv(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    
+    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    Group group = null;
+    String groupName = null;
+
+    String currentMemberUuid = null;
+    
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      group = this.retrieveGroup(grouperSession);
+      groupName = group.getName();
+      
+      Set<Member> members = group.getMembers();
+      
+      HttpServletResponse response = GrouperUiJ2ee.retrieveHttpServletResponse(); 
+      
+      //say it is HTML, if not too late
+      if (!response.isCommitted()) {
+        response.setContentType("text/csv");
+      }
+    
+      //just write some stuff
+      PrintWriter out = null;
+    
+      try {
+        out = response.getWriter();
+      } catch (Exception e) {
+        throw new RuntimeException("Cant get response.getWriter: ", e);
+      }
+
+      
+      for (Member member : members) {
+        CSVWriter writer = new CSVWriter(out);
+        writer.writeNext(new String[]{"sourceId", "subjectId"});
+        // feed in your array (or convert your data to an array)
+        String[] entries = new String[]{member.getSubjectSourceId(), member.getSubjectId()};
+        writer.writeNext(entries);
+        writer.close();
+      }      
+            
+
+      throw new ControllerDone();
+    } catch (ControllerDone cd) {
+      throw cd;
+    } catch (Exception se) {
+      throw new RuntimeException("Error exporting all members from group: " + groupName 
+          + ", " + currentMemberUuid + ", " + se.getMessage(), se);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+
+  }
   
 }
