@@ -127,7 +127,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.252 2009-07-16 20:11:21 mchyzer Exp $
+ * @version $Id: Group.java,v 1.253 2009-08-10 13:59:27 isgwb Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -1118,7 +1118,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
                 if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                   
                   AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_ATTRIBUTE_DELETE, "id", 
-                      Group.this.getUuid(), "groupId", Group.this.getParentUuid(), 
+                      Group.this.getUuid(), "groupId", Group.this.getUuid(), 
                       "groupName", Group.this.getName(), "fieldId", Group.this.getDescription(),
                       "fieldName", attrName,  "value", attribute.getValue());
                   
@@ -1224,7 +1224,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
               EVENT_LOG.groupDelComposite( GrouperSession.staticGrouperSession(), composite, mof, sw );
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                 
-                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_COMPOSITE_ADD, "id", 
+                AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_COMPOSITE_DELETE, "id", 
                     composite.getUuid(), "ownerId", Group.this.getUuid(), "ownerName", Group.this.getName(), "leftFactorId", 
                     composite.getLeftFactorUuid(), "leftFactorName", leftGroupName, "rightFactorId", composite.getRightFactorUuid(), 
                     "rightFactorName", rightGroupName, "type", composite.getTypeDb());
