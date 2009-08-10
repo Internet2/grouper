@@ -1,10 +1,9 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.9 2009-08-10 16:48:42 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.10 2009-08-10 21:35:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.util.Properties;
 import java.util.Set;
@@ -610,6 +609,9 @@ public class SimpleMembershipUpdate {
       } else {
         guiResponseJs.addAction(GuiScreenAction.newHideShowNameToHide("simpleMembershipUpdateDeleteMultiple"));
       }
+    } else if (StringUtils.equals(menuItemId, "exportSubjectIds")) {
+      guiResponseJs.addAction(GuiScreenAction.newAlertFromJsp(
+          "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipUpdateExportSubjectIds.jsp"));
     } else {
       throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
     }
@@ -642,6 +644,26 @@ public class SimpleMembershipUpdate {
         + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuShowGroupDetails"), true) 
         + "\" type=\"checkbox\" " + showGroupDetailsChecked + "><tooltip>" 
         + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuShowGroupDetailsTooltip"), true) + "</tooltip></item>\n"
+        + "  <item id=\"importExport\" text=\"" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuImportExport"), true) 
+        + "\" ><tooltip>" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuImportExportTooltip"), true) + "</tooltip>\n"
+        + "    <item id=\"export\" text=\"" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExport"), true) 
+        + "\" ><tooltip>" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExportTooltip"), true) + "</tooltip>\n"
+        + "      <item id=\"exportSubjectIds\" text=\"" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExportSubjectIds"), true) 
+        + "\" ><tooltip>" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExportSubjectIdsTooltip"), true) + "</tooltip></item>\n"
+        + "      <item id=\"exportAll\" text=\"" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExportAll"), true) 
+        + "\" ><tooltip>" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExportAllTooltip"), true) + "</tooltip></item>\n"
+        //close the export
+        + "   </item>\n"
+        //close the import/export
+        + "  </item>\n"
         //+ "  <item id=\"m3\" text=\"Help\" type=\"checkbox\" checked=\"true\"/>\n"
         //+ "  <item id=\"radio1\" text=\"Radio1\" type=\"radio\" group=\"hlm\"/>\n"
         //+ "  <item id=\"radio2\" text=\"Radio2\" type=\"radio\" group=\"hlm\"/>\n"
@@ -793,11 +815,13 @@ public class SimpleMembershipUpdate {
       
       HttpServletResponse response = GrouperUiJ2ee.retrieveHttpServletResponse(); 
       
-      //say it is HTML, if not too late
-      if (!response.isCommitted()) {
-        response.setContentType("text/csv");
-      }
+      //say it is CSV
+      response.setContentType("text/csv");
     
+      String groupExtensionFileName = GuiGroup.getExportSubjectIdsFileNameStatic(group);
+      
+      response.setHeader ("Content-Disposition", "inline;filename=\"" + groupExtensionFileName + "\"");
+      
       //just write some stuff
       PrintWriter out = null;
     
@@ -808,14 +832,14 @@ public class SimpleMembershipUpdate {
       }
 
       
+      CSVWriter writer = new CSVWriter(out);
+      writer.writeNext(new String[]{"sourceId", "subjectId"});
       for (Member member : members) {
-        CSVWriter writer = new CSVWriter(out);
-        writer.writeNext(new String[]{"sourceId", "subjectId"});
         // feed in your array (or convert your data to an array)
         String[] entries = new String[]{member.getSubjectSourceId(), member.getSubjectId()};
         writer.writeNext(entries);
-        writer.close();
       }      
+      writer.close();
             
 
       throw new ControllerDone();

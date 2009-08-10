@@ -4,6 +4,7 @@
 package edu.internet2.middleware.grouper.grouperUi.json;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 
 
 /**
@@ -39,4 +40,27 @@ public class GuiGroup {
   public GuiGroup(Group theGroup) {
     this.group = theGroup;
   }
+  
+  /**
+   * the export subject ids file name
+   * @return the export subject ids file name
+   */
+  public String getExportSubjectIdsFileName() {
+    return getExportSubjectIdsFileNameStatic(this.group);
+  }
+  
+  /**
+   * static logic
+   * @param group
+   * @return the file name
+   */
+  public static String getExportSubjectIdsFileNameStatic(Group group) {
+    String groupExtensionFileName = group.getDisplayExtension();
+    
+    groupExtensionFileName = GuiUtils.stripNonFilenameChars(groupExtensionFileName);
+    
+    return "groupExportSubjectIds_" + groupExtensionFileName + ".csv";
+ 
+  }
+  
 }

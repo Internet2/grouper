@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
+import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.grouperUi.util.SessionInitialiser;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
@@ -237,31 +238,37 @@ public class GrouperUiJ2ee implements Filter {
 
   }
 
-  public void doFilter(ServletRequest request, ServletResponse response,
+  /**
+   * execute logic and pass up the line
+   * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
+   */
+  public void doFilter(ServletRequest arg0, ServletResponse response,
       FilterChain filterChain) throws IOException, ServletException {
 
+    HttpServletRequest httpServletRequest = new GrouperRequestWrapper((HttpServletRequest) arg0);
+    
     //servlet will set this...
     threadLocalServlet.remove();
-    threadLocalRequest.set((HttpServletRequest) request);
+    threadLocalRequest.set(httpServletRequest);
     threadLocalResponse.set((HttpServletResponse) response);
     threadLocalRequestStartMillis.set(System.currentTimeMillis());
     
     GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GROUPER_UI);
 
     //lets add the request, session, and response
-    HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_REQUEST, request, false);
+    HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_REQUEST, httpServletRequest, false);
     HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SESSION, 
-        ((HttpServletRequest)request).getSession(), false);
+        httpServletRequest.getSession(), false);
     HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_RESPONSE, response, false);
     SessionContainer sessionContainer = null;
     try {
 
       sessionContainer = SessionContainer.retrieveFromSession();
       if (!sessionContainer.isInitted()) {
-        SessionInitialiser.init((HttpServletRequest)request);
+        SessionInitialiser.init((HttpServletRequest)httpServletRequest);
       }
 
-      filterChain.doFilter(request, response);
+      filterChain.doFilter(httpServletRequest, response);
     } finally {
       if (sessionContainer != null) {
         sessionContainer.setInitted(true);

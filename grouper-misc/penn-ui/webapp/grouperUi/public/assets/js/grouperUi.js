@@ -347,7 +347,8 @@ function guiProcessAction(guiScreenAction) {
     $.unblockUI(); 
     //alert(guiScreenAction.alert);
     //$.modal.close();
-    $('<div class="simplemodal-guiinner"><br /><br />asdfasfdasdfsdf sd<br /><br /><br /><br /><br />asdfasdfasdfasdfasdfasdfasdf<br /><br /><br />asdfasdfasdfasdfasdfasdfasdfasdfasdfadsf<br /><br /><br /><br /><br />asdfasdfasdfasdfasdfadfasdfsadfasdfasfasdf<br /><br />' + guiScreenAction.alert + '</div><div class="simplemodal-buttonrow"><button class=\'simplemodal-close blueButton\'>OK</button></div>').modal();
+    $('<div class="simplemodal-guiinner">' 
+        + guiScreenAction.alert + '<div class="simplemodal-buttonrow"><button class=\'simplemodal-close blueButton\'>OK</button></div></div>').modal({close: true, position: [20,20]});
   }
   
 }

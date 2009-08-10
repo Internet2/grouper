@@ -25,11 +25,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 
 /**
@@ -38,11 +40,137 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.1 2009-08-08 06:19:52 mchyzer Exp $
+ * @version $Id: SessionInitialiser.java,v 1.2 2009-08-10 21:35:17 mchyzer Exp $
  */
 
 public class SessionInitialiser {
+  
+  /**
+   * 
+   */
+  public static final String RESOURCE_BUNDLE_KEY = "resourceBundleKey";
+
+  /** logger */
 	protected static Log LOG = LogFactory.getLog(SessionInitialiser.class);
+
+	/** cache the locale and resource bundles.  the multikey is the module, and the locale.
+	 * this gets the Object[], one for nav resource bundle, one for MapBundleWrapper, one for MapBundleWrapper (null), 
+	 * media, media wrapper, media wrapper null */
+  private static GrouperCache<MultiKey, Object[]> resourceBundleCache = 
+    new GrouperCache<MultiKey, Object[]>(SessionInitialiser.class.getName(), 500, false, 120, 120, false);
+
+  /**
+   * get a resource bundle based on multikey
+   * @param multiKey
+   * @param isNav true for nav, false for media
+   * @return the resource bundle
+   */
+  public static LocalizationContext retrieveLocalizationContext(MultiKey multiKey, boolean isNav) {
+    if (isNav) {
+      return (LocalizationContext)resourceBundles(multiKey)[0];
+    } 
+    return (LocalizationContext)resourceBundles(multiKey)[3];
+  }
+  
+  /**
+   * get a resource bundle based on multikey
+   * @param multiKey
+   * @param isNav true for nav, false for media
+   * @param returnNullsIfNotFound false if normal, true, is nulls if not found (e.g. mediaNullMap)
+   * @return the resource bundle
+   */
+  public static MapBundleWrapper retrieveMapBundleWrapper(MultiKey multiKey, boolean isNav, boolean returnNullsIfNotFound) {
+    
+    //  session.setAttribute("nav",
+    //      new javax.servlet.jsp.jstl.fmt.LocalizationContext(
+    //          chainedBundle));
+    //  session.setAttribute("navMap", new MapBundleWrapper(chainedBundle, false));
+    //  session.setAttribute("navNullMap", navBundleWrapperNull);
+
+    //  session.setAttribute("mediaMap", new MapBundleWrapper(
+    //      chainedMediaBundle, false));
+    //  //returns null if not there, not question marks
+    //  session.setAttribute("mediaNullMap", new MapBundleWrapper(
+    //      chainedMediaBundle, true));
+    
+    if (isNav) {
+      if (!returnNullsIfNotFound) {
+        return (MapBundleWrapper)resourceBundles(multiKey)[1];
+      }
+      return (MapBundleWrapper)resourceBundles(multiKey)[2];
+    }
+    if (!returnNullsIfNotFound) {
+      return (MapBundleWrapper)resourceBundles(multiKey)[4];
+    }
+    return (MapBundleWrapper)resourceBundles(multiKey)[5];
+  }
+  
+  
+
+    
+  /**
+   * get the resource bundle by name and local
+   * @param multiKey is the module, name (nav or media), and locale
+   * @return the resource bundle
+   */
+  public static Object[] resourceBundles( MultiKey multiKey) {
+    //new MultiKey(module, name, locale);
+    Object[] resourceBundles = resourceBundleCache.get(multiKey);
+    if (resourceBundles == null) {
+      synchronized(SessionInitialiser.class) {
+        resourceBundles = resourceBundleCache.get(multiKey);
+        if (resourceBundles == null) {
+          String module = (String)multiKey.getKey(0);
+          Locale localeObj = (Locale)multiKey.getKey(1);
+          
+          ResourceBundle grouperBundle = ResourceBundle.getBundle(
+              "resources.grouper.nav", localeObj);
+          ResourceBundle grouperMediaBundle = ResourceBundle.getBundle(
+              "resources.grouper.media", localeObj);
+
+          ChainedResourceBundle chainedBundle = null;
+          ChainedResourceBundle chainedMediaBundle = null;
+
+          if (module.equals("i2mi") || module.equals("grouper")) {
+            chainedBundle = new ChainedResourceBundle(grouperBundle,
+                "navResource");
+            chainedMediaBundle = new ChainedResourceBundle(grouperMediaBundle,
+                "mediaResource");
+          } else {
+            ResourceBundle moduleBundle = ResourceBundle.getBundle("resources."
+                + module + ".nav", localeObj);
+            ResourceBundle moduleMediaBundle = ResourceBundle.getBundle(
+                "resources." + module + ".media", localeObj);
+            chainedBundle = new ChainedResourceBundle(moduleBundle,
+                "navResource");
+            chainedBundle.addBundle(grouperBundle);
+
+            chainedMediaBundle = new ChainedResourceBundle(moduleMediaBundle,
+                "mediaResource");
+            chainedMediaBundle.addBundle(grouperMediaBundle);
+          }
+          
+          MapBundleWrapper navBundleWrapperNull = new MapBundleWrapper(chainedBundle, true);
+
+          addIncludeExcludeDefaults(chainedBundle, navBundleWrapperNull);
+
+          resourceBundles = new Object[]{
+              new javax.servlet.jsp.jstl.fmt.LocalizationContext(chainedBundle),
+              new MapBundleWrapper(chainedBundle, false),
+              navBundleWrapperNull,
+              new javax.servlet.jsp.jstl.fmt.LocalizationContext(chainedMediaBundle),
+              new MapBundleWrapper(chainedMediaBundle, false),
+              new MapBundleWrapper(chainedMediaBundle, true),
+          };
+          
+          resourceBundleCache.put(multiKey, resourceBundles);
+        }
+      }
+    }
+    return resourceBundles;
+  }
+  
+  
 	/**
 	 * Sets locale and calls any module specific initialisation
 	 * 
@@ -61,13 +189,16 @@ public class SessionInitialiser {
   		}
   		
   		session.setAttribute("org.apache.struts.action.LOCALE", locale);
+      session.setAttribute("locale", locale);
   
+      SessionInitialiser.init(null, session);
+
   		if(locale!=null) {
   			SessionInitialiser.init(null, locale.toString(), session);
   		}else{
   			SessionInitialiser.init(null, null, session);
   		}
-  		session.setAttribute("javax.servlet.jsp.jstl.fmt.locale", locale);
+      session.setAttribute("javax.servlet.jsp.jstl.fmt.locale", locale);
   
   		//session.setAttribute("sessionInited", localeStr);
 	  } catch (Exception e) {
@@ -111,7 +242,12 @@ public class SessionInitialiser {
 			LOG.debug("Selecting default module");
 			module = defaultInit.getString("default.module");
 		}
+    if (module != null){
+      module = module.replaceAll("^/", "");
+    }
 		LOG.debug("module="+module);
+		
+		
 		ResourceBundle moduleInit = ResourceBundle.getBundle("/resources/"
 				+ module + "/init");
 		if (locale == null || locale.equals("")) {
@@ -120,52 +256,13 @@ public class SessionInitialiser {
 		}
 		LOG.debug("locale=" + locale);
 		Locale localeObj = createLocale(locale);
-		ResourceBundle grouperBundle = ResourceBundle.getBundle(
-				"resources.grouper.nav", localeObj);
-		ResourceBundle grouperMediaBundle = ResourceBundle.getBundle(
-				"resources.grouper.media", localeObj);
-
-		ChainedResourceBundle chainedBundle = null;
-		ChainedResourceBundle chainedMediaBundle = null;
-
-		if (module.equals("i2mi") || module.equals("grouper")) {
-			chainedBundle = new ChainedResourceBundle(grouperBundle,
-					"navResource");
-			chainedMediaBundle = new ChainedResourceBundle(grouperMediaBundle,
-					"mediaResource");
-		} else {
-			ResourceBundle moduleBundle = ResourceBundle.getBundle("resources."
-					+ module + ".nav", localeObj);
-			ResourceBundle moduleMediaBundle = ResourceBundle.getBundle(
-					"resources." + module + ".media", localeObj);
-			chainedBundle = new ChainedResourceBundle(moduleBundle,
-					"navResource");
-			chainedBundle.addBundle(grouperBundle);
-
-			chainedMediaBundle = new ChainedResourceBundle(moduleMediaBundle,
-					"mediaResource");
-			chainedMediaBundle.addBundle(grouperMediaBundle);
-		}
+		    
+		MultiKey resourceBundlesKey = new MultiKey(module, localeObj);
 		
-		//add in properties from grouper.config
-    MapBundleWrapper navBundleWrapperNull = new MapBundleWrapper(chainedBundle, true);
-
-    addIncludeExcludeDefaults(chainedBundle, navBundleWrapperNull);
+    session.setAttribute(RESOURCE_BUNDLE_KEY, resourceBundlesKey);
     
-		session.setAttribute("nav",
-				new javax.servlet.jsp.jstl.fmt.LocalizationContext(
-						chainedBundle));
-		session.setAttribute("navMap", new MapBundleWrapper(chainedBundle, false));
-    session.setAttribute("navNullMap", navBundleWrapperNull);
-
-		session.setAttribute("media",
-				new javax.servlet.jsp.jstl.fmt.LocalizationContext(
-						chainedMediaBundle));
-		session.setAttribute("mediaMap", new MapBundleWrapper(
-				chainedMediaBundle, false));
-		//returns null if not there, not question marks
-    session.setAttribute("mediaNullMap", new MapBundleWrapper(
-        chainedMediaBundle, true));
+    ResourceBundle chainedMediaBundle = retrieveLocalizationContext(resourceBundlesKey, false).getResourceBundle();
+    
 		String pageSizes = chainedMediaBundle
 				.getString("pager.pagesize.selection");
 
@@ -180,7 +277,7 @@ public class SessionInitialiser {
 		} catch (Exception e) {
 
 		}
-		GrouperSession s = getGrouperSession(session);
+		getGrouperSession(session);
 		//@TODO: should we split the personalStemRoot and create
 		//any stems which are missing
 

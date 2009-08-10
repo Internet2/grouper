@@ -8,7 +8,7 @@
 
 <grouperGui:subtitle key="simpleMembershipUpdate.groupSubtitle" />
 
-<div class="sectionBody">
+<div class="sectionBody" style="min-width: 500px">
 <table border="0" cellpadding="0" cellspacing="0">
   <tr valign="top">
     <td>
@@ -91,12 +91,11 @@ contextZoneJqueryHandle="#advancedLink" contextMenu="true" />
   <grouperGui:subtitle key="simpleMembershipUpdate.addMemberSubtitle" />
 
   <div class="sectionBody">
-    <img src="../public/assets/images/spacer.gif" alt="" width="900" height="1" />
     <form id="simpleMembershipUpdateAddMemberForm" name="simpleMembershipUpdateAddMemberForm" action="whatever">
-    <table width="900">
+    <div class="combohint"><grouperGui:message key="simpleMembershipUpdate.addMemberCombohint"/></div>
+    <table width="900" cellpadding="0" cellspacing="0">
       <tr valign="top">
-        <td>
-          
+        <td style="padding: 0px" width="710">
           <grouperGui:combobox filterOperation="SimpleMembershipUpdate.filterUsers" id="simpleMembershipUpdateAddMember" 
             width="700"/>
           
@@ -113,7 +112,7 @@ contextZoneJqueryHandle="#advancedLink" contextMenu="true" />
   </div>
 </div>
 
-<div id="simpleMembershipResultsList"></div>
+<div id="simpleMembershipResultsList" style="min-width: 500px"></div>
 
 </div>
 

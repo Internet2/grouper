@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiUtils.java,v 1.5 2009-08-10 03:27:45 mchyzer Exp $
+ * $Id: GuiUtils.java,v 1.6 2009-08-10 21:35:17 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
@@ -58,6 +58,28 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 public class GuiUtils {
 
+  /**
+   * keep a-z, A-Z, 0-9, underscore, dash
+   * @param string
+   * @return the string (or empty if nothing left
+   */
+  public static String stripNonFilenameChars(String string) {
+    if (string == null) {
+      return "";
+    }
+    StringBuilder result = new StringBuilder();
+    
+    //strip non filename chars
+    for (int i=0;i<string.length();i++) {
+      char theChar = string.charAt(i);
+      if ((theChar >= 'a' && theChar <= 'z') || (theChar >= 'A' && theChar <= 'Z')
+          || (theChar >= '0' && theChar <= '9') || theChar == '_' || theChar == '-') {
+        result.append(theChar);
+      }
+    }
+    return result.toString();
+  }
+  
   /**
    * lookup something in nav.properties (localized), substitute args
    * @param key

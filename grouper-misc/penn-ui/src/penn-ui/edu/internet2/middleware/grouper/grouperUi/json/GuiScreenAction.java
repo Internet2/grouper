@@ -230,7 +230,7 @@ public class GuiScreenAction {
   }
   
   /**
-   * construct with the name and object
+   * construct with the name and JSP name
    * @param htmlReplaceJqueryHandle1 e.g. #someId
    * @param jspName e.g. /WEB-INF/templates/something.jsp
    * @return the action
@@ -241,6 +241,20 @@ public class GuiScreenAction {
     
     guiScreenAction.setInnerHtmlJqueryHandle(htmlReplaceJqueryHandle1);
     guiScreenAction.setInnerHtml(jspContents);
+    
+    return guiScreenAction;
+  }
+  
+  /**
+   * construct with JSP name
+   * @param jspName e.g. /WEB-INF/templates/something.jsp
+   * @return the action
+   */
+  public static GuiScreenAction newAlertFromJsp(String jspName) {
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    String jspContents = GuiUtils.convertJspToString(jspName);
+    
+    guiScreenAction.setAlert(jspContents);
     
     return guiScreenAction;
   }
