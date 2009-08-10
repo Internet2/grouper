@@ -23,8 +23,7 @@
 
   <!-- validate the build.properties -->
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): webapp.name" unless="webapp.name" />
-  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): dist.home" unless="dist.home" />
-    <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.home" unless="grouper.home" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.home" unless="grouper.home" />
   
   <path id="ui.class.path">
     <!-- Make available jar files that Grouper needs -->
