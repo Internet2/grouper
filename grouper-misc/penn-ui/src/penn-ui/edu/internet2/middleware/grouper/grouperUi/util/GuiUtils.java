@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiUtils.java,v 1.4 2009-08-08 06:19:52 mchyzer Exp $
+ * $Id: GuiUtils.java,v 1.5 2009-08-10 03:27:45 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
@@ -97,6 +97,15 @@ public class GuiUtils {
     
   }
   
+  /**
+   * lookup something in nav.properties (localized)
+   * @param key
+   * @return the message
+   */
+  public static String message(String key) {
+    return message(key, false);
+  }
+
   /**
    * lookup something in nav.properties (localized)
    * @param key
@@ -389,7 +398,7 @@ public class GuiUtils {
     //only append image if there is one
     if (!StringUtils.isBlank(imageUrl)) {
       if (!imageUrl.contains("/")) {
-        imageUrl = "../public/assets/" + imageUrl;
+        imageUrl = "../public/assets/images/" + imageUrl;
       }
 
       result.append(" img_src=\"" + escapeHtml(imageUrl, true) + "\"");
@@ -552,7 +561,7 @@ public class GuiUtils {
     }
     String imageName = subjectImageMap.get(sourceId);
     if (!StringUtils.isBlank(imageName)) {
-      imageName = "../public/assets/" + imageName;
+      imageName = "../public/assets/images/" + imageName;
     }
     return imageName;
   }
@@ -786,7 +795,7 @@ public class GuiUtils {
 
   /**
    * convert a jsp to string.  This doesnt work from unit tests, but will work from web requests or daemons
-   * @param jspName e.g. whatever.jsp, or /assetsJsp/something.jsp
+   * @param jspName e.g. whatever.jsp, or /somePath/something.jsp
    * @return the eval version of the jsp
    */
   public static String convertJspToString(String jspName) {

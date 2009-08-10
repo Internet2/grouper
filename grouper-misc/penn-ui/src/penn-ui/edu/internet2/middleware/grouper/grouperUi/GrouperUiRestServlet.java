@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.5 2009-08-08 06:19:52 mchyzer Exp $
+ * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.6 2009-08-10 03:27:45 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi;
 
@@ -63,7 +63,8 @@ public class GrouperUiRestServlet extends HttpServlet {
 
   /** uris that it is ok to get (e.g. auto complete and other ajax components */
   private static Set<String> operationsOkGet = GrouperUtil.toSet(
-      "SimpleMembershipUpdate.filterUsers", "SimpleMembershipUpdate.filterGroups");
+      "SimpleMembershipUpdate.filterUsers", "SimpleMembershipUpdate.filterGroups",
+      "SimpleMembershipUpdate.advancedMenuStructure");
   
   /**
    * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)

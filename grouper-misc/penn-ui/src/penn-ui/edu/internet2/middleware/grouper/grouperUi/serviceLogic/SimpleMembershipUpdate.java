@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.6 2009-08-08 06:19:52 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.7 2009-08-10 03:27:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -150,8 +150,8 @@ public class SimpleMembershipUpdate {
     
     //setup a hideShow
     GuiHideShow.init("simpleMembershipUpdateAdvanced", false, 
-        GuiUtils.message("simpleMembershipUpdate.hideAdvancedOptionsButton", false), 
-        GuiUtils.message("simpleMembershipUpdate.showAdvancedOptionsButton", false), true);
+        GuiUtils.message("simpleMembershipUpdate.hideAdvancedOptionsButton"), 
+        GuiUtils.message("simpleMembershipUpdate.showAdvancedOptionsButton"), true);
     GuiHideShow.init("simpleMembershipUpdateGroupDetails", false, 
         GuiUtils.message("simpleMembershipUpdate.hideGroupDetailsButton", false),
         GuiUtils.message("simpleMembershipUpdate.showGroupDetailsButton", false), true);
@@ -577,5 +577,42 @@ public class SimpleMembershipUpdate {
     throw new ControllerDone();
 
   }
-  
+
+  /**
+   * handle a click or select from the advanced menu
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void advancedMenu(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    String menuItemId = httpServletRequest.getParameter("menuItemId");
+    String menuHtmlId = httpServletRequest.getParameter("menuHtmlId");
+    String menuRadioGroup = httpServletRequest.getParameter("menuRadioGroup");
+    String menuCheckboxChecked  = httpServletRequest.getParameter("menuCheckboxChecked");
+
+    guiResponseJs.addAction(GuiScreenAction.newAlert("Menu action: menuItemId: " + menuItemId
+        + ", menuHtmlId: " + menuHtmlId 
+        + ", menuRadioGroup: " 
+        + menuRadioGroup + ", menuCheckboxChecked: " + menuCheckboxChecked));
+  }
+
+  /**
+   * make the structure of the advanced menu
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void advancedMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    GuiUtils.printToScreen(
+        "<?xml version=\"1.0\"?>\n"
+        + "<menu>\n"
+        + "  <item id=\"multiDelete\" text=\"" 
+          + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuDeleteMultiple"), true) 
+          + "\" type=\"checkbox\" ><tooltip>" 
+          + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuDeleteMultipleTooltip"), true) + "</tooltip></item>\n"
+        //+ "  <item id=\"m3\" text=\"Help\" type=\"checkbox\" checked=\"true\"/>\n"
+        //+ "  <item id=\"radio1\" text=\"Radio1\" type=\"radio\" group=\"hlm\"/>\n"
+        //+ "  <item id=\"radio2\" text=\"Radio2\" type=\"radio\" group=\"hlm\"/>\n"
+        + "</menu>", "text/xml", false, false);
+    throw new ControllerDone();
+  }
 }

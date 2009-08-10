@@ -1,9 +1,25 @@
 
 function guiRoundCorners() {
   //round those corners
-  Nifty("div.sectionBody", "bottom");   
-  Nifty("div.sectionHeader", "top");   
-  Nifty("div#navbar"); 
+  //IE messes up
+  if (!jQuery.browser.msie) {
+    Nifty("div.sectionBody", "bottom");   
+    Nifty("div.sectionHeader", "top");   
+    Nifty("div#navbar"); 
+  }  
+}
+
+/**
+ * function called onload page
+ */
+function guiOnload() {
+  guiRoundCorners();
+  
+  var theJavascriptMessage = document.getElementById('javascriptMessage');
+  
+  if (!guiIsEmpty(theJavascriptMessage)) {
+    theJavascriptMessage.style.display = 'none'; 
+  }
   
 }
 
@@ -148,51 +164,6 @@ function guiRegisterDhtmlxCombo(divId, width, useImages, filterUrl ) {
   
 }
 
-/** object represents helpers in drawing html etc */
-function PageHelpers() {
-
-  /** logout object back from ajax call */
-  this.logoutObject = null;
-
-  /** called when logout URL is processed */
-  this.logoutAction = function() {
-  
-    //check here instead of where the button is clicked, so that
-    //back button will check
-    var theLogout = confirm("Are you sure you want to log out?");
-    
-    if (theLogout) {
-      allObjects.clearActionObjects();
-      ajax('../app/Misc/logout');
-    }
-  }
-
-  /** called after logout ajax is processed */
-  this.pageHelpersLogoutActionResult = function(theLogoutObject) {
-      allObjects.pageHelpers.logoutObject = theLogoutObject;
-      replaceHtmlWithTemplate('#bodyDiv', 'common.logout.html');
-      $("#topDiv").html("");
-  };
-
-
-  /** confirm, then logout the user */ 
-  this.logout = function(event) {
-
-    eventCancelBubble(event);
-    
-    //var hash = this.href;
-    //hash = hash.replace(/^.*#/, '');
-    
-    // moves to a new page. 
-    // pageload is called at once. 
-    // hash don't contain "#", "?"
-    $.historyLoad(URLEncode("operation=logout"));
-
-    return false;
-  }
-
-}
-
 
 /** starting point for all objects */
 function AllObjects() {
@@ -200,8 +171,6 @@ function AllObjects() {
   this.guiSettings = null;
 
   this.appState = new AppState();
-
-  this.pageHelpers = new PageHelpers();
 
   this.simpleMembershipUpdate = null;
 
@@ -398,7 +367,36 @@ function guiToggle(event, jqueryElementKey) {
   return false;
 }
 
-/** call this from button to hide/show some text */
+/** 
+ * call this from button to hide/show some text
+ * 
+ * Each hide show has a name, and it should be unique in the app, so be explicit, 
+ * below you see "hideShowName", that means whatever name you pick
+ * 
+ * First add this css class to elements which should show when the state is show:
+ * shows_hideShowName
+ * 
+ * Then add this to things which are in the opposite toggle state: hides_hideShowName
+ * 
+ * Then add this to the button(s):
+ * buttons_hideShowName
+ *  
+ * In the business logic, you must init the hide show before the JSP draws (this has name,
+ * text when shown, hidden, if show initially, and if store in session):
+ * GuiHideShow.init("simpleMembershipUpdateAdvanced", false, 
+ *    GuiUtils.message("simpleMembershipUpdate.hideAdvancedOptionsButton"), 
+ *       GuiUtils.message("simpleMembershipUpdate.showAdvancedOptionsButton"), true);
+ *
+ * Finally, use these EL functions to display the state correctly in JSP:
+ * Something that is hidden/shown
+ * style="${grouperGui:hideShowStyle('hideShowName', true)}
+ * 
+ * Button text:
+ * ${grouperGui:hideShowButtonText('hideShowName')}
+ * 
+ * In the button, use this onclick:
+ * onclick="return guiHideShow(event, 'hideShowName');"
+ */
 function guiHideShow(event, hideShowName) {
   eventCancelBubble(event);
   
@@ -727,4 +725,89 @@ function isEmpty(x) {
 }
 
 /** END GROUPER UI FUNCTIONS */
+
+/**
+ * @param menuId is the id of the HTML element of the menu
+ * @param operation is when events occur (onclick), then that operation is called via ajax
+ * @param structureOperation is the operation called to define the structure of the menu
+ * contextZoneJqueryHandle is the jquery handle (e.g. #someId) which this menu should be attached to.  note
+ * that any element you are attaching to must have an id attribute defined
+ * @param isContextMenu is true if context menu, false if not
+ */
+function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu, contextZoneJqueryHandle) {
+// here is the long hand form of this method
+//  var menu;
+//  function initAdvancedMenu() {
+//
+//    menu = new dhtmlXMenuObject("advancedMenu", "dhx_blue");
+//    menu.addContextZone("advancedLink");
+//    menu.setImagePath("../public/assets/dhtmlx/menu/imgs/");
+//    menu.setIconsPath("../public/assets/dhtmlx/menu/icons/");
+//
+//    menu.renderAsContextMenu();
+//    //menu.loadXML("dhtmlxmenu.xml?e="+new Date().getTime());
+//    menu.loadXML("../app/SimpleMembershipUpdate.advancedMenuStructure");
+//    menu.attachEvent("onClick", function(id, zoneId, casState){
+//      menu.hideContextMenu();
+//      ajax("SimpleMembershipUpdate.advancedMenu", {requestParams: {menuHtmlId: zoneId, menuItemId: id }});
+//    });
+//    menu.attachEvent("onCheckboxClick", function(id, state, zoneId, casState){
+//      menu.hideContextMenu();
+//      ajax("SimpleMembershipUpdate.advancedMenu", {requestParams: {menuHtmlId: zoneId, menuItemId: id, menuCheckboxChecked: !state }});
+//      return true;
+//    });
+//    menu.attachEvent("onRadioClick", function(group, idChecked, idClicked, zoneId, casState){
+//      menu.hideContextMenu();
+//      ajax("SimpleMembershipUpdate.advancedMenu", {requestParams: {menuHtmlId: zoneId, menuRadioGroup: group, menuItemId: idClicked }});
+//      return true;
+//    });
+//    
+//  }
+//  $(document).ready(initAdvancedMenu);
+
+  
+  var theFunction = function() {
+
+    var menu = new dhtmlXMenuObject(menuId, "dhx_blue");
+    if (isContextMenu) {
+      menu.renderAsContextMenu();
+      var elements = $(contextZoneJqueryHandle);
+      if (guiIsEmpty(elements)) {
+        alert("Cant find context zone elements for menu: " + menuId + ", " + contextZoneJqueryHandle);
+      }
+      for (var i=0; i<elements.length; i++) {
+        if (guiIsEmpty(elements[i].id)) {
+          alert("Cant find id in html context zone element: " + menuId); 
+        }
+        menu.addContextZone(elements[i].id);
+      }
+    }
+    menu.setImagePath("../public/assets/dhtmlx/menu/imgs/");
+    menu.setIconsPath("../public/assets/dhtmlx/menu/icons/");
+  
+    //menu.loadXML("dhtmlxmenu.xml?e="+new Date().getTime());
+    if (!guiStartsWith(structureOperation, "../app/" )) {
+      structureOperation = "../app/" + structureOperation; 
+    }
+    menu.loadXML(structureOperation);
+    
+    menu.attachEvent("onClick", function(id, zoneId, casState){
+      menu.hideContextMenu();
+      ajax(operation, {requestParams: {menuHtmlId: zoneId, menuItemId: id }});
+    });
+    menu.attachEvent("onCheckboxClick", function(id, state, zoneId, casState){
+      menu.hideContextMenu();
+      ajax(operation, {requestParams: {menuHtmlId: zoneId, menuItemId: id, menuCheckboxChecked: !state }});
+      return true;
+    });
+    menu.attachEvent("onRadioClick", function(group, idChecked, idClicked, zoneId, casState){
+      menu.hideContextMenu();
+      ajax(operation, {requestParams: {menuHtmlId: zoneId, menuRadioGroup: group, menuItemId: idClicked }});
+      return true;
+    });
+  };
+  $(document).ready(theFunction);
+
+}
+
 

@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GroupBreadcrumbTag.java,v 1.2 2009-08-08 06:19:52 mchyzer Exp $
+ * $Id: GroupBreadcrumbTag.java,v 1.3 2009-08-10 03:27:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.tags;
 
@@ -29,11 +29,11 @@ public class GroupBreadcrumbTag extends SimpleTagSupport  {
     //<div class="browseStemsLocation">
     //  <strong>Current location is:</strong>
     //  <br><div class="currentLocationList">
-    //    <img onmouseover="grouperTooltip('Folder - A tree structure used to organize groups, subfolders, and folder-level permissions');" onmouseout="UnTip()" src="../public/assets/folderOpen.gif" class="groupIcon" alt="">Root:  
-    //    <img onmouseover="grouperTooltip('Folder - A tree structure used to organize groups, subfolders, and folder-level permissions');" onmouseout="UnTip()" src="../public/assets/folderOpen.gif" class="groupIcon" alt="">penn:
-    //    <img onmouseover="grouperTooltip('Folder - A tree structure used to organize groups, subfolders, and folder-level permissions');" onmouseout="UnTip()" src="../public/assets/folderOpen.gif" class="groupIcon" alt="Folder">etc:  
+    //    <img onmouseover="grouperTooltip('Folder - A tree structure used to organize groups, subfolders, and folder-level permissions');" onmouseout="UnTip()" src="../public/assets/images/folderOpen.gif" class="groupIcon" alt="">Root:  
+    //    <img onmouseover="grouperTooltip('Folder - A tree structure used to organize groups, subfolders, and folder-level permissions');" onmouseout="UnTip()" src="../public/assets/images/folderOpen.gif" class="groupIcon" alt="">penn:
+    //    <img onmouseover="grouperTooltip('Folder - A tree structure used to organize groups, subfolders, and folder-level permissions');" onmouseout="UnTip()" src="../public/assets/images/folderOpen.gif" class="groupIcon" alt="Folder">etc:  
     //<span class="browseStemsLocationHere">
-    //    <img onmouseover="grouperTooltip('Group - A collection of entities (members) which can be people, other groups or other things (e.g., resources)');" onmouseout="UnTip()" src="../public/assets/group.gif" class="groupIcon" alt="Folder">ldapUsers</span>
+    //    <img onmouseover="grouperTooltip('Group - A collection of entities (members) which can be people, other groups or other things (e.g., resources)');" onmouseout="UnTip()" src="../public/assets/images/group.gif" class="groupIcon" alt="Folder">ldapUsers</span>
     //</div></div>
     result.append("<div class=\"browseStemsLocation\"><strong>" + GuiUtils.message("simpleMembershipUpdate.find.browse.here", false)
         + " </strong> &nbsp; \n");
@@ -43,7 +43,7 @@ public class GroupBreadcrumbTag extends SimpleTagSupport  {
       if (i != GrouperUtil.length(names)-1) {
         result.append("<img onmouseover=\"grouperTooltip(\'" 
             + GuiUtils.escapeHtml(GuiUtils.message("stem.icon.tooltip", false), true, true) 
-            + "\');\" onmouseout=\"UnTip()\" src=\"../public/assets/folderOpen.gif\" "
+            + "\');\" onmouseout=\"UnTip()\" src=\"../public/assets/images/folderOpen.gif\" "
           + "class=\"groupIcon\" alt=\"" + GuiUtils.message("stem.icon.alt", false) + "\"/>" 
           + GuiUtils.escapeHtml(names[i], true, false) + ": ");
         
@@ -51,7 +51,7 @@ public class GroupBreadcrumbTag extends SimpleTagSupport  {
         result.append("<span class=\"browseStemsLocationHere\">\n"
           + "<img onmouseover=\"grouperTooltip(\'" 
           + GuiUtils.escapeHtml(GuiUtils.message("group.icon.tooltip", true), true, true) + "\');\" onmouseout=\"UnTip()\""
-          + " src=\"../public/assets/group.gif\" class=\"groupIcon\" alt=\"" + GuiUtils.message("group.icon.alt", true) 
+          + " src=\"../public/assets/images/group.gif\" class=\"groupIcon\" alt=\"" + GuiUtils.message("group.icon.alt", true) 
           + "\"/>" + GuiUtils.escapeHtml(names[i], true, false) + "</span>\n");
       }
     }

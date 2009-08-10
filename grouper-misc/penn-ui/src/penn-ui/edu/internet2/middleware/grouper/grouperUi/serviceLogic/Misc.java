@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: Misc.java,v 1.3 2009-08-05 06:38:25 mchyzer Exp $
+ * $Id: Misc.java,v 1.4 2009-08-10 03:27:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -14,7 +14,6 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.grouperUi.GrouperUiCustomizer;
 import edu.internet2.middleware.grouper.grouperUi.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.json.GuiScreenAction;
-import edu.internet2.middleware.grouper.grouperUi.json.LogoutObject;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -40,9 +39,7 @@ public class Misc {
    * 
    * @param request
    * @param response
-   * @return the bean to go to the screen, or null if none
    */
-  @SuppressWarnings({ "cast", "unchecked" })
   public void logout(HttpServletRequest request, HttpServletResponse response) {
     
     Properties propertiesSettings = GrouperUtil.propertiesFromResourceName(
@@ -59,14 +56,12 @@ public class Misc {
 
     //custom logic
     GrouperUiCustomizer.instance().logout();
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#bodyDiv", 
+        "/WEB-INF/grouperUi/templates/misc/logout.jsp"));
     
-    LogoutObject logoutObject = new LogoutObject();
-    logoutObject.setSuccess(true);
-
-//TODO
-//    replaceHtmlWithTemplate('#bodyDiv', 'common.logout.html');
-//    $("#topDiv").html("");
-
+    guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#topDiv", ""));
   
   }
   

@@ -189,5 +189,20 @@ public class GuiScreenAction {
     this.assignmentObject = assignmentObject1;
   }
 
+  /**
+   * construct with the name and object
+   * @param htmlReplaceJqueryHandle1 e.g. #someId
+   * @param html is html to put on screen
+   * @return the action
+   */
+  public static GuiScreenAction newInnerHtml(String htmlReplaceJqueryHandle1, String html) {
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    
+    guiScreenAction.setInnerHtmlJqueryHandle(htmlReplaceJqueryHandle1);
+    guiScreenAction.setInnerHtml(html);
+    
+    return guiScreenAction;
+  }
+
 
 }

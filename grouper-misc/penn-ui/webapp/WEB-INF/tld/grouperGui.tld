@@ -340,4 +340,16 @@ name of pager (should be unique in the whole app)
       &lt;div style="${grouperGui:hideShowStyle('someName', true)}" ...
     </example>
   </function>
+  <function>
+    <description>
+      Prints out appropriate button text for hide show.
+      Pass in the name of the hide show.
+    </description>
+    <name>hideShowButtonText</name>
+    <function-class>edu.internet2.middleware.grouper.grouperUi.tags.GrouperUiFunctions</function-class>
+    <function-signature>String hideShowButtonText(java.lang.String)</function-signature>
+    <example>
+      &lt;a href="#" onclick="onclick="return guiHideShow(event, 'hideShowName');"&gt;${grouperGui:hideShowButtonText('hideShowName')}&lt;/a&gt;
+    </example>
+  </function>
 </taglib>

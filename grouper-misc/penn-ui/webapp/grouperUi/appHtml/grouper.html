@@ -5,16 +5,20 @@
   
     <script type="text/javascript" src="../public/assets/dhtmlx/dhtmlxcommon.js"></script>
     <script type="text/javascript" src="../public/assets/dhtmlx/dhtmlxcombo.js"></script>
+
+    <script type="text/javascript" src="../public/assets/dhtmlx/dhtmlxmenu.js"></script>
+    <link rel="stylesheet" type="text/css" href="../public/assets/dhtmlx/menu/skins/dhtmlxmenu_dhx_blue.css" />
+
     <script type="text/javascript" src="../public/assets/dhtmlx/ext/dhtmlxcombo_extra.js"></script>
     
     
-    <script type="text/javascript" src="../public/assets/jquery.js"></script>
-    <script type="text/javascript" src="../public/assets/jquery.history.js"></script>
-    <script type="text/javascript" src="../public/assets/json.js"></script>
-    <script type="text/javascript" src="../public/assets/jquery.blockUI.js"></script>
+    <script type="text/javascript" src="../public/assets/js/jquery.js"></script>
+    <script type="text/javascript" src="../public/assets/js/jquery.history.js"></script>
+    <script type="text/javascript" src="../public/assets/js/json.js"></script>
+    <script type="text/javascript" src="../public/assets/js/jquery.blockUI.js"></script>
     <script type="text/javascript">
         $().ajaxStop($.unblockUI); 
-        $.blockUI.defaults.message = "<img src='../public/assets/busy.gif' alt='busy'/>";
+        $.blockUI.defaults.message = "<img src='../public/assets/images/busy.gif' alt='busy'/>";
         $.blockUI.defaults.css.border = 'none';
         $.blockUI.defaults.css.backgroundColor = 'transparent';
         $.blockUI.defaults.overlayCSS.opacity = '0.02';
@@ -23,10 +27,10 @@
         $.blockUI.defaults.timeout = '30000';
     </script>
 
-    <script type="text/javascript" src="../public/assets/jquery.simplemodal.js"></script>
-    <link rel="stylesheet" type="text/css" href="../public/assets/jquery.simplemodal.css" />
-    <script type="text/javascript" src="../public/assets/grouperUi.js"></script>
-    <link rel="stylesheet" type="text/css" href="../public/assets/grouperUi.css" />
+    <script type="text/javascript" src="../public/assets/js/jquery.simplemodal.js"></script>
+    <link rel="stylesheet" type="text/css" href="../public/assets/css/jquery.simplemodal.css" />
+    <script type="text/javascript" src="../public/assets/js/grouperUi.js"></script>
+    <link rel="stylesheet" type="text/css" href="../public/assets/css/grouperUi.css" />
     <link rel="stylesheet" type="text/css" href="../public/assets/dhtmlx/dhtmlxcombo.css" />
 
     <script type="text/javascript" src="../public/assets/nifty/niftycube.js"></script>
@@ -39,8 +43,8 @@
     <title></title>
   </head>
 
-  <body onload="guiRoundCorners(); document.getElementById('javascriptMessage').style.display = 'none'">
-    <script type="text/javascript" src="../public/assets/wz_tooltip.js"></script>
+  <body onload="guiOnload()">
+    <script type="text/javascript" src="../public/assets/js/wz_tooltip.js"></script>
 
     <div id="topDiv">
       <!-- a template for the top will be inserted here -->

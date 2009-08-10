@@ -63,7 +63,17 @@
 </table>
 <div style="margin-bottom: 8px;"><a class="smallLink buttons_simpleMembershipUpdateGroupDetails"
   onclick="return guiHideShow(event, 'simpleMembershipUpdateGroupDetails');" href="#"
-><grouperGui:message key="simpleMembershipUpdate.groupDetails" /></a></div>
+>${grouperGui:hideShowButtonText('simpleMembershipUpdateGroupDetails') }</a>
+
+<a id="advancedLink" href="#" class="smallLink" onclick="this.oncontextmenu(event); return false">Advanced</a>
+
+<span id="advancedMenu" ></span>
+<script type="text/javascript">
+guiInitDhtmlxMenu("advancedMenu", "SimpleMembershipUpdate.advancedMenu", 
+    "SimpleMembershipUpdate.advancedMenuStructure", true, "#advancedLink");
+</script>
+
+</div>
 
 </div>
 </div>
@@ -73,7 +83,7 @@
   <grouperGui:subtitle key="simpleMembershipUpdate.addMemberSubtitle" />
 
   <div class="sectionBody">
-    <img src="../public/assets/spacer.gif" alt="" width="900" height="1" />
+    <img src="../public/assets/images/spacer.gif" alt="" width="900" height="1" />
     <form id="simpleMembershipUpdateAddMemberForm" name="simpleMembershipUpdateAddMemberForm" action="whatever">
     <table width="900">
       <tr valign="top">

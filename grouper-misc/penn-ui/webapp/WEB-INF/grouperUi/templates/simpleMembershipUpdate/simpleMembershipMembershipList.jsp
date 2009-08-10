@@ -17,7 +17,7 @@
 
     <div class="memberLink"><%-- input type="checkbox"    / --%> 
     <a href="#" onclick="if (confirm('${grouperGui:message('simpleMembershipUpdate.deleteConfirm', true, true) }')) {ajax('SimpleMembershipUpdate.deleteSingle?memberId=${guiMember.member.uuid}');} return false;" 
-    ><img src="../public/assets/page_cross.gif" height="14px" border="0" 
+    ><img src="../public/assets/images/page_cross.gif" height="14px" border="0" 
     alt="${grouperGui:message('simpleMembershipUpdate.deleteImageAlt', true, true) }"/></a>
     &nbsp;
     <grouperGui:subjectIcon guiSubject="${guiMember.guiSubject}" /> 
