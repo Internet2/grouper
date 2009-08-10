@@ -27,6 +27,7 @@ import org.apache.commons.beanutils.WrapDynaBean;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -42,7 +43,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AuditEntryAsMap.java,v 1.1 2009-07-16 11:33:34 isgwb Exp $
+ * @version $Id: AuditEntryAsMap.java,v 1.2 2009-08-10 14:03:01 isgwb Exp $
  */
 public class AuditEntryAsMap extends ObjectAsMap {
 	
@@ -59,15 +60,20 @@ public class AuditEntryAsMap extends ObjectAsMap {
 	private static Set<String> idLabels = new HashSet<String>();
 	static {
 		groupIdLabels.add("groupId");
-		groupIdLabels.add("groupUuid");
+		groupIdLabels.add("groupUuid");		
+		groupIdLabels.add("oldGroupId");
+		groupIdLabels.add("newGroupId");
 		groupIdLabels.add("leftFactorId");
 		groupIdLabels.add("rightFactorId");
 		groupIdLabels.add("ownerId");
 		stemIdLabels.add("stemId");
+		stemIdLabels.add("oldStemId");
+		stemIdLabels.add("newStemId");
 		stemIdLabels.add("stemUuid");
 		stemIdLabels.add("newStemUuid");
 		memberIdLabels.add("memberId");
 		memberIdLabels.add("newMemberId");
+		memberIdLabels.add("oldMemberId");
 		idLabels.add("group");
 		idLabels.add("stem");
 		idLabels.add("member");
@@ -114,7 +120,10 @@ public class AuditEntryAsMap extends ObjectAsMap {
 		if(value==null) {
 			return null;
 		}
-		if(groupIdLabels.contains(label) || ("id".equals(label) && ("group".equals(entry.getAuditType().getAuditCategory()) || "groupAttribute".equals(entry.getAuditType().getAuditCategory())))) {
+		if(groupIdLabels.contains(label) || 
+				("id".equals(label) 
+						&& ("group".equals(entry.getAuditType().getAuditCategory()) 
+								))) {
 			Group g = GroupFinder.findByUuid(grouperSession, (String)value, false);
 			if(g==null) {
 				return g;
@@ -136,6 +145,11 @@ public class AuditEntryAsMap extends ObjectAsMap {
 				return m;
 			}
 			return ObjectAsMap.getInstance("SubjectAsMap", m.getSubject());
+		}
+		
+		if(("id".equals(label) && "groupType".equals(entry.getAuditType().getAuditCategory())) ||
+				("groupTypeId".equals(label) && "groupField".equals(entry.getAuditType().getAuditCategory()))) {
+			return GroupTypeFinder.findByUuid((String)value, false);
 		}
 		
 		return null;

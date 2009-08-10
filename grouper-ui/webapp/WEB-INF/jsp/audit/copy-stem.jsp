@@ -2,7 +2,37 @@
 		  audit log view
 --%><%--
   @author Gary Brown.
-  @version $Id: copy-stem.jsp,v 1.1 2009-07-16 11:33:34 isgwb Exp $
---%><%@include file="/WEB-INF/jsp/include.jsp"%>
+  @version $Id: copy-stem.jsp,v 1.2 2009-08-10 14:03:01 isgwb Exp $
+--%>
+<%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
-<c:out value="${viewObject.description}"/>
+
+<c:set var="stem" value="${viewObject.fieldObjects.oldStemId}"/>
+<c:set var="copiedTo" value="${viewObject.fieldObjects.newStemId}"/>
+<jsp:useBean id="linkParams" class="java.util.HashMap" scope="page"/>
+
+<c:choose>
+    	<c:when test="${!empty stem }">
+    <c:set target="${stem}" property="callerPageId" value="${thisPageId}"/>
+    <tiles:insert definition="dynamicTileDef" flush="false">
+		  <tiles:put name="viewObject" beanName="stem"/>
+		  <tiles:put name="view" value="stemSearchResultLink"/>
+	</tiles:insert></c:when>
+		<c:otherwise>
+		<grouper:message bundle="${nav}" key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.oldStemId}"/> - <c:out value="${viewObject.fields.oldGroupName}"/>)
+		</c:otherwise>
+	</c:choose>
+	<br/><grouper:message bundle="${nav}" key="audit.result.label.to-object"/> 
+	<c:choose>
+    	<c:when test="${!empty copiedTo }">
+    <c:set target="${copiedTo}" property="callerPageId" value="${thisPageId}"/>
+    <tiles:insert definition="dynamicTileDef" flush="false">
+		  <tiles:put name="viewObject" beanName="copiedTo"/>
+		  <tiles:put name="view" value="stemSearchResultLink"/>
+	</tiles:insert></c:when>
+		<c:otherwise>
+		<grouper:message bundle="${nav}" key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.newGroupId}"/> - <c:out value="${viewObject.fields.newGroupName}"/>)
+		</c:otherwise>
+	</c:choose><br/>
+		
+	

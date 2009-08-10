@@ -3,7 +3,7 @@
 		  items and footer
 --%><%--
   @author Gary Brown.
-  @version $Id: genericListView.jsp,v 1.4 2009-07-16 11:33:34 isgwb Exp $
+  @version $Id: genericListView.jsp,v 1.5 2009-08-10 14:03:01 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -19,7 +19,7 @@
   </tiles:insert>
   <%int itemPos = 0;pageContext.setAttribute("itemPos",new Integer(itemPos));
   Collection viewCollection = (Collection)pageContext.findAttribute("viewObject");
-  if(viewCollection.size()>0) {
+  if(viewCollection !=null && viewCollection.size()>0) {
   %>
   <c:if test="${itemViewInFieldset=='true'}">
 	<fieldset>

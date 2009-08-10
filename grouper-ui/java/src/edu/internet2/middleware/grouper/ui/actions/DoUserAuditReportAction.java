@@ -61,6 +61,11 @@ import edu.internet2.middleware.subject.Subject;
     <td width="12%"><strong><font face="Arial, Helvetica, sans-serif">Direction</font></strong></td>
     <td width="37%"><strong><font face="Arial, Helvetica, sans-serif">Description</font></strong></td>
   </tr>
+   <tr> 
+    <td><p><font face="Arial, Helvetica, sans-serif">schemaChangesOnly</font></p></td>
+    <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
+    <td><font face="Arial, Helvetica, sans-serif">true/false - if true show audit entries for all groupType nad field changes</font></td>
+  </tr>
   <tr> 
     <td><p><font face="Arial, Helvetica, sans-serif">groupId</font></p></td>
     <td><font face="Arial, Helvetica, sans-serif">IN</font></td>
@@ -215,7 +220,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: DoUserAuditReportAction.java,v 1.2 2009-07-17 15:02:02 isgwb Exp $
+ * @version $Id: DoUserAuditReportAction.java,v 1.3 2009-08-10 14:03:01 isgwb Exp $
  */
 public class DoUserAuditReportAction extends GrouperCapableAction {
 
@@ -236,6 +241,11 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
 		
         DynaActionForm auditForm = (DynaActionForm) form;
         saveAsCallerPage(request,auditForm);
+        Boolean schemaOnly = (Boolean)auditForm.get("schemaChangesOnly");
+        if(schemaOnly==null) {
+        	schemaOnly=Boolean.FALSE;
+        }
+        String groupTypeId=auditForm.getString("groupTypeId");
         String groupId=auditForm.getString("groupId");
         String stemId=auditForm.getString("stemId");
         String memberId=auditForm.getString("memberId");
@@ -334,7 +344,14 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
         String entity = null;
         query.setQueryOptions(options);
         List<AuditEntry> results = null;
-		if(!isEmpty(groupId)) {
+        if(schemaOnly) {
+			query=query.addAuditTypeCategory("groupType").addAuditTypeCategory("groupField");
+			if(!isEmpty(groupTypeId)) {
+				query=query.addAuditTypeFieldValue("groupTypeId", groupTypeId);
+			}
+			infoKey ="audit.query.info.schema";
+			entity = "";
+		}else if(!isEmpty(groupId)) {
 			query=query.addAuditTypeFieldValue("groupId", groupId);
 			infoKey ="audit.query.info.actions-on";
 			Group group = GroupFinder.findByUuid(grouperSession, groupId,true);

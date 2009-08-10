@@ -35,6 +35,8 @@
 
 	<form-bean dynamic="true" name="AuditQueryFormBean"
                type="org.apache.struts.action.DynaActionForm">
+	  <form-property name="schemaChangesOnly" type="java.lang.Boolean"/>
+	  <form-property name="groupTypeId" type="java.lang.String"/>
       <form-property name="groupId" type="java.lang.String"/>
 	  <form-property name="stemId" type="java.lang.String"/>
       <form-property name="memberId" type="java.lang.String"/>
@@ -259,6 +261,12 @@
             type="edu.internet2.middleware.grouper.ui.actions.DoUserAuditReportAction"
             unknown="false" validate="false">
       <forward name="AuditQuery" path="AuditQueryDef" redirect="false"/>
+    </action>
+	<action  path="/populateGroupTypes" name=""
+            scope="request"
+            type="edu.internet2.middleware.grouper.ui.actions.PopulateGroupTypesAction"
+            unknown="false" validate="false">
+      <forward name="GroupTypes" path="GroupTypesDef" redirect="false"/>
     </action>
     
         <action path="/populateDebugPrefs"  scope="request" name="DebugPrefsFormBean"

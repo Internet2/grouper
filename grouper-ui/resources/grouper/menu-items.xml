@@ -57,7 +57,12 @@
 				titleKey="saved-subjects.link.title"
 				linkKey="saved.subjects"
 	/>
-	
+	<item 	functionalArea="GroupTypes"
+				action="/populateGroupTypes.do"
+				titleKey="grouptypes.link.title"
+				linkKey="grouptypes.list"
+			forAdmin="true"
+	/>	
 	<item 	functionalArea="Help"
 				action="/help.do"
 				titleKey="groups.help.link.title"

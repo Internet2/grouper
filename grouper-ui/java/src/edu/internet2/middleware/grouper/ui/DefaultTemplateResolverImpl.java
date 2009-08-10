@@ -74,6 +74,8 @@ public class DefaultTemplateResolverImpl implements TemplateResolver {
 		} catch (NoSuchMethodException e) {
 			if (obj instanceof Collection)
 				return "Collection";
+			if (obj instanceof Field)
+				return "Field";
 			objType = claz.getName().substring(
 					claz.getName().lastIndexOf(".") + 1);
 		} catch (IllegalAccessException e) {

@@ -4,11 +4,11 @@
 		  current page size
 --%><%--
   @author Gary Brown.
-  @version $Id: genericListFooterView.jsp,v 1.3 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: genericListFooterView.jsp,v 1.4 2009-08-10 14:03:01 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<tiles:importAttribute />
-<c:if test="${pager.count>0}">
+<tiles:importAttribute  ignore="true"/>
+<c:if test="${!empty pager && pager.count>0}">
 <div class="linkButton">
 	<c:if test="${pager.prev}">
 		<html:link page="${pager.target}.do" name="pager" property="prevParams"><grouper:message bundle="${nav}" key="find.previous-page"/></html:link>		

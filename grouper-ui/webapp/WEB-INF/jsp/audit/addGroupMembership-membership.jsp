@@ -2,7 +2,7 @@
 		  audit log view
 --%><%--
   @author Gary Brown.
-  @version $Id: addGroupMembership-membership.jsp,v 1.1 2009-07-16 11:33:34 isgwb Exp $
+  @version $Id: addGroupMembership-membership.jsp,v 1.2 2009-08-10 14:03:01 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -15,7 +15,7 @@
 	<c:set target="${linkParams}" property="subjectId" value="${subject.id}"/>
 	<c:set target="${linkParams}" property="subjectType" value="${subject.subjectType}"/>
 	<c:set target="${linkParams}" property="sourceId" value="${subject.sourceId}"/>
-    <c:set var="linkTitle" value="View details of Entity added as member"/>
+    <c:set var="linkTitle"><grouper:message bundle="${nav}" key="audit.result.label.subject"/></c:set>
     <tiles:insert definition="dynamicTileDef" flush="false">
 		  <tiles:put name="viewObject" beanName="subject"/>
 		  <tiles:put name="view" value="subjectSummaryLink"/>

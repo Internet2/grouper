@@ -2,7 +2,7 @@
 		  Query audit log
 --%><%--
   @author Gary Brown.
-  @version $Id: AuditQuery.jsp,v 1.1 2009-07-16 11:33:34 isgwb Exp $
+  @version $Id: AuditQuery.jsp,v 1.2 2009-08-10 14:03:01 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <jsp:useBean id="linkParams" class="java.util.HashMap" scope="page"/>
@@ -20,10 +20,12 @@
 	</tiles:insert></div>
 <div class="section searchAudit">
 <grouper:subtitle key="find.heading.audit-search">
+
  <a href="#" onclick="return grouperHideShow(event, 'auditForm');" 
       class="underline subtitleLink"><grouper:message key="find.search.audit.show-search-form" ignoreTooltipStyle="true"/></a>     
 </grouper:subtitle>
-<div class="pageBlurb"><grouper:message bundle="${nav}" key="${auditInfoKey}"><grouper:param value="${auditInfoEntity}" /></grouper:message></div>
+
+<div class="pageBlurb sectionBody"><grouper:message bundle="${nav}" key="${auditInfoKey}"><grouper:param value="${auditInfoEntity}" /></grouper:message></div>
 <div id="auditForm0" class="sectionBody" >
 
 <tiles:insert definition="auditSearchDef"/>
@@ -31,6 +33,7 @@
 <p></p>
 <div class="section auditResults"> 
 <grouper:subtitle key="find.heading.audit-search-results"/>
+<div class="sectionBody">
 <tiles:insert definition="dynamicTileDef">
 			<tiles:put name="viewObject" beanName="pager" beanProperty="collection"/>
 			<tiles:put name="view" value="auditQueryResults"/>
@@ -51,6 +54,7 @@
 				<tiles:insert definition="linkSeparatorDef" flush="false"/>
 			</tiles:put>
 		</tiles:insert>
+		</div>
 </div>
 
 

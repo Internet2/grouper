@@ -184,6 +184,13 @@
     <put name="content" type="page" value="/WEB-INF/jsp/AuditQuery.jsp"/>
   </definition>
   
+    <definition extends="BaseDef" name="GroupTypesDef">
+  	 <description>
+		 Show group types
+	</description>
+    <put name="content" type="page" value="/WEB-INF/jsp/GroupTypes.jsp"/>
+  </definition>
+  
   <definition extends="BaseDef" name="DebugNotAllowedDef">
   	 <description>
 		 Show instead of debug page if not enabled
