@@ -473,7 +473,7 @@ public class AttributeDefName extends GrouperAPI implements GrouperHasContext, H
         attributeDefNameSet.setThenHasAttributeDefNameId(child.getThenHasAttributeDefNameId());
         attributeDefNameSet.setType(attributeDefNameSet.getDepth() == 1 ? 
             AttributeDefAssignmentType.immediate : AttributeDefAssignmentType.effective);
-        attributeDefNameSet.setParentId(parent.getId());
+        attributeDefNameSet.setFirstHopAttrDefNameSetId(parent.getId());
         attributeDefNameSet.saveOrUpdate();
         
       }

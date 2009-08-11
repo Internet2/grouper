@@ -64,7 +64,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.43 2009-08-05 15:06:07 isgwb Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.44 2009-08-11 20:18:08 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -874,18 +874,40 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
    */
   public Group findByName(String name, boolean exceptionIfNotFound)
       throws GrouperDAOException, GroupNotFoundException {
-    Group group = HibernateSession.byHqlStatic()
-      .createQuery("select g from Group as g where g.nameDb = :value or g.alternateNameDb = :value")
-      .setCacheable(false)
-      .setCacheRegion(KLASS + ".FindByName")
-      .setString("value", name).uniqueResult(Group.class);
+    return findByName(name, exceptionIfNotFound, true);
+  }
+  
+  /**
+   * @param name
+   * @param exceptionIfNotFound exception if cant find group
+   * @param useCache if we should use cache or not
+   * @return group
+   * @throws GrouperDAOException
+   * @throws GroupNotFoundException
+   * @since   @HEAD@
+   */
+  public Group findByName(final String name, boolean exceptionIfNotFound, boolean useCache) 
+    throws  GrouperDAOException,
+            GroupNotFoundException {
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+    .createQuery("select g from Group as g where g.nameDb = :value or g.alternateNameDb = :value")
+    .setCacheable(useCache);
+
+    if (useCache) {
+      byHqlStatic.setCacheRegion(KLASS + ".FindByName");
+    }
+
+    Group group = byHqlStatic.setString("value", name).uniqueResult(Group.class);
 
     //handle exceptions out of data access method...
     if (group == null && exceptionIfNotFound) {
       throw new GroupNotFoundException("Cannot find group with name: '" + name + "'");
     }
     return group;
+
   }
+  
   
   /**
    * Find a group by its current name only.

@@ -37,7 +37,7 @@ import  java.util.Set;
  * Class implementing wrapper around {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingWrapper.java,v 1.13 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: NamingWrapper.java,v 1.14 2009-08-11 20:18:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class NamingWrapper implements NamingResolver {
@@ -56,16 +56,6 @@ public class NamingWrapper implements NamingResolver {
   private GrouperSession  s;
 
 
-
-  /**
-   * @see     NamingResolver#getConfig(String)
-   * @throws  IllegalStateException if any parameter is null.
-   */
-  public String getConfig(String key) 
-    throws IllegalStateException
-  {
-    return this.s.getConfig(key);
-  }
 
   /**
    * Facade around {@link NamingAdapter} that implements {@link NamingResolver}.

@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperDdlUtils.java,v 1.44 2009-07-02 17:22:47 shilen Exp $
+ * @author mchyzer $Id: GrouperDdlUtils.java,v 1.45 2009-08-11 20:18:09 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -51,6 +51,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
@@ -806,6 +807,10 @@ public class GrouperDdlUtils {
       System.out.println(logMessage);
     }
     }
+    
+    //clear all caches
+    GrouperCacheUtils.clearAllCaches();
+    
     return logMessage;
   } 
   

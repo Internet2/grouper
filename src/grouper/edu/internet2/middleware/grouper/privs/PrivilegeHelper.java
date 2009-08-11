@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.Subject;
  * Privilege helper class.
  * <p>TODO 20070823 Relocate these methods once I figure out the best home for them.</p>
  * @author  blair christensen.
- * @version $Id: PrivilegeHelper.java,v 1.9 2009-04-28 18:45:00 shilen Exp $
+ * @version $Id: PrivilegeHelper.java,v 1.10 2009-08-11 20:18:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class PrivilegeHelper {
@@ -479,8 +479,8 @@ public class PrivilegeHelper {
       return false;
     }
     
-    if ( Boolean.valueOf( s.getConfig( GrouperConfig.PROP_USE_WHEEL_GROUP ) ).booleanValue() ) {
-      String name = s.getConfig( GrouperConfig.PROP_WHEEL_GROUP );
+    if ( Boolean.valueOf( GrouperConfig.getProperty( GrouperConfig.PROP_USE_WHEEL_GROUP ) ).booleanValue() ) {
+      String name = GrouperConfig.getProperty( GrouperConfig.PROP_WHEEL_GROUP );
       try {
         // goodbye, performance
         Group wheel = GroupFinder.findByName( s.internal_getRootSession(), name, true );

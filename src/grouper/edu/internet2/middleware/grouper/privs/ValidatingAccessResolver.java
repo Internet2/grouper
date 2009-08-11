@@ -31,7 +31,7 @@ import  edu.internet2.middleware.subject.Subject;
  * Decorator that provides parameter validation for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingAccessResolver.java,v 1.9 2009-04-13 16:53:07 mchyzer Exp $
+ * @version $Id: ValidatingAccessResolver.java,v 1.10 2009-08-11 20:18:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class ValidatingAccessResolver extends AccessResolverDecorator {
@@ -52,17 +52,6 @@ public class ValidatingAccessResolver extends AccessResolverDecorator {
 
 
 
-
-  /**
-   * @see     AccessResolver#getConfig(String)
-   * @throws  IllegalStateException if any parameter is null.
-   */
-  public String getConfig(String key) 
-    throws IllegalStateException
-  {
-    this.param.notNullString(key);
-    return super.getDecoratedResolver().getConfig(key);
-  }
 
   /**
    * @see     AccessResolver#getGroupsWhereSubjectHasPrivilege(Subject, Privilege)

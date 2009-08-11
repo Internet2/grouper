@@ -19,9 +19,14 @@ package edu.internet2.middleware.grouper.subj;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.subject.Subject;
 
@@ -29,13 +34,71 @@ import edu.internet2.middleware.subject.Subject;
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.3 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: SubjectHelper.java,v 1.4 2009-08-11 20:18:08 mchyzer Exp $
  */
 public class SubjectHelper {
 
   /** */
   private static final String SUBJECT_DELIM = "/";
 
+  /**
+   * sort a set of subjects for a search, match id's and identifiers at top
+   * @param subjectsIn
+   * @param searchTerm
+   * @return the set with close matches at top
+   */
+  public static Set<Subject> sortSetForSearch(Set<Subject> subjectsIn, String searchTerm) {
+    
+    if (subjectsIn == null) {
+      return null;
+    }
+    Set<Subject> subjectsOut = new LinkedHashSet<Subject>(subjectsIn.size());
+    //look for subjectId's
+    Iterator<Subject> iterator = subjectsIn.iterator();
+    while (iterator.hasNext()) {
+      Subject subject = iterator.next();
+      if (StringUtils.equals(searchTerm, subject.getId())) {
+        subjectsOut.add(subject);
+        iterator.remove();
+      }
+    }
+    
+    //look for any attribute
+    iterator = subjectsIn.iterator();
+    Set<Subject> subjectsInExtra = new LinkedHashSet<Subject>();
+    while (iterator.hasNext()) {
+      Subject subject = iterator.next();
+      Map<String, Set<String>> attributes = subject.getAttributes();
+      Object valuesObject = attributes.values();
+      boolean foundMatch = false;
+      if (valuesObject instanceof Collection) {
+        Collection values = (Collection)valuesObject;
+        for (Object attributeValues: values) {
+          if (attributeValues instanceof Set) {
+            Set<String> attributeValuesSet = (Set<String>)attributeValues;
+            if (attributeValuesSet != null && attributeValuesSet.contains(searchTerm)) {
+              foundMatch = true;
+            }
+          } else if (attributeValues instanceof String) {
+            if (StringUtils.equals(searchTerm, (String)attributeValues)) {
+              foundMatch = true;
+            }
+          }
+        }
+      }
+      //lets not remove from result set... 
+      if (foundMatch) {
+        subjectsOut.add(subject);
+      } else {
+        subjectsInExtra.add(subject);
+      }
+    }
+    
+    //add the rest
+    subjectsOut.addAll(subjectsInExtra);
+    return subjectsOut;
+    
+  }
 
   /**
    * @param a 
@@ -95,6 +158,39 @@ public class SubjectHelper {
             + Quote.single( subj.getType().getName() ) 
             + SUBJECT_DELIM
             + Quote.single( subj.getSource().getId() );
+  }
+
+  /**
+   * 
+   * @param subj
+   * @return string
+   */
+  public static String getPrettyComplete(Subject subj) {
+    
+    StringBuilder result = new StringBuilder(subj.getId()
+            + SUBJECT_DELIM
+            + subj.getType().getName() 
+            + SUBJECT_DELIM
+            + subj.getSource().getId()
+            + SUBJECT_DELIM + "name: "
+            + subj.getName()
+            + SUBJECT_DELIM + "desc: "
+            + subj.getDescription());
+    Map<String, Set<String>> attributes = subj.getAttributes();
+    if (attributes != null) {
+      for (String key : attributes.keySet()) {
+        Set<String> set = attributes.get(key);
+        result.append(SUBJECT_DELIM).append(key).append(": ");
+        for (String value : set) {
+          result.append(value).append(", ");
+        }
+        //remove last comma
+        result.delete(result.length()-2, result.length());
+      }
+    }
+    
+    return result.toString();
+  
   }
 
   

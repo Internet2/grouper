@@ -30,7 +30,7 @@ import  edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>GrouperAll</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAllNamingResolver.java,v 1.8 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: GrouperAllNamingResolver.java,v 1.9 2009-08-11 20:18:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class GrouperAllNamingResolver extends NamingResolverDecorator {
@@ -50,16 +50,6 @@ public class GrouperAllNamingResolver extends NamingResolverDecorator {
   }
 
 
-
-  /**
-   * @see     NamingResolver#getConfig(String)
-   * @throws  IllegalStateException if any parameter is null.
-   */
-  public String getConfig(String key) 
-    throws IllegalStateException
-  {
-    return super.getDecoratedResolver().getConfig(key);
-  }
 
   /**
    * @see     NamingResolver#getStemsWhereSubjectHasPrivilege(Subject, Privilege)

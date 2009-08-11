@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.27 2009-06-09 22:55:40 shilen Exp $
+ * $Id: GrouperCheckConfig.java,v 1.28 2009-08-11 20:18:09 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -1121,7 +1121,7 @@ public class GrouperCheckConfig {
     checkJar("mailapi.jar", 178533, "javax.mail.Address", "1.3.2");
     checkJar("morphString.jar", 153260, "edu.internet2.middleware.morphString.Encrypt", "1.1");
     checkJar("odmg.jar", 42111, "org.odmg.ClassNotPersistenceCapableException", "0.1.0");
-    checkJar("p6spy.jar", 388726, "com.p6spy.engine.common.FastExternalUtils", "1.0");
+    checkJar("p6spy.jar", 389539, "com.p6spy.engine.common.FastExternalUtils", "1.1");
     checkJar("quartz.jar", 792769, "org.quartz.Calendar", "1.6.0");
     checkJar("smtp.jar", 23567, "com.sun.mail.smtp.DigestMD5", "1.3.2");
     checkJar("subject.jar", 93413, "edu.internet2.middleware.subject.InvalidQueryException", "0.4.5");

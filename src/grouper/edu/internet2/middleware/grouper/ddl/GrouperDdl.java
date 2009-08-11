@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.59 2009-07-10 14:53:07 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.60 2009-08-11 20:18:09 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -3209,24 +3209,35 @@ public enum GrouperDdl implements DdlVersionable {
         "grouper_attr_def_name_set_v: shows all attribute def name set relationships",
         GrouperUtil.toSet("if_has_attr_def_name_name", 
             "then_has_attr_def_name_name", 
-            "depth", "type", "id", "if_has_attr_def_name_id", "then_has_attr_def_name_id",
-            "parent_id"),
+            "depth", "type", 
+            "first_hop_name", "last_hop_name",
+            "id", "if_has_attr_def_name_id", "then_has_attr_def_name_id",
+            "first_hop_attr_def_name_set_id", "last_hop_attr_def_name_set_id"),
         GrouperUtil.toSet("if_has_attr_def_name_name: name of the set attribute def name", 
             "then_has_attr_def_name_name: name of the member attribute def name", 
             "depth: number of hops in the directed graph",
             "type: self, immediate, effective",
+            "first_hop_name: name of the attribute def name set record which is the first hop on effective path",
+            "last_hop_name: name of the attribute def name set record which is the last hop on effective path",
             "id: id of the set record", "if_has_attr_def_name_id: id of the set attribute def name",
             "then_has_attr_def_name_id: id of the member attribute def name", 
-            "parent_id: id of the attribute def name set record which is the immediate record this derives from"
+            "first_hop_attr_def_name_set_id: id of the attribute def name set record which is the first hop on effective path",
+            "last_hop_attr_def_name_set_id: id of the attribute def name set record which is the first hop on effective path"
         ),
         "select ifHas.name if_has_attr_def_name_name, thenHas.name then_has_attr_def_name_name, " 
         + "gadns.depth, "
-        + "gadns.type, gadns.id, "
-        + "ifHas.id if_has_attr_def_name_id, thenHas.id then_has_attr_def_name_id, gadns.parent_id "
-        + "from grouper_attribute_def_name_set gadns, "
+        + "gadns.type, gadnFirst.name first_hop_name, gadnLast.name last_hop_name, gadns.id, "
+        + "ifHas.id if_has_attr_def_name_id, thenHas.id then_has_attr_def_name_id, gadns.first_hop_attr_def_name_set_id, " 
+        +	"gadns.first_hop_attr_def_name_set_id "
+        + "from grouper_attribute_def_name_set gadns, grouper_attribute_def_name_set gadnsFirst, "
+        + "grouper_attribute_def_name_set gadnsLast, grouper_attribute_def_name gadnFirst, grouper_attribute_def_name gadnLast, "
         + "grouper_attribute_def_name ifHas, grouper_attribute_def_name thenHas "
         + "where  thenHas.id = gadns.then_has_attribute_def_name_id "
         + "and ifHas.id = gadns.if_has_attribute_def_name_id "
+        + "and gadns.first_hop_attr_def_name_set_id = gadnsFirst.id "
+        + "and gadns.last_hop_attr_def_name_set_id = gadnsLast.id "
+        + "and gadnsFirst.then_has_attribute_def_name_id = gadnFirst.id "
+        + "and gadnsLast.if_has_attribute_def_name_id = gadnLast.id "
         + "order by ifHas.name, thenHas.name, gadns.depth");
   }
 
@@ -4359,7 +4370,10 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, Types.VARCHAR, "128", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
-          AttributeDefNameSet.COLUMN_PARENT_ID, Types.VARCHAR, "128", false, false);
+          AttributeDefNameSet.COLUMN_FIRST_HOP_ATTR_DEF_NAME_SET_ID, Types.VARCHAR, "128", false, false);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
+          AttributeDefNameSet.COLUMN_LAST_HOP_ATTR_DEF_NAME_SET_ID, Types.VARCHAR, "128", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
           AttributeDefNameSet.COLUMN_TYPE, Types.VARCHAR, "32", false, true);
@@ -4373,12 +4387,9 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID);
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeDefNameSetTable.getName(), 
-          "attr_def_name_set_parent_idx", false, 
-          AttributeDefNameSet.COLUMN_PARENT_ID);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeDefNameSetTable.getName(), 
           "attr_def_name_set_unq_idx", true, 
-          AttributeDefNameSet.COLUMN_PARENT_ID, AttributeDefNameSet.COLUMN_DEPTH,
+          AttributeDefNameSet.COLUMN_FIRST_HOP_ATTR_DEF_NAME_SET_ID, 
+          AttributeDefNameSet.COLUMN_LAST_HOP_ATTR_DEF_NAME_SET_ID, AttributeDefNameSet.COLUMN_DEPTH,
           AttributeDefNameSet.COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID, AttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID,
           AttributeDefNameSet.COLUMN_TYPE);
 

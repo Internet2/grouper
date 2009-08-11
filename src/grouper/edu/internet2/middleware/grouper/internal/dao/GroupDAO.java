@@ -33,7 +33,7 @@ import edu.internet2.middleware.subject.Subject;
 /** 
  * Basic <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.26 2009-06-28 19:02:17 mchyzer Exp $
+ * @version $Id: GroupDAO.java,v 1.27 2009-08-11 20:18:08 mchyzer Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -254,6 +254,13 @@ public interface GroupDAO extends GrouperDAO {
   Group findByName(String name, boolean exceptionIfNotFound) 
     throws GrouperDAOException, GroupNotFoundException;
 
+  /**
+   * @since   1.2.0
+   */
+  Group findByName(String name, boolean exceptionIfNotFound, boolean useCache) 
+    throws  GrouperDAOException,
+            GroupNotFoundException
+            ;
   /**
    * @since   1.2.0
    * @deprecated use overload

@@ -32,18 +32,12 @@ import edu.internet2.middleware.subject.Subject;
  * Facade for the {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingResolver.java,v 1.8 2009-04-13 16:53:07 mchyzer Exp $
+ * @version $Id: NamingResolver.java,v 1.9 2009-08-11 20:18:08 mchyzer Exp $
  * @since   1.2.1
  */
 public interface NamingResolver {
   // TODO 20070820 DRY w/ access resolution
 
-
-  /**
-   * @return  Configuration value.
-   * @throws  IllegalStateException if any parameter is null.
-   */
-  String getConfig(String key) throws IllegalStateException;
 
   /**
    * Get all groups where <i>subject</i> has <i>privilege</i>.

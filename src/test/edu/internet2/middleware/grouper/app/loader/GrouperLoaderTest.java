@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderTest.java,v 1.9 2009-03-20 19:56:42 mchyzer Exp $
+ * $Id: GrouperLoaderTest.java,v 1.10 2009-08-11 20:18:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -18,6 +18,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
@@ -28,6 +29,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -181,6 +183,54 @@ public class GrouperLoaderTest extends GrouperTest {
     assertTrue(overallGroup6.hasMember(SubjectTestHelper.SUBJ5));
     assertTrue(overallGroup6.hasMember(SubjectTestHelper.SUBJ6));
     assertTrue(overallGroup6.hasMember(SubjectTestHelper.SUBJ9));
+    
+    //lets make sure the security groups dont exist
+    new StemSave(this.grouperSession).assignName("loaderSecurity")
+      .assignSaveMode(SaveMode.INSERT).saveUnchecked();
+    
+    Group admins = GroupFinder.findByName(this.grouperSession, "loaderSecurity:admins", false);
+    assertNull(admins);
+    Group readers = GroupFinder.findByName(this.grouperSession, "loaderSecurity:readers", false);
+    assertNull(readers);
+    Group updaters = GroupFinder.findByName(this.grouperSession, "loaderSecurity:updaters", false);
+    assertNull(updaters);
+    Group viewers = GroupFinder.findByName(this.grouperSession, "loaderSecurity:viewers", false);
+    assertNull(viewers);
+    Group optins = GroupFinder.findByName(this.grouperSession, "loaderSecurity:optins", false);
+    assertNull(optins);
+    Group optouts = GroupFinder.findByName(this.grouperSession, "loaderSecurity:optouts", false);
+    assertNull(optouts);
+    
+    //change the query to include all these groups
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUP_QUERY,
+      "select group_name, group_display_name, group_description, 'loaderSecurity:admins' as admins, 'loaderSecurity:readers' as readers, 'loaderSecurity:viewers' as viewers, 'loaderSecurity:updaters' as updaters, 'loaderSecurity:optins' as optins, 'loaderSecurity:optouts' as optouts from testgrouper_loader_groups");
+    loaderGroup.store();
+    
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    admins = GroupFinder.findByName(this.grouperSession, "loaderSecurity:admins", false);
+    assertNotNull(admins);
+    readers = GroupFinder.findByName(this.grouperSession, "loaderSecurity:readers", false);
+    assertNotNull(readers);
+    updaters = GroupFinder.findByName(this.grouperSession, "loaderSecurity:updaters", false);
+    assertNotNull(updaters);
+    viewers = GroupFinder.findByName(this.grouperSession, "loaderSecurity:viewers", false);
+    assertNotNull(viewers);
+    optins = GroupFinder.findByName(this.grouperSession, "loaderSecurity:optins", false);
+    assertNotNull(optins);
+    optouts = GroupFinder.findByName(this.grouperSession, "loaderSecurity:optouts", false);
+    assertNotNull(optouts);
+    
+    //make sure they have the privilege
+    overallGroup4 = GroupFinder.findByName(this.grouperSession, "loader:group4");
+    assertTrue(overallGroup4.hasRead(readers.toSubject()));
+    assertFalse(overallGroup4.hasAdmin(viewers.toSubject()));
+    assertTrue(overallGroup4.hasView(viewers.toSubject()));
+    assertTrue(overallGroup4.hasUpdate(updaters.toSubject()));
+    assertTrue(overallGroup4.hasOptin(optins.toSubject()));
+    assertTrue(overallGroup4.hasOptout(optouts.toSubject()));
+    assertTrue(overallGroup4.hasAdmin(admins.toSubject()));
+    
   }
   /**
    * test the loader

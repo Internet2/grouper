@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
  * Class implementing wrapper around {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessWrapper.java,v 1.14 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: AccessWrapper.java,v 1.15 2009-08-11 20:18:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class AccessWrapper implements AccessResolver {
@@ -69,18 +69,6 @@ public class AccessWrapper implements AccessResolver {
     this.param.notNullGrouperSession(session).notNullAccessAdapter(access);
     this.s      = session;
     this.access = access;
-  }
-
-
-
-  /**
-   * @see     AccessResolver#getConfig(String)
-   * @throws  IllegalStateException if any parameter is null.
-   */
-  public String getConfig(String key) 
-    throws IllegalStateException
-  {
-    return this.s.getConfig(key);
   }
 
   /**

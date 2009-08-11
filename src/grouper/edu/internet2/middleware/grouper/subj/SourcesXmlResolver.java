@@ -23,6 +23,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
@@ -38,7 +40,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * Wrapper around Subject sources configured in <code>sources.xml</code>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SourcesXmlResolver.java,v 1.10 2009-03-22 05:41:00 mchyzer Exp $
+ * @version $Id: SourcesXmlResolver.java,v 1.11 2009-08-11 20:18:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class SourcesXmlResolver implements SubjectResolver {
@@ -87,11 +89,9 @@ public class SourcesXmlResolver implements SubjectResolver {
   {
     List<Subject> subjects = new ArrayList();
     for ( Source sa : this.getSources() ) {
-      try {
-        subjects.add( sa.getSubject(id, true) );
-      }
-      catch (SubjectNotFoundException eSNF) {
-        // ignore.  subject might be in another source.
+      Subject subject = sa.getSubject(id, false);
+      if (subject != null) {
+        subjects.add(subject);
       }
     }    
     return this.thereCanOnlyBeOne(subjects, id);
@@ -108,11 +108,9 @@ public class SourcesXmlResolver implements SubjectResolver {
   {
     List<Subject> subjects = new ArrayList();
     for ( Source sa : this.getSources(type) ) {
-      try {
-        subjects.add( sa.getSubject(id, true) );
-      }
-      catch (SubjectNotFoundException eSNF) {
-        // ignore.  subject might be in another source.
+      Subject subject = sa.getSubject(id, false);
+      if (subject != null) {
+        subjects.add(subject);
       }
     }    
     return this.thereCanOnlyBeOne(subjects, id);
@@ -146,6 +144,11 @@ public class SourcesXmlResolver implements SubjectResolver {
     for ( Source sa : this.getSources() ) {
       subjects.addAll( sa.search(query) );
     }
+    
+    if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
+      subjects = SubjectHelper.sortSetForSearch(subjects, query);
+    }
+
     return subjects;
   }
 
@@ -157,7 +160,11 @@ public class SourcesXmlResolver implements SubjectResolver {
     throws  IllegalArgumentException,
             SourceUnavailableException
   {
-    return this.getSource(source).search(query);
+    Set<Subject> subjects = this.getSource(source).search(query);
+    if (GrouperConfig.getPropertyBoolean("grouper.sort.subjectSets.exactOnTop", true)) {
+      subjects = SubjectHelper.sortSetForSearch(subjects, query);
+    }
+    return subjects;
   }
 
   /**
@@ -171,11 +178,9 @@ public class SourcesXmlResolver implements SubjectResolver {
   {
     List<Subject> subjects = new ArrayList();
     for ( Source sa : this.getSources() ) {
-      try {
-        subjects.add( sa.getSubjectByIdentifier(id, true) );
-      }
-      catch (SubjectNotFoundException eSNF) {
-        // ignore.  subject might be in another source.
+      Subject subject = sa.getSubjectByIdentifier(id, false);
+      if (subject != null) {
+        subjects.add(subject);
       }
     }    
     return this.thereCanOnlyBeOne(subjects, id);
@@ -192,11 +197,9 @@ public class SourcesXmlResolver implements SubjectResolver {
   {
     List<Subject> subjects = new ArrayList();
     for ( Source sa : this.getSources(type) ) {
-      try {
-        subjects.add( sa.getSubjectByIdentifier(id, true) );
-      }
-      catch (SubjectNotFoundException eSNF) {
-        // ignore.  subject might be in another source.
+      Subject subject = sa.getSubjectByIdentifier(id, false);
+      if (subject != null) {
+        subjects.add(subject);
       }
     }    
     return this.thereCanOnlyBeOne(subjects, id);
@@ -288,7 +291,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     else if (subjects.size() == 1) {
       return subjects.get(0);
     }
-    throw new SubjectNotUniqueException( "found multiple matching subjects: " + subjects.size() );
+    throw new SubjectNotUniqueException( "found multiple matching subjects: " + subjects.size() + ", '" + id + "'" );
   }
 
 }
