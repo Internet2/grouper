@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * Base class for common cache operations.
  * @author  blair christensen.
- * @version $Id: EhcacheController.java,v 1.12 2008-11-22 08:28:14 mchyzer Exp $
+ * @version $Id: EhcacheController.java,v 1.13 2009-08-11 20:34:18 mchyzer Exp $
  * @since   1.2.1
  */
 public class EhcacheController implements CacheController {
@@ -65,8 +65,17 @@ public class EhcacheController implements CacheController {
   @Override
   protected void finalize() throws Throwable {
     super.finalize();
+    this.stop();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#stop()
+   */
+  public void stop() {
     if (this.mgr != null) {
-      this.mgr.shutdown();
+      synchronized(CacheManager.class) {
+        this.mgr.shutdown();
+      }
     }
   }
 
@@ -217,8 +226,10 @@ public class EhcacheController implements CacheController {
         newTmpdir += "grouper_ehcache_auto_" + GrouperUtil.uniqueId();
         System.setProperty(tempDirKey, newTmpdir);
         
-        //now it should be using a unique directory
-        this.mgr = new CacheManager(url);
+        synchronized(CacheManager.class) {
+          //now it should be using a unique directory
+          this.mgr = new CacheManager(url);
+        }
       } finally {
         //put tmpdir back
         System.setProperty(tempDirKey, tmpdir);

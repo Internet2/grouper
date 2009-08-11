@@ -59,7 +59,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.98 2009-08-11 20:18:08 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.99 2009-08-11 20:34:18 mchyzer Exp $
  */
 public class GrouperSession implements Serializable {
 
@@ -114,22 +114,12 @@ public class GrouperSession implements Serializable {
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
-  private transient AccessAdapter   access;         // TODO 20070816 eliminate
-
-  @GrouperIgnoreDbVersion
-  @GrouperIgnoreFieldConstant
-  @GrouperIgnoreClone
   private transient AccessResolver  accessResolver;
 
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private Member          cachedMember;
-
-  @GrouperIgnoreDbVersion
-  @GrouperIgnoreFieldConstant
-  @GrouperIgnoreClone
-  private transient NamingAdapter   naming;         // TODO 20070816 eliminate
 
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
@@ -310,20 +300,6 @@ public class GrouperSession implements Serializable {
   } 
 
   /**
-   * Get {@link AccessAdapter} implementation.
-   * <p/>
-   * @since   1.2.1
-   */
-  public AccessAdapter getAccessImpl() {
-    if (this.access == null) {
-      this.access = (AccessAdapter) Realize.instantiate(
-        new ApiConfig().getProperty( ApiConfig.ACCESS_PRIVILEGE_INTERFACE ) 
-      );
-    }
-    return this.access;
-  }
-
-  /**
    * @return  <code>AccessResolver</code> used by this session.
    * @since   1.2.1
    */
@@ -376,20 +352,6 @@ public class GrouperSession implements Serializable {
   public String getNamingClass() {
     return GrouperConfig.getProperty(ApiConfig.NAMING_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
   } 
-
-  /**
-   * Get {@link NamingAdapter} implementation.
-   * <p/>
-   * @since   1.2.1
-   */
-  public NamingAdapter getNamingImpl() {
-    if (this.naming == null) {
-      this.naming = (NamingAdapter) Realize.instantiate(
-        new ApiConfig().getProperty( ApiConfig.NAMING_PRIVILEGE_INTERFACE ) 
-      );
-    }
-    return this.naming;
-  }
 
   /**
    * @return  <code>AccessResolver</code> used by this session.
@@ -469,13 +431,25 @@ public class GrouperSession implements Serializable {
       staticGrouperSession.remove();
     }
     
+    if (this.accessResolver != null) {
+      this.accessResolver.stop();
+    }
+    if (this.namingResolver != null) {
+      this.namingResolver.stop();
+    }
+    
+    //stop the root
+    if (this.rootSession != null) {
+      this.rootSession.stop();
+    }
+    
+    
+    
     //set some fields to null
     this.subject = null;
-    this.access = null;
     this.accessResolver = null;
     this.cachedMember = null;
     this.memberUUID = null;
-    this.naming = null;
     this.namingResolver = null;
     this.rootSession = null;
     this.uuid = null;
