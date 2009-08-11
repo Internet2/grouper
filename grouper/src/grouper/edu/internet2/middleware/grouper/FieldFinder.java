@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.42.2.9 2009-08-01 01:09:29 mchyzer Exp $
+ * @version $Id: FieldFinder.java,v 1.42.2.10 2009-08-11 17:58:29 mchyzer Exp $
  */
 public class FieldFinder {
 
@@ -65,7 +65,19 @@ public class FieldFinder {
   static GrouperCache<Boolean, Map<String,Field>> fieldGrouperCache;
 
   /**
-   * return the field cache
+   * <pre>
+   * return the field cache.
+   * 
+   * Customize with:
+   *   &lt;cache  name="edu.internet2.middleware.grouper.FieldFinder.fieldCache"
+   *        maxElementsInMemory="10000"
+   *        eternal="false"
+   *        timeToIdleSeconds="86400"
+   *        timeToLiveSeconds="86400"
+   *        overflowToDisk="false"
+   * /&gt;
+   * 
+   * </pre>
    * @return cache
    */
   private static GrouperCache<Boolean, Map<String,Field>> fieldGrouperCache() {
