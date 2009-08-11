@@ -26,7 +26,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 //and gadn.id = gadns.then_has_attribute_def_name_id;
 
 /**
- * @author mchyzer $Id: AttributeDefNameSet.java,v 1.2 2009-07-03 21:15:13 mchyzer Exp $
+ * @author mchyzer $Id: AttributeDefNameSet.java,v 1.3 2009-08-11 20:18:08 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersioned {
@@ -60,7 +60,10 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
   public static final String COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID = "then_has_attribute_def_name_id";
 
   /** column */
-  public static final String COLUMN_PARENT_ID = "parent_id";
+  public static final String COLUMN_FIRST_HOP_ATTR_DEF_NAME_SET_ID = "first_hop_attr_def_name_set_id";
+
+  /** column */
+  public static final String COLUMN_LAST_HOP_ATTR_DEF_NAME_SET_ID = "last_hop_attr_def_name_set_id";
 
   /** column */
   public static final String COLUMN_TYPE = "type";
@@ -78,17 +81,20 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
   /** constant for field name for: depth */
   public static final String FIELD_DEPTH = "depth";
 
+  /** constant for field name for: firstHopAttrDefNameSetId */
+  public static final String FIELD_FIRST_HOP_ATTR_DEF_NAME_SET_ID = "firstHopAttrDefNameSetId";
+
   /** constant for field name for: id */
   public static final String FIELD_ID = "id";
 
   /** constant for field name for: ifHasAttributeDefNameId */
   public static final String FIELD_IF_HAS_ATTRIBUTE_DEF_NAME_ID = "ifHasAttributeDefNameId";
 
+  /** constant for field name for: lastHopAttrDefNameSetId */
+  public static final String FIELD_LAST_HOP_ATTR_DEF_NAME_SET_ID = "lastHopAttrDefNameSetId";
+
   /** constant for field name for: lastUpdatedDb */
   public static final String FIELD_LAST_UPDATED_DB = "lastUpdatedDb";
-
-  /** constant for field name for: parentId */
-  public static final String FIELD_PARENT_ID = "parentId";
 
   /** constant for field name for: thenHasAttributeDefNameId */
   public static final String FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID = "thenHasAttributeDefNameId";
@@ -100,17 +106,17 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DEPTH, FIELD_ID, 
-      FIELD_IF_HAS_ATTRIBUTE_DEF_NAME_ID, FIELD_LAST_UPDATED_DB, FIELD_PARENT_ID, FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, 
-      FIELD_TYPE);
+      FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DEPTH, FIELD_FIRST_HOP_ATTR_DEF_NAME_SET_ID, 
+      FIELD_ID, FIELD_IF_HAS_ATTRIBUTE_DEF_NAME_ID, FIELD_LAST_HOP_ATTR_DEF_NAME_SET_ID, FIELD_LAST_UPDATED_DB, 
+      FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, FIELD_TYPE);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DEPTH, FIELD_HIBERNATE_VERSION_NUMBER, 
-      FIELD_ID, FIELD_IF_HAS_ATTRIBUTE_DEF_NAME_ID, FIELD_LAST_UPDATED_DB, FIELD_PARENT_ID, 
-      FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, FIELD_TYPE);
+      FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DEPTH, FIELD_FIRST_HOP_ATTR_DEF_NAME_SET_ID, 
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID, FIELD_IF_HAS_ATTRIBUTE_DEF_NAME_ID, FIELD_LAST_HOP_ATTR_DEF_NAME_SET_ID, 
+      FIELD_LAST_UPDATED_DB, FIELD_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, FIELD_TYPE);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -123,11 +129,19 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
   /** membership type -- immediate, or effective */
   private AttributeDefAssignmentType type = AttributeDefAssignmentType.immediate;
 
-  /** 
-   * parent record, for self/immediate it is this record id, for effective, it is 
-   * the id in this table which is the reason this effective membership exists 
+  /**
+   * for self, or immediate, just use this id.
+   * for effective, this is the first hop on the directed graph
+   * to get to this membership. 
    */
-  private String parentId;
+  private String firstHopAttrDefNameSetId;
+
+  /** 
+   * for self, or immediate, just use this id.
+   * for effective, this is the last hop on the directed graph
+   * to get to this membership. 
+   */
+  private String lastHopAttrDefNameSetId;
   
   /** attribute def name id of the parent */
   private String thenHasAttributeDefNameId;
@@ -166,7 +180,7 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
     return new EqualsBuilder()
       .append(this.type, that.type)
       .append(this.depth, that.depth)
-      .append(this.parentId, that.parentId)
+      .append(this.firstHopAttrDefNameSetId, that.firstHopAttrDefNameSetId)
       .append(this.thenHasAttributeDefNameId, that.thenHasAttributeDefNameId)
       .append(this.ifHasAttributeDefNameId, that.ifHasAttributeDefNameId)
       .isEquals();
@@ -179,7 +193,7 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
     return new HashCodeBuilder()
       .append(this.type)
       .append(this.depth)
-      .append(this.parentId)
+      .append(this.firstHopAttrDefNameSetId)
       .append(this.thenHasAttributeDefNameId)
       .append(this.ifHasAttributeDefNameId)
       .toHashCode();
@@ -233,19 +247,24 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
   }
 
   /**
+   * for self, or immediate, just use this id.
+   * for effective, this is the first hop on the directed graph
+   * to get to this membership. 
    * @return parent id
    */
-  public String getParentId() {
-    return parentId;
+  public String getFirstHopAttrDefNameSetId() {
+    return firstHopAttrDefNameSetId;
   }
 
   
   /**
-   * set parent id
+   * for self, or immediate, just use this id.
+   * for effective, this is the first hop on the directed graph
+   * to get to this membership. 
    * @param parentId
    */
-  public void setParentId(String parentId) {
-    this.parentId = parentId;
+  public void setFirstHopAttrDefNameSetId(String parentId) {
+    this.firstHopAttrDefNameSetId = parentId;
   }
 
   
@@ -404,6 +423,28 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
    */
   public void setLastUpdatedDb(Long lastUpdated1) {
     this.lastUpdatedDb = lastUpdated1;
+  }
+
+  
+  /**
+   * for self, or immediate, just use this id.
+   * for effective, this is the last hop on the directed graph
+   * to get to this membership. 
+   * @return the lastHopDefNameSetId
+   */
+  public String getLastHopAttrDefNameSetId() {
+    return this.lastHopAttrDefNameSetId;
+  }
+
+  
+  /**
+   * for self, or immediate, just use this id.
+   * for effective, this is the last hop on the directed graph
+   * to get to this membership. 
+   * @param lastHopDefNameSetId1 the lastHopDefNameSetId to set
+   */
+  public void setLastHopAttrDefNameSetId(String lastHopDefNameSetId1) {
+    this.lastHopAttrDefNameSetId = lastHopDefNameSetId1;
   }
 
 }

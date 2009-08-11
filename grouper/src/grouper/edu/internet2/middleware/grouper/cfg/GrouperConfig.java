@@ -19,14 +19,14 @@ package edu.internet2.middleware.grouper.cfg;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
-import  edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfig;
+import edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfig;
 
 
 /** 
  * Grouper configuration information.
  * <p><b>This class is being deprecated by the {@link edu.internet2.middleware.grouper.cfg.Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.5 2009-01-02 06:57:12 mchyzer Exp $
+ * @version $Id: GrouperConfig.java,v 1.6 2009-08-11 20:18:09 mchyzer Exp $
  * @since   ?
  */
 public class GrouperConfig {

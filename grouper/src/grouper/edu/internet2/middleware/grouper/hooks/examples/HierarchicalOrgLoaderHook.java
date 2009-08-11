@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: HierarchicalOrgLoaderHook.java,v 1.2 2009-04-28 20:08:08 mchyzer Exp $
+ * $Id: HierarchicalOrgLoaderHook.java,v 1.3 2009-08-11 20:18:09 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -298,7 +298,7 @@ public class HierarchicalOrgLoaderHook extends LoaderHooks {
     //we want this hook to kick in if the group name is the org group name:
     String orgsGroupConfigName = GrouperConfig.getProperty("orgs.configGroupName");
     if (StringUtils.isBlank(orgsGroupConfigName)) {
-      throw new RuntimeException("Why is the corgs config name not configured in grouper properties? orgs.configGroupName");
+      throw new RuntimeException("Why is the orgs config name not configured in grouper properties? orgs.configGroupName");
     }
     if (StringUtils.equals(orgsGroupConfigName, preRunBean.getLoaderJobBean().getGroupNameOverall())) {
       

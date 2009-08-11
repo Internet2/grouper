@@ -42,7 +42,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelNamingResolver.java,v 1.16 2009-04-28 18:45:00 shilen Exp $
+ * @version $Id: WheelNamingResolver.java,v 1.17 2009-08-11 20:18:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelNamingResolver extends NamingResolverDecorator {
@@ -75,12 +75,12 @@ public class WheelNamingResolver extends NamingResolverDecorator {
     this.cc = new EhcacheController();
 
     // TODO 20070816 this is ugly
-    this.useWheel = Boolean.valueOf( this.getConfig( GrouperConfig.PROP_USE_WHEEL_GROUP ) ).booleanValue();
+    this.useWheel = Boolean.valueOf( GrouperConfig.getProperty( GrouperConfig.PROP_USE_WHEEL_GROUP ) ).booleanValue();
     // TODO 20070816 and this is even worse
     if (this.useWheel) {
       String wheelGroupName = "";
       try {
-        wheelGroupName = this.getConfig( GrouperConfig.PROP_WHEEL_GROUP );
+        wheelGroupName = GrouperConfig.getProperty( GrouperConfig.PROP_WHEEL_GROUP );
         this.wheelSession = GrouperSession.start( SubjectFinder.findRootSubject(), false );
         this.wheelGroup = GroupFinder.findByName(
                             //dont replace the current grouper session
@@ -109,16 +109,6 @@ public class WheelNamingResolver extends NamingResolverDecorator {
 
   /** */
   private static boolean loggedWheelNotThere = false;
-  
-  /**
-   * @see     NamingResolver#getConfig(String)
-   * @throws  IllegalStateException if any parameter is null.
-   */
-  public String getConfig(String key) 
-    throws IllegalStateException
-  {
-    return super.getDecoratedResolver().getConfig(key);
-  }
 
   /**
    * Put boolean into cache for <code>isWheelMember(...)</code>.

@@ -23,7 +23,6 @@ import junit.framework.Assert;
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
-import org.hibernate.StaleObjectStateException;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
@@ -35,6 +34,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
 import edu.internet2.middleware.grouper.helper.FieldHelper;
 import edu.internet2.middleware.grouper.helper.GroupHelper;
@@ -57,7 +57,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGroup.java,v 1.3 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: TestGroup.java,v 1.4 2009-08-11 20:18:09 mchyzer Exp $
  */
 public class TestGroup extends GrouperTest {
 
@@ -511,5 +511,31 @@ public class TestGroup extends GrouperTest {
     GroupHelper.toMember(i2);
   } // public void testToMember()
 
+  /**
+   * 
+   */
+  public void testSetExtensionSame() {
+    LOG.info("testSetDescription");
+    try {
+      GrouperSession  s     = SessionHelper.getRootSession();
+      
+      Group i3    = StemHelper.addChildGroup(edu, "i3", "internet3");
+      
+      i3.setExtension("i2");
+      
+      try {
+        i3.store();
+        fail("Cant set extension to an existing one");
+      } catch (GroupModifyAlreadyExistsException mdaee) {
+        //good
+      }
+      
+      s.stop();
+    }
+    catch (Exception e) {
+      Assert.fail(e.getMessage());
+    }
+
+  }
 }
 

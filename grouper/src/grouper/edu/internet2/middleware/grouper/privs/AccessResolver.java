@@ -30,7 +30,7 @@ import edu.internet2.middleware.subject.Subject;
  * Facade for the {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessResolver.java,v 1.9 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: AccessResolver.java,v 1.10 2009-08-11 20:18:08 mchyzer Exp $
  * @since   1.2.1
  */
 public interface AccessResolver {
@@ -46,13 +46,6 @@ public interface AccessResolver {
    */
   public void flushCache();
   
-  /**
-   * @param key 
-   * @return  Configuration value.
-   * @throws  IllegalStateException if any parameter is null.
-   */
-  String getConfig(String key) throws IllegalStateException;
-
   /**
    * Get all groups where <i>subject</i> has <i>privilege</i>.
    * <p/>

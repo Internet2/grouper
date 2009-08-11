@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupSave.java,v 1.8 2009-03-24 17:12:07 mchyzer Exp $
+ * $Id: GroupSave.java,v 1.9 2009-08-11 20:18:08 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper;
 
@@ -8,6 +8,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -341,8 +342,18 @@ public class GroupSave {
                 } else {
                   //check if different so it doesnt make unneeded queries
                   if (!StringUtils.equals(theGroup.getExtension(), extensionNew)) {
+                      
+                      //lets just confirm that one doesnt exist
+                      String newName = GrouperUtil.parentStemNameFromName(theGroup.getName()) + ":" + extensionNew;
+                      
+                      Group existingGroup = GroupFinder.findByName(grouperSession.internal_getRootSession(), newName, false);
+                      
+                      if (existingGroup != null && !StringUtils.equals(theGroup.getUuid(), existingGroup.getUuid())) {
+                        throw new GroupModifyAlreadyExistsException("Group already exists: " + newName);
+                      }
+                      
+                      theGroup.setExtension(extensionNew);
                     GroupSave.this.saveResultType = SaveResultType.UPDATE;
-                    theGroup.setExtension(extensionNew);
                     needsSave = true;
                   }
                   if (!StringUtils.equals(theGroup.getDisplayExtension(), theDisplayExtension)) {

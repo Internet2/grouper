@@ -31,7 +31,7 @@ import  edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>GrouperSystem</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSystemNamingResolver.java,v 1.7 2009-04-13 16:53:07 mchyzer Exp $
+ * @version $Id: GrouperSystemNamingResolver.java,v 1.8 2009-08-11 20:18:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class GrouperSystemNamingResolver extends NamingResolverDecorator {
@@ -52,16 +52,6 @@ public class GrouperSystemNamingResolver extends NamingResolverDecorator {
   }
 
 
-
-  /**
-   * @see     NamingResolver#getConfig(String)
-   * @throws  IllegalStateException if any parameter is null.
-   */
-  public String getConfig(String key) 
-    throws IllegalStateException
-  {
-    return super.getDecoratedResolver().getConfig(key);
-  }
 
   /**
    * @see     NamingResolver#getStemsWhereSubjectHasPrivilege(Subject, Privilege)

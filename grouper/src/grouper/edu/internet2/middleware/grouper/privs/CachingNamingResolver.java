@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides caching for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingNamingResolver.java,v 1.8 2009-04-13 16:53:07 mchyzer Exp $
+ * @version $Id: CachingNamingResolver.java,v 1.9 2009-08-11 20:18:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class CachingNamingResolver extends NamingResolverDecorator {
@@ -64,16 +64,6 @@ public class CachingNamingResolver extends NamingResolverDecorator {
   }
 
 
-
-  /**
-   * @see     NamingResolver#getConfig(String)
-   * @throws  IllegalStateException if any parameter is null.
-   */
-  public String getConfig(String key) 
-    throws IllegalStateException
-  {
-    return super.getDecoratedResolver().getConfig(key);
-  }
 
   /**
    * Retrieve boolean from cache for <code>hasPrivilege(...)</code>.

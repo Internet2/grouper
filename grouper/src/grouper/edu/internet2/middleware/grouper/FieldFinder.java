@@ -39,7 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Find fields.
  * <p/>
  * @author  blair christensen.
- * @version $Id: FieldFinder.java,v 1.47 2009-06-09 22:55:39 shilen Exp $
+ * @version $Id: FieldFinder.java,v 1.48 2009-08-11 20:18:08 mchyzer Exp $
  */
 public class FieldFinder {
 
@@ -65,7 +65,19 @@ public class FieldFinder {
   static GrouperCache<Boolean, Map<String,Field>> fieldGrouperCache;
 
   /**
-   * return the field cache
+   * <pre>
+   * return the field cache.
+   * 
+   * Customize with:
+   *   &lt;cache  name="edu.internet2.middleware.grouper.FieldFinder.fieldCache"
+   *        maxElementsInMemory="10000"
+   *        eternal="false"
+   *        timeToIdleSeconds="86400"
+   *        timeToLiveSeconds="86400"
+   *        overflowToDisk="false"
+   * /&gt;
+   * 
+   * </pre>
    * @return cache
    */
   private static GrouperCache<Boolean, Map<String,Field>> fieldGrouperCache() {
@@ -85,9 +97,9 @@ public class FieldFinder {
 
     Map<String,Field> theFieldCache = fieldGrouperCache().get(Boolean.TRUE);
     if (theFieldCache == null || theFieldCache.size() == 0) {
-      internal_updateKnownFields();
+      theFieldCache = internal_updateKnownFields();
     }
-    return fieldGrouperCache().get(Boolean.TRUE);
+    return theFieldCache;
   }
 
   /**
@@ -325,7 +337,7 @@ public class FieldFinder {
   /**
    * 
    */
-  public static synchronized void internal_updateKnownFields() {
+  public static synchronized Map<String, Field> internal_updateKnownFields() {
 
     GrouperStartup.startup();
     Map<String, Field> theFieldCache = new LinkedHashMap<String, Field>();
@@ -343,6 +355,8 @@ public class FieldFinder {
     fieldGrouperCache().put(Boolean.TRUE, theFieldCache);
 
     FieldFinder.lastTimeRefreshed = System.currentTimeMillis();
+    
+    return theFieldCache;
   } 
 
   /**

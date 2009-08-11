@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  * An instance of a granted access privilege.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessPrivilege.java,v 1.9 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: AccessPrivilege.java,v 1.10 2009-08-11 20:18:08 mchyzer Exp $
  */
 public class AccessPrivilege implements GrouperPrivilege, Comparable {
 
@@ -131,6 +131,11 @@ public class AccessPrivilege implements GrouperPrivilege, Comparable {
   }
 
 
+  /** any of these constitutes READ on a group
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> READ_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(READ, ADMIN, OPTIN, OPTOUT));
+  
   /** any of these constitutes MANAGE on a group
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> MANAGE_PRIVILEGES = Collections.unmodifiableSet(

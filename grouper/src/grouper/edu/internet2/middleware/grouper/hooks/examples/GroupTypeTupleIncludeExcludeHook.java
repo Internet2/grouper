@@ -1,13 +1,16 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeTupleIncludeExcludeHook.java,v 1.6 2009-03-31 06:58:29 mchyzer Exp $
+ * $Id: GroupTypeTupleIncludeExcludeHook.java,v 1.7 2009-08-11 20:18:09 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -232,6 +235,116 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
     }
     return extension;
     
+  }
+  
+  /**
+   * return a set of groups including the one passed in, related to this group.
+   * if the groups arent found, dont worry
+   * i.e. if include/exclude or requireGroups, find related groups
+   * @param group
+   * @return the set of groups
+   */
+  public static Set<Group> relatedGroups(Group group) {
+    Set<Group> groups = new LinkedHashSet<Group>();
+    
+    groups.add(group);
+    
+    String name = group.getName();
+    
+    //baseName is name without suffix if applicable
+    String baseName = name;
+    
+    boolean useGrouperIncludeExclude = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.use", false);
+    
+    if (useGrouperIncludeExclude) {
+      
+      if (name.endsWith(systemOfRecordExtensionSuffix())) {
+        baseName = StringUtils.stripEnd(name, systemOfRecordExtensionSuffix());
+      } else if (name.endsWith(includeExtensionSuffix())) {
+        baseName = StringUtils.stripEnd(name, includeExtensionSuffix());
+      } else if (name.endsWith(includesMinusExcludesExtensionSuffix())) {
+        baseName = StringUtils.stripEnd(name, includesMinusExcludesExtensionSuffix());
+      } else if (name.endsWith(systemOfRecordAndIncludesExtensionSuffix())) {
+        baseName = StringUtils.stripEnd(name, systemOfRecordAndIncludesExtensionSuffix());
+      }
+    }
+    boolean useRequireGroups = GrouperConfig.getPropertyBoolean("grouperIncludeExclude.requireGroups.use", false);
+    
+    //strip off something like _requireGroups15
+    if (useRequireGroups) {
+      Matcher matcher = requireGroupsPattern.matcher(name);
+      if (matcher.matches()) {
+        baseName = matcher.group(1);
+      }
+    }
+
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession().internal_getRootSession();
+    
+    Group groupFind = null;
+    
+    //now lets find all the groups
+    if (!StringUtils.equals(name, baseName)) {
+      groupFind = GroupFinder.findByName(grouperSession, baseName,false);
+      if (groupFind != null) {
+        groups.add(groupFind);
+      }
+    }
+
+    if (useGrouperIncludeExclude) {
+      
+      //system of record
+      groupFind = GroupFinder.findByName(grouperSession, baseName + systemOfRecordExtensionSuffix(),false);
+      if (groupFind != null) {
+        groups.add(groupFind);
+      }
+    
+      //include
+      groupFind = GroupFinder.findByName(grouperSession, baseName + includeExtensionSuffix(),false);
+      if (groupFind != null) {
+        groups.add(groupFind);
+      }
+    
+      //exclude
+      groupFind = GroupFinder.findByName(grouperSession, baseName + excludeExtensionSuffix(),false);
+      if (groupFind != null) {
+        groups.add(groupFind);
+      }
+
+      //include and sor
+      groupFind = GroupFinder.findByName(grouperSession, baseName + includesMinusExcludesExtensionSuffix(),false);
+      if (groupFind != null) {
+        groups.add(groupFind);
+      }
+      
+    }
+    
+    if (useRequireGroups) {
+      
+      //any require groups
+      for (int i=1;i<200;i++) {
+        groupFind = GroupFinder.findByName(grouperSession, baseName + requireGroupsExtensionSuffix(1),false);
+        if (groupFind == null) {
+          break;
+        }
+        groups.add(groupFind);
+      }
+    }
+    
+    return groups;
+  }
+
+  /**
+   * regex pattern for require groups
+   */
+  private static final Pattern requireGroupsPattern = Pattern.compile("(.*)" 
+      + StringUtils.replace(GrouperConfig.getProperty("grouperIncludeExclude.requireGroups.extension.suffix"), "${i}", "") 
+      + "\\d+");
+
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
   }
   
   /**

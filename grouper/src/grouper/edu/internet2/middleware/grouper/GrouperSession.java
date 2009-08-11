@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -29,6 +30,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
@@ -57,9 +59,9 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.97 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.98 2009-08-11 20:18:08 mchyzer Exp $
  */
-public class GrouperSession {
+public class GrouperSession implements Serializable {
 
   /**
    * if we should take into consideration that we are a wheel member (or act as self if false)
@@ -112,12 +114,12 @@ public class GrouperSession {
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
-  private AccessAdapter   access;         // TODO 20070816 eliminate
+  private transient AccessAdapter   access;         // TODO 20070816 eliminate
 
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
-  private AccessResolver  accessResolver;
+  private transient AccessResolver  accessResolver;
 
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
@@ -127,22 +129,17 @@ public class GrouperSession {
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
-  private ApiConfig       cfg;
+  private transient NamingAdapter   naming;         // TODO 20070816 eliminate
 
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
-  private NamingAdapter   naming;         // TODO 20070816 eliminate
+  private transient NamingResolver  namingResolver;
 
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
-  private NamingResolver  namingResolver;
-
-  @GrouperIgnoreDbVersion
-  @GrouperIgnoreFieldConstant
-  @GrouperIgnoreClone
-  private GrouperSession  rootSession;
+  private transient GrouperSession  rootSession;
 
   private String          memberUUID;
 
@@ -161,7 +158,6 @@ public class GrouperSession {
    */
   public GrouperSession() {
     this.cachedMember = null;
-    this.cfg          = new ApiConfig();
     this.rootSession  = null;
   } 
 
@@ -310,7 +306,7 @@ public class GrouperSession {
    * @since   ?
    */
   public String getAccessClass() {
-    return this.getConfig(ApiConfig.ACCESS_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
+    return GrouperConfig.getProperty(ApiConfig.ACCESS_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
   } 
 
   /**
@@ -337,19 +333,6 @@ public class GrouperSession {
       this.accessResolver = AccessResolverFactory.getInstance(this);
     }
     return this.accessResolver;
-  }
-
-  /**
-   * Get specified {@link ApiConfig} property.
-   * <p/>
-   * @return  Value of <i>property</i> or null if not set.
-   * @throws  IllegalArgumentException if <i>property</i> is null.
-   * @since   1.2.1
-   */
-  public String getConfig(String property) 
-    throws  IllegalArgumentException
-  {
-    return this.cfg.getProperty(property);
   }
 
    /**
@@ -391,7 +374,7 @@ public class GrouperSession {
    * @since   ?
    */
   public String getNamingClass() {
-    return this.getConfig(ApiConfig.NAMING_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
+    return GrouperConfig.getProperty(ApiConfig.NAMING_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
   } 
 
   /**
@@ -472,19 +455,6 @@ public class GrouperSession {
   } // public Subject getSubject()
 
   /**
-   * Currently just a testing hack.
-   * <p/>
-   * @return  Value of <i>property</i> or null if not set.
-   * @throws  IllegalArgumentException if <i>property</i> is null.
-   * @since   1.2.1
-   */
-  public void setConfig(String property, String value) 
-    throws  IllegalArgumentException
-  {
-    this.cfg.setProperty(property, value);
-  }
-
-  /**
    * Stop this API session.
    * <pre class="eg">
    * s.stop();
@@ -547,7 +517,6 @@ public class GrouperSession {
     // TODO 20070417 deprecate if possible
     if (this.rootSession == null) {
       GrouperSession rs = new GrouperSession();
-      rs.cfg = this.cfg;
       rs.setMemberUuid( MemberFinder.internal_findRootMember().getUuid() );
       rs.setStartTimeLong( new Date().getTime() );
       rs.setSubject( SubjectFinder.findRootSubject() );

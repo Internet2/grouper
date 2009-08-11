@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.privs.NamingAdapter;
  * Test {@link GrouperSession}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestGrouperSession.java,v 1.7 2009-03-20 19:56:40 mchyzer Exp $
+ * @version $Id: TestGrouperSession.java,v 1.8 2009-08-11 20:18:09 mchyzer Exp $
  * @since   1.2.1
  */
 public class TestGrouperSession extends GrouperTest {
@@ -110,25 +110,6 @@ public class TestGrouperSession extends GrouperTest {
     );
   }
 
-
-
-  public void test_getConfig_null() {
-    try {
-      this.s.getConfig(null);
-      fail("failed to throw IllegalArgumentException");
-    }
-    catch (IllegalArgumentException eExpected) {
-      assertTrue("threw expected exception", true);
-    }
-  }
-
-  public void test_getConfig_invalidProperty() {
-    assertNull( this.s.getConfig(prop_invalid) );
-  }
-
-  public void test_getConfig_validProperty() {
-    assertEquals( this.cfg.getProperty(ApiConfig.ACCESS_PRIVILEGE_INTERFACE), this.s.getConfig(prop_valid) );
-  }
 
 
   public void test_getNamingClass_notNull() {

@@ -1,15 +1,17 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.20 2009-06-10 05:31:35 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.21 2009-08-11 20:18:09 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
 import java.io.File;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -44,10 +47,12 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -55,6 +60,9 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperReport;
 import edu.internet2.middleware.grouper.misc.GrouperReportException;
 import edu.internet2.middleware.grouper.misc.SaveMode;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -112,7 +120,7 @@ public enum GrouperLoaderType {
       syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), null, null, 
           loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(),
           grouperLoaderResultset, false, loaderJobBean.getGrouperSession(), 
-          loaderJobBean.getAndGroups(), loaderJobBean.getGroupTypes());
+          loaderJobBean.getAndGroups(), loaderJobBean.getGroupTypes(), null, null);
       
     }
   }, 
@@ -276,7 +284,7 @@ public enum GrouperLoaderType {
         Hib3GrouperLoaderLog hib3GrouploaderLogOverall = loaderJobBean.getHib3GrouploaderLogOverall();
         GrouperSession grouperSession = loaderJobBean.getGrouperSession();
         List<Group> andGroups = loaderJobBean.getAndGroups();
-        List<GroupType> groupTypes = loaderJobBean.getGroupTypes();
+        List<GroupType> groupTypes = GrouperUtil.nonNull(loaderJobBean.getGroupTypes());
         String groupLikeString = loaderJobBean.getGroupLikeString();
         String groupQuery = loaderJobBean.getGroupQuery();
         long startTime = loaderJobBean.getStartTime();
@@ -312,6 +320,8 @@ public enum GrouperLoaderType {
           int groupMetadataNumberOfRows = 0;
           Map<String, String> groupNameToDisplayName = new LinkedHashMap<String, String>();
           Map<String, String> groupNameToDescription = new LinkedHashMap<String, String>();
+          Map<String, Subject> subjectCache = new HashMap<String, Subject>();
+          Map<Privilege, List<Subject>> privsToAdd = new LinkedHashMap<Privilege, List<Subject>>();
           Set<String> groupNamesFromGroupQuery = new LinkedHashSet<String>();
           if (!StringUtils.isBlank(groupQuery)) {
             //get a resultset from the db
@@ -327,6 +337,48 @@ public enum GrouperLoaderType {
               groupNameToDisplayName.put(groupName, groupDisplayName);
               String groupDescription = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_DESCRIPTION_COL, false);
               groupNameToDescription.put(groupName, groupDescription);
+              {
+                String groupViewers = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_VIEWERS_COL, false);
+                if (!StringUtils.isBlank(groupViewers)) {
+                  List<Subject> viewerSubjects = lookupSubject(subjectCache, groupViewers);
+                  privsToAdd.put(AccessPrivilege.VIEW, viewerSubjects);
+                }
+            }
+              {
+                String groupReaders = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_READERS_COL, false);
+                if (!StringUtils.isBlank(groupReaders)) {
+                  List<Subject> readerSubjects = lookupSubject(subjectCache, groupReaders);
+                  privsToAdd.put(AccessPrivilege.READ, readerSubjects);
+                }
+              }
+              {
+                String groupUpdaters = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_UPDATERS_COL, false);
+                if (!StringUtils.isBlank(groupUpdaters)) {
+                  List<Subject> updaterSubjects = lookupSubject(subjectCache, groupUpdaters);
+                  privsToAdd.put(AccessPrivilege.UPDATE, updaterSubjects);
+                }
+              }
+              {
+                String groupAdmins = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_ADMINS_COL, false);
+                if (!StringUtils.isBlank(groupAdmins)) {
+                  List<Subject> adminSubjects = lookupSubject(subjectCache, groupAdmins);
+                  privsToAdd.put(AccessPrivilege.ADMIN, adminSubjects);
+                }
+              }
+              {
+                String groupOptins = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_OPTINS_COL, false);
+                if (!StringUtils.isBlank(groupOptins)) {
+                  List<Subject> optinSubjects = lookupSubject(subjectCache, groupOptins);
+                  privsToAdd.put(AccessPrivilege.OPTIN, optinSubjects);
+                }
+              }
+              {
+                String groupOptouts = (String)grouperLoaderGroupsResultset.getCell(i, GrouperLoaderResultset.GROUP_OPTOUTS_COL, false);
+                if (!StringUtils.isBlank(groupOptouts)) {
+                  List<Subject> optoutSubjects = lookupSubject(subjectCache, groupOptouts);
+                  privsToAdd.put(AccessPrivilege.OPTOUT, optoutSubjects);
+                }
+              }
             }
             
           }
@@ -468,6 +520,73 @@ public enum GrouperLoaderType {
           int count=1;
           
           long groupStartedMillis = System.currentTimeMillis();
+          
+          //if we are configured to, get the group names in one fell swoop
+          boolean getMembershipsAtOnce = false && GrouperLoaderConfig.getPropertyBoolean(
+              "loader.getAllGroupListMembershipsAtOnce", false);
+          
+          //set of immediate memberships in the regsitry, key is group name, multikey by subjectId, and optionally sourceId
+          Map<String, Set<MultiKey>> membershipsInRegistry = new HashMap<String, Set<MultiKey>>();
+          
+          if (getMembershipsAtOnce) {
+            
+            String queryPrefix = "select distinct a.value, gm.subjectIdDb, gm.subjectSourceIdDb "
+              + "from Attribute a, Field f, Membership gms, Member gm, Field mf "
+              + "where f.name = 'name' and a.fieldId = f.uuid "
+              + "and gms.ownerUuid = a.groupUuid and gms.memberUuid = gm.uuid "
+              + "and gms.fieldId = mf.uuid and mf.name = 'members' and mf.typeString = 'list' "
+              + "and gms.type = 'immediate' and a.value  ";
+            
+            List<Object[]> result = null;
+            //lets see which type to do
+            if (!StringUtils.isBlank(groupLikeString)) {
+              
+              result = HibernateSession.byHqlStatic()
+                .createQuery(queryPrefix + " like :thePattern")
+                .setString("thePattern", groupLikeString).list(Object[].class);
+                            
+            } else {
+              //just batch up the group names to get the results, in size of 100
+              int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupNames, 100);
+              result = new ArrayList<Object[]>();
+              for (int i=0;i<numberOfBatches;i++) {
+                
+                List<String> groupNamesInBatch = GrouperUtil.batchList(groupNames, 100, i);
+                
+                ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+                String queryInClause = HibUtils.convertToInClause(groupNamesInBatch, byHqlStatic);
+                byHqlStatic.createQuery(queryPrefix + " in (" + queryInClause + ")");
+                result.addAll(byHqlStatic.list(Object[].class));
+                
+              }
+              
+              
+            }
+            
+            for (Object[] resultLine : GrouperUtil.nonNull(result)) {
+              String groupName = (String)resultLine[0];
+              String subjectId = (String)resultLine[1];
+              String sourceId = (String)resultLine[2];
+              
+              Set<MultiKey> members = membershipsInRegistry.get(groupName);
+              
+              if (members == null) {
+                members = new HashSet<MultiKey>();
+                membershipsInRegistry.put(groupName, members);
+              }
+               
+              //here is the exact
+              members.add(new MultiKey(subjectId, sourceId));
+              
+              //put in the subjectId, lets hope there arent duplicates going on
+              //members.add(new MultiKey(new Object[]{subjectId}));
+              
+            }
+
+            
+          }
+          
+          
           for (String groupName : groupNames) {
             
             if (LOG.isDebugEnabled()) {
@@ -498,7 +617,7 @@ public enum GrouperLoaderType {
               //based on type, run query from the db and sync members
               syncOneGroupMembership(groupName, groupNameToDisplayName.get(groupName), 
                   groupNameToDescription.get(groupName), hib3GrouploaderLog, groupStartedMillis,
-                  grouperLoaderResultset, true, grouperSession, andGroups, groupTypes);
+                  grouperLoaderResultset, true, grouperSession, andGroups, groupTypes, privsToAdd, membershipsInRegistry.get(groupName));
               
               long endTime = System.currentTimeMillis();
               hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
@@ -770,6 +889,48 @@ public enum GrouperLoaderType {
   public abstract boolean attributeOptional(String attributeName);
   
   /**
+   * take in a subject list, comma separated
+   * @param subjectCache
+   * @param subjectIdOrIdentifierList
+   * @return the list of subjects (never null)
+   */
+  public static List<Subject> lookupSubject(Map<String, Subject> subjectCache, String subjectIdOrIdentifierList) {
+    List<Subject> subjectList = new ArrayList<Subject>();
+    if (!StringUtils.isBlank(subjectIdOrIdentifierList)) {
+      String[] subjectIdsArray = GrouperUtil.splitTrim(subjectIdOrIdentifierList, ",");
+      for (String subjectIdOrIdentifier : subjectIdsArray) {
+        Subject subject = subjectCache.get(subjectIdOrIdentifier);
+        if (subject == null) {
+          
+          //we need to find this or make it
+          try {
+            subject = SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, false);
+          } catch (Exception e) {
+            //ignore I guess
+            LOG.debug("error looking for subject: " + subjectIdOrIdentifier, e);
+          }
+          if (subject == null && StringUtils.contains(subjectIdOrIdentifier, ':')) {
+            //if there is a colon, that is a group, it doesnt exist, so create it
+            GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+            Group group = new GroupSave(grouperSession).assignName(subjectIdOrIdentifier)
+              .assignGroupNameToEdit(subjectIdOrIdentifier)
+              .assignSaveMode(SaveMode.INSERT).saveUnchecked();
+            subject = group.toSubject();
+          }
+        }
+        if (subject != null) {
+          subjectCache.put(subjectIdOrIdentifier, subject);
+          if (!SubjectHelper.inList(subjectList, subject)) {
+            subjectList.add(subject);
+          }
+        }
+      }
+    }
+    return subjectList;
+    
+  }
+  
+  /**
    * logger 
    */
   private static final Log LOG = GrouperUtil.getLog(GrouperLoaderType.class);
@@ -912,13 +1073,17 @@ public enum GrouperLoaderType {
    * @param grouperSession 
    * @param andGroups 
    * @param groupTypes comma separated group types
+   * @param groupPrivsToAdd priv
+   * @param groupMembers if a grouplist, this is a pre-fetched list of group members, else this is null, 
+   * meaning get all members here
    */
   @SuppressWarnings("unchecked")
   protected static void syncOneGroupMembership(final String groupName,
       final String groupDisplayNameForInsert, final String groupDescription,
       Hib3GrouperLoaderLog hib3GrouploaderLog, long startTime,
       final GrouperLoaderResultset grouperLoaderResultset, boolean groupList,
-      final GrouperSession grouperSession, List<Group> andGroups, List<GroupType> groupTypes) {
+      final GrouperSession grouperSession, List<Group> andGroups, List<GroupType> groupTypes,
+      Map<Privilege,List<Subject>> groupPrivsToAdd, Set<MultiKey> groupMembers) {
     
     //keep this separate so we can prepend stuff inside...
     final StringBuilder jobMessage = new StringBuilder(StringUtils.defaultString(hib3GrouploaderLog.getJobMessage()));
@@ -981,20 +1146,59 @@ public enum GrouperLoaderType {
         }
       }
       
+      if (groupList) {
+        if (groupPrivsToAdd != null && groupPrivsToAdd.size() > 0) {
+          
+          Set<Group> groupsForPrivs = GroupTypeTupleIncludeExcludeHook.relatedGroups(theGroup);
+          for (Group groupForPriv : groupsForPrivs) {
+          
+            for (Privilege privilege : groupPrivsToAdd.keySet()) {
+              List<Subject> subjects = groupPrivsToAdd.get(privilege);
+              for (Subject subject : subjects) {
+                //add the priv
+                Boolean added = null;
+                try {
+                  added = groupForPriv.grantPriv(subject, privilege, false);
+                  if (added) {
+                    hib3GrouploaderLog.addInsertCount(1);
+                  }
+                } finally {
+                  String logMessage = "Granting privilege " + privilege + " to group: " + groupForPriv.getName() + " to subject: "
+                      + GrouperUtil.subjectToString(subject) + " already existed? " + added;
+                  //System.out.println(logMessage);
+                  LOG.debug(logMessage);
+                }
+              }
+            }
+          }
+        }
+      }
+      
       hib3GrouploaderLog.setGroupUuid(group[0].getUuid());
 
-      final Set<Member> currentMembers = group[0].getImmediateMembers();
+      Set<LoaderMemberWrapper> currentMembers = new LinkedHashSet<LoaderMemberWrapper>();
+      
+      if (groupMembers != null) {
+        for (MultiKey multiKey : groupMembers) {
+          currentMembers.add(new LoaderMemberWrapper((String)multiKey.getKey(0), (String)multiKey.getKey(1)));
+        }
+      } else {
+        Set<Member> members = group[0].getImmediateMembers();
+        for (Member member : GrouperUtil.nonNull(members)) {
+          currentMembers.add(new LoaderMemberWrapper(member));
+        }
+      }
       
       //now lets remove data from each since the member is there and is supposed to be there
-      Iterator<Member> iterator = currentMembers.iterator();
+      Iterator<LoaderMemberWrapper> iterator = currentMembers.iterator();
       
       int count = 0;
       
       while (iterator.hasNext()) {
         
-        Member member = iterator.next();
+        LoaderMemberWrapper member = iterator.next();
         //see if it is in the current list
-        Row row = grouperLoaderResultset.find(member.getSubjectId(), member.getSubjectSourceId());
+        Row row = grouperLoaderResultset.find(member.getSubjectId(), member.getSourceId());
         
         //this means the member exists in query, and in membership, so maybe do nothing
         if (row != null) {
@@ -1089,15 +1293,14 @@ public enum GrouperLoaderType {
       
       
       //here are members to remove
-      final Set<Member> membersToRemove = new HashSet<Member>();
+      final List<LoaderMemberWrapper> membersToRemove = new ArrayList<LoaderMemberWrapper>(currentMembers);
       numberOfRows = currentMembers.size();
       count = 1;
       //first remove members
-      for (Member member : currentMembers) {
+      for (LoaderMemberWrapper loaderMemberWrapper : membersToRemove) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug(groupName + " will remove subject from group: " + member.getSubjectSourceIdDb() + "/" + member.getSubjectIdDb() + ", " + count + " of " + numberOfRows + " members");
+          LOG.debug(groupName + " will remove subject from group: " + loaderMemberWrapper.getSourceId() + "/" + loaderMemberWrapper.getSubjectId() + ", " + count + " of " + numberOfRows + " members");
         }
-        membersToRemove.add(member);
         count++;
       }
       
@@ -1119,10 +1322,10 @@ public enum GrouperLoaderType {
             int numberOfRows = membersToRemove.size();
             int count = 1;
             //first remove members
-            for (Member member : membersToRemove) {
+            for (LoaderMemberWrapper member : membersToRemove) {
               try {
                 //go from subject since large lists might be removed from cache
-                boolean alreadyDeleted = group[0].deleteMember(member.getSubject(), false);
+                boolean alreadyDeleted = group[0].deleteMember(member.findOrGetSubject(), false);
                 if (LOG.isDebugEnabled() && (count != 0 && count % 200 == 0)) {
                   LOG.debug(groupName + " removing: " + count + " of " + numberOfRows + " members" 
                       + (alreadyDeleted ? ", [note: was already deleted... weird]" : ""));

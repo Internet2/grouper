@@ -43,7 +43,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelAccessResolver.java,v 1.22 2009-04-13 16:53:07 mchyzer Exp $
+ * @version $Id: WheelAccessResolver.java,v 1.23 2009-08-11 20:18:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class WheelAccessResolver extends AccessResolverDecorator {
@@ -79,13 +79,13 @@ public class WheelAccessResolver extends AccessResolverDecorator {
     super(resolver);
     this.cc = new EhcacheController();
     // TODO 20070816 this is ugly
-    String useWheelString = this.getConfig( GrouperConfig.PROP_USE_WHEEL_GROUP );
+    String useWheelString = GrouperConfig.getProperty( GrouperConfig.PROP_USE_WHEEL_GROUP );
     this.useWheel = Boolean.valueOf( useWheelString ).booleanValue();
     // TODO 20070816 and this is even worse
     if (this.useWheel) {
       String wheelName = null;
       try {
-        wheelName = this.getConfig( GrouperConfig.PROP_WHEEL_GROUP );
+        wheelName = GrouperConfig.getProperty( GrouperConfig.PROP_WHEEL_GROUP );
         this.wheelSession = GrouperSession.start( SubjectFinder.findRootSubject(), false );
         this.wheelGroup = GroupFinder.findByName(
                             this.wheelSession,
@@ -112,16 +112,6 @@ public class WheelAccessResolver extends AccessResolverDecorator {
   }
 
 
-
-  /**
-   * @see     AccessResolver#getConfig(String)
-   * @throws  IllegalStateException if any parameter is null.
-   */
-  public String getConfig(String key) 
-    throws IllegalStateException
-  {
-    return super.getDecoratedResolver().getConfig(key);
-  }
 
   /**
    * @see     AccessResolver#getGroupsWhereSubjectHasPrivilege(Subject, Privilege)

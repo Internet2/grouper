@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.38 2009-07-02 17:22:47 shilen Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.39 2009-08-11 20:18:08 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -1121,7 +1121,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     if (securableField) {
       changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
           grouperSession.getSubject(), byHqlStatic, 
-          sql, "ms.ownerGroupId", AccessPrivilege.VIEW_PRIVILEGES);
+          sql, "ms.ownerGroupId", AccessPrivilege.READ_PRIVILEGES);
     }
 
     if (!changedQuery) {

@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.privs;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import  edu.internet2.middleware.grouper.GrouperSession;
 import  edu.internet2.middleware.grouper.cfg.ApiConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import  edu.internet2.middleware.grouper.internal.util.ParameterHelper;
 import  edu.internet2.middleware.grouper.internal.util.Realize;
 
@@ -26,7 +27,7 @@ import  edu.internet2.middleware.grouper.internal.util.Realize;
 /** 
  * Factory for returning a <code>AccessResolver</code>.
  * @author  blair christensen.
- * @version $Id: AccessResolverFactory.java,v 1.5 2009-03-15 06:37:22 mchyzer Exp $
+ * @version $Id: AccessResolverFactory.java,v 1.6 2009-08-11 20:18:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class AccessResolverFactory {
@@ -46,7 +47,7 @@ public class AccessResolverFactory {
     throws  IllegalArgumentException
   {
     return getInstance(
-             session, (AccessAdapter) Realize.instantiate( session.getConfig( ApiConfig.ACCESS_PRIVILEGE_INTERFACE ) )
+             session, (AccessAdapter) Realize.instantiate( GrouperConfig.getProperty(ApiConfig.ACCESS_PRIVILEGE_INTERFACE ) )
            )
            ;
   }

@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides caching for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingAccessResolver.java,v 1.12 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: CachingAccessResolver.java,v 1.13 2009-08-11 20:18:08 mchyzer Exp $
  * @since   1.2.1
  */
 public class CachingAccessResolver extends AccessResolverDecorator {
@@ -60,16 +60,6 @@ public class CachingAccessResolver extends AccessResolverDecorator {
   }
 
 
-
-  /**
-   * @see     AccessResolver#getConfig(String)
-   * @throws  IllegalStateException if any parameter is null.
-   */
-  public String getConfig(String key) 
-    throws IllegalStateException
-  {
-    return super.getDecoratedResolver().getConfig(key);
-  }
 
   /**
    * Retrieve boolean from cache for <code>hasPrivilege(...)</code>.

@@ -16,25 +16,45 @@
 */
 
 package edu.internet2.middleware.grouper.internal.util;
-import  org.doomdark.uuid.UUIDGenerator;
+import java.util.UUID;
+
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 
 /** 
  * Generate UUIDs.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperUuid.java,v 1.1 2007-04-17 17:13:27 blair Exp $
+ * @version $Id: GrouperUuid.java,v 1.2 2009-08-11 20:18:09 mchyzer Exp $
  * @since   1.2.0
  *     
-*/
+ */
 public class GrouperUuid {
 
-  // PUBLIC CLASS METHODS //
-
   /**
+   * @return a uuid 
    * @since   1.2.0
    */
   public static String getUuid() {
-    return UUIDGenerator.getInstance().generateRandomBasedUUID().toString();
+    String uuid = UUID.randomUUID().toString();
+    
+    //config option to do that
+    if (GrouperConfig.getPropertyBoolean("uuid.use.dashes", false)) {
+      return uuid;
+    }
+
+    char[] result = new char[32];
+    int resultIndex = 0;
+    for (int i=0;i<uuid.length();i++) {
+      char theChar = uuid.charAt(i);
+      if (theChar != '-') {
+        if (resultIndex >= result.length) {
+          throw new RuntimeException("Why is resultIndex greater than result.length ???? " 
+              + resultIndex + " , " + result.length + ", " + uuid);
+        }
+        result[resultIndex++] = theChar;
+      }
+    }
+    return new String(result);
   } 
 
 }

@@ -26,6 +26,7 @@ import junit.textui.TestRunner;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
@@ -60,7 +61,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.28 2009-04-14 07:41:24 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.29 2009-08-11 20:18:09 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -1333,7 +1334,7 @@ public class TestStem extends GrouperTest {
 
 
   /**
-   * 
+   * NOTE, THIS ASSUMES CACHING IS ENABLED IN THE GROUPER HIBERNATE PROPERTIES
    * @throws Exception
    */
   public void testCache() throws Exception {
@@ -1375,5 +1376,198 @@ public class TestStem extends GrouperTest {
     
     s.stop();
   } // public void testSetBadStemDisplayExtension()
+  
+  /**
+   * test new performance method for child memberships
+   * @throws Exception 
+   */
+  public void testGetChildMembershipGroups() throws Exception {
+    
+    GrouperSession aSession;
+    R r = R.populateRegistry(0, 0, 1);
+    final Subject subject = r.getSubject("a");
+    
+    aSession = GrouperSession.start(subject);
+    final Stem[] topNew = new Stem[1];
+    final Group[] group1 = new Group[1];
+    
+    final GrouperSession rootSession = aSession.internal_getRootSession();
+    
+    GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        try {
+          topNew[0] = StemFinder.findRootStem(grouperSession).addChildStem("top new", "top new display name");
+          group1[0] = topNew[0].addChildGroup("test1", "test1");
+          
+        } catch (Exception e) {
+          throw new RuntimeException("Problem", e);
+        }
+        return null;
+      }
+      
+    });
+
+    Set<Group> groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.READ_PRIVILEGES, null);
+    assertEquals(0, groups.size());
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, null);
+    assertEquals(0, groups.size());
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.MANAGE_PRIVILEGES, null);
+    assertEquals(0, groups.size());    
+
+    //add a membership (grouper all should see
+    GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        try {
+          group1[0].addMember(subject);
+        } catch (Exception e) {
+          throw new RuntimeException("Problem", e);
+        }
+        return null;
+      }
+      
+    });
+
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.READ_PRIVILEGES, null);
+    assertEquals(1, groups.size());
+    assertEquals("top new:test1", groups.iterator().next().getName());
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, null);
+    assertEquals(1, groups.size());
+    assertEquals("top new:test1", groups.iterator().next().getName());
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.MANAGE_PRIVILEGES, null);
+    assertEquals(0, groups.size());    
+
+    //remove grouper all, should not see
+    GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        try {
+          group1[0].revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+          group1[0].revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+        } catch (Exception e) {
+          throw new RuntimeException("Problem", e);
+        }
+        return null;
+      }
+      
+    });
+
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.READ_PRIVILEGES, null);
+    assertEquals(0, groups.size());
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, null);
+    assertEquals(0, groups.size());
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.MANAGE_PRIVILEGES, null);
+    assertEquals(0, groups.size()); 
+    
+    //remove membership, add a priv
+    GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        try {
+          group1[0].deleteMember(subject);
+          group1[0].grantPriv(subject, AccessPrivilege.READ);
+        } catch (Exception e) {
+          throw new RuntimeException("Problem", e);
+        }
+        return null;
+      }
+      
+    });
+
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.READ_PRIVILEGES, null);
+    assertEquals(0, groups.size());
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, null);
+    assertEquals(0, groups.size());
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.MANAGE_PRIVILEGES, null);
+    assertEquals(0, groups.size());    
+
+    //add membership
+    GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        try {
+          group1[0].addMember(subject);
+        } catch (Exception e) {
+          throw new RuntimeException("Problem", e);
+        }
+        return null;
+      }
+      
+    });
+
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.READ_PRIVILEGES, null);
+    assertEquals(1, groups.size());
+    assertEquals("top new:test1", groups.iterator().next().getName());
+
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, null);
+    assertEquals(1, groups.size());
+    assertEquals("top new:test1", groups.iterator().next().getName());
+    
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.MANAGE_PRIVILEGES, null);
+    assertEquals(0, groups.size());    
+    
+    
+    //remove read, add list
+    GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        try {
+          group1[0].revokePriv(subject, AccessPrivilege.READ);
+          group1[0].grantPriv(subject, AccessPrivilege.VIEW);
+        } catch (Exception e) {
+          throw new RuntimeException("Problem", e);
+        }
+        return null;
+      }
+      
+    });
+    
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.READ_PRIVILEGES, null);
+    assertEquals(0, groups.size());
+
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, null);
+    assertEquals(1, groups.size());
+    assertEquals("top new:test1", groups.iterator().next().getName());
+    
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.MANAGE_PRIVILEGES, null);
+    assertEquals(0, groups.size());    
+    
+    //remove list, add update
+    GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
+
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        try {
+          group1[0].revokePriv(subject, AccessPrivilege.VIEW);
+          group1[0].grantPriv(subject, AccessPrivilege.UPDATE);
+        } catch (Exception e) {
+          throw new RuntimeException("Problem", e);
+        }
+        return null;
+      }
+      
+    });
+    
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.READ_PRIVILEGES, null);
+    assertEquals(0, groups.size());
+
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, null);
+    assertEquals(1, groups.size());
+    assertEquals("top new:test1", groups.iterator().next().getName());
+    
+    groups = topNew[0].getChildMembershipGroups(Scope.ONE, AccessPrivilege.MANAGE_PRIVILEGES, null);
+    assertEquals(1, groups.size());
+    assertEquals("top new:test1", groups.iterator().next().getName());
+    
+  }
+  
+
 }
 
