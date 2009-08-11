@@ -276,39 +276,47 @@ function ajax(theUrl, options) {
     },
     //TODO process the response object
     success: function(json){
-      var guiResponseJs = json;
-      
-      //put new pagers in the app state
-      if (guiResponseJs.pagers) {
-        for(var pagerName in guiResponseJs.pagers) {
-          allObjects.appState.pagers[pagerName] = guiResponseJs.pagers[pagerName];
-        }
-      }
-      
-      //put new pagers in the app state
-      if (guiResponseJs.hideShows) {
-        for(var hideShowName in guiResponseJs.hideShows) {
-          allObjects.appState.hideShows[hideShowName] = guiResponseJs.hideShows[hideShowName];
-        }
-      }
-      
-      for (var i=0; i<guiArrayLength(guiResponseJs.actions); i++ ) {
-        
-        var action = guiResponseJs.actions[i];
-        guiProcessAction(action);
-        
-      }
-
-      //see if there are actions
-      //if (successResultFunction) {
-      //  successResultFunction.call(this, json);
-      //}
-
-      //round those corners
-      guiRoundCorners();
+      guiProcessJsonResponse(json);
     }
   });
   return result;
+}
+
+/**
+ * process an ajax request
+ * @param guiResponseJs
+ */
+function guiProcessJsonResponse(guiResponseJs) {
+  
+  //put new pagers in the app state
+  if (guiResponseJs.pagers) {
+    for(var pagerName in guiResponseJs.pagers) {
+      allObjects.appState.pagers[pagerName] = guiResponseJs.pagers[pagerName];
+    }
+  }
+  
+  //put new pagers in the app state
+  if (guiResponseJs.hideShows) {
+    for(var hideShowName in guiResponseJs.hideShows) {
+      allObjects.appState.hideShows[hideShowName] = guiResponseJs.hideShows[hideShowName];
+    }
+  }
+  
+  for (var i=0; i<guiArrayLength(guiResponseJs.actions); i++ ) {
+    
+    var action = guiResponseJs.actions[i];
+    guiProcessAction(action);
+    
+  }
+
+  //see if there are actions
+  //if (successResultFunction) {
+  //  successResultFunction.call(this, json);
+  //}
+
+  //round those corners
+  guiRoundCorners();
+
 }
 
 /**
@@ -342,6 +350,10 @@ function guiProcessAction(guiScreenAction) {
     guiHideShow(null, guiScreenAction.hideShowNameToToggle);
   }
   
+  if (typeof guiScreenAction.closeModal != 'undefined' && guiScreenAction.closeModal) {
+    $.modal.close(); 
+  }
+  
   //do an alert
   if (!guiIsEmpty(guiScreenAction.alert)) {
     $.unblockUI(); 
@@ -351,6 +363,17 @@ function guiProcessAction(guiScreenAction) {
         + guiScreenAction.alert + '<div class="simplemodal-buttonrow"><button class=\'simplemodal-close blueButton\'>OK</button></div></div>').modal({close: true, position: [20,20]});
   }
   
+  //do an alert
+  if (!guiIsEmpty(guiScreenAction.dialog)) {
+    $.unblockUI(); 
+    $('<div class=".simplemodal-dialoginner">' 
+        + guiScreenAction.dialog + '</div>').modal({close: true, position: [20,20]});
+  }
+  
+}
+
+function guiX(x) {
+  alert(x);
 }
 
 /** when a javascript link click happens, dont let the a href click happen */
@@ -918,4 +941,21 @@ function guiInt(input) {
   alert("cant convert '" + originalInput + "' to int");
 }
 
-
+/**
+ * 
+ * @param event
+ * @return
+ */
+function guiSubmitFileForm(event, formJqueryHandle, operation) {
+  eventCancelBubble(event);
+  var options = {
+      iframe: true, 
+      dataType: "json", 
+      success:    function(json) { 
+        guiProcessJsonResponse(json);
+      },
+      url: operation
+  };
+  $(formJqueryHandle).ajaxSubmit(options);
+  return false;
+}

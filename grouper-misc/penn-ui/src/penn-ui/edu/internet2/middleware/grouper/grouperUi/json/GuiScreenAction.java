@@ -20,6 +20,27 @@ public class GuiScreenAction {
   /** alert to show on screen */
   private String alert;
   
+  /** dialog to show on screen */
+  private String dialog;
+  
+  
+  /**
+   * dialog to show on screen
+   * @return the dialog
+   */
+  public String getDialog() {
+    return this.dialog;
+  }
+
+  
+  /**
+   * dialog to show on screen
+   * @param dialog1 the dialog to set
+   */
+  public void setDialog(String dialog1) {
+    this.dialog = dialog1;
+  }
+
   /**
    * alert to show on screen
    * @return the alert
@@ -59,6 +80,9 @@ public class GuiScreenAction {
   
   /** hide show name to toggle */
   private String hideShowNameToToggle;
+
+  /** if the current modal window should be closed */
+  private Boolean closeModal;
   
   
   /**
@@ -260,6 +284,30 @@ public class GuiScreenAction {
   }
   
   /**
+   * construct with JSP name
+   * @param jspName e.g. /WEB-INF/templates/something.jsp
+   * @return the action
+   */
+  public static GuiScreenAction newDialogFromJsp(String jspName) {
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    String jspContents = GuiUtils.convertJspToString(jspName);
+    
+    guiScreenAction.setDialog(jspContents);
+    
+    return guiScreenAction;
+  }
+  
+  /**
+   * construct with an instruction to close the current modal window if open
+   * @return the action
+   */
+  public static GuiScreenAction newCloseModal() {
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    guiScreenAction.setCloseModal(true);
+    return guiScreenAction;
+  }
+  
+  /**
    * default constructor
    */
   public GuiScreenAction() {
@@ -296,6 +344,22 @@ public class GuiScreenAction {
    */
   public void setAssignmentObject(Object assignmentObject1) {
     this.assignmentObject = assignmentObject1;
+  }
+
+  /**
+   * if the current modal window should be closed
+   * @return the closeModal
+   */
+  public Boolean getCloseModal() {
+    return this.closeModal;
+  }
+
+  /**
+   * if the current modal window should be closed
+   * @param closeModal1 the closeModal to set
+   */
+  public void setCloseModal(Boolean closeModal1) {
+    this.closeModal = closeModal1;
   }
 
   /**

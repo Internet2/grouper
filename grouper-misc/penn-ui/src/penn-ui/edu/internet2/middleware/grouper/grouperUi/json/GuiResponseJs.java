@@ -19,6 +19,31 @@ import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
  */
 public class GuiResponseJs {
 
+  /** if this is an ajax file submit, we need to add textarea around response
+   * since it is submitted to a hidden frame
+   */
+  private boolean addTextAreaTag;
+  
+  
+  /**
+   * if this is an ajax file submit, we need to add textarea around response
+   * since it is submitted to a hidden frame
+   * @return the addTextAreaTag
+   */
+  public boolean isAddTextAreaTag() {
+    return this.addTextAreaTag;
+  }
+
+  
+  /**
+   * if this is an ajax file submit, we need to add textarea around response
+   * since it is submitted to a hidden frame
+   * @param addTextAreaTag1 the addTextAreaTag to set
+   */
+  public void setAddTextAreaTag(boolean addTextAreaTag1) {
+    this.addTextAreaTag = addTextAreaTag1;
+  }
+
   /**
    * add a hide show
    * @param name of hideShow

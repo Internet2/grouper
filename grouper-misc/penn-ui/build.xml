@@ -23,7 +23,7 @@
 
   <!-- validate the build.properties -->
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): webapp.name" unless="webapp.name" />
-  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.home" unless="grouper.home" />
+    <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.example.properties): grouper.home" unless="grouper.home" />
   
   <path id="ui.class.path">
     <!-- Make available jar files that Grouper needs -->
@@ -44,12 +44,13 @@
     <delete dir="webapp/WEB-INF/lib" />
     <mkdir dir="webapp/WEB-INF/lib" />
     <copy todir="webapp/WEB-INF/lib">
-      <fileset dir="lib/grouper-ui" includes="*.jar" />
       <fileset dir="${grouper.home}/lib/custom" includes="*.jar" />
       <fileset dir="${grouper.home}/lib/grouper" includes="*.jar" />
       <fileset dir="${grouper.home}/dist/lib">
         <include name="grouper.jar" />
       </fileset>
+      <!-- do this ;ast so it trumps other stuff -->
+      <fileset dir="lib/grouper-ui" includes="*.jar" />
     </copy>
     <copy todir="webapp/WEB-INF/classes">
       <fileset dir="${grouper.home}/conf" includes="*" />
@@ -177,13 +178,14 @@
     
     <mkdir dir="build/war/WEB-INF/lib"/>
     <copy todir="build/war/WEB-INF/lib">
-      <fileset dir="lib/grouper-ui" includes="*.jar" />
       <fileset dir="${grouper.home}/lib/custom" includes="*.jar" />
       <fileset dir="${grouper.home}/lib/grouper" includes="*.jar" />
       <fileset file="build/jar/${webapp.name}.jar" />
       <fileset dir="${grouper.home}/dist/lib">
         <include name="grouper.jar" />
       </fileset>
+      <!-- do this last so it trumps other stuff -->
+      <fileset dir="lib/grouper-ui" includes="*.jar" />
     </copy>
     <mkdir dir="build/war/WEB-INF/classes"/>
     <copy todir="build/war/WEB-INF/classes">

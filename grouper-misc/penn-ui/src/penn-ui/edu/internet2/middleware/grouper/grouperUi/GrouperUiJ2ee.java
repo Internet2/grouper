@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.security.Principal;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.Filter;
@@ -20,6 +21,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,6 +48,32 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class GrouperUiJ2ee implements Filter {
 
+  /** keep 100k in memory, why not */
+  private static FileItemFactory fileItemFactory = new DiskFileItemFactory(1000, null);
+
+  /** Create a new file upload handler */
+  private static ServletFileUpload upload = new ServletFileUpload(fileItemFactory);
+
+  /**
+   * get the list of file items, cache these in request
+   * @return the list of file items
+   */
+  @SuppressWarnings("unchecked")
+  public static List<FileItem> fileItems() {
+    HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
+    List<FileItem> fileItems = (List<FileItem>)httpServletRequest.getAttribute("fileItems");
+    if (fileItems == null) {
+      try {
+        fileItems = upload.parseRequest(httpServletRequest);
+        httpServletRequest.setAttribute("fileItems", fileItems);
+      } catch (Exception e) {
+       throw new RuntimeException(e);
+      }
+    }
+    return fileItems;
+  }
+  
+  
   /**
    * find the request parameter names by prefix
    * @param prefix

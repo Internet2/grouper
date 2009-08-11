@@ -1,7 +1,7 @@
 <%@ include file="../common/commonTaglib.jsp"%>
 
-<div>
-  Download the members:<br /><br />
-  <a href="../app/SimpleMembershipUpdate.exportSubjectIdsCsv/${simpleMembershipUpdateContainer.guiGroup.exportSubjectIdsFileName}?groupId=${simpleMembershipUpdateContainer.guiGroup.group.uuid}"
+<div class="simpleMembershipDownload">
+  <grouperGui:message key="simpleMembershipUpdate.downloadSubjectIdsLabel" /> <br /><br />
+  <a href="../app/SimpleMembershipUpdate.exportSubjectIdsCsv/${simpleMembershipUpdateContainer.guiGroup.exportSubjectIdsFileName}"
     >${fn:escapeXml(simpleMembershipUpdateContainer.guiGroup.group.displayName)}</a>
 </div>

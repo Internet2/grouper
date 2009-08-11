@@ -1,17 +1,27 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.10 2009-08-10 21:35:17 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.11 2009-08-11 13:44:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import au.com.bytecode.opencsv.CSVWriter;
 import edu.internet2.middleware.grouper.Group;
@@ -26,6 +36,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.grouperUi.exceptions.ControllerDone;
+import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.grouperUi.json.AppState;
 import edu.internet2.middleware.grouper.grouperUi.json.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.json.GuiHideShow;
@@ -34,6 +45,7 @@ import edu.internet2.middleware.grouper.grouperUi.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.json.SimpleMembershipUpdateContainer;
+import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
@@ -612,6 +624,13 @@ public class SimpleMembershipUpdate {
     } else if (StringUtils.equals(menuItemId, "exportSubjectIds")) {
       guiResponseJs.addAction(GuiScreenAction.newAlertFromJsp(
           "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipUpdateExportSubjectIds.jsp"));
+    } else if (StringUtils.equals(menuItemId, "exportAll")) {
+      guiResponseJs.addAction(GuiScreenAction.newAlertFromJsp(
+          "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipUpdateExportAll.jsp"));
+      
+    } else if (StringUtils.equals(menuItemId, "import")) {
+      guiResponseJs.addAction(GuiScreenAction.newDialogFromJsp(
+          "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipUpdateImport.jsp"));
     } else {
       throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
     }
@@ -662,6 +681,10 @@ public class SimpleMembershipUpdate {
         + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExportAllTooltip"), true) + "</tooltip></item>\n"
         //close the export
         + "   </item>\n"
+        + "   <item id=\"import\" text=\"" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuImport"), true) 
+        + "\" ><tooltip>" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuImportTooltip"), true) + "</tooltip></item>\n"
         //close the import/export
         + "  </item>\n"
         //+ "  <item id=\"m3\" text=\"Help\" type=\"checkbox\" checked=\"true\"/>\n"
@@ -793,6 +816,7 @@ public class SimpleMembershipUpdate {
    * @param httpServletRequest
    * @param httpServletResponse
    */
+  @SuppressWarnings("unchecked")
   public void exportSubjectIdsCsv(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
     
     final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
@@ -815,6 +839,33 @@ public class SimpleMembershipUpdate {
       
       HttpServletResponse response = GrouperUiJ2ee.retrieveHttpServletResponse(); 
       
+      List<String[]> memberData = new ArrayList<String[]>(); 
+      for (Member member : members) {
+        // feed in your array (or convert your data to an array)
+        String[] entries = new String[]{member.getSubjectSourceId(), member.getSubjectId()};
+        memberData.add(entries);
+      }      
+
+      //sort
+      Collections.sort(memberData, new Comparator() {
+
+        /**
+         * 
+         * @param o1
+         * @param o2
+         * @return 1, -1, 0
+         */
+        @Override
+        public int compare(Object o1, Object o2) {
+          String[] first = (String[])o1;
+          String[] second = (String[])o2;
+          if (!StringUtils.equals(first[0], second[0])) {
+            return GuiUtils.compare(first[0], second[0], true);
+          }
+          return GuiUtils.compare(first[1], second[1], true);
+        }
+      });
+      
       //say it is CSV
       response.setContentType("text/csv");
     
@@ -830,13 +881,11 @@ public class SimpleMembershipUpdate {
       } catch (Exception e) {
         throw new RuntimeException("Cant get response.getWriter: ", e);
       }
-
       
       CSVWriter writer = new CSVWriter(out);
       writer.writeNext(new String[]{"sourceId", "subjectId"});
-      for (Member member : members) {
+      for (String[] entries: memberData) {
         // feed in your array (or convert your data to an array)
-        String[] entries = new String[]{member.getSubjectSourceId(), member.getSubjectId()};
         writer.writeNext(entries);
       }      
       writer.close();
@@ -852,6 +901,203 @@ public class SimpleMembershipUpdate {
       GrouperSession.stopQuietly(grouperSession); 
     }
 
+  }
+
+  /**
+   * export all members
+   * @param member
+   * @param headers 
+   * @param isAttribute which indexes are attributes
+   * @return the stirng array for csv
+   */
+  private String[] exportAllStringArray(Member member, String[] headers, boolean[] isAttribute) {
+    String[] result = new String[headers.length+2];
+    
+    //lets see what we can get from the member
+    for (int i=0;i<headers.length;i++) {
+      String header = headers[i];
+      if ("subjectId".equalsIgnoreCase(header)) {
+        result[i] = member.getSubjectId();
+      } else if ("sourceId".equalsIgnoreCase(header)) {
+        result[i] = member.getSubjectSourceId();
+      } else if ("memberId".equalsIgnoreCase(header)) {
+        result[i] = member.getUuid();
+      }
+    }
+    
+    
+    try {
+      
+      Subject subject = member.getSubject();
+      
+      //lets see what we can get from the subject
+      for (int i=0;i<headers.length;i++) {
+        String header = headers[i];
+        if ("name".equalsIgnoreCase(header)) {
+          result[i] = subject.getName();
+        } else if ("description".equalsIgnoreCase(header)) {
+          result[i] = subject.getDescription();
+        } else if ("screenLabel".equalsIgnoreCase(header)) {
+          result[i] = GuiUtils.convertSubjectToLabelConfigured(subject);
+        } else if (isAttribute[i]) {
+          result[i] = subject.getAttributeValue(header);
+        }
+      }
+      
+      result[headers.length] = "T";
+    } catch (Exception e) {
+      result[headers.length] = "F";
+      String error = "error with memberId: " + member.getUuid() + ", subjectId: " + member.getSubjectId()
+        + ", " + ExceptionUtils.getFullStackTrace(e);
+      LOG.error(error);
+      result[headers.length + 1] = error;
+    }
+    return result;
+  }
+  
+  /** logger */
+  private static final Log LOG = LogFactory.getLog(SimpleMembershipUpdate.class);
+
+  /**
+   * cols (tolower) which are cols which are not attributes
+   */
+  private static Set<String> nonAttributeCols = GrouperUtil.toSet(
+      "subjectid", "sourceid", "memberid", "name", "description", "screenlabel");
+  
+  /**
+   * export all subjects in csv format
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  @SuppressWarnings("unchecked")
+  public void exportAllCsv(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    
+    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    String groupName = null;
+  
+    String currentMemberUuid = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = this.retrieveGroup(grouperSession);
+      groupName = group.getName();
+      
+      Set<Member> members = group.getMembers();
+      
+      HttpServletResponse response = GrouperUiJ2ee.retrieveHttpServletResponse(); 
+      
+      String[] headers = GrouperUtil.splitTrim(TagUtils.mediaResourceString(GrouperUiJ2ee.retrieveHttpServletRequest(), 
+          "simpleMembershipUpdate.exportAllSubjectFields"), ",");
+      
+      //note: error is the last column
+      boolean[] isAttribute = new boolean[headers.length];
+      int sortCol = 0;
+      int sourceIdCol = -1;
+      for (int i=0;i<headers.length;i++) {
+        isAttribute[i] = !nonAttributeCols.contains(headers[i].toLowerCase());
+        if (StringUtils.equalsIgnoreCase(headers[i], TagUtils.mediaResourceString(
+            GrouperUiJ2ee.retrieveHttpServletRequest(), "simpleMembershipUpdate.exportAllSortField"))) {
+          sortCol = i;
+        } else if (StringUtils.equalsIgnoreCase("sourceId", headers[i])) {
+          sourceIdCol = i;
+        }
+      }
+      
+      List<String[]> memberData = new ArrayList<String[]>(); 
+      for (Member member : members) {
+        // feed in your array (or convert your data to an array)
+        String[] entries = exportAllStringArray(member, headers, isAttribute);
+        memberData.add(entries);
+      }      
+  
+      final int SOURCE_ID_COL = sourceIdCol;
+      final int SORT_COL = sortCol;
+      //sort
+      Collections.sort(memberData, new Comparator() {
+  
+        /**
+         * 
+         * @param o1
+         * @param o2
+         * @return 1, -1, 0
+         */
+        @Override
+        public int compare(Object o1, Object o2) {
+          String[] first = (String[])o1;
+          String[] second = (String[])o2;
+          if (SOURCE_ID_COL != -1 && !StringUtils.equals(first[SOURCE_ID_COL], second[SOURCE_ID_COL])) {
+            return GuiUtils.compare(first[SOURCE_ID_COL], second[SOURCE_ID_COL], true);
+          }
+          return GuiUtils.compare(first[SORT_COL], second[SORT_COL], true);
+        }
+      });
+      
+      //say it is CSV
+      response.setContentType("text/csv");
+    
+      String groupExtensionFileName = GuiGroup.getExportAllFileNameStatic(group);
+      
+      response.setHeader ("Content-Disposition", "inline;filename=\"" + groupExtensionFileName + "\"");
+      
+      //just write some stuff
+      PrintWriter out = null;
+    
+      try {
+        out = response.getWriter();
+      } catch (Exception e) {
+        throw new RuntimeException("Cant get response.getWriter: ", e);
+      }
+      
+      CSVWriter writer = new CSVWriter(out);
+      String[] headersNew = new String[headers.length+2];
+      System.arraycopy(headers, 0, headersNew, 0, headers.length);
+      headersNew[headers.length] = "success";
+      headersNew[headers.length+1] = "errorMessage";
+      writer.writeNext(headersNew);
+      for (String[] entries: memberData) {
+        // feed in your array (or convert your data to an array)
+        writer.writeNext(entries);
+      }      
+      writer.close();
+  
+      throw new ControllerDone();
+    } catch (ControllerDone cd) {
+      throw cd;
+    } catch (Exception se) {
+      throw new RuntimeException("Error exporting all members from group: " + groupName 
+          + ", " + currentMemberUuid + ", " + se.getMessage(), se);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  
+  }
+  
+  /**
+   * import a CSV file
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void importCsv(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+
+    GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)httpServletRequest;
+    
+    FileItem importCsvFile = grouperRequestWrapper.getParameterFileItem("importCsvFile");
+    String importReplaceMembers = grouperRequestWrapper.getParameterFileItemString("importReplaceMembers");
+    
+    StringBuilder result = new StringBuilder();
+    result.append("File: " + importCsvFile.getName() + ", " + importCsvFile.getFieldName() + ", isFormField: " + importCsvFile.isFormField() + ", inMemory: " + importCsvFile.isInMemory() + "\n\n" + importCsvFile.getString() + "\n\n");
+    result.append("importReplaceMembers: " + importReplaceMembers + "\n\n");
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    guiResponseJs.addAction(GuiScreenAction.newCloseModal());
+    guiResponseJs.addAction(GuiScreenAction.newAlert("<pre>" + result.toString() + "</pre>"));
+    guiResponseJs.setAddTextAreaTag(true);
   }
   
 }

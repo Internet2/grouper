@@ -1,13 +1,20 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdateContainer.java,v 1.2 2009-08-07 07:36:01 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateContainer.java,v 1.3 2009-08-11 13:44:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
+import edu.internet2.middleware.subject.Source;
 
 
 
@@ -16,6 +23,35 @@ import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
  */
 public class SimpleMembershipUpdateContainer {
 
+  /**
+   * available sourceIds for the upload form
+   * @return the source ids
+   */
+  public String getSourceIds() {
+    Set<Source> sources = SubjectFinder.getSources();
+    
+    StringBuilder result = new StringBuilder();
+    
+    List<String> sourceIds = new ArrayList<String>();
+    
+    for (Source source : sources) {
+      sourceIds.add(source.getId());
+    }
+    
+    Collections.sort(sourceIds);
+    
+    int i=0;
+    for (String sourceId: sourceIds) {
+      result.append(sourceId);
+      if (i != sourceIds.size()-1) {
+        result.append(", ");
+      }
+      i++;
+    }
+    
+    return result.toString();
+  }
+  
   /**
    * store to session scope
    */
@@ -34,7 +70,7 @@ public class SimpleMembershipUpdateContainer {
     SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = (SimpleMembershipUpdateContainer)httpSession
       .getAttribute("simpleMembershipUpdateContainer");
     if (simpleMembershipUpdateContainer == null) {
-      throw new RuntimeException("simpleMembershipUpdateContainer is null");
+      throw new RuntimeException("simpleMembershipUpdateContainer is null, start the application over and try again.  Contact the help desk if you have repeated problems.");
     }
     return simpleMembershipUpdateContainer;
   }

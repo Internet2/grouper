@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.7 2009-08-10 21:35:17 mchyzer Exp $
+ * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.8 2009-08-11 13:44:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi;
 
@@ -64,7 +64,8 @@ public class GrouperUiRestServlet extends HttpServlet {
   /** uris that it is ok to get (e.g. auto complete and other ajax components */
   private static Set<String> operationsOkGet = GrouperUtil.toSet(
       "SimpleMembershipUpdate.filterUsers", "SimpleMembershipUpdate.filterGroups",
-      "SimpleMembershipUpdate.advancedMenuStructure", "SimpleMembershipUpdate.exportSubjectIdsCsv");
+      "SimpleMembershipUpdate.advancedMenuStructure", "SimpleMembershipUpdate.exportSubjectIdsCsv",
+      "SimpleMembershipUpdate.exportAllCsv");
   
   /**
    * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
@@ -150,10 +151,11 @@ public class GrouperUiRestServlet extends HttpServlet {
     
     boolean printToScreen = true;
 
-    //this is just the filename of the export
+    //this is just the filename of the export, for the browser to save correctly if right click
     if (GrouperUtil.length(urlStrings) == 3
         && StringUtils.equals("app", urlStrings.get(0))
-        && StringUtils.equals("SimpleMembershipUpdate.exportSubjectIdsCsv", urlStrings.get(1))) {
+        && (StringUtils.equals("SimpleMembershipUpdate.exportSubjectIdsCsv", urlStrings.get(1))
+            || StringUtils.equals("SimpleMembershipUpdate.exportAllCsv", urlStrings.get(1)))) {
       //strip off the filename
       urlStrings = GrouperUtil.toList(urlStrings.get(0), urlStrings.get(1));
     }
@@ -213,11 +215,23 @@ public class GrouperUiRestServlet extends HttpServlet {
     }
     
     if (printToScreen) {
+      StringBuilder result = new StringBuilder();
+
+      // if this is an ajax file submit, we need to add textarea around response
+      // since it is submitted to a hidden frame
+      if (guiResponseJs.isAddTextAreaTag()) {
+        result.append("<textarea>");
+      }
       //take the object to print (bean) and print it
       jsonObject = net.sf.json.JSONObject.fromObject( guiResponseJs );  
       String json = jsonObject.toString();
+      result.append(json);
+      if (guiResponseJs.isAddTextAreaTag()) {
+        result.append("</textarea>");
+      }
       
-      GuiUtils.printToScreen(json, "application/json", false, false);
+      GuiUtils.printToScreen(result.toString(), 
+          guiResponseJs.isAddTextAreaTag() ? "text/html" : "application/json", false, false);
     }
     
   }

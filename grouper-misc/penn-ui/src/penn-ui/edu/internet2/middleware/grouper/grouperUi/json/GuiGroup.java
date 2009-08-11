@@ -63,4 +63,25 @@ public class GuiGroup {
  
   }
   
+  /**
+   * the export all file name
+   * @return the export subject ids file name
+   */
+  public String getExportAllFileName() {
+    return getExportAllFileNameStatic(this.group);
+  }
+  
+  /**
+   * static logic
+   * @param group
+   * @return the file name
+   */
+  public static String getExportAllFileNameStatic(Group group) {
+    String groupExtensionFileName = group.getDisplayExtension();
+    
+    groupExtensionFileName = GuiUtils.stripNonFilenameChars(groupExtensionFileName);
+    
+    return "groupExportAll_" + groupExtensionFileName + ".csv";
+ 
+  }
 }

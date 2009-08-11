@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiUtils.java,v 1.6 2009-08-10 21:35:17 mchyzer Exp $
+ * $Id: GuiUtils.java,v 1.7 2009-08-11 13:44:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
@@ -58,6 +58,29 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 public class GuiUtils {
 
+  /**
+   * 
+   * @param a
+   * @param b
+   * @param ignoreCase if case shoul dbe ignored
+   * @return 0, 1,-1
+   */
+  public static int compare(String a, String b, boolean ignoreCase) {
+    if (a==b) {
+      return 0;
+    }
+    if (a == null) {
+      return -1;
+    }
+    if (b == null) {
+      return 1;
+    }
+    if (ignoreCase) {
+      return a.toLowerCase().compareTo(b.toLowerCase());
+    }
+    return a.compareTo(b);
+  }
+  
   /**
    * keep a-z, A-Z, 0-9, underscore, dash
    * @param string

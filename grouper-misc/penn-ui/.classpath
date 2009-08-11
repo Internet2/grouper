@@ -11,6 +11,8 @@
 	<classpathentry kind="lib" path="lib/grouper-ui/commons-jexl.jar"/>
 	<classpathentry kind="lib" path="lib/grouper-ui/standard.jar"/>
 	<classpathentry kind="lib" path="lib/grouper-ui/opencsv.jar"/>
+	<classpathentry kind="lib" path="lib/grouper-ui/commons-fileupload.jar"/>
+	<classpathentry kind="lib" path="lib/grouper-ui/commons-io.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/grouper_v1_4"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>
