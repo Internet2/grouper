@@ -2,7 +2,7 @@
 		  Query audit log
 --%><%--
   @author Gary Brown.
-  @version $Id: AuditQuery.jsp,v 1.3 2009-08-11 14:17:21 isgwb Exp $
+  @version $Id: AuditQuery.jsp,v 1.4 2009-08-11 14:39:44 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <jsp:useBean id="linkParams" class="java.util.HashMap" scope="page"/>
@@ -52,6 +52,7 @@
 			<th><grouper:message bundle="${nav}" key="audit.result.header.query-count"/></th>
 			<th><grouper:message bundle="${nav}" key="audit.result.header.user-name"/></th>
 			<th><grouper:message bundle="${nav}" key="audit.result.header.server-name"/></th>
+			<th><grouper:message bundle="${nav}" key="audit.result.header.id"/></th>
 			<th><grouper:message bundle="${nav}" key="audit.result.header.description"/></th>
 			</c:if>
 			</tr></tiles:put>

@@ -2,7 +2,7 @@
 		  audit log view
 --%><%--
   @author Gary Brown.
-  @version $Id: queryResult.jsp,v 1.2 2009-08-11 14:17:21 isgwb Exp $
+  @version $Id: queryResult.jsp,v 1.3 2009-08-11 14:39:44 isgwb Exp $
 --%><%@include file="/WEB-INF/jsp/include.jsp"%>
 <jsp:useBean id="linkParams" class="java.util.HashMap" scope="page"/>
 <tiles:importAttribute ignore="true"/>
@@ -59,6 +59,7 @@
 			<td align="right"><c:out value="${auditEntry.queryCount}"/></td>
 			<td><c:out value="${auditEntry.serverUserName}"/></td>
 			<td><c:out value="${auditEntry.serverHost}"/><br/><c:out value="${auditEntry.userIpAddress}"/></td>
+			<td><c:out value="${auditEntry.id}"/></td>	
 			<td><c:out value="${auditEntry.description}"/></td>	
 			</c:if>
 	</tr>
