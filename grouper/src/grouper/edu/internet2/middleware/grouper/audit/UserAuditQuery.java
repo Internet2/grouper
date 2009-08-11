@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: UserAuditQuery.java,v 1.4 2009-05-26 06:50:56 mchyzer Exp $
+ * $Id: UserAuditQuery.java,v 1.5 2009-08-11 14:13:51 isgwb Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -80,12 +80,27 @@ public class UserAuditQuery {
   private Member loggedInMember;
   
   /**
+   * query for records of this act as member
+   */
+  private Member actAsMember;
+  
+  /**
    * 
    * @param loggedInMember
    * @return this for chaining
    */
   public UserAuditQuery loggedInMember(Member loggedInMember) {
     this.loggedInMember = loggedInMember;
+    return this;
+  }
+  
+  /**
+   * 
+   * @param actAsInMember
+   * @return this for chaining
+   */
+  public UserAuditQuery actAsMember(Member actAsMember) {
+    this.actAsMember = actAsMember;
     return this;
   }
 
@@ -187,10 +202,27 @@ public class UserAuditQuery {
       criterionList.add(Expression.ge(AuditEntry.FIELD_LAST_UPDATED_DB, from));
       criterionList.add(Expression.le(AuditEntry.FIELD_LAST_UPDATED_DB, to));
     }
-
+    
+    Criterion loggedInCriterion = null;
+    Criterion actAsCriterion = null;
+    
+    
     if (this.loggedInMember != null) {
-      criterionList.add(Restrictions.eq(AuditEntry.FIELD_LOGGED_IN_MEMBER_ID, 
-          this.loggedInMember.getUuid()));
+    	loggedInCriterion=Restrictions.eq(AuditEntry.FIELD_LOGGED_IN_MEMBER_ID, 
+    	          this.loggedInMember.getUuid());
+    }
+    
+    if (this.actAsMember != null) {
+    	actAsCriterion=Restrictions.eq(AuditEntry.FIELD_ACT_AS_MEMBER_ID, 
+    	          this.actAsMember.getUuid());
+    }
+    
+    if(loggedInCriterion != null && actAsCriterion !=null) {
+    	criterionList.add(Restrictions.or(loggedInCriterion, actAsCriterion));
+    }else if(loggedInCriterion != null) {
+    	criterionList.add(loggedInCriterion);
+    }else if(actAsCriterion != null) {
+    	criterionList.add(actAsCriterion);
     }
     
     //add categories to actions
