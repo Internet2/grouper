@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides caching for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingNamingResolver.java,v 1.6.2.1 2009-04-10 18:44:21 mchyzer Exp $
+ * @version $Id: CachingNamingResolver.java,v 1.6.2.2 2009-08-11 20:16:27 mchyzer Exp $
  * @since   1.2.1
  */
 public class CachingNamingResolver extends NamingResolverDecorator {
@@ -223,6 +223,17 @@ public class CachingNamingResolver extends NamingResolverDecorator {
   
     //return filtered groups
     return filteredStems;
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#stop()
+   */
+  public void stop() {
+    if (this.cc != null) {
+      this.cc.stop();
+    }
   }
 }
 

@@ -27,7 +27,7 @@ import edu.internet2.middleware.grouper.privs.NamingAdapter;
  * Test {@link GrouperSession}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_GrouperSession.java,v 1.5 2008-10-18 07:14:39 mchyzer Exp $
+ * @version $Id: Test_api_GrouperSession.java,v 1.5.2.1 2009-08-11 20:16:27 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_api_GrouperSession extends GrouperTest {
@@ -87,12 +87,6 @@ public class Test_api_GrouperSession extends GrouperTest {
 
 
 
-  public void test_getAccessImpl_instanceOf() {
-    assertTrue( this.s.getAccessImpl() instanceof AccessAdapter );
-  }
-
-
-
   /**
    * @since   1.2.1
    */
@@ -137,12 +131,6 @@ public class Test_api_GrouperSession extends GrouperTest {
   public void test_getNamingClass_defaultAccessAdapter() {
     assertEquals( this.cfg.getProperty(ApiConfig.NAMING_PRIVILEGE_INTERFACE), this.s.getNamingClass() );
   }
-
-
-  public void test_getNamingImpl_instanceOf() {
-    assertTrue( this.s.getNamingImpl() instanceof NamingAdapter );
-  }
-
 
 
   /**

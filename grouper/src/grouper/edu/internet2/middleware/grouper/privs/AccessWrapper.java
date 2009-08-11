@@ -38,7 +38,7 @@ import  java.util.Set;
  * Class implementing wrapper around {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessWrapper.java,v 1.8.2.1 2009-04-10 18:44:20 mchyzer Exp $
+ * @version $Id: AccessWrapper.java,v 1.8.2.2 2009-08-11 20:16:27 mchyzer Exp $
  * @since   1.2.1
  */
 public class AccessWrapper implements AccessResolver {
@@ -255,6 +255,14 @@ public class AccessWrapper implements AccessResolver {
   public Set<Membership> postHqlFilterMemberships(Subject subject,
       Set<Membership> memberships) {
     return this.access.postHqlFilterMemberships(this.s, subject, memberships);
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#stop()
+   */
+  public void stop() {
   }
 
 }

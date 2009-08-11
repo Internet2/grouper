@@ -58,7 +58,7 @@ import edu.internet2.middleware.subject.Subject;
  * Context for interacting with the Grouper API and Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSession.java,v 1.92.2.2 2009-04-10 18:44:21 mchyzer Exp $
+ * @version $Id: GrouperSession.java,v 1.92.2.3 2009-08-11 20:16:27 mchyzer Exp $
  */
 public class GrouperSession {
 
@@ -113,11 +113,6 @@ public class GrouperSession {
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
-  private AccessAdapter   access;         // TODO 20070816 eliminate
-
-  @GrouperIgnoreDbVersion
-  @GrouperIgnoreFieldConstant
-  @GrouperIgnoreClone
   private AccessResolver  accessResolver;
 
   @GrouperIgnoreDbVersion
@@ -129,11 +124,6 @@ public class GrouperSession {
   @GrouperIgnoreFieldConstant
   @GrouperIgnoreClone
   private ApiConfig       cfg;
-
-  @GrouperIgnoreDbVersion
-  @GrouperIgnoreFieldConstant
-  @GrouperIgnoreClone
-  private NamingAdapter   naming;         // TODO 20070816 eliminate
 
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
@@ -315,20 +305,6 @@ public class GrouperSession {
   } 
 
   /**
-   * Get {@link AccessAdapter} implementation.
-   * <p/>
-   * @since   1.2.1
-   */
-  public AccessAdapter getAccessImpl() {
-    if (this.access == null) {
-      this.access = (AccessAdapter) Realize.instantiate(
-        new ApiConfig().getProperty( ApiConfig.ACCESS_PRIVILEGE_INTERFACE ) 
-      );
-    }
-    return this.access;
-  }
-
-  /**
    * @return  <code>AccessResolver</code> used by this session.
    * @since   1.2.1
    */
@@ -394,20 +370,6 @@ public class GrouperSession {
   public String getNamingClass() {
     return this.getConfig(ApiConfig.NAMING_PRIVILEGE_INTERFACE); // TODO 20070725 is this necessary?
   } 
-
-  /**
-   * Get {@link NamingAdapter} implementation.
-   * <p/>
-   * @since   1.2.1
-   */
-  public NamingAdapter getNamingImpl() {
-    if (this.naming == null) {
-      this.naming = (NamingAdapter) Realize.instantiate(
-        new ApiConfig().getProperty( ApiConfig.NAMING_PRIVILEGE_INTERFACE ) 
-      );
-    }
-    return this.naming;
-  }
 
   /**
    * @return  <code>AccessResolver</code> used by this session.
@@ -500,13 +462,25 @@ public class GrouperSession {
       staticGrouperSession.remove();
     }
     
+    if (this.accessResolver != null) {
+      this.accessResolver.stop();
+    }
+    if (this.namingResolver != null) {
+      this.namingResolver.stop();
+    }
+    
+    //stop the root
+    if (this.rootSession != null) {
+      this.rootSession.stop();
+    }
+    
+    
+    
     //set some fields to null
     this.subject = null;
-    this.access = null;
     this.accessResolver = null;
     this.cachedMember = null;
     this.memberUUID = null;
-    this.naming = null;
     this.namingResolver = null;
     this.rootSession = null;
     this.uuid = null;

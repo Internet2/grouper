@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.17.2.1 2009-01-02 17:38:53 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.17.2.2 2009-08-11 20:16:27 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -287,6 +287,8 @@ public class GrouperStartup {
           LOG.error("Error initializing data, might just need to auto-create some data to fix...", e);
         }
         needsInit = true;
+      } finally {
+        GrouperSession.stopQuietly(grouperSession);
       }
       if (needsInit) {
         if (GrouperConfig.getPropertyBoolean("registry.autoinit", true)) {

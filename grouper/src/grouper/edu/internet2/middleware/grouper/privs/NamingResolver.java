@@ -29,12 +29,14 @@ import edu.internet2.middleware.subject.Subject;
  * Facade for the {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingResolver.java,v 1.6.2.1 2009-04-10 18:44:21 mchyzer Exp $
+ * @version $Id: NamingResolver.java,v 1.6.2.2 2009-08-11 20:16:27 mchyzer Exp $
  * @since   1.2.1
  */
 public interface NamingResolver {
   // TODO 20070820 DRY w/ access resolution
 
+  /** clean up resources, session is stopped */
+  public void stop();
 
   /**
    * @return  Configuration value.

@@ -30,7 +30,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Mock {@link AccessResolver}.
  * @author  blair christensen.
- * @version $Id: MockAccessResolver.java,v 1.7.2.1 2009-04-10 18:44:21 mchyzer Exp $
+ * @version $Id: MockAccessResolver.java,v 1.7.2.2 2009-08-11 20:16:27 mchyzer Exp $
  * @since   1.2.1
  */
 public class MockAccessResolver implements AccessResolver {
@@ -149,6 +149,15 @@ public class MockAccessResolver implements AccessResolver {
     throws  IllegalArgumentException,
             UnableToPerformException
   {
+    throw E;
+  }
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#stop()
+   */
+  public void stop() {
     throw E;
   }
 

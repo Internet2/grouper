@@ -33,13 +33,22 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>GrouperAll</i> privilege resolution for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperAllAccessResolver.java,v 1.8.2.1 2009-04-10 18:44:20 mchyzer Exp $
+ * @version $Id: GrouperAllAccessResolver.java,v 1.8.2.2 2009-08-11 20:16:27 mchyzer Exp $
  * @since   1.2.1
  */
 public class GrouperAllAccessResolver extends AccessResolverDecorator {
 
   /** */
   private Subject all;
+
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#stop()
+   */
+  public void stop() {
+    super.getDecoratedResolver().stop();
+  }
 
 
 

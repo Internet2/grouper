@@ -31,7 +31,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides parameter validation for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingAccessResolver.java,v 1.7.2.1 2009-04-10 18:44:20 mchyzer Exp $
+ * @version $Id: ValidatingAccessResolver.java,v 1.7.2.2 2009-08-11 20:16:27 mchyzer Exp $
  * @since   1.2.1
  */
 public class ValidatingAccessResolver extends AccessResolverDecorator {
@@ -168,6 +168,16 @@ public class ValidatingAccessResolver extends AccessResolverDecorator {
   public void flushCache() {
     super.getDecoratedResolver().flushCache();
   }            
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#stop()
+   */
+  public void stop() {
+    super.getDecoratedResolver().stop();
+  }
+
+
+
 
   /**
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#hqlFilterGroupsWhereClause(edu.internet2.middleware.subject.Subject, edu.internet2.middleware.grouper.hibernate.HqlQuery, java.lang.StringBuilder, String, Set)

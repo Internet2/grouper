@@ -37,7 +37,7 @@ import  java.util.Set;
  * Class implementing wrapper around {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingWrapper.java,v 1.8.2.1 2009-04-10 18:44:21 mchyzer Exp $
+ * @version $Id: NamingWrapper.java,v 1.8.2.2 2009-08-11 20:16:27 mchyzer Exp $
  * @since   1.2.1
  */
 public class NamingWrapper implements NamingResolver {
@@ -212,6 +212,12 @@ public class NamingWrapper implements NamingResolver {
     } catch (SchemaException eSchema) {
       throw new GrouperRuntimeException("unexpected condition"); // TODO 20070727 log?  throw IllegalStateException?
     }
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#stop()
+   */
+  public void stop() {
   }
 
   /**

@@ -30,7 +30,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Mock {@link NamingResolver}.
  * @author  blair christensen.
- * @version $Id: MockNamingResolver.java,v 1.6.2.1 2009-04-10 18:44:21 mchyzer Exp $
+ * @version $Id: MockNamingResolver.java,v 1.6.2.2 2009-08-11 20:16:27 mchyzer Exp $
  * @since   1.2.1
  */
 public class MockNamingResolver implements NamingResolver {
@@ -105,6 +105,15 @@ public class MockNamingResolver implements NamingResolver {
   {
     throw E;
   }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#stop()
+   */
+  public void stop() {
+    throw E;
+  }
+
+
 
   /**
    * Not implemented.
