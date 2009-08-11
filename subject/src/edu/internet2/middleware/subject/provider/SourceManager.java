@@ -1,6 +1,6 @@
 /*--
-$Id: SourceManager.java,v 1.8 2009-03-22 02:49:26 mchyzer Exp $
-$Date: 2009-03-22 02:49:26 $
+$Id: SourceManager.java,v 1.9 2009-08-11 21:58:37 mchyzer Exp $
+$Date: 2009-08-11 21:58:37 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -88,17 +88,16 @@ public class SourceManager {
    * Default constructor.
    * @throws Exception
    */
-  private SourceManager() throws Exception {
+  private SourceManager() {
     init();
   }
 
   /**
    * Returns the singleton instance of SourceManager.
    * @return source manager
-   * @throws Exception 
    *
    */
-  public static SourceManager getInstance() throws Exception {
+  public static SourceManager getInstance() {
     if (manager == null) {
       manager = new SourceManager();
     }
@@ -142,14 +141,14 @@ public class SourceManager {
 
   /**
    * Initialize this SourceManager.
-   * @throws Exception
+   * @throws RuntimeException
    */
-  private void init() throws Exception {
+  private void init() throws RuntimeException {
     try {
       parseConfig();
     } catch (Exception ex) {
       log.error("Error initializing SourceManager: " + ex.getMessage(), ex);
-      throw new Exception("Error initializing SourceManager", ex);
+      throw new RuntimeException("Error initializing SourceManager", ex);
     }
   }
 

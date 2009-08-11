@@ -1,6 +1,6 @@
 /*--
-$Id: JNDISubject.java,v 1.3 2009-03-22 02:49:26 mchyzer Exp $
-$Date: 2009-03-22 02:49:26 $
+$Id: JNDISubject.java,v 1.4 2009-08-11 21:58:37 mchyzer Exp $
+$Date: 2009-08-11 21:58:37 $
 
 Copyright 2005 Internet2.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -33,9 +33,6 @@ public class JNDISubject implements Subject {
   private static Log log = LogFactory.getLog(JNDISubject.class);
 
   /** */
-  private JNDISourceAdapter adapter;
-
-  /** */
   private String id;
 
   /** */
@@ -49,6 +46,27 @@ public class JNDISubject implements Subject {
 
   /** */
   private Map<String, Set<String>> attributes = null;
+
+  /** sourceId */
+  private String sourceId;
+  
+  
+  /**
+   * source id
+   * @return the sourceId
+   */
+  public String getSourceId() {
+    return this.sourceId;
+  }
+
+  
+  /**
+   * sourceId
+   * @param sourceId1 the sourceId to set
+   */
+  protected void setSourceId(String sourceId1) {
+    this.sourceId = sourceId1;
+  }
 
   /**
    * Constructor called by SourceManager.
@@ -65,7 +83,7 @@ public class JNDISubject implements Subject {
     this.name = name1;
     this.type = type1;
     this.description = description1;
-    this.adapter = adapter1;
+    this.sourceId = adapter1 == null ? null : adapter1.getId();
   }
 
   /**
@@ -102,7 +120,7 @@ public class JNDISubject implements Subject {
    */
   public String getAttributeValue(String name1) {
     if (this.attributes == null) {
-      this.adapter.loadAttributes(this);
+      ((JNDISourceAdapter)this.getSource()).loadAttributes(this);
     }
     Set<String> values = this.attributes.get(name1);
     if (values != null) {
@@ -117,7 +135,7 @@ public class JNDISubject implements Subject {
    */
   public Set<String> getAttributeValues(String name1) {
     if (this.attributes == null) {
-      this.adapter.loadAttributes(this);
+      ((JNDISourceAdapter)this.getSource()).loadAttributes(this);
     }
     return this.attributes.get(name1);
   }
@@ -127,7 +145,7 @@ public class JNDISubject implements Subject {
    */
   public Map<String, Set<String>> getAttributes() {
     if (this.attributes == null) {
-      this.adapter.loadAttributes(this);
+      ((JNDISourceAdapter)this.getSource()).loadAttributes(this);
     }
     return this.attributes;
   }
@@ -136,7 +154,7 @@ public class JNDISubject implements Subject {
    * {@inheritDoc}
    */
   public Source getSource() {
-    return this.adapter;
+    return SourceManager.getInstance().getSource(this.sourceId);
   }
 
   /**

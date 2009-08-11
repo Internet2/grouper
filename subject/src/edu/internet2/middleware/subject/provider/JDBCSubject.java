@@ -1,15 +1,14 @@
 /*--
-$Id: JDBCSubject.java,v 1.5 2009-03-22 02:49:27 mchyzer Exp $
-$Date: 2009-03-22 02:49:27 $
+$Id: JDBCSubject.java,v 1.6 2009-08-11 21:58:37 mchyzer Exp $
+$Date: 2009-08-11 21:58:37 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
  */
 package edu.internet2.middleware.subject.provider;
 
-import java.util.Set;
 import java.util.Map;
-import java.lang.String;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,9 +26,6 @@ public class JDBCSubject implements Subject {
   private static Log log = LogFactory.getLog(JDBCSubject.class);
 
   /** */
-  protected JDBCSourceAdapter adapter;
-
-  /** */
   protected String id;
 
   /** */
@@ -41,6 +37,27 @@ public class JDBCSubject implements Subject {
   /** */
   protected SubjectType type;
 
+  
+  /**
+   * sourceId
+   * @return the sourceId
+   */
+  public String getSourceId() {
+    return this.sourceId;
+  }
+
+  
+  /**
+   * sourceId
+   * @param sourceId1 the sourceId to set
+   */
+  protected void setSourceId(String sourceId1) {
+    this.sourceId = sourceId1;
+  }
+
+  /** sourceId */
+  private String sourceId;
+  
   /** */
   protected Map<String, Set<String>> attributes;
 
@@ -68,7 +85,7 @@ public class JDBCSubject implements Subject {
     this.name = name1;
     this.type = type1;
     this.description = description1;
-    this.adapter = adapter1;
+    this.sourceId = adapter1 == null ? null : adapter1.getId();
 
   }
 
@@ -155,7 +172,7 @@ public class JDBCSubject implements Subject {
    * {@inheritDoc}
    */
   public Source getSource() {
-    return this.adapter;
+    return SourceManager.getInstance().getSource(this.sourceId);
   }
 
   /**

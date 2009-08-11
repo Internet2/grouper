@@ -1,13 +1,16 @@
 
 package edu.internet2.middleware.subject;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
  * A Subject represents an entity, such as a person, group, or organization.
  * This class provides common characteristics and behaviors across these entities.
+ * Note, implementations of this interface shouldnt hold onto sources, since they
+ * arent serializable, they should lookup with AllSources
  */
-public interface Subject {
+public interface Subject extends Serializable {
 
 	/**
 	 * Gets this Subject's ID.
