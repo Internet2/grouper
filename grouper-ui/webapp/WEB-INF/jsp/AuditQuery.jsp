@@ -2,7 +2,7 @@
 		  Query audit log
 --%><%--
   @author Gary Brown.
-  @version $Id: AuditQuery.jsp,v 1.2 2009-08-10 14:03:01 isgwb Exp $
+  @version $Id: AuditQuery.jsp,v 1.3 2009-08-11 14:17:21 isgwb Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <jsp:useBean id="linkParams" class="java.util.HashMap" scope="page"/>
@@ -46,7 +46,15 @@
 			<th><grouper:message bundle="${nav}" key="audit.result.header.date"/></th>
 			<th><grouper:message bundle="${nav}" key="audit.result.header.actor"/></th>
 			<th><grouper:message bundle="${nav}" key="audit.result.header.engine"/></th>
-			<th><grouper:message bundle="${nav}" key="audit.result.header.summary"/></th></tr></tiles:put>
+			<th><grouper:message bundle="${nav}" key="audit.result.header.summary"/></th>
+			<c:if test="${extendedResults}">
+			<th><grouper:message bundle="${nav}" key="audit.result.header.duration"/></th>
+			<th><grouper:message bundle="${nav}" key="audit.result.header.query-count"/></th>
+			<th><grouper:message bundle="${nav}" key="audit.result.header.user-name"/></th>
+			<th><grouper:message bundle="${nav}" key="audit.result.header.server-name"/></th>
+			<th><grouper:message bundle="${nav}" key="audit.result.header.description"/></th>
+			</c:if>
+			</tr></tiles:put>
 			<tiles:put name="tableClass" value="auditQueryTable"/>
 			<tiles:put name="noResultsMsg" value="${navMap[noResultsKey]}"/>
 			 

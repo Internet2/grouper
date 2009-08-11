@@ -43,7 +43,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AuditEntryAsMap.java,v 1.2 2009-08-10 14:03:01 isgwb Exp $
+ * @version $Id: AuditEntryAsMap.java,v 1.3 2009-08-11 14:17:21 isgwb Exp $
  */
 public class AuditEntryAsMap extends ObjectAsMap {
 	
@@ -164,8 +164,24 @@ public class AuditEntryAsMap extends ObjectAsMap {
 		//Map would override GrouperGroup values
 		Object obj = super.get(key);
 		if (obj == null) {
+			if("duration".equals(key)) {
+				double l = Math.round(((AuditEntry)wrappedObject).getDurationMicroseconds()/10000000)/10.0;
+				return l * 10.0;
+				
+			}
 			if("loggedInMember".equals(key)) {
 				Member m = MemberFinder.findByUuid(grouperSession, entry.getLoggedInMemberId(), false);
+				if(m==null) {
+					return m;
+				}
+				return ObjectAsMap.getInstance("SubjectAsMap", m.getSubject());
+			}
+			if("actAsMember".equals(key)) {
+				String actAs = entry.getActAsMemberId();
+				if(actAs==null) {
+					return null;
+				}
+				Member m = MemberFinder.findByUuid(grouperSession, actAs, false);
 				if(m==null) {
 					return m;
 				}

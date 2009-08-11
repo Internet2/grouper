@@ -563,6 +563,7 @@ table.groupTypeFields {
 	border-style:solid;
 	border-width:1px;
 	border-color:#cccccc;
+	vertical-align:bottom;
 }
 
 .groupTypeFields td {

@@ -51,6 +51,8 @@
       <form-property name="callerPageId" type="java.lang.String"/>
 	  <form-property name="origCallerPageId" type="java.lang.String"/>
 	  <form-property name="pageSize" type="java.lang.String"/>
+	  <form-property name="extendedResults" type="java.lang.Boolean"/>
+	  <form-property name="viaForm" type="java.lang.Boolean"/>
 	  
     </form-bean> 
 	

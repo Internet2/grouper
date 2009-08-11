@@ -220,7 +220,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: DoUserAuditReportAction.java,v 1.3 2009-08-10 14:03:01 isgwb Exp $
+ * @version $Id: DoUserAuditReportAction.java,v 1.4 2009-08-11 14:17:21 isgwb Exp $
  */
 public class DoUserAuditReportAction extends GrouperCapableAction {
 
@@ -258,6 +258,21 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
         String dateQualifier=auditForm.getString("dateQualifier");
         String date1=auditForm.getString("date1");
         String date2=auditForm.getString("date2");
+        Boolean extendedResults=(Boolean)auditForm.get("extendedResults");
+        Boolean viaForm=(Boolean)auditForm.get("viaForm");
+        if(viaForm==null) {
+        	viaForm=Boolean.FALSE;
+        }
+        if(extendedResults==null) {
+        	if(!viaForm) {
+        		extendedResults = (Boolean)session.getAttribute("extendedResults");
+        	}
+        	if(extendedResults==null) {
+        		extendedResults=Boolean.FALSE;
+        	}
+        }
+        session.setAttribute("extendedResults",extendedResults);
+        auditForm.set("extendedResults", extendedResults);
         ResourceBundle mediaBundle = getMediaResources(request);
         boolean isEnabled = false;
         String dateFormat="mm/dd/yyyy";
@@ -368,6 +383,7 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
 			    infoKey="audit.query.info.membership";
 			}else if(filterType.equals("actions")) {
 				query=query.loggedInMember(member);
+				query=query.actAsMember(member);
 				infoKey="audit.query.info.actions-by";
 			}else if(filterType.equals("privileges")) {
 				query=query.addAuditTypeCategory("privilege").addAuditTypeFieldValue("memberId", memberId);
