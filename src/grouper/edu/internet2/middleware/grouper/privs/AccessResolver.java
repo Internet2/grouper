@@ -30,11 +30,14 @@ import edu.internet2.middleware.subject.Subject;
  * Facade for the {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessResolver.java,v 1.10 2009-08-11 20:18:08 mchyzer Exp $
+ * @version $Id: AccessResolver.java,v 1.11 2009-08-11 20:34:18 mchyzer Exp $
  * @since   1.2.1
  */
 public interface AccessResolver {
 
+  /** clean up resources, session is stopped */
+  public void stop();
+  
   /**
    * get a reference to the session
    * @return the session

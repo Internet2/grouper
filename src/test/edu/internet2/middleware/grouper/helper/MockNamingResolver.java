@@ -32,11 +32,18 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Mock {@link NamingResolver}.
  * @author  blair christensen.
- * @version $Id: MockNamingResolver.java,v 1.3 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: MockNamingResolver.java,v 1.4 2009-08-11 20:34:18 mchyzer Exp $
  * @since   1.2.1
  */
 public class MockNamingResolver implements NamingResolver {
 
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#stop()
+   */
+  public void stop() {
+    throw E;
+  }
 
   private static final GrouperException E = new GrouperException("not implemented");
 

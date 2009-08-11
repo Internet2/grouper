@@ -30,7 +30,7 @@ import  edu.internet2.middleware.subject.Subject;
  * Decorator that provides parameter validation for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingNamingResolver.java,v 1.8 2009-08-11 20:18:08 mchyzer Exp $
+ * @version $Id: ValidatingNamingResolver.java,v 1.9 2009-08-11 20:34:18 mchyzer Exp $
  * @since   1.2.1
  */
 public class ValidatingNamingResolver extends NamingResolverDecorator {
@@ -83,6 +83,13 @@ public class ValidatingNamingResolver extends NamingResolverDecorator {
   {
     this.param.notNullStem(stem).notNullPrivilege(privilege);
     return super.getDecoratedResolver().getSubjectsWithPrivilege(stem, privilege);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#stop()
+   */
+  public void stop() {
+    this.getDecoratedResolver().stop();
   }
 
   /**
