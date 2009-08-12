@@ -37,7 +37,6 @@ import edu.internet2.middleware.grouper.helper.MembershipTestHelper;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.misc.CompositeType;
-import edu.internet2.middleware.grouper.misc.FindBadMemberships;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -836,8 +835,6 @@ public class TestMembership11 extends GrouperTest {
       goodGroups.add(gL);
       goodGroups.add(gM);
       goodGroups.add(gN);
-      
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
 
 
       r.rs.stop();

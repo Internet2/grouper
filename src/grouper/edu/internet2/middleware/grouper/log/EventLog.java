@@ -37,7 +37,6 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.util.Quote;
-import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.M;
@@ -51,7 +50,7 @@ import edu.internet2.middleware.subject.Subject;
  * Grouper API logging.
  * <p/>
  * @author  blair christensen.
- * @version $Id: EventLog.java,v 1.8 2009-06-09 22:55:40 shilen Exp $
+ * @version $Id: EventLog.java,v 1.9 2009-08-12 12:44:45 shilen Exp $
  */
 public class EventLog {
 
@@ -122,7 +121,7 @@ public class EventLog {
 
   // @since 1.0
   public void groupAddComposite(
-    GrouperSession s, Composite c, DefaultMemberOf mof, StopWatch sw
+    GrouperSession s, Composite c, StopWatch sw
   )
   {
     //note, no need for GrouperSession inverse of control
@@ -137,14 +136,14 @@ public class EventLog {
       ,
       sw
     );
-    this.groupAddAndDelCompositeMembers(
+    /*this.groupAddAndDelCompositeMembers(
       s, c, mof.getSaves(), mof.getDeletes(), sw
-    );
+    );*/
   } // protected void groupAddComposite(s, c, mof, sw)
 
   // @since 1.0
   public void groupDelComposite(
-    GrouperSession s, Composite c, DefaultMemberOf mof, StopWatch sw
+    GrouperSession s, Composite c, StopWatch sw
   )
   {
     EventLog.info(
@@ -158,9 +157,9 @@ public class EventLog {
       ,
       sw
     );
-    this.groupAddAndDelCompositeMembers(
+    /*this.groupAddAndDelCompositeMembers(
       s, c, mof.getSaves(), mof.getDeletes(), sw
-    );
+    );*/
   } // protected void groupDelComposite(s, c, mof, sw)
 
   // @since 1.0

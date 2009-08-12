@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
  * memberships
  * 
  * @author  blair christensen.
- * @version $Id: ImmediateMembershipValidator.java,v 1.4 2009-06-09 22:55:40 shilen Exp $
+ * @version $Id: ImmediateMembershipValidator.java,v 1.5 2009-08-12 12:44:45 shilen Exp $
  * @since   1.2.0
  */
 public class ImmediateMembershipValidator extends MembershipValidator {
@@ -81,18 +81,6 @@ public class ImmediateMembershipValidator extends MembershipValidator {
     }
     else if ( v._isCircular(_ms) )                            { // cannot be a direct member of oneself
       v.setErrorMessage(INVALID_CIRCULAR);
-    }
-    else if ( !StringUtils.isBlank(_ms.getOwnerGroupId())
-        && GrouperDAOFactory.getFactory().getMembership().existsByGroupOwner(   // cannot already exist
-        _ms.getOwnerGroupId(), _ms.getMemberUuid(), _ms.getListName(), Membership.IMMEDIATE 
-      ) ) {
-      v.setErrorMessage(INVALID_EXISTS);
-    }
-    else if ( !StringUtils.isBlank(_ms.getOwnerStemId())
-        && GrouperDAOFactory.getFactory().getMembership().existsByStemOwner(   // cannot already exist
-        _ms.getOwnerStemId(), _ms.getMemberUuid(), _ms.getListName(), Membership.IMMEDIATE 
-      ) ) {
-      v.setErrorMessage(INVALID_EXISTS);
     }
     else {
       // Perform generic Membership validation

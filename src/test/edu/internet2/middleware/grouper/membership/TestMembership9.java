@@ -17,7 +17,6 @@
 
 package edu.internet2.middleware.grouper.membership;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import junit.framework.Assert;
@@ -32,11 +31,9 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.helper.DateHelper;
-import edu.internet2.middleware.grouper.helper.MembershipTestHelper;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.misc.CompositeType;
-import edu.internet2.middleware.grouper.misc.FindBadMemberships;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
@@ -101,17 +98,6 @@ public class TestMembership9 extends TestCase {
       Set<Membership> updateMemberships;
       Set<Membership> createMemberships;
 
-      Set<Group> goodGroups = new LinkedHashSet<Group>();
-      Set<Group> badGroups = new LinkedHashSet<Group>();
-
-      goodGroups.add(gA);
-      goodGroups.add(gB);
-      goodGroups.add(gC);
-      goodGroups.add(gD);
-      goodGroups.add(gE);
-      goodGroups.add(gF);
-
-
       // Test 1
       gB.addMember(gD.toSubject());
       gD.addMember(subjA);
@@ -122,8 +108,6 @@ public class TestMembership9 extends TestCase {
       nsA.grantPriv(gA.toSubject(), NamingPrivilege.CREATE);
 
       verifyMemberships();
-
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
 
       // clear out memberships
       gB.deleteMember(gD.toSubject());
@@ -154,8 +138,6 @@ public class TestMembership9 extends TestCase {
 
       verifyMemberships();
 
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-
       // clear out memberships
       gB.deleteMember(gD.toSubject());
       gD.deleteMember(subjA);
@@ -184,8 +166,6 @@ public class TestMembership9 extends TestCase {
       gD.addMember(subjA);
 
       verifyMemberships();
-
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
 
       // clear out memberships
       gB.deleteMember(gD.toSubject());
@@ -216,8 +196,6 @@ public class TestMembership9 extends TestCase {
 
       verifyMemberships();
 
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-
       // clear out memberships
       gB.deleteMember(gD.toSubject());
       gD.deleteMember(subjA);
@@ -246,8 +224,6 @@ public class TestMembership9 extends TestCase {
       gA.addCompositeMember(CompositeType.INTERSECTION, gB, gC);
 
       verifyMemberships();
-
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
 
       // clear out memberships
       gB.deleteMember(gD.toSubject());
@@ -278,8 +254,6 @@ public class TestMembership9 extends TestCase {
 
       verifyMemberships();
 
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-
       // clear out memberships
       gB.deleteMember(gD.toSubject());
       gD.deleteMember(subjA);
@@ -308,8 +282,6 @@ public class TestMembership9 extends TestCase {
       gF.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
 
       verifyMemberships();
-
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
 
       // clear out memberships
       gB.deleteMember(gD.toSubject());

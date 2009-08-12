@@ -26,40 +26,22 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
-import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 
 /** 
  * Basic <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.24 2009-06-09 22:55:39 shilen Exp $
+ * @version $Id: MembershipDAO.java,v 1.25 2009-08-12 12:44:45 shilen Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
 
   /**
-   * @param ownerGroupId 
-   * @param memberUUID 
-   * @param listName 
-   * @param msType 
-   * @return if exists
-   * @throws GrouperDAOException 
-   * @since   1.2.0 
+   * get all memberships
+   * @return set
    */
-  boolean existsByGroupOwner(String ownerGroupId, String memberUUID, String listName, String msType)
-    throws  GrouperDAOException;
-
-  /**
-   * @param ownerStemId 
-   * @param memberUUID 
-   * @param listName 
-   * @param msType 
-   * @return if exists
-   * @throws GrouperDAOException 
-   * @since   1.2.0 
-   */
-  boolean existsByStemOwner(String ownerStemId, String memberUUID, String listName, String msType)
-    throws  GrouperDAOException;
-
+  public Set<Membership> findAll();
+  
+  
   /**
    * @param d 
    * @param f 
@@ -440,13 +422,31 @@ TODO update for 1.5
    */
   Set<Membership> findMembershipsByMemberAndFieldSecure(GrouperSession grouperSession, String memberUUID, Field f)
     throws  GrouperDAOException;
+  
+  /**
+   * Save a membership
+   * @param ms
+   */
+  public void save(Membership ms);
 
   /**
-   * @since   1.2.0
+   * Save a set of memberships
+   * @param mships
    */
-  void update(DefaultMemberOf mof) 
-    throws  GrouperDAOException;
+  public void save(Set<Membership> mships);
+  
+  /**
+   * Delete a membership
+   * @param ms
+   */
+  public void delete(Membership ms);
 
+  /**
+   * Delete a set of memberships
+   * @param mships
+   */
+  public void delete(Set<Membership> mships);
+  
   /**
    * find all memberships that have this member or have this creator
    * @param member

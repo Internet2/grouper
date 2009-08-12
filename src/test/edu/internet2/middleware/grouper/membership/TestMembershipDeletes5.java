@@ -16,7 +16,6 @@
 */
 
 package edu.internet2.middleware.grouper.membership;
-import java.util.Date;
 
 import junit.framework.TestCase;
 
@@ -28,13 +27,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.helper.DateHelper;
 import edu.internet2.middleware.grouper.helper.R;
-import edu.internet2.middleware.grouper.helper.T;
-import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.misc.MemberOf;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -47,7 +41,6 @@ public class TestMembershipDeletes5 extends TestCase {
 
   private static final Log LOG = GrouperUtil.getLog(TestMembershipDeletes5.class);
 
-  Date before;
   R       r;
   Group   gA;
   Group   gB;
@@ -67,104 +60,173 @@ public class TestMembershipDeletes5 extends TestCase {
     super(name);
   }
 
-  protected void setUp () {
+  protected void setUp () throws Exception {
     LOG.debug("setUp");
     RegistryReset.reset();
+    
+
+    r     = R.populateRegistry(1, 4, 3);
+    gA    = r.getGroup("a", "a");
+    gB    = r.getGroup("a", "b");
+    gC    = r.getGroup("a", "c");
+    gD    = r.getGroup("a", "d");
+    subjA = r.getSubject("a");
+    subjB = r.getSubject("b");
+    subjC = r.getSubject("c");
+    memberA = MemberFinder.findBySubject(r.rs, subjA, true);
+
+    GroupType customType  = GroupType.createType(r.rs, "customType");
+    gB.addType(customType);
+    fieldCustom1 = customType.addList(r.rs, "customField1", AccessPrivilege.READ, AccessPrivilege.UPDATE);
+    fieldCustom2 = customType.addList(r.rs, "customField2", AccessPrivilege.READ, AccessPrivilege.UPDATE);
+    fieldMembers = Group.getDefaultList();
+    fieldUpdaters = FieldFinder.find("updaters", true);
   }
 
   protected void tearDown () {
     LOG.debug("tearDown");
-  }
-
-  public void testMembershipDeletes5() {
-    LOG.info("testMembershipDeletes5");
-    try {
-      before   = DateHelper.getPastDate();
-
-      r     = R.populateRegistry(1, 4, 3);
-      gA    = r.getGroup("a", "a");
-      gB    = r.getGroup("a", "b");
-      gC    = r.getGroup("a", "c");
-      gD    = r.getGroup("a", "d");
-      subjA = r.getSubject("a");
-      subjB = r.getSubject("b");
-      subjC = r.getSubject("c");
-      memberA = MemberFinder.findBySubject(r.rs, subjA, true);
-
-      GroupType customType  = GroupType.createType(r.rs, "customType");
-      gB.addType(customType);
-      fieldCustom1 = customType.addList(r.rs, "customField1", AccessPrivilege.READ, AccessPrivilege.UPDATE);
-      fieldCustom2 = customType.addList(r.rs, "customField2", AccessPrivilege.READ, AccessPrivilege.UPDATE);
-      fieldMembers = Group.getDefaultList();
-      fieldUpdaters = FieldFinder.find("updaters", true);
-
-      // initial data
-      gA.addMember(gB.toSubject());
-      gB.addMember(gA.toSubject());
-      gA.addMember(subjA);
-      gA.addMember(subjC);
-      gB.addMember(subjA);
-      gB.addMember(subjB);
-      gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
-      gC.addMember(gA.toSubject());
-      gD.addMember(gB.toSubject());
-      gB.addMember(gB.toSubject(), fieldCustom1);
-      gB.addMember(gA.toSubject(), fieldCustom2);
-
-
-      // Remove gB -> gA
-      MemberOf mof = new DefaultMemberOf();
-      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        gA.getUuid(), gB.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true);
-      mof.deleteImmediate(r.rs, gA, ms, gB.toMember());
-      assertEquals("mof deletes", 12, mof.getDeletes().size());
-      assertEquals("mof saves", 0, mof.getSaves().size());
-
-      // Remove gA -> gA (update priv)
-      mof = new DefaultMemberOf();
-      ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        gA.getUuid(), gA.toMember().getUuid(), fieldUpdaters, Membership.IMMEDIATE, true);
-      mof.deleteImmediate(r.rs, gA, ms, gA.toMember());
-      assertEquals("mof deletes", 6, mof.getDeletes().size());
-      assertEquals("mof saves", 0, mof.getSaves().size());
-
-      // Remove gB -> gB (custom field 1)
-      mof = new DefaultMemberOf();
-      ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        gB.getUuid(), gB.toMember().getUuid(), fieldCustom1, Membership.IMMEDIATE, true);
-      mof.deleteImmediate(r.rs, gB, ms, gB.toMember());
-      assertEquals("mof deletes", 6, mof.getDeletes().size());
-      assertEquals("mof saves", 0, mof.getSaves().size());
-
-      // Remove gA -> gB (custom field 2)
-      mof = new DefaultMemberOf();
-      ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        gB.getUuid(), gA.toMember().getUuid(), fieldCustom2, Membership.IMMEDIATE, true);
-      mof.deleteImmediate(r.rs, gB, ms, gA.toMember());
-      assertEquals("mof deletes", 6, mof.getDeletes().size());
-      assertEquals("mof saves", 0, mof.getSaves().size());
-
-      // Remove gB -> gD
-      mof = new DefaultMemberOf();
-      ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        gD.getUuid(), gB.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true);
-      mof.deleteImmediate(r.rs, gD, ms, gB.toMember());
-      assertEquals("mof deletes", 6, mof.getDeletes().size());
-      assertEquals("mof saves", 0, mof.getSaves().size());
-
-      // Remove SA -> gB
-      mof = new DefaultMemberOf();
-      ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        gB.getUuid(), memberA.getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true);
-      mof.deleteImmediate(r.rs, gB, ms, memberA);
-      assertEquals("mof deletes", 7, mof.getDeletes().size());
-      assertEquals("mof saves", 0, mof.getSaves().size());
-
+    
+    if (r != null) {
       r.rs.stop();
     }
-    catch (Exception e) {
-      T.e(e);
-    }
+  }
+
+  public void testMembershipDeletes5a() {
+    
+    // initial data
+    gB.addMember(gA.toSubject());
+    gA.addMember(subjA);
+    gA.addMember(subjC);
+    gB.addMember(subjA);
+    gB.addMember(subjB);
+    gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+    gC.addMember(gA.toSubject());
+    gD.addMember(gB.toSubject());
+    gB.addMember(gB.toSubject(), fieldCustom1);
+    gB.addMember(gA.toSubject(), fieldCustom2);
+
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    gA.addMember(gB.toSubject());
+
+    // Remove gB -> gA
+    gA.deleteMember(gB.toSubject());
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
+  }
+
+  public void testMembershipDeletes5b() {
+    
+    // initial data
+    gA.addMember(gB.toSubject());
+    gB.addMember(gA.toSubject());
+    gA.addMember(subjA);
+    gA.addMember(subjC);
+    gB.addMember(subjA);
+    gB.addMember(subjB);
+    gC.addMember(gA.toSubject());
+    gD.addMember(gB.toSubject());
+    gB.addMember(gB.toSubject(), fieldCustom1);
+    gB.addMember(gA.toSubject(), fieldCustom2);
+
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+
+    // Remove gA -> gA (update priv)
+    gA.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
+  }
+  
+  public void testMembershipDeletes5c() {
+    
+    // initial data
+    gA.addMember(gB.toSubject());
+    gB.addMember(gA.toSubject());
+    gA.addMember(subjA);
+    gA.addMember(subjC);
+    gB.addMember(subjA);
+    gB.addMember(subjB);
+    gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+    gC.addMember(gA.toSubject());
+    gD.addMember(gB.toSubject());
+    gB.addMember(gA.toSubject(), fieldCustom2);
+
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    gB.addMember(gB.toSubject(), fieldCustom1);
+
+    // Remove gB -> gB (custom field 1)
+    gB.deleteMember(gB.toSubject(), fieldCustom1);
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
+  }
+  
+  public void testMembershipDeletes5d() {
+    
+    // initial data
+    gA.addMember(gB.toSubject());
+    gB.addMember(gA.toSubject());
+    gA.addMember(subjA);
+    gA.addMember(subjC);
+    gB.addMember(subjA);
+    gB.addMember(subjB);
+    gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+    gC.addMember(gA.toSubject());
+    gD.addMember(gB.toSubject());
+    gB.addMember(gB.toSubject(), fieldCustom1);
+
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    gB.addMember(gA.toSubject(), fieldCustom2);
+
+    // Remove gA -> gB (custom field 2)
+    gB.deleteMember(gA.toSubject(), fieldCustom2);
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
+  }
+  
+  public void testMembershipDeletes5e() {
+    
+    // initial data
+    gA.addMember(gB.toSubject());
+    gB.addMember(gA.toSubject());
+    gA.addMember(subjA);
+    gA.addMember(subjC);
+    gB.addMember(subjA);
+    gB.addMember(subjB);
+    gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+    gC.addMember(gA.toSubject());
+    gB.addMember(gB.toSubject(), fieldCustom1);
+    gB.addMember(gA.toSubject(), fieldCustom2);
+
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    gD.addMember(gB.toSubject());    
+
+    // Remove gB -> gD
+    gD.deleteMember(gB.toSubject());
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
+  }
+  
+  public void testMembershipDeletes5f() {
+    
+    // initial data
+    gA.addMember(gB.toSubject());
+    gB.addMember(gA.toSubject());
+    gA.addMember(subjA);
+    gA.addMember(subjC);
+    gB.addMember(subjB);
+    gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+    gC.addMember(gA.toSubject());
+    gD.addMember(gB.toSubject());
+    gB.addMember(gB.toSubject(), fieldCustom1);
+    gB.addMember(gA.toSubject(), fieldCustom2);
+
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    gB.addMember(subjA);
+
+    // Remove SA -> gB
+    gB.deleteMember(subjA);
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
   }
 }
 

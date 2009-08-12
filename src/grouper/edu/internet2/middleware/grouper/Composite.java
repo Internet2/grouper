@@ -16,23 +16,19 @@
 */
 
 package edu.internet2.middleware.grouper;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
-import edu.internet2.middleware.grouper.exception.SchemaException;
-import edu.internet2.middleware.grouper.exception.StemNotFoundException;
+import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.CompositeHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksCompositeBean;
@@ -57,7 +53,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.67 2009-03-18 18:51:58 shilen Exp $
+ * @version $Id: Composite.java,v 1.68 2009-08-12 12:44:45 shilen Exp $
  * @since   1.0
  */
 @SuppressWarnings("serial")
@@ -479,6 +475,30 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
+    
+    // add the composite memberships
+    Set<String> membersList = new LinkedHashSet<String>();
+    if (this.getType().equals(CompositeType.COMPLEMENT)) {
+      membersList.addAll(this.evaluateAddCompositeMembershipComplement());
+    } else if (this.getType().equals(CompositeType.INTERSECTION)) {
+      membersList.addAll(this.evaluateAddCompositeMembershipIntersection());
+    } else if (this.getType().equals(CompositeType.UNION)) {
+      membersList.addAll(this.evaluateAddCompositeMembershipUnion());
+    } else {
+      throw new IllegalStateException(E.MOF_CTYPE
+          + this.getType().toString());
+    }
+    
+    GrouperDAOFactory.getFactory().getMembership().save(this.createNewCompositeMembershipObjects(membersList));
+    
+    // fix composites
+    Membership.fixComposites(this.getFactorOwnerUuid(), membersList);
+
+    // update group set object to specify type of composite
+    GroupSet selfGroupSet = 
+      GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(this.getOwnerGroup(), Group.getDefaultList());
+    selfGroupSet.setType(Membership.COMPOSITE);
+    GrouperDAOFactory.getFactory().getGroupSet().update(selfGroupSet);
 
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
         CompositeHooks.METHOD_COMPOSITE_POST_INSERT, HooksCompositeBean.class, 
@@ -488,7 +508,6 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.COMPOSITE, 
         CompositeHooks.METHOD_COMPOSITE_POST_COMMIT_INSERT, HooksCompositeBean.class, 
         this, Composite.class);
-
   }
 
   /**
@@ -514,6 +533,27 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
     
+    // delete the composite memberships
+    Set<Membership> mships = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndField( 
+        this.getFactorOwnerUuid(), Group.getDefaultList());
+
+    Set<String> membersList = new LinkedHashSet<String>();
+    Iterator<Membership> iter = mships.iterator();
+    while (iter.hasNext()) {
+      membersList.add(iter.next().getMemberUuid());
+    }
+    
+    GrouperDAOFactory.getFactory().getMembership().delete(mships);
+
+    // fix composites
+    Membership.fixComposites(this.getFactorOwnerUuid(), membersList);
+    
+    // update the membership type of the group set to 'immediate'
+    GroupSet selfGroupSet = 
+      GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(this.getOwnerGroup(), Group.getDefaultList());
+    selfGroupSet.setType(Membership.IMMEDIATE);
+    GrouperDAOFactory.getFactory().getGroupSet().update(selfGroupSet);
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
         CompositeHooks.METHOD_COMPOSITE_PRE_DELETE, HooksCompositeBean.class, 
         this, Composite.class, VetoTypeGrouper.COMPOSITE_PRE_DELETE, false, false);
@@ -528,6 +568,8 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
     
+    //make sure the composite group is not a member of either factor
+    this.errorIfCompositeIsSubMember();
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.COMPOSITE, 
         CompositeHooks.METHOD_COMPOSITE_PRE_INSERT, HooksCompositeBean.class, 
@@ -607,6 +649,105 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
   public void setContextId(String contextId1) {
     this.contextId = contextId1;
   }
+  
 
+
+  /**
+   * @return the set of members
+   */
+  private Set<String> evaluateAddCompositeMembershipComplement() {
+
+    Set<String> memberUUIDs = GrouperDAOFactory.getFactory().getMember()
+      ._internal_membersComplement(this.getLeftFactorUuid(),
+          this.getRightFactorUuid());
+
+    return memberUUIDs;
+  } 
+
+  /**
+   * @return the set of members
+   */
+  private Set<String> evaluateAddCompositeMembershipIntersection() {
+    
+    Set<String> memberUUIDs = GrouperDAOFactory.getFactory().getMember()
+      ._internal_membersIntersection(this.getLeftFactorUuid(),
+        this.getRightFactorUuid());
+
+    return memberUUIDs;
+  }
+
+  /**
+   * @return the set of members
+   */
+  private Set<String> evaluateAddCompositeMembershipUnion() {
+    
+    Set<String> memberUUIDs = GrouperDAOFactory.getFactory().getMember()
+      ._internal_membersUnion(this.getLeftFactorUuid(),
+      this.getRightFactorUuid());
+
+    return memberUUIDs;
+  }
+  
+  /**
+   * @param memberUUIDs
+   * @return set
+   */
+  private Set<Membership> createNewCompositeMembershipObjects(Set<String> memberUUIDs) {
+    Set<Membership> mships = new LinkedHashSet<Membership>();
+    Iterator<String> it = memberUUIDs.iterator();
+    while (it.hasNext()) {
+      Membership ms = createNewCompositeMembershipObject(this.getFactorOwnerUuid(), it.next(), this.getUuid());
+      mships.add(ms);
+    }
+    return mships;
+  }
+
+
+  /**
+   * 
+   * @param ownerGroupId
+   * @param memberUuid
+   * @param viaCompositeId
+   * @return membership
+   */
+  protected static Membership createNewCompositeMembershipObject(String ownerGroupId, String memberUuid, String viaCompositeId) {
+    Membership ms = new Membership();
+    ms.setCreatorUuid(GrouperSession.staticGrouperSession().getMember().getUuid());
+    ms.setDepth(0);
+    ms.setFieldId(Group.getDefaultList().getUuid());
+    ms.setMemberUuid(memberUuid);
+    ms.setOwnerGroupId(ownerGroupId);
+    ms.setType(Membership.COMPOSITE);
+    ms.setViaCompositeId(viaCompositeId);
+
+    return ms;
+  }
+
+  
+  /**
+   * make sure the composite group is not a submember of either factor
+   */
+  private void errorIfCompositeIsSubMember() {
+    
+    String memberId = this.getOwnerGroup().toMember().getUuid();
+
+    Set<Membership> memberships = GrouperDAOFactory.getFactory()
+      .getMembership().findAllByGroupOwnerAndMemberAndField(this.getLeftFactorUuid(), 
+          memberId, Group.getDefaultList());
+    
+    if (GrouperUtil.length(memberships) > 0) {
+      throw new IllegalStateException("Membership paths from a left factor to the composite are not allowed. " 
+          + this.getLeftFactorUuid() + ", " + memberId);
+    }
+    memberships = GrouperDAOFactory.getFactory()
+      .getMembership().findAllByGroupOwnerAndMemberAndField(this.getRightFactorUuid(), 
+          memberId, Group.getDefaultList());
+    
+    if (GrouperUtil.length(memberships) > 0) {
+      throw new IllegalStateException("Membership paths from a right factor to the composite are not allowed. " 
+          + this.getRightFactorUuid() + ", " + memberId);
+    }
+
+  }
 } 
 

@@ -15,7 +15,7 @@ import bsh.Interpreter;
  * Display usage information.
  * <p/>
  * @author  blair christensen.
- * @version $Id: help.java,v 1.19 2009-03-29 21:17:21 shilen Exp $
+ * @version $Id: help.java,v 1.20 2009-08-12 12:44:45 shilen Exp $
  * @since   0.0.1
  */
 public class help {
@@ -274,19 +274,9 @@ public class help {
           + "- to fix your bad membership, do the following:\n"
           + "  1.  Review the GSH script before applying any changes to your database.\n"
           + "  2.  Run the GSH script.\n"
-          + "  3.  Re-run the bad membership finder utility for all groups and stems since additional membership errors for other groups and stems may be revealed after the current groups and stems are fixed.\n"
+          + "  3.  Re-run the bad membership finder utility to verify that bad memberships have been fixed.\n"
           + "- here is an example is a complete findBadMemberships run:\n\n"
-          + "findBadMemberships()\n\n"
-          + "- find bad naming privileges for a specific stem (couple of commands):\n\n"
-          + "subject=SubjectFinder.findById(\"GrouperSystem\")\n"
-          + "session=GrouperSession.start(subject)\n"
-          + "stem = StemFinder.findByName(session, \"test\")\n"
-          + "findBadMembershipsByStem(stem)\n\n"
-          + "- find bad memberships and access privileges for a specific group (couple of commands):\n\n"
-          + "subject=SubjectFinder.findById(\"GrouperSystem\")\n"
-          + "session=GrouperSession.start(subject)\n"
-          + "group = GroupFinder.findByName(session, \"test:testGroup\")\n"
-          + "findBadMembershipsByGroup(group)\n");
+          + "findBadMemberships()\n");
       
       return;
     }

@@ -17,10 +17,8 @@
 
 package edu.internet2.middleware.grouper.membership;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
-import junit.framework.Assert;
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
@@ -32,11 +30,9 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouper.helper.MembershipTestHelper;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.misc.CompositeType;
-import edu.internet2.middleware.grouper.misc.FindBadMemberships;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -184,18 +180,6 @@ public class TestMembership12 extends GrouperTest {
     // verify the total number of update privileges
     Set<Membership> updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
     T.amount("Number of update privileges", 9, updateMemberships.size());
-
-    Set<Group> goodGroups = new LinkedHashSet<Group>();
-    Set<Group> badGroups = new LinkedHashSet<Group>();
-      
-    goodGroups.add(gA);
-    goodGroups.add(gB);
-    goodGroups.add(gC);
-    goodGroups.add(gD);
-    goodGroups.add(gE);
-    goodGroups.add(gF);
-
-    MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
   }
 }
 

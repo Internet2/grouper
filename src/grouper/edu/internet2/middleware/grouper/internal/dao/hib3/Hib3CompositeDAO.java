@@ -38,13 +38,26 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Basic Hibernate <code>Composite</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3CompositeDAO.java,v 1.12 2009-06-09 22:55:39 shilen Exp $
+ * @version $Id: Hib3CompositeDAO.java,v 1.13 2009-08-12 12:44:45 shilen Exp $
  */
 public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
 
   // PRIVATE CLASS CONSTANTS //
   private static final String KLASS = Hib3CompositeDAO.class.getName();
 
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.CompositeDAO#findAsFactorOrHasMemberOfFactor(java.lang.String)
+   */
+  public Set<Composite> findAsFactorOrHasMemberOfFactor(String groupId) {
+    return HibernateSession.byHqlStatic().createQuery(
+        "select c from Composite as c, GroupSet as gs where gs.memberGroupId = :group and ("
+            + " c.leftFactorUuid = gs.ownerGroupId or c.rightFactorUuid = gs.ownerGroupId " + ")")
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".findAsFactorOrHasMemberOfFactor")
+        .setString("group", groupId)
+        .listSet(Composite.class);
+  }
 
   /**
    * @since   @HEAD@
@@ -165,7 +178,21 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
     });
   } // public void update(toAdd, toDelete, modGroups, modStems)
 
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.CompositeDAO#save(edu.internet2.middleware.grouper.Composite)
+   */
+  public void save(Composite c) {
+    HibernateSession.byObjectStatic().save(c);
+  }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.CompositeDAO#delete(edu.internet2.middleware.grouper.Composite)
+   */
+  public void delete(Composite c) {
+    HibernateSession.byObjectStatic().delete(c);
+  }
+  
   // PROTECTED CLASS METHODS //
 
   // @since   @HEAD@

@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
@@ -35,7 +34,6 @@ import edu.internet2.middleware.grouper.helper.DateHelper;
 import edu.internet2.middleware.grouper.helper.MembershipTestHelper;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
-import edu.internet2.middleware.grouper.misc.FindBadMemberships;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -116,8 +114,6 @@ public class TestMembership7 extends TestCase {
 
       verifyMemberships();
 
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
-
       // clear out memberships
       gA.deleteMember(gB.toSubject());
       gB.deleteMember(gC.toSubject());
@@ -150,8 +146,6 @@ public class TestMembership7 extends TestCase {
       gA.addMember(gB.toSubject());
   
       verifyMemberships();
-
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
   
       // clear out memberships
       gA.deleteMember(gB.toSubject());
@@ -185,8 +179,6 @@ public class TestMembership7 extends TestCase {
       gB.addMember(gC.toSubject());
   
       verifyMemberships();
-  
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
 
       // clear out memberships
       gA.deleteMember(gB.toSubject());
@@ -220,8 +212,6 @@ public class TestMembership7 extends TestCase {
       gC.addMember(gA.toSubject());
   
       verifyMemberships();
-
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
   
       // clear out memberships
       gA.deleteMember(gB.toSubject());
@@ -255,8 +245,6 @@ public class TestMembership7 extends TestCase {
       gD.addMember(gC.toSubject());
   
       verifyMemberships();
-
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
   
       // clear out memberships
       gA.deleteMember(gB.toSubject());
@@ -290,8 +278,6 @@ public class TestMembership7 extends TestCase {
       gC.addMember(subjA);
   
       verifyMemberships();
-
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
   
       // clear out memberships
       gA.deleteMember(gB.toSubject());
@@ -325,8 +311,6 @@ public class TestMembership7 extends TestCase {
       gB.grantPriv(gC.toSubject(), AccessPrivilege.OPTIN);
   
       verifyMemberships();
-
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
   
       // clear out memberships
       gA.deleteMember(gB.toSubject());
@@ -360,8 +344,6 @@ public class TestMembership7 extends TestCase {
       gE.addMember(gD.toSubject());
  
       verifyMemberships();
-
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
  
       // clear out memberships
       gA.deleteMember(gB.toSubject());
@@ -395,8 +377,6 @@ public class TestMembership7 extends TestCase {
       gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
 
       verifyMemberships();
-
-      MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
     
       // clear out memberships
       gA.deleteMember(gB.toSubject());
@@ -522,15 +502,15 @@ public class TestMembership7 extends TestCase {
 
     // verify the total number of list memberships
     Set<Membership> listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-    T.amount("Number of list memberships", 18, listMemberships.size());
+    T.amount("Number of list memberships", 23, listMemberships.size());
 
     // verify the total number of update privileges
     Set<Membership> updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-    T.amount("Number of update privileges", 8, updateMemberships.size());
+    T.amount("Number of update privileges", 10, updateMemberships.size());
 
     // verify the total number of opt-in privileges
     Set<Membership> optInMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldOptIns);
-    T.amount("Number of opt-in privileges", 4, optInMemberships.size());
+    T.amount("Number of opt-in privileges", 5, optInMemberships.size());
   }
 
 }

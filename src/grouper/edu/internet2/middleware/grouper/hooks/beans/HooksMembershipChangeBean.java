@@ -1,21 +1,18 @@
 /**
  * @author mchyzer
- * $Id: HooksMembershipChangeBean.java,v 1.3 2008-07-21 04:43:58 mchyzer Exp $
+ * $Id: HooksMembershipChangeBean.java,v 1.4 2009-08-12 12:44:45 shilen Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
-import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -29,19 +26,15 @@ public class HooksMembershipChangeBean extends HooksBean {
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
-  /** constant for field name for: defaultMemberOf */
-  public static final String FIELD_DEFAULT_MEMBER_OF = "defaultMemberOf";
-
   /**
    * fields which are included in clone method
    */
-  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_DEFAULT_MEMBER_OF);
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet();
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
-  /** object being inserted */
-  private DefaultMemberOf defaultMemberOf = null;
+  Membership ms = null;
+  
   /**
    * 
    */
@@ -50,18 +43,10 @@ public class HooksMembershipChangeBean extends HooksBean {
   }
 
   /**
-   * @param theDefaultMemberOf 
+   * @param ms 
    */
-  public HooksMembershipChangeBean(
-      DefaultMemberOf theDefaultMemberOf) {
-    this.defaultMemberOf = theDefaultMemberOf;
-  }
-  
-  /**
-   * @return the defaultMemberOf
-   */
-  public DefaultMemberOf getDefaultMemberOf() {
-    return this.defaultMemberOf;
+  public HooksMembershipChangeBean(Membership ms) {
+    this.ms = ms;
   }
 
   /**
@@ -69,7 +54,7 @@ public class HooksMembershipChangeBean extends HooksBean {
    * @return the composite
    */
   public Composite getComposite() {
-    return this.defaultMemberOf.getComposite();
+    return this.ms.getViaComposite();
   }
 
   /**
@@ -77,7 +62,7 @@ public class HooksMembershipChangeBean extends HooksBean {
    * @return the field
    */
   public Field getField() {
-    return this.defaultMemberOf.getField();
+    return this.ms.getList();
   }
 
   /**
@@ -85,7 +70,7 @@ public class HooksMembershipChangeBean extends HooksBean {
    * @return the group
    */
   public Group getGroup() {
-    return this.defaultMemberOf.getGroup();
+    return this.ms.getGroup();
   }
 
   /**
@@ -93,7 +78,7 @@ public class HooksMembershipChangeBean extends HooksBean {
    * @return the member
    */
   public Member getMember() {
-    return this.defaultMemberOf.getMember();
+    return this.ms.getMember();
   }
 
   /**
@@ -101,7 +86,7 @@ public class HooksMembershipChangeBean extends HooksBean {
    * @return the membership
    */
   public Membership getMembership() {
-    return this.defaultMemberOf.getMembership();
+    return this.ms;
   }
 
   /**
@@ -109,108 +94,7 @@ public class HooksMembershipChangeBean extends HooksBean {
    * @return the stem
    */
   public Stem getStem() {
-    return this.defaultMemberOf.getStem();
-  }
-  
-  /**
-   * get the effective membership saves (inserts)
-   * @return the effective membership saves (inserts) or the empty set
-   */
-  public Set<Membership> getMembershipEffectiveSaves() {
-    Set<Membership> result = new HashSet<Membership>();
-    
-    for (GrouperAPI grouperAPI : GrouperUtil.nonNull(this.defaultMemberOf.getSaves())) {
-      if (grouperAPI instanceof Membership) {
-        Membership membership = (Membership)grouperAPI;
-        
-        //make sure a membership and effective
-        if (membership.isEffective()) {
-          result.add(membership);
-        }
-      }
-    }
-    for (GrouperAPI grouperAPI : GrouperUtil.nonNull(this.defaultMemberOf.getEffectiveSaves())) {
-      if (grouperAPI instanceof Membership) {
-        Membership membership = (Membership)grouperAPI;
-        
-        //make sure a membership and effective
-        if (membership.isEffective()) {
-          result.add(membership);
-        }
-      }
-    }
-    return result;
-  }
-  
-  /**
-   * get the immediate membership saves (inserts)
-   * @return the immediate membership saves (inserts) or the empty set
-   */
-  public Set<Membership> getMembershipImmediateSaves() {
-    Set<Membership> result = new HashSet<Membership>();
-    
-    for (GrouperAPI grouperAPI : GrouperUtil.nonNull(this.defaultMemberOf.getSaves())) {
-      if (grouperAPI instanceof Membership) {
-        Membership membership = (Membership)grouperAPI;
-        
-        //make sure a membership and immediate
-        if (membership.isImmediate()) {
-          result.add(membership);
-        }
-      }
-    }
-    return result;
-  }
-
-  /**
-   * get the effective membership deletes
-   * @return the effective membership saves or the empty set
-   */
-  public Set<Membership> getMembershipEffectiveDeletes() {
-    Set<Membership> result = new HashSet<Membership>();
-    
-    for (GrouperAPI grouperAPI : GrouperUtil.nonNull(this.defaultMemberOf.getDeletes())) {
-      if (grouperAPI instanceof Membership) {
-        Membership membership = (Membership)grouperAPI;
-        
-        //make sure a membership and effective
-        if (membership.isEffective()) {
-          result.add(membership);
-        }
-      }
-    }
-    //try the other property about effective deletes
-    for (GrouperAPI grouperAPI : GrouperUtil.nonNull(this.defaultMemberOf.getEffectiveDeletes())) {
-      if (grouperAPI instanceof Membership) {
-        Membership membership = (Membership)grouperAPI;
-        
-        //make sure a membership and effective
-        if (membership.isEffective()) {
-          result.add(membership);
-        }
-      }
-    }
-    return result;
-  }
-
-  /**
-   * get the immediate membership deletes
-   * @return the immediate membership deletes or the empty set
-   */
-  public Set<Membership> getMembershipImmediateDeletes() {
-    Set<Membership> result = new HashSet<Membership>();
-    
-    for (GrouperAPI grouperAPI : GrouperUtil.nonNull(this.defaultMemberOf.getDeletes())) {
-      if (grouperAPI instanceof Membership) {
-        Membership membership = (Membership)grouperAPI;
-        
-        //make sure a membership and immediate
-        if (membership.isImmediate()) {
-          result.add(membership);
-        }
-      }
-    }
-    return result;
+    return this.ms.getStem();
   }
 
   /**
