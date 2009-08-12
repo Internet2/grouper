@@ -15,7 +15,10 @@
 
 package edu.internet2.middleware.ldappc;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -65,6 +68,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.ldappc.LdappcConfig.GroupDNStructure;
 import edu.internet2.middleware.ldappc.util.LdapUtil;
 import edu.internet2.middleware.ldappc.util.ResourceBundleUtil;
+import edu.internet2.middleware.shibboleth.common.attribute.BaseAttribute;
 
 public class BaseLdappcTestCase extends GrouperTest {
 
@@ -237,6 +241,12 @@ public class BaseLdappcTestCase extends GrouperTest {
 
   public File calculate(GroupDNStructure structure) throws Exception {
 
+
+    File file = new File(ldappc.getOptions().getCalculateOutputFileLocation());
+    if (file.exists()) {
+      file.delete();
+    }
+    
     ((ConfigManager) ldappc.getConfig()).setGroupDnStructure(structure);
 
     return ldappc.calculate();
@@ -307,6 +317,36 @@ public class BaseLdappcTestCase extends GrouperTest {
       System.out.println(LdifUtils.convertToLdif(searchResult.getAttributes(),
           new LdapDN(searchResult.getNameInNamespace())));
     }
+  }
+
+  public void print(File file) {
+
+    try {
+      BufferedReader in = new BufferedReader(new FileReader(file));
+      String str;
+      while ((str = in.readLine()) != null) {
+        System.out.println(str);
+      }
+      in.close();
+    } catch (IOException e) {
+      fail("An error occurred : " + e);
+    }
+  }
+
+  public void print(Map<String, BaseAttribute> map) {
+
+    System.out.println();
+
+    if (map == null) {
+      System.out.println(map);
+    } else {
+      for (String key : map.keySet()) {
+        for (Object value : map.get(key).getValues()) {
+          System.out.println(key + " : '" + value + "'");
+        }
+      }
+    }
+    System.out.println();
   }
 
   public void provision(GroupDNStructure structure) throws Exception {
