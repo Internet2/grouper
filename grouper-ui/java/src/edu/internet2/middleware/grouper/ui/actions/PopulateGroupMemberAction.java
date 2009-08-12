@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.MissingGroupOrStemException;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
@@ -212,7 +213,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * 
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMemberAction.java,v 1.13 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: PopulateGroupMemberAction.java,v 1.14 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class PopulateGroupMemberAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(PopulateGroupMemberAction.class);
@@ -349,7 +350,7 @@ public class PopulateGroupMemberAction extends GrouperCapableAction {
 		if(!forStems) {
 			UIGroupPrivilegeResolver resolver = 
 				UIGroupPrivilegeResolverFactory.getInstance(grouperSession, 
-					                                    	getMediaResources(request), 
+				    GrouperUiFilter.retrieveSessionMediaResourceBundle(), 
 					                                    	group, grouperSession.getSubject());
 			request.setAttribute("groupPrivResolver", resolver.asMap());
 		}

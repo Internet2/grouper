@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.InitialStems;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.MissingGroupOrStemException;
@@ -223,7 +224,7 @@ import edu.internet2.middleware.grouper.ui.util.CollectionPager;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.21 2009-05-08 12:03:37 shilen Exp $
+ * @version $Id: PrepareRepositoryBrowserStemsAction.java,v 1.22 2009-08-12 04:52:14 mchyzer Exp $
  */
 
 public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableAction {
@@ -239,7 +240,7 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 		String browseMode = getBrowseMode(session);
 		RepositoryBrowser repositoryBrowser = (RepositoryBrowser)request.getAttribute("re-entrantBrowser");
 		if(repositoryBrowser==null) {
-			repositoryBrowser=RepositoryBrowserFactory.getInstance(browseMode,grouperSession,getNavResources(request),getMediaResources(request));
+			repositoryBrowser=RepositoryBrowserFactory.getInstance(browseMode,grouperSession,GrouperUiFilter.retrieveSessionNavResourceBundle(),GrouperUiFilter.retrieveSessionMediaResourceBundle());
 		}
 		Group curNodeGroup = null;
 		Stem curNodeStem = null;
@@ -465,7 +466,7 @@ public class PrepareRepositoryBrowserStemsAction extends LowLevelGrouperCapableA
 
 
 		request.setAttribute("allStemPrivs", GrouperHelper
-				.getStemPrivsWithLabels(getNavResources(request)));
+				.getStemPrivsWithLabels(GrouperUiFilter.retrieveSessionNavResourceBundle()));
 		request.setAttribute("currentLocation", curGroupOrStemMap);
 		request.setAttribute("repositoryBrowser",repositoryBrowser);
 		

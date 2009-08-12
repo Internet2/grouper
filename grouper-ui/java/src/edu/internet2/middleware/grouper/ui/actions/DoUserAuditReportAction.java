@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.AuditEntryAsMap;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
 import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
@@ -220,7 +221,7 @@ import edu.internet2.middleware.subject.Subject;
 </table>
 
  * @author Gary Brown.
- * @version $Id: DoUserAuditReportAction.java,v 1.4 2009-08-11 14:17:21 isgwb Exp $
+ * @version $Id: DoUserAuditReportAction.java,v 1.5 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class DoUserAuditReportAction extends GrouperCapableAction {
 
@@ -273,7 +274,7 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
         }
         session.setAttribute("extendedResults",extendedResults);
         auditForm.set("extendedResults", extendedResults);
-        ResourceBundle mediaBundle = getMediaResources(request);
+        ResourceBundle mediaBundle = GrouperUiFilter.retrieveSessionMediaResourceBundle();
         boolean isEnabled = false;
         String dateFormat="mm/dd/yyyy";
         int noDays = 7;
@@ -389,7 +390,7 @@ public class DoUserAuditReportAction extends GrouperCapableAction {
 				query=query.addAuditTypeCategory("privilege").addAuditTypeFieldValue("memberId", memberId);
 			    infoKey="audit.query.info.privilege";
 			}
-			entity = GrouperHelper.getMemberDisplayValue(member, getMediaResources(request));
+			entity = GrouperHelper.getMemberDisplayValue(member, GrouperUiFilter.retrieveSessionMediaResourceBundle());
 		}
 		
 		request.setAttribute("auditInfoKey",infoKey);

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: LoaderMemberWrapper.java,v 1.2 2009-08-11 20:18:09 mchyzer Exp $
+ * $Id: LoaderMemberWrapper.java,v 1.3 2009-08-12 04:52:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -77,7 +77,7 @@ public class LoaderMemberWrapper {
   public Member findOrGetMember() {
     if (this.member == null) {
       try {
-        Subject subject = SubjectFinder.getSource(this.sourceId).getSubject(this.subjectId);
+        Subject subject = SubjectFinder.getSource(this.sourceId).getSubject(this.subjectId, true);
         this.member = MemberFinder.internal_findBySubject(subject, null, false);
       } catch (Exception e) {
         throw new RuntimeException("Problem with loader member wrapper: " + this.subjectId, e);
@@ -93,7 +93,7 @@ public class LoaderMemberWrapper {
   public Subject findOrGetSubject() {
     try {
       if (this.member == null) {
-          Subject subject = SubjectFinder.getSource(this.sourceId).getSubject(this.subjectId);
+          Subject subject = SubjectFinder.getSource(this.sourceId).getSubject(this.subjectId, true);
           return subject;
       }
       return this.member.getSubject();

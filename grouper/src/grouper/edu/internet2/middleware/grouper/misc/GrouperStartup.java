@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperStartup.java,v 1.20 2009-08-11 20:34:18 mchyzer Exp $
+ * $Id: GrouperStartup.java,v 1.21 2009-08-12 04:52:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -25,8 +25,10 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
+import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
 import edu.internet2.middleware.grouper.util.GrouperToStringStyle;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
@@ -63,6 +65,10 @@ public class GrouperStartup {
       }
       started = true;
   
+      //add in custom sources
+      SourceManager.getInstance().loadSource(SubjectFinder.internal_getGSA());
+      SourceManager.getInstance().loadSource(InternalSourceAdapter.instance());
+      
       //dont print big classname, dont print nulls
       ToStringBuilder.setDefaultStyle(new GrouperToStringStyle());
 

@@ -17,14 +17,18 @@ limitations under the License.
 package edu.internet2.middleware.grouper.ui.util;
 
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import javax.servlet.jsp.jstl.fmt.LocalizationContext;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 
 /**
@@ -32,14 +36,12 @@ import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: NavExceptionHelper.java,v 1.2 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: NavExceptionHelper.java,v 1.3 2009-08-12 04:52:14 mchyzer Exp $
  */
-public class NavExceptionHelper {
+public class NavExceptionHelper implements Serializable {
 	protected static final Log LOG = LogFactory.getLog(NavExceptionHelper.class);
 
-	private ResourceBundle navBundle = null;
-	public NavExceptionHelper(ResourceBundle navBundle) {
-		this.navBundle=navBundle;
+	public NavExceptionHelper() {
 	}
 	
 	/**
@@ -51,7 +53,7 @@ public class NavExceptionHelper {
 	public String key(Throwable t) {
 		String key="error." + t.getClass().getSimpleName();
 		try {
-			navBundle.getString(key);
+		  key = GrouperUiFilter.retrieveSessionNavResourceBundle().getString(key);
 		}catch(MissingResourceException mre) {
 			key = "error.unknown.exception";
 		}
@@ -76,7 +78,7 @@ public class NavExceptionHelper {
 		String exceptionText = "";
 		if(messageKey!=null) {
 			try {
-				message = navBundle.getString(messageKey);
+				message = GrouperUiFilter.retrieveSessionNavResourceBundle().getString(messageKey);
 				String[] args=cause.getMessageArgs();
 				if(args != null) message=MessageFormat.format(message,(Object[])args);
 			}catch(MissingResourceException e) {
@@ -85,7 +87,7 @@ public class NavExceptionHelper {
 		}
 		if(exceptionKey!=null) {
 			try {
-				exceptionText = navBundle.getString(exceptionKey);
+				exceptionText = GrouperUiFilter.retrieveSessionNavResourceBundle().getString(exceptionKey);
 			}catch(MissingResourceException e) {
 				LOG.error("Missing nav key: " + exceptionKey);
 			}

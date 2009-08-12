@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 
 
 /**
@@ -125,7 +126,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareGroupSearchFormAction.java,v 1.10 2007-09-27 15:41:31 isgwb Exp $
+ * @version $Id: PrepareGroupSearchFormAction.java,v 1.11 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class PrepareGroupSearchFormAction extends LowLevelGrouperCapableAction {
 
@@ -137,10 +138,10 @@ public class PrepareGroupSearchFormAction extends LowLevelGrouperCapableAction {
 		
 		DynaActionForm searchForm = (DynaActionForm)form;
 		List browsePath = (List) request.getAttribute("browsePath");
-		String searchDisplayNameOrExtension = getMediaResources(request).getString("search.default.search-in-display-name-or-extension");
-		String searchNameOrExtension = getMediaResources(request).getString("search.default.search-in-name-or-extension");
-		String searchInAny=getMediaResources(request).getString("search.default.any");
-		String searchDefault=getMediaResources(request).getString("search.default");
+		String searchDisplayNameOrExtension = GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("search.default.search-in-display-name-or-extension");
+		String searchNameOrExtension = GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("search.default.search-in-name-or-extension");
+		String searchInAny=GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("search.default.any");
+		String searchDefault=GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("search.default");
 		searchForm.set("searchInDisplayNameOrExtension",searchDisplayNameOrExtension);
 		searchForm.set("searchInNameOrExtension",searchNameOrExtension);
 		if(session.getAttribute("searchGroupDefault")!=null) {
@@ -151,9 +152,9 @@ public class PrepareGroupSearchFormAction extends LowLevelGrouperCapableAction {
 		}
 		
 		
-		request.setAttribute("fields",GrouperHelper.getSearchableFields(getNavResources(request)));
+		request.setAttribute("fields",GrouperHelper.getSearchableFields(GrouperUiFilter.retrieveSessionNavResourceBundle()));
 		Set groupTypes=GroupTypeFinder.findAllAssignable();
-		List stemFields = GrouperHelper.getSearchableStemFields(getNavResources(request));
+		List stemFields = GrouperHelper.getSearchableStemFields(GrouperUiFilter.retrieveSessionNavResourceBundle());
 		request.setAttribute("stemFields",stemFields);
 		request.setAttribute("types",groupTypes);
 		request.setAttribute("typesSize",new Integer(groupTypes.size()));

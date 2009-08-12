@@ -140,7 +140,7 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: AbstractRepositoryBrowser.java,v 1.22 2009-04-13 20:24:19 mchyzer Exp $
+ * @version $Id: AbstractRepositoryBrowser.java,v 1.23 2009-08-12 04:52:14 mchyzer Exp $
  */
 public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 	
@@ -279,7 +279,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 			if(group !=null) {//display immediate members
         
         Set<Membership> allChildren = new LinkedHashSet<Membership>();
-        ResourceBundle resourceBundle = LowLevelGrouperCapableAction.getMediaResources(request);
+        ResourceBundle resourceBundle = GrouperUiFilter.retrieveSessionMediaResourceBundle();
         String sortLimitString=resourceBundle.getString("comparator.sort.limit");
         int sortLimit=Integer.parseInt(sortLimitString);
         
@@ -556,7 +556,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		String field;
 		String query;
 		String andOrNot;
-		Map fieldMaps = (Map)GrouperHelper.getFieldsAsMap(navBundle).get("stems");
+		Map fieldMaps = (Map)GrouperHelper.getFieldsAsMap().get("stems");
 		String lastFieldDisplayName=null;
 		QueryFilter queryFilter = null;
 		if(outTerms==null) outTerms=new ArrayList();
@@ -620,7 +620,7 @@ public abstract class AbstractRepositoryBrowser implements RepositoryBrowser {
 		String field;
 		String query;
 		String andOrNot;
-		Map fieldMaps = GrouperHelper.getFieldsAsMap(navBundle);
+		Map fieldMaps = GrouperHelper.getFieldsAsMap();
 		String lastFieldDisplayName=null;
 		QueryFilter queryFilter = null;
 		if(outTerms==null) outTerms=new ArrayList();

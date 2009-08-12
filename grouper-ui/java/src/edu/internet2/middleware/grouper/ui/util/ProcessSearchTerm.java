@@ -21,6 +21,7 @@ import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.SearchTermProcessor;
 import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
@@ -32,7 +33,7 @@ import edu.internet2.middleware.subject.Source;
  * message.
  * 
  * @author Catherine Jewell.
- * @version $Id: ProcessSearchTerm.java,v 1.2 2007-12-05 11:29:32 isgwb Exp $
+ * @version $Id: ProcessSearchTerm.java,v 1.3 2009-08-12 04:52:14 mchyzer Exp $
  */
 
 public class ProcessSearchTerm {
@@ -44,7 +45,7 @@ public class ProcessSearchTerm {
 		
 		//Get the ResourceBundle which contains key / values
   		//we will check in our template finding algorithm
-  		ResourceBundle mediaBundle = LowLevelGrouperCapableAction.getMediaResources(request);
+  		ResourceBundle mediaBundle = GrouperUiFilter.retrieveSessionMediaResourceBundle();
   		
   		try{
   			String keyValue = null;

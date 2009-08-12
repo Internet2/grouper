@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AllSubjectTests.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * $Id: AllSubjectTests.java,v 1.2 2009-08-12 04:52:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.subj;
 
@@ -19,7 +19,6 @@ public class AllSubjectTests {
     suite.addTestSuite(TestGrouperSourceAdapter.class);
     suite.addTestSuite(TestSubjectFinder.class);
     suite.addTestSuite(TestInternalSourceAdapter.class);
-    suite.addTestSuite(Test_subj_SourcesXmlResolver.class);
     suite.addTestSuite(TestGrouperSubject.class);
     suite.addTestSuite(Test_subj_CachingResolver.class);
     suite.addTestSuite(TestSubject.class);

@@ -43,9 +43,7 @@ public class TestWebappSources {
 		Logger subjectLogger = Logger.getLogger(Subject.class);
 		subjectLogger.setLevel(Level.DEBUG);
 		SourceManager sm = SourceManager.getInstance();
-		BaseSourceAdapter isa = new InternalSourceAdapter(
-		        InternalSourceAdapter.ID, InternalSourceAdapter.NAME
-		      ); 
+		BaseSourceAdapter isa = InternalSourceAdapter.instance();
 		      sm.loadSource(isa);
 		Collection sources = new ArrayList(sm.getSources());
 		Iterator it = sources.iterator();

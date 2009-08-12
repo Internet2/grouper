@@ -60,11 +60,11 @@ import edu.internet2.middleware.subject.Subject;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: DefaultComparatorImpl.java,v 1.3 2009-03-04 15:36:09 isgwb Exp $
+ * @version $Id: DefaultComparatorImpl.java,v 1.4 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class DefaultComparatorImpl implements GrouperComparator {
 	protected static final Log LOG = LogFactory.getLog(DefaultComparatorImpl.class);
-	private ResourceBundle config;
+	
 	private String context;
 	private Map helpers = new HashMap();
 	/**
@@ -73,14 +73,6 @@ public class DefaultComparatorImpl implements GrouperComparator {
 	public DefaultComparatorImpl() {
 		super();
 		// TODO Auto-generated constructor stub
-	}
-
-	/* (non-Javadoc)
-	 * @see edu.internet2.middleware.grouper.ui.GrouperComparator#setConfigBundle(java.util.ResourceBundle)
-	 */
-	public void setConfigBundle(ResourceBundle bundle) {
-		this.config=bundle;
-
 	}
 
 	/* (non-Javadoc)
@@ -97,7 +89,7 @@ public class DefaultComparatorImpl implements GrouperComparator {
 	 */
 	public int compare(Object arg0, Object arg1) {
 		// TODO Auto-generated method stub
-		if(context==null || config==null) throw new IllegalStateException("A context and config must be set");
+		if(context==null || GrouperUiFilter.retrieveSessionMediaResourceBundle()==null) throw new IllegalStateException("A context and config must be set");
 		
 		if((arg0 instanceof Stem || arg0 instanceof StemAsMap) 
 				&& (arg1 instanceof Group || arg1 instanceof GroupAsMap)) return -1;
@@ -114,7 +106,7 @@ public class DefaultComparatorImpl implements GrouperComparator {
 	private String getComparisonString(Object obj) {
 		GrouperComparatorHelper helper = getHelper(obj);
 		try {
-			String comp = helper.getComparisonString(obj,config,context);
+			String comp = helper.getComparisonString(obj,GrouperUiFilter.retrieveSessionMediaResourceBundle(),context);
 			return comp;
 		}catch(Exception e) {
 			LOG.error(e);
@@ -128,13 +120,13 @@ public class DefaultComparatorImpl implements GrouperComparator {
 			String helperClass = null;
 			String keyLookup="comparator.helper." + obj.getClass().getName();
 			try {
-				helperClass=config.getString(keyLookup);
+				helperClass=GrouperUiFilter.retrieveSessionMediaResourceBundle().getString(keyLookup);
 			}catch (Exception e) {}
 			
 			if(helperClass==null && obj instanceof Subject) {
 				keyLookup="comparator.helper." + Subject.class.getName();
 				try {
-					helperClass=config.getString(keyLookup);
+					helperClass=GrouperUiFilter.retrieveSessionMediaResourceBundle().getString(keyLookup);
 				}catch (Exception e) {}
 			}
 			

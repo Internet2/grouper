@@ -31,6 +31,7 @@ import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -93,7 +94,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareSubjectSearchFormAction.java,v 1.7 2007-12-13 09:47:14 isgwb Exp $
+ * @version $Id: PrepareSubjectSearchFormAction.java,v 1.8 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class PrepareSubjectSearchFormAction extends LowLevelGrouperCapableAction {
 
@@ -112,7 +113,7 @@ public class PrepareSubjectSearchFormAction extends LowLevelGrouperCapableAction
 		}else {
 			String defaultSource = "all";
 			try {
-				defaultSource = getMediaResources(request).getString("subject.search.default-source");
+				defaultSource = GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("subject.search.default-source");
 			}catch (Exception e) {
 				//wasn't defined
 			}

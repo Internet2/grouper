@@ -16,23 +16,17 @@ limitations under the License.
 */
 package edu.internet2.middleware.grouper.ui;
 
+import java.io.Serializable;
 import java.util.Comparator;
-import java.util.ResourceBundle;
 
 /**
  * Interface which the UI uses for sorting Collections of Groups,Stems,Subjects etc
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperComparator.java,v 1.1 2007-03-15 15:30:16 isgwb Exp $
+ * @version $Id: GrouperComparator.java,v 1.2 2009-08-12 04:52:14 mchyzer Exp $
  */
-public interface GrouperComparator extends Comparator {
-	
-	/**
-	 * Provides access to media.properties
-	 * @param bundle
-	 */
-	public void setConfigBundle(ResourceBundle bundle);
+public interface GrouperComparator extends Comparator, Serializable {
 	
 	/**
 	 * Provide the context in which sorting is taking place. Different atributes

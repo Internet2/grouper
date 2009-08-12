@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 
 /**
  * Top level Strut's action which does any setup needed prior to creating a 
@@ -117,7 +118,7 @@ import edu.internet2.middleware.grouper.ui.GroupOrStem;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateCreateGroupAction.java,v 1.11 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: PopulateCreateGroupAction.java,v 1.12 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class PopulateCreateGroupAction extends GrouperCapableAction {
 
@@ -148,7 +149,7 @@ public class PopulateCreateGroupAction extends GrouperCapableAction {
 			privileges.add(accessPrivs[i].toLowerCase());
 		}
 		
-		Map selected = GrouperHelper.getDefaultAccessPrivsForUI(getMediaResources(request));
+		Map selected = GrouperHelper.getDefaultAccessPrivsForUI(GrouperUiFilter.retrieveSessionMediaResourceBundle());
 		
 		request.setAttribute("privileges",privileges);
 		request.setAttribute("preSelected",selected);

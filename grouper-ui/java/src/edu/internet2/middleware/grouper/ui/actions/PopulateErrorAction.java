@@ -30,6 +30,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
 import edu.internet2.middleware.grouper.ui.ErrorFilter;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
@@ -42,7 +43,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateErrorAction.java,v 1.3 2008-04-15 14:12:34 isgwb Exp $
+ * @version $Id: PopulateErrorAction.java,v 1.4 2009-08-12 04:52:14 mchyzer Exp $
  */
 
 public class PopulateErrorAction extends org.apache.struts.action.Action {
@@ -68,7 +69,7 @@ public class PopulateErrorAction extends org.apache.struts.action.Action {
 		if(code!=null && !"".equals(code)) {
 			LOG.error("Caught '" + code + "' for " + request.getAttribute("javax.servlet.error.request_uri"));
 			try {
-				msg=LowLevelGrouperCapableAction.getNavResources(request).getString("error." + code);
+				msg=GrouperUiFilter.retrieveSessionNavResourceBundle().getString("error." + code);
 			}catch(MissingResourceException mre) {
 				msg=code;
 			}

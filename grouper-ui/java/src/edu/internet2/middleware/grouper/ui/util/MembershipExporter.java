@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
@@ -115,12 +116,12 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MembershipExporter.java,v 1.5 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: MembershipExporter.java,v 1.6 2009-08-12 04:52:14 mchyzer Exp $
  */
 
 public class MembershipExporter {
-	private ResourceBundle config;
 	private boolean active=false;
+	//MCH 20090811 XXX THIS IS NOT SERIALIZABLE, SHOULDNT BE IN SESSION!!!!
 	private Document configXml;
 	private Map formatCache = new HashMap();
 	private Map fieldsCache = new HashMap();
@@ -135,7 +136,7 @@ public class MembershipExporter {
 		Set members=g.getMembers();
 		PrintWriter writer = new PrintWriter(System.out);
 		ResourceBundle bundle = ResourceBundle.getBundle("resources/grouper/media");
-		MembershipExporter export= new MembershipExporter(bundle);
+		MembershipExporter export= new MembershipExporter();
 		export.export("Minimal",members,writer);
 		writer.flush();
 		s.stop();
@@ -144,9 +145,8 @@ public class MembershipExporter {
 	/**
 	 * 
 	 */
-	public MembershipExporter(ResourceBundle config) throws Exception{
+	public MembershipExporter() throws Exception{
 		super();
-		this.config=config;
 		init();
 		
 	}
@@ -154,7 +154,7 @@ public class MembershipExporter {
 	private void init() throws Exception{
 		String configResource = null;
 		try {
-			configResource=config.getString("membership-export.config");
+			configResource=GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("membership-export.config");
 		}catch(MissingResourceException e){
 			return;
 		}

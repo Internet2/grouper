@@ -40,6 +40,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.MenuFilter;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 import edu.internet2.middleware.grouper.ui.util.DOMHelper;
@@ -63,7 +64,7 @@ import edu.internet2.middleware.grouper.ui.util.DOMHelper;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: PrepareMenuAction.java,v 1.6 2008-04-11 05:53:47 mchyzer Exp $
+ * @version $Id: PrepareMenuAction.java,v 1.7 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 
@@ -78,7 +79,7 @@ public class PrepareMenuAction extends LowLevelGrouperCapableAction {
 			HttpSession session, GrouperSession grouperSession)
 			throws Exception {
 		
-		ResourceBundle mediaResources = getMediaResources(request);
+		ResourceBundle mediaResources = GrouperUiFilter.retrieveSessionMediaResourceBundle();
 		String menuFiles = mediaResources.getString("menu.resource.files");
 		String menuOrder = mediaResources.getString("menu.order");
 		String menuCache = mediaResources.getString("menu.cache");

@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.exception.StemAddException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
 
 
@@ -133,7 +134,7 @@ import edu.internet2.middleware.grouper.ui.Message;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveStemAction.java,v 1.12 2009-04-08 15:16:09 isgwb Exp $
+ * @version $Id: SaveStemAction.java,v 1.13 2009-08-12 04:52:14 mchyzer Exp $
  */
 
 public class SaveStemAction extends GrouperCapableAction {
@@ -251,7 +252,7 @@ public class SaveStemAction extends GrouperCapableAction {
 				(String) stemForm.get("stemDisplayName")));
 		
 		try {
-			if("true".equals(getMediaResources(request).getString("put.in.session.updated.stems"))) {
+			if("true".equals(GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("put.in.session.updated.stems"))) {
 				addSavedStem(session,stem);
 			}
 		}catch(Exception e){}

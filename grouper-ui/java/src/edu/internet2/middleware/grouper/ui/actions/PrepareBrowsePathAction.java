@@ -34,6 +34,7 @@ import org.apache.struts.action.DynaActionForm;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
@@ -100,7 +101,7 @@ import edu.internet2.middleware.grouper.ui.util.ObjectAsMap;
 </table>
  *
  * @author Gary Brown.
- * @version $Id: PrepareBrowsePathAction.java,v 1.5 2007-03-12 09:56:40 isgwb Exp $
+ * @version $Id: PrepareBrowsePathAction.java,v 1.6 2009-08-12 04:52:14 mchyzer Exp $
  */
 
 public class PrepareBrowsePathAction extends LowLevelGrouperCapableAction {
@@ -112,7 +113,7 @@ public class PrepareBrowsePathAction extends LowLevelGrouperCapableAction {
 			throws Exception {
 		if(request.getAttribute("browsePath")!=null) return null;
 		DynaActionForm browseForm = (DynaActionForm) form;
-		ResourceBundle nav = getNavResources(request);
+		ResourceBundle nav = GrouperUiFilter.retrieveSessionNavResourceBundle();
 		String rootName = null;
 		try {
 			rootName = nav.getString("stem.root.display-name");

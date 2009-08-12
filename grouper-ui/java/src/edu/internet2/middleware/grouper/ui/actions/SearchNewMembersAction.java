@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
@@ -187,7 +188,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 </table>
 
  * @author Gary Brown.
- * @version $Id: SearchNewMembersAction.java,v 1.11 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: SearchNewMembersAction.java,v 1.12 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class SearchNewMembersAction extends GrouperCapableAction {
 
@@ -299,7 +300,8 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 			searchedGroups = Boolean.TRUE;
 			
 			//Do search + get page worth of results
-			RepositoryBrowser repositoryBrowser = RepositoryBrowserFactory.getInstance("all",grouperSession,getNavResources(request),getMediaResources(request));
+			RepositoryBrowser repositoryBrowser = RepositoryBrowserFactory.getInstance(
+			    "all",grouperSession, GrouperUiFilter.retrieveSessionNavResourceBundle(),GrouperUiFilter.retrieveSessionMediaResourceBundle());
 			Map attr = new HashMap();
 			attr.put("searchInDisplayNameOrExtension",searchInDisplayNameOrExtension);
 			attr.put("searchInNameOrExtension",searchInNameOrExtension);
@@ -363,7 +365,7 @@ public class SearchNewMembersAction extends GrouperCapableAction {
 			}
 			 UIGroupPrivilegeResolver resolver = 
 					UIGroupPrivilegeResolverFactory.getInstance(grouperSession, 
-						                                    	getMediaResources(request), 
+					    GrouperUiFilter.retrieveSessionMediaResourceBundle(), 
 						                                    	group, grouperSession.getSubject());
 				request.setAttribute("groupPrivResolver", resolver.asMap());
 		}

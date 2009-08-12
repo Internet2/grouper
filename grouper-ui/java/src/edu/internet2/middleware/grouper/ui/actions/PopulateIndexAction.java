@@ -26,6 +26,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 
 /**
@@ -76,7 +77,7 @@ import edu.internet2.middleware.grouper.ui.SessionInitialiser;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: PopulateIndexAction.java,v 1.5 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: PopulateIndexAction.java,v 1.6 2009-08-12 04:52:14 mchyzer Exp $
  */
 
 public class PopulateIndexAction extends GrouperCapableAction {
@@ -96,7 +97,7 @@ public class PopulateIndexAction extends GrouperCapableAction {
 		String authUser=SessionInitialiser.getAuthUser(request.getSession());
 		if (authUser != null) {
 			if("GrouperSystem".equals(authUser)) {
-				String adminUrl=getMediaResources(request).getString("admin.browse.path");
+				String adminUrl=GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("admin.browse.path");
 				return new ActionForward(adminUrl,true);	
 			}
 			return mapping.findForward(FORWARD_Home);

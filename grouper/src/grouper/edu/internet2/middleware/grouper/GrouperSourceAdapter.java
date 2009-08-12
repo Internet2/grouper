@@ -60,7 +60,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * &lt;/source&gt;
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperSourceAdapter.java,v 1.30 2009-08-06 11:34:34 isgwb Exp $
+ * @version $Id: GrouperSourceAdapter.java,v 1.31 2009-08-12 04:52:21 mchyzer Exp $
  */
 public class GrouperSourceAdapter extends BaseSourceAdapter {
 
@@ -87,9 +87,6 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     super(id, name);
   } // public GrouperSourceAdapter(id, name)
 
-
-  // PUBLIC INSTANCE METHODS //
-
   /**
    * Get a {@link Group} subject by UUID.
    * <p/>
@@ -114,11 +111,45 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * @return  A {@link Subject}
    * @throws  SubjectNotFoundException
    */
+  @Deprecated
   public Subject getSubject(String id) 
     throws SubjectNotFoundException 
   {
+    return getSubject(id, true);
+  }
+
+  /**
+   * Get a {@link Group} subject by UUID.
+   * <p/>
+   * <pre class="eg">
+   * // Use it within the Grouper API
+   * try {
+   *   Subject subj = SubjectFinder.getSubject(uuid, "group");
+   * } 
+   * catch (SubjectNotFoundException e) {
+   *   // Subject not found
+   * }
+   *
+   * // Use it directly
+   * try {
+   *   Subject subj = source.getSubject(uuid, "group");
+   * } 
+   * catch (SubjectNotFoundException e) {
+   *   // Subject not found
+   * }
+   * </pre>
+   * @param   id  Group UUID
+   * @param exceptionIfNotFound 
+   * @return  A {@link Subject}
+   * @throws  SubjectNotFoundException
+   */
+  public Subject getSubject(String id, boolean exceptionIfNotFound) throws SubjectNotFoundException {
     try {
-      return new GrouperSubject( GrouperDAOFactory.getFactory().getGroup().findByUuid(id, true) );
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(id, exceptionIfNotFound);
+      if (group == null && !exceptionIfNotFound) {
+        return null;
+      }
+      return new GrouperSubject(group);
     }
     catch (GroupNotFoundException eGNF) {
       throw new SubjectNotFoundException( "subject not found: " + eGNF.getMessage(), eGNF );
@@ -126,8 +157,8 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     catch (SourceUnavailableException eSU) {
       throw new SubjectNotFoundException( "subject not found: " + eSU.getMessage(), eSU );
     }
-  } // public Subject getSubject(id)
-
+  }
+  
   /**
    * Gets a {@link Group} subject by its name.
    * <p/>
@@ -152,11 +183,46 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
    * @return  A {@link Subject}
    * @throws  SubjectNotFoundException
    */
+  @Deprecated
   public Subject getSubjectByIdentifier(String name) 
     throws SubjectNotFoundException 
   {
+    return getSubjectByIdentifier(name, true);
+  }
+  /**
+   * Gets a {@link Group} subject by its name.
+   * <p/>
+   * <pre class="eg">
+   * // Use it within the Grouper API
+   * try {
+   *   Subject subj = SubjectFinder.getSubjectByIdentifier(name, "group");
+   * }
+   * catch (SubjectNotFoundException e) {
+   *   // Subject not found
+   * }
+   *
+   * // Use it directly
+   * try {
+   *   Subject subj = source.getSubjectByIdentifier(name, "group");
+   * } 
+   * catch (SubjectNotFoundException e) {
+   *   // Subject not found
+   * }
+   * </pre>
+   * @param   name  Group name
+   * @param exceptionIfNull 
+   * @return  A {@link Subject}
+   * @throws  SubjectNotFoundException
+   */
+  public Subject getSubjectByIdentifier(String name, boolean exceptionIfNull) 
+    throws SubjectNotFoundException 
+  {
     try {
-      return new GrouperSubject( GrouperDAOFactory.getFactory().getGroup().findByName(name, true) );
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByName(name, exceptionIfNull);
+      if (group == null && !exceptionIfNull) {
+        return null;
+      }
+      return new GrouperSubject(group);
     }
     catch (GroupNotFoundException eGNF) {
       throw new SubjectNotFoundException( "subject not found: " + eGNF.getMessage(), eGNF );

@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
@@ -275,7 +276,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateSubjectSummaryAction.java,v 1.26 2009-04-13 03:18:40 mchyzer Exp $
+ * @version $Id: PopulateSubjectSummaryAction.java,v 1.27 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 	
@@ -363,7 +364,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		
 		String order=null;
 		try {
-			order=getMediaResources(request).getString("subject.attributes.order." + subject.getSource().getId());
+			order=GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("subject.attributes.order." + subject.getSource().getId());
 			request.setAttribute("subjectAttributeNames",order.split(","));
 		}catch(Exception e){
 			//No order specified, so go with all, in whatever order they come
@@ -519,7 +520,7 @@ public class PopulateSubjectSummaryAction extends GrouperCapableAction {
 		}
 		
 		String[] accessPrivs = GrouperHelper.getGroupPrivs(grouperSession);
-		Collection namingPrivs = GrouperHelper.getStemPrivsWithLabels(getNavResources(request));
+		Collection namingPrivs = GrouperHelper.getStemPrivsWithLabels(GrouperUiFilter.retrieveSessionNavResourceBundle());
 		request.setAttribute("allAccessPrivs",accessPrivs);
 		request.setAttribute("allNamingPrivs",namingPrivs);
 		

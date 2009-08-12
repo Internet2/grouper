@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * Wrapper around Subject sources configured in <code>sources.xml</code>.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SourcesXmlResolver.java,v 1.11 2009-08-11 20:18:08 mchyzer Exp $
+ * @version $Id: SourcesXmlResolver.java,v 1.12 2009-08-12 04:52:21 mchyzer Exp $
  * @since   1.2.1
  */
 public class SourcesXmlResolver implements SubjectResolver {
@@ -58,23 +58,12 @@ public class SourcesXmlResolver implements SubjectResolver {
   
   
   private static  ParameterHelper param = new ParameterHelper();
-  private         SourceManager   mgr;
-
 
   /**
    * Initialize a new <i>SourcesXmlResolver</i>.
-   * @throws  IllegalArgumentException if <i>mgr</i> is null.
    * @since   1.2.1
    */
-  public SourcesXmlResolver(SourceManager mgr) 
-    throws  IllegalArgumentException
-  {
-    param.notNullSourceManager(mgr); 
-    this.mgr = mgr;
-    // TODO 20070809 this isn't the ideal or right place for this but in the interest of getting things going...
-    this.mgr.loadSource(
-      new InternalSourceAdapter( InternalSourceAdapter.ID, InternalSourceAdapter.NAME ) 
-    );
+  public SourcesXmlResolver() {
   }
 
 
@@ -230,7 +219,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     throws  IllegalArgumentException,
             SourceUnavailableException { 
     try {
-      return this.mgr.getSource(id);
+      return SourceManager.getInstance().getSource(id);
     } catch (SourceUnavailableException sue) {
       throw new SourceUnavailableException("Cant find source with id: '" + id + "', " 
           + this.sourceIdErrorSafe(), sue);
@@ -242,7 +231,7 @@ public class SourcesXmlResolver implements SubjectResolver {
    * @since   1.2.1
    */
   public Set<Source> getSources() {
-    return new LinkedHashSet( this.mgr.getSources() );
+    return new LinkedHashSet( SourceManager.getInstance().getSources() );
   }
 
   /**
@@ -268,9 +257,8 @@ public class SourcesXmlResolver implements SubjectResolver {
    * @since   1.2.1
    */
   public Set<Source> getSources(String subjectType) 
-    throws  IllegalArgumentException
-  { 
-    return new LinkedHashSet( this.mgr.getSources( SubjectTypeEnum.valueOf(subjectType) ) );
+    throws  IllegalArgumentException { 
+    return new LinkedHashSet( SourceManager.getInstance().getSources( SubjectTypeEnum.valueOf(subjectType) ) );
   }
 
   /**

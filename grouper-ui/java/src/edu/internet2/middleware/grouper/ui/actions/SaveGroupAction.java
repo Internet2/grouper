@@ -50,6 +50,7 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 import edu.internet2.middleware.subject.Subject;
@@ -142,7 +143,7 @@ import edu.internet2.middleware.subject.Subject;
   </tr>
 </table>
  * @author Gary Brown.
- * @version $Id: SaveGroupAction.java,v 1.21 2009-04-10 19:29:16 shilen Exp $
+ * @version $Id: SaveGroupAction.java,v 1.22 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class SaveGroupAction extends GrouperCapableAction {
 
@@ -305,7 +306,7 @@ public class SaveGroupAction extends GrouperCapableAction {
 		request.setAttribute("groupId", group.getUuid());
 		groupForm.set("groupId",group.getUuid());
 		try {
-			if("true".equals(getMediaResources(request).getString("put.in.session.updated.groups"))) {
+			if("true".equals(GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("put.in.session.updated.groups"))) {
 				addSavedSubject(session,group.toSubject());
 			}
 		}catch(Exception e){}

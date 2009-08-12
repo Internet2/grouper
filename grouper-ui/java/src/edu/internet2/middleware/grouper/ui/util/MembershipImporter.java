@@ -33,7 +33,7 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MembershipImporter.java,v 1.4 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: MembershipImporter.java,v 1.5 2009-08-12 04:52:14 mchyzer Exp $
  */
 
 public interface MembershipImporter {
@@ -51,6 +51,5 @@ public interface MembershipImporter {
 	 * @return count of errors encountered during load
 	 * @throws IOException
 	 */
-	public int load(Group group,Reader input,PrintWriter output,Element config,Field field,
-				ResourceBundle	nav) throws IOException,SchemaException;
+	public int load(Group group,Reader input,PrintWriter output,Element config,Field field) throws IOException,SchemaException;
 }

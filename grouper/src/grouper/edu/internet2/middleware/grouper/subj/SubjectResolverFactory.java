@@ -23,7 +23,7 @@ import  edu.internet2.middleware.subject.provider.SourceManager;
 /** 
  * Factory for returning a <code>SubjectResolver</code>.
  * @author  blair christensen.
- * @version $Id: SubjectResolverFactory.java,v 1.4 2009-03-15 06:37:23 mchyzer Exp $
+ * @version $Id: SubjectResolverFactory.java,v 1.5 2009-08-12 04:52:21 mchyzer Exp $
  * @since   1.2.1
  */
 public class SubjectResolverFactory {
@@ -43,7 +43,7 @@ public class SubjectResolverFactory {
     try {
       return new ValidatingResolver(
         new CachingResolver( 
-          new SourcesXmlResolver( SourceManager.getInstance() ) 
+          new SourcesXmlResolver(  ) 
         )
       );
     }

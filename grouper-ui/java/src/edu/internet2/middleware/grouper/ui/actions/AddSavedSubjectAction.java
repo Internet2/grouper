@@ -36,6 +36,7 @@ import org.apache.struts.action.DynaActionForm;
 import edu.internet2.middleware.grouper.GrouperSession;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
@@ -99,7 +100,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 </table>
 
  * @author Gary Brown.
- * @version $Id: AddSavedSubjectAction.java,v 1.7 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: AddSavedSubjectAction.java,v 1.8 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class AddSavedSubjectAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(AddSavedSubjectAction.class);
@@ -122,9 +123,9 @@ public class AddSavedSubjectAction extends GrouperCapableAction {
 			}catch (Exception e) {
 				String contextError=null;
 				if(!"group".equals(subjectType)) {
-					 contextError = getNavResources(request).getString("error.saved-subjects.exception");
+					 contextError = GrouperUiFilter.retrieveSessionNavResourceBundle().getString("error.saved-subjects.exception");
 				}else{
-					contextError = getNavResources(request).getString("error.saved-groups.exception");	
+					contextError = GrouperUiFilter.retrieveSessionNavResourceBundle().getString("error.saved-groups.exception");	
 				}
 				contextError=MessageFormat.format(contextError, subjectId);
 				session.setAttribute("sessionMessage",new Message(neh.key(e),contextError,true));

@@ -17,9 +17,17 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.actions;
 
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
+
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,18 +39,16 @@ import org.apache.struts.config.ActionConfig;
 import org.apache.struts.config.ModuleConfig;
 import org.apache.struts.upload.MultipartRequestWrapper;
 
-import java.util.*;
-
-import edu.internet2.middleware.grouper.*;
+import edu.internet2.middleware.grouper.GrouperHelper;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-
 import edu.internet2.middleware.grouper.ui.CallerPageException;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
-import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
@@ -181,7 +187,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
  
  * 
  * @author Gary Brown.
- * @version $Id: GrouperCapableAction.java,v 1.22 2009-04-28 18:48:51 shilen Exp $
+ * @version $Id: GrouperCapableAction.java,v 1.23 2009-08-12 04:52:14 mchyzer Exp $
  */
 
 public abstract class GrouperCapableAction 
@@ -272,7 +278,7 @@ public abstract class GrouperCapableAction
 					
 						forward=grouperTransactionExecute(mapping,form,request,response,session,grouperSession);
 					
-				}else forward = new ActionForward(getMediaResources(session).getString("admin.browse.path"),true);
+				}else forward = new ActionForward(GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("admin.browse.path"),true);
 			}catch(GrouperDAOException e) {
 				Throwable cause=e.getCause();
 				
@@ -319,7 +325,7 @@ public abstract class GrouperCapableAction
 				return forward;
 			}
 			try {
-				GrouperHelper.fixSessionFields((Map)session.getAttribute("fieldList"), getNavResources(request));
+				GrouperHelper.fixSessionFields((Map)session.getAttribute("fieldList"));
 			}catch(SchemaException e) {
 				LOG.error(e);
 			}
@@ -344,7 +350,7 @@ public abstract class GrouperCapableAction
 		int pageSize=25;
 		String pageSizeStr = (String)session.getAttribute("default.pagesize");
 		if(pageSizeStr==null) {
-			ResourceBundle mediaBundle = getMediaResources(session);
+			ResourceBundle mediaBundle = GrouperUiFilter.retrieveSessionMediaResourceBundle();
 			if(mediaBundle!=null) pageSizeStr = mediaBundle.getString("pager.pagesize.default");
 		}
 		if(pageSizeStr!=null) {

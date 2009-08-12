@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -47,7 +48,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: DefaultMembershipImporter.java,v 1.5 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: DefaultMembershipImporter.java,v 1.6 2009-08-12 04:52:14 mchyzer Exp $
  */
 
 public class DefaultMembershipImporter implements MembershipImporter{
@@ -75,8 +76,9 @@ public class DefaultMembershipImporter implements MembershipImporter{
 </table>
 	 *
 	 **/
-	public int load(Group group, Reader input, PrintWriter output,Element config,Field field,ResourceBundle nav)
+	public int load(Group group, Reader input, PrintWriter output,Element config,Field field)
 			throws IOException,SchemaException {
+	  ResourceBundle nav = GrouperUiFilter.retrieveSessionNavResourceBundle();
 		int errorCount=0;
 		String separator=config.getAttribute("separator");
 		if(separator==null || separator.equals("")) throw new IllegalArgumentException(nav.getString("groups.import.message.no-separator"));

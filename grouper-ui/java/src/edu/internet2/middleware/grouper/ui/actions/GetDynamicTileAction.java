@@ -29,6 +29,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.TemplateResolver;
 import edu.internet2.middleware.grouper.ui.TemplateResolverFactory;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
@@ -94,7 +95,7 @@ import edu.internet2.middleware.grouper.ui.UIThreadLocal;
   </tr>
 </table> 
  * @author Gary Brown.
- * @version $Id: GetDynamicTileAction.java,v 1.2 2005-12-08 15:30:52 isgwb Exp $
+ * @version $Id: GetDynamicTileAction.java,v 1.3 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class GetDynamicTileAction extends LowLevelGrouperCapableAction {
 
@@ -110,7 +111,7 @@ public class GetDynamicTileAction extends LowLevelGrouperCapableAction {
   		
   		//Get the ResourceBundle which contains key / values
   		//we will check in our template finding algorithm
-  		ResourceBundle mediaResources = getMediaResources(request); //from GrouperCapableAction
+  		ResourceBundle mediaResources = GrouperUiFilter.retrieveSessionMediaResourceBundle();
   		
   		//Get the name of th eview and then the actual object we
   		//are showing a view of

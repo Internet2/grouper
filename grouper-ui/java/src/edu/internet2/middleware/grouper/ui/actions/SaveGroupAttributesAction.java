@@ -103,7 +103,7 @@ import edu.internet2.middleware.grouper.ui.Message;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: SaveGroupAttributesAction.java,v 1.14 2009-03-24 17:31:45 mchyzer Exp $
+ * @version $Id: SaveGroupAttributesAction.java,v 1.15 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class SaveGroupAttributesAction extends GrouperCapableAction {
 
@@ -150,7 +150,7 @@ public class SaveGroupAttributesAction extends GrouperCapableAction {
       				try {
       					group.deleteAttribute(field.getName());
       				}catch(GroupModifyException e) {
-      					Map fieldMap = (Map)GrouperHelper.getFieldsAsMap(getNavResources(request)).get(field.getName());
+      					Map fieldMap = (Map)GrouperHelper.getFieldsAsMap().get(field.getName());
       					Message message = new Message("error.group.save-attributes.delete",(String)fieldMap.get("displayName"),true);
       					request.setAttribute("message",message);
       					return mapping.findForward(FORWARD_EditAttributes);

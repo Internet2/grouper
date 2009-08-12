@@ -17,7 +17,13 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui.util;
 
-import java.util.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Convenience class for use in UI to encapsulate paging logic, and enable
@@ -25,10 +31,10 @@ import java.util.*;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: CollectionPager.java,v 1.5 2007-04-11 08:19:24 isgwb Exp $
+ * @version $Id: CollectionPager.java,v 1.6 2009-08-12 04:52:14 mchyzer Exp $
  */
 
-public class CollectionPager {
+public class CollectionPager implements Serializable {
 	private Collection collection;
 
 	private HashMap params = new HashMap();

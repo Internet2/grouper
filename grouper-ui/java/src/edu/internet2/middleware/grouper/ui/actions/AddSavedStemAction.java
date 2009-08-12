@@ -26,18 +26,15 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.action.DynaActionForm;
 
-
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-
-
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 
@@ -93,7 +90,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 </table>
 
  * @author Gary Brown.
- * @version $Id: AddSavedStemAction.java,v 1.1 2009-04-08 15:23:53 isgwb Exp $
+ * @version $Id: AddSavedStemAction.java,v 1.2 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class AddSavedStemAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(AddSavedSubjectAction.class);
@@ -114,7 +111,7 @@ public class AddSavedStemAction extends GrouperCapableAction {
 				addSavedStem(session,stem);
 			}catch (Exception e) {
 				String contextError=null;
-				contextError = getNavResources(request).getString("error.saved-stems.exception");	
+				contextError = GrouperUiFilter.retrieveSessionNavResourceBundle().getString("error.saved-stems.exception");	
 				contextError=MessageFormat.format(contextError, stemId);
 				session.setAttribute("sessionMessage",new Message(neh.key(e),contextError,true));
 				return redirectToCaller(stemForm);

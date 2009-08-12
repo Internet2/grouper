@@ -26,6 +26,7 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 
 /**
@@ -36,7 +37,7 @@ import edu.internet2.middleware.grouper.ui.SessionInitialiser;
  * <p/>
  * 
  * @author Gary Brown.
- * @version $Id: LoginAction.java,v 1.3 2006-02-24 13:36:20 isgwb Exp $
+ * @version $Id: LoginAction.java,v 1.4 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class LoginAction extends GrouperCapableAction {
 
@@ -61,7 +62,7 @@ public class LoginAction extends GrouperCapableAction {
 		String authUser=SessionInitialiser.getAuthUser(request.getSession());
 		if (authUser != null) {
 			if("GrouperSystem".equals(authUser)) {
-				String adminUrl=getMediaResources(request).getString("admin.browse.path");
+				String adminUrl=GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("admin.browse.path");
 				return new ActionForward(adminUrl,true);	
 			}
 		}

@@ -40,7 +40,7 @@ import edu.internet2.middleware.subject.SubjectType;
  * Test {@link InternalSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestInternalSourceAdapter.java,v 1.2 2009-03-22 05:41:01 mchyzer Exp $
+ * @version $Id: TestInternalSourceAdapter.java,v 1.3 2009-08-12 04:52:21 mchyzer Exp $
  */
 public class TestInternalSourceAdapter extends TestCase {
 
@@ -60,7 +60,7 @@ public class TestInternalSourceAdapter extends TestCase {
   protected void setUp () {
     LOG.debug("setUp");
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
-    sa = new InternalSourceAdapter(ID, NAME);
+    sa = InternalSourceAdapter.instance();
   }
 
   protected void tearDown () {

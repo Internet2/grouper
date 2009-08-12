@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -58,7 +59,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: LoginCheckFilter.java,v 1.18 2009-04-13 03:18:39 mchyzer Exp $
+ * @version $Id: LoginCheckFilter.java,v 1.19 2009-08-12 04:52:14 mchyzer Exp $
  */
 
 public class LoginCheckFilter implements Filter {
@@ -85,6 +86,9 @@ public class LoginCheckFilter implements Filter {
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
 	 */
 	public void init(FilterConfig config) throws ServletException {
+	  
+    GrouperStartup.startup();
+	  
 		String failureUrl = config.getInitParameter("failureUrl");
 		if (failureUrl != null)
 			this.failureUrl = failureUrl;

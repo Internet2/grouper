@@ -18,6 +18,9 @@
 
 	<property file="build.properties"/>
 
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): grouper.role" unless="grouper.role" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): ui.make.jar" unless="ui.make.jar" />
+  
 	<if><not><available file="tomcat-context.xml" /></not>
     <then><copy file="template-tomcat-context.xml" 
       tofile="tomcat-context.xml" /></then>

@@ -34,6 +34,7 @@ import org.w3c.dom.NodeList;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 
 /**
  * Class that reads an XML configuration file and hands off actual data import
@@ -58,12 +59,11 @@ which case it will be used as a default.</p>
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MembershipImportManager.java,v 1.4 2008-07-21 04:43:47 mchyzer Exp $
+ * @version $Id: MembershipImportManager.java,v 1.5 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class MembershipImportManager {
-	private ResourceBundle config;
-	private ResourceBundle nav;
 	private boolean active=false;
+	//MCH 20090811 XXX take this out of session it is not serializable
 	private Document configXml;
 	private Map formatCache = new HashMap();
 
@@ -73,10 +73,8 @@ public class MembershipImportManager {
 	 * @param nav - nav.properties. Provides localized messages
 	 * @throws Exception
 	 */
-	public MembershipImportManager(ResourceBundle config,ResourceBundle nav) throws Exception{
+	public MembershipImportManager() throws Exception{
 		super();
-		this.config=config;
-		this.nav=nav;
 		init();
 		
 	}
@@ -84,7 +82,7 @@ public class MembershipImportManager {
 	private void init() throws Exception{
 		String configResource = null;
 		try {
-			configResource=config.getString("membership-import.config");
+			configResource=GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("membership-import.config");
 		}catch(MissingResourceException e){
 			return;
 		}
@@ -140,7 +138,7 @@ public class MembershipImportManager {
 		}catch(Exception e) {
 			throw new IllegalArgumentException("Could not instantiate importer class [" + fe.getAttribute("class") + "]");
 		}
-		return importer.load(group,input,output,fe,field,nav);
+		return importer.load(group,input,output,fe,field);
 	}
 	
 	private Element getFormat(String name) {

@@ -48,6 +48,7 @@ import org.apache.taglibs.standard.tag.el.fmt.MessageTag;
 import sun.util.logging.resources.logging;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -372,7 +373,7 @@ public class GrouperMessageTag extends MessageTag {
 		if (this.tooltipKeys == null || this.useNewTermContext()) {
 			
 			//add the tooltips:
-			ResourceBundle resourceBundle = LowLevelGrouperCapableAction.getNavResourcesStatic(this.pageContext.getSession());
+			ResourceBundle resourceBundle = GrouperUiFilter.retrieveSessionNavResourceBundle();
 			
 			//add properties to map
 			Map<String, String> propertiesConfigurationMap = convertPropertiesToMap(null, resourceBundle, true);

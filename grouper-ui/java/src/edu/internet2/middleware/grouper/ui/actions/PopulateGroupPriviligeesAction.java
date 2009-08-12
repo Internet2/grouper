@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 import edu.internet2.middleware.grouper.ui.util.CollectionPager;
@@ -161,7 +162,7 @@ import edu.internet2.middleware.subject.Subject;
   
 
   * @author Gary Brown.
- * @version $Id: PopulateGroupPriviligeesAction.java,v 1.11 2009-04-13 03:18:40 mchyzer Exp $
+ * @version $Id: PopulateGroupPriviligeesAction.java,v 1.12 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 
@@ -219,7 +220,7 @@ public class PopulateGroupPriviligeesAction extends GrouperCapableAction {
 		
 		UIGroupPrivilegeResolver resolver = 
 				UIGroupPrivilegeResolverFactory.getInstance(grouperSession, 
-						                                    getMediaResources(request), 
+				    GrouperUiFilter.retrieveSessionMediaResourceBundle(), 
 						                                    group, grouperSession.getSubject());
 		
 		//Set up view info

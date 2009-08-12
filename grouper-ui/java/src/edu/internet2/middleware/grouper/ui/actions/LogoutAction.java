@@ -31,6 +31,7 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 
@@ -102,7 +103,7 @@ import edu.internet2.middleware.grouper.ui.SessionInitialiser;
 </table>
 
  * @author Gary Brown.
- * @version $Id: LogoutAction.java,v 1.3 2008-04-09 17:58:19 isgwb Exp $
+ * @version $Id: LogoutAction.java,v 1.4 2009-08-12 04:52:14 mchyzer Exp $
  */
 
 public class LogoutAction extends GrouperCapableAction {
@@ -130,7 +131,7 @@ public class LogoutAction extends GrouperCapableAction {
 			request.setAttribute("message", new Message(
 				"auth.message.logout-success", user));
 		}
-		ResourceBundle media = getMediaResources(request);
+		ResourceBundle media = GrouperUiFilter.retrieveSessionMediaResourceBundle();
 		String cookiesToDelete = "none";
 		try {
 			cookiesToDelete = media.getString("logout.cookies-to-delete");

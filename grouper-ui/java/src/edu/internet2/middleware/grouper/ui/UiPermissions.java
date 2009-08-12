@@ -17,6 +17,7 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -70,10 +71,10 @@ is=&quot;false&quot;/&gt;<br>
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: UiPermissions.java,v 1.3 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: UiPermissions.java,v 1.4 2009-08-12 04:52:14 mchyzer Exp $
  */
 
-public class UiPermissions {
+public class UiPermissions implements Serializable {
 	Map vGroups = new HashMap();
 	Map targets = new HashMap();
 	public UiPermissions(GrouperSession s,Document doc) {

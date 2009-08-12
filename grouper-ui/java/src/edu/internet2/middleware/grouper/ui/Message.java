@@ -17,6 +17,8 @@ limitations under the License.
 
 package edu.internet2.middleware.grouper.ui;
 
+import java.io.Serializable;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang.StringUtils;
@@ -30,9 +32,9 @@ import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: Message.java,v 1.7 2008-09-09 20:03:41 mchyzer Exp $
+ * @version $Id: Message.java,v 1.8 2009-08-12 04:52:14 mchyzer Exp $
  */
-public class Message {
+public class Message implements Serializable {
 	private String message = "";
 
 	private String[] args = null;

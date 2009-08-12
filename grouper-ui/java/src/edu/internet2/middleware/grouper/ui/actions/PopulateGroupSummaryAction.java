@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
@@ -212,7 +213,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 </table>
 
  * @author Gary Brown.
- * @version $Id: PopulateGroupSummaryAction.java,v 1.15 2009-03-15 06:37:51 mchyzer Exp $
+ * @version $Id: PopulateGroupSummaryAction.java,v 1.16 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class PopulateGroupSummaryAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(PopulateGroupSummaryAction.class);
@@ -264,7 +265,7 @@ public class PopulateGroupSummaryAction extends GrouperCapableAction {
 		
 		UIGroupPrivilegeResolver resolver = 
 			UIGroupPrivilegeResolverFactory.getInstance(grouperSession, 
-					                                    getMediaResources(request), 
+			    GrouperUiFilter.retrieveSessionMediaResourceBundle(), 
 					                                    group, grouperSession.getSubject());
 		request.setAttribute("groupPrivResolver", resolver.asMap());
 		boolean userCanEditACustomAttribute = resolver.canManageAnyCustomField();

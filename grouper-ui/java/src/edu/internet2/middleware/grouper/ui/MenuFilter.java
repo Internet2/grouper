@@ -16,6 +16,7 @@ limitations under the License.
 */
 package edu.internet2.middleware.grouper.ui;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,10 +29,10 @@ import edu.internet2.middleware.grouper.GrouperSession;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: MenuFilter.java,v 1.1 2007-10-30 11:07:30 isgwb Exp $
+ * @version $Id: MenuFilter.java,v 1.2 2009-08-12 04:52:14 mchyzer Exp $
  */
 
-public interface MenuFilter {
+public interface MenuFilter extends Serializable {
 	/**
 	 * If valid do not veto, however, if valid, another MenuFilter may veto
 	 * @param s

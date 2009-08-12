@@ -52,6 +52,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolver;
 import edu.internet2.middleware.grouper.ui.UIGroupPrivilegeResolverFactory;
 import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
@@ -272,7 +273,7 @@ import edu.internet2.middleware.grouper.ui.util.NavExceptionHelper;
 </table>
  * 
  * @author Gary Brown.
- * @version $Id: PopulateGroupMembersAction.java,v 1.25 2009-04-13 03:18:40 mchyzer Exp $
+ * @version $Id: PopulateGroupMembersAction.java,v 1.26 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class PopulateGroupMembersAction extends GrouperCapableAction {
 	protected static final Log LOG = LogFactory.getLog(PopulateGroupMembersAction.class);
@@ -298,7 +299,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		}
 		boolean membersFilterBySource = false;
 		try {
-			membersFilterBySource = "true".equals(getMediaResources(request).getString("members.filter.by-source"));
+			membersFilterBySource = "true".equals(GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("members.filter.by-source"));
 		}catch(Exception e) {}
 		String selectedSource=null;
 		session.setAttribute("subtitle","groups.action.show-members");
@@ -369,7 +370,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		
 		UIGroupPrivilegeResolver resolver = 
 			UIGroupPrivilegeResolverFactory.getInstance(grouperSession, 
-					                                    getMediaResources(request), 
+			    GrouperUiFilter.retrieveSessionMediaResourceBundle(), 
 					                                    group, grouperSession.getSubject());
 		request.setAttribute("groupPrivResolver", resolver.asMap());
 		if(resolver.canManageField(mField.getName())) request.setAttribute("canWriteField",Boolean.TRUE);
@@ -389,7 +390,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
     int pageSize = getPageSize(session);
     int end = start + pageSize;
 
-    ResourceBundle resourceBundle = LowLevelGrouperCapableAction.getMediaResources(request);
+    ResourceBundle resourceBundle = GrouperUiFilter.retrieveSessionMediaResourceBundle();
     String sortLimitString=resourceBundle.getString("comparator.sort.limit");
     int sortLimit=Integer.parseInt(sortLimitString);
 
@@ -448,7 +449,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 		if(!membersFilterBySource) {
 			membersFilterLimit=0;
 		}else{
-			String mfl = getMediaResources(request).getString("members.filter.limit");
+			String mfl = GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("members.filter.limit");
 			try {
 				membersFilterLimit = Integer.parseInt(mfl);
 			}catch(Exception e){}
@@ -470,7 +471,7 @@ public class PopulateGroupMembersAction extends GrouperCapableAction {
 			entry=(Map.Entry) sIterator.next();
 			try {
 				lookupKey="subject-source."+ entry.getKey()+".display-name";
-				entry.setValue(getNavResources(request).getString(lookupKey));
+				entry.setValue(GrouperUiFilter.retrieveSessionNavResourceBundle().getString(lookupKey));
 			}catch(Exception e){}
 		}
 		if("_void_".equals(selectedSource)) selectedSource=null;

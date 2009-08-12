@@ -32,6 +32,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.ui.actions.GrouperCapableAction;
 
 
@@ -44,7 +46,7 @@ import edu.internet2.middleware.grouper.ui.actions.GrouperCapableAction;
  *  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: CallerPageFilter.java,v 1.5 2008-04-13 08:52:12 isgwb Exp $
+ * @version $Id: CallerPageFilter.java,v 1.6 2009-08-12 04:52:14 mchyzer Exp $
  */
 
 public class CallerPageFilter implements Filter {
@@ -64,7 +66,7 @@ public class CallerPageFilter implements Filter {
 	 * @see javax.servlet.Filter#init(javax.servlet.FilterConfig)
 	 */
 	public void init(FilterConfig config) throws ServletException {
-		
+	  GrouperStartup.startup();
 	}
 
 	/*

@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
 import edu.internet2.middleware.grouper.ui.GrouperComparator;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.Message;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowser;
 import edu.internet2.middleware.grouper.ui.RepositoryBrowserFactory;
@@ -79,7 +80,7 @@ import edu.internet2.middleware.subject.Subject;
 
  * 
  * @author Gary Brown.
- * @version $Id: LowLevelGrouperCapableAction.java,v 1.24 2009-04-13 20:24:18 mchyzer Exp $
+ * @version $Id: LowLevelGrouperCapableAction.java,v 1.25 2009-08-12 04:52:14 mchyzer Exp $
  */
 
 /**
@@ -155,49 +156,6 @@ public abstract class LowLevelGrouperCapableAction
 	}
 	
 	/**
-	 * Convenience method to retrieve nav ResourceBundle
-	 */
-	public static ResourceBundle getNavResources(HttpServletRequest request) {
-		HttpSession session = request.getSession();
-		return getNavResources(session);
-	}
-	
-	/**
-	 * Convenience method to retrieve nav ResourceBundle
-	 */
-	public static ResourceBundle getNavResources(HttpSession session) {
-		return getNavResourcesStatic(session);
-	}
-	
-	/**
-	 * Convenience method to retrieve nav ResourceBundle
-	 */
-	public static ResourceBundle getNavResourcesStatic(HttpSession session) {
-		LocalizationContext localizationContext = (LocalizationContext)session.getAttribute("nav");
-		ResourceBundle nav = localizationContext.getResourceBundle();
-		return nav;
-	}
-
-	/**
-	 * Convenience method to retrieve nav ResourceBundle
-	 */
-	public static ResourceBundle getMediaResources(HttpServletRequest request) {
-		HttpSession session = request.getSession();
-		return getMediaResources(session);
-	}
-	
-	/**
-	 * Convenience method to retrieve media ResourceBundle given an HttpSession
-	 */
-	public static ResourceBundle getMediaResources(HttpSession session) {
-		
-		LocalizationContext localizationContext = (LocalizationContext)session.getAttribute("media");
-		ResourceBundle media = localizationContext.getResourceBundle();
-		return media;
-	}
-	
-	
-	/**
 	 * Convenience method to simplify calling code
 	 */
 	public static boolean isEmpty(Object obj) {
@@ -211,7 +169,7 @@ public abstract class LowLevelGrouperCapableAction
 		int pageSize=25;
 		String pageSizeStr = (String)session.getAttribute("default.pagesize");
 		if(pageSizeStr==null) {
-			ResourceBundle mediaBundle = getMediaResources(session);
+			ResourceBundle mediaBundle = GrouperUiFilter.retrieveSessionMediaResourceBundle();
 			if(mediaBundle!=null) pageSizeStr = mediaBundle.getString("pager.pagesize.default");
 		}
 		if(pageSizeStr!=null) {
@@ -373,7 +331,7 @@ public abstract class LowLevelGrouperCapableAction
 	    }
 	    
 	    private static String getDebugPrefsFileName(HttpServletRequest request) {
-	    	String val = getMediaResources(request).getString("debug.prefs.dir");
+	    	String val = GrouperUiFilter.retrieveSessionMediaResourceBundle().getString("debug.prefs.dir");
 	    	File file = new File(val);
 	    	if(file.exists() && file.isDirectory()) {
 	    		return val + File.separator + "debugprefs.obj";
@@ -407,7 +365,7 @@ public abstract class LowLevelGrouperCapableAction
 	
 	protected RepositoryBrowser getRepositoryBrowser(GrouperSession s,HttpSession session) {
 		String browseMode = getBrowseMode(session);
-		RepositoryBrowser rb = RepositoryBrowserFactory.getInstance(browseMode,s,getNavResources(session),getMediaResources(session));
+		RepositoryBrowser rb = RepositoryBrowserFactory.getInstance(browseMode,s,GrouperUiFilter.retrieveSessionNavResourceBundle(),GrouperUiFilter.retrieveSessionMediaResourceBundle());
 		return rb;
 	}
 	
@@ -611,7 +569,7 @@ public abstract class LowLevelGrouperCapableAction
 	    String context, int collectionSize) {
 		HttpSession session = request.getSession();
 		GrouperComparator gc = (GrouperComparator)session.getAttribute("GrouperComparator");
-		ResourceBundle config = getMediaResources(request);
+		ResourceBundle config = GrouperUiFilter.retrieveSessionMediaResourceBundle();
 		String maxStr=config.getString("comparator.sort.limit");
 		int max=Integer.parseInt(maxStr);
 		if(gc==null) {
@@ -629,7 +587,6 @@ public abstract class LowLevelGrouperCapableAction
 			session.setAttribute("GrouperComparator",gc);
 		}
 		gc.setContext(context);
-		gc.setConfigBundle(config);
 		
 		List toSort=null;
 		if(input instanceof List) {
@@ -645,7 +602,7 @@ public abstract class LowLevelGrouperCapableAction
 	public static NavExceptionHelper getExceptionHelper(HttpSession session) {
 		NavExceptionHelper neh = (NavExceptionHelper)session.getAttribute("navExceptionHelper");
 		if(neh==null) {
-			neh=new NavExceptionHelper(getNavResources(session));
+			neh=new NavExceptionHelper();
 			session.setAttribute("navExceptionHelper", neh);
 		}
 		return neh;

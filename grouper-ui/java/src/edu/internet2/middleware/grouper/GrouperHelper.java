@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.ui.GroupOrStem;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.PersonalStem;
 import edu.internet2.middleware.grouper.ui.UIThreadLocal;
 import edu.internet2.middleware.grouper.ui.actions.PopulateGroupMemberAction;
@@ -83,7 +84,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: GrouperHelper.java,v 1.62 2009-07-16 11:33:34 isgwb Exp $
+ * @version $Id: GrouperHelper.java,v 1.63 2009-08-12 04:52:14 mchyzer Exp $
  */
 
 
@@ -2778,17 +2779,16 @@ public class GrouperHelper {
 	 * When we query fields we 'accumulate' them so we can check if tere are any new ones. If there are
 	 * we refresh the session list
 	 * @param fieldList Map of FieldAsMaps from the HttpSession
-	 * @param bundle	nav ResourceBundle
 	 * @throws SchemaException
 	 */
-	public static void fixSessionFields(Map fieldList, ResourceBundle bundle) throws SchemaException{
+	public static void fixSessionFields(Map fieldList) throws SchemaException{
 		Set<String> accumulated = (Set<String>)UIThreadLocal.get("accumulatedFields");
 		if(accumulated==null) {
 			return;
 		}
 		for(String fieldName : accumulated) {
 			if(!fieldList.containsKey(fieldName)) {
-				Map newFields = GrouperHelper.getFieldsAsMap(bundle);
+				Map newFields = GrouperHelper.getFieldsAsMap();
 				fieldList.clear();
 				fieldList.putAll(newFields);
 				break;
@@ -2801,8 +2801,9 @@ public class GrouperHelper {
 	 * @return Map of searchable fields
 	 * @throws SchemaException
 	 */
-	public static  Map getFieldsAsMap(ResourceBundle bundle) throws SchemaException{
-		List res = new ArrayList();
+	public static  Map getFieldsAsMap() throws SchemaException{
+	  ResourceBundle bundle = GrouperUiFilter.retrieveSessionNavResourceBundle();
+
 		Set fields = FieldFinder.findAll();
 		Iterator it = fields.iterator();
 		Field field;
