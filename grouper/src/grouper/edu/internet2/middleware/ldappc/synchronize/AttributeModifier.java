@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.naming.NamingEnumeration;
@@ -28,6 +29,19 @@ import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InvalidAttributeValueException;
 import javax.naming.directory.ModificationItem;
+
+import org.openspml.v2.msg.spml.CapabilityData;
+import org.openspml.v2.msg.spml.Modification;
+import org.openspml.v2.msg.spml.ModificationMode;
+import org.openspml.v2.msg.spmlref.Reference;
+import org.openspml.v2.profiles.dsml.DSMLModification;
+import org.openspml.v2.profiles.dsml.DSMLProfileException;
+import org.openspml.v2.profiles.dsml.DSMLValue;
+import org.openspml.v2.util.Spml2Exception;
+import org.openspml.v2.util.xml.ReflectiveDOMXMLUnmarshaller;
+import org.openspml.v2.util.xml.ReflectiveXMLMarshaller;
+
+import edu.internet2.middleware.ldappc.util.PSPUtil;
 
 /**
  * This is a synchronizer helper class for modifying LDAP attribute values. It is to be
@@ -104,6 +118,10 @@ public class AttributeModifier {
    * Indicates if string comparisions are case sensitive.
    */
   private boolean caseSensitive = DEFAULT_SENSITIVITY;
+
+  private ReflectiveXMLMarshaller m = new ReflectiveXMLMarshaller();
+
+  private ReflectiveDOMXMLUnmarshaller u = new ReflectiveDOMXMLUnmarshaller();
 
   /**
    * Constructs an <code>AttributeModifier</code> for the attribute name. This
@@ -269,7 +287,7 @@ public class AttributeModifier {
     // Populate deletes with current values
     //
     if (attribute != null) {
-      NamingEnumeration enumeration = attribute.getAll();
+      NamingEnumeration<?> enumeration = attribute.getAll();
       while (enumeration.hasMore()) {
         //
         // Get the next value
@@ -310,6 +328,22 @@ public class AttributeModifier {
     }
   }
 
+  public void initDSML(DSMLValue... dsmlValues) {
+    clear();
+
+    for (DSMLValue dsmlValue : dsmlValues) {
+      deletes.add(dsmlValue.getValue());
+    }
+  }
+
+  public void initReference(Collection<Reference> references) throws Spml2Exception {
+    clear();
+
+    for (Reference reference : references) {
+      deletes.add(reference.toXML(m));
+    }
+  }
+
   /**
    * Stores the attribute value. This identifies the value as one that must either remain
    * from the original set or be added to the attribute.
@@ -319,7 +353,7 @@ public class AttributeModifier {
    * @throws NamingException
    *           thrown if a naming exception occurs
    */
-  public void store(String attrValue) throws NamingException {
+  public void store(String attrValue) {
     //
     // If the value is removed from deletes, add it to retained.
     // Else add it to the adds if not already retained or added.
@@ -328,6 +362,20 @@ public class AttributeModifier {
       retained.add(attrValue);
     } else if (!retained.contains(attrValue) && !adds.contains(attrValue)) {
       adds.add(attrValue);
+    }
+  }
+
+  public void store(DSMLValue[] dsmlValues) {
+
+    for (DSMLValue dsmlValue : dsmlValues) {
+      store(dsmlValue.getValue());
+    }
+  }
+
+  public void store(Collection<Reference> references) throws Spml2Exception {
+
+    for (Reference reference : references) {
+      store(reference.toXML(m));
     }
   }
 
@@ -367,6 +415,77 @@ public class AttributeModifier {
     return mods.toArray(new ModificationItem[] {});
   }
 
+  public List<Modification> getDSMLModification() throws DSMLProfileException {
+
+    List<Modification> modifications = new ArrayList<Modification>();
+
+    if (adds.size() == 0 && deletes.size() == 0) {
+      return modifications;
+    }
+
+    if (adds.size() > 0) {
+      DSMLModification dsmlMod = new DSMLModification(attributeName, makeDSMLValues(adds), ModificationMode.ADD);
+      Modification modification = new Modification();
+      modification.addOpenContentElement(dsmlMod);
+      modifications.add(modification);
+    }
+
+    if (deletes.size() > 0) {
+      DSMLModification dsmlMod = new DSMLModification(attributeName, makeDSMLValues(deletes), ModificationMode.DELETE);
+      Modification modification = new Modification();
+      modification.addOpenContentElement(dsmlMod);
+      modifications.add(modification);
+    }
+
+    return modifications;
+  }
+
+  public List<Modification> getReferenceModification() throws Spml2Exception {
+    // TODO add or delete first ?
+
+    List<Modification> modifications = new ArrayList<Modification>();
+
+    if (adds.size() == 0 && deletes.size() == 0) {
+      return modifications;
+    }
+
+    if (adds.size() > 0) {
+      List<Reference> references = new ArrayList<Reference>();
+      for (String add : adds) {
+        Reference reference = (Reference) u.unmarshall(add);
+        references.add(reference);
+      }
+      CapabilityData capabilityData = PSPUtil.fromReferences(references);
+      Modification modification = new Modification();
+      modification.addCapabilityData(capabilityData);
+      modification.setModificationMode(ModificationMode.ADD);
+      modifications.add(modification);
+    }
+
+    if (deletes.size() > 0) {
+      List<Reference> references = new ArrayList<Reference>();
+      for (String delete : deletes) {
+        Reference reference = (Reference) u.unmarshall(delete);
+        references.add(reference);
+      }
+      CapabilityData capabilityData = PSPUtil.fromReferences(references);
+      Modification modification = new Modification();
+      modification.addCapabilityData(capabilityData);
+      modification.setModificationMode(ModificationMode.DELETE);
+      modifications.add(modification);
+    }
+
+    return modifications;
+  }
+
+  public Values getAdds() {
+    return adds;
+  }
+
+  public Values getDeletes() {
+    return deletes;
+  }
+
   /**
    * Convert an attribute value Map into a BasicAttribute for use with LDAP.
    * 
@@ -380,6 +499,14 @@ public class AttributeModifier {
       attribute.add(value);
     }
     return attribute;
+  }
+
+  private DSMLValue[] makeDSMLValues(Values attributeSet) {
+    List<DSMLValue> dsmlValues = new ArrayList<DSMLValue>(attributeSet.size());
+    for (String value : attributeSet) {
+      dsmlValues.add(new DSMLValue(value));
+    }
+    return dsmlValues.toArray(new DSMLValue[] {});
   }
 
   /**

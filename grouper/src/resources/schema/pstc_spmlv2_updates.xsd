@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--************************************************************-->
+<!--  pstc_spmlv2_updates.xsd                                   -->
+<!--                                                            -->
+<!--  Draft schema for SPML v2.0 updates capabilities.          -->
+<!--                                                            -->
+<!--  Editors:                                                  -->
+<!--    Jeff Bohren (Jeff_Bohren@bmc.com)                       -->
+<!--                                                            -->
+<!--                                                            -->
+<!-- Copyright (C) The Organization for the Advancement of      -->
+<!-- Structured Information Standards [OASIS] 2005. All Rights  -->
+<!-- Reserved.                                                  -->
+<!--************************************************************-->
+<schema targetNamespace="urn:oasis:names:tc:SPML:2:0:updates" 
+        xmlns:spml="urn:oasis:names:tc:SPML:2:0"
+        xmlns:spmlupdates ="urn:oasis:names:tc:SPML:2:0:updates"
+        xmlns:spmlsearch="urn:oasis:names:tc:SPML:2:0:search"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+        xmlns="http://www.w3.org/2001/XMLSchema" 
+        elementFormDefault="qualified">
+    
+    	<import namespace="urn:oasis:names:tc:SPML:2:0" 
+            schemaLocation="pstc_spmlv2_core.xsd"/>
+    
+    	<import namespace="urn:oasis:names:tc:SPML:2:0:search" 
+            schemaLocation="pstc_spmlv2_search.xsd"/>
+
+	<complexType name="UpdatesRequestType">
+		<complexContent>
+			<extension base="spml:RequestType">
+				<sequence>
+					<element ref="spmlsearch:query" minOccurs="0"/>
+					<element name="updatedByCapability" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+				</sequence>
+				<attribute name="updatedSince" type="xsd:dateTime" use="optional"/>
+				<attribute name="token" type="xsd:string" use="optional"/>
+				<attribute name="maxSelect" type="xsd:int" use="optional"/>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<simpleType name="UpdateKindType">
+		<restriction base="string">
+			<enumeration value="add"/>
+			<enumeration value="modify"/>
+			<enumeration value="delete"/>
+			<enumeration value="capability"/>
+		</restriction>
+	</simpleType>
+
+	<complexType name="UpdateType">
+		<complexContent>
+			<extension base="spml:ExtensibleType">	
+				<sequence>
+					<element name="psoID" type="spml:PSOIdentifierType" />
+				</sequence>
+				<attribute name="timestamp" type="xsd:dateTime" use="required"/>
+				<attribute name="updateKind" type="spmlupdates:UpdateKindType" use="required"/>
+				<attribute name="wasUpdatedByCapability" type="xsd:string" use="optional"/>
+			</extension>
+		</complexContent>				
+	</complexType>
+	
+	<complexType name="ResultsIteratorType">
+		<complexContent>
+			<extension base="spml:ExtensibleType">	
+				<attribute name="ID" type="xsd:ID"/>
+			</extension>
+		</complexContent>				
+	</complexType>
+	
+	<complexType name="UpdatesResponseType">
+		<complexContent>
+			<extension base="spml:ResponseType">
+				<sequence>
+					<element name="update" type="spmlupdates:UpdateType" minOccurs="0" maxOccurs="unbounded"/>
+					<element name="iterator" type="spmlupdates:ResultsIteratorType" minOccurs="0" />
+				</sequence>
+				<attribute name="token" type="xsd:string" use="optional"/>
+			</extension>
+		</complexContent>		
+	</complexType>
+
+	<complexType name="IterateRequestType">
+		<complexContent>
+			<extension base="spml:RequestType">
+				<sequence>
+					<element name="iterator" type="spmlupdates:ResultsIteratorType"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+	
+	<complexType name="CloseIteratorRequestType">
+		<complexContent>
+			<extension base="spml:RequestType">
+				<sequence>
+					<element name="iterator" type="spmlupdates:ResultsIteratorType"/>
+				</sequence>
+			</extension>
+		</complexContent>
+	</complexType>
+
+	<element name="updatesRequest" type="spmlupdates:UpdatesRequestType"/>
+	<element name="updatesResponse" type="spmlupdates:UpdatesResponseType"/>
+	<element name="iterateRequest" type="spmlupdates:IterateRequestType" />
+	<element name="iterateResponse" type="spmlupdates:UpdatesResponseType" />
+	<element name="closeIteratorRequest" type="spmlupdates:CloseIteratorRequestType" />
+	<element name="closeIteratorResponse" type="spml:ResponseType" />
+
+</schema>
