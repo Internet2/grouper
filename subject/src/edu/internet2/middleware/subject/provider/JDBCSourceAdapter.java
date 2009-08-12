@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.18 2009-03-22 02:49:27 mchyzer Exp $
-$Date: 2009-03-22 02:49:27 $
+$Id: JDBCSourceAdapter.java,v 1.19 2009-08-12 03:48:05 mchyzer Exp $
+$Date: 2009-08-12 03:48:05 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -96,7 +96,14 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   @Override
   public Subject getSubjectByIdentifier(String id1, boolean exceptionIfNull) throws SubjectNotFoundException,
       SubjectNotUniqueException {
-    return uniqueSearch(id1, "searchSubjectByIdentifier");
+    try {
+      return uniqueSearch(id1, "searchSubjectByIdentifier");
+    } catch (SubjectNotFoundException snfe) {
+      if (exceptionIfNull) {
+        throw snfe;
+      }
+      return null;
+    }
   }
 
   /**
