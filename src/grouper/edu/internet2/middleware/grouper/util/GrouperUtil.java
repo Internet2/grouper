@@ -281,6 +281,13 @@ public class GrouperUtil {
     return LogFactory.getLog(theClass);
   }
   
+  /**
+   * Get an SLF4J logger, and auto-create log dirs if necessary.
+   * SLF4J may provide easier coding via {} instead of " + "
+   * and better performance.
+   * @param theClass
+   * @return the logger
+   */
   public static Logger getLogger(Class<?> theClass) {
     logDirsCreateIfNotDone();
     return LoggerFactory.getLogger(theClass);
