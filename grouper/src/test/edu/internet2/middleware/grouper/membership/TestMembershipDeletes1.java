@@ -34,7 +34,6 @@ import edu.internet2.middleware.grouper.helper.DateHelper;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.misc.CompositeType;
-import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.MemberOf;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -150,32 +149,27 @@ public class TestMembershipDeletes1 extends TestCase {
       gN.addMember(subjA);
       gN.addMember(subjB);
 
-      // Remove SA -> gM
-      MemberOf mof = new DefaultMemberOf();
-      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        gM.getUuid(), memberA.getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true);
-      mof.deleteImmediate(r.rs, gM, ms, memberA);
-      assertEquals("mof deletes", 2, mof.getDeletes().size());
-      assertEquals("mof saves", 0, mof.getSaves().size());
+      // Remove SA -> gM (causes 2 membership deletes)
+      int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+      gM.deleteMember(subjA);
+      int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+      assertEquals("membership changes", -2, afterCount - beforeCount);
+      gM.addMember(subjA);
+      
+      // Remove gM -> gL (causes 13 membership adds and 7 membership deletes)
+      beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+      gL.deleteMember(gM.toSubject());
+      afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+      assertEquals("membership changes", 6, afterCount - beforeCount);
+      gL.addMember(gM.toSubject());
 
-      // Remove gM -> gL
-      mof = new DefaultMemberOf();
-      ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        gL.getUuid(), gM.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true);
-      mof.deleteImmediate(r.rs, gL, ms, gM.toMember());
-      assertEquals("mof deletes", 7, mof.getDeletes().size());
-      assertEquals("mof saves", 13, mof.getSaves().size());
-
-      // Add and remove SD -> gG
+      // Add and remove SD -> gG (remove causes 1 membership delete)
       gG.addMember(subjD);
-      mof = new DefaultMemberOf();
-      ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-        gG.getUuid(), memberD.getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true);
-      mof.deleteImmediate(r.rs, gG, ms, memberD);
-      assertEquals("mof deletes", 1, mof.getDeletes().size());
-      assertEquals("mof saves", 0, mof.getSaves().size());
+      beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
       gG.deleteMember(subjD);
-
+      afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+      assertEquals("membership changes", -1, afterCount - beforeCount);
+      
       // add and remove SF -> gI
       gI.addMember(subjFDel);
       gI.deleteMember(subjFDel);

@@ -29,7 +29,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMemberOf0.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestMemberOf0.java,v 1.2 2009-08-12 12:44:45 shilen Exp $
  */
 public class TestMemberOf0 extends TestCase {
 
@@ -81,12 +81,12 @@ public class TestMemberOf0 extends TestCase {
       // Add gA to gB
 
       gB.addMember(gA.toSubject());
-      T.getMemberships(gA, 3);
-      T.getMemberships(gB, 3);
+      T.getMemberships(gA, 4);
+      T.getMemberships(gB, 4);
       T.getImmediateMemberships(gA, 2);
       T.getImmediateMemberships(gB, 2);
-      T.getEffectiveMemberships(gA, 1);
-      T.getEffectiveMemberships(gB, 1);
+      T.getEffectiveMemberships(gA, 2);
+      T.getEffectiveMemberships(gB, 2);
 
       r.rs.stop();
     }

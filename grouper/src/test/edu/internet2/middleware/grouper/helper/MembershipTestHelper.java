@@ -38,7 +38,6 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
-import edu.internet2.middleware.grouper.misc.FindBadMemberships;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -49,7 +48,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipTestHelper.java,v 1.2 2009-06-09 22:55:40 shilen Exp $
+ * @version $Id: MembershipTestHelper.java,v 1.3 2009-08-12 12:44:45 shilen Exp $
  */
 public class MembershipTestHelper {
 
@@ -729,55 +728,6 @@ public class MembershipTestHelper {
       // do nothing
     }
     Assert.assertTrue(comment + ": verify parent membership", parentCheck);
-  }
-
-  public static void checkBadGroupMemberships(String comment, Set<Group> goodGroups, Set<Group> badGroups) {
-    Iterator<Group> goodIterator = goodGroups.iterator();
-    while (goodIterator.hasNext()) {
-      Group g = goodIterator.next();
-      String curComment = comment + " - " + g.getName();
-      try {
-        Assert.assertTrue(curComment, FindBadMemberships.checkGroup(g));
-      } catch (Exception e) {
-        e.printStackTrace();
-        Assert.fail(curComment + " - got exception: " + e.getMessage());
-      }
-    }
-
-    Iterator<Group> badIterator = badGroups.iterator();
-    while (badIterator.hasNext()) {
-      Group g = badIterator.next();
-      String curComment = comment + " - " + g.getName();
-      try {
-        Assert.assertFalse(curComment, FindBadMemberships.checkGroup(g));
-      } catch (Exception e) {
-        Assert.fail(curComment + " - got exception: " + e.getMessage());
-      }
-    }
-  }
-
-  public static void checkBadStemMemberships(String comment, Set<Stem> goodStems, Set<Stem> badStems) {
-    Iterator<Stem> goodIterator = goodStems.iterator();
-    while (goodIterator.hasNext()) {
-      Stem ns = goodIterator.next();
-      String curComment = comment + " - " + ns.getName();
-      try {
-        Assert.assertTrue(curComment, FindBadMemberships.checkStem(ns));
-      } catch (Exception e) {
-        Assert.fail(curComment + " - got exception: " + e.getMessage());
-      }
-    }
-
-    Iterator<Stem> badIterator = badStems.iterator();
-    while (badIterator.hasNext()) {
-      Stem ns = badIterator.next();
-      String curComment = comment + " - " + ns.getName();
-      try {
-        Assert.assertFalse(curComment, FindBadMemberships.checkStem(ns));
-      } catch (Exception e) {
-        Assert.fail(curComment + " - got exception: " + e.getMessage());
-      }
-    }
   }
 
 

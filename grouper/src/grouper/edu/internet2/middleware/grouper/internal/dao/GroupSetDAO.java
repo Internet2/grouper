@@ -1,6 +1,6 @@
 /**
  * @author shilen
- * $Id: GroupSetDAO.java,v 1.1 2009-06-09 22:55:39 shilen Exp $
+ * $Id: GroupSetDAO.java,v 1.2 2009-08-12 12:44:45 shilen Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -22,6 +22,30 @@ public interface GroupSetDAO extends GrouperDAO {
    * @param groupSet
    */
   public void save(GroupSet groupSet);
+
+  /**
+   * insert a set of group set objects
+   * @param groupSets
+   */
+  public void save(Set<GroupSet> groupSets);
+  
+  /**
+   * delete a group set object
+   * @param groupSet
+   */
+  public void delete(GroupSet groupSet);
+  
+  /**
+   * delete a set of group set objects
+   * @param groupSets
+   */
+  public void delete(Set<GroupSet> groupSets);
+  
+  /**
+   * update a group set object
+   * @param groupSet
+   */
+  public void update(GroupSet groupSet);
   
   /**
    * delete a group set object
@@ -37,11 +61,11 @@ public interface GroupSetDAO extends GrouperDAO {
   public void deleteByOwnerStem(String stemId);
 
   /**
-   * @param group
+   * @param groupId
    * @param field
    * @return group set
    */
-  public Set<GroupSet> findAllByGroupOwnerAndField(Group group, Field field);
+  public Set<GroupSet> findAllByGroupOwnerAndField(String groupId, Field field);
 
   /**
    * @param groupSet
@@ -50,10 +74,10 @@ public interface GroupSetDAO extends GrouperDAO {
   public GroupSet findParentGroupSet(GroupSet groupSet);
 
   /**
-   * @param group
+   * @param groupId
    * @return all the group sets where this group is a member and where depth > 0.
    */
-  public Set<GroupSet> findAllByMemberGroup(Group group);
+  public Set<GroupSet> findAllByMemberGroup(String groupId);
 
   /**
    * @param groupSetId

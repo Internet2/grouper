@@ -26,11 +26,18 @@ import edu.internet2.middleware.grouper.exception.CompositeNotFoundException;
 /** 
  * Basic <code>Composite</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: CompositeDAO.java,v 1.11 2009-06-09 22:55:39 shilen Exp $
+ * @version $Id: CompositeDAO.java,v 1.12 2009-08-12 12:44:45 shilen Exp $
  * @since   1.2.0
  */
 public interface CompositeDAO extends GrouperDAO {
 
+  /**
+   * @param groupId
+   * @return Set of composites
+   * @since   1.5.0
+   */
+  Set<Composite> findAsFactorOrHasMemberOfFactor(String groupId);
+  
   /**
    * @since   1.2.0
    */
@@ -80,5 +87,17 @@ public interface CompositeDAO extends GrouperDAO {
    * @return the composites
    */
   Set<Composite> findByCreator(Member member);  
+  
+  /**
+   * Save a composite
+   * @param c The composite to save.
+   */
+  public void save(Composite c);
+
+  /**
+   * Delete a composite
+   * @param c The composite to delete.
+   */
+  public void delete(Composite c);
 } 
 

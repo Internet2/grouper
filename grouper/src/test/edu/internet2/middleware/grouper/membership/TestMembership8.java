@@ -17,10 +17,8 @@
 
 package edu.internet2.middleware.grouper.membership;
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
-import junit.framework.Assert;
 import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
@@ -36,7 +34,6 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.MembershipTestHelper;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
-import edu.internet2.middleware.grouper.misc.FindBadMemberships;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -321,30 +318,19 @@ public class TestMembership8 extends GrouperTest {
 
     // verify the total number of list memberships
     Set<Membership> listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
-    T.amount("Number of list memberships", 22, listMemberships.size());
+    T.amount("Number of list memberships", 26, listMemberships.size());
 
     // verify the total number of update privileges
     Set<Membership> updateMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters);
-    T.amount("Number of update privileges", 6, updateMemberships.size());
+    T.amount("Number of update privileges", 7, updateMemberships.size());
 
     // verify the total number of custom1 privileges
     Set<Membership> custom1Memberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldCustom1);
-    T.amount("Number of custom1 privileges", 6, custom1Memberships.size());
+    T.amount("Number of custom1 privileges", 7, custom1Memberships.size());
 
     // verify the total number of custom2 privileges
     Set<Membership> custom2Memberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldCustom2);
-    T.amount("Number of custom2 privileges", 6, custom2Memberships.size());
-
-    // verify that this works with the bad membership finder utility
-    Set<Group> goodGroups = new LinkedHashSet<Group>();
-    Set<Group> badGroups = new LinkedHashSet<Group>();
-
-    goodGroups.add(gA);
-    goodGroups.add(gB);
-    goodGroups.add(gC);
-    goodGroups.add(gD);
-
-    MembershipTestHelper.checkBadGroupMemberships("All should be good", goodGroups, badGroups);
+    T.amount("Number of custom2 privileges", 7, custom2Memberships.size());
   }
 
   public void deleteMemberships() throws Exception {

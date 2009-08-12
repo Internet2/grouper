@@ -77,9 +77,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.GroupHooks;
-import edu.internet2.middleware.grouper.hooks.MembershipHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksGroupBean;
-import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipChangeBean;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
@@ -92,7 +90,6 @@ import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.internal.util.U;
 import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.CompositeType;
-import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
@@ -127,7 +124,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.253 2009-08-10 13:59:27 isgwb Exp $
+ * @version $Id: Group.java,v 1.254 2009-08-12 12:44:45 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -1218,10 +1215,10 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
               if ( !Group.this.canWriteField( GrouperSession.staticGrouperSession().getSubject(), Group.getDefaultList() ) ) {
                 throw new InsufficientPrivilegeException();
               }
-              DefaultMemberOf  mof = new DefaultMemberOf();
-              mof.deleteComposite( GrouperSession.staticGrouperSession(), Group.this, composite );
-              GrouperDAOFactory.getFactory().getMembership().update(mof);
-              EVENT_LOG.groupDelComposite( GrouperSession.staticGrouperSession(), composite, mof, sw );
+
+              GrouperDAOFactory.getFactory().getComposite().delete(composite);
+
+              EVENT_LOG.groupDelComposite( GrouperSession.staticGrouperSession(), composite, sw );
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
                 
                 AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GROUP_COMPOSITE_DELETE, "id", 
@@ -1559,34 +1556,16 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
             if ( (f.equals( Group.getDefaultList() ) ) && ( Group.this.hasComposite() ) ) {
               throw new MemberDeleteException(E.GROUP_DMFC);
             }
-            DefaultMemberOf mof = Membership.internal_delImmediateMembership( 
+
+            Membership membership = Membership.internal_delImmediateMembership( 
                 GrouperSession.staticGrouperSession(), Group.this, subj, f );
 
-            GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                MembershipHooks.METHOD_MEMBERSHIP_PRE_REMOVE_MEMBER,
-                HooksMembershipChangeBean.class, mof, DefaultMemberOf.class, 
-                VetoTypeGrouper.MEMBERSHIP_PRE_REMOVE_MEMBER);
-            
-            GrouperDAOFactory.getFactory().getMembership().update(mof);
-
-            GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_REMOVE_MEMBER, HooksMembershipChangeBean.class, 
-                mof, DefaultMemberOf.class);
-
-            GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                MembershipHooks.METHOD_MEMBERSHIP_POST_REMOVE_MEMBER,
-                HooksMembershipChangeBean.class, mof, DefaultMemberOf.class, 
-                VetoTypeGrouper.MEMBERSHIP_POST_REMOVE_MEMBER);
             sw.stop();
             if (notAlreadyDeleted) {
               EVENT_LOG.groupDelMember(GrouperSession.staticGrouperSession(), Group.this.getName(), subj, f, sw);
-              EVENT_LOG.delEffMembers(GrouperSession.staticGrouperSession(), Group.this, subj, f, mof.getEffectiveDeletes());
-              EVENT_LOG.addEffMembers(GrouperSession.staticGrouperSession(), Group.this, subj, f, mof.getEffectiveSaves());
               
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
-                
-                Membership membership = mof.getMembership();
-                
+                                
                 AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_GROUP_DELETE, "id", 
                     membership == null ? null : membership.getUuid(), "fieldId", f.getUuid(),
                         "fieldName", f.getName(), "memberId",  membership.getMemberUuid(),
@@ -4075,10 +4054,8 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
               throw new MemberAddException(vAdd.getErrorMessage() + ", " + errorMessageSuffix);
             }
 
-            DefaultMemberOf mof = new DefaultMemberOf();
-            mof.addComposite(session, Group.this, c);
-            GrouperDAOFactory.getFactory().getMembership().update(mof);
-            EVENT_LOG.groupAddComposite(session, c, mof, sw);
+            GrouperDAOFactory.getFactory().getComposite().save(c);
+            EVENT_LOG.groupAddComposite(session, c, sw);
             
             if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
               

@@ -31,14 +31,13 @@ import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.helper.T;
-import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestMemberOf1.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestMemberOf1.java,v 1.2 2009-08-12 12:44:45 shilen Exp $
  * @since   1.0
  */
 public class TestMemberOf1 extends GrouperTest {
@@ -440,8 +439,6 @@ public class TestMemberOf1 extends GrouperTest {
           r.rs, gALL, gAAS.toSubject(), Group.getDefaultList(), true
         );
         Assert.assertNotNull(ms);
-        DefaultMemberOf mof = new DefaultMemberOf();
-        mof.deleteImmediate( r.rs, gALL, ms, gAAS.toMember() ); 
         gALL.deleteMember( gAAS.toSubject() );
         Assert.assertTrue("finally, a hibernate exception wasn't thrown", true);
         T.getMemberships(gA_A, 2);

@@ -49,7 +49,6 @@ import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedE
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
-import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -63,7 +62,7 @@ import edu.internet2.middleware.subject.Subject;
  * slower and more explicit than the GrouperAccessAdapter (subclass)
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNonDbAccessAdapter.java,v 1.3 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: GrouperNonDbAccessAdapter.java,v 1.4 2009-08-12 12:44:45 shilen Exp $
  */
 public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements AccessAdapter {
 
@@ -432,8 +431,7 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
       throw new InsufficientPrivilegeException();
     }
     try {
-      DefaultMemberOf mof = Membership.internal_delImmediateMembership(s, g, subj, f);
-      GrouperDAOFactory.getFactory().getMembership().update(mof);
+      Membership.internal_delImmediateMembership(s, g, subj, f);
     } catch (MemberDeleteAlreadyDeletedException eMD) {
       throw new RevokePrivilegeAlreadyRevokedException( eMD.getMessage(), eMD );
     } catch (MemberDeleteException eMD) {

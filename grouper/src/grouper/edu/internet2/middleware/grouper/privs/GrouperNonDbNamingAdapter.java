@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperNonDbNamingAdapter.java,v 1.3 2009-04-13 20:24:29 mchyzer Exp $
+ * $Id: GrouperNonDbNamingAdapter.java,v 1.4 2009-08-12 12:44:45 shilen Exp $
  */
 package edu.internet2.middleware.grouper.privs;
 
@@ -35,7 +35,6 @@ import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
-import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -384,8 +383,7 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
       throw new SchemaException(E.FIELD_INVALID_TYPE + f.getType());
     }  
     try {
-      DefaultMemberOf mof = Membership.internal_delImmediateMembership(s, ns, subj, f);
-      GrouperDAOFactory.getFactory().getMembership().update(mof);
+      Membership.internal_delImmediateMembership(s, ns, subj, f);
     } catch (MemberDeleteAlreadyDeletedException eMD) {
       throw new RevokePrivilegeAlreadyRevokedException( eMD.getMessage(), eMD );
     } catch (MemberDeleteException eMD) {

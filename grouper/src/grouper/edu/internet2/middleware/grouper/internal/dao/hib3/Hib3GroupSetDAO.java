@@ -17,7 +17,7 @@ import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
 
 /**
  * @author shilen
- * @version $Id: Hib3GroupSetDAO.java,v 1.1 2009-06-09 22:55:39 shilen Exp $
+ * @version $Id: Hib3GroupSetDAO.java,v 1.2 2009-08-12 12:44:45 shilen Exp $
  */
 public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
 
@@ -34,7 +34,40 @@ public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
     HibernateSession.byObjectStatic().save(groupSet);
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#save(java.util.Set)
+   */
+  public void save(Set<GroupSet> groupSets) {
+    Iterator<GroupSet> iter = groupSets.iterator();
+    while (iter.hasNext()) {
+      save(iter.next());
+    }
+  }
+  
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#delete(edu.internet2.middleware.grouper.group.GroupSet)
+   */
+  public void delete(GroupSet groupSet) {
+    HibernateSession.byObjectStatic().delete(groupSet);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#delete(java.util.Set)
+   */
+  public void delete(Set<GroupSet> groupSets) {
+    Iterator<GroupSet> iter = groupSets.iterator();
+    while (iter.hasNext()) {
+      delete(iter.next());
+    }
+  }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#save(edu.internet2.middleware.grouper.group.GroupSet)
+   */
+  public void update(GroupSet groupSet) {
+    HibernateSession.byObjectStatic().update(groupSet);
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#deleteByOwnerGroupAndField(java.lang.String, java.lang.String)
@@ -82,14 +115,14 @@ public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
 
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findAllByGroupOwnerAndField(edu.internet2.middleware.grouper.Group, edu.internet2.middleware.grouper.Field)
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findAllByGroupOwnerAndField(java.lang.String, edu.internet2.middleware.grouper.Field)
    */
-  public Set<GroupSet> findAllByGroupOwnerAndField(Group group, Field field) {
+  public Set<GroupSet> findAllByGroupOwnerAndField(String groupId, Field field) {
     Set<GroupSet> groupSets = HibernateSession
         .byHqlStatic()
         .createQuery("select gs from GroupSet as gs where gs.ownerGroupId = :owner and gs.fieldId = :fuuid")
         .setCacheable(false).setCacheRegion(KLASS + ".FindAllByGroupOwnerAndField")
-        .setString("owner", group.getUuid())
+        .setString("owner", groupId)
         .setString("fuuid", field.getUuid())
         .listSet(GroupSet.class);
 
@@ -111,14 +144,14 @@ public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
 
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findAllByMemberGroup(edu.internet2.middleware.grouper.Group)
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findAllByMemberGroup(java.lang.String)
    */
-  public Set<GroupSet> findAllByMemberGroup(Group group) {
+  public Set<GroupSet> findAllByMemberGroup(String groupId) {
     Set<GroupSet> groupSets = HibernateSession
         .byHqlStatic()
         .createQuery("select gs from GroupSet as gs where gs.memberGroupId = :member and gs.type = 'effective'")
         .setCacheable(false).setCacheRegion(KLASS + ".FindAllByMemberGroup")
-        .setString("member", group.getUuid())
+        .setString("member", groupId)
         .listSet(GroupSet.class);
 
     return groupSets;

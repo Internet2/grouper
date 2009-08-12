@@ -1,22 +1,29 @@
 package edu.internet2.middleware.grouper.group;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.exception.GroupSetNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * @author shilen $Id: GroupSet.java,v 1.1 2009-06-09 22:55:39 shilen Exp $
+ * @author shilen $Id: GroupSet.java,v 1.2 2009-08-12 12:44:45 shilen Exp $
  *
  */
 @SuppressWarnings("serial")
@@ -212,6 +219,294 @@ public class GroupSet extends GrouperAPI implements Hib3GrouperVersioned {
       this.creatorId = GrouperSession.staticGrouperSession().getMember().getUuid();
     }
   }
+  
+  /**
+   * 
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPostSave(HibernateSession hibernateSession) {
+    super.onPostSave(hibernateSession);
+
+    // take care of effective group sets
+    if (this.getDepth() == 1 && this.getMemberGroupId() != null) {
+      Set<GroupSet> results = new LinkedHashSet<GroupSet>();
+      Set<GroupSet> groupSetHasMembers = GrouperDAOFactory.getFactory().getGroupSet().findAllByGroupOwnerAndField(
+          this.getMemberGroupId(), Group.getDefaultList());
+      
+      // Add members of member to owner group set
+      results.addAll(addHasMembersToOwner(this, groupSetHasMembers));
+  
+      // If we are working on a group, where is it a member and field is the default list
+      if (this.getOwnerGroupId() != null && this.getFieldId().equals(Group.getDefaultList().getUuid())) {
+        Set<GroupSet> groupSetIsMember = GrouperDAOFactory.getFactory().getGroupSet().findAllByMemberGroup(this.getOwnerGroupId());
+  
+        // Add member and members of member to where owner is member
+        results.addAll(addHasMembersToWhereGroupIsMember(this.getMemberGroupId(), groupSetIsMember, groupSetHasMembers));
+      }
+      
+      GrouperDAOFactory.getFactory().getGroupSet().save(results);
+    }
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  @Override
+  public void onPreDelete(HibernateSession hibernateSession) {
+    super.onPreDelete(hibernateSession);
+    
+    // take care of effective group sets
+    if (this.getDepth() == 1) {
+      Set<GroupSet> groupSetsToDelete = new LinkedHashSet<GroupSet>();
+      
+      // Get all children of this group set
+      Set<GroupSet> childResults = GrouperDAOFactory.getFactory().getGroupSet().findAllChildren(this);
+  
+      groupSetsToDelete.addAll(childResults);
+  
+      // Find all effective group sets that need deletion
+      if (this.getOwnerGroupId() != null && this.getFieldId().equals(Group.getDefaultList().getUuid())) {
+        Set<GroupSet> groupSetIsMember = GrouperDAOFactory.getFactory().getGroupSet().findAllByMemberGroup(this.getOwnerGroupId());
+        
+        Iterator<GroupSet> groupSetIsMemberIter = groupSetIsMember.iterator();
+        while (groupSetIsMemberIter.hasNext()) {
+          GroupSet currGroupSet = groupSetIsMemberIter.next();
+          GroupSet childToDelete = GrouperDAOFactory.getFactory().getGroupSet().findImmediateChildByParentAndMemberGroup(currGroupSet, this.getMemberGroupId());
+  
+          if (childToDelete != null) {
+            Set<GroupSet> childrenOfChildResults = GrouperDAOFactory.getFactory().getGroupSet().findAllChildren(childToDelete);
+    
+            groupSetsToDelete.addAll(childrenOfChildResults);
+            groupSetsToDelete.add(childToDelete);
+          }
+        }
+      }
+      
+      GrouperDAOFactory.getFactory().getGroupSet().delete(groupSetsToDelete);
+    }
+  }
+
+  /**
+   * @param memberGroupId
+   * @param groupSetIsMember
+   * @param groupSetHasMembers
+   * @return
+   * @throws IllegalStateException
+   */
+  private Set<GroupSet> addHasMembersToWhereGroupIsMember(String memberGroupId,
+      Set<GroupSet> groupSetIsMember, Set<GroupSet> groupSetHasMembers)
+      throws IllegalStateException {
+    Set<GroupSet> groupSets = new LinkedHashSet();
+
+    String creatorUUID = GrouperSession.staticGrouperSession().getMember().getUuid();
+
+    Iterator<GroupSet> isMembersIter = groupSetIsMember.iterator();
+    Map<String, Set<GroupSet>> parentToChildrenMap = getParentToChildrenMap(groupSetHasMembers);
+
+    // lets get all the hasMembers with a depth of 1 before the while loop
+    Set<GroupSet> hasMembersOneDepth = new LinkedHashSet<GroupSet>();
+    Iterator<GroupSet> hasMembersIter = groupSetHasMembers.iterator();
+    while (hasMembersIter.hasNext()) {
+      GroupSet gs = hasMembersIter.next();
+      if (gs.getDepth() == 1) {
+        hasMembersOneDepth.add(gs);
+      }
+    }
+
+    while (isMembersIter.hasNext()) {
+      GroupSet isGS = isMembersIter.next();
+
+      String ownerGroupId = isGS.getOwnerGroupId();
+      String ownerStemId = isGS.getOwnerStemId();
+      String fieldId = isGS.getFieldId();
+      String id = isGS.getId();
+      int depth = isGS.getDepth();
+
+      // If the isMember's owner is the same as the immediate member's owner and this is for a default member, 
+      // then we can skip this isMember.
+      if (fieldId.equals(Group.getDefaultList().getUuid())
+          && StringUtils.equals(isGS.getOwnerGroupId(), this.getOwnerGroupId())) {
+        continue;
+      }
+
+      GroupSet groupSet = new GroupSet();
+      groupSet.setId(GrouperUuid.getUuid());
+      groupSet.setCreatorId(creatorUUID);
+      groupSet.setDepth(depth + 1);
+      groupSet.setParentId(id);
+      groupSet.setFieldId(fieldId);
+      groupSet.setMemberGroupId(memberGroupId);
+      groupSet.setOwnerGroupId(ownerGroupId);
+      groupSet.setOwnerStemId(ownerStemId);
+      groupSet.setType(Membership.EFFECTIVE);
+
+      // if we're forming a circular path, skip this isMember
+      if (isCircular(groupSet, isGS)) {
+        continue;
+      }
+
+      groupSets.add(groupSet);
+
+      Iterator<GroupSet> itHM = hasMembersOneDepth.iterator();
+      while (itHM.hasNext()) {
+        GroupSet hasGS = itHM.next();
+        Set<GroupSet> newAdditions = addHasMembersRecursively(isGS, hasGS, groupSet,
+            parentToChildrenMap, ownerGroupId, ownerStemId, creatorUUID, fieldId);
+        groupSets.addAll(newAdditions);
+      }
+    }
+
+    return groupSets;
+  } 
+
+  
+  /**
+   * @param immediateGroupSet
+   * @param hasMembers
+   * @return
+   * @throws IllegalStateException
+   */
+  private Set addHasMembersToOwner(GroupSet immediateGroupSet, Set<GroupSet> hasMembers) 
+    throws  IllegalStateException
+  {
+    Set<GroupSet> groupSets = new LinkedHashSet();
+    Iterator<GroupSet> it = hasMembers.iterator();
+
+    // cache values outside of iterator
+    String ownerGroupId = immediateGroupSet.getOwnerGroupId();
+    String ownerStemId = immediateGroupSet.getOwnerStemId();
+    String creatorUUID = GrouperSession.staticGrouperSession().getMember().getUuid();
+    String fieldId = immediateGroupSet.getFieldId();
+
+    Map<String, Set<GroupSet>> parentToChildrenMap = getParentToChildrenMap(hasMembers);
+   
+    while (it.hasNext()) {
+      GroupSet gs = it.next();
+      if (gs.getDepth() == 1) {
+        Set<GroupSet> newAdditions = addHasMembersRecursively(immediateGroupSet, gs, 
+            immediateGroupSet, parentToChildrenMap, ownerGroupId, ownerStemId, creatorUUID, fieldId);
+        groupSets.addAll(newAdditions);
+      }
+    }
+
+    return groupSets;
+  }
+  
+  /**
+   * Given a set of group sets, return a map that will allow retrieval of 
+   * the children of a parent group set.
+   * @param members
+   * @return the map
+   */
+  private Map<String, Set<GroupSet>> getParentToChildrenMap(Set<GroupSet> members) {
+    Map<String, Set<GroupSet>> parentToChildrenMap = new HashMap<String, Set<GroupSet>>();
+
+    Iterator<GroupSet> iterator = members.iterator();
+    while (iterator.hasNext()) {
+      GroupSet gs = iterator.next();
+      String parentId = gs.getParentId();
+
+      if (parentId != null && !parentId.equals("")) {
+        Set<GroupSet> children = parentToChildrenMap.get(parentId);
+        if (children == null) {
+          children = new LinkedHashSet<GroupSet>();
+        }
+
+        children.add(gs);
+        parentToChildrenMap.put(parentId, children);
+      }
+    }
+
+    return parentToChildrenMap;
+  }
+  
+  /**
+   * @param startGroupSet
+   * @param gs
+   * @param parentGroupSet
+   * @param parentToChildrenMap
+   * @param ownerGroupId
+   * @param ownerStemId
+   * @param creatorUUID
+   * @param fieldId
+   * @return
+   */
+  private Set<GroupSet> addHasMembersRecursively(GroupSet startGroupSet, 
+      GroupSet gs, GroupSet parentGroupSet, Map<String, Set<GroupSet>> parentToChildrenMap, 
+      String ownerGroupId, String ownerStemId, String creatorUUID, String fieldId) {
+
+      GroupSet newGroupSet = new GroupSet();
+      newGroupSet.setId(GrouperUuid.getUuid());
+      newGroupSet.setCreatorId(creatorUUID);
+      newGroupSet.setFieldId(fieldId);
+      newGroupSet.setOwnerGroupId(ownerGroupId);
+      newGroupSet.setOwnerStemId(ownerStemId);
+      newGroupSet.setMemberGroupId(gs.getMemberGroupId());
+      newGroupSet.setDepth(parentGroupSet.getDepth() + 1);
+      newGroupSet.setParentId(parentGroupSet.getId());
+      newGroupSet.setType(Membership.EFFECTIVE);
+
+      // if we're forming a circular path, return an empty Set.
+      if (isCircular(newGroupSet, startGroupSet)) {
+        return new LinkedHashSet<GroupSet>();
+      }
+
+      Set<GroupSet> newGroupSets = new LinkedHashSet<GroupSet>();
+      newGroupSets.add(newGroupSet);
+
+      Set<GroupSet> children = parentToChildrenMap.get(gs.getId());
+      if (children != null) {
+        Iterator<GroupSet> it = children.iterator();
+        while (it.hasNext()) {
+          GroupSet nextGroupSet = it.next();
+          Set<GroupSet> newAdditions = addHasMembersRecursively(startGroupSet, nextGroupSet, newGroupSet, 
+            parentToChildrenMap, ownerGroupId, ownerStemId, creatorUUID, fieldId);
+          newGroupSets.addAll(newAdditions);
+        }
+      }
+      
+      return newGroupSets;
+    }
+  
+  /**
+   * Check if the new group set being added will cause a circular group set.
+   *
+   * @param newGroupSet group set being added
+   * @param startGroupSet group set that's a parent of newGroupSet which will be used
+   *                        as a starting point to check if we're forming a circular group set
+   * @return true if the new group set will cause a circular group set.
+   */
+  private boolean isCircular(GroupSet newGroupSet, GroupSet startGroupSet) {
+
+    // for the default list, a group should not be an indirect member of itself ....
+    if (newGroupSet.getFieldId().equals(Group.getDefaultList().getUuid()) && 
+        newGroupSet.getMemberGroupId().equals(newGroupSet.getOwnerGroupId())) {
+      return true;
+    }
+
+    // now let's go through the parents... 
+    // if the member of a parent is equal to the member of the new group set,
+    // then we have a circular group set.
+    if (newGroupSet.getDepth() < 3) {
+      return false;
+    }
+
+    GroupSet currentGroupSet = startGroupSet;
+    while (true) {
+      if (currentGroupSet.getMemberGroupId().equals(newGroupSet.getMemberGroupId())) {
+        return true;
+      }
+      if (currentGroupSet.getDepth() > 1) {
+        currentGroupSet = currentGroupSet.getParentGroupSet();
+      } else {
+        break;
+      }
+    }
+
+    return false;
+  }
+
   
   /**
    * @return the parent group set

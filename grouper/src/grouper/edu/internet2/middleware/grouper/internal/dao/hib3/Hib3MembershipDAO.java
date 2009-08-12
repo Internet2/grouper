@@ -31,25 +31,17 @@ import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
-import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
-import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
-import edu.internet2.middleware.grouper.hibernate.ByObject;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.Quote;
-import edu.internet2.middleware.grouper.misc.DefaultMemberOf;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -58,7 +50,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.39 2009-08-11 20:18:08 mchyzer Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.40 2009-08-12 12:44:45 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -70,6 +62,20 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /** */
   private static final String KLASS = Hib3MembershipDAO.class.getName();
 
+  /**
+   * get all memberships
+   * @return set
+   */
+  public Set<Membership> findAll() {
+    Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery("select ms, m from MembershipEntry as ms, Member as m where "
+        + "ms.memberUuid  = m.uuid ")
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAll")
+      .listSet(Object[].class);
+    return _getMembershipsFromMembershipAndMemberQuery(mships);
+  } 
+  
   /**
    * find all memberships that have this member or have this creator
    * @param member
@@ -88,79 +94,6 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     return memberships;
 
   }
-
-  /**
-   * <p/>
-   * @param ownerGroupId 
-   * @param memberUUID 
-   * @param listName 
-   * @param msType 
-   * @return if exists
-   * @throws GrouperDAOException 
-   * @since   @HEAD@ 
-   */
-  public boolean existsByGroupOwner(String ownerGroupId, String memberUUID, String listName, String msType)
-    throws  GrouperDAOException {
-    
-    Object id = HibernateSession.byHqlStatic()
-      .createQuery("select ms.id from MembershipEntry as ms, Field as field where  "
-        + "     ms.ownerGroupId  = :owner            "
-        + "and  ms.memberUuid = :member           "
-        + "and  ms.fieldId = field.uuid "
-        + "and  field.name   = :fname            "
-        + "and  ms.type       = :type             "
-        )
-      .setCacheable(false)
-      .setCacheRegion(KLASS + ".ExistsByGroupOwner")
-      .setString( "owner",  ownerGroupId  )
-      .setString( "member", memberUUID )
-      .setString( "fname",  listName   )
-      .setString( "type",   msType     )
-      .uniqueResult(Object.class);
-
-    boolean rv  = false;
-    if ( id != null ) {
-      rv = true;
-    }
-    return rv;
-  } 
-
-  /**
-   * <p/>
-   * @param ownerStemId 
-   * @param memberUUID 
-   * @param listName 
-   * @param msType 
-   * @return if exists
-   * @throws GrouperDAOException 
-   * @since   @HEAD@ 
-   */
-  public boolean existsByStemOwner(String ownerStemId, String memberUUID, String listName, String msType)
-    throws  GrouperDAOException {
-    
-    Object id = HibernateSession.byHqlStatic()
-      .createQuery("select ms.id from MembershipEntry as ms, Field as field where  "
-        + "     ms.ownerStemId  = :owner            "
-        + "and  ms.memberUuid = :member           "
-        + "and  ms.fieldId = field.uuid "
-        + "and  field.name   = :fname            "
-        + "and  ms.type       = :type             "
-        )
-      .setCacheable(false)
-      .setCacheRegion(KLASS + ".ExistsByStemOwner")
-      .setString( "owner",  ownerStemId  )
-      .setString( "member", memberUUID )
-      .setString( "fname",  listName   )
-      .setString( "type",   msType     )
-      .uniqueResult(Object.class);
-
-
-    boolean rv  = false;
-    if ( id != null ) {
-      rv = true;
-    }
-    return rv;
-  } 
 
   /**
    * @param d 
@@ -1160,98 +1093,45 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       
     return filteredMemberships;
   } 
+  
+  
 
   /**
-   * @param mof 
-   * @throws GrouperDAOException 
-   * @since   @HEAD@
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#save(edu.internet2.middleware.grouper.Membership)
    */
-  public void update(final DefaultMemberOf mof) 
-    throws  GrouperDAOException {
-    // TODO 20070404 this is incredibly ugly
-    HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
-        new HibernateHandler() {
+  public void save(Membership ms) {
+    HibernateSession.byObjectStatic().setEntityName("ImmediateMembershipEntry").save(ms);
+  }
 
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-            HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-            
-            ByObject byObject = hibernateSession.byObject();
-            Iterator<GrouperAPI> deletes = mof.getDeletes().iterator();
-            while (deletes.hasNext()) {
-              GrouperAPI delete = deletes.next();
-              if (delete instanceof Membership) {
-                byObject.setEntityName("ImmediateMembershipEntry");
-              } else {
-                byObject.setEntityName(null);
-              }
-              byObject.delete(delete);
-            }
 
-            Iterator<GrouperAPI> saves = mof.getSaves().iterator();
-            while (saves.hasNext()) {
-              GrouperAPI save = saves.next();
-              if (save instanceof Membership) {
-                byObject.setEntityName("ImmediateMembershipEntry");
-              } else {
-                byObject.setEntityName(null);
-              }
-              byObject.save(save);
-            }
-            
-            Iterator<GrouperAPI> updates = mof.getUpdates().iterator();
-            while (updates.hasNext()) {
-              GrouperAPI update = updates.next();
-              if (update instanceof Membership) {
-                byObject.setEntityName("ImmediateMembershipEntry");
-              } else {
-                byObject.setEntityName(null);
-              }
-              byObject.update(update);
-            }
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#save(java.util.Set)
+   */
+  public void save(Set<Membership> mships) {
+    Iterator<Membership> iter = mships.iterator();
+    while (iter.hasNext()) {
+      save(iter.next());
+    }
+  }
+  
 
-            hibernateSession.misc().flush();
-            byObject.setEntityName(null);
-            
-            try { 
-              byObject.saveOrUpdate(mof.getModifiedGroups());
-            } catch (GrouperDAOException gde) {
-              throw gde;
-            }
-            
-            byObject.saveOrUpdate(mof.getModifiedStems());
-            
-            long now = System.currentTimeMillis();
-            
-            if (GrouperConfig.getPropertyBoolean("groups.updateLastMembershipTime", true)) {
-              Iterator<String> membershipChanges = mof.getGroupIdsWithNewMemberships()
-                  .iterator();
-              while (membershipChanges.hasNext()) {
-                String groupId = membershipChanges.next();
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#delete(edu.internet2.middleware.grouper.Membership)
+   */
+  public void delete(Membership ms) {
+    HibernateSession.byObjectStatic().setEntityName("ImmediateMembershipEntry").delete(ms);
+  }
+  
 
-                HibernateSession.bySqlStatic().executeSql(
-                    "update grouper_groups set last_membership_change = ? where id = ?",
-                    GrouperUtil.toList((Object) now, groupId));
-              }
-            }
-            
-            if (GrouperConfig.getPropertyBoolean("stems.updateLastMembershipTime", true)) {
-              Iterator<String> membershipChanges = mof.getStemIdsWithNewMemberships()
-                  .iterator();
-              while (membershipChanges.hasNext()) {
-                String stemId = membershipChanges.next();
-
-                HibernateSession.bySqlStatic().executeSql(
-                    "update grouper_stems set last_membership_change = ? where id = ?",
-                    GrouperUtil.toList((Object) now, stemId));
-              }
-            }
-            return null;
-          }
-      
-    });
-  } 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#delete(java.util.Set)
+   */
+  public void delete(Set<Membership> mships) {
+    Iterator<Membership> iter = mships.iterator();
+    while (iter.hasNext()) {
+      delete(iter.next());
+    }
+  }
 
   /**
    * @param hibernateSession

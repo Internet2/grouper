@@ -33,7 +33,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.4 2009-06-09 22:55:40 shilen Exp $
+ * @version $Id: Test_Integration_ImmediateMembershipValidator_validate.java,v 1.5 2009-08-12 12:44:45 shilen Exp $
  * @since   1.2.0
  */
 public class Test_Integration_ImmediateMembershipValidator_validate extends GrouperTest {
@@ -143,56 +143,6 @@ public class Test_Integration_ImmediateMembershipValidator_validate extends Grou
       unexpectedException(e);
     }
   } // public void testValidate_Circular()
-
-  public void testValidate_MembershipAlreadyExists() {
-    try {
-      LOG.info("testValidate_Circular");
-      R       r     = R.getContext("grouper");
-      Group   g     = r.getGroup("i2mi:grouper", "grouper-dev");
-      Member  m     = r.getGroup("i2mi:grouper", "grouper-users").toMember();
-      Subject subj  = r.getGroup("i2mi:grouper", "grouper-users").toSubject();
-      assertTrue(g.addMember(subj, true));
-
-      Membership _ms = new Membership();
-      _ms.setType(Membership.IMMEDIATE);
-      _ms.setDepth(0);
-      _ms.setFieldId(FieldFinder.findFieldId("members", 
-          FieldType.LIST.getType(), true));
-      _ms.setOwnerGroupId( g.getUuid() );
-      _ms.setMemberUuid( m.getUuid() );
-      GrouperValidator v = ImmediateMembershipValidator.validate(_ms);
-      assertTrue( "v is invalid", v.isInvalid() );
-      assertEquals( "v error msg", 
-          ImmediateMembershipValidator.INVALID_EXISTS, v.getErrorMessage() );
-      
-      try {
-        g.addMember(subj);
-        fail("Should throw exception");
-      } catch (MemberAddAlreadyExistsException maaee) {
-        //this is good
-      }
-
-      //this shouldnt throw an exception
-      assertFalse(g.addMember(subj, false));
-      
-      //this should add it
-      assertTrue(g.grantPriv(subj, AccessPrivilege.ADMIN, true));
-
-      //this should fail
-      try {
-        g.grantPriv(subj, AccessPrivilege.ADMIN);
-        fail("Should throw already exists exception");
-      } catch (GrantPrivilegeAlreadyExistsException maee) {
-
-      }
-
-      assertFalse(g.grantPriv(subj, AccessPrivilege.ADMIN, false));
-      //should be ok
-
-    } catch (Exception e) {
-      unexpectedException(e);
-    }
-  }
 
   public void testValidate_InvalidMembership() {
     try {

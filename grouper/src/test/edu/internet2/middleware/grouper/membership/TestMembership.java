@@ -48,7 +48,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Membership}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestMembership.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestMembership.java,v 1.2 2009-08-12 12:44:45 shilen Exp $
  */
 public class TestMembership extends TestCase {
 
@@ -329,7 +329,8 @@ public class TestMembership extends TestCase {
       s.stop();
     }
     catch (Exception e) {
-      Assert.fail("exception: " + e.getMessage());
+      //Assert.fail("exception: " + e.getMessage());
+      throw new RuntimeException(e);
     }
   } // public void testBadEffMshipDepthCalcExposedByGroupDelete() 
 
