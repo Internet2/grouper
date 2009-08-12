@@ -36,7 +36,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * Find I2MI subjects.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectFinder.java,v 1.43 2009-03-22 05:41:01 mchyzer Exp $
+ * @version $Id: SubjectFinder.java,v 1.44 2009-08-12 00:22:28 tzeller Exp $
  */
 public class SubjectFinder {
 
@@ -62,10 +62,10 @@ public class SubjectFinder {
       throws SubjectNotFoundException, SubjectNotUniqueException {
     Subject subject = null;
     try {
-      subject = SubjectFinder.findById(idOrIdentifier);
+      subject = SubjectFinder.findById(idOrIdentifier, exceptionIfNull);
     } catch (SubjectNotFoundException snfe) {
       try {
-        subject = SubjectFinder.findByIdentifier(idOrIdentifier);
+        subject = SubjectFinder.findByIdentifier(idOrIdentifier, exceptionIfNull);
       } catch (SubjectNotUniqueException snfe2) {
         if (exceptionIfNull) {
           throw snfe2;
