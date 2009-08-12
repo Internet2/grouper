@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src/grouper"/>
+	<classpathentry kind="src" path="src/resources"/>
 	<classpathentry kind="src" path="src/test"/>
 	<classpathentry kind="src" path="confForTest"/>
 	<classpathentry kind="src" path="conf"/>
@@ -50,8 +51,24 @@
 	<classpathentry exported="true" kind="lib" path="lib/grouper/ant.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/commons-io.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper/xstream.jar"/>
-	<classpathentry kind="lib" path="lib/test/ldappc/apacheds-all-1.5.5-SNAPSHOT-app.jar" sourcepath="/Users/tzeller/Downloads/slf4j-1.5.2"/>
-	<classpathentry kind="lib" path="lib/ldappc/slf4j-api-1.5.2.jar"/>
-	<classpathentry kind="lib" path="lib/ldappc/slf4j-log4j12-1.5.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/ldappc/apacheds-all-1.5.5-SNAPSHOT-app.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ldappc/slf4j-api-1.5.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ldappc/slf4j-log4j12-1.5.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/ldappc/openspml2-toolkit.jar"/> 
+    <classpathentry exported="true" kind="lib" path="lib/shibboleth/shibboleth-common-1.1.2.jar"/>
+    <classpathentry exported="true" kind="lib" path="lib/shibboleth/jgrapht-jdk1.5-0.7.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/shibboleth/joda-time-1.5.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/shibboleth/opensaml-2.2.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/shibboleth/openws-1.2.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/shibboleth/spring-beans-2.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/shibboleth/spring-context-2.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/shibboleth/spring-context-support-2.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/shibboleth/spring-core-2.5.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/shibboleth/velocity-1.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/shibboleth/xmltooling-1.2.0.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/shibboleth/xmlunit-1.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/test/shibboleth/xmlsec-1.4.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/vt-ldap/vt-ldap-3.0.jar"/>
+    <classpathentry exported="true" kind="lib" path="lib/vt-ldap/commons-codec-1.3.jar"/>    
 	<classpathentry kind="output" path="build"/>
 </classpath>

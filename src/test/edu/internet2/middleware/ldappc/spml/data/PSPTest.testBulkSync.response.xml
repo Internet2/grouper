@@ -1,0 +1,120 @@
+<ldappc:bulkSyncResponse xmlns:ldappc='http://grouper.internet2.edu/ldappc' status='success' requestID='REQUESTID_TEST'>
+  <ldappc:syncResponse ID='edu:groupA'>
+    <addResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2009/08/11-12:52:26.182_1907495918'>
+      <pso>
+        <psoID ID='cn=groupA,ou=groups,dc=grouper,dc=edu' targetID='openldap-prod'/>
+        <data>
+          <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+            <dsml:value>top</dsml:value>
+            <dsml:value>eduMember</dsml:value>
+            <dsml:value>groupOfNames</dsml:value>
+          </dsml:attr>
+          <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+            <dsml:value>groupA</dsml:value>
+          </dsml:attr>
+          <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='hasMember'>
+            <dsml:value>name.test.subject.0</dsml:value>
+          </dsml:attr>
+        </data>
+        <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+          <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+            <spmlref:toPsoID ID='uid=test.subject.0,ou=people,dc=grouper,dc=edu' targetID='openldap-prod'/>
+          </spmlref:reference>
+        </capabilityData>
+      </pso>
+    </addResponse>
+    <ldappc:id ID='edu:groupA'/>
+  </ldappc:syncResponse>
+  <ldappc:syncResponse ID='edu:groupA'>
+    <addResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2009/08/11-12:52:26.299_1452470852'>
+      <pso>
+        <psoID ID='cn=groupA,ou=groups,dc=grouper,dc=edu' targetID='openldap-test'/>
+        <data>
+          <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+            <dsml:value>top</dsml:value>
+            <dsml:value>eduMember</dsml:value>
+            <dsml:value>groupOfNames</dsml:value>
+          </dsml:attr>
+          <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+            <dsml:value>groupA</dsml:value>
+          </dsml:attr>
+          <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='hasMember'>
+            <dsml:value>name.test.subject.0</dsml:value>
+          </dsml:attr>
+        </data>
+        <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+          <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+            <spmlref:toPsoID ID='uid=test.subject.0,ou=people,dc=grouper,dc=edu' targetID='openldap-test'/>
+          </spmlref:reference>
+        </capabilityData>
+      </pso>
+    </addResponse>
+    <ldappc:id ID='edu:groupA'/>
+  </ldappc:syncResponse>
+  <ldappc:syncResponse ID='edu:groupB'>
+    <modifyResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2009/08/11-12:52:26.445_-931949967'>
+      <pso>
+        <psoID ID='cn=groupB,ou=groups,dc=grouper,dc=edu' targetID='openldap-prod'/>
+        <data>
+          <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+            <dsml:value>top</dsml:value>
+            <dsml:value>eduMember</dsml:value>
+            <dsml:value>groupOfNames</dsml:value>
+          </dsml:attr>
+          <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+            <dsml:value>groupB</dsml:value>
+          </dsml:attr>
+          <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='hasMember'>
+            <dsml:value>name.test.subject.1</dsml:value>
+          </dsml:attr>
+          <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='description'>
+            <dsml:value>descriptionB</dsml:value>
+          </dsml:attr>
+        </data>
+        <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+          <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+            <spmlref:toPsoID ID='uid=test.subject.1,ou=people,dc=grouper,dc=edu' targetID='openldap-prod'/>
+          </spmlref:reference>
+        </capabilityData>
+      </pso>
+    </modifyResponse>
+    <ldappc:id ID='edu:groupB'/>
+  </ldappc:syncResponse>
+  <ldappc:syncResponse ID='edu:groupB'>
+    <modifyResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2009/08/11-12:52:26.579_1208929420'>
+      <pso>
+        <psoID ID='cn=groupB,ou=groups,dc=grouper,dc=edu' targetID='openldap-test'/>
+        <data>
+          <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='objectClass'>
+            <dsml:value>top</dsml:value>
+            <dsml:value>eduMember</dsml:value>
+            <dsml:value>groupOfNames</dsml:value>
+          </dsml:attr>
+          <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='cn'>
+            <dsml:value>groupB</dsml:value>
+          </dsml:attr>
+          <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='hasMember'>
+            <dsml:value>name.test.subject.1</dsml:value>
+          </dsml:attr>
+          <dsml:attr xmlns:dsml='urn:oasis:names:tc:DSML:2:0:core' name='description'>
+            <dsml:value>descriptionB</dsml:value>
+          </dsml:attr>
+        </data>
+        <capabilityData mustUnderstand='true' capabilityURI='urn:oasis:names:tc:SPML:2:0:reference'>
+          <spmlref:reference xmlns='urn:oasis:names:tc:SPML:2:0' xmlns:spmlref='urn:oasis:names:tc:SPML:2:0:reference' typeOfReference='member'>
+            <spmlref:toPsoID ID='uid=test.subject.1,ou=people,dc=grouper,dc=edu' targetID='openldap-test'/>
+          </spmlref:reference>
+        </capabilityData>
+      </pso>
+    </modifyResponse>
+    <ldappc:id ID='edu:groupB'/>
+  </ldappc:syncResponse>
+  <ldappc:syncResponse ID='cn=groupC,ou=groups,dc=grouper,dc=edu'>
+    <deleteResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2009/08/11-12:52:26.689_-1700930364'/>
+    <ldappc:id ID='cn=groupC,ou=groups,dc=grouper,dc=edu'/>
+  </ldappc:syncResponse>
+  <ldappc:syncResponse ID='cn=groupC,ou=groups,dc=grouper,dc=edu'>
+    <deleteResponse xmlns='urn:oasis:names:tc:SPML:2:0' status='success' requestID='2009/08/11-12:52:26.799_-1697832845'/>
+    <ldappc:id ID='cn=groupC,ou=groups,dc=grouper,dc=edu'/>
+  </ldappc:syncResponse>
+</ldappc:bulkSyncResponse>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<AttributeResolver xmlns="urn:mace:shibboleth:2.0:resolver" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:resolver="urn:mace:shibboleth:2.0:resolver" xmlns:ad="urn:mace:shibboleth:2.0:resolver:ad" xmlns:dc="urn:mace:shibboleth:2.0:resolver:dc"
+  xmlns:grouper="http://grouper.internet2.edu/shibboleth/2.0"
+  xsi:schemaLocation="
+   urn:mace:shibboleth:2.0:resolver classpath:/schema/shibboleth-2.0-attribute-resolver.xsd
+   urn:mace:shibboleth:2.0:resolver:dc classpath:/schema/shibboleth-2.0-attribute-resolver-dc.xsd
+   urn:mace:shibboleth:2.0:resolver:ad classpath:/schema/shibboleth-2.0-attribute-resolver-ad.xsd
+   http://grouper.internet2.edu/shibboleth/2.0 classpath:/schema/shibboleth-2.0-grouper.xsd">
+
+  <resolver:DataConnector id="testExactAttribute" xsi:type="grouper:GroupDataConnector">
+    <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupA" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testStemNameONE" xsi:type="grouper:GroupDataConnector">
+    <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="ONE" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testStemNameSUB" xsi:type="grouper:GroupDataConnector">
+    <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="SUB" />
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testAnd" xsi:type="grouper:GroupDataConnector">
+    <grouper:GroupFilter xsi:type="grouper:AND">
+      <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupB" />
+      <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem" scope="ONE" />
+    </grouper:GroupFilter>
+  </resolver:DataConnector>
+
+  <resolver:DataConnector id="testOr" xsi:type="grouper:GroupDataConnector">
+    <grouper:GroupFilter xsi:type="grouper:OR">
+      <grouper:GroupFilter xsi:type="grouper:ExactAttribute" name="name" value="parentStem:groupB" />
+      <grouper:GroupFilter xsi:type="grouper:StemName" name="parentStem:childStem" scope="ONE" />
+    </grouper:GroupFilter>
+  </resolver:DataConnector>
+
+</AttributeResolver>
