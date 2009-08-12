@@ -3,13 +3,15 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
 
+import java.io.Serializable;
+
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 
 /**
  * one action for screen (response has many actions in a list
  * @author mchyzer
  */
-public class GuiScreenAction {
+public class GuiScreenAction implements Serializable {
 
   /** the place in object model to assign */
   private String assignmentName;

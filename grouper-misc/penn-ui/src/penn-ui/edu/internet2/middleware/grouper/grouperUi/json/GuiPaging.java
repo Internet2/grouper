@@ -1,8 +1,10 @@
 /*
  * @author mchyzer
- * $Id: GuiPaging.java,v 1.3 2009-08-10 07:40:42 mchyzer Exp $
+ * $Id: GuiPaging.java,v 1.4 2009-08-12 05:20:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
+
+import java.io.Serializable;
 
 import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
@@ -12,7 +14,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  *
  */
-public class GuiPaging {
+public class GuiPaging implements Serializable {
 
   /** page size */
   private int pageSize;

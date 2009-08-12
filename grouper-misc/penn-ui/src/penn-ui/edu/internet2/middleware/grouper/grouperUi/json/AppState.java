@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.grouperUi.json;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -10,7 +11,7 @@ import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
 /**
  * AppState object comes from javascript on ajax requests
  */
-public class AppState {
+public class AppState implements Serializable {
 
   /** if simple membership update is initted */
   private boolean inittedSimpleMembershipUpdate;

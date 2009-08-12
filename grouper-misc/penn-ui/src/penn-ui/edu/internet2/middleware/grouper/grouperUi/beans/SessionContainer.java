@@ -1,9 +1,10 @@
 /**
  * @author Kate
- * $Id: SessionContainer.java,v 1.2 2009-08-08 06:19:52 mchyzer Exp $
+ * $Id: SessionContainer.java,v 1.3 2009-08-12 05:20:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -18,7 +19,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * hold generic stuff about user in session
  */
-public class SessionContainer {
+public class SessionContainer implements Serializable {
 
   /**
    * if initted

@@ -1,9 +1,10 @@
 /**
  * @author Kate
- * $Id: SubjectWrapper.java,v 1.2 2009-08-06 04:49:40 mchyzer Exp $
+ * $Id: SubjectWrapper.java,v 1.3 2009-08-12 05:20:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,7 +17,7 @@ import edu.internet2.middleware.subject.SubjectType;
 /**
  *
  */
-public class SubjectWrapper implements Subject {
+public class SubjectWrapper implements Subject, Serializable {
 
   /**
    * default constructor

@@ -1,9 +1,10 @@
 /*
  * @author mchyzer
- * $Id: GuiSubject.java,v 1.4 2009-08-07 07:36:01 mchyzer Exp $
+ * $Id: GuiSubject.java,v 1.5 2009-08-12 05:20:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
 
+import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -16,7 +17,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * subject for gui has all attributes etc
  */
-public class GuiSubject {
+public class GuiSubject implements Serializable {
   
   /** subject */
   private Subject subject;

@@ -40,7 +40,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.2 2009-08-10 21:35:17 mchyzer Exp $
+ * @version $Id: SessionInitialiser.java,v 1.3 2009-08-12 05:20:57 mchyzer Exp $
  */
 
 public class SessionInitialiser {
@@ -54,10 +54,10 @@ public class SessionInitialiser {
 	protected static Log LOG = LogFactory.getLog(SessionInitialiser.class);
 
 	/** cache the locale and resource bundles.  the multikey is the module, and the locale.
-	 * this gets the Object[], one for nav resource bundle, one for MapBundleWrapper, one for MapBundleWrapper (null), 
+	 * this gets the BundleBean, one for nav resource bundle, one for MapBundleWrapper, one for MapBundleWrapper (null), 
 	 * media, media wrapper, media wrapper null */
-  private static GrouperCache<MultiKey, Object[]> resourceBundleCache = 
-    new GrouperCache<MultiKey, Object[]>(SessionInitialiser.class.getName(), 500, false, 120, 120, false);
+  private static GrouperCache<MultiKey, BundleBean> resourceBundleCache = 
+    new GrouperCache<MultiKey, BundleBean>(SessionInitialiser.class.getName(), 500, false, 120, 120, false);
 
   /**
    * get a resource bundle based on multikey
@@ -67,9 +67,9 @@ public class SessionInitialiser {
    */
   public static LocalizationContext retrieveLocalizationContext(MultiKey multiKey, boolean isNav) {
     if (isNav) {
-      return (LocalizationContext)resourceBundles(multiKey)[0];
+      return resourceBundles(multiKey).getNav();
     } 
-    return (LocalizationContext)resourceBundles(multiKey)[3];
+    return resourceBundles(multiKey).getMedia();
   }
   
   /**
@@ -95,14 +95,14 @@ public class SessionInitialiser {
     
     if (isNav) {
       if (!returnNullsIfNotFound) {
-        return (MapBundleWrapper)resourceBundles(multiKey)[1];
+        return resourceBundles(multiKey).getNavMap();
       }
-      return (MapBundleWrapper)resourceBundles(multiKey)[2];
+      return resourceBundles(multiKey).getNavMapNull();
     }
     if (!returnNullsIfNotFound) {
-      return (MapBundleWrapper)resourceBundles(multiKey)[4];
+      return resourceBundles(multiKey).getMediaMap();
     }
-    return (MapBundleWrapper)resourceBundles(multiKey)[5];
+    return resourceBundles(multiKey).getMediaMapNull();
   }
   
   
@@ -113,9 +113,9 @@ public class SessionInitialiser {
    * @param multiKey is the module, name (nav or media), and locale
    * @return the resource bundle
    */
-  public static Object[] resourceBundles( MultiKey multiKey) {
+  public static BundleBean resourceBundles( MultiKey multiKey) {
     //new MultiKey(module, name, locale);
-    Object[] resourceBundles = resourceBundleCache.get(multiKey);
+    BundleBean resourceBundles = resourceBundleCache.get(multiKey);
     if (resourceBundles == null) {
       synchronized(SessionInitialiser.class) {
         resourceBundles = resourceBundleCache.get(multiKey);
@@ -154,14 +154,19 @@ public class SessionInitialiser {
 
           addIncludeExcludeDefaults(chainedBundle, navBundleWrapperNull);
 
-          resourceBundles = new Object[]{
-              new javax.servlet.jsp.jstl.fmt.LocalizationContext(chainedBundle),
-              new MapBundleWrapper(chainedBundle, false),
-              navBundleWrapperNull,
-              new javax.servlet.jsp.jstl.fmt.LocalizationContext(chainedMediaBundle),
-              new MapBundleWrapper(chainedMediaBundle, false),
-              new MapBundleWrapper(chainedMediaBundle, true),
-          };
+          resourceBundles = new BundleBean();
+          resourceBundles.setNav(
+              new javax.servlet.jsp.jstl.fmt.LocalizationContext(chainedBundle));
+          resourceBundles.setNavMap(
+              new MapBundleWrapper(chainedBundle, false));
+          resourceBundles.setNavMapNull(
+              navBundleWrapperNull);
+          resourceBundles.setMedia(
+              new javax.servlet.jsp.jstl.fmt.LocalizationContext(chainedMediaBundle));
+          resourceBundles.setMediaMap(
+              new MapBundleWrapper(chainedMediaBundle, false));
+          resourceBundles.setMediaMapNull(
+              new MapBundleWrapper(chainedMediaBundle, true));
           
           resourceBundleCache.put(multiKey, resourceBundles);
         }

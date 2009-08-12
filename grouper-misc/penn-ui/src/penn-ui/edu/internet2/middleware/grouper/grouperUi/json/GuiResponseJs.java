@@ -3,6 +3,7 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,7 +18,7 @@ import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
  * @author mchyzer
  *
  */
-public class GuiResponseJs {
+public class GuiResponseJs implements Serializable {
 
   /** if this is an ajax file submit, we need to add textarea around response
    * since it is submitted to a hidden frame

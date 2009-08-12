@@ -1,9 +1,10 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdateContainer.java,v 1.3 2009-08-11 13:44:21 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateContainer.java,v 1.4 2009-08-12 05:20:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,7 +22,7 @@ import edu.internet2.middleware.subject.Source;
 /**
  * bean for simple membership update
  */
-public class SimpleMembershipUpdateContainer {
+public class SimpleMembershipUpdateContainer implements Serializable {
 
   /**
    * available sourceIds for the upload form

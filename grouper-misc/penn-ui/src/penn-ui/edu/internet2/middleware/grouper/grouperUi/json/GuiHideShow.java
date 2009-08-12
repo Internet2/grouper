@@ -1,8 +1,10 @@
 /**
  * @author mchyzer
- * $Id: GuiHideShow.java,v 1.2 2009-08-10 07:40:42 mchyzer Exp $
+ * $Id: GuiHideShow.java,v 1.3 2009-08-12 05:20:56 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
+
+import java.io.Serializable;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -18,7 +20,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * </pre>
  * state on screen of hide show
  */
-public class GuiHideShow {
+public class GuiHideShow implements Serializable {
 
   /**
    * init a hide show if not in session (and using session)

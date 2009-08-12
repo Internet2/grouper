@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 public class GrouperUiJ2ee implements Filter {
 
   /** keep 100k in memory, why not */
-  private static FileItemFactory fileItemFactory = new DiskFileItemFactory(1000, null);
+  private static FileItemFactory fileItemFactory = new DiskFileItemFactory(100000, null);
 
   /** Create a new file upload handler */
   private static ServletFileUpload upload = new ServletFileUpload(fileItemFactory);
@@ -184,12 +184,6 @@ public class GrouperUiJ2ee implements Filter {
 
   }
 
-  /** cache the actAs */
-  private static GrouperCache<MultiKey, Boolean> actAsCache = null;
-
-  /** cache the actAs */
-  private static GrouperCache<MultiKey, Boolean> subjectAllowedCache = null;
-
   /**
    * 
    */
@@ -234,16 +228,6 @@ public class GrouperUiJ2ee implements Filter {
   }
 
   /**
-   * is this a wssec servlet?  must have servlet init param
-   * @return true if wssec
-   */
-  public static boolean wssecServlet() {
-    String wssecValue = retrieveHttpServlet().getServletConfig()
-        .getInitParameter("wssec");
-    return GrouperUtil.booleanValue(wssecValue, false);
-  }
-
-  /**
    * public method to get the http servlet
    * 
    * @param httpServlet is servlet to assign
@@ -263,6 +247,7 @@ public class GrouperUiJ2ee implements Filter {
 
   /**
    * filter method
+   * @see javax.servlet.Filter#destroy()
    */
   public void destroy() {
     // not needed

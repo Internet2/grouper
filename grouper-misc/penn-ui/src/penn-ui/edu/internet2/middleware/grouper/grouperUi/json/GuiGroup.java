@@ -3,6 +3,8 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.json;
 
+import java.io.Serializable;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 
@@ -13,7 +15,7 @@ import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
  * 
  * @author mchyzer
  */
-public class GuiGroup {
+public class GuiGroup implements Serializable {
 
   /** group */
   private Group group;
