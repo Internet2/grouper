@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: JDBCSourceAdapter2.java,v 1.2 2009-08-11 20:18:08 mchyzer Exp $
+ * @author mchyzer $Id: JDBCSourceAdapter2.java,v 1.3 2009-08-12 04:52:21 mchyzer Exp $
  */
 package edu.internet2.middleware.subject.provider;
 
@@ -832,11 +832,11 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
    * @throws Exception 
    */
   public static void main(String[] args) throws Exception {
-    Subject subject = SubjectFinder.findById("10021368");
+    Subject subject = SubjectFinder.findById("10021368", true);
     
     System.out.println(SubjectHelper.getPrettyComplete(subject));
     
-    subject = SubjectFinder.findByIdentifier("mchyzer");
+    subject = SubjectFinder.findByIdentifier("mchyzer", true);
     
     System.out.println(SubjectHelper.getPrettyComplete(subject));
     

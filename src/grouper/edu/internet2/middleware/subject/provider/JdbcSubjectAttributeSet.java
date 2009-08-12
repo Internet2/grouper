@@ -1,9 +1,10 @@
 /*
  * @author mchyzer
- * $Id: JdbcSubjectAttributeSet.java,v 1.2 2009-08-11 20:18:08 mchyzer Exp $
+ * $Id: JdbcSubjectAttributeSet.java,v 1.3 2009-08-12 04:52:21 mchyzer Exp $
  */
 package edu.internet2.middleware.subject.provider;
 
+import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.Iterator;
@@ -16,7 +17,8 @@ import org.apache.commons.lang.ObjectUtils;
  * unmodifiable, holds exactly one value, lightweight set
  * @param <E> is type of set
  */
-public class JdbcSubjectAttributeSet<E> implements Set<E> {
+@SuppressWarnings("serial")
+public class JdbcSubjectAttributeSet<E> implements Set<E>, Serializable {
 
   /** element */
   private E element;

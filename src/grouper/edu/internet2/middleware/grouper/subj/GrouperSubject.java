@@ -16,6 +16,7 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,7 +47,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * {@link Subject} returned by the {@link GrouperSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: GrouperSubject.java,v 1.9 2009-04-13 20:24:29 mchyzer Exp $
+ * @version $Id: GrouperSubject.java,v 1.10 2009-08-12 04:52:21 mchyzer Exp $
  */
 public class GrouperSubject implements Subject {
   
@@ -55,7 +56,8 @@ public class GrouperSubject implements Subject {
    * @param <K> 
    * @param <V> 
    */
-  private class GrouperSubjectAttributeMap<K,V> implements Map<K,V> {
+  @SuppressWarnings("serial")
+  private class GrouperSubjectAttributeMap<K,V> implements Map<K,V>, Serializable {
     
     /** underlying datastore */
     private Map<K,V> attrs   = new HashMap<K,V>();
@@ -189,8 +191,6 @@ public class GrouperSubject implements Subject {
   }
   
   /** */
-  private GrouperSourceAdapter  adapter = null;
-  /** */
   private GrouperSubjectAttributeMap<String, Set<String>>   attrs   = new GrouperSubjectAttributeMap<String, Set<String>>();
   /** */
   private String                id      = null;
@@ -229,7 +229,6 @@ public class GrouperSubject implements Subject {
     throws  SourceUnavailableException {
     this.id       = g.getUuid();
     this.name     = g.getName();
-    this.adapter  = (GrouperSourceAdapter) SubjectFinder.internal_getGSA();
 
     this.attrs.put( "name",   GrouperUtil.toSet(g.getName()), false);
     this.attrs.put( "displayName",   GrouperUtil.toSet(g.getDisplayName()), false);
@@ -317,7 +316,7 @@ public class GrouperSubject implements Subject {
    * @see edu.internet2.middleware.subject.Subject#getSource()
    */
   public Source getSource() {
-    return this.adapter;
+    return SubjectFinder.internal_getGSA();
   }
 
   /**

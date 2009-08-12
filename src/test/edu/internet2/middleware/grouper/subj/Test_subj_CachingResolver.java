@@ -29,7 +29,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 /**
  * Test {@link CachingResolver}.
  * @author  blair christensen.
- * @version $Id: Test_subj_CachingResolver.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: Test_subj_CachingResolver.java,v 1.2 2009-08-12 04:52:21 mchyzer Exp $
  * @since   1.2.1
  */
 public class Test_subj_CachingResolver extends GrouperTest {
@@ -43,7 +43,7 @@ public class Test_subj_CachingResolver extends GrouperTest {
   public void setUp() {
     super.setUp();
     try {
-      this.resolver = new CachingResolver( new SourcesXmlResolver( SourceManager.getInstance() ) );
+      this.resolver = new CachingResolver( new SourcesXmlResolver( ) );
     }
     catch (Exception e) {
       throw new GrouperException( "error in setUp(): " + e.getMessage(), e );

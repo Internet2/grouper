@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: DummySubject.java,v 1.2 2009-03-22 05:41:01 mchyzer Exp $
+ * $Id: DummySubject.java,v 1.3 2009-08-12 04:52:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.helper;
 
@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 
@@ -25,7 +26,7 @@ public class DummySubject implements Subject {
   private String subjectId;
   
   /** */
-  private Source source;
+  private String sourceId;
   
   /**
    * 
@@ -34,7 +35,7 @@ public class DummySubject implements Subject {
    */
   public DummySubject(String theSubjectId, Source theSource) {
     this.subjectId = theSubjectId;
-    this.source = theSource;
+    this.sourceId = theSource == null ? null : theSource.getId();
   }
   
   /**
@@ -90,7 +91,7 @@ public class DummySubject implements Subject {
    * @see edu.internet2.middleware.subject.Subject#getSource()
    */
   public Source getSource() {
-    return this.source;
+    return this.sourceId == null ? null : SourceManager.getInstance().getSource(this.sourceId);
   }
 
   /**

@@ -19,6 +19,7 @@ package edu.internet2.middleware.grouper.group;
 import java.util.Map;
 
 import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -39,11 +40,19 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGAttr.java,v 1.3 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: TestGAttr.java,v 1.4 2009-08-12 04:52:21 mchyzer Exp $
  * @since   1.1.0
  */
 public class TestGAttr extends GrouperTest {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestGAttr("testFailGetAttributeNullAttribute"));
+  }
+  
   private static final Log LOG = GrouperUtil.getLog(TestGAttr.class);
 
   public TestGAttr(String name) {

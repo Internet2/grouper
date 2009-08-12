@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: XmlUserAuditExport.java,v 1.1 2009-03-31 06:58:28 mchyzer Exp $
+ * $Id: XmlUserAuditExport.java,v 1.2 2009-08-12 04:52:21 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.xml.userAudit;
 
@@ -14,7 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
-import org.apache.commons.io.CopyUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.Query;
@@ -210,7 +210,7 @@ public class XmlUserAuditExport {
       try {
         outputStream = new FileOutputStream(xmlExportFile, true);
         inputStream = new FileInputStream(xmlTempFileAudits);
-        CopyUtils.copy(inputStream, outputStream);
+        IOUtils.copy(inputStream, outputStream);
       } finally {
         GrouperUtil.closeQuietly(outputStream);
         GrouperUtil.closeQuietly(inputStream);

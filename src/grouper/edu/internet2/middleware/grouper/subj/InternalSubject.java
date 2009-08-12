@@ -18,8 +18,6 @@
 package edu.internet2.middleware.grouper.subj;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -37,13 +35,10 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * Internal <i>Subject</i> returned by an {@link InternalSourceAdapter}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: InternalSubject.java,v 1.4 2009-03-22 05:41:00 mchyzer Exp $
+ * @version $Id: InternalSubject.java,v 1.5 2009-08-12 04:52:21 mchyzer Exp $
  */
 public class InternalSubject implements Subject {
 
-  // Private Instance Variables
-
-  private Source      adapter = new InternalSourceAdapter();
   private Map<String, Set<String>>         attrs   = new HashMap<String, Set<String>>();
   private String      desc    = GrouperConfig.EMPTY_STRING;
   private String      id      = GrouperConfig.EMPTY_STRING;
@@ -58,7 +53,6 @@ public class InternalSubject implements Subject {
   // @param name    Name of this subject.
   // @param adapter Source adapter that retrieved this subject.
   protected InternalSubject(String id, String name, InternalSourceAdapter adapter) {
-    this.adapter  = adapter;
     this.desc     = name;
     this.id       = id;
     this.name     = name;
@@ -165,7 +159,7 @@ public class InternalSubject implements Subject {
    * @return  Source adapter.
    */
   public Source getSource() {
-    return this.adapter;
+    return InternalSourceAdapter.instance();
   } // public String getSource()
 
   /**
