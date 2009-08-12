@@ -1,6 +1,6 @@
 /*--
-$Id: SourceManager.java,v 1.9 2009-08-11 21:58:37 mchyzer Exp $
-$Date: 2009-08-11 21:58:37 $
+$Id: SourceManager.java,v 1.10 2009-08-12 02:31:27 mchyzer Exp $
+$Date: 2009-08-12 02:31:27 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -85,8 +85,16 @@ public class SourceManager {
   private Map<String, Source> sourceMap = new HashMap<String, Source>();
 
   /**
+   * add a source (e.g. ones which arent in the sources.xml)
+   * @param sourceId
+   * @param source
+   */
+  public void putSource(String sourceId, Source source) {
+    this.sourceMap.put(sourceId, source);
+  }
+  
+  /**
    * Default constructor.
-   * @throws Exception
    */
   private SourceManager() {
     init();
