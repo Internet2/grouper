@@ -5,10 +5,15 @@ import java.io.Serializable;
 import java.util.Set;
 
 /**
+ * <pre>
  * A Subject represents an entity, such as a person, group, or organization.
  * This class provides common characteristics and behaviors across these entities.
  * Note, implementations of this interface shouldnt hold onto sources, since they
  * arent serializable, they should lookup with AllSources
+ * 
+ * Implementors should probably subclass BaseSubject instead of implement this directly.
+ * 
+ * </pre>
  */
 public interface Subject extends Serializable {
 
@@ -24,6 +29,18 @@ public interface Subject extends Serializable {
 	 */
 	public SubjectType getType();
 
+	/**
+	 * get the type name
+	 * @return the type name
+	 */
+	public String getTypeName();
+	
+	/**
+	 * get the source id of a subject
+	 * @return the source id
+	 */
+	public String getSourceId();
+	
 	/**
 	 * Gets this Subject's name.
 	 * @return name

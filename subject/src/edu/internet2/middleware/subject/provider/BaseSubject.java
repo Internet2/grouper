@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSubject.java,v 1.6 2009-08-11 21:58:37 mchyzer Exp $
-$Date: 2009-08-11 21:58:37 $
+$Id: BaseSubject.java,v 1.1 2009-08-13 14:56:36 mchyzer Exp $
+$Date: 2009-08-13 14:56:36 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -18,24 +18,24 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
 
 /**
- * JDBC Subject implementation.
+ * Base Subject implementation.  Sublclass this to change behavior
  */
-public class JDBCSubject implements Subject {
+public class BaseSubject implements Subject {
 
   /** */
-  private static Log log = LogFactory.getLog(JDBCSubject.class);
+  private static Log log = LogFactory.getLog(BaseSubject.class);
 
   /** */
-  protected String id;
+  private String id;
 
   /** */
-  protected String name;
+  private String name;
 
   /** */
-  protected String description;
+  private String description;
 
   /** */
-  protected SubjectType type;
+  private String typeName;
 
   
   /**
@@ -59,50 +59,26 @@ public class JDBCSubject implements Subject {
   private String sourceId;
   
   /** */
-  protected Map<String, Set<String>> attributes;
-
-  /** Public default constructor. It allows subclassing of JDBCSubject! */
-  public JDBCSubject() {
-    this.id = null;
-    this.name = null;
-    this.description = null;
-    this.type = null;
-    this.attributes = null;
-  }
+  private Map<String, Set<String>> attributes;
 
   /**
    * Constructor called by SourceManager.
    * @param id1 
    * @param name1 
    * @param description1 
-   * @param type1 
-   * @param adapter1 
+   * @param typeName1 
+   * @param sourceId1 
+   * @param attributes1 
    */
-  public JDBCSubject(String id1, String name1, String description1, SubjectType type1,
-      JDBCSourceAdapter adapter1) {
+  public BaseSubject(String id1, String name1, String description1, String typeName1,
+      String sourceId1, Map<String, Set<String>> attributes1) {
     log.debug("Name = " + name1);
     this.id = id1;
     this.name = name1;
-    this.type = type1;
+    this.typeName = typeName1;
     this.description = description1;
-    this.sourceId = adapter1 == null ? null : adapter1.getId();
-
-  }
-
-  /**
-   * Constructor that takes the subject's attributes. Needed because the
-   * setAttributes() method is protected.
-   * @param id1 The subject ID
-   * @param name1 The subject name
-   * @param description1 The subject description
-   * @param type1 The subject type
-   * @param adapter1 The SourceAdapter
-   * @param attributes1 The subject attributes
-   */
-  public JDBCSubject(String id1, String name1, String description1, SubjectType type1,
-      JDBCSourceAdapter adapter1, Map<String, Set<String>> attributes1) {
-    this(id1, name1, description1, type1, adapter1);
-    setAttributes(attributes1);
+    this.sourceId = sourceId1;
+    this.attributes = attributes1;
   }
 
   /**
@@ -116,7 +92,7 @@ public class JDBCSubject implements Subject {
    * {@inheritDoc}
    */
   public SubjectType getType() {
-    return this.type;
+    return SubjectTypeEnum.valueOf(this.typeName);
   }
 
   /**
@@ -143,7 +119,11 @@ public class JDBCSubject implements Subject {
     }
     Set<String> values = this.attributes.get(name1);
     if (values != null) {
-      return values.toArray(new String[0])[0];
+      if (values.size() > 1) {
+        throw new RuntimeException(
+            "This is not a single valued attribute, it is multivalued: '" + name1 + "', " + values.size());
+      }
+      return values.iterator().next();
     }
     return null;
   }
@@ -152,9 +132,6 @@ public class JDBCSubject implements Subject {
    * {@inheritDoc}
    */
   public Set<String> getAttributeValues(String name1) {
-    if (this.attributes == null) {
-      log.error("No attributes.");
-    }
     return this.attributes.get(name1);
   }
 
@@ -162,9 +139,6 @@ public class JDBCSubject implements Subject {
    * {@inheritDoc}
    */
   public Map<String, Set<String>> getAttributes() {
-    if (this.attributes == null) {
-      //this.adapter.loadAttributes(this);
-    }
     return this.attributes;
   }
 
@@ -179,8 +153,52 @@ public class JDBCSubject implements Subject {
    * 
    * @param attributes1
    */
-  protected void setAttributes(Map<String, Set<String>> attributes1) {
+  public void setAttributes(Map<String, Set<String>> attributes1) {
     this.attributes = attributes1;
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getTypeName()
+   */
+  public String getTypeName() {
+    return null;
+  }
+
+
+  
+  /**
+   * @param id1 the id to set
+   */
+  protected void setId(String id1) {
+    this.id = id1;
+  }
+
+
+  
+  /**
+   * @param name1 the name to set
+   */
+  protected void setName(String name1) {
+    this.name = name1;
+  }
+
+
+  
+  /**
+   * @param description1 the description to set
+   */
+  protected void setDescription(String description1) {
+    this.description = description1;
+  }
+
+
+  
+  /**
+   * @param typeName1 the typeName to set
+   */
+  protected void setTypeName(String typeName1) {
+    this.typeName = typeName1;
   }
 
 }

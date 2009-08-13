@@ -1,6 +1,6 @@
 /*--
-$Id: JDBCSourceAdapter.java,v 1.19 2009-08-12 03:48:05 mchyzer Exp $
-$Date: 2009-08-12 03:48:05 $
+$Id: JDBCSourceAdapter.java,v 1.20 2009-08-13 14:56:36 mchyzer Exp $
+$Date: 2009-08-13 14:56:36 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -219,7 +219,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
     String name1 = "";
     String subjectID = "";
     String description = "";
-    JDBCSubject subject = null;
+    Subject subject = null;
     try {
       subjectID = retrieveString(rs, this.subjectIDAttributeName,
           "SubjectID_AttributeType", sql);
@@ -229,8 +229,8 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
             "Description_AttributeType", sql);
       }
       Map<String, Set<String>> attributes1 = loadAttributes(rs);
-      subject = new JDBCSubject(subjectID, name1, description, this.getSubjectType(),
-          this, attributes1);
+      subject = new BaseSubject(subjectID, name1, description, this.getSubjectType().getName(),
+          this.getId(), attributes1);
     } catch (SQLException ex) {
       log.error("SQLException occurred: " + ex.getMessage() + ": " + sql, ex);
     }
