@@ -1,6 +1,6 @@
 /*--
-$Id: SourceManager.java,v 1.11 2009-08-12 02:40:56 mchyzer Exp $
-$Date: 2009-08-12 02:40:56 $
+$Id: SourceManager.java,v 1.12 2009-08-13 06:26:30 mchyzer Exp $
+$Date: 2009-08-13 06:26:30 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -112,7 +112,7 @@ public class SourceManager {
   public Source getSource(String sourceId) throws SourceUnavailableException {
     Source source = this.sourceMap.get(sourceId);
     if (source == null) {
-      throw new SourceUnavailableException("Source not found.");
+      throw new SourceUnavailableException("Source not found: " + sourceId);
     }
     return source;
   }
