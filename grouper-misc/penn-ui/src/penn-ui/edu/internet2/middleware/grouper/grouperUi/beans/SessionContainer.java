@@ -1,6 +1,6 @@
 /**
  * @author Kate
- * $Id: SessionContainer.java,v 1.3 2009-08-12 05:20:56 mchyzer Exp $
+ * $Id: SessionContainer.java,v 1.4 2009-08-13 17:56:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans;
 
@@ -11,8 +11,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
-import edu.internet2.middleware.grouper.grouperUi.json.GuiHideShow;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
+import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 import edu.internet2.middleware.subject.Subject;
 
 

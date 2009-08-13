@@ -1,8 +1,8 @@
 /*
  * @author mchyzer
- * $Id: GuiMember.java,v 1.5 2009-08-12 05:20:56 mchyzer Exp $
+ * $Id: GuiMember.java,v 1.1 2009-08-13 17:56:47 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi.json;
+package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
 
@@ -36,7 +36,7 @@ public class GuiMember implements Serializable {
     } catch (SubjectNotFoundException snfe) {
       this.guiSubject = new GuiSubject(new SubjectWrapper(member1));
     }
-    this.setGuiSubject(guiSubject);
+    this.setGuiSubject(this.guiSubject);
     this.member = member1;
   }
   

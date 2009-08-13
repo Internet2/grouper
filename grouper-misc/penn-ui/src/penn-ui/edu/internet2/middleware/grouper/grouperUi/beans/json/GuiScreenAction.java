@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.internet2.middleware.grouper.grouperUi.json;
+package edu.internet2.middleware.grouper.grouperUi.beans.json;
 
 import java.io.Serializable;
 
@@ -77,6 +77,22 @@ public class GuiScreenAction implements Serializable {
   /** hide show name to show */
   private String hideShowNameToShow;
   
+  /**
+   * if the alert should be centered or not (default true)
+   * @return the alertCentered
+   */
+  public Boolean getAlertCentered() {
+    return this.alertCentered;
+  }
+  
+  /**
+   * if the alert should be centered or not (default true)
+   * @param alertCentered1 the alertCentered to set
+   */
+  public void setAlertCentered(Boolean alertCentered1) {
+    this.alertCentered = alertCentered1;
+  }
+
   /** hide show name to hide */
   private String hideShowNameToHide;
   
@@ -86,6 +102,8 @@ public class GuiScreenAction implements Serializable {
   /** if the current modal window should be closed */
   private Boolean closeModal;
   
+  /** if the alert should be centered or not (default true) */
+  private Boolean alertCentered;
   
   /**
    * hide show name to show
@@ -241,6 +259,19 @@ public class GuiScreenAction implements Serializable {
   public static GuiScreenAction newAlert(String theAlert) {
     GuiScreenAction guiScreenAction = new GuiScreenAction();
     guiScreenAction.setAlert(theAlert);
+    return guiScreenAction;
+  }
+  
+  /**
+   * construct with the name and object
+   * @param theAlert
+   * @param theAlertCentered if the alert should be centered
+   * @return the action
+   */
+  public static GuiScreenAction newAlert(String theAlert, boolean theAlertCentered) {
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    guiScreenAction.setAlert(theAlert);
+    guiScreenAction.setAlertCentered(theAlertCentered);
     return guiScreenAction;
   }
   

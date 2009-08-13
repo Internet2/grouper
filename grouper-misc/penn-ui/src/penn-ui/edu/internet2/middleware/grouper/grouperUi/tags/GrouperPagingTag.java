@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GrouperPagingTag.java,v 1.1 2009-08-10 07:40:42 mchyzer Exp $
+ * $Id: GrouperPagingTag.java,v 1.2 2009-08-13 17:56:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.tags;
 
@@ -9,8 +9,8 @@ import java.io.IOException;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
-import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
-import edu.internet2.middleware.grouper.grouperUi.json.GuiPaging;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
+import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.util.GrouperUtil;

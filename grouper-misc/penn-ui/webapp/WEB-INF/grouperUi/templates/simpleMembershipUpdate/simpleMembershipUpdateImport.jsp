@@ -14,7 +14,19 @@
         <table class="formTable" cellspacing="2" cellspacing="0">
           <tr class="formTableRow">
             <td class="formTableLeft"><grouperGui:message key="simpleMembershipUpdate.importAvailableSourceIds" /></td>
-            <td class="formTableRight">${fn:escapeXml(simpleMembershipUpdateContainer.sourceIds) }</td>
+            <td class="formTableRight"><%-- ${fn:escapeXml(simpleMembershipUpdateContainer.sourceIds) } --%>
+              <table class="sourceTable">
+                <tr>
+                  <th>sourceId</th><th>Source name</th>
+                </tr>
+                <c:forEach items="${contextContainer.sources}" var="source">
+                  <tr>
+                    <td><c:out value="${source.id}" escapeXml="true"/></td>
+                    <td><c:out value="${source.name }" escapeXml="true"/></td>
+                  </tr>
+                </c:forEach>
+              </table>
+            </td>
           </tr> 
           <tr class="formTableRow">
             <td class="formTableLeft"><grouperGui:message key="simpleMembershipUpdate.importReplaceExistingMembers" /></td>

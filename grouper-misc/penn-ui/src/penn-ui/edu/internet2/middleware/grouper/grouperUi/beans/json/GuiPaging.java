@@ -1,12 +1,12 @@
 /*
  * @author mchyzer
- * $Id: GuiPaging.java,v 1.4 2009-08-12 05:20:56 mchyzer Exp $
+ * $Id: GuiPaging.java,v 1.1 2009-08-13 17:56:47 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi.json;
+package edu.internet2.middleware.grouper.grouperUi.beans.json;
 
 import java.io.Serializable;
 
-import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
+import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.util.GrouperUtil;

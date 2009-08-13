@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.internet2.middleware.grouper.grouperUi.json;
+package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
 

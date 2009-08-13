@@ -1,18 +1,19 @@
 /*
  * @author mchyzer
- * $Id: GuiSettings.java,v 1.4 2009-08-12 05:20:56 mchyzer Exp $
+ * $Id: GuiSettings.java,v 1.1 2009-08-13 17:56:47 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi.json;
+package edu.internet2.middleware.grouper.grouperUi.beans.json;
 
 import java.io.Serializable;
 
 import javax.servlet.http.HttpServletRequest;
 
-import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
+import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 
 
 /**
- *
+ * settings and common stuff to go to browser
  */
 public class GuiSettings implements Serializable {
 

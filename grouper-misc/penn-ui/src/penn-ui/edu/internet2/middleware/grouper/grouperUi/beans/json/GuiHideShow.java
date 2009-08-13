@@ -1,8 +1,8 @@
 /**
  * @author mchyzer
- * $Id: GuiHideShow.java,v 1.3 2009-08-12 05:20:56 mchyzer Exp $
+ * $Id: GuiHideShow.java,v 1.1 2009-08-13 17:56:47 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi.json;
+package edu.internet2.middleware.grouper.grouperUi.beans.json;
 
 import java.io.Serializable;
 

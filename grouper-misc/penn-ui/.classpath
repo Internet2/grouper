@@ -2,17 +2,18 @@
 <classpath>
 	<classpathentry kind="src" path="src/penn-ui"/>
 	<classpathentry kind="src" path="grouperConf"/>
+	<classpathentry kind="src" path="grouperConf2"/>
 	<classpathentry kind="src" path="conf"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ui/ezmorph.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ui/json-lib.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/grouper-ui/jstl.jar"/>
-	<classpathentry kind="lib" path="lib/grouper-ws-non-webapp/j2ee.jar"/>
-	<classpathentry kind="lib" path="lib/grouper-ui/commons-jexl.jar"/>
-	<classpathentry kind="lib" path="lib/grouper-ui/standard.jar"/>
-	<classpathentry kind="lib" path="lib/grouper-ui/opencsv.jar"/>
-	<classpathentry kind="lib" path="lib/grouper-ui/commons-fileupload.jar"/>
-	<classpathentry kind="lib" path="lib/grouper-ui/commons-io.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper-ws-non-webapp/j2ee.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper-ui/commons-jexl.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper-ui/standard.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper-ui/opencsv.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper-ui/commons-fileupload.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/grouper-ui/commons-io.jar"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/grouper_v1_4"/>
 	<classpathentry kind="output" path="webapp/WEB-INF/classes"/>
 </classpath>

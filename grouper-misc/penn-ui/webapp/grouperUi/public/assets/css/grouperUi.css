@@ -238,8 +238,9 @@ a.smallLink {
 }
 .simplemodal-guiinner {
   padding: 20px;
+}
+.simplemodal-guiinnerCentered {
   text-align: center;
-  
 }
 .simplemodal-dialoginner {
   padding: 20px;

@@ -1,13 +1,11 @@
 /*
- * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.8 2009-08-11 13:44:21 mchyzer Exp $
+ * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.1 2009-08-13 17:56:47 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi;
+package edu.internet2.middleware.grouper.grouperUi.j2ee;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -15,23 +13,18 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sf.ezmorph.bean.BeanMorpher;
 import net.sf.json.JSONObject;
-import net.sf.json.util.JSONUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.AppState;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSettings;
 import edu.internet2.middleware.grouper.grouperUi.exceptions.ControllerDone;
-import edu.internet2.middleware.grouper.grouperUi.json.AppState;
-import edu.internet2.middleware.grouper.grouperUi.json.GuiHideShow;
-import edu.internet2.middleware.grouper.grouperUi.json.GuiPaging;
-import edu.internet2.middleware.grouper.grouperUi.json.GuiResponseJs;
-import edu.internet2.middleware.grouper.grouperUi.json.GuiScreenAction;
-import edu.internet2.middleware.grouper.grouperUi.json.GuiSettings;
-import edu.internet2.middleware.grouper.grouperUi.json.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -91,61 +84,7 @@ public class GrouperUiRestServlet extends HttpServlet {
       appState = new AppState();
     }
     
-    SessionContainer sessionContainer = SessionContainer.retrieveFromSession();
-    
-    {
-      //save screen state of all the hide shows which are in session
-      Map<String, GuiHideShow> appStateHideShows = appState.getHideShows();
-      
-      BeanMorpher beanMorpher = new BeanMorpher(GuiHideShow.class, JSONUtils.getMorpherRegistry());
-      
-      if (appStateHideShows != null) {
-        Map<String, GuiHideShow> newAppStateHideShows = new LinkedHashMap<String, GuiHideShow>();
-        
-        for (String hideShowName : appStateHideShows.keySet()) {
-          
-          //morph this
-          GuiHideShow appStateHideShow = (GuiHideShow)beanMorpher.morph(appStateHideShows.get(hideShowName));
-          newAppStateHideShows.put(hideShowName, appStateHideShow);
-        }
-  
-        appState.setHideShows(newAppStateHideShows);
-        appStateHideShows = newAppStateHideShows;
-        
-        for (String hideShowName : appStateHideShows.keySet()) {
-          GuiHideShow sessionHideShow = sessionContainer.getHideShows().get(hideShowName);
-          if (sessionHideShow != null) {
-            
-            //copy over the current state
-            GuiHideShow appStateHideShow = appStateHideShows.get(hideShowName);
-            sessionHideShow.setShowing( appStateHideShow.isShowing());
-            
-          }
-        }
-      }
-    }
-    
-    {
-      //convert pagers to real object model
-      Map<String, GuiPaging> appStatePagers = appState.getPagers();
-      
-      BeanMorpher beanMorpher = new BeanMorpher(GuiPaging.class, JSONUtils.getMorpherRegistry());
-      
-      if (appStatePagers != null) {
-        Map<String, GuiPaging> newAppStatePagers = new LinkedHashMap<String, GuiPaging>();
-        
-        for (String pagerName : appStatePagers.keySet()) {
-          
-          //morph this
-          GuiPaging appStateHideShow = (GuiPaging)beanMorpher.morph(appStatePagers.get(pagerName));
-          newAppStatePagers.put(pagerName, appStateHideShow);
-        }
-  
-        appState.setPagers(newAppStatePagers);
-      }
-    }    
-    
-    appState.storeToRequest();
+    appState.initRequest();
     
     initGui();
     
@@ -200,8 +139,13 @@ public class GrouperUiRestServlet extends HttpServlet {
       } catch (RuntimeException re) {
         LOG.error("Problem calling reflection from URL: " + className + "." + methodName, re);
         
+        //if adding text area for form file submits, make sure to do that in errors too
+        boolean addTextArea = guiResponseJs.isAddTextAreaTag();
+        
         //print out error message for user, a new one
         guiResponseJs = new GuiResponseJs();
+        guiResponseJs.addAction(GuiScreenAction.newCloseModal());
+        guiResponseJs.setAddTextAreaTag(addTextArea);
         guiResponseJs.addAction(GuiScreenAction.newAlert("Error: " + GuiUtils.escapeHtml(re.getMessage(), true)));
         
       }

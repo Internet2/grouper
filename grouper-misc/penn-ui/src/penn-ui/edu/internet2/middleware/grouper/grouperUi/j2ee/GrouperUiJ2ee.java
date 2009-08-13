@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.internet2.middleware.grouper.grouperUi;
+package edu.internet2.middleware.grouper.grouperUi.j2ee;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -20,7 +20,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -30,9 +29,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.grouperUi.beans.ContextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
-import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.grouperUi.util.SessionInitialiser;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
@@ -234,6 +232,7 @@ public class GrouperUiJ2ee implements Filter {
    */
   public static void assignHttpServlet(HttpServlet httpServlet) {
     threadLocalServlet.set(httpServlet);
+    ContextContainer.instance().storeToContext();
   }
 
   /**

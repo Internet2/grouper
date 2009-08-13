@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id: web.xml,v 1.2 2009-08-05 00:57:20 mchyzer Exp $ -->
+<!-- $Id: web.xml,v 1.3 2009-08-13 17:56:47 mchyzer Exp $ -->
 <web-app xmlns="http://java.sun.com/xml/ns/j2ee"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
@@ -7,7 +7,7 @@
   <filter>
     <!-- keeps the request and response in threadlocal so they dont have to be passed around -->
     <filter-name>Grouper UI filter</filter-name>
-    <filter-class>edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee</filter-class>
+    <filter-class>edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee</filter-class>
   </filter>
   
   <!-- Map the filter to a Servlet or URL -->
@@ -17,7 +17,7 @@
   </filter-mapping>
   <servlet>
     <servlet-name>UiServlet</servlet-name>
-    <servlet-class>edu.internet2.middleware.grouper.grouperUi.GrouperUiRestServlet</servlet-class>
+    <servlet-class>edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiRestServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
   <servlet-mapping>
@@ -60,7 +60,7 @@
 	</security-role>
   
   <session-config>
-    <session-timeout>1</session-timeout> 
+    <session-timeout>60</session-timeout> 
   </session-config>
   
 </web-app>

@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.grouperUi.json;
+package edu.internet2.middleware.grouper.grouperUi.beans.json;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -6,7 +6,11 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
+import net.sf.ezmorph.bean.BeanMorpher;
+import net.sf.json.util.JSONUtils;
+
+import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
+import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 
 /**
  * AppState object comes from javascript on ajax requests
@@ -78,6 +82,68 @@ public class AppState implements Serializable {
    */
   public AppState() {
     
+  }
+  
+  /**
+   * init a request with app state (from browser)
+   */
+  public void initRequest() {
+    SessionContainer sessionContainer = SessionContainer.retrieveFromSession();
+    
+    {
+      //save screen state of all the hide shows which are in session
+      Map<String, GuiHideShow> appStateHideShows = this.getHideShows();
+      
+      BeanMorpher beanMorpher = new BeanMorpher(GuiHideShow.class, JSONUtils.getMorpherRegistry());
+      
+      if (appStateHideShows != null) {
+        Map<String, GuiHideShow> newAppStateHideShows = new LinkedHashMap<String, GuiHideShow>();
+        
+        for (String hideShowName : appStateHideShows.keySet()) {
+          
+          //morph this
+          GuiHideShow appStateHideShow = (GuiHideShow)beanMorpher.morph(appStateHideShows.get(hideShowName));
+          newAppStateHideShows.put(hideShowName, appStateHideShow);
+        }
+  
+        this.setHideShows(newAppStateHideShows);
+        appStateHideShows = newAppStateHideShows;
+        
+        for (String hideShowName : appStateHideShows.keySet()) {
+          GuiHideShow sessionHideShow = sessionContainer.getHideShows().get(hideShowName);
+          if (sessionHideShow != null) {
+            
+            //copy over the current state
+            GuiHideShow appStateHideShow = appStateHideShows.get(hideShowName);
+            sessionHideShow.setShowing( appStateHideShow.isShowing());
+            
+          }
+        }
+      }
+    }
+    
+    {
+      //convert pagers to real object model
+      Map<String, GuiPaging> appStatePagers = this.getPagers();
+      
+      BeanMorpher beanMorpher = new BeanMorpher(GuiPaging.class, JSONUtils.getMorpherRegistry());
+      
+      if (appStatePagers != null) {
+        Map<String, GuiPaging> newAppStatePagers = new LinkedHashMap<String, GuiPaging>();
+        
+        for (String pagerName : appStatePagers.keySet()) {
+          
+          //morph this
+          GuiPaging appStateHideShow = (GuiPaging)beanMorpher.morph(appStatePagers.get(pagerName));
+          newAppStatePagers.put(pagerName, appStateHideShow);
+        }
+  
+        this.setPagers(newAppStatePagers);
+      }
+    }    
+    
+    this.storeToRequest();
+
   }
   
   /**

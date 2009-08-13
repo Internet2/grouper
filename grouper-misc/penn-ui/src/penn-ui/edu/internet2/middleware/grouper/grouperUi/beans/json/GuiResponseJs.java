@@ -1,7 +1,7 @@
 /**
  * 
  */
-package edu.internet2.middleware.grouper.grouperUi.json;
+package edu.internet2.middleware.grouper.grouperUi.beans.json;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,7 +11,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
-import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
+import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 
 /**
  * container object for the response back to screen

@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: SubjectIconTag.java,v 1.2 2009-08-07 07:36:01 mchyzer Exp $
+ * $Id: SubjectIconTag.java,v 1.3 2009-08-13 17:56:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.tags;
 
@@ -11,7 +11,7 @@ import javax.servlet.jsp.tagext.SimpleTagSupport;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.grouperUi.json.GuiSubject;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.subject.Subject;
 

@@ -1,13 +1,13 @@
 /**
  * @author Kate
- * $Id: GrouperUiFunctions.java,v 1.3 2009-08-10 03:27:44 mchyzer Exp $
+ * $Id: GrouperUiFunctions.java,v 1.4 2009-08-13 17:56:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.tags;
 
 import javax.servlet.http.HttpServletRequest;
 
-import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
-import edu.internet2.middleware.grouper.grouperUi.json.GuiHideShow;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
+import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.grouperUi.util.MapBundleWrapper;
 

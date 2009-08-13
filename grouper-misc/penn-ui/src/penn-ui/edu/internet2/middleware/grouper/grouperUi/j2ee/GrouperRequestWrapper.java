@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperRequestWrapper.java,v 1.2 2009-08-11 13:44:21 mchyzer Exp $
+ * $Id: GrouperRequestWrapper.java,v 1.3 2009-08-13 17:56:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.j2ee;
 
@@ -12,7 +12,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.fileupload.FileItem;
 
-import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
 
 
 /**
@@ -23,6 +22,14 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
   /** wrapper around session */
   private GrouperSessionWrapper grouperSessionWrapper = null;
   
+  /**
+   * @see javax.servlet.ServletRequestWrapper#getAttribute(java.lang.String)
+   */
+  @Override
+  public Object getAttribute(String name) {
+    return super.getAttribute(name);
+  }
+
   /**
    * get a param from file request as string (normal param)
    * @param name

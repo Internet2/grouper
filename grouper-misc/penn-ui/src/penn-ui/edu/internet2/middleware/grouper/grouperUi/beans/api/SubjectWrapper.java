@@ -1,8 +1,8 @@
 /**
  * @author Kate
- * $Id: SubjectWrapper.java,v 1.3 2009-08-12 05:20:56 mchyzer Exp $
+ * $Id: SubjectWrapper.java,v 1.1 2009-08-13 17:56:47 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi.json;
+package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -15,7 +15,7 @@ import edu.internet2.middleware.subject.SubjectType;
 
 
 /**
- *
+ * subject implementation around a member, if the subject is not found, handle gracefully
  */
 public class SubjectWrapper implements Subject, Serializable {
 

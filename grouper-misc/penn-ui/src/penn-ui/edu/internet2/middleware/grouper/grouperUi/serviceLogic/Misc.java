@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: Misc.java,v 1.4 2009-08-10 03:27:44 mchyzer Exp $
+ * $Id: Misc.java,v 1.5 2009-08-13 17:56:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -12,8 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.grouperUi.GrouperUiCustomizer;
-import edu.internet2.middleware.grouper.grouperUi.json.GuiResponseJs;
-import edu.internet2.middleware.grouper.grouperUi.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 

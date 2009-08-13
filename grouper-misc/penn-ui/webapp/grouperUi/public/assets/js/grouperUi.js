@@ -357,9 +357,13 @@ function guiProcessAction(guiScreenAction) {
   //do an alert
   if (!guiIsEmpty(guiScreenAction.alert)) {
     $.unblockUI(); 
+
+    //default to centered
+    var centered = (typeof guiScreenAction.alertCentered == 'undefined') || guiScreenAction.alertCentered;
+    
     //alert(guiScreenAction.alert);
     //$.modal.close();
-    $('<div class="simplemodal-guiinner">' 
+    $('<div class="simplemodal-guiinner' + (centered ? ' simplemodal-guiinnerCentered' : '') + '">' 
         + guiScreenAction.alert + '<div class="simplemodal-buttonrow"><button class=\'simplemodal-close blueButton\'>OK</button></div></div>').modal({close: true, position: [20,20]});
   }
   

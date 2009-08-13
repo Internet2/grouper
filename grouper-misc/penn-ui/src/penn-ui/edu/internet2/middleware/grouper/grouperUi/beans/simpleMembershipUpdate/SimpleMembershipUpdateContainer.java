@@ -1,8 +1,8 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdateContainer.java,v 1.4 2009-08-12 05:20:56 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateContainer.java,v 1.1 2009-08-13 17:56:47 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi.json;
+package edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -14,7 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
+import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 import edu.internet2.middleware.subject.Source;
 
 
@@ -24,35 +26,6 @@ import edu.internet2.middleware.subject.Source;
  */
 public class SimpleMembershipUpdateContainer implements Serializable {
 
-  /**
-   * available sourceIds for the upload form
-   * @return the source ids
-   */
-  public String getSourceIds() {
-    Set<Source> sources = SubjectFinder.getSources();
-    
-    StringBuilder result = new StringBuilder();
-    
-    List<String> sourceIds = new ArrayList<String>();
-    
-    for (Source source : sources) {
-      sourceIds.add(source.getId());
-    }
-    
-    Collections.sort(sourceIds);
-    
-    int i=0;
-    for (String sourceId: sourceIds) {
-      result.append(sourceId);
-      if (i != sourceIds.size()-1) {
-        result.append(", ");
-      }
-      i++;
-    }
-    
-    return result.toString();
-  }
-  
   /**
    * store to session scope
    */

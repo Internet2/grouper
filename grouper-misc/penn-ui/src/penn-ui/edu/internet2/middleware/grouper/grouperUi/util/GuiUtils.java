@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiUtils.java,v 1.7 2009-08-11 13:44:21 mchyzer Exp $
+ * $Id: GuiUtils.java,v 1.8 2009-08-13 17:56:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
+import org.apache.commons.collections.keyvalue.MultiKey;
+import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.commons.jexl.Expression;
 import org.apache.commons.jexl.ExpressionFactory;
 import org.apache.commons.jexl.JexlContext;
@@ -42,8 +45,8 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.grouperUi.GenericServletResponseWrapper;
-import edu.internet2.middleware.grouper.grouperUi.GrouperUiJ2ee;
+import edu.internet2.middleware.grouper.grouperUi.j2ee.GenericServletResponseWrapper;
+import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
@@ -58,6 +61,61 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 public class GuiUtils {
 
+  /**
+   * remove overlapping subjects from two lists.  i.e. if first is existing, and
+   * second is new, then if we are replacing all members of the group, then the first would
+   * end up being the ones to remove, and the second is the one to add
+   * @param first
+   * @param second
+   */
+  public static void removeOverlappingSubjects(List<Member> first, List<Subject> second) {
+    
+    //lets add them to hashes (multikeys)
+    //multikey is the sourceId and subjectId
+    //we use a listordered set so it is a set and a list all in one, unfortunately no generics
+    ListOrderedSet firstHashes = new ListOrderedSet();
+    ListOrderedSet secondHashes = new ListOrderedSet();
+    
+    //if null no overlap
+    if (GrouperUtil.length(first) == 0 || GrouperUtil.length(second) == 0) {
+      return;
+    }
+    
+    //put these both in hashes, keep track of hashes
+    for (Member member : first) {
+      firstHashes.add(new MultiKey(member.getSubjectSourceId(), member.getSubjectId()));
+      
+    }
+    for (Subject subject : second) {
+      secondHashes.add(new MultiKey(subject.getSource().getId(), subject.getId()));
+    }
+    
+    //now lets go through, and remove if it is (or was) in the other
+    {
+      int i=0;
+      Iterator<Member> firstIterator = first.iterator();
+      while (firstIterator.hasNext()) {
+        firstIterator.next();
+        if (secondHashes.contains(firstHashes.get(i))) {
+          firstIterator.remove();
+        }
+        i++;
+      }
+    }
+      
+    {
+      int i=0;
+      Iterator<Subject> secondIterator = second.iterator();
+      while (secondIterator.hasNext()) {
+        secondIterator.next();
+        if (firstHashes.contains(secondHashes.get(i))) {
+          secondIterator.remove();
+        }
+        i++;
+      }
+    }
+  }    
+  
   /**
    * 
    * @param a

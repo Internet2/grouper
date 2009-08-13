@@ -1,8 +1,8 @@
 /*
  * @author mchyzer
- * $Id: GuiSubject.java,v 1.5 2009-08-12 05:20:56 mchyzer Exp $
+ * $Id: GuiSubject.java,v 1.1 2009-08-13 17:56:47 mchyzer Exp $
  */
-package edu.internet2.middleware.grouper.grouperUi.json;
+package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
 import java.util.LinkedHashMap;
@@ -15,7 +15,7 @@ import edu.internet2.middleware.subject.Subject;
 
 
 /**
- * subject for gui has all attributes etc
+ * subject for gui has all attributes etc, and getter to be accessed from screen
  */
 public class GuiSubject implements Serializable {
   
@@ -67,6 +67,9 @@ public class GuiSubject implements Serializable {
           //if set of one string, then add it
           if (((Set)value).size() == 1) {
             result.put(key, (String)((Set)value).iterator().next());
+          } else if (((Set)value).size() > 1) {
+            //put commas in between?  not sure what else to do here
+            result.put(key, GrouperUtil.setToString((Set)value));
           }
         }
       }
