@@ -13,6 +13,8 @@ import java.util.Set;
  * 
  * Implementors should probably subclass BaseSubject instead of implement this directly.
  * 
+ * Also, implementors should implement equals and hashcode like BaseSubject (based on
+ * sourceId and subjectId)
  * </pre>
  */
 public interface Subject extends Serializable {

@@ -6,6 +6,7 @@ import java.util.Set;
 
 /**
  * Source to find and get Subjects and their attributes.
+ * You should probably extend BaseSourceAdapter instead of implement this interface
  */
 public interface Source extends Serializable {
 

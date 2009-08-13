@@ -1,6 +1,6 @@
 /*--
-$Id: BaseSubject.java,v 1.1 2009-08-13 14:56:36 mchyzer Exp $
-$Date: 2009-08-13 14:56:36 $
+$Id: BaseSubject.java,v 1.2 2009-08-13 21:12:02 mchyzer Exp $
+$Date: 2009-08-13 21:12:02 $
  
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -10,6 +10,8 @@ package edu.internet2.middleware.subject.provider;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -18,9 +20,29 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectType;
 
 /**
- * Base Subject implementation.  Sublclass this to change behavior
+ * Base Subject implementation.  Subclass this to change behavior
  */
 public class BaseSubject implements Subject {
+
+  /**
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String toString() {
+    return toStringStatic(this);
+  }
+
+
+  /**
+   * toString
+   * @param subject
+   * @return string
+   */
+  public static String toStringStatic(Subject subject) {
+    String name = subject.getName();
+    return "Subject id: " + subject.getId() + ", sourceId: " + subject.getSourceId() + 
+      (StringUtils.isBlank(name) ? "" : (", name: " + name));
+  }
 
   /** */
   private static Log log = LogFactory.getLog(BaseSubject.class);
@@ -125,7 +147,7 @@ public class BaseSubject implements Subject {
       }
       return values.iterator().next();
     }
-    return null;
+    return "";
   }
 
   /**
@@ -201,4 +223,48 @@ public class BaseSubject implements Subject {
     this.typeName = typeName1;
   }
 
+
+  /**
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    return equalsStatic(this, obj);
+  }
+
+
+  /**
+   * @param subject 
+   * @param obj
+   * @return true if equal
+   */
+  public static boolean equalsStatic(Subject subject, Object obj) {
+    if (!(obj instanceof Subject)) {
+      return false;
+    }
+    Subject otherObj = (Subject) obj;
+    return StringUtils.equals(subject.getId(), otherObj.getId()) 
+      && StringUtils.equals(subject.getSourceId(), otherObj.getSourceId());
+  }
+
+
+  /**
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    return hashcodeStatic(this);
+  }
+
+
+  /**
+   * @param subject 
+   * @return hash code
+   */
+  public static int hashcodeStatic(Subject subject) {
+    return new HashCodeBuilder().append(subject.getId()).append(subject.getSourceId()).toHashCode();
+  }
+
+  
+  
 }
