@@ -46,56 +46,6 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  */
 public class GrouperUiJ2ee implements Filter {
 
-  /** keep 100k in memory, why not */
-  private static FileItemFactory fileItemFactory = new DiskFileItemFactory(100000, null);
-
-  /** Create a new file upload handler */
-  private static ServletFileUpload upload = new ServletFileUpload(fileItemFactory);
-
-  /**
-   * get the list of file items, cache these in request
-   * @return the list of file items
-   */
-  @SuppressWarnings("unchecked")
-  public static List<FileItem> fileItems() {
-    HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
-    List<FileItem> fileItems = (List<FileItem>)httpServletRequest.getAttribute("fileItems");
-    if (fileItems == null) {
-      try {
-        fileItems = upload.parseRequest(httpServletRequest);
-        httpServletRequest.setAttribute("fileItems", fileItems);
-      } catch (Exception e) {
-       throw new RuntimeException(e);
-      }
-    }
-    return fileItems;
-  }
-  
-  
-  /**
-   * find the request parameter names by prefix
-   * @param prefix
-   * @return the set, never null
-   */
-  @SuppressWarnings("unchecked")
-  public static Set<String> requestParameterNamesByPrefix(String prefix) {
-    HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
-    Set<String> result = new LinkedHashSet<String>();
-    Enumeration<String> paramNames = httpServletRequest.getParameterNames();
-    
-    //cycle through all
-    while(paramNames.hasMoreElements()) {
-      String paramName = paramNames.nextElement();
-      
-      //see if starts with
-      if (paramName.startsWith(prefix)) {
-        result.add(paramName);
-      }
-    }
-    
-    
-    return result;
-  }
   
   /** logger */
   @SuppressWarnings("unused")

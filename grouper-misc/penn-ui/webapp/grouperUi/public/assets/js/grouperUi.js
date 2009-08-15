@@ -714,6 +714,7 @@ function guiFieldValue(theField) {
    }
    return theField.value;
 }
+
 /** get an element from the document object by name.  if no elements, null, if multiple, then alert */
 function guiGetElementByName(theName) {
    var theElements = document.getElementsByName(theName);
@@ -946,12 +947,49 @@ function guiInt(input) {
 }
 
 /**
+ * get a form element from a form by name
+ * @param form
+ * @param elementName
+ * @return the form element or null if not there
+ */
+function guiFormElement(form, elementName) {
+  
+  for(var i=0;i<form.elements.length;i++) {
+    var theElement = form.elements[i];
+    if (theElement.name == elementName) {
+      return theElement; 
+    }
+  }
+  return null;
+}
+ 
+/**
  * 
  * @param event
  * @return
  */
 function guiSubmitFileForm(event, formJqueryHandle, operation) {
   eventCancelBubble(event);
+  
+  //make sure there is a hidden field for appState
+  var appState = allObjects.appState;
+  
+  var appStateJson = JSON.stringify(appState);
+  
+  var forms = $(formJqueryHandle);
+  
+  for (var i=0;i<forms.length;i++) {
+    var form = forms[i];
+    var appStateElement = guiFormElement(form, "appState");
+    if (appStateElement == null) {
+      //add this to the form
+      $(form).append('<input type="hidden" name="appState" />');
+      appStateElement = guiFormElement(form, "appState");
+    }
+    //add the app state to it (sends the hide shows and pagers and stuff
+    appStateElement.value = appStateJson;
+  }
+  
   var options = {
       iframe: true, 
       dataType: "json", 

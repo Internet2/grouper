@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.12 2009-08-13 17:56:47 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.13 2009-08-15 06:40:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -1258,9 +1258,6 @@ public class SimpleMembershipUpdate {
       GrouperSession.stopQuietly(grouperSession); 
     }
     
-    //note, this probably shouldnt be so jarring, see what page we were on etc
-    GuiPaging.init("simpleMemberUpdateMembers");
-
     //refresh list... since it probably changed
     retrieveMembers(httpServletRequest, httpServletResponse);
     
