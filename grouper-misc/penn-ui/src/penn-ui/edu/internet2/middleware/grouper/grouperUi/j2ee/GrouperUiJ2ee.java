@@ -5,10 +5,6 @@ package edu.internet2.middleware.grouper.grouperUi.j2ee;
 
 import java.io.IOException;
 import java.security.Principal;
-import java.util.Enumeration;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -20,10 +16,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -210,13 +202,15 @@ public class GrouperUiJ2ee implements Filter {
   public void doFilter(ServletRequest arg0, ServletResponse response,
       FilterChain filterChain) throws IOException, ServletException {
 
-    HttpServletRequest httpServletRequest = new GrouperRequestWrapper((HttpServletRequest) arg0);
+    GrouperRequestWrapper httpServletRequest = new GrouperRequestWrapper((HttpServletRequest) arg0);
     
     //servlet will set this...
     threadLocalServlet.remove();
     threadLocalRequest.set(httpServletRequest);
     threadLocalResponse.set((HttpServletResponse) response);
     threadLocalRequestStartMillis.set(System.currentTimeMillis());
+    
+    httpServletRequest.init();
     
     GrouperContextTypeBuiltIn.setDefaultContext(GrouperContextTypeBuiltIn.GROUPER_UI);
 
@@ -225,19 +219,12 @@ public class GrouperUiJ2ee implements Filter {
     HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SESSION, 
         httpServletRequest.getSession(), false);
     HooksContext.setAttributeThreadLocal(HooksContext.KEY_HTTP_SERVLET_RESPONSE, response, false);
-    SessionContainer sessionContainer = null;
+
     try {
 
-      sessionContainer = SessionContainer.retrieveFromSession();
-      if (!sessionContainer.isInitted()) {
-        SessionInitialiser.init((HttpServletRequest)httpServletRequest);
-      }
 
       filterChain.doFilter(httpServletRequest, response);
     } finally {
-      if (sessionContainer != null) {
-        sessionContainer.setInitted(true);
-      }
       threadLocalRequest.remove();
       threadLocalResponse.remove();
       threadLocalRequestStartMillis.remove();

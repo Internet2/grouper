@@ -16,6 +16,7 @@
 */
 package edu.internet2.middleware.grouper.grouperUi.tags;
 
+import java.util.Properties;
 import java.util.ResourceBundle;
 
 import javax.servlet.ServletRequest;
@@ -58,6 +59,11 @@ public class TagUtils {
 		
 		LocalizationContext localizationContext = (LocalizationContext)((HttpServletRequest)servletRequest)
 			.getSession().getAttribute("media");
+//		if (localizationContext == null) {
+//		  //we must be before the init session phase...
+//		  Properties properties = GrouperUtil.propertiesFromResourceName("resources/grouper/media.properties");
+//		  return properties.getProperty(key);
+//		}
 		ResourceBundle media = localizationContext.getResourceBundle();
 		String value = media.getString(key);
 		return value;

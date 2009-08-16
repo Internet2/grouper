@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperRequestWrapper.java,v 1.4 2009-08-15 06:40:19 mchyzer Exp $
+ * $Id: GrouperRequestWrapper.java,v 1.5 2009-08-16 01:12:49 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.j2ee;
 
@@ -10,6 +10,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -22,12 +23,13 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
 import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
-import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.grouperUi.util.MapWrapper;
+import edu.internet2.middleware.grouper.grouperUi.util.SessionInitialiser;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -37,6 +39,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GrouperRequestWrapper extends HttpServletRequestWrapper {
 
+  /** keep a reference to this */
+  HttpServletRequest wrapped = null;
+  
   /** wrapper around session */
   private GrouperSessionWrapper grouperSessionWrapper = null;
   
@@ -57,7 +62,7 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
    * @return the param
    */
   public FileItem getParameterFileItem(String name) {
-    return (FileItem)this.multipartParamMap.get(name);
+    return (FileItem)this.parameterMap.get(name);
   }
   
   /**
@@ -70,7 +75,7 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
   private StringBuffer requestURL = null;
   
   /** map of multipart mime data.  From String of the name submitted to either a FileItem or a List<String> of data */
-  private java.util.Map<String,Object> multipartParamMap;
+  private java.util.Map<String,Object> parameterMap;
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(GrouperUiRestServlet.class);
@@ -80,11 +85,32 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
    */
   public GrouperRequestWrapper(HttpServletRequest request) {
     super(request);
-    this.requestURL = request.getRequestURL();
-    this.multipart = ServletFileUpload.isMultipartContent(request);
-    this.initMultipartMap();
+    this.wrapped = request;
   }
 
+  /**
+   * init
+   */
+  public void init() {
+    this.requestURL = super.getRequestURL();
+    this.multipart = ServletFileUpload.isMultipartContent(this);
+
+    SessionContainer sessionContainer = null;
+    try {
+      sessionContainer = SessionContainer.retrieveFromSession();
+      if (!sessionContainer.isInitted()) {
+        SessionInitialiser.init(this);
+      }
+    } finally {
+      if (sessionContainer != null) {
+        sessionContainer.setInitted(true);
+      }
+    }    
+    if (this.multipart) {
+      this.initMultipartMap();
+    }
+  }
+  
   /**
    * 
    * @see javax.servlet.http.HttpServletRequestWrapper#getSession()
@@ -109,9 +135,11 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
   public HttpSession getSession(boolean create) {
     HttpSession session = super.getSession(create);
     
-    if (this.grouperSessionWrapper == null 
-        || this.grouperSessionWrapper.getHttpSession() != session) {
-      this.grouperSessionWrapper = new GrouperSessionWrapper(session);
+    if (session != null) {
+      if (this.grouperSessionWrapper == null 
+          || this.grouperSessionWrapper.getHttpSession() != session) {
+        this.grouperSessionWrapper = new GrouperSessionWrapper(session);
+      }
     }
     
     return this.grouperSessionWrapper;
@@ -136,21 +164,15 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
   @SuppressWarnings("unchecked")
   private synchronized void initMultipartMap() {
     //if initted, dont worry about it
-    if (this.multipartParamMap != null) {
+    if (this.parameterMap != null) {
       return;
     }
-    FileItem[] fileItems = null;
-    
   
     ServletFileUpload servletFileUpload = servletFileUpload();
     
-    // maximum size before a FileUploadException will be thrown
-    int maxSize = FastContext.fastContext().getParamIntSafe("fastMaxUploadFileSize", 15000000);
-    
-  
-    List fileItemList = null;
+    List<FileItem> fileItemList = null;
     try {
-      fileItemList = upload.parseRequest(this.transactionBean.getRequest());
+      fileItemList = servletFileUpload.parseRequest(this);
       
       //this is here for debugging
       boolean testError = false;
@@ -160,98 +182,42 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
       
     } catch (FileUploadException fue) {
       
-      //this is a problem with Safari where during keep alive it doesnt upload the file.
-      //this should be fixed, but the error handling is here anyway
-      String stack = ExceptionUtils.getFullStackTrace(fue);
-      if (stack.contains("Stream ended unexpectedly") 
-          && FastContext.fastContext().getParamBooleanSafe("fastSpecialErrorForFileUploadEndUnexpected", true)) {
-        log.error("Error uploading files or params: Stream ended unexpectedly", fue);
-        
-        String appUrl = this.transactionBean.getFastSession().getStartPage();
-        if (StringUtils.indexOf(appUrl, "fastButtonId") != -1) {
-          appUrl = FastContext.fastContext().getAppUrl();
-        }
-        
-        this.transactionBean.getFastController().showJspOrString(this.transactionBean, "fastUploadEndUnexpected", 
-            "<html><body>Problem uploading file.  Try again, or try a different browser.  " +
-            "E.g. if you are using the Safari browser, " +
-            "perhaps try Firefox.<br/><br/><a href=\"" + appUrl + 
-            "\">Try again</a><br />" + 
-            FastContext.fastContext().serverNameFormatted() + "</body></html>",
-          false, true);
-      }
-      
-      throw new RuntimeException("Error uploading files or params: ", fue);
+      throw new RuntimeException("Error uploading files or params: " + fue.getMessage(), fue);
     }
   
-    fileItems = (FileItem[])FastObjectUtils.toArray(fileItemList);
   
-    this.multipartParamMap = new HashMap<String,Object>();
+    this.parameterMap = new HashMap<String,Object>();
   
     //now, loop through array and process the items
-    for (int i = 0; fileItems != null && i < fileItems.length; i++) {
-  
+    for (FileItem fileItem : fileItemList) {
+            
       //this means not an upload file
-      if (fileItems[i].isFormField()) {
+      if (fileItem.isFormField()) {
   
         //see if there is something there already
-        Object existing = this.multipartParamMap.get(fileItems[i].getFieldName());
+        Object existing = this.parameterMap.get(fileItem.getFieldName());
         if (existing != null) {
   
           //see if we have a vector
           if (existing instanceof List) {
-            ((List) existing).add(fileItems[i].getString());
+            ((List) existing).add(fileItem.getString());
   
             //else we need a new vector and add the existing item
           } else {
-            List<String> itemList = new ArrayList<String>();
-            itemList.add((String)existing);
-            itemList.add(fileItems[i].getString());
-            //put this vector in the pace of the existing value
-            this.multipartParamMap.put(fileItems[i].getFieldName(), itemList);
+            throw new RuntimeException("Why is this not a list??? " + existing.getClass());
           }
   
           //else we can just insert it since there is nothing there
         } else {
-          this.multipartParamMap.put(fileItems[i].getFieldName(), fileItems[i]
-              .getString());
+          List<String> itemList = new ArrayList<String>();
+          itemList.add(fileItem.getString());
+          //put this vector in the pace of the existing value
+          this.parameterMap.put(fileItem.getFieldName(), itemList);
         }
   
       } else {
-  
-        //this is a file, write (or copy) to the temp dir as unique id
-        String fileName = fileItems[i].getName();
-        File tempFile = null;
-        
-        //if filename, get it.  if not, then the file is null
-        if (!StringUtils.isBlank(fileName)) {
-          fileName = FastStringUtils.stringAfterLastSlash(fileName);
-          
-          //make sure valid name
-          if (!FastContext.fastContext().getParamBooleanSafe("fastAllowIllegalFilenames")) {
-            fileName = FastFileUtils.validFileName(fileName);
-          }
-          
-          //could be blank
-          if (StringUtils.isBlank(fileName)) {
-            fileName = FastStringUtils.uniqueId();
-          }
-          //make a temp dir
-          tempFile = FastFileUtils.tempFile("", "fastFileUpload");
-          FastFileUtils.mkdirs(tempFile);
-          //add the original filename
-          tempFile = new File(tempFile + File.separator + fileName);
-          
-          try {
-            fileItems[i].write(tempFile);
-          } catch (Exception e) {
-            String error = "Error uploading files or params: " + e.toString();
-            throw new RuntimeException(error, e);
-  
-          }
-        }
-        //now store this file in the map
-        this.multipartParamMap.put(fileItems[i].getFieldName(), tempFile);
+        //just store as file item 
+        this.parameterMap.put(fileItem.getFieldName(), fileItem);
       }
   
     }
@@ -288,23 +254,21 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
       
       fileItemFactory = new DiskFileItemFactory(100000, tempDirFile);
     }
-    if (servletFileUpload == null) {
-      servletFileUpload = new ServletFileUpload(fileItemFactory);
-      String maxBytesString = 
+    if (staticServletFileUpload == null) {
+      staticServletFileUpload = new ServletFileUpload(fileItemFactory);
 
-      long maxBytes = 
-          TagUtils.mediaResourceString(httpServletRequest, "file.upload.max.bytes"), 10000000);
+      int maxBytes = 
+          TagUtils.mediaResourceInt(httpServletRequest, "file.upload.max.bytes", 10000000);
       
       //10 megs
-      servletFileUpload.setSizeMax(10000000);
-      upload.setSizeMax(maxSize);
+      staticServletFileUpload.setSizeMax(maxBytes);
     }
-    return servletFileUpload;
+    return staticServletFileUpload;
   }
   
 
   /** Create a new file upload handler */
-  private static ServletFileUpload servletFileUpload = null;
+  private static ServletFileUpload staticServletFileUpload = null;
 
   /**
    * find the request parameter names by prefix
@@ -328,6 +292,136 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
     
     
     return result;
+  }
+
+  /**
+   * Get the parameter names from the fast request
+   * 
+   * @return get parameter names passed in
+   */
+  @Override
+  public Enumeration getParameterNames() {
+  
+    if (!this.multipart) {
+      return super.getParameterNames();
+    }
+    return new SetToEnumeration(this.parameterMap.keySet());
+  }
+
+  /**
+   * Return an array of strings for an input parameter
+   * 
+   * @param name
+   * @return parameter values based on name
+   */
+  @Override
+  @SuppressWarnings("unchecked")
+  public String[] getParameterValues(String name) {
+    if (!this.multipart) {
+      return super.getParameterValues(name);
+    }
+    Object objectSubmitted = this.parameterMap.get(name);
+    //if not found, then return null
+    if (objectSubmitted == null) {
+      return null;
+    }
+    //if a vector, return the array
+    if (objectSubmitted instanceof List) {
+      List<String> objectSubmittedList = (List) objectSubmitted;
+      return (String[]) GrouperUtil.toArray(objectSubmittedList);
+    }
+  
+    //now see if we are dealing with a file
+    if (objectSubmitted instanceof File) {
+      objectSubmitted = ((File) objectSubmitted).getPath();
+    }
+  
+    //not expecting
+    throw new RuntimeException("Not expecting type: " + name + ", " + objectSubmitted.getClass());
+  }
+
+  /**
+   * param boolean for EL
+   * @return the boolean value of param
+   */
+  @SuppressWarnings("unchecked")
+  public Map getParameter() {
+    
+    if (this.parameterMap == null) {
+      this.parameterMap = new MapWrapper() {
+        /**
+         * @see MapWrapper#get(java.lang.Object)
+         */
+        @Override
+        public Object get(Object key) {
+          return GrouperRequestWrapper.this.getParameter((String)key);
+        }
+      };
+    }
+    return this.parameterMap;
+  }
+
+  /**
+   * Use this instead of request.getParameter as it will handle file uploads.
+   * 
+   * If the parameter is in fast a file, this method will return the filepath.
+   * However, please do not call this method for files, please use
+   * getParameterFile(name).
+   * 
+   * @param name
+   * @return get a certain param
+   */
+  @Override
+  public String getParameter(String name) {
+  
+    if (!this.multipart) {
+      
+      return this.wrapped.getParameter(name);
+    }
+  
+    Object objectSubmitted = this.parameterMap.get(name);
+    //if not found, then return null
+    if (objectSubmitted == null) {
+      return null;
+    }
+    //if a vector, use the first one
+    if (objectSubmitted instanceof List) {
+      if (((List)objectSubmitted).size() > 1) {
+        throw new RuntimeException("This is a multi-list, should be single: " + name + ", " + ((List)objectSubmitted).size());
+      }
+      return (String)((List) objectSubmitted).get(0);
+    }
+ 
+    throw new RuntimeException("Not expecting type: " + (objectSubmitted == null ? null : objectSubmitted.getClass()));
+    
+  }
+
+  /**
+   * Get a boolean from the input.  must be true or false or not existent.
+   * For expression language, just use getParameter as string
+   * 
+   * @param name
+   * @return TRUE or FALSE or null
+   */
+  public Boolean getParameterBoolean(String name) {
+    String param = getParameter(name);
+    //this handles null
+    return GrouperUtil.booleanObjectValue(param);
+  }
+
+  /**
+   * Get a boolean from the input.  mus tbe true or false or not existent.
+   * 
+   * @param name
+   * @param theDefault is what to return if param not there (usually false)
+   * @return TRUE or FALSE or null
+   */
+  public boolean getParameterBoolean(String name, boolean theDefault) {
+    Boolean param = getParameterBoolean(name);
+    if (param == null) {
+      return theDefault;
+    }
+    return param.booleanValue();
   }
 
   

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.13 2009-08-15 06:40:19 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.14 2009-08-16 01:12:49 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -708,7 +708,7 @@ public class SimpleMembershipUpdate {
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     
     //lets get the selected members
-    Set<String> paramNames = GrouperUiJ2ee.requestParameterNamesByPrefix("deleteMultiple_");
+    Set<String> paramNames = ((GrouperRequestWrapper)httpServletRequest).requestParameterNamesByPrefix("deleteMultiple_");
     if (paramNames.size() == 0) {
       guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.errorDeleteCheckboxRequired")));
       return;
@@ -1131,8 +1131,7 @@ public class SimpleMembershipUpdate {
         return;
       }
       
-      String importReplaceMembersString = grouperRequestWrapper.getParameterFileItemString("importReplaceMembers");
-      boolean importReplaceMembers = GrouperUtil.booleanValue(importReplaceMembersString, false);
+      boolean importReplaceMembers = grouperRequestWrapper.getParameterBoolean("importReplaceMembers", false);
       
       //convert the import file to subjects
       List<String> subjectErrors = new ArrayList<String>();
