@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderResultset.java,v 1.5.2.1 2009-05-18 15:33:44 mchyzer Exp $
+ * $Id: GrouperLoaderResultset.java,v 1.5.2.2 2009-08-16 19:50:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader.db;
 
@@ -242,6 +242,7 @@ public class GrouperLoaderResultset {
       //maybe get the sourceId from config file
       subjectSourceId = StringUtils.defaultString(subjectSourceId, defaultSubjectSourceId);
       try {
+        //TODO does this do queries for each subject????  I dont think we need to do this, unless no source...
         if (!StringUtils.isBlank(subjectSourceId)) {
           this.subject = SubjectFinder.getSource(subjectSourceId).getSubject(subjectId);
         } else {

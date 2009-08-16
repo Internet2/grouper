@@ -1,10 +1,9 @@
 /*
  * @author mchyzer
- * $Id: LoaderMemberWrapper.java,v 1.1.2.1 2009-05-26 20:45:59 mchyzer Exp $
+ * $Id: LoaderMemberWrapper.java,v 1.1.2.2 2009-08-16 19:50:24 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
