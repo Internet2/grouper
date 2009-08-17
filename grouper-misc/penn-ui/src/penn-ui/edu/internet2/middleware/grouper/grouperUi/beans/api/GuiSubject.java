@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiSubject.java,v 1.1 2009-08-13 17:56:47 mchyzer Exp $
+ * $Id: GuiSubject.java,v 1.2 2009-08-17 17:48:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
@@ -8,6 +8,8 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -78,5 +80,36 @@ public class GuiSubject implements Serializable {
     return this.attributes;
   }
 
+  /**
+   * 
+   * @param subject
+   * @param attrName
+   * @return the value
+   */
+  public static String attributeValue(Subject subject, String attrName) {
+    if (StringUtils.equalsIgnoreCase("screenLabel", attrName)) {
+      return GuiUtils.convertSubjectToLabel(subject);
+    }
+    if (StringUtils.equalsIgnoreCase("subjectId", attrName)) {
+      return subject.getId();
+    }
+    if (StringUtils.equalsIgnoreCase("name", attrName)) {
+      return subject.getName();
+    }
+    if (StringUtils.equalsIgnoreCase("description", attrName)) {
+      return subject.getDescription();
+    }
+    if (StringUtils.equalsIgnoreCase("typeName", attrName)) {
+      return subject.getType().getName();
+    }
+    if (StringUtils.equalsIgnoreCase("sourceId", attrName)) {
+      return subject.getSource().getId();
+    }
+    if (StringUtils.equalsIgnoreCase("sourceName", attrName)) {
+      return subject.getSource().getName();
+    }
+    //TODO switch this to attribute values comma separated
+    return subject.getAttributeValue(attrName);
+  }
   
 }

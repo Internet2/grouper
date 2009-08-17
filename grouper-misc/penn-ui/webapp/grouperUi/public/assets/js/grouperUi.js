@@ -913,19 +913,30 @@ function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu,
     menu.attachEvent("onClick", function(id, zoneId, casState){
       menu.hideContextMenu();
       var requestParams = {menuHtmlId: zoneId, menuItemId: id };
+      //if there is the same menu multiple places on the screen, we might want to know about it
       if (!guiIsEmpty(guiMenuIdOfMenuTarget)) {
-        requestParams.menuIdOfMenuTarget = guiMenuIdOfMenuTarget
+        requestParams.menuIdOfMenuTarget = guiMenuIdOfMenuTarget;
       }
-      ajax(operation, {requestParams: });
+      ajax(operation, {requestParams: requestParams});
     });
     menu.attachEvent("onCheckboxClick", function(id, state, zoneId, casState){
       menu.hideContextMenu();
-      ajax(operation, {requestParams: {menuHtmlId: zoneId, menuItemId: id, menuCheckboxChecked: !state }});
+      var requestParams = {menuHtmlId: zoneId, menuItemId: id, menuCheckboxChecked: !state };
+      //if there is the same menu multiple places on the screen, we might want to know about it
+      if (!guiIsEmpty(guiMenuIdOfMenuTarget)) {
+        requestParams.menuIdOfMenuTarget = guiMenuIdOfMenuTarget;
+      }
+      ajax(operation, {requestParams: requestParams});
       return true;
     });
     menu.attachEvent("onRadioClick", function(group, idChecked, idClicked, zoneId, casState){
       menu.hideContextMenu();
-      ajax(operation, {requestParams: {menuHtmlId: zoneId, menuRadioGroup: group, menuItemId: idClicked }});
+      var requestParams = {menuHtmlId: zoneId, menuRadioGroup: group, menuItemId: idClicked };
+      //if there is the same menu multiple places on the screen, we might want to know about it
+      if (!guiIsEmpty(guiMenuIdOfMenuTarget)) {
+        requestParams.menuIdOfMenuTarget = guiMenuIdOfMenuTarget;
+      }
+      ajax(operation, {requestParams: requestParams});
       return true;
     });
   };

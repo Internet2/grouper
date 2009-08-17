@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.15 2009-08-17 12:37:55 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.16 2009-08-17 17:48:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -10,7 +10,9 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.Set;
 
@@ -38,6 +40,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.AppState;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
@@ -1373,25 +1376,111 @@ public class SimpleMembershipUpdate {
   }
 
   /**
-     * handle a click or select from the member menu
-     * @param httpServletRequest
-     * @param httpServletResponse
-     */
-    public void memberMenu(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      String menuItemId = httpServletRequest.getParameter("menuItemId");
-      String menuHtmlId = httpServletRequest.getParameter("menuHtmlId");
-      //String menuRadioGroup = httpServletRequest.getParameter("menuRadioGroup");
-      //String menuCheckboxChecked  = httpServletRequest.getParameter("menuCheckboxChecked");
+   * show subject details
+   */
+  @SuppressWarnings("unchecked")
+  public void memberMenuSubjectDetails() {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    //lets see which subject we are dealing with:
+    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+    String menuIdOfMenuTarget = httpServletRequest.getParameter("menuIdOfMenuTarget");
+    if (StringUtils.isBlank(menuIdOfMenuTarget)) {
+      throw new RuntimeException("Missing id of menu target");
+    }
+    if (!menuIdOfMenuTarget.startsWith("memberMenuButton_")) {
+      throw new RuntimeException("Invalid id of menu target: '" + menuIdOfMenuTarget + "'");
+    }
+    String memberId = GrouperUtil.prefixOrSuffix(menuIdOfMenuTarget, "memberMenuButton_", false);
+    
+    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
   
-      menuHtmlId = httpServletRequest.getParameter("menuIdOfMenuTarget");
-      if (StringUtils.equals(menuItemId, "memberDetails")) {
-        guiResponseJs.addAction(GuiScreenAction.newAlert("Menu action: menuItemId: " + menuItemId
-            + ", menuHtmlId: " + menuHtmlId));
-      } else {
-        throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      Member member = MemberFinder.findByUuid(grouperSession, memberId);
+      Subject subject = member.getSubject();
+      String order = null;
+      
+      try {
+        order = TagUtils.mediaResourceString(GrouperUiJ2ee.retrieveHttpServletRequest(), 
+            "subject.attributes.order." + subject.getSource().getId());
+      } catch (MissingResourceException mre) {
+        //thats ok, go with default
       }
       
+      if (StringUtils.isBlank(order)) {
+        Set<String> attributeNames = new LinkedHashSet<String>();
+        attributeNames.add("screenLabel");
+        attributeNames.addAll(subject.getAttributes().keySet());
+        
+        //lets add subjectId, typeName, sourceId, sourceName, memberId
+        attributeNames.add("subjectId");
+        attributeNames.add("name");
+        attributeNames.add("description");
+        attributeNames.add("typeName");
+        attributeNames.add("sourceId");
+        attributeNames.add("sourceName");
+        
+        order = GrouperUtil.join(attributeNames.iterator(), ',');
+      }
+
+      String[] attrNames = GrouperUtil.splitTrim(order, ",");
+      
+      SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+      simpleMembershipUpdateContainer.setSubjectForDetails(subject);
+      simpleMembershipUpdateContainer.getSubjectDetails().clear();
+
+      //lookup each attribute
+      for (String attrName: attrNames) {
+        
+        //sometimes group have blank attributes???
+        if (StringUtils.isBlank(attrName)) {
+          continue;
+        }
+        String attributeValue = GuiSubject.attributeValue(subject, attrName);
+        simpleMembershipUpdateContainer.getSubjectDetails().put(attrName, attributeValue);
+      }
+      guiResponseJs.addAction(GuiScreenAction.newAlertFromJsp(
+        "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipUpdateSubjectDetails.jsp"));
+
+    } catch (ControllerDone cd) {
+      throw cd;
+    } catch (Exception se) {
+      throw new RuntimeException("Error listing member details: " + menuIdOfMenuTarget 
+          + ", " + se.getMessage(), se);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
     }
+
+  }
+  
+  /**
+   * handle a click or select from the member menu
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  @SuppressWarnings("unused")
+  public void memberMenu(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    String menuItemId = httpServletRequest.getParameter("menuItemId");
+    String menuHtmlId = httpServletRequest.getParameter("menuHtmlId");
+    //String menuRadioGroup = httpServletRequest.getParameter("menuRadioGroup");
+    //String menuCheckboxChecked  = httpServletRequest.getParameter("menuCheckboxChecked");
+
+    menuHtmlId = httpServletRequest.getParameter("menuIdOfMenuTarget");
+    if (StringUtils.equals(menuItemId, "memberDetails")) {
+//        guiResponseJs.addAction(GuiScreenAction.newAlert("Menu action: menuItemId: " + menuItemId
+//            + ", menuHtmlId: " + menuHtmlId));
+      this.memberMenuSubjectDetails();
+    } else {
+      throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
+    }
+    
+  }
   
 }

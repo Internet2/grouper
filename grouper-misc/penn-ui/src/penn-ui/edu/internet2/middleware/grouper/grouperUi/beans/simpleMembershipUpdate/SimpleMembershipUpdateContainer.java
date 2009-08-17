@@ -1,23 +1,20 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdateContainer.java,v 1.1 2009-08-13 17:56:47 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateContainer.java,v 1.2 2009-08-17 17:48:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
-import edu.internet2.middleware.subject.Source;
+import edu.internet2.middleware.subject.Subject;
 
 
 
@@ -64,6 +61,49 @@ public class SimpleMembershipUpdateContainer implements Serializable {
    * members in result
    */
   private GuiMember[] guiMembers;
+
+  /**
+   * set of name value pairs for screen
+   */
+  private Map<String, String> subjectDetails = new LinkedHashMap<String, String>();
+  
+  /**
+   * subject for screen
+   */
+  private Subject subjectForDetails;
+  
+  /**
+   * subject for screen
+   * @return the subjectForDetails
+   */
+  public Subject getSubjectForDetails() {
+    return this.subjectForDetails;
+  }
+  
+  /**
+   * subject for screen
+   * @param subjectForDetails1 the subjectForDetails to set
+   */
+  public void setSubjectForDetails(Subject subjectForDetails1) {
+    this.subjectForDetails = subjectForDetails1;
+  }
+
+  /**
+   * set of name value pairs for screen
+   * @return the subjectDetails
+   */
+  public Map<String, String> getSubjectDetails() {
+    return this.subjectDetails;
+  }
+
+  
+  /**
+   * set of name value pairs for screen
+   * @param subjectDetails1 the subjectDetails to set
+   */
+  public void setSubjectDetails(Map<String, String> subjectDetails1) {
+    this.subjectDetails = subjectDetails1;
+  }
 
   /**
    * 
