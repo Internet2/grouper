@@ -20,6 +20,8 @@
 
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): grouper.role" unless="grouper.role" />
   <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): ui.make.jar" unless="ui.make.jar" />
+  <fail message="Couldnt detect build.properties property file entry (it's probably new, copy the entry from build.properties.template): should.copy.context.xml.to.metainf" unless="should.copy.context.xml.to.metainf" />
+  
   
 	<if><not><available file="tomcat-context.xml" /></not>
     <then><copy file="template-tomcat-context.xml" 
@@ -427,9 +429,15 @@
 	</target>
 	
 	<target name="-copyContextXmlToMetaInf" if="deploy.context.xml">
-		<filter token="deploy.docbase" value="${deploy.docbase}"/>
-		<filter token="deploy.context.path" value="${deploy.context.path}"/>
-		<copy file="${deploy.context.xml}" tofile="${webapp.folder}/META-INF/context.xml" filtering="true" overwrite="true"/>
+	  
+	  <if>
+     <equals arg1="true" arg2="${should.copy.context.xml.to.metainf}"/>
+     <then>
+  		<filter token="deploy.docbase" value="${deploy.docbase}"/>
+  		<filter token="deploy.context.path" value="${deploy.context.path}"/>
+  		<copy file="${deploy.context.xml}" tofile="${webapp.folder}/META-INF/context.xml" filtering="true" overwrite="true"/>
+     </then>
+    </if>
 	</target>
 	
 	<target name="-copyContextXmlToTomcat" if="copyToTomcat">

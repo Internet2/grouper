@@ -123,10 +123,16 @@ deploy.context.path=/${webapp.name}
 ####Root of Tomcat installation
 #deploy.home=c:/tomcat_4-1-18
 
+####If you are deploying by war to the webapps dir, then you might consider not having a 
+####context.xml, it will explode the war with each restart, preventing patching
+should.copy.context.xml.to.metainf=true
+
 
 ####Name of context xml file - this will be copied to META-INF and possibly to tomcat webapps directory
 ####Look at template-tomcat-context.xml for example - you can copy this and adjust 
 deploy.context.xml=tomcat-context.xml
+
+
 
 ####Where to copy the context xml - note that the location for Tomcat 5-5 depends on server.xml settings
 ####Setting this value lets the build script automatically install your webapp on a local Tomcat instance 
