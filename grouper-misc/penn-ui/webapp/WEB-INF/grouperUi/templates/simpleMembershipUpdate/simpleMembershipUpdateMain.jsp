@@ -1,17 +1,18 @@
 <%@ include file="../common/commonTaglib.jsp"%>
-<!-- simpleMembershipUpdate/simpleMembershipUpdateMain.html: main page on simpleMembershipUpdate screen -->
+<!-- start simpleMembershipUpdateMain.jsp: main page on simpleMembershipUpdate screen -->
 <div id="simpleMain">
-
+<%--Group membership update lite --%>
 <grouperGui:title key="simpleMembershipUpdate.updateTitle" />
-
+<%-- grey box --%>
 <div class="section">
-
+<%-- Group --%>
 <grouperGui:subtitle key="simpleMembershipUpdate.groupSubtitle" />
 
 <div class="sectionBody" style="min-width: 500px">
 <table border="0" cellpadding="0" cellspacing="0">
   <tr valign="top">
     <td>
+    <%-- Breadcrumbs of the folder hierarchy, and change location button --%>
 <grouperGui:groupBreadcrumb
   groupName="${simpleMembershipUpdateContainer.guiGroup.group.displayName}"
 /></td><td> &nbsp; &nbsp; &nbsp; <a class="smallLink" href="#operation=SimpleMembershipUpdate.index"
@@ -19,7 +20,7 @@
 </td>
 </tr>
 </table>
-
+<%-- shows the group information --%>
 <table class="formTable" cellspacing="2" style="margin-bottom: 0;">
   <tbody>
     <tr class="formTableRow">
@@ -39,7 +40,7 @@
     </tr>
   </tbody>
 </table>
-
+<%-- shows the group details, hidden by default --%>
 <table class="formTable shows_simpleMembershipUpdateGroupDetails" cellspacing="2" 
     style="margin: 0; ${grouperGui:hideShowStyle('simpleMembershipUpdateGroupDetails', true)}">
   <tbody>
@@ -62,20 +63,11 @@
   </tbody>
 </table>
 <div style="margin-bottom: 8px;">
-<%-- Group details button moved to advanced menu <a class="smallLink buttons_simpleMembershipUpdateGroupDetails"
-  onclick="return guiHideShow(event, 'simpleMembershipUpdateGroupDetails');" href="#"
->${grouperGui:hideShowButtonText('simpleMembershipUpdateGroupDetails') }</a> --%>
-
+<%-- advanced button --%>
 <a id="advancedLink" href="#" class="smallLink"
 ><grouperGui:message key="simpleMembershipUpdate.advancedButton"/></a>
 
-<%--
-<span id="advancedMenu" ></span>
-<script type="text/javascript">
-guiInitDhtmlxMenu("advancedMenu", "SimpleMembershipUpdate.advancedMenu", 
-    "SimpleMembershipUpdate.advancedMenuStructure", true, "#advancedLink");
-</script>
---%>
+<%-- register the menu, and attach it to the advanced button --%>
 <grouperGui:menu menuId="advancedMenu"
 operation="SimpleMembershipUpdate.advancedMenu" 
 structureOperation="SimpleMembershipUpdate.advancedMenuStructure" 
@@ -86,21 +78,25 @@ contextZoneJqueryHandle="#advancedLink" contextMenu="true" />
 </div>
 </div>
 
+<%-- grey box for the add member form --%>
 <div class="section" style="min-width: 900px">
-
+  <%-- add member --%>
   <grouperGui:subtitle key="simpleMembershipUpdate.addMemberSubtitle" />
 
   <div class="sectionBody">
     <form id="simpleMembershipUpdateAddMemberForm" name="simpleMembershipUpdateAddMemberForm" action="whatever">
+    <%-- describe the combobox, since it doesnt look like something you would type in to --%>
     <div class="combohint"><grouperGui:message key="simpleMembershipUpdate.addMemberCombohint"/></div>
+    <%-- note, the combobox does not currently auto adjust its width, so just make it really wide --%>
     <table width="900" cellpadding="0" cellspacing="0">
       <tr valign="top">
         <td style="padding: 0px" width="710">
+          <%-- show the combobox --%>
           <grouperGui:combobox filterOperation="SimpleMembershipUpdate.filterUsers" id="simpleMembershipUpdateAddMember" 
             width="700"/>
-          
         </td>
         <td>
+          <%-- add member button --%>
           <input class="blueButton" type="submit" 
           onclick="ajax('../app/SimpleMembershipUpdate.addMember', {formIds: 'simpleMembershipUpdateAddMemberForm'}); return false;" 
           value="${grouperGui:message('simpleMembershipUpdate.addMemberButton', true, false) }" style="margin-top: 2px" />
@@ -111,8 +107,9 @@ contextZoneJqueryHandle="#advancedLink" contextMenu="true" />
     <br />
   </div>
 </div>
-
+<%-- div placeholder where the member list will go --%>
 <div id="simpleMembershipResultsList" style="min-width: 500px"></div>
 
 </div>
+<!-- end simpleMembershipUpdateMain.jsp: main page on simpleMembershipUpdate screen -->
 

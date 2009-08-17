@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.1 2009-08-13 17:56:47 mchyzer Exp $
+ * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.2 2009-08-17 12:37:55 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.j2ee;
 
@@ -58,7 +58,7 @@ public class GrouperUiRestServlet extends HttpServlet {
   private static Set<String> operationsOkGet = GrouperUtil.toSet(
       "SimpleMembershipUpdate.filterUsers", "SimpleMembershipUpdate.filterGroups",
       "SimpleMembershipUpdate.advancedMenuStructure", "SimpleMembershipUpdate.exportSubjectIdsCsv",
-      "SimpleMembershipUpdate.exportAllCsv");
+      "SimpleMembershipUpdate.exportAllCsv", "SimpleMembershipUpdate.memberMenuStructure");
   
   /**
    * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)

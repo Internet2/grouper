@@ -831,6 +831,9 @@ function isEmpty(x) {
 
 /** END GROUPER UI FUNCTIONS */
 
+/** this is the id of the link or button which opened a context menu */
+var guiMenuIdOfMenuTarget;
+
 /**
  * @param menuId is the id of the HTML element of the menu
  * @param operation is when events occur (onclick), then that operation is called via ajax
@@ -883,6 +886,8 @@ function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu,
       }
       
       elements.click(function(e){
+        //stache this in global variable, assume only one menu at a time
+        guiMenuIdOfMenuTarget = $(e.target)[0].id
         menu.showContextMenu(e.pageX, e.pageY);
         return false;
       }); 
@@ -907,7 +912,11 @@ function guiInitDhtmlxMenu(menuId, operation, structureOperation, isContextMenu,
     
     menu.attachEvent("onClick", function(id, zoneId, casState){
       menu.hideContextMenu();
-      ajax(operation, {requestParams: {menuHtmlId: zoneId, menuItemId: id }});
+      var requestParams = {menuHtmlId: zoneId, menuItemId: id };
+      if (!guiIsEmpty(guiMenuIdOfMenuTarget)) {
+        requestParams.menuIdOfMenuTarget = guiMenuIdOfMenuTarget
+      }
+      ajax(operation, {requestParams: });
     });
     menu.attachEvent("onCheckboxClick", function(id, state, zoneId, casState){
       menu.hideContextMenu();

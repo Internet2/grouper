@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.14 2009-08-16 01:12:49 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.15 2009-08-17 12:37:55 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -1353,5 +1353,45 @@ public class SimpleMembershipUpdate {
     
     
   }
+
+  /**
+   * make the structure of the advanced menu
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void memberMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    
+    GuiUtils.printToScreen(
+        "<?xml version=\"1.0\"?>\n"
+        + "<menu>\n"
+        + "  <item id=\"memberDetails\" text=\"" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.memberMenuDetailsLabel"), true) 
+        + "\"><tooltip>" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.memberMenuDetailsTooltip"), true) + "</tooltip></item>\n"
+        + "</menu>", "text/xml", false, false);
+    throw new ControllerDone();
+  }
+
+  /**
+     * handle a click or select from the member menu
+     * @param httpServletRequest
+     * @param httpServletResponse
+     */
+    public void memberMenu(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      String menuItemId = httpServletRequest.getParameter("menuItemId");
+      String menuHtmlId = httpServletRequest.getParameter("menuHtmlId");
+      //String menuRadioGroup = httpServletRequest.getParameter("menuRadioGroup");
+      //String menuCheckboxChecked  = httpServletRequest.getParameter("menuCheckboxChecked");
+  
+      menuHtmlId = httpServletRequest.getParameter("menuIdOfMenuTarget");
+      if (StringUtils.equals(menuItemId, "memberDetails")) {
+        guiResponseJs.addAction(GuiScreenAction.newAlert("Menu action: menuItemId: " + menuItemId
+            + ", menuHtmlId: " + menuHtmlId));
+      } else {
+        throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
+      }
+      
+    }
   
 }
