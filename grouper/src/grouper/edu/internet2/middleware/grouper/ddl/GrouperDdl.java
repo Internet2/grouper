@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.60 2009-08-11 20:18:09 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.61 2009-08-18 23:11:38 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -2937,8 +2937,8 @@ public enum GrouperDdl implements DdlVersionable {
             + "gs.parent_id as group_set_parent_id, "
             + "ms.creator_id as membership_creator_id, "
             + "ms.create_time as membership_create_time, "
-            + "ms.creator_id as group_set_creator_id, "
-            + "ms.create_time as group_set_create_time, "
+            + "gs.creator_id as group_set_creator_id, "
+            + "gs.create_time as group_set_create_time, "
             + "ms.hibernate_version_number, "
             + "ms.context_id "
             + "from grouper_memberships ms, grouper_group_set gs, grouper_fields f1, grouper_fields f2 "
@@ -3010,8 +3010,8 @@ public enum GrouperDdl implements DdlVersionable {
             + "depth,   "
             + "(select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gms.membership_creator_ID) as creator_source,  "
             + "(select gm.SUBJECT_ID from grouper_members gm where gm.ID = gms.membership_creator_ID) as creator_subject_id,  "
-            + "gms.immediate_membership_id as immediate_membership_id,   "
             + "gms.membership_id as membership_id,   "
+            + "gms.immediate_membership_id as immediate_membership_id,   "
             + "gms.GROUP_SET_ID as group_set_id,  "
             + "(select gs.id from grouper_stems gs where gs.ID = gms.owner_stem_id) as stem_id,  "
             + "(select gg.id from grouper_groups gg where gg.id = gms.owner_group_id) as group_id,  "

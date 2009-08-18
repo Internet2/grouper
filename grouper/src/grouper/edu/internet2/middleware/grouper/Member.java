@@ -84,7 +84,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.126 2009-04-13 16:53:08 mchyzer Exp $
+ * @version $Id: Member.java,v 1.127 2009-08-18 23:11:38 shilen Exp $
  */
 public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -422,9 +422,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
               
               //grouper_memberships.member_id, 
               //  creator_id
-              Set<Membership> membershipsPrevious = GrouperDAOFactory.getFactory().getMembership().findAllByCreatorOrMember(Member.this);
+              Set<Membership> membershipsPrevious = GrouperDAOFactory.getFactory().getMembership().findAllByCreatorOrMember(Member.this, false);
               if (GrouperUtil.length(membershipsPrevious) > 0) {
-                Set<Membership> membershipsNew = GrouperDAOFactory.getFactory().getMembership().findAllByMember(newMemberUuid);
+                Set<Membership> membershipsNew = GrouperDAOFactory.getFactory().getMembership().findAllByMember(newMemberUuid, true);
                 Set<Membership> membershipsToUpdate = new HashSet<Membership>();
                 Set<Membership> membershipsToDelete = new HashSet<Membership>();
     
@@ -1645,11 +1645,11 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   {
     MembershipDAO dao = GrouperDAOFactory.getFactory().getMembership();    
     boolean       rv  = false;
-    if ( dao.findAllEffectiveByGroupOwnerAndMemberAndField( g.getUuid(), this.getUuid(), f ).size() > 0 ) {
+    if ( dao.findAllEffectiveByGroupOwnerAndMemberAndField(g.getUuid(), this.getUuid(), f, true).size() > 0) {
       rv = true;
     }
     else if (
-      dao.findAllEffectiveByGroupOwnerAndMemberAndField( g.getUuid(), MemberFinder.internal_findAllMember().getUuid(), f ).size() > 0
+      dao.findAllEffectiveByGroupOwnerAndMemberAndField(g.getUuid(), MemberFinder.internal_findAllMember().getUuid(), f, true).size() > 0
     ) {
       rv = true;
     }
@@ -1723,7 +1723,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       catch (MembershipNotFoundException eMNF) {
         try {
           GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-            g.getUuid(), MemberFinder.internal_findAllMember().getUuid(), f, Membership.IMMEDIATE, true
+            g.getUuid(), MemberFinder.internal_findAllMember().getUuid(), f, Membership.IMMEDIATE, true, true
           );
           rv = true;
         }
@@ -1943,9 +1943,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
     Set<Membership> mships  = null;
     if (f.isGroupListField()) {
-      mships = dao.findAllByGroupOwnerAndMemberAndField(ownerUUID, this.getUuid(), f);
+      mships = dao.findAllByGroupOwnerAndMemberAndField(ownerUUID, this.getUuid(), f, true);
     } else if (f.isStemListField()) {
-      mships = dao.findAllByStemOwnerAndMemberAndField(ownerUUID, this.getUuid(), f);
+      mships = dao.findAllByStemOwnerAndMemberAndField(ownerUUID, this.getUuid(), f, true);
     }
     if (mships.size() > 0) {
       rv = true;
@@ -1954,9 +1954,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       Member all = MemberFinder.internal_findAllMember();
       if ( !this.equals(all) ) {
         if (f.isGroupListField()) {
-          mships = dao.findAllByGroupOwnerAndMemberAndField(ownerUUID, all.getUuid(), f);
+          mships = dao.findAllByGroupOwnerAndMemberAndField(ownerUUID, all.getUuid(), f, true);
         } else if (f.isStemListField()) {
-          mships = dao.findAllByStemOwnerAndMemberAndField(ownerUUID, all.getUuid(), f);
+          mships = dao.findAllByStemOwnerAndMemberAndField(ownerUUID, all.getUuid(), f, true);
         }
         if (mships.size() > 0) {
           rv = true;

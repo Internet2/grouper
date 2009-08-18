@@ -17,6 +17,9 @@
 
 package edu.internet2.middleware.grouper.group;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 import org.apache.commons.lang.StringUtils;
 
 import junit.textui.TestRunner;
@@ -28,12 +31,15 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupMove;
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.cfg.ApiConfig;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -46,6 +52,7 @@ import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -53,7 +60,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Group.java,v 1.8 2009-04-12 18:16:34 shilen Exp $
+ * @version $Id: Test_api_Group.java,v 1.9 2009-08-18 23:11:39 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Group extends GrouperTest {
@@ -66,6 +73,9 @@ public class Test_api_Group extends GrouperTest {
     super(name);
   }
 
+  /**
+   * @param args
+   */
   public static void main(String[] args) {
     TestRunner.run(new Test_api_Group("test_copy_all_as_nonadmin"));
   }
@@ -114,6 +124,129 @@ public class Test_api_Group extends GrouperTest {
     super.tearDown();
   }
   
+  /**
+   * @throws Exception
+   */
+  public void test_copy_with_disabled_memberships() throws Exception {
+    R r = R.populateRegistry(0, 0, 3);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+    Subject c = r.getSubject("c");
+    
+    Stem source = root.addChildStem("source", "source");
+    Stem target = root.addChildStem("target", "target");
+    Group group1 = source.addChildGroup("group1", "group1");
+    Group group2 = source.addChildGroup("group2", "group2");
+    
+    group1.addMember(a);
+    group1.addMember(group2.toSubject());
+    group1.grantPriv(b, AccessPrivilege.UPDATE);
+    group2.addMember(c);
+    
+    Timestamp disabledTime = new Timestamp(new Date().getTime() - 10000);
+    Timestamp enabledTime = new Timestamp(new Date().getTime() + 10000);
+    
+    Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        group1.getUuid(), group2.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        group1.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find("updaters", true), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    GrouperUtil.sleep(100);
+    Date pre = new Date();
+    GrouperUtil.sleep(100);
+    
+    Group newGroup = group1.copy(target);
+    
+    assertEquals(1, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, Group.getDefaultList(), true).size());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find("updaters", true), true).size());
+    
+    assertEquals(2, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, Group.getDefaultList(), false).size());
+    assertEquals(1, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find("updaters", true), false).size());
+    
+
+    Membership disabled1 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        newGroup.getUuid(), group2.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, false);
+    assertTrue(disabled1.getEnabledDb().equals("F"));
+    assertTrue(disabled1.getEnabledTime().getTime() == enabledTime.getTime());
+    assertTrue(disabled1.getDisabledTime().getTime() == disabledTime.getTime());
+    
+    Membership disabled2 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        newGroup.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find("updaters", true), Membership.IMMEDIATE, true, false);
+    assertTrue(disabled2.getEnabledDb().equals("F"));
+    assertTrue(disabled2.getEnabledTime().getTime() == enabledTime.getTime());
+    assertTrue(disabled2.getDisabledTime().getTime() == disabledTime.getTime());
+
+    Membership enabled1 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        newGroup.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, false);
+    assertTrue(enabled1.getEnabledDb().equals("T"));
+    assertTrue(enabled1.getEnabledTime() == null);
+    assertTrue(enabled1.getDisabledTime() == null);
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_copy_with_disabled_memberships2() throws Exception {
+    R r = R.populateRegistry(0, 0, 3);
+    
+    Stem source = root.addChildStem("source", "source");
+    Stem target = root.addChildStem("target", "target");
+    Group group1 = source.addChildGroup("group1", "group1");
+    Group group2 = source.addChildGroup("group2", "group2");
+    Group group3 = source.addChildGroup("group3", "group3");
+    Group group4 = source.addChildGroup("group4", "group4");
+    Group group5 = source.addChildGroup("group5", "group5");
+    
+    group1.addMember(group2.toSubject());
+    group2.addMember(group3.toSubject());
+    group3.addMember(group4.toSubject());
+    group4.addMember(group5.toSubject());
+    
+    Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        group2.getUuid(), group3.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        group3.getUuid(), group4.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    GrouperUtil.sleep(100);
+    Date pre = new Date();
+    GrouperUtil.sleep(100);
+    
+    Group newGroup = group3.copy(target);
+    
+    assertEquals(0, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, Group.getDefaultList(), true).size());
+    assertEquals(3, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, Group.getDefaultList(), false).size());
+   
+    Membership disabled1 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        group2.getUuid(), newGroup.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, false);
+    assertTrue(disabled1.getEnabledDb().equals("F"));
+    
+    Membership disabled2 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        newGroup.getUuid(), group4.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, false);
+    assertTrue(disabled2.getEnabledDb().equals("F"));
+    
+    Membership disabled3 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        group1.getUuid(), newGroup.toMember().getUuid(), Group.getDefaultList(), Membership.EFFECTIVE, true, false);
+    assertTrue(disabled3.getEnabledDb().equals("F"));
+    assertTrue(disabled3.getDepth() == 1);
+  }
+  
+  /**
+   * @throws Exception
+   */
   public void test_delete_which_causes_membership_add() throws Exception {
     R r = R.populateRegistry(0, 0, 1);
     Subject a = r.getSubject("a");
@@ -134,6 +267,8 @@ public class Test_api_Group extends GrouperTest {
 
 
   /**
+   * @throws InsufficientPrivilegeException 
+   * @throws RevokePrivilegeException 
    * @since   1.2.1
    */
   public void test_revokePriv_Privilege_namingPrivilege() 
@@ -152,6 +287,8 @@ public class Test_api_Group extends GrouperTest {
 
 
   /**
+   * @throws InsufficientPrivilegeException 
+   * @throws RevokePrivilegeException 
    * @since   1.2.1
    */
   public void test_revokePriv_SubjectAndPrivilege_namingPrivilege() 
@@ -424,8 +561,8 @@ public class Test_api_Group extends GrouperTest {
       // this should fail because "test2" is in use.
       test1.setExtension("test2");
       test1.store();
-      fail("failed to throw GroupModifyException");
-    } catch (GroupModifyException e) {
+      fail("failed to throw GroupModifyAlreadyExistsException");
+    } catch (GroupModifyAlreadyExistsException e) {
       assertTrue(true);
     }
     
@@ -433,8 +570,8 @@ public class Test_api_Group extends GrouperTest {
       // this should fail because "conflict" is in use.
       test1.setExtension("conflict");
       test1.store();
-      fail("failed to throw GroupModifyException");
-    } catch (GroupModifyException e) {
+      fail("failed to throw GroupModifyAlreadyExistsException");
+    } catch (GroupModifyAlreadyExistsException e) {
       assertTrue(true);
     }    
     
@@ -1102,12 +1239,8 @@ public class Test_api_Group extends GrouperTest {
           .copyListMembersOfGroup(true).copyListGroupAsMember(false).copyAttributes(
               false).save();
       fail("failed to throw exception");
-    } catch (Exception eExpected) {
-      if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
-        assertTrue(true);
-      } else {
-        fail("failed to throw exception whose cause is InsufficientPrivilegeException");
-      }
+    } catch (InsufficientPrivilegeException eExpected) {
+      assertTrue(true);
     }
     
     // subject can read child_group and can create in top stem, but cannot read default list members of group.
@@ -1125,12 +1258,8 @@ public class Test_api_Group extends GrouperTest {
           .copyListMembersOfGroup(true).copyListGroupAsMember(false).copyAttributes(
               false).save();
       fail("failed to throw exception");
-    } catch (Exception eExpected) {
-      if (eExpected.getCause() instanceof InsufficientPrivilegeException) {
-        assertTrue(true);
-      } else {
-        fail("failed to throw exception whose cause is InsufficientPrivilegeException");
-      }
+    } catch (InsufficientPrivilegeException eExpected) {
+      assertTrue(true);
     }
     
     // subject can read child_group and can create in top stem, but cannot read members of top_group.
@@ -1574,8 +1703,8 @@ public class Test_api_Group extends GrouperTest {
       assertTrue(child_group.getAlternateNames().size() == 0);
       child_group.addAlternateName("top:top group2");
       child_group.store();
-      fail("failed to throw GroupModifyException");
-    } catch (GroupModifyException e) {
+      fail("failed to throw GroupModifyAlreadyExistsException");
+    } catch (GroupModifyAlreadyExistsException e) {
       assertTrue(true);
     }
     
@@ -1602,8 +1731,8 @@ public class Test_api_Group extends GrouperTest {
     try {
       top_group.addAlternateName("top:child:child group");
       top_group.store();
-      fail("failed to throw GroupModifyException");
-    } catch (GroupModifyException e) {
+      fail("failed to throw GroupModifyAlreadyExistsException");
+    } catch (GroupModifyAlreadyExistsException e) {
       assertTrue(true);
     }
     

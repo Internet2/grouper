@@ -38,7 +38,7 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 /**
  * Basic Hibernate <code>Composite</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3CompositeDAO.java,v 1.13 2009-08-12 12:44:45 shilen Exp $
+ * @version $Id: Hib3CompositeDAO.java,v 1.14 2009-08-18 23:11:38 shilen Exp $
  */
 public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
 
@@ -51,11 +51,13 @@ public class Hib3CompositeDAO extends Hib3DAO implements CompositeDAO {
    */
   public Set<Composite> findAsFactorOrHasMemberOfFactor(String groupId) {
     return HibernateSession.byHqlStatic().createQuery(
-        "select c from Composite as c, GroupSet as gs where gs.memberGroupId = :group and ("
-            + " c.leftFactorUuid = gs.ownerGroupId or c.rightFactorUuid = gs.ownerGroupId " + ")")
+        "select c from Composite as c, GroupSet as gs, Field as f where gs.memberGroupId = :group and ("
+            + " c.leftFactorUuid = gs.ownerGroupId or c.rightFactorUuid = gs.ownerGroupId )" 
+            + " and gs.fieldId = f.uuid and gs.fieldId = :field")
         .setCacheable(false)
         .setCacheRegion(KLASS + ".findAsFactorOrHasMemberOfFactor")
         .setString("group", groupId)
+        .setString("field", Group.getDefaultList().getUuid())
         .listSet(Composite.class);
   }
 

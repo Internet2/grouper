@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: Hib3MembershipDAOTest.java,v 1.4 2009-04-14 07:41:24 mchyzer Exp $
+ * $Id: Hib3MembershipDAOTest.java,v 1.5 2009-08-18 23:11:39 shilen Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
@@ -71,7 +71,7 @@ public class Hib3MembershipDAOTest extends GrouperTest {
 
     
     //get all memberships by member, 
-    Set<Membership> allMemberships = new Hib3MembershipDAO().findAllByGroupOwnerAndField(i2.getUuid(), Group.getDefaultList());
+    Set<Membership> allMemberships = new Hib3MembershipDAO().findAllByGroupOwnerAndField(i2.getUuid(), Group.getDefaultList(), true);
     
     assertTrue(Integer.toString(allMemberships.size()),  2 < allMemberships.size());
     
@@ -79,7 +79,7 @@ public class Hib3MembershipDAOTest extends GrouperTest {
     Set<Member> members = i2.getMembers();
     
     Set<Membership> byMembersLarge = new Hib3MembershipDAO().findAllByGroupOwnerAndFieldAndMembers(i2.getUuid(), Group.getDefaultList(),
-        members);
+        members, true);
     
     assertEquals(allMemberships.size(), byMembersLarge.size());
     
@@ -87,7 +87,7 @@ public class Hib3MembershipDAOTest extends GrouperTest {
     Hib3MembershipDAO.batchSize = 2;
     try {
       Set<Membership> byMembersSmall = new Hib3MembershipDAO().findAllByGroupOwnerAndFieldAndMembers(i2.getUuid(), Group.getDefaultList(),
-          members);
+          members, true);
       
       assertEquals(allMemberships.size(), byMembersSmall.size());
       

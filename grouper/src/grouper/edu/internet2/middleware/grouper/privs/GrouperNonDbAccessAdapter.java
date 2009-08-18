@@ -17,6 +17,7 @@
 
 package edu.internet2.middleware.grouper.privs;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -45,10 +46,12 @@ import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsExceptio
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
+import edu.internet2.middleware.grouper.exception.MembershipAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -62,7 +65,7 @@ import edu.internet2.middleware.subject.Subject;
  * slower and more explicit than the GrouperAccessAdapter (subclass)
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNonDbAccessAdapter.java,v 1.4 2009-08-12 12:44:45 shilen Exp $
+ * @version $Id: GrouperNonDbAccessAdapter.java,v 1.5 2009-08-18 23:11:38 shilen Exp $
  */
 public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements AccessAdapter {
 
@@ -173,7 +176,7 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
      //Avoid doing 6 queries - get everything at once
      //Also don't add GropuperAll privs - do that in 
      //GrouperAllAccessResolver
-        it  = dao.findAllByGroupOwnerAndMember( g.getUuid(), m.getUuid()).iterator(); 
+        it  = dao.findAllByGroupOwnerAndMember(g.getUuid(), m.getUuid(), true).iterator(); 
         privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, g,subj, m, null, it) );
         /*
          * Done through GrouperAllAccessAdapter
@@ -291,19 +294,25 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
     GrouperSession.validate(s);
     
     Field f = priv.getField();
-    Set<Subject> subjs = MembershipFinder.internal_findGroupSubjectsImmediateOnly(s, g1, f);
+    PrivilegeHelper.dispatch(s, g1, s.getSubject(), f.getReadPriv());
     
-    Iterator<Subject> subjectIter = subjs.iterator();
-    while (subjectIter.hasNext()) {
-      Subject subj = subjectIter.next();
+    Iterator<Membership> membershipsIter = GrouperDAOFactory.getFactory().getMembership()
+      .findAllByGroupOwnerAndFieldAndType(g1.getUuid(), f,
+          Membership.IMMEDIATE, false).iterator();
+
+    while (membershipsIter.hasNext()) {
+      Membership existingMembership = membershipsIter.next();
+      Membership copiedMembership = existingMembership.clone();
+      copiedMembership.setOwnerGroupId(g2.getUuid());
+      copiedMembership.setCreatorUuid(s.getMemberUuid());
+      copiedMembership.setCreateTimeLong(new Date().getTime());
+      copiedMembership.setImmediateMembershipId(GrouperUuid.getUuid());
+      copiedMembership.setHibernateVersionNumber(-1L);
+      
       try {
-        this.grantPriv(s, g2, subj, priv);
-      } catch (GrantPrivilegeException e) {
-        if (e.getCause() instanceof MemberAddAlreadyExistsException) {
-          // this is okay
-        } else {
-          throw e;
-        }
+        GrouperDAOFactory.getFactory().getMembership().save(copiedMembership);
+      } catch (MembershipAlreadyExistsException e) {
+        // this is okay
       }
     }
   }
@@ -326,23 +335,35 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
     GrouperSession.validate(s);
     
     Field f = priv.getField();
+
     Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
-        .findAllImmediateByMemberAndField(MemberFinder.findBySubject(s, subj1, true).getUuid(), f);
+        .findAllImmediateByMemberAndField(MemberFinder.findBySubject(s, subj1, true).getUuid(), f, false);
+    
+    if (memberships.size() == 0) {
+      return;
+    }
+        
+    Member member = MemberFinder.findBySubject(s, subj2, true);
   
     Iterator<Membership> membershipsIter = memberships.iterator();
     while (membershipsIter.hasNext()) {
+      Membership existingMembership = membershipsIter.next();
       Group g;
       try {
-        g = membershipsIter.next().getGroup();
+        g = existingMembership.getGroup();
       } catch (GroupNotFoundException e1) {
         throw new GrouperException(e1.getMessage(), e1);
       }
       PrivilegeHelper.dispatch(s, g, s.getSubject(), f.getWritePriv());
-      try {
-        Membership.internal_addImmediateMembership(s, g, subj2, f);
-      } catch (MemberAddException e) {
-        throw new GrantPrivilegeException(e.getMessage(), e);
-      }
+      
+      Membership copiedMembership = existingMembership.clone();
+      copiedMembership.setMemberUuid(member.getUuid());
+      copiedMembership.setMember(member);
+      copiedMembership.setCreatorUuid(s.getMemberUuid());
+      copiedMembership.setCreateTimeLong(new Date().getTime());
+      copiedMembership.setImmediateMembershipId(GrouperUuid.getUuid());
+      copiedMembership.setHibernateVersionNumber(-1L);
+      GrouperDAOFactory.getFactory().getMembership().save(copiedMembership);
     }
     
   }

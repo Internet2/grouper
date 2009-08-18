@@ -30,142 +30,167 @@ import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 /** 
  * Basic <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.25 2009-08-12 12:44:45 shilen Exp $
+ * @version $Id: MembershipDAO.java,v 1.26 2009-08-18 23:11:38 shilen Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
 
   /**
    * get all memberships
+   * @param enabledOnly 
    * @return set
    */
-  public Set<Membership> findAll();
+  public Set<Membership> findAll(boolean enabledOnly);
   
   
   /**
    * @param d 
    * @param f 
+   * @param enabledOnly 
    * @return set of membership
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllByCreatedAfter(Date d, Field f) 
+  Set<Membership> findAllByCreatedAfter(Date d, Field f, boolean enabledOnly) 
     throws  GrouperDAOException;
 
   /**
    * @param d 
    * @param f 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllByCreatedBefore(Date d, Field f) 
+  Set<Membership> findAllByCreatedBefore(Date d, Field f, boolean enabledOnly) 
     throws  GrouperDAOException;
 
   /**
    * @param memberUUID 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllByMember(String memberUUID) 
+  Set<Membership> findAllByMember(String memberUUID, boolean enabledOnly) 
     throws  GrouperDAOException;
 
   /**
    * @param memberUUID 
    * @param viaGroupId 
+   * @param enabledOnly 
    * @return  set
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllByMemberAndViaGroup(String memberUUID, String viaGroupId) 
+  Set<Membership> findAllByMemberAndViaGroup(String memberUUID, String viaGroupId, boolean enabledOnly) 
     throws  GrouperDAOException;
 
   /**
    * @param ownerGroupId 
    * @param f 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllByGroupOwnerAndField(String ownerGroupId, Field f) 
+  Set<Membership> findAllByGroupOwnerAndField(String ownerGroupId, Field f, boolean enabledOnly) 
     throws  GrouperDAOException;
   
   /**
    * @param ownerStemId 
    * @param f 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllByStemOwnerAndField(String ownerStemId, Field f) 
+  Set<Membership> findAllByStemOwnerAndField(String ownerStemId, Field f, boolean enabledOnly) 
     throws  GrouperDAOException;
 
   /**
    * @param ownerGroupId 
    * @param f 
    * @param type 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllByGroupOwnerAndFieldAndType(String ownerGroupId, Field f, String type) 
+  Set<Membership> findAllByGroupOwnerAndFieldAndType(String ownerGroupId, Field f, String type, boolean enabledOnly) 
     throws  GrouperDAOException;
 
   /**
    * @param ownerStemId 
    * @param f 
    * @param type 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllByStemOwnerAndFieldAndType(String ownerStemId, Field f, String type) 
+  Set<Membership> findAllByStemOwnerAndFieldAndType(String ownerStemId, Field f, String type, boolean enabledOnly) 
     throws  GrouperDAOException;
 
   /**
    * @param ownerGroupId 
    * @param memberUUID 
    * @param f 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllByGroupOwnerAndMemberAndField(String ownerGroupId, String memberUUID, Field f) 
+  Set<Membership> findAllByGroupOwnerAndMemberAndField(String ownerGroupId, String memberUUID, Field f, boolean enabledOnly) 
     throws  GrouperDAOException;
   
   /**
 TODO update for 1.5
-   * @param groupOwnerId 
-   * @param memberUUID 
+   * @param ownerUUID 
+   * @param f 
+   * @param members 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.1
    */
   Set<Membership> findAllByGroupOwnerAndFieldAndMembers(String ownerUUID, Field f, 
-      Collection<Member> members) 
+      Collection<Member> members, boolean enabledOnly) 
     throws  GrouperDAOException;
   
   /**
+   * @param ownerUUID 
+   * @param f 
+   * @param members 
+   * @param type 
+   * @param enabledOnly 
+   * @return set
+   * @throws GrouperDAOException 
    */
   Set<Membership> findAllByGroupOwnerAndFieldAndMembersAndType(String ownerUUID, Field f, 
-      Collection<Member> members, String type) 
+      Collection<Member> members, String type, boolean enabledOnly) 
     throws  GrouperDAOException;
   
   /**
+   * @param ownerUUID 
+   * @param members 
+   * @param enabledOnly 
+   * @return set
+   * @throws GrouperDAOException 
    */
   Set<Membership> findAllByGroupOwnerAndCompositeAndMembers(String ownerUUID, 
-      Collection<Member> members) 
+      Collection<Member> members, boolean enabledOnly) 
     throws  GrouperDAOException;
   
   /**
    * @param groupOwnerId 
    * @param memberUUID 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.1
    */
-  Set<Membership> findAllByGroupOwnerAndMember(String groupOwnerId, String memberUUID) 
+  Set<Membership> findAllByGroupOwnerAndMember(String groupOwnerId, String memberUUID, boolean enabledOnly) 
     throws  GrouperDAOException;
 
 
@@ -174,44 +199,48 @@ TODO update for 1.5
    * @param f
    * @param type
    * @param queryOptions 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException
    */
   public Set<Member> findAllMembersByGroupOwnerAndFieldAndType(String ownerGroupId,
-      Field f, String type, QueryOptions queryOptions) throws GrouperDAOException;
+      Field f, String type, QueryOptions queryOptions, boolean enabledOnly) throws GrouperDAOException;
   
   /**
    * @param ownerStemId
    * @param f
    * @param type
    * @param queryOptions 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException
    */
   public Set<Member> findAllMembersByStemOwnerAndFieldAndType(String ownerStemId,
-      Field f, String type, QueryOptions queryOptions) throws GrouperDAOException;
+      Field f, String type, QueryOptions queryOptions, boolean enabledOnly) throws GrouperDAOException;
 
 
   /**
    * @param ownerStemId 
    * @param memberUUID 
    * @param f 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllByStemOwnerAndMemberAndField(String ownerStemId, String memberUUID, Field f) 
+  Set<Membership> findAllByStemOwnerAndMemberAndField(String ownerStemId, String memberUUID, Field f, boolean enabledOnly) 
     throws  GrouperDAOException;
 
   /**
    * @param ownerGroupId 
    * @param f 
+   * @param enabledOnly 
    * @return  Members from memberships.
    * @throws  GrouperDAOException if any DAO errors occur.
    * @see     MembershipDAO#findAllMembersByGroupOwnerAndField(String, Field)
    * @since   1.2.1
    */
-  Set<Member> findAllMembersByGroupOwnerAndField(String ownerGroupId, Field f)
+  Set<Member> findAllMembersByGroupOwnerAndField(String ownerGroupId, Field f, boolean enabledOnly)
     throws  GrouperDAOException;
 
   /**
@@ -219,28 +248,12 @@ TODO update for 1.5
    * @param groupOwnerId
    * @param f
    * @param queryOptions
+   * @param enabledOnly 
    * @return the members
    * @throws GrouperDAOException
    */
-  public Set<Member> findAllMembersByGroupOwnerAndField(String groupOwnerId, Field f, QueryOptions queryOptions)
+  public Set<Member> findAllMembersByGroupOwnerAndField(String groupOwnerId, Field f, QueryOptions queryOptions, boolean enabledOnly)
     throws  GrouperDAOException;
-
-  /**
-   * @param ownerStemId 
-   * @param memberUUID 
-   * @param f 
-   * @param type 
-   * @return membership
-   * @throws GrouperDAOException 
-   * @throws MembershipNotFoundException 
-   * @since   1.2.0
-   * @deprecated
-   */
-  @Deprecated
-  Membership findByStemOwnerAndMemberAndFieldAndType(String ownerStemId, String memberUUID, Field f, String type)
-    throws  GrouperDAOException,
-            MembershipNotFoundException
-            ;            
 
   /**
    * @param ownerGroupId 
@@ -248,11 +261,12 @@ TODO update for 1.5
    * @param f 
    * @param type 
    * @param exceptionIfNull
+   * @param enabledOnly 
    * @return membership
    * @throws GrouperDAOException 
    * @throws MembershipNotFoundException 
    */
-  Membership findByGroupOwnerAndMemberAndFieldAndType(String ownerGroupId, String memberUUID, Field f, String type, boolean exceptionIfNull)
+  Membership findByGroupOwnerAndMemberAndFieldAndType(String ownerGroupId, String memberUUID, Field f, String type, boolean exceptionIfNull, boolean enabledOnly)
     throws  GrouperDAOException,
             MembershipNotFoundException
             ;            
@@ -263,22 +277,30 @@ TODO update for 1.5
    * @param f 
    * @param type 
    * @param exceptionIfNull
+   * @param enabledOnly 
    * @return membership
    * @throws GrouperDAOException 
    * @throws MembershipNotFoundException 
    */
-  Membership findByStemOwnerAndMemberAndFieldAndType(String ownerStemId, String memberUUID, Field f, String type, boolean exceptionIfNull)
+  Membership findByStemOwnerAndMemberAndFieldAndType(String ownerStemId, String memberUUID, Field f, String type, boolean exceptionIfNull, boolean enabledOnly)
     throws  GrouperDAOException,
             MembershipNotFoundException
             ;            
 
   /**
+   * @param _ms 
+   * @param enabledOnly 
+   * @return set
+   * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllChildMemberships(Membership _ms) 
+  Set<Membership> findAllChildMemberships(Membership _ms, boolean enabledOnly) 
     throws  GrouperDAOException;
 
   /**
+   * @param _ms 
+   * @return membership
+   * @throws GrouperDAOException 
    * @since   1.5.0
    */
   Membership findParentMembership(Membership _ms) 
@@ -290,11 +312,12 @@ TODO update for 1.5
    * @param f 
    * @param viaGroupId 
    * @param depth 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllEffectiveByGroupOwner(String ownerGroupId, String memberUUID, Field f, String viaGroupId, int depth) 
+  Set<Membership> findAllEffectiveByGroupOwner(String ownerGroupId, String memberUUID, Field f, String viaGroupId, int depth, boolean enabledOnly) 
     throws  GrouperDAOException;
 
   /**
@@ -303,101 +326,98 @@ TODO update for 1.5
    * @param f 
    * @param viaGroupId 
    * @param depth 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllEffectiveByStemOwner(String ownerStemId, String memberUUID, Field f, String viaGroupId, int depth) 
+  Set<Membership> findAllEffectiveByStemOwner(String ownerStemId, String memberUUID, Field f, String viaGroupId, int depth, boolean enabledOnly) 
     throws  GrouperDAOException;
 
   /**
    * @param memberUUID 
    * @param f 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllEffectiveByMemberAndField(String memberUUID, Field f) 
+  Set<Membership> findAllEffectiveByMemberAndField(String memberUUID, Field f, boolean enabledOnly) 
     throws  GrouperDAOException;
 
   /**
    * @param ownerGroupId 
    * @param memberUUID 
    * @param f 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllEffectiveByGroupOwnerAndMemberAndField(String ownerGroupId, String memberUUID, Field f)
+  Set<Membership> findAllEffectiveByGroupOwnerAndMemberAndField(String ownerGroupId, String memberUUID, Field f, boolean enabledOnly)
     throws  GrouperDAOException;
 
   /**
    * @param memberUUID 
    * @param f 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllImmediateByMemberAndField(String memberUUID, Field f) 
+  Set<Membership> findAllImmediateByMemberAndField(String memberUUID, Field f, boolean enabledOnly) 
     throws  GrouperDAOException;
 
   /**
    * @param memberUUID 
    * @param fieldType
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findAllImmediateByMemberAndFieldType(String memberUUID, String fieldType) 
+  Set<Membership> findAllImmediateByMemberAndFieldType(String memberUUID, String fieldType, boolean enabledOnly) 
     throws  GrouperDAOException;
 
   /**
    * @param memberUUID 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.3.1
    */
-  Set findAllImmediateByMember(String memberUUID) 
+  Set findAllImmediateByMember(String memberUUID, boolean enabledOnly) 
     throws  GrouperDAOException;
 
   /**
    * @param ownerUUID 
+   * @param enabledOnly 
    * @return list
    * @throws GrouperDAOException 
    * @since   1.3.1
    */
-  List<Membership> findAllByGroupOwnerAsList(String ownerUUID)
+  List<Membership> findAllByGroupOwnerAsList(String ownerUUID, boolean enabledOnly)
     throws  GrouperDAOException;
 
   /**
    * @param ownerUUID 
+   * @param enabledOnly 
    * @return list
    * @throws GrouperDAOException 
    * @since   1.3.1
    */
-  List<Membership> findAllByStemOwnerAsList(String ownerUUID)
+  List<Membership> findAllByStemOwnerAsList(String ownerUUID, boolean enabledOnly)
     throws  GrouperDAOException;
 
   /**
    * @param uuid 
-   * @return membership
-   * @throws GrouperDAOException 
-   * @throws MembershipNotFoundException 
-   * @deprecated
-   */
-  @Deprecated
-  Membership findByUuid(String uuid) 
-    throws  GrouperDAOException,
-            MembershipNotFoundException 
-            ;
-
-  /**
-   * @param uuid 
+   * @param exceptionIfNull 
+   * @param enabledOnly 
    * @return membership
    * @throws GrouperDAOException 
    * @throws MembershipNotFoundException 
    */
-  Membership findByUuid(String uuid, boolean exceptionIfNull) 
+  Membership findByUuid(String uuid, boolean exceptionIfNull, boolean enabledOnly) 
     throws  GrouperDAOException,
             MembershipNotFoundException 
             ;
@@ -405,11 +425,12 @@ TODO update for 1.5
   /**
    * @param memberUUID 
    * @param f 
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.0
    */
-  Set<Membership> findMembershipsByMemberAndField(String memberUUID, Field f)
+  Set<Membership> findMembershipsByMemberAndField(String memberUUID, Field f, boolean enabledOnly)
     throws  GrouperDAOException;
 
   /**
@@ -417,10 +438,11 @@ TODO update for 1.5
    * @param grouperSession
    * @param memberUUID
    * @param f
+   * @param enabledOnly 
    * @return the memberships
    * @throws GrouperDAOException
    */
-  Set<Membership> findMembershipsByMemberAndFieldSecure(GrouperSession grouperSession, String memberUUID, Field f)
+  Set<Membership> findMembershipsByMemberAndFieldSecure(GrouperSession grouperSession, String memberUUID, Field f, boolean enabledOnly)
     throws  GrouperDAOException;
   
   /**
@@ -442,6 +464,12 @@ TODO update for 1.5
   public void delete(Membership ms);
 
   /**
+   * Update a membership
+   * @param ms
+   */
+  public void update(Membership ms);
+  
+  /**
    * Delete a set of memberships
    * @param mships
    */
@@ -450,8 +478,19 @@ TODO update for 1.5
   /**
    * find all memberships that have this member or have this creator
    * @param member
+   * @param enabledOnly 
    * @return the memberships
    */
-  Set<Membership> findAllByCreatorOrMember(Member member);
+  Set<Membership> findAllByCreatorOrMember(Member member, boolean enabledOnly);
+  
+
+  /**
+   * @param ownerGroupId
+   * @param f
+   * @param depth
+   * @param enabledOnly
+   * @return set
+   */
+  public Set<Membership> findAllByGroupOwnerAndFieldAndDepth(String ownerGroupId, Field f, int depth, boolean enabledOnly);
 } 
 

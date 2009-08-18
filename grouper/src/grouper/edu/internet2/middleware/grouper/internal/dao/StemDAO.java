@@ -33,7 +33,7 @@ import edu.internet2.middleware.subject.Subject;
 /** 
  * Basic <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: StemDAO.java,v 1.22 2009-06-24 06:22:24 mchyzer Exp $
+ * @version $Id: StemDAO.java,v 1.23 2009-08-18 23:11:38 shilen Exp $
  * @since   1.2.0
  */
 public interface StemDAO extends GrouperDAO {
@@ -334,5 +334,17 @@ public interface StemDAO extends GrouperDAO {
   Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession, 
       Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
     throws  GrouperDAOException;
+  
+  /**
+   * @param stemId
+   */
+  public void updateLastMembershipChange(String stemId);
+  
+
+  /**
+   * This will update last_membership_change for stem owners where group member in groupSet is the given groupId.
+   * @param groupId
+   */
+  public void updateLastMembershipChangeIncludeAncestorGroups(String groupId);
 } 
 

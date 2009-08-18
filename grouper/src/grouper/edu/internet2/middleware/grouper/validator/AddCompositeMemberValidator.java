@@ -23,7 +23,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /** 
  * @author  blair christensen.
- * @version $Id: AddCompositeMemberValidator.java,v 1.2 2009-01-27 12:09:24 mchyzer Exp $
+ * @version $Id: AddCompositeMemberValidator.java,v 1.3 2009-08-18 23:11:39 shilen Exp $
  * @since   1.2.0
  */
 public class AddCompositeMemberValidator extends GrouperValidator {
@@ -38,7 +38,7 @@ public class AddCompositeMemberValidator extends GrouperValidator {
     }
     else if ( 
       GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndField(
-        g.getUuid(), Group.getDefaultList() 
+        g.getUuid(), Group.getDefaultList(), false
       ).size() > 0 
     )
     {

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AllHooksTests.java,v 1.12 2009-03-21 19:48:50 mchyzer Exp $
+ * $Id: AllHooksTests.java,v 1.13 2009-08-18 23:11:39 shilen Exp $
  */
 package edu.internet2.middleware.grouper.hooks;
 
@@ -33,6 +33,7 @@ public class AllHooksTests {
     TestSuite suite = new TestSuite(
         "Test for edu.internet2.middleware.grouper.hooks");
     //$JUnit-BEGIN$
+    suite.addTestSuite(EffectiveMembershipHooksTest.class);
     suite.addTestSuite(MemberHooksTest.class);
     suite.addTestSuite(MembershipHooksTest.class);
     suite.addTestSuite(AttributeHooksTest.class);

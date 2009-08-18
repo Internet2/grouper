@@ -48,7 +48,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * {@link Group} helper methods for testing the Grouper API.
  * <p />
  * @author  blair christensen.
- * @version $Id: MembershipTestHelper.java,v 1.3 2009-08-12 12:44:45 shilen Exp $
+ * @version $Id: MembershipTestHelper.java,v 1.4 2009-08-18 23:11:39 shilen Exp $
  */
 public class MembershipTestHelper {
 
@@ -459,7 +459,7 @@ public class MembershipTestHelper {
     try {
       Member m = MemberFinder.findBySubject(s, subj, true);
       mship = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
-          stem.getUuid(), m.getUuid(), f, Membership.IMMEDIATE, true
+          stem.getUuid(), m.getUuid(), f, Membership.IMMEDIATE, true, true
         );
     } catch (Exception e) {
       mship = null;
@@ -528,7 +528,7 @@ public class MembershipTestHelper {
     try {
       Member m = MemberFinder.findBySubject(s, subj, true);
       Iterator<Membership> it = GrouperDAOFactory.getFactory().getMembership().findAllEffectiveByStemOwner(
-        stem.getUuid(), m.getUuid(), f, via.getUuid(), depth).iterator();
+        stem.getUuid(), m.getUuid(), f, via.getUuid(), depth, true).iterator();
         
       if (it.hasNext()) {
         mship = it.next();

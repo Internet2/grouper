@@ -33,7 +33,7 @@ import edu.internet2.middleware.subject.Subject;
 /** 
  * Basic <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: GroupDAO.java,v 1.27 2009-08-11 20:18:08 mchyzer Exp $
+ * @version $Id: GroupDAO.java,v 1.28 2009-08-18 23:11:38 shilen Exp $
  * @since   1.2.0
  */
 public interface GroupDAO extends GrouperDAO {
@@ -355,11 +355,12 @@ public interface GroupDAO extends GrouperDAO {
    * @param queryOptions
    * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
    * There are some constants in AccessPrivilege of pre-canned sets
+   * @param enabledOnly 
    * @return the set of groups
    * @throws GrouperDAOException
    */
   Set<Group> getImmediateChildrenMembershipSecure(GrouperSession grouperSession, 
-      Stem stem, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+      Stem stem, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, boolean enabledOnly)
     throws  GrouperDAOException;
 
 
@@ -456,11 +457,12 @@ public interface GroupDAO extends GrouperDAO {
    * @param queryOptions
    * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
    * There are some constants in AccessPrivilege of pre-canned sets
+   * @param enabledOnly 
    * @return groups
    * @throws GrouperDAOException
    */
   Set<Group> getAllGroupsMembershipSecure(GrouperSession grouperSession, 
-      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, boolean enabledOnly)
     throws  GrouperDAOException;
 
   /**
@@ -471,11 +473,24 @@ public interface GroupDAO extends GrouperDAO {
    * @param queryOptions
    * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
    * There are some constants in AccessPrivilege of pre-canned sets
+   * @param enabledOnly 
    * @return the groups
    * @throws GrouperDAOException
    */
   Set<Group> getAllGroupsMembershipSecure(String scope, GrouperSession grouperSession, 
-      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, boolean enabledOnly)
     throws  GrouperDAOException;
+  
+  /**
+   * @param groupId
+   */
+  public void updateLastMembershipChange(String groupId);
+  
+  /**
+   * This will update last_membership_change for group owners where group member in groupSet is the given groupId.
+   * @param groupId
+   */
+  public void updateLastMembershipChangeIncludeAncestorGroups(String groupId);
+  
 } 
 

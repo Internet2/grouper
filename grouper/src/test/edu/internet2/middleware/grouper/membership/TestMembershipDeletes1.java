@@ -150,24 +150,24 @@ public class TestMembershipDeletes1 extends TestCase {
       gN.addMember(subjB);
 
       // Remove SA -> gM (causes 2 membership deletes)
-      int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+      int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
       gM.deleteMember(subjA);
-      int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+      int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
       assertEquals("membership changes", -2, afterCount - beforeCount);
       gM.addMember(subjA);
       
       // Remove gM -> gL (causes 13 membership adds and 7 membership deletes)
-      beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+      beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
       gL.deleteMember(gM.toSubject());
-      afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+      afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
       assertEquals("membership changes", 6, afterCount - beforeCount);
       gL.addMember(gM.toSubject());
 
       // Add and remove SD -> gG (remove causes 1 membership delete)
       gG.addMember(subjD);
-      beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+      beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
       gG.deleteMember(subjD);
-      afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+      afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
       assertEquals("membership changes", -1, afterCount - beforeCount);
       
       // add and remove SF -> gI

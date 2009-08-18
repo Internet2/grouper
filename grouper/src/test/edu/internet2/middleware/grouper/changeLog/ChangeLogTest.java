@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: ChangeLogTest.java,v 1.8 2009-06-11 05:47:02 mchyzer Exp $
+ * $Id: ChangeLogTest.java,v 1.9 2009-08-18 23:11:39 shilen Exp $
  */
 package edu.internet2.middleware.grouper.changeLog;
 
@@ -771,7 +771,7 @@ public class ChangeLogTest extends GrouperTest {
     group.addMember(rootSubject);
     Membership membership = GrouperDAOFactory.getFactory().getMembership()
       .findByGroupOwnerAndMemberAndFieldAndType(group.getUuid(), rootMember.getUuid(), 
-          Group.getDefaultList(), "immediate", true);
+          Group.getDefaultList(), "immediate", true, true);
     
     int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_change_log_entry_temp");
@@ -913,7 +913,7 @@ public class ChangeLogTest extends GrouperTest {
     
     membership = GrouperDAOFactory.getFactory().getMembership()
       .findByGroupOwnerAndMemberAndFieldAndType(group.getUuid(), newMember1.getUuid(), 
-      Group.getDefaultList(), "immediate", true);
+      Group.getDefaultList(), "immediate", true, true);
 
     group.deleteMember(SubjectTestHelper.SUBJ1);
 

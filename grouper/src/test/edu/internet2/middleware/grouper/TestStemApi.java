@@ -17,6 +17,9 @@
 
 package edu.internet2.middleware.grouper;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 import junit.textui.TestRunner;
 
 import org.apache.commons.lang.StringUtils;
@@ -34,9 +37,11 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.CompositeType;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -44,7 +49,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Stem}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: TestStemApi.java,v 1.8 2009-04-28 18:45:00 shilen Exp $
+ * @version $Id: TestStemApi.java,v 1.9 2009-08-18 23:11:39 shilen Exp $
  * @since   1.2.1
  */
 public class TestStemApi extends GrouperTest {
@@ -156,6 +161,92 @@ public class TestStemApi extends GrouperTest {
     super.tearDown();
   }
 
+  /**
+   * @throws Exception
+   */
+  public void test_copy_with_disabled_memberships() throws Exception {
+    R r = R.populateRegistry(0, 0, 3);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+    Subject c = r.getSubject("c");
+    
+    Stem source = root.addChildStem("source", "source");
+    Stem target = root.addChildStem("target", "target");
+    Group group1 = source.addChildGroup("group1", "group1");
+    Group group2 = top.addChildGroup("group2", "group2");
+    Group otherGroup = top.addChildGroup("otherGroup", "otherGroup");
+    Stem otherStem = top.addChildStem("otherStem", "otherStem");
+    
+    source.grantPriv(group2.toSubject(), NamingPrivilege.CREATE);
+    group1.addMember(a);
+    group1.addMember(group2.toSubject());
+    group1.grantPriv(b, AccessPrivilege.UPDATE);
+    group2.addMember(c);
+    otherGroup.addMember(group1.toSubject());
+    otherGroup.grantPriv(group1.toSubject(), AccessPrivilege.UPDATE);
+    otherStem.grantPriv(group1.toSubject(), NamingPrivilege.CREATE);
+    
+    Timestamp disabledTime = new Timestamp(new Date().getTime() - 10000);
+    Timestamp enabledTime = new Timestamp(new Date().getTime() + 10000);
+    
+    Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        group1.getUuid(), group2.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        group1.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), FieldFinder.find("updaters", true), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        otherGroup.getUuid(), group1.toMember().getUuid(), FieldFinder.find("updaters", true), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        otherGroup.getUuid(), group1.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
+        otherStem.getUuid(), group1.toMember().getUuid(), FieldFinder.find("creators", true), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
+        source.getUuid(), group2.toMember().getUuid(), FieldFinder.find("creators", true), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    GrouperUtil.sleep(100);
+    Date pre = new Date();
+    GrouperUtil.sleep(100);
+    
+    Stem newStem = source.copy(target);
+    Group newGroup = (Group) newStem.getChildGroups().iterator().next();
+    
+    assertEquals(1, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, Group.getDefaultList(), true).size());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find("updaters", true), true).size());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find("creators", true), true).size());
+    
+    assertEquals(3, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, Group.getDefaultList(), false).size());
+    assertEquals(2, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find("updaters", true), false).size());
+    assertEquals(2, GrouperDAOFactory.getFactory().getMembership().findAllByCreatedAfter(pre, FieldFinder.find("creators", true), false).size());
+
+  }
 
 
   public void test_getChildGroups_fromRoot() {
