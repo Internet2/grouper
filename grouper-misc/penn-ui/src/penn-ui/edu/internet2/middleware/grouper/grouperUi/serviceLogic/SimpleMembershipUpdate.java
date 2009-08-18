@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.16 2009-08-17 17:48:36 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.17 2009-08-18 13:08:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -172,6 +172,8 @@ public class SimpleMembershipUpdate {
     //setup a hideShow
     GuiHideShow.init("simpleMembershipUpdateDeleteMultiple", false, 
         "", "", true);
+    GuiHideShow.init("simpleMembershipUpdateMemberFilter", false, 
+        "", "", true);
     GuiHideShow.init("simpleMembershipUpdateGroupDetails", false, 
         GuiUtils.message("simpleMembershipUpdate.hideGroupDetailsButton", false),
         GuiUtils.message("simpleMembershipUpdate.showGroupDetailsButton", false), true);
@@ -336,7 +338,14 @@ public class SimpleMembershipUpdate {
 
       group = this.retrieveGroup(grouperSession);
       groupName = group.getName();
-      
+
+      String simpleMembershipFilterMember = request.getParameter("simpleMembershipFilterMember");
+      simpleMembershipFilterMember = StringUtils.defaultIfEmpty(simpleMembershipFilterMember, 
+          simpleMembershipUpdateContainer.getMemberFilter());
+
+      if (StringUtils.isBlank(simpleMembershipFilterMember)) {
+        
+      }
       //we have the group, now get the members
       
       Set<Member> members;
@@ -600,6 +609,18 @@ public class SimpleMembershipUpdate {
   }
 
   /**
+   * clear the membership filter
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void clearMemberFilter(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
+    simpleMembershipUpdateContainer.setMemberFilter(null);
+    simpleMembershipUpdateContainer.setMemberFilterForScreen(null);
+    retrieveMembers(httpServletRequest, httpServletResponse);
+  }
+  
+  /**
    * handle a click or select from the advanced menu
    * @param httpServletRequest
    * @param httpServletResponse
@@ -627,6 +648,12 @@ public class SimpleMembershipUpdate {
         guiResponseJs.addAction(GuiScreenAction.newHideShowNameToShow("simpleMembershipUpdateDeleteMultiple"));
       } else {
         guiResponseJs.addAction(GuiScreenAction.newHideShowNameToHide("simpleMembershipUpdateDeleteMultiple"));
+      }
+    } else if (StringUtils.equals(menuItemId, "showMemberFilter")) {
+      if (GrouperUtil.booleanValue(menuCheckboxChecked)) {
+        guiResponseJs.addAction(GuiScreenAction.newHideShowNameToShow("simpleMembershipUpdateMemberFilter"));
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newHideShowNameToHide("simpleMembershipUpdateMemberFilter"));
       }
     } else if (StringUtils.equals(menuItemId, "exportSubjectIds")) {
       guiResponseJs.addAction(GuiScreenAction.newAlertFromJsp(
@@ -659,6 +686,10 @@ public class SimpleMembershipUpdate {
     GuiHideShow showMultiDelete = GuiHideShow.retrieveHideShow("simpleMembershipUpdateDeleteMultiple", true);
     String showMultiDeleteChecked = showMultiDelete.isShowing() ? " checked=\"true\"" : "";
 
+    //get the text to add to html if showing member filter
+    GuiHideShow showMemberFilter = GuiHideShow.retrieveHideShow("simpleMembershipUpdateMemberFilter", true);
+    String showMemberFilterChecked = showMemberFilter.isShowing() ? " checked=\"true\"" : "";
+
     GuiUtils.printToScreen(
         "<?xml version=\"1.0\"?>\n"
         + "<menu>\n"
@@ -670,6 +701,12 @@ public class SimpleMembershipUpdate {
         + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuShowGroupDetails"), true) 
         + "\" type=\"checkbox\" " + showGroupDetailsChecked + "><tooltip>" 
         + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuShowGroupDetailsTooltip"), true) + "</tooltip></item>\n"
+        
+        + "  <item id=\"showMemberFilter\" text=\"" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuShowMemberFilter"), true) 
+        + "\" type=\"checkbox\" " + showMemberFilterChecked + "><tooltip>" 
+        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuShowMemberFilterTooltip"), true) + "</tooltip></item>\n"
+
         + "  <item id=\"importExport\" text=\"" 
         + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuImportExport"), true) 
         + "\" ><tooltip>" 
@@ -1481,6 +1518,80 @@ public class SimpleMembershipUpdate {
       throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
     }
     
+  }
+
+  /**
+   * when text is typed into the combobox, this activates the list
+   * @param httpServletRequest
+   * @param httpServletResponse
+   */
+  public void filterMembers(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
+    //TODO change logic to go against member list
+    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+    
+    
+    GrouperSession grouperSession = null;
+  
+    Properties propertiesSettings = GuiUtils.propertiesGrouperUiSettings(); 
+    
+    String searchTerm = httpServletRequest.getParameter("mask");
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      
+      Set<Subject> subjects = null;
+      
+      StringBuilder xmlBuilder = new StringBuilder(GuiUtils.DHTMLX_OPTIONS_START);
+      QueryPaging queryPaging = null;
+      
+      //minimum input length
+      if (StringUtils.defaultString(searchTerm).length() < 2) {
+        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", "Enter 2 or more characters", null);
+      } else {
+        subjects = SubjectFinder.findAll(searchTerm);
+        
+        String maxSubjectsDropDownString = GrouperUtil.propertiesValue(propertiesSettings, "grouperUi.max.subjects.dropdown");
+        int maxSubjectsDropDown = GrouperUtil.intValue(maxSubjectsDropDownString, 50);
+  
+        queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
+        
+        //sort and page the results
+        subjects = GuiUtils.subjectsSortedPaged(subjects, queryPaging);
+        
+      }
+      
+      //convert to XML for DHTMLX
+      for (Subject subject : GrouperUtil.nonNull(subjects)) {
+        String value = GuiUtils.convertSubjectToValue(subject);
+  
+        String imageName = GuiUtils.imageFromSubjectSource(subject.getSource().getId());
+        String label = GuiUtils.convertSubjectToLabelConfigured(subject);
+  
+        GuiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
+      }
+  
+      //maybe add one more if we hit the limit
+      if (queryPaging != null && subjects.size() < queryPaging.getTotalRecordCount()) {
+        GuiUtils.dhtmlxOptionAppend(xmlBuilder, null, GuiUtils.message("simpleMembershipUpdate.errorUserSearchTooManyResults", false), 
+            "bullet_error.png");
+      } else if (subjects.size() == 0) {
+        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", GuiUtils.message("simpleMembershipUpdate.errorUserSearchNoResults", false), "bullet_error.png");
+      }
+  
+      xmlBuilder.append(GuiUtils.DHTMLX_OPTIONS_END);
+      
+      GuiUtils.printToScreen(xmlBuilder.toString(), "text/xml", false, false);
+  
+    } catch (Exception se) {
+      throw new RuntimeException("Error searching for members: '" + searchTerm + "', " + se.getMessage(), se);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  
+    //dont print the regular JSON
+    throw new ControllerDone();
+  
   }
   
 }

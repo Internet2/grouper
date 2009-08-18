@@ -1,9 +1,47 @@
 <%@ include file="../common/commonTaglib.jsp" %>
-<!-- Start: $Id: simpleMembershipMembershipList.jsp,v 1.8 2009-08-17 17:48:36 mchyzer Exp $ -->
+<!-- Start: $Id: simpleMembershipMembershipList.jsp,v 1.9 2009-08-18 13:08:36 mchyzer Exp $ -->
 <%-- this is the section of the screen which shows a box and the member list inside --%>
 <div class="section">
   <grouperGui:subtitle key="simpleMembershipUpdate.membershipListSubtitle"/>
 <div class="sectionBody"><br />
+
+  <%-- if showing member filter, then show the combobox --%>
+  <div class="shows_simpleMembershipUpdateMemberFilter"  
+      style="${grouperGui:hideShowStyle('simpleMembershipUpdateMemberFilter', true)}">
+    
+    <form id="simpleMembershipMemberFilterForm" name="simpleMembershipUpdateAddMemberForm" action="whatever">
+    <%-- describe the combobox, since it doesnt look like something you would type in to --%>
+    <div class="combohint"><grouperGui:message key="simpleMembershipUpdate.filterMemberCombohint"/></div>
+    <%-- note, the combobox does not currently auto adjust its width, so just make it really wide --%>
+    <table width="900" cellpadding="0" cellspacing="0">
+      <tr valign="top">
+        <td style="padding: 0px" width="710">
+          <%-- show the combobox --%>
+          <grouperGui:combobox filterOperation="SimpleMembershipUpdate.filterMembers" id="simpleMembershipFilterMember" 
+            width="700"/>
+        </td>
+        <td>
+          <%-- add member button --%>
+          <input class="blueButton" type="submit" 
+          onclick="ajax('../app/SimpleMembershipUpdate.retrieveMembers', {formIds: 'simpleMembershipMemberFilterForm'}); return false;" 
+          value="${grouperGui:message('simpleMembershipUpdate.filterMemberButton', true, false) }" style="margin-top: 2px" />
+        </td>
+      </tr>
+    </table>
+    </form>
+    <br />
+    
+    <%-- if the member filter for screen is not empty, then tell the user what we are filtering on --%>
+    <c:if test="${! empty simpleMembershipUpdateContainer.memberFilterForScreen}">
+      <span class="simpleMembershipUpdateFilterLabel"><grouperGui:message key="simpleMembershipUpdate.filterLabel" /></span>
+      <span class="simpleMembershipUpdateFilterValue"><c:out value="${simpleMembershipUpdateContainer.memberFilterForScreen}" /></span>
+      <span class="simpleMembershipUpdateFilterClear"
+        ><a href="#" onclick="ajax('SimpleMembershipUpdate.clearMemberFilter'); return false;"
+          ><grouperGui:message key="simpleMembershipUpdate.clearFilterButton" /></a></span>
+      <br />
+    </c:if>
+
+  </div>
 
   <%-- paging summary shows which records, and page size --%>
   <div class="pagingSummary">
@@ -78,4 +116,4 @@
 <br />
 </div>
 </div>
-<!-- End: $Id: simpleMembershipMembershipList.jsp,v 1.8 2009-08-17 17:48:36 mchyzer Exp $ -->
+<!-- End: $Id: simpleMembershipMembershipList.jsp,v 1.9 2009-08-18 13:08:36 mchyzer Exp $ -->

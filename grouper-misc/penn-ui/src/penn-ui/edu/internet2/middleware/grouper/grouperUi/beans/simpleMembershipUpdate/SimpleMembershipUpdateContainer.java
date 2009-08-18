@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdateContainer.java,v 1.2 2009-08-17 17:48:36 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateContainer.java,v 1.3 2009-08-18 13:08:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate;
 
@@ -72,6 +72,52 @@ public class SimpleMembershipUpdateContainer implements Serializable {
    */
   private Subject subjectForDetails;
   
+  /**
+   * filter by this, could be the key which is sourceId____subjectId, or just a string literal if nothing is selected
+   */
+  private String memberFilter;
+  
+  /**
+   * if showing the user what is being filtered, put that here.  This wouldnt be
+   * sourceId____subjectId, it would be friendlier
+   */
+  private String memberFilterForScreen;
+  
+  /**
+   * if showing the user what is being filtered, put that here.  This wouldnt be
+   * sourceId____subjectId, it would be friendlier
+   * @return the memberFilterForScreen
+   */
+  public String getMemberFilterForScreen() {
+    return this.memberFilterForScreen;
+  }
+  
+  /**
+   * if showing the user what is being filtered, put that here.  This wouldnt be
+   * sourceId____subjectId, it would be friendlier
+   * @param memberFilterForScreen1 the memberFilterForScreen to set
+   */
+  public void setMemberFilterForScreen(String memberFilterForScreen1) {
+    this.memberFilterForScreen = memberFilterForScreen1;
+  }
+
+  /**
+   * filter by this, could be the key which is sourceId____subjectId, or just a string literal if nothing is selected
+   * @return the memberFilter
+   */
+  public String getMemberFilter() {
+    return this.memberFilter;
+  }
+
+  
+  /**
+   * filter by this, could be the key which is sourceId____subjectId, or just a string literal if nothing is selected
+   * @param memberFilter1 the memberFilter to set
+   */
+  public void setMemberFilter(String memberFilter1) {
+    this.memberFilter = memberFilter1;
+  }
+
   /**
    * subject for screen
    * @return the subjectForDetails
