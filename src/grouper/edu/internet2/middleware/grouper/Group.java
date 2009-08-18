@@ -52,6 +52,7 @@ import edu.internet2.middleware.grouper.exception.GrantPrivilegeAlreadyExistsExc
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
+import edu.internet2.middleware.grouper.exception.GroupModifyAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupModifyException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
@@ -124,7 +125,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.254 2009-08-12 12:44:45 shilen Exp $
+ * @version $Id: Group.java,v 1.255 2009-08-18 23:11:38 shilen Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -2513,7 +2514,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     return new LinkedHashSet<Membership>( 
       PrivilegeHelper.canViewMemberships( 
         GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory()
-          .getMembership().findAllByGroupOwnerAndField( this.getUuid(), f )
+          .getMembership().findAllByGroupOwnerAndField(this.getUuid(), f, true)
       )
     );
   } // public Set getMemberships(f)
@@ -2537,7 +2538,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     throws  SchemaException {
     return PrivilegeHelper.canViewMemberships( 
         GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership()
-          .findAllByGroupOwnerAndFieldAndMembers( this.getUuid(), f, members )
+          .findAllByGroupOwnerAndFieldAndMembers(this.getUuid(), f, members, true)
       );
   }
 
@@ -2560,7 +2561,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     throws  SchemaException {
     return PrivilegeHelper.canViewMemberships( 
         GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership()
-          .findAllByGroupOwnerAndFieldAndMembersAndType( this.getUuid(), f, members, "immediate" )
+          .findAllByGroupOwnerAndFieldAndMembersAndType(this.getUuid(), f, members, "immediate", true)
       );
   }
 
@@ -2583,7 +2584,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     throws  SchemaException {
     return PrivilegeHelper.canViewMemberships( 
         GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership()
-          .findAllByGroupOwnerAndFieldAndMembersAndType( this.getUuid(), f, members, "effective" )
+          .findAllByGroupOwnerAndFieldAndMembersAndType(this.getUuid(), f, members, "effective", true)
       );
   }
 
@@ -2605,7 +2606,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
     throws  SchemaException {
     return PrivilegeHelper.canViewMemberships( 
         GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership()
-          .findAllByGroupOwnerAndCompositeAndMembers( this.getUuid(), members )
+          .findAllByGroupOwnerAndCompositeAndMembers(this.getUuid(), members, true)
       );
   }
 
@@ -3681,7 +3682,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
                   Group check = GrouperDAOFactory.getFactory().getGroup().findByName(
                       Group.this.getAlternateNameDb(), false);
                   if (check != null) {
-                    throw new GroupModifyException("Group with name " + 
+                    throw new GroupModifyAlreadyExistsException("Group with name " + 
                         Group.this.getAlternateNameDb() + " already exists.");
                   }
                 }
@@ -3696,7 +3697,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
                     (!check.getUuid().equals(Group.this.getUuid()) || 
                         (Group.this.getAlternateNameDb() != null && 
                             Group.this.getAlternateNameDb().equals(Group.this.getNameDb())))) {
-                  throw new GroupModifyException("Group with name " + 
+                  throw new GroupModifyAlreadyExistsException("Group with name " + 
                       Group.this.getNameDb() + " already exists.");
                 }
               }
@@ -5009,7 +5010,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
                 try {
                   newGroup = stem.internal_addChildGroup(actAs, Group.this.getExtension(),
                       Group.this.getDisplayExtensionDb(), null, Group.this
-                          .getDescription(), Group.this.getTypesDb(), attributesMap,
+                          .description, Group.this.getTypesDb(), attributesMap,
                       addDefaultGroupPrivileges);
                 } catch (GroupAddException e) {
                   Group test = GroupFinder.findByName(GrouperSession
@@ -5038,7 +5039,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
                   
                   newGroup = stem.internal_addChildGroup(actAs, newGroupExtension,
                       Group.this.getDisplayExtensionDb(), null, Group.this
-                          .getDescription(), Group.this.getTypesDb(), attributesMap,
+                          .description, Group.this.getTypesDb(), attributesMap,
                 addDefaultGroupPrivileges);
                 }
             
@@ -5118,15 +5119,28 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
 
     Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
         .findAllImmediateByMemberAndFieldType(group.toMember().getUuid(),
-            FieldType.LIST.toString());
+            FieldType.LIST.toString(), false);
+    
+    if (memberships.size() == 0) {
+      return;
+    }
+    
+    Member member = MemberFinder.findBySubject(session, this.toSubject(), true);
 
     Iterator<Membership> membershipsIter = memberships.iterator();
     while (membershipsIter.hasNext()) {
-      Membership ms = membershipsIter.next();
-      Field f = FieldFinder.findById(ms.getFieldId(), true);
-      Group g = ms.getGroup();
+      Membership existingMembership = membershipsIter.next();
+      Field f = FieldFinder.findById(existingMembership.getFieldId(), true);
+      Group g = existingMembership.getGroup();
       PrivilegeHelper.dispatch(session, g, session.getSubject(), f.getWritePriv());
-      Membership.internal_addImmediateMembership(session, g, this.toSubject(), f);
+      Membership copiedMembership = existingMembership.clone();
+      copiedMembership.setMemberUuid(member.getUuid());
+      copiedMembership.setMember(member);
+      copiedMembership.setCreatorUuid(session.getMemberUuid());
+      copiedMembership.setCreateTimeLong(new Date().getTime());
+      copiedMembership.setImmediateMembershipId(GrouperUuid.getUuid());
+      copiedMembership.setHibernateVersionNumber(-1L);
+      GrouperDAOFactory.getFactory().getMembership().save(copiedMembership);
     }
   }
 
@@ -5146,11 +5160,20 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
       Field f = iter.next();
       
       if (group.hasType(f.getGroupType())) {
-        Set<Subject> subjs = MembershipFinder.internal_findGroupSubjectsImmediateOnly(session, group, f);       
-        Iterator<Subject> subjectIter = subjs.iterator();
-        while (subjectIter.hasNext()) {
-          Subject subj = subjectIter.next();
-          Membership.internal_addImmediateMembership(session, this, subj, f);
+        PrivilegeHelper.dispatch(session, group, session.getSubject(), f.getReadPriv());
+        Iterator<Membership> membershipsIter = GrouperDAOFactory.getFactory().getMembership()
+            .findAllByGroupOwnerAndFieldAndType(group.getUuid(), f,
+                Membership.IMMEDIATE, false).iterator();
+
+        while (membershipsIter.hasNext()) {
+          Membership existingMembership = membershipsIter.next();
+          Membership copiedMembership = existingMembership.clone();
+          copiedMembership.setOwnerGroupId(this.getUuid());
+          copiedMembership.setCreatorUuid(session.getMemberUuid());
+          copiedMembership.setCreateTimeLong(new Date().getTime());
+          copiedMembership.setImmediateMembershipId(GrouperUuid.getUuid());
+          copiedMembership.setHibernateVersionNumber(-1L);
+          GrouperDAOFactory.getFactory().getMembership().save(copiedMembership);
         }
       }
     }

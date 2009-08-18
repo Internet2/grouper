@@ -50,7 +50,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.40 2009-08-12 12:44:45 shilen Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.41 2009-08-18 23:11:38 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -64,12 +64,18 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
   /**
    * get all memberships
+   * @param enabledOnly
    * @return set
    */
-  public Set<Membership> findAll() {
+  public Set<Membership> findAll(boolean enabledOnly) {
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where "
+        + "ms.memberUuid  = m.uuid ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
     Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery("select ms, m from MembershipEntry as ms, Member as m where "
-        + "ms.memberUuid  = m.uuid ")
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAll")
       .listSet(Object[].class);
@@ -79,14 +85,22 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * find all memberships that have this member or have this creator
    * @param member
+   * @param enabledOnly
    * @return the memberships
    */
-  public Set<Membership> findAllByCreatorOrMember(Member member) {
+  public Set<Membership> findAllByCreatorOrMember(Member member, boolean enabledOnly) {
     if (member == null || StringUtils.isBlank(member.getUuid())) {
       throw new RuntimeException("Need to pass in a member");
     }
+    
+    StringBuilder sql = new StringBuilder("select distinct m from MembershipEntry as m where " +
+        " (m.creatorUuid = :uuid or m.memberUuid = :uuid or m.groupSetCreatorId = :uuid) ");
+    if (enabledOnly) {
+      sql.append(" and m.enabledDb = 'T'");
+    }
+    
     Set<Membership> memberships = HibernateSession.byHqlStatic()
-      .createQuery("select distinct m from MembershipEntry as m where m.creatorUuid = :uuid or m.memberUuid = :uuid or m.groupSetCreatorId = :uuid")
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByCreatorOrMember")
       .setString("uuid", member.getUuid())
@@ -98,18 +112,25 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @param d 
    * @param f 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllByCreatedAfter(Date d, Field f) 
+  public Set<Membership> findAllByCreatedAfter(Date d, Field f, boolean enabledOnly) 
     throws  GrouperDAOException
   {
-	  Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery("select ms, m from MembershipEntry as ms, Member as m where  "
+
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where  "
         + "  (   ms.createTimeLong > :time   or    ms.groupSetCreateTimeLong > :time   )      "
         + "and  ms.fieldId = :fuuid "
-        + "and  ms.memberUuid  = m.uuid         ")
+        + "and  ms.memberUuid  = m.uuid  ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByCreatedAfter")
       .setLong(   "time",  d.getTime()            )
@@ -121,19 +142,25 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @param d 
    * @param f 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllByCreatedBefore(Date d, Field f) 
+  public Set<Membership> findAllByCreatedBefore(Date d, Field f, boolean enabledOnly) 
     throws  GrouperDAOException
   {
-	  Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(
-        "select ms, m from MembershipEntry as ms, Member as m where  "
+    
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where  "
         + "  (   ms.createTimeLong < :time   and    ms.groupSetCreateTimeLong < :time   )      "
         + "and  ms.fieldId = :fuuid "
-        + "and  ms.memberUuid  = m.uuid         ")
+        + "and  ms.memberUuid  = m.uuid  ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByCreatedAfter")
       .setLong(   "time",  d.getTime()            )
@@ -146,15 +173,22 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
   /**
    * @param memberUUID 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllByMember(String memberUUID) 
+  public Set<Membership> findAllByMember(String memberUUID, boolean enabledOnly) 
     throws  GrouperDAOException {
+    
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where ms.memberUuid = :member "
+             + "and  ms.memberUuid  = m.uuid  ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
 	  Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery("select ms, m from MembershipEntry as ms, Member as m where ms.memberUuid = :member "
-    		     + "and  ms.memberUuid  = m.uuid         ")
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByMember")
       .setString("member", memberUUID)
@@ -165,20 +199,24 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @param memberUUID 
    * @param viaGroupId 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllByMemberAndViaGroup(String memberUUID, String viaGroupId) 
+  public Set<Membership> findAllByMemberAndViaGroup(String memberUUID, String viaGroupId, boolean enabledOnly) 
     throws  GrouperDAOException {
 
-	  Set<Object[]> mships =  HibernateSession.byHqlStatic()
-      .createQuery(
-        "select ms, m from MembershipEntry as ms, Member as m where  "
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where  "
         + "     ms.memberUuid  = :member          "
         + "and  ms.viaGroupId     = :via             "
-        + "and  ms.memberUuid  = m.uuid         "
-      )
+        + "and  ms.memberUuid  = m.uuid         ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+
+	  Set<Object[]> mships =  HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setString( "member", memberUUID )
       .setString( "via",    viaGroupId    ).listSet(Object[].class);
     return _getMembershipsFromMembershipAndMemberQuery(mships);
@@ -187,18 +225,24 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @param ownerGroupId 
    * @param f 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllByGroupOwnerAndField(String ownerGroupId, Field f) 
+  public Set<Membership> findAllByGroupOwnerAndField(String ownerGroupId, Field f, boolean enabledOnly) 
     throws  GrouperDAOException {
-	  Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(
-        "select ms, m from MembershipEntry as ms, Member as m where  "
+    
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where  "
         + "     ms.ownerGroupId   = :owner            "
         + "and  ms.fieldId = :fuuid "
-        + "and  ms.memberUuid  = m.uuid         ")
+        + "and  ms.memberUuid  = m.uuid  ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByGroupOwnerAndField")
       .setString( "owner", ownerGroupId                )
@@ -210,18 +254,25 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @param ownerStemId 
    * @param f 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllByStemOwnerAndField(String ownerStemId, Field f) 
+  public Set<Membership> findAllByStemOwnerAndField(String ownerStemId, Field f, boolean enabledOnly) 
     throws  GrouperDAOException {
-    Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(
-        "select ms, m from MembershipEntry as ms, Member as m where  "
+    
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where  "
         + "     ms.ownerStemId   = :owner            "
         + "and  ms.fieldId = :fuuid "
-        + "and  ms.memberUuid  = m.uuid         ")
+        + "and  ms.memberUuid  = m.uuid  ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+    
+    Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByStemOwnerAndField")
       .setString( "owner", ownerStemId                )
@@ -234,18 +285,25 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @param ownerStemId 
    * @param f 
    * @param type 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllByStemOwnerAndFieldAndType(String ownerStemId, Field f, String type) 
+  public Set<Membership> findAllByStemOwnerAndFieldAndType(String ownerStemId, Field f, String type, boolean enabledOnly) 
     throws  GrouperDAOException {
+    
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where  "
+          + "     ms.ownerStemId   = :owner            "
+          + "and  ms.fieldId = :fuuid "
+          + "and  ms.memberUuid  = m.uuid         "
+          + "and  ms.type = :type   ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
 	  Set<Object[]> mships = HibernateSession.byHqlStatic()
-	      .createQuery("select ms, m from MembershipEntry as ms, Member as m where  "
-	        + "     ms.ownerStemId   = :owner            "
-	        + "and  ms.fieldId = :fuuid "
-	        + "and  ms.memberUuid  = m.uuid         "
-	        + "and  ms.type = :type             ")
+	      .createQuery(sql.toString())
 	      .setCacheable(false)
 	      .setCacheRegion(KLASS + ".FindMembershipsByStemOwnerType")
 	      .setString( "owner" , ownerStemId                 )
@@ -260,18 +318,25 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @param ownerGroupId 
    * @param f 
    * @param type 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllByGroupOwnerAndFieldAndType(String ownerGroupId, Field f, String type) 
+  public Set<Membership> findAllByGroupOwnerAndFieldAndType(String ownerGroupId, Field f, String type, boolean enabledOnly) 
     throws  GrouperDAOException {
-    Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery("select ms, m from MembershipEntry as ms, Member as m where  "
+    
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where  "
         + "     ms.ownerGroupId   = :owner            "
         + "and  ms.fieldId = :fuuid "
         + "and  ms.memberUuid  = m.uuid         "
-        + "and  ms.type = :type             ")
+        + "and  ms.type = :type   ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+    Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindMembershipsByGroupOwnerType")
       .setString( "owner" , ownerGroupId                 )
@@ -281,24 +346,59 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
     return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
+  
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerAndFieldAndDepth(java.lang.String, edu.internet2.middleware.grouper.Field, int, boolean)
+   */
+  public Set<Membership> findAllByGroupOwnerAndFieldAndDepth(String ownerGroupId, Field f, int depth, boolean enabledOnly) {
+    
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where "
+        + "ms.ownerGroupId = :owner "
+        + "and ms.fieldId = :fuuid "
+        + "and ms.memberUuid = m.uuid "
+        + "and ms.depth = :depth ");
+    
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+    Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllByGroupOwnerAndFieldAndDepth")
+      .setString("owner", ownerGroupId)
+      .setString("fuuid", f.getUuid())
+      .setInteger("depth", depth)
+      .listSet(Object[].class);
+
+    return _getMembershipsFromMembershipAndMemberQuery(mships);
+  } 
 
   /**
    * @param ownerStemId 
    * @param memberUUID 
    * @param f 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllByStemOwnerAndMemberAndField(String ownerStemId, String memberUUID, Field f) 
+  public Set<Membership> findAllByStemOwnerAndMemberAndField(String ownerStemId, String memberUUID, Field f, boolean enabledOnly) 
     throws  GrouperDAOException {
-	  Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(
-        "select ms, m from MembershipEntry as ms, Member as m where  "
+    
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m where  "
         + "     ms.ownerStemId   = :owner            "  
         + "and  ms.memberUuid  = :member           "
         + "and  ms.fieldId = :fuuid "
-        + "and  ms.memberUuid  = m.uuid         ")
+        + "and  ms.memberUuid  = m.uuid   ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+    
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByStemOwnerAndMemberAndField")
       .setString( "owner",  ownerStemId              )
@@ -312,19 +412,25 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @param ownerGroupId 
    * @param memberUUID 
    * @param f 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllByGroupOwnerAndMemberAndField(String ownerGroupId, String memberUUID, Field f) 
+  public Set<Membership> findAllByGroupOwnerAndMemberAndField(String ownerGroupId, String memberUUID, Field f, boolean enabledOnly) 
     throws  GrouperDAOException {
-    Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(
-        "select ms, m from MembershipEntry as ms, Member as m, Field as field where  "
+    
+    StringBuilder sql = new StringBuilder("select ms, m from MembershipEntry as ms, Member as m, Field as field where  "
         + "     ms.ownerGroupId   = :owner            "  
         + "and  ms.memberUuid  = :member           "
         + "and  ms.fieldId = :fuuid "
-        + "and  ms.memberUuid  = m.uuid         ")
+        + "and  ms.memberUuid  = m.uuid    ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+    Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByGroupOwnerAndMemberAndField")
       .setString( "owner",  ownerGroupId              )
@@ -334,30 +440,34 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
        return _getMembershipsFromMembershipAndMemberQuery(mships);
   } 
 
-  /**
-   * 
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllMembersByGroupOwnerAndField(java.lang.String, edu.internet2.middleware.grouper.Field)
-   */
-  public Set<Member> findAllMembersByGroupOwnerAndField(String groupOwnerId, Field f)
-    throws  GrouperDAOException
-  {
-    return findAllMembersByGroupOwnerAndField(groupOwnerId, f, null);
-  }
 
   /**
-   * 
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllMembersByGroupOwnerAndField(java.lang.String, edu.internet2.middleware.grouper.Field, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllMembersByGroupOwnerAndField(java.lang.String, edu.internet2.middleware.grouper.Field, boolean)
    */
-  public Set<Member> findAllMembersByGroupOwnerAndField(String groupOwnerId, Field f, QueryOptions queryOptions)
+  public Set<Member> findAllMembersByGroupOwnerAndField(String groupOwnerId, Field f, boolean enabledOnly)
     throws  GrouperDAOException
   {
-    return HibernateSession.byHqlStatic().options(queryOptions)
-      .createQuery(
-          "select m"
+    return findAllMembersByGroupOwnerAndField(groupOwnerId, f, null, enabledOnly);
+  }
+
+ 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllMembersByGroupOwnerAndField(java.lang.String, edu.internet2.middleware.grouper.Field, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean)
+   */
+  public Set<Member> findAllMembersByGroupOwnerAndField(String groupOwnerId, Field f, QueryOptions queryOptions, boolean enabledOnly)
+    throws  GrouperDAOException
+  {
+    StringBuilder sql = new StringBuilder("select m"
         + " from Member m, MembershipEntry ms where"
         + " ms.ownerGroupId      = :owner "
         + "and  ms.fieldId = :fieldId "
-        + " and ms.memberUuid = m.uuid")
+        + " and ms.memberUuid = m.uuid ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+    return HibernateSession.byHqlStatic().options(queryOptions)
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllMembersByGroupOwnerAndField")
       .setString( "owner", groupOwnerId ) 
@@ -370,22 +480,27 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @param f 
    * @param type 
    * @param queryOptions 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Member> findAllMembersByGroupOwnerAndFieldAndType(
-      String ownerGroupId, Field f, String type, QueryOptions queryOptions) 
+      String ownerGroupId, Field f, String type, QueryOptions queryOptions, boolean enabledOnly) 
     throws  GrouperDAOException {
 
+    StringBuilder sql = new StringBuilder("select m "
+        + "from Member m, MembershipEntry ms where "
+        + "ms.ownerGroupId = :owner "
+        + "and ms.fieldId = :fieldId "
+        + "and ms.type = :type "
+        + "and ms.memberUuid = m.uuid  ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
     return HibernateSession.byHqlStatic()
-    .createQuery(
-        "select m "
-      + "from Member m, MembershipEntry ms where "
-      + "ms.ownerGroupId = :owner "
-        + "and  ms.fieldId = :fieldId "
-      + "and ms.type = :type "
-      + "and ms.memberUuid = m.uuid ")
+    .createQuery(sql.toString())
     .setCacheable(false)
     .setCacheRegion(KLASS + ".FindAllMembersByGroupOwnerAndFieldTypeAndType")
     .options(queryOptions)
@@ -401,22 +516,27 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @param f 
    * @param type 
    * @param queryOptions 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
   public Set<Member> findAllMembersByStemOwnerAndFieldAndType(
-      String ownerStemId, Field f, String type, QueryOptions queryOptions) 
+      String ownerStemId, Field f, String type, QueryOptions queryOptions, boolean enabledOnly) 
     throws  GrouperDAOException {
 
-    return HibernateSession.byHqlStatic()
-    .createQuery(
-        "select m "
+    StringBuilder sql = new StringBuilder("select m "
       + "from Member m, MembershipEntry ms where "
       + "ms.ownerStemId = :owner "
-      + "and  ms.fieldId = :fieldId "
+      + "and ms.fieldId = :fieldId "
       + "and ms.type = :type "
-      + "and ms.memberUuid = m.uuid ")
+      + "and ms.memberUuid = m.uuid  ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+    return HibernateSession.byHqlStatic()
+    .createQuery(sql.toString())
     .setCacheable(false)
     .setCacheRegion(KLASS + ".FindAllMembersByStemOwnerAndFieldTypeAndType")
     .options(queryOptions)
@@ -429,12 +549,12 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /** batch size for memberships (setable for testing) */
   static int batchSize = 50;
 
+
   /**
-   * 
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerAndFieldAndMembersAndType(java.lang.String, edu.internet2.middleware.grouper.Field, java.util.Collection, java.lang.String)
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerAndFieldAndMembersAndType(java.lang.String, edu.internet2.middleware.grouper.Field, java.util.Collection, java.lang.String, boolean)
    */
   public Set<Membership> findAllByGroupOwnerAndFieldAndMembersAndType(String ownerGroupId,
-      Field f, Collection<Member> members, String type) throws GrouperDAOException {
+      Field f, Collection<Member> members, String type, boolean enabledOnly) throws GrouperDAOException {
     
     if (members == null) {
       return null;
@@ -467,6 +587,11 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       //add all the uuids
       byHqlStatic.setCollectionInClause(query, uuids);
       query.append(")");
+      
+      if (enabledOnly) {
+        query.append(" and ms.enabledDb = 'T'");
+      }
+      
       List<Membership> currentList = byHqlStatic.createQuery(query.toString())
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindAllByOwnerAndFieldAndMembers")
@@ -477,11 +602,12 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       
   }
 
+
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerAndFieldAndMembers(java.lang.String, edu.internet2.middleware.grouper.Field, java.util.Collection)
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerAndFieldAndMembers(java.lang.String, edu.internet2.middleware.grouper.Field, java.util.Collection, boolean)
    */
   public Set<Membership> findAllByGroupOwnerAndFieldAndMembers(String ownerGroupId,
-      Field f, Collection<Member> members) throws GrouperDAOException {
+      Field f, Collection<Member> members, boolean enabledOnly) throws GrouperDAOException {
     
     if (members == null) {
       return null;
@@ -511,6 +637,11 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       //add all the uuids
       byHqlStatic.setCollectionInClause(query, uuids);
       query.append(")");
+      
+      if (enabledOnly) {
+        query.append(" and ms.enabledDb = 'T'");
+      }
+      
       List<Membership> currentList = byHqlStatic.createQuery(query.toString())
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindAllByOwnerAndFieldAndMembers")
@@ -521,11 +652,12 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       
   }
 
+
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerAndCompositeAndMembers(java.lang.String, java.util.Collection)
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllByGroupOwnerAndCompositeAndMembers(java.lang.String, java.util.Collection, boolean)
    */
   public Set<Membership> findAllByGroupOwnerAndCompositeAndMembers(String ownerGroupId,
-      Collection<Member> members) throws GrouperDAOException {
+      Collection<Member> members, boolean enabledOnly) throws GrouperDAOException {
     
     if (members == null) {
       return null;
@@ -554,6 +686,11 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       //add all the uuids
       byHqlStatic.setCollectionInClause(query, uuids);
       query.append(")");
+      
+      if (enabledOnly) {
+        query.append(" and ms.enabledDb = 'T'");
+      }
+      
       List<Membership> currentList = byHqlStatic.createQuery(query.toString())
         .setCacheable(false)
         .setCacheRegion(KLASS + ".FindAllByOwnerAndCompositeAndMembers")
@@ -564,39 +701,26 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       
   }
 
-  /**
-   * @param ownerGroupId 
-   * @param memberUUID 
-   * @param f 
-   * @param type 
-   * @return membership
-   * @throws GrouperDAOException 
-   * @throws MembershipNotFoundException 
-   * @since   @HEAD@
-   * @deprecated
-   */
-  @Deprecated 
-  public Membership findByGroupOwnerAndMemberAndFieldAndType(String ownerGroupId, String memberUUID, Field f, String type)
-    throws  GrouperDAOException,
-            MembershipNotFoundException {
-    return findByGroupOwnerAndMemberAndFieldAndType(ownerGroupId, memberUUID, f, type, true);
-  }
 
   /**
-   * 
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findByGroupOwnerAndMemberAndFieldAndType(java.lang.String, java.lang.String, edu.internet2.middleware.grouper.Field, java.lang.String, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findByGroupOwnerAndMemberAndFieldAndType(java.lang.String, java.lang.String, edu.internet2.middleware.grouper.Field, java.lang.String, boolean, boolean)
    */
   public Membership findByGroupOwnerAndMemberAndFieldAndType(String ownerGroupId,
-      String memberUUID, Field f, String type, boolean exceptionIfNull)
+      String memberUUID, Field f, String type, boolean exceptionIfNull, boolean enabledOnly)
       throws GrouperDAOException, MembershipNotFoundException {
 
-    Object[] result = HibernateSession.byHqlStatic().createQuery(
+    StringBuilder sql = new StringBuilder(
         "select ms, m from MembershipEntry as ms, Member as m where  "
             + "     ms.ownerGroupId  = :owner            "
             + "and  ms.memberUuid = :member           " 
             + "and  ms.fieldId = :fuuid "
-            + "and  ms.memberUuid = m.uuid  "
-            + "and  ms.type       = :type             ")
+            + "and  ms.memberUuid = m.uuid  " 
+            + "and  ms.type       = :type  ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+      
+    Object[] result = HibernateSession.byHqlStatic().createQuery(sql.toString())
         .setCacheable(false).setCacheRegion(
             KLASS + ".FindByGroupOwnerAndMemberAndFieldAndType").setString("owner",
             ownerGroupId).setString("member", memberUUID)      
@@ -618,39 +742,25 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
 
   /**
-   * @param ownerStemId 
-   * @param memberUUID 
-   * @param f 
-   * @param type 
-   * @return membership
-   * @throws GrouperDAOException 
-   * @throws MembershipNotFoundException 
-   * @since   @HEAD@
-   * @deprecated
-   */
-  @Deprecated
-  public Membership findByStemOwnerAndMemberAndFieldAndType(String ownerStemId, String memberUUID, Field f, String type)
-    throws  GrouperDAOException,
-            MembershipNotFoundException {
-    return findByStemOwnerAndMemberAndFieldAndType(ownerStemId, memberUUID, f, type, true);
-  } 
-
-  /**
-   * 
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findByStemOwnerAndMemberAndFieldAndType(java.lang.String, java.lang.String, edu.internet2.middleware.grouper.Field, java.lang.String, boolean)
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findByStemOwnerAndMemberAndFieldAndType(java.lang.String, java.lang.String, edu.internet2.middleware.grouper.Field, java.lang.String, boolean, boolean)
    */
   public Membership findByStemOwnerAndMemberAndFieldAndType(String ownerStemId,
-      String memberUUID, Field f, String type, boolean exceptionIfNull)
+      String memberUUID, Field f, String type, boolean exceptionIfNull, boolean enabledOnly)
       throws GrouperDAOException, MembershipNotFoundException {
 
-    Object result[] = HibernateSession.byHqlStatic()
-      .createQuery(
+    StringBuilder sql = new StringBuilder(
         "select distinct ms, m from MembershipEntry as ms, Member as m, Field as field where  "
         + "     ms.ownerStemId  = :owner            "
         + "and  ms.memberUuid = :member           "
-          + "and  ms.fieldId = :fuuid "
+        + "and  ms.fieldId = :fuuid "
         + "and  ms.memberUuid = m.uuid  "
-        + "and  ms.type       = :type ")
+        + "and  ms.type       = :type  ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+    Object result[] = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByStemOwnerAndMemberAndFieldAndType")
       .setString( "owner",  ownerStemId              )
@@ -674,16 +784,23 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
   /**
    * @param _ms 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllChildMemberships(Membership _ms) 
+  public Set<Membership> findAllChildMemberships(Membership _ms, boolean enabledOnly) 
     throws  GrouperDAOException
   {
+    StringBuilder sql = new StringBuilder(
+        "select ms, m from MembershipEntry as ms, Member as m where ms.groupSetParentId = :parentId "
+             + "and ms.viaGroupId = :viaGroupId and ms.memberUuid = m.uuid ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
     Set<Object[]> mships =  HibernateSession.byHqlStatic()
-      .createQuery("select ms, m from MembershipEntry as ms, Member as m where ms.groupSetParentId = :parentId "
-    		     + "and ms.viaGroupId = :viaGroupId and ms.memberUuid = m.uuid")
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindChildMemberships")
       .setString("parentId", _ms.getGroupSetId())
@@ -697,27 +814,33 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @param memberUUID 
    * @param f 
    * @param viaGroupId 
-   * @param depth 
+   * @param depth
+   * @param enabledOnly 
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllEffectiveByGroupOwner(String ownerGroupId, String memberUUID, Field f, String viaGroupId, int depth) 
+  public Set<Membership> findAllEffectiveByGroupOwner(String ownerGroupId, String memberUUID, Field f, String viaGroupId, int depth, boolean enabledOnly) 
     throws  GrouperDAOException
   {
     if (depth <= 0) {
       return new LinkedHashSet<Membership>();
     }
     
-	  Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(
+    StringBuilder sql = new StringBuilder(
         "select ms, m from MembershipEntry as ms, Member as m where  "
-        + "     ms.ownerGroupId  = :owner            "
-        + "and  ms.memberUuid = :member           "
-        + "and  ms.fieldId = :fuuid "
-        + "and  ms.viaGroupId    = :via              "
-        + "and  ms.depth      = :depth            "
-        + "and ms.memberUuid = m.uuid")
+          + "     ms.ownerGroupId  = :owner            "
+          + "and  ms.memberUuid = :member           "
+          + "and  ms.fieldId = :fuuid "
+          + "and  ms.viaGroupId    = :via              "
+          + "and  ms.depth      = :depth            "
+          + "and ms.memberUuid = m.uuid ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllEffectiveByGroupOwner")
       .setString( "owner",  ownerGroupId              )
@@ -735,26 +858,32 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @param f 
    * @param viaGroupId 
    * @param depth 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllEffectiveByStemOwner(String ownerStemId, String memberUUID, Field f, String viaGroupId, int depth) 
+  public Set<Membership> findAllEffectiveByStemOwner(String ownerStemId, String memberUUID, Field f, String viaGroupId, int depth, boolean enabledOnly) 
     throws  GrouperDAOException
   {
     if (depth <= 0) {
       return new LinkedHashSet<Membership>();
     }
     
-    Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(
+    StringBuilder sql = new StringBuilder(
         "select ms, m from MembershipEntry as ms, Member as m, Field as field where  "
-        + "     ms.ownerStemId  = :owner            "
-        + "and  ms.memberUuid = :member           "
-        + "and  ms.fieldId = :fuuid "
-        + "and  ms.viaGroupId    = :via              "
-        + "and  ms.depth      = :depth            "
-        + "and ms.memberUuid = m.uuid")
+          + "     ms.ownerStemId  = :owner            "
+          + "and  ms.memberUuid = :member           "
+          + "and  ms.fieldId = :fuuid "
+          + "and  ms.viaGroupId    = :via              "
+          + "and  ms.depth      = :depth            "
+          + "and ms.memberUuid = m.uuid ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+    Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllEffectiveByStemOwner")
       .setString( "owner",  ownerStemId              )
@@ -769,20 +898,26 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @param memberUUID 
    * @param f 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllEffectiveByMemberAndField(String memberUUID, Field f) 
+  public Set<Membership> findAllEffectiveByMemberAndField(String memberUUID, Field f, boolean enabledOnly) 
     throws  GrouperDAOException
   {
-	  Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(
+    StringBuilder sql = new StringBuilder(
         "select ms, m from MembershipEntry as ms, Member as m where  "
-        + "     ms.memberUuid  = :member          "
-        + "and  ms.fieldId = :fuuid "
-        + "and ms.memberUuid = m.uuid  " 
-        + "and  ms.type = 'effective' ")
+          + "     ms.memberUuid  = :member          "
+          + "and  ms.fieldId = :fuuid "
+          + "and ms.memberUuid = m.uuid  " 
+          + "and  ms.type = 'effective' ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllEffectiveByMemberAndField")
       .setString( "member", memberUUID             )
@@ -795,20 +930,27 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
    * @param ownerGroupId 
    * @param memberUUID 
    * @param f 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllEffectiveByGroupOwnerAndMemberAndField(String ownerGroupId, String memberUUID, Field f)
+  public Set<Membership> findAllEffectiveByGroupOwnerAndMemberAndField(String ownerGroupId, String memberUUID, Field f, boolean enabledOnly)
     throws  GrouperDAOException {
-	  Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(
+    
+    StringBuilder sql = new StringBuilder(
         "select ms, m from MembershipEntry as ms, Member as m, Field as field where  "
-        + "     ms.ownerGroupId  = :owner            "
-        + "and  ms.memberUuid = :member           "
-        + "and  ms.fieldId = :fuuid "
-        + "and ms.memberUuid = m.uuid "
-        + "and  ms.type = 'effective' ")
+          + "     ms.ownerGroupId  = :owner            "
+          + "and  ms.memberUuid = :member           "
+          + "and  ms.fieldId = :fuuid "
+          + "and ms.memberUuid = m.uuid "
+          + "and  ms.type = 'effective' ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllEffectiveByGroupOwnerAndMemberAndField")
       .setString( "owner",  ownerGroupId              )
@@ -821,22 +963,28 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @param ownerGroupId 
    * @param memberUUID 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   1.2.1
    */
-  public Set<Membership> findAllByGroupOwnerAndMember(String ownerGroupId, String memberUUID) 
+  public Set<Membership> findAllByGroupOwnerAndMember(String ownerGroupId, String memberUUID, boolean enabledOnly) 
     throws  GrouperDAOException {
     
     //Added by Gary Brown 2007-11-01 so that getPrivs can do one query rather than 6
 
-	  Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(
+    StringBuilder sql = new StringBuilder(
         "select ms, m from MembershipEntry as ms, Member as m where  "
-        + "     ms.ownerGroupId   = :owner            "  
-        + "and  ms.memberUuid  = :member           "
-        + "and ms.memberUuid = m.uuid"
-      ).setCacheable(false)
+          + "     ms.ownerGroupId   = :owner            "  
+          + "and  ms.memberUuid  = :member           "
+          + "and ms.memberUuid = m.uuid ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByGroupOwnerAndMemberAndField")
       .setString( "owner",  ownerGroupId              )
       .setString( "member", memberUUID             )
@@ -846,19 +994,25 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
   /**
    * @param memberUUID 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllImmediateByMember(String memberUUID) 
+  public Set<Membership> findAllImmediateByMember(String memberUUID, boolean enabledOnly) 
     throws  GrouperDAOException
   {
-	  Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(
+    StringBuilder sql = new StringBuilder(
         "select ms, m from MembershipEntry as ms, Member as m where  "
-        + "     ms.memberUuid = :member           "
-        + "and  ms.type       = :type             "
-        + "and ms.memberUuid = m.uuid")
+          + "     ms.memberUuid = :member           "
+          + "and  ms.type       = :type             "
+          + "and ms.memberUuid = m.uuid ");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllImmediateByMember")
       .setString( "member", memberUUID             )
@@ -869,17 +1023,23 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
   /**
    * @param ownerGroupId 
+   * @param enabledOnly
    * @return list
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public List<Membership> findAllByGroupOwnerAsList(String ownerGroupId)
+  public List<Membership> findAllByGroupOwnerAsList(String ownerGroupId, boolean enabledOnly)
     throws  GrouperDAOException
   {
-	  List<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(
+    StringBuilder sql = new StringBuilder(
         "select ms, m from MembershipEntry as ms, Member as m where ms.ownerGroupId = :owner "
-      + "and ms.memberUuid = m.uuid")
+          + "and ms.memberUuid = m.uuid");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+	  List<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByGroupOwner")
       .setString("owner", ownerGroupId)
@@ -889,17 +1049,23 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
   /**
    * @param ownerStemId 
+   * @param enabledOnly
    * @return list
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public List<Membership> findAllByStemOwnerAsList(String ownerStemId)
+  public List<Membership> findAllByStemOwnerAsList(String ownerStemId, boolean enabledOnly)
     throws  GrouperDAOException
   {
-    List<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(
+    StringBuilder sql = new StringBuilder(
         "select ms, m from MembershipEntry as ms, Member as m where ms.ownerStemId = :owner "
-      + "and ms.memberUuid = m.uuid")
+          + "and ms.memberUuid = m.uuid");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+    List<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllByStemOwner")
       .setString("owner", ownerStemId)
@@ -911,20 +1077,26 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @param memberUUID 
    * @param f 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllImmediateByMemberAndField(String memberUUID, Field f) 
+  public Set<Membership> findAllImmediateByMemberAndField(String memberUUID, Field f, boolean enabledOnly) 
     throws  GrouperDAOException
   {
-	  Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(
+    StringBuilder sql = new StringBuilder(
         "select ms, m from MembershipEntry as ms, Member as m where  "
-        + "     ms.memberUuid = :member           "
-        + "and  ms.fieldId = :fuuid "
-        + "and  ms.type       = :type             "
-        + "and ms.memberUuid = m.uuid")
+          + "     ms.memberUuid = :member           "
+          + "and  ms.fieldId = :fuuid "
+          + "and  ms.type       = :type             "
+          + "and ms.memberUuid = m.uuid");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+	  Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllImmediateByMemberAndField")
       .setString( "member", memberUUID             )
@@ -937,21 +1109,28 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @param memberUUID 
    * @param fieldType
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findAllImmediateByMemberAndFieldType(String memberUUID, String fieldType) 
+  public Set<Membership> findAllImmediateByMemberAndFieldType(String memberUUID, String fieldType, boolean enabledOnly) 
     throws  GrouperDAOException
   {
-    Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(
+    
+    StringBuilder sql = new StringBuilder(
         "select ms, m from MembershipEntry as ms, Member as m, Field as field where  "
-        + "     ms.memberUuid = :member           "
-        + "and  ms.fieldId = field.uuid "
-        + "and  field.typeString       = :ftype             "
-        + "and  ms.type       = :type             "
-        + "and ms.memberUuid = m.uuid")
+          + "     ms.memberUuid = :member           "
+          + "and  ms.fieldId = field.uuid "
+          + "and  field.typeString       = :ftype             "
+          + "and  ms.type       = :type             "
+          + "and ms.memberUuid = m.uuid");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+    Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindAllImmediateByMemberAndFieldType")
       .setString( "member", memberUUID             )
@@ -962,35 +1141,29 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   } 
 
   /**
-   * @param uuid 
-   * @return membership
-   * @throws GrouperDAOException 
-   * @throws MembershipNotFoundException 
-   * @deprecated
-   */
-  @Deprecated
-  public Membership findByUuid(String uuid) 
-    throws  GrouperDAOException, MembershipNotFoundException {
-    return findByUuid(uuid, true);
-  } 
-
-  /**
    * @param uuid
    * @param exceptionIfNull
+   * @param enabledOnly
    * @return membership
    * @throws GrouperDAOException 
    * @throws MembershipNotFoundException 
    */
-  public Membership findByUuid(String uuid, boolean exceptionIfNull)
+  public Membership findByUuid(String uuid, boolean exceptionIfNull, boolean enabledOnly)
       throws GrouperDAOException, MembershipNotFoundException {
     
     int index = uuid.indexOf(Membership.membershipIdSeparator);
     String immediateMembershipId = uuid.substring(0, index);
     String groupSetId = uuid.substring(index + 1);
     
+    StringBuilder sql = new StringBuilder(
+        "select ms, m from MembershipEntry as ms, Member as m where ms.immediateMembershipId = :immediateMembershipId "
+             + "and ms.groupSetId = :groupSetId and ms.memberUuid = m.uuid");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
     Object[] result = HibernateSession.byHqlStatic()
-      .createQuery("select ms, m from MembershipEntry as ms, Member as m where ms.immediateMembershipId = :immediateMembershipId "
-             + "and ms.groupSetId = :groupSetId and ms.memberUuid = m.uuid")
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindByUuid")
       .setString("immediateMembershipId", immediateMembershipId)
@@ -1014,18 +1187,25 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @param memberUUID 
    * @param f 
+   * @param enabledOnly
    * @return set
    * @throws GrouperDAOException 
    * @since   @HEAD@
    */
-  public Set<Membership> findMembershipsByMemberAndField(String memberUUID, Field f)
+  public Set<Membership> findMembershipsByMemberAndField(String memberUUID, Field f, boolean enabledOnly)
     throws  GrouperDAOException {
-    Set<Object[]> mships = HibernateSession.byHqlStatic()
-      .createQuery(
+    
+    StringBuilder sql = new StringBuilder(
         "select ms, m from MembershipEntry as ms, Member as m where  "
-        + "     ms.memberUuid = :member           "
-        + "and  ms.fieldId = :fuuid "
-        + "and ms.memberUuid = m.uuid")
+          + "     ms.memberUuid = :member           "
+          + "and  ms.fieldId = :fuuid "
+          + "and ms.memberUuid = m.uuid");
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
+    
+    Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
       .setCacheable(false)
       .setCacheRegion(KLASS + ".FindMemberships")
       .setString( "member", memberUUID             )
@@ -1035,11 +1215,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   } 
 
   /**
-   * 
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findMembershipsByMemberAndFieldSecure(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, edu.internet2.middleware.grouper.Field)
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findMembershipsByMemberAndFieldSecure(edu.internet2.middleware.grouper.GrouperSession, java.lang.String, edu.internet2.middleware.grouper.Field, boolean)
    */
   public Set<Membership> findMembershipsByMemberAndFieldSecure(GrouperSession grouperSession, 
-        String memberUUID, Field f)
+        String memberUUID, Field f, boolean enabledOnly)
       throws  GrouperDAOException {
     
     StringBuilder sql = new StringBuilder("select distinct ms, m from MembershipEntry as ms, Member as m ");
@@ -1066,6 +1245,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     sql.append("     ms.memberUuid = :member           "
         + "and  ms.fieldId = :fuuid "
         + "and ms.memberUuid = m.uuid");
+    
+    if (enabledOnly) {
+      sql.append(" and ms.enabledDb = 'T'");
+    }
     
     Set<Object[]> mships = byHqlStatic
       .createQuery(sql.toString())
@@ -1122,6 +1305,12 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     HibernateSession.byObjectStatic().setEntityName("ImmediateMembershipEntry").delete(ms);
   }
   
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#update(edu.internet2.middleware.grouper.Membership)
+   */
+  public void update(Membership ms) {
+    HibernateSession.byObjectStatic().setEntityName("ImmediateMembershipEntry").update(ms);
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#delete(java.util.Set)

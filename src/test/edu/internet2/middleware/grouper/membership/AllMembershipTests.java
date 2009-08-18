@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AllMembershipTests.java,v 1.2 2009-08-12 12:44:45 shilen Exp $
+ * $Id: AllMembershipTests.java,v 1.3 2009-08-18 23:11:39 shilen Exp $
  */
 package edu.internet2.middleware.grouper.membership;
 
@@ -16,6 +16,8 @@ public class AllMembershipTests {
     TestSuite suite = new TestSuite(
         "Test for edu.internet2.middleware.grouper.membership");
     //$JUnit-BEGIN$
+    suite.addTestSuite(TestDisabledMembership.class);
+    suite.addTestSuite(TestMemberChangeInMembership.class);
     suite.addTestSuite(TestMembershipFinder.class);
     suite.addTestSuite(TestMembershipDeletes1.class);
     suite.addTestSuite(TestMembership12.class);

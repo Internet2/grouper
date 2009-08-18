@@ -1,9 +1,10 @@
 /*
  * @author mchyzer
- * $Id: GrouperNonDbNamingAdapter.java,v 1.4 2009-08-12 12:44:45 shilen Exp $
+ * $Id: GrouperNonDbNamingAdapter.java,v 1.5 2009-08-18 23:11:38 shilen Exp $
  */
 package edu.internet2.middleware.grouper.privs;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -35,6 +36,7 @@ import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -149,10 +151,10 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
       while (iterP.hasNext()) {
         p   = (Privilege) iterP.next();
         f   = p.getField();
-        it  = dao.findAllByStemOwnerAndMemberAndField( ns.getUuid(), m.getUuid(), f ).iterator();
+        it  = dao.findAllByStemOwnerAndMemberAndField(ns.getUuid(), m.getUuid(), f, true).iterator();
         privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, ns,subj, m, p, it) );
         if (!m.equals(all)) {
-          it = dao.findAllByStemOwnerAndMemberAndField( ns.getUuid(), all.getUuid(), f ).iterator();
+          it = dao.findAllByStemOwnerAndMemberAndField(ns.getUuid(), all.getUuid(), f, true).iterator();
           privs.addAll( GrouperPrivilegeAdapter.internal_getPrivs(s, ns,subj, all, p, it) );
         }
       }
@@ -257,13 +259,24 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
   public void privilegeCopy(GrouperSession s, Stem stem1, Stem stem2, Privilege priv)
       throws InsufficientPrivilegeException, GrantPrivilegeException, SchemaException {
     
-    Field f = priv.getField();
-    Set<Subject> subjs = MembershipFinder.internal_findStemSubjectsImmediateOnly(s, stem1, f);
+    GrouperSession.validate(s);
     
-    Iterator<Subject> subjectIter = subjs.iterator();
-    while (subjectIter.hasNext()) {
-      Subject subj = subjectIter.next();
-      this.grantPriv(s, stem2, subj, priv);
+    Field f = priv.getField();
+    PrivilegeHelper.dispatch(s, stem1, s.getSubject(), f.getReadPriv());
+    
+    Iterator<Membership> membershipsIter = GrouperDAOFactory.getFactory().getMembership()
+      .findAllByStemOwnerAndFieldAndType(stem1.getUuid(), f,
+          Membership.IMMEDIATE, false).iterator();
+
+    while (membershipsIter.hasNext()) {
+      Membership existingMembership = membershipsIter.next();
+      Membership copiedMembership = existingMembership.clone();
+      copiedMembership.setOwnerStemId(stem2.getUuid());
+      copiedMembership.setCreatorUuid(s.getMemberUuid());
+      copiedMembership.setCreateTimeLong(new Date().getTime());
+      copiedMembership.setImmediateMembershipId(GrouperUuid.getUuid());
+      copiedMembership.setHibernateVersionNumber(-1L);
+      GrouperDAOFactory.getFactory().getMembership().save(copiedMembership);
     }
   }
 
@@ -285,23 +298,35 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
     GrouperSession.validate(s);
     
     Field f = priv.getField();
+    
     Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
-        .findAllImmediateByMemberAndField(MemberFinder.findBySubject(s, subj1, true).getUuid(), f);
+        .findAllImmediateByMemberAndField(MemberFinder.findBySubject(s, subj1, true).getUuid(), f, false);
   
+    if (memberships.size() == 0) {
+      return;
+    }
+    
+    Member member = MemberFinder.findBySubject(s, subj2, true);
+    
     Iterator<Membership> membershipsIter = memberships.iterator();
     while (membershipsIter.hasNext()) {
+      Membership existingMembership = membershipsIter.next();
       Stem stem;
       try {
-        stem = membershipsIter.next().getStem();
+        stem = existingMembership.getStem();
       } catch (StemNotFoundException e1) {
         throw new GrouperException(e1.getMessage(), e1);
       }
       PrivilegeHelper.dispatch(s, stem, s.getSubject(), f.getWritePriv());
-      try {
-        Membership.internal_addImmediateMembership(s, stem, subj2, f);
-      } catch (MemberAddException e) {
-        throw new GrantPrivilegeException(e.getMessage(), e);
-      }
+      
+      Membership copiedMembership = existingMembership.clone();
+      copiedMembership.setMemberUuid(member.getUuid());
+      copiedMembership.setMember(member);
+      copiedMembership.setCreatorUuid(s.getMemberUuid());
+      copiedMembership.setCreateTimeLong(new Date().getTime());
+      copiedMembership.setImmediateMembershipId(GrouperUuid.getUuid());
+      copiedMembership.setHibernateVersionNumber(-1L);
+      GrouperDAOFactory.getFactory().getMembership().save(copiedMembership);
     }    
   }
 

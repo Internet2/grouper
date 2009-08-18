@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AuditTest.java,v 1.17 2009-05-26 06:50:56 mchyzer Exp $
+ * $Id: AuditTest.java,v 1.18 2009-08-18 23:11:39 shilen Exp $
  */
 package edu.internet2.middleware.grouper.audit;
 
@@ -650,7 +650,7 @@ public class AuditTest extends GrouperTest {
     Member member = MemberFinder.findBySubject(this.grouperSession, subject, false);
     
     Membership membership = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(stem.getUuid(), 
-        member.getUuid(), FieldFinder.find("creators", true), "immediate", true);
+        member.getUuid(), FieldFinder.find("creators", true), "immediate", true, true);
     
     assertEquals("Context id's should match", auditEntry.getContextId(), membership.getContextId());
     
@@ -662,7 +662,7 @@ public class AuditTest extends GrouperTest {
     stem2.grantPriv(subject, NamingPrivilege.CREATE);
 
     Membership membership2 = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(stem2.getUuid(), 
-        member.getUuid(), FieldFinder.find("creators", true), "immediate", true);
+        member.getUuid(), FieldFinder.find("creators", true), "immediate", true, true);
     
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");

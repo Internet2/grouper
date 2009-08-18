@@ -60,7 +60,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.31 2009-08-11 20:18:08 mchyzer Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.32 2009-08-18 23:11:38 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -870,12 +870,12 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     try {
       if (Stem.Scope.ONE == scope) {
         groupsSet = GrouperDAOFactory.getFactory().getGroup().getImmediateChildrenMembershipSecure(
-            grouperSession, ns, subject, inPrivSet, queryOptions);
+            grouperSession, ns, subject, inPrivSet, queryOptions, true);
       } else if (Stem.Scope.SUB == scope && ns.isRootStem()) {
-        groupsSet = GrouperDAOFactory.getFactory().getGroup().getAllGroupsMembershipSecure(grouperSession, subject, inPrivSet, queryOptions);
+        groupsSet = GrouperDAOFactory.getFactory().getGroup().getAllGroupsMembershipSecure(grouperSession, subject, inPrivSet, queryOptions, true);
       } else if (Stem.Scope.SUB == scope) {
         groupsSet = GrouperDAOFactory.getFactory().getGroup().getAllGroupsMembershipSecure(ns.getNameDb() + Stem.DELIM, grouperSession, 
-            subject, inPrivSet, queryOptions);
+            subject, inPrivSet, queryOptions, true);
       } else {
         throw new IllegalStateException("unknown search scope: " + scope);
       }
@@ -1061,5 +1061,24 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#updateLastMembershipChange(java.lang.String)
+   */
+  public void updateLastMembershipChange(String stemId) {
+    HibernateSession.bySqlStatic().executeSql(
+        "update grouper_stems set last_membership_change = ? where id = ?",
+        GrouperUtil.toList((Object) System.currentTimeMillis(), stemId));
+  }
+  
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.StemDAO#updateLastMembershipChangeIncludeAncestorGroups(java.lang.String)
+   */
+  public void updateLastMembershipChangeIncludeAncestorGroups(String groupId) {
+    HibernateSession.bySqlStatic().executeSql(
+        "update grouper_stems set last_membership_change = ? where id in " + 
+          "(select distinct owner_stem_id from grouper_group_set where member_group_id = ?)",
+        GrouperUtil.toList((Object) System.currentTimeMillis(), groupId));
+  }
 } 
 

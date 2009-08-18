@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.16 2009-07-10 14:53:07 shilen Exp $ -->
+<!-- $Id: Hib3MembershipDAO.hbm.xml,v 1.17 2009-08-18 23:11:38 shilen Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper" default-lazy="false">
 
@@ -59,8 +59,8 @@
     <property name="type" type="string" column="mship_type" />
     
     <property name="enabledDb" type="string" column="immediate_mship_enabled" />
-    <property name="enabledTimeDb" type="string" column="immediate_mship_enabled_time" />
-    <property name="disabledTimeDb" type="string" column="immediate_mship_disabled_time" />
+    <property name="enabledTimeDb" type="long" column="immediate_mship_enabled_time" />
+    <property name="disabledTimeDb" type="long" column="immediate_mship_disabled_time" />
   </class>
 </hibernate-mapping>
 

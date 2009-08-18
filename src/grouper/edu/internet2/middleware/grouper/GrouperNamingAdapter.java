@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
  * to manage naming privileges.
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNamingAdapter.java,v 1.82 2009-08-05 15:06:07 isgwb Exp $
+ * @version $Id: GrouperNamingAdapter.java,v 1.83 2009-08-18 23:11:38 shilen Exp $
  */
 public class GrouperNamingAdapter extends GrouperNonDbNamingAdapter {
 
@@ -78,6 +78,9 @@ public class GrouperNamingAdapter extends GrouperNonDbNamingAdapter {
     }
     String memberInClause = HibUtils.convertToInClause(memberIds, hqlQuery);
     query.append(memberInClause).append(")");
+    
+    // don't return disabled memberships
+    query.append(" and __namingMembership.enabledDb = 'T'");
     return true;
   }
 

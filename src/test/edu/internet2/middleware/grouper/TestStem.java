@@ -47,7 +47,9 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.E;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -61,7 +63,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.29 2009-08-11 20:18:09 mchyzer Exp $
+ * @version $Id: TestStem.java,v 1.30 2009-08-18 23:11:39 shilen Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -103,6 +105,279 @@ public class TestStem extends GrouperTest {
     Assert.assertEquals("root == root", rootA, rootB);
   } // public void testRootAsNonRoot()
 
+  public void testStemModifyAttributesAfterDisablingMembership() {    
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+
+    try {
+      R       r     = R.populateRegistry(1, 3, 3);
+      Group   gA    = r.getGroup("a", "a");
+      Group   gB    = r.getGroup("a", "b");
+      Group   gC    = r.getGroup("a", "c");
+      Stem    nsA   = r.getStem("a");
+      
+      nsA.grantPriv(gA.toSubject(), NamingPrivilege.STEM);
+      gA.addMember(gB.toSubject());
+      gB.addMember(gC.toSubject());
+      
+      GrouperUtil.sleep(100);
+      long    pre   = new java.util.Date().getTime();
+      GrouperUtil.sleep(100);
+
+      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
+          nsA.getUuid(), gA.toMember().getUuid(), FieldFinder.find("stemmers", true), Membership.IMMEDIATE, true, true);
+      ms.setEnabled(false);
+      GrouperDAOFactory.getFactory().getMembership().update(ms);
+      
+      // load group in new session so we don't (potentially) get stale data
+      GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
+      nsA = StemFinder.findByName(s, nsA.getName(), true);
+      gA = GroupFinder.findByUuid(s, gA.getUuid(), true, new QueryOptions().secondLevelCache(false));
+      gB = GroupFinder.findByUuid(s, gB.getUuid(), true, new QueryOptions().secondLevelCache(false));
+      gC = GroupFinder.findByUuid(s, gC.getUuid(), true, new QueryOptions().secondLevelCache(false));
+
+      assertTrue("nsA getLastMembershipChange > pre", nsA.getLastMembershipChange().getTime() > pre);
+      assertTrue("gA getLastMembershipChange < pre", gA.getLastMembershipChange().getTime() < pre);
+      assertTrue("gB getLastMembershipChange < pre", gB.getLastMembershipChange().getTime() < pre);
+      assertTrue("gC getLastMembershipChange < pre", gC.getLastMembershipChange().getTime() < pre);
+
+      s.stop();
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } 
+  
+  public void testStemModifyAttributesAfterEnablingMembership() {    
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+
+    try {
+      R       r     = R.populateRegistry(1, 3, 3);
+      Group   gA    = r.getGroup("a", "a");
+      Group   gB    = r.getGroup("a", "b");
+      Group   gC    = r.getGroup("a", "c");
+      Stem    nsA   = r.getStem("a");
+      
+      nsA.grantPriv(gA.toSubject(), NamingPrivilege.STEM);
+      gA.addMember(gB.toSubject());
+      gB.addMember(gC.toSubject());
+      
+      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(
+          nsA.getUuid(), gA.toMember().getUuid(), FieldFinder.find("stemmers", true), Membership.IMMEDIATE, true, true);
+      ms.setEnabled(false);
+      GrouperDAOFactory.getFactory().getMembership().update(ms);
+      
+      GrouperUtil.sleep(100);
+      long    pre   = new java.util.Date().getTime();
+      GrouperUtil.sleep(100);
+
+      ms.setEnabled(true);
+      GrouperDAOFactory.getFactory().getMembership().update(ms);
+      
+      // load group in new session so we don't (potentially) get stale data
+      GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
+      nsA = StemFinder.findByName(s, nsA.getName(), true);
+      gA = GroupFinder.findByUuid(s, gA.getUuid(), true, new QueryOptions().secondLevelCache(false));
+      gB = GroupFinder.findByUuid(s, gB.getUuid(), true, new QueryOptions().secondLevelCache(false));
+      gC = GroupFinder.findByUuid(s, gC.getUuid(), true, new QueryOptions().secondLevelCache(false));
+
+      assertTrue("nsA getLastMembershipChange > pre", nsA.getLastMembershipChange().getTime() > pre);
+      assertTrue("gA getLastMembershipChange < pre", gA.getLastMembershipChange().getTime() < pre);
+      assertTrue("gB getLastMembershipChange < pre", gB.getLastMembershipChange().getTime() < pre);
+      assertTrue("gC getLastMembershipChange < pre", gC.getLastMembershipChange().getTime() < pre);
+
+      s.stop();
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } 
+  
+  public void testStemModifyAttributesAfterDisablingMembership2() {    
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+
+    try {
+      R       r     = R.populateRegistry(1, 3, 3);
+      Group   gA    = r.getGroup("a", "a");
+      Group   gB    = r.getGroup("a", "b");
+      Group   gC    = r.getGroup("a", "c");
+      Stem    nsA   = r.getStem("a");
+      
+      nsA.grantPriv(gA.toSubject(), NamingPrivilege.STEM);
+      gA.addMember(gB.toSubject());
+      gB.addMember(gC.toSubject());
+      
+      GrouperUtil.sleep(100);
+      long    pre   = new java.util.Date().getTime();
+      GrouperUtil.sleep(100);
+
+      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+          gA.getUuid(), gB.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+      ms.setEnabled(false);
+      GrouperDAOFactory.getFactory().getMembership().update(ms);
+      
+      // load group in new session so we don't (potentially) get stale data
+      GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
+      nsA = StemFinder.findByName(s, nsA.getName(), true);
+      gA = GroupFinder.findByUuid(s, gA.getUuid(), true, new QueryOptions().secondLevelCache(false));
+      gB = GroupFinder.findByUuid(s, gB.getUuid(), true, new QueryOptions().secondLevelCache(false));
+      gC = GroupFinder.findByUuid(s, gC.getUuid(), true, new QueryOptions().secondLevelCache(false));
+
+      assertTrue("nsA getLastMembershipChange > pre", nsA.getLastMembershipChange().getTime() > pre);
+      assertTrue("gA getLastMembershipChange > pre", gA.getLastMembershipChange().getTime() > pre);
+      assertTrue("gB getLastMembershipChange < pre", gB.getLastMembershipChange().getTime() < pre);
+      assertTrue("gC getLastMembershipChange < pre", gC.getLastMembershipChange().getTime() < pre);
+
+      s.stop();
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } 
+  
+  public void testStemModifyAttributesAfterEnablingMembership2() {    
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+
+    try {
+      R       r     = R.populateRegistry(1, 3, 3);
+      Group   gA    = r.getGroup("a", "a");
+      Group   gB    = r.getGroup("a", "b");
+      Group   gC    = r.getGroup("a", "c");
+      Stem    nsA   = r.getStem("a");
+      
+      nsA.grantPriv(gA.toSubject(), NamingPrivilege.STEM);
+      gA.addMember(gB.toSubject());
+      gB.addMember(gC.toSubject());
+      
+      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+          gA.getUuid(), gB.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+      ms.setEnabled(false);
+      GrouperDAOFactory.getFactory().getMembership().update(ms);
+      
+      GrouperUtil.sleep(100);
+      long    pre   = new java.util.Date().getTime();
+      GrouperUtil.sleep(100);
+      
+      ms.setEnabled(true);
+      GrouperDAOFactory.getFactory().getMembership().update(ms);
+      
+      // load group in new session so we don't (potentially) get stale data
+      GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
+      nsA = StemFinder.findByName(s, nsA.getName(), true);
+      gA = GroupFinder.findByUuid(s, gA.getUuid(), true, new QueryOptions().secondLevelCache(false));
+      gB = GroupFinder.findByUuid(s, gB.getUuid(), true, new QueryOptions().secondLevelCache(false));
+      gC = GroupFinder.findByUuid(s, gC.getUuid(), true, new QueryOptions().secondLevelCache(false));
+
+      assertTrue("nsA getLastMembershipChange > pre", nsA.getLastMembershipChange().getTime() > pre);
+      assertTrue("gA getLastMembershipChange > pre", gA.getLastMembershipChange().getTime() > pre);
+      assertTrue("gB getLastMembershipChange < pre", gB.getLastMembershipChange().getTime() < pre);
+      assertTrue("gC getLastMembershipChange < pre", gC.getLastMembershipChange().getTime() < pre);
+
+      s.stop();
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } 
+  
+  public void testStemModifyAttributesAfterDisablingMembership3() {    
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+
+    try {
+      R       r     = R.populateRegistry(1, 3, 3);
+      Group   gA    = r.getGroup("a", "a");
+      Group   gB    = r.getGroup("a", "b");
+      Group   gC    = r.getGroup("a", "c");
+      Stem    nsA   = r.getStem("a");
+      
+      nsA.grantPriv(gA.toSubject(), NamingPrivilege.STEM);
+      gA.addMember(gB.toSubject());
+      gB.addMember(gC.toSubject());
+      
+      GrouperUtil.sleep(100);
+      long    pre   = new java.util.Date().getTime();
+      GrouperUtil.sleep(100);
+
+      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+          gB.getUuid(), gC.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+      ms.setEnabled(false);
+      GrouperDAOFactory.getFactory().getMembership().update(ms);
+      
+      // load group in new session so we don't (potentially) get stale data
+      GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
+      nsA = StemFinder.findByName(s, nsA.getName(), true);
+      gA = GroupFinder.findByUuid(s, gA.getUuid(), true, new QueryOptions().secondLevelCache(false));
+      gB = GroupFinder.findByUuid(s, gB.getUuid(), true, new QueryOptions().secondLevelCache(false));
+      gC = GroupFinder.findByUuid(s, gC.getUuid(), true, new QueryOptions().secondLevelCache(false));
+
+      assertTrue("nsA getLastMembershipChange > pre", nsA.getLastMembershipChange().getTime() > pre);
+      assertTrue("gA getLastMembershipChange > pre", gA.getLastMembershipChange().getTime() > pre);
+      assertTrue("gB getLastMembershipChange > pre", gB.getLastMembershipChange().getTime() > pre);
+      assertTrue("gC getLastMembershipChange < pre", gC.getLastMembershipChange().getTime() < pre);
+
+      s.stop();
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } 
+  
+  public void testStemModifyAttributesAfterEnablingMembership3() {    
+    ApiConfig.testConfig.put("stems.updateLastMembershipTime", "true");
+    ApiConfig.testConfig.put("groups.updateLastMembershipTime", "true");
+
+    try {
+      R       r     = R.populateRegistry(1, 3, 3);
+      Group   gA    = r.getGroup("a", "a");
+      Group   gB    = r.getGroup("a", "b");
+      Group   gC    = r.getGroup("a", "c");
+      Stem    nsA   = r.getStem("a");
+      
+      nsA.grantPriv(gA.toSubject(), NamingPrivilege.STEM);
+      gA.addMember(gB.toSubject());
+      gB.addMember(gC.toSubject());
+      
+      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+          gB.getUuid(), gC.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+      ms.setEnabled(false);
+      GrouperDAOFactory.getFactory().getMembership().update(ms);
+      
+      GrouperUtil.sleep(100);
+      long    pre   = new java.util.Date().getTime();
+      GrouperUtil.sleep(100);
+
+      ms.setEnabled(true);
+      GrouperDAOFactory.getFactory().getMembership().update(ms);
+      
+      // load group in new session so we don't (potentially) get stale data
+      GrouperSession s = GrouperSession.start(SubjectFinder.findRootSubject());
+      nsA = StemFinder.findByName(s, nsA.getName(), true);
+      gA = GroupFinder.findByUuid(s, gA.getUuid(), true, new QueryOptions().secondLevelCache(false));
+      gB = GroupFinder.findByUuid(s, gB.getUuid(), true, new QueryOptions().secondLevelCache(false));
+      gC = GroupFinder.findByUuid(s, gC.getUuid(), true, new QueryOptions().secondLevelCache(false));
+
+      assertTrue("nsA getLastMembershipChange > pre", nsA.getLastMembershipChange().getTime() > pre);
+      assertTrue("gA getLastMembershipChange > pre", gA.getLastMembershipChange().getTime() > pre);
+      assertTrue("gB getLastMembershipChange > pre", gB.getLastMembershipChange().getTime() > pre);
+      assertTrue("gC getLastMembershipChange < pre", gC.getLastMembershipChange().getTime() < pre);
+
+      s.stop();
+      r.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } 
+  
   public void testGetParentStemAtRoot() {
     LOG.info("testGetParentStemAtRoot");
     GrouperSession  s     = SessionHelper.getRootSession();

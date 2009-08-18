@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GroupTypeTupleIncludeExcludeHook.java,v 1.7 2009-08-11 20:18:09 mchyzer Exp $
+ * $Id: GroupTypeTupleIncludeExcludeHook.java,v 1.8 2009-08-18 23:11:38 shilen Exp $
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
@@ -926,7 +926,7 @@ public class GroupTypeTupleIncludeExcludeHook extends GroupTypeTupleHooks {
         if (member != null) {
           //get any membership
           Set<Membership> memberships = GrouperDAOFactory.getFactory()
-            .getMembership().findAllImmediateByMember(member.getUuid());
+            .getMembership().findAllImmediateByMember(member.getUuid(), false);
           if (memberships.size() > 0) {
             String message = "Not deleting group: " + overallName + " since used in " 
               + memberships.size() + " immediate memberships";

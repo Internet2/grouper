@@ -105,12 +105,12 @@ public class TestMembershipDeletes5 extends TestCase {
     gB.addMember(gB.toSubject(), fieldCustom1);
     gB.addMember(gA.toSubject(), fieldCustom2);
 
-    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     gA.addMember(gB.toSubject());
 
     // Remove gB -> gA
     gA.deleteMember(gB.toSubject());
-    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
   }
 
@@ -128,12 +128,12 @@ public class TestMembershipDeletes5 extends TestCase {
     gB.addMember(gB.toSubject(), fieldCustom1);
     gB.addMember(gA.toSubject(), fieldCustom2);
 
-    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     gA.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
 
     // Remove gA -> gA (update priv)
     gA.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
-    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
   }
   
@@ -151,12 +151,12 @@ public class TestMembershipDeletes5 extends TestCase {
     gD.addMember(gB.toSubject());
     gB.addMember(gA.toSubject(), fieldCustom2);
 
-    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     gB.addMember(gB.toSubject(), fieldCustom1);
 
     // Remove gB -> gB (custom field 1)
     gB.deleteMember(gB.toSubject(), fieldCustom1);
-    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
   }
   
@@ -174,12 +174,12 @@ public class TestMembershipDeletes5 extends TestCase {
     gD.addMember(gB.toSubject());
     gB.addMember(gB.toSubject(), fieldCustom1);
 
-    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     gB.addMember(gA.toSubject(), fieldCustom2);
 
     // Remove gA -> gB (custom field 2)
     gB.deleteMember(gA.toSubject(), fieldCustom2);
-    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
   }
   
@@ -197,12 +197,12 @@ public class TestMembershipDeletes5 extends TestCase {
     gB.addMember(gB.toSubject(), fieldCustom1);
     gB.addMember(gA.toSubject(), fieldCustom2);
 
-    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     gD.addMember(gB.toSubject());    
 
     // Remove gB -> gD
     gD.deleteMember(gB.toSubject());
-    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
   }
   
@@ -220,12 +220,12 @@ public class TestMembershipDeletes5 extends TestCase {
     gB.addMember(gB.toSubject(), fieldCustom1);
     gB.addMember(gA.toSubject(), fieldCustom2);
 
-    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     gB.addMember(subjA);
 
     // Remove SA -> gB
     gB.deleteMember(subjA);
-    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
   }
 }

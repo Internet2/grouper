@@ -64,7 +64,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.44 2009-08-11 20:18:08 mchyzer Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.45 2009-08-18 23:11:38 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -1492,10 +1492,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getAllGroupsMembershipSecure(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getAllGroupsMembershipSecure(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean)
    */
   public Set<Group> getAllGroupsMembershipSecure(GrouperSession grouperSession, Subject subject, 
-      Set<Privilege> inPrivSet, QueryOptions queryOptions)
+      Set<Privilege> inPrivSet, QueryOptions queryOptions, boolean enabledOnly)
       throws  GrouperDAOException {
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
@@ -1505,7 +1505,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     }
     String listId = Group.getDefaultList().getUuid();
 
-    StringBuilder sql = new StringBuilder("select distinct theGroup from Group theGroup, Membership listMembership ");
+    StringBuilder sql = new StringBuilder("select distinct theGroup from Group theGroup, MembershipEntry listMembership ");
   
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
   
@@ -1521,6 +1521,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     
     sql.append("  listMembership.ownerGroupId = theGroup.uuid and listMembership.fieldId = :listId" +
         " and listMembership.memberUuid = :memberId ");
+    
+    if (enabledOnly) {
+      sql.append(" and listMembership.enabledDb = 'T'");
+    }
     
     Member member = MemberFinder.internal_findBySubject(subject, null, false);
     
@@ -1546,10 +1550,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getAllGroupsMembershipSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getAllGroupsMembershipSecure(java.lang.String, edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean)
    */
   public Set<Group> getAllGroupsMembershipSecure(final String scope, GrouperSession grouperSession, 
-      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, boolean enabledOnly)
     throws  GrouperDAOException {
   
     if (queryOptions == null) {
@@ -1579,6 +1583,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     sql.append( " theGroup.nameDb like :scope" +
         " and listMembership.ownerGroupId = nameAttribute.groupUuid and listMembership.fieldId = :listId" +
         " and listMembership.memberUuid = :memberId ");
+    
+    if (enabledOnly) {
+      sql.append(" and listMembership.enabledDb = 'T'");
+    }
     
     Member member = MemberFinder.internal_findBySubject(subject, null, false);
     
@@ -1610,10 +1618,10 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
   /**
    * 
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getImmediateChildrenMembershipSecure(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions)
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#getImmediateChildrenMembershipSecure(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.grouper.Stem, edu.internet2.middleware.subject.Subject, java.util.Set, edu.internet2.middleware.grouper.internal.dao.QueryOptions, boolean)
    */
   public Set<Group> getImmediateChildrenMembershipSecure(GrouperSession grouperSession, 
-      final Stem stem, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions)
+      final Stem stem, Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions, boolean enabledOnly)
     throws  GrouperDAOException {
   
     if (queryOptions == null) {
@@ -1643,7 +1651,11 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     sql.append(" theGroup.parentUuid = :parent " +
         " and listMembership.ownerGroupId = theGroup.uuid and listMembership.fieldId = :listId" +
         " and listMembership.memberUuid = :memberId ");
-
+    
+    if (enabledOnly) {
+      sql.append(" and listMembership.enabledDb = 'T'");
+    }
+    
     Member member = MemberFinder.internal_findBySubject(subject, null, false);
     
     try {
@@ -1668,5 +1680,23 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#updateLastMembershipChange(java.lang.String)
+   */
+  public void updateLastMembershipChange(String groupId) {
+    HibernateSession.bySqlStatic().executeSql(
+        "update grouper_groups set last_membership_change = ? where id = ?",
+        GrouperUtil.toList((Object) System.currentTimeMillis(), groupId));
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#updateLastMembershipChangeIncludeAncestorGroups(java.lang.String)
+   */
+  public void updateLastMembershipChangeIncludeAncestorGroups(String groupId) {
+    HibernateSession.bySqlStatic().executeSql(
+        "update grouper_groups set last_membership_change = ? where id in " + 
+          "(select distinct owner_group_id from grouper_group_set where member_group_id = ?)",
+        GrouperUtil.toList((Object) System.currentTimeMillis(), groupId));
+  }
 } 
 

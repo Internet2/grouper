@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: HooksMembershipChangeBean.java,v 1.4 2009-08-12 12:44:45 shilen Exp $
+ * $Id: HooksMembershipChangeBean.java,v 1.5 2009-08-18 23:11:38 shilen Exp $
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
@@ -26,14 +26,20 @@ public class HooksMembershipChangeBean extends HooksBean {
 
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
+  /** constant for field name for: ms */
+  public static final String FIELD_MS = "ms";
+
   /**
    * fields which are included in clone method
    */
-  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet();
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_MS);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
-  Membership ms = null;
+  /** object being affected */
+  private Membership ms = null;
+  
   
   /**
    * 

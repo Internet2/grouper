@@ -43,7 +43,7 @@ import edu.internet2.middleware.subject.Subject;
  * TODO filter memberships in an effecient way with one (or only a few) queries
  * </pre>
  * @author  blair christensen.
- * @version $Id: GrouperAccessAdapter.java,v 1.82 2009-08-05 15:06:07 isgwb Exp $
+ * @version $Id: GrouperAccessAdapter.java,v 1.83 2009-08-18 23:11:38 shilen Exp $
  */
 public class GrouperAccessAdapter extends GrouperNonDbAccessAdapter {
 
@@ -78,6 +78,9 @@ public class GrouperAccessAdapter extends GrouperNonDbAccessAdapter {
     }
     String memberInClause = HibUtils.convertToInClause(memberIds, hqlQuery);
     query.append(memberInClause).append(")");
+    
+    // don't return disabled memberships
+    query.append(" and __accessMembership.enabledDb = 'T'");
     return true;
   }
 

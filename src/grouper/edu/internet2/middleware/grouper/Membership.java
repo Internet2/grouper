@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
@@ -55,8 +56,6 @@ import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
@@ -72,7 +71,6 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.MembershipDAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
-import edu.internet2.middleware.grouper.log.EventLog;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
@@ -92,7 +90,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.126 2009-08-12 12:44:45 shilen Exp $
+ * @version $Id: Membership.java,v 1.127 2009-08-18 23:11:38 shilen Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -101,6 +99,9 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    */
   private static final long serialVersionUID = 1L;
 
+  /** constant for field name for: contextId */
+  public static final String FIELD_CONTEXT_ID = "contextId";
+  
   /** table name where memberships are stored */
   public static final String TABLE_GROUPER_MEMBERSHIPS = "grouper_memberships";
   
@@ -200,28 +201,36 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   /** constant for field name for: immediateMembershipId */
   public static final String FIELD_IMMEDIATE_MEMBERSHIP_ID = "immediateMembershipId";
 
+  /** constant for field name for: disabledTimeDb */
+  public static final String FIELD_DISABLED_TIME_DB = "disabledTimeDb";
+
+  /** constant for field name for: enabled */
+  public static final String FIELD_ENABLED = "enabled";
+
+  /** constant for field name for: enabledTimeDb */
+  public static final String FIELD_ENABLED_TIME_DB = "enabledTimeDb";
 
   /**
    * fields which are included in db version
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
-      FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DEPTH, FIELD_FIELD_ID, 
-      FIELD_MEMBER_UUID, FIELD_OWNER_GROUP_ID, FIELD_OWNER_STEM_ID, 
-      FIELD_TYPE, FIELD_UUID, FIELD_VIA_COMPOSITE_ID, FIELD_VIA_GROUP_ID,
-      FIELD_GROUP_SET_CREATE_TIME_LONG, FIELD_GROUP_SET_CREATOR_UUID, FIELD_GROUP_SET_ID,
-      FIELD_OWNER_GROUP_ID_NULL, FIELD_OWNER_STEM_ID_NULL, FIELD_GROUP_SET_PARENT_ID,
-      FIELD_IMMEDIATE_MEMBERSHIP_ID);
+      FIELD_CONTEXT_ID, FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DEPTH, 
+      FIELD_DISABLED_TIME_DB, FIELD_ENABLED, FIELD_ENABLED_TIME_DB, FIELD_FIELD_ID, 
+      FIELD_GROUP_SET_CREATE_TIME_LONG, FIELD_GROUP_SET_CREATOR_UUID, FIELD_GROUP_SET_ID, FIELD_GROUP_SET_PARENT_ID, 
+      FIELD_IMMEDIATE_MEMBERSHIP_ID, FIELD_MEMBER_UUID, FIELD_OWNER_GROUP_ID, FIELD_OWNER_GROUP_ID_NULL, 
+      FIELD_OWNER_STEM_ID, FIELD_OWNER_STEM_ID_NULL, FIELD_TYPE, FIELD_UUID, 
+      FIELD_VIA_COMPOSITE_ID, FIELD_VIA_GROUP_ID);
 
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
-      FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DB_VERSION, FIELD_DEPTH, 
-      FIELD_FIELD_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_MEMBER_UUID, FIELD_OWNER_GROUP_ID, 
-      FIELD_OWNER_STEM_ID, FIELD_TYPE, FIELD_UUID, FIELD_IMMEDIATE_MEMBERSHIP_ID, 
-      FIELD_VIA_COMPOSITE_ID, FIELD_VIA_GROUP_ID, FIELD_GROUP_SET_CREATE_TIME_LONG, 
-      FIELD_GROUP_SET_CREATOR_UUID, FIELD_GROUP_SET_ID, FIELD_OWNER_GROUP_ID_NULL,
-      FIELD_OWNER_STEM_ID_NULL, FIELD_GROUP_SET_PARENT_ID);
+      FIELD_CONTEXT_ID, FIELD_CREATE_TIME_LONG, FIELD_CREATOR_UUID, FIELD_DEPTH, 
+      FIELD_DISABLED_TIME_DB, FIELD_ENABLED, FIELD_ENABLED_TIME_DB, FIELD_FIELD_ID, 
+      FIELD_GROUP_SET_CREATE_TIME_LONG, FIELD_GROUP_SET_CREATOR_UUID, FIELD_GROUP_SET_ID, FIELD_GROUP_SET_PARENT_ID, 
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_IMMEDIATE_MEMBERSHIP_ID, FIELD_MEMBER_UUID, FIELD_OWNER_GROUP_ID, 
+      FIELD_OWNER_GROUP_ID_NULL, FIELD_OWNER_STEM_ID, FIELD_OWNER_STEM_ID_NULL, FIELD_TYPE, 
+      FIELD_UUID, FIELD_VIA_COMPOSITE_ID, FIELD_VIA_GROUP_ID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
@@ -285,9 +294,6 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * separator used in the uuid field to split immediate_membership_id and group_set_id
    */
   public static final String membershipIdSeparator = ":";
-
-  /** */
-  private static final EventLog EL = new EventLog();
   
   /** */
   public  static final  String            CACHE_GET_GROUP = Membership.class.getName() + ".getGroup";
@@ -661,7 +667,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     //   * It wasn't working and I didn't have time to debug it at the time.
     //   * I still need to filter
     return PrivilegeHelper.canViewMemberships(
-      GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership().findAllChildMemberships( this )
+      GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory().getMembership().findAllChildMemberships(this, true)
     );
   } // public Set getChildMemberships()
 
@@ -687,7 +693,11 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    * @since   1.2.0
    */
   public Date getCreateTime() {
-    return new Date( this.getCreateTimeLong() );
+    if (this.getCreateTimeLong() > this.getGroupSetCreateTimeLong()) {
+      return new Date(this.getCreateTimeLong());
+    }
+
+    return new Date(this.getGroupSetCreateTimeLong());
   } // public Date getCreateTime()
 
   /**
@@ -697,10 +707,13 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
    */
   public Member getCreator() 
     throws  MemberNotFoundException
-  {
+  {    
     try {
-      Member m = GrouperDAOFactory.getFactory().getMember().findByUuid( this.getCreatorUuid(), true );
-      return m;
+      if (this.getCreateTimeLong() > this.getGroupSetCreateTimeLong()) {
+        return GrouperDAOFactory.getFactory().getMember().findByUuid(this.getCreatorUuid(), true);
+      }
+
+      return GrouperDAOFactory.getFactory().getMember().findByUuid(this.getGroupSetCreatorUuid(), true); 
     }
     catch (GrouperDAOException eDAO) {
       throw new GrouperException( eDAO.getMessage(), eDAO );
@@ -1018,7 +1031,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       ms.setOwnerGroupId(g.getUuid());
       ms.setMember(member);
             
-      internal_insertMembershipTransaction(ms);
+      GrouperDAOFactory.getFactory().getMembership().save(ms);
       
       return ms;
     } catch (HookVeto hookVeto) {
@@ -1036,79 +1049,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     catch (MemberNotFoundException eMNF)        {
       throw new MemberAddException( eMNF.getMessage() + ", " + errorString, eMNF );
     }
-  } 
-  
-  /**
-   * wrapper to run hooks on add member
-   * @param ms
-   */
-  private static void internal_insertMembershipTransaction(final Membership ms) {
-
-    GrouperTransaction.callbackGrouperTransaction(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
-
-          public Object callback(GrouperTransaction grouperTransaction)
-              throws GrouperDAOException {
-            GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                MembershipHooks.METHOD_MEMBERSHIP_PRE_ADD_MEMBER,
-                HooksMembershipChangeBean.class, ms, Membership.class, 
-                VetoTypeGrouper.MEMBERSHIP_PRE_ADD_MEMBER);
-            
-            GrouperDAOFactory.getFactory().getMembership().save(ms);
-
-            GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_ADD_MEMBER, HooksMembershipChangeBean.class, 
-                ms, Membership.class);
-
-            GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                MembershipHooks.METHOD_MEMBERSHIP_POST_ADD_MEMBER,
-                HooksMembershipChangeBean.class, ms, Membership.class, 
-                VetoTypeGrouper.MEMBERSHIP_POST_ADD_MEMBER);
-            return null;
-          }
-
-        });
-
-
   }
-  
-  /**
-   * wrapper to run hooks on delete member
-   * @param ms
-   */
-  private static void internal_deleteMembershipTransaction(final Membership ms) {
-
-    GrouperTransaction.callbackGrouperTransaction(
-        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
-
-          public Object callback(GrouperTransaction grouperTransaction)
-              throws GrouperDAOException {
-            
-            
-            GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                MembershipHooks.METHOD_MEMBERSHIP_PRE_REMOVE_MEMBER,
-                HooksMembershipChangeBean.class, ms, Membership.class, 
-                VetoTypeGrouper.MEMBERSHIP_PRE_REMOVE_MEMBER);
-            
-            GrouperDAOFactory.getFactory().getMembership().delete(ms);
-            
-            GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_REMOVE_MEMBER, HooksMembershipChangeBean.class, 
-                ms, Membership.class);
-
-            GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
-                MembershipHooks.METHOD_MEMBERSHIP_POST_REMOVE_MEMBER,
-                HooksMembershipChangeBean.class, ms, Membership.class, 
-                VetoTypeGrouper.MEMBERSHIP_POST_REMOVE_MEMBER);
-            
-            return null;
-          }
-
-        });
-
-
-  }
-
 
   /**
    * 
@@ -1133,7 +1074,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       ms.setOwnerStemId(ns.getUuid());
       ms.setMember(member);
 
-      internal_insertMembershipTransaction(ms);
+      GrouperDAOFactory.getFactory().getMembership().save(ms);
       
       return ms;
       
@@ -1164,9 +1105,9 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     try {
       GrouperSession.validate(s); 
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj, true);
-      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(g.getUuid(), m.getUuid(), f, IMMEDIATE, true);
+      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(g.getUuid(), m.getUuid(), f, IMMEDIATE, true, false);
       
-      internal_deleteMembershipTransaction(ms);
+      GrouperDAOFactory.getFactory().getMembership().delete(ms);
       
       return ms;
     }
@@ -1198,9 +1139,9 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       // Who we're deleting
       //Member m = PrivilegeResolver.internal_canViewSubject(s, subj);
       Member    m   = MemberFinder.internal_findViewableMemberBySubject(s, subj, true);
-      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(ns.getUuid(), m.getUuid(), f, IMMEDIATE , true);
+      Membership ms = GrouperDAOFactory.getFactory().getMembership().findByStemOwnerAndMemberAndFieldAndType(ns.getUuid(), m.getUuid(), f, IMMEDIATE , true, false);
 
-      internal_deleteMembershipTransaction(ms);
+      GrouperDAOFactory.getFactory().getMembership().delete(ms);
       
       return ms;
     }
@@ -1245,7 +1186,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
             }
   
             // Deal with group's members
-            Iterator itHas = dao.findAllByGroupOwnerAndFieldAndType( g.getUuid(), f, IMMEDIATE ).iterator();
+            Iterator itHas = dao.findAllByGroupOwnerAndFieldAndType(g.getUuid(), f, IMMEDIATE, false).iterator();
             while (itHas.hasNext()) {
               ms = (Membership)itHas.next() ;
               GrouperDAOFactory.getFactory().getMembership().delete(ms);
@@ -1297,7 +1238,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           MembershipDAO dao     = GrouperDAOFactory.getFactory().getMembership();
 
           // Deal with stem's members
-          Iterator itHas = dao.findAllByStemOwnerAndFieldAndType( ns.getUuid(), f, IMMEDIATE ).iterator();
+          Iterator itHas = dao.findAllByStemOwnerAndFieldAndType(ns.getUuid(), f, IMMEDIATE, false).iterator();
           while (itHas.hasNext()) {
             ms = (Membership) itHas.next() ;
             GrouperDAOFactory.getFactory().getMembership().delete(ms);
@@ -1423,7 +1364,8 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   } 
 
   /**
-   * 
+   * This returns the create time of the membership.  If the membership is effective,
+   * this will be for the immediate membership that causes the effective membership.
    * @return create time
    */
   public long getCreateTimeLong() {
@@ -1431,7 +1373,8 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   }
 
   /**
-   * 
+   * This returns the creator of the membership.  If the membership is effective,
+   * this will be for the immediate membership that causes the effective membership.
    * @return creator uuid
    */
   public String getCreatorUuid() {
@@ -1507,6 +1450,10 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       .append( this.groupSetId    )
       .toHashCode();
   } // public int hashCode()
+  
+  
+  /** we're using this to save effective memberships onPreSave, onPreUpdate and onPreDelete so they can be used onPostSave, onPostUpdate and onPostDelete */
+  private Set<Membership> effectiveMembershipsForHooks;
 
   /**
    * 
@@ -1515,8 +1462,10 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   @Override
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
+    effectiveMembershipsForHooks = new LinkedHashSet<Membership>();
     
     if (this.isImmediate()) {
+      
       // validate the immediate membership
       GrouperValidator v = ImmediateMembershipValidator.validate(this);
       if (v.isInvalid()) {
@@ -1528,11 +1477,11 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       if (this.getOwnerGroupId() != null) {
         ms = GrouperDAOFactory.getFactory().getMembership()
             .findByGroupOwnerAndMemberAndFieldAndType(this.getOwnerGroupId(),
-                this.getMemberUuid(), this.getField(), Membership.IMMEDIATE, false);
+                this.getMemberUuid(), this.getField(), Membership.IMMEDIATE, false, false);
       } else {
         ms = GrouperDAOFactory.getFactory().getMembership()
             .findByStemOwnerAndMemberAndFieldAndType(this.getOwnerStemId(),
-                this.getMemberUuid(), this.getField(), Membership.IMMEDIATE, false);
+                this.getMemberUuid(), this.getField(), Membership.IMMEDIATE, false, false);
       }
       
       // if the immediate membership already exists and it's active, throw MembershipAlreadyExistsException.
@@ -1544,6 +1493,13 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       if (ms != null && ms.isEnabled() == false) {
         GrouperDAOFactory.getFactory().getMembership().delete(ms);
       }
+
+      // high level membership hook
+      GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_PRE_ADD_MEMBER,
+          HooksMembershipChangeBean.class, this, Membership.class, 
+          VetoTypeGrouper.MEMBERSHIP_PRE_ADD_MEMBER);
+      
     } else if (this.isComposite()) {
       // validate the composite membership
       GrouperValidator v = CompositeMembershipValidator.validate(this);
@@ -1555,6 +1511,20 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_PRE_INSERT, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_INSERT, false, false);
+    
+    // now we need to take care of firing hooks for effective memberships
+    // note that effective membership hooks are also fired on pre and post events on GroupSet
+    if (this.getFieldId().equals(Group.getDefaultList().getUuid())) {
+      Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByMemberGroup(this.getOwnerGroupId());
+      Iterator<GroupSet> groupSetsIter = groupSets.iterator();
+      while (groupSetsIter.hasNext()) {
+        Membership effectiveMembership = groupSetsIter.next().internal_createEffectiveMembershipObjectForHooks(this);
+        effectiveMembershipsForHooks.add(effectiveMembership);
+        GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+            MembershipHooks.METHOD_MEMBERSHIP_PRE_INSERT, HooksMembershipBean.class, 
+            effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_INSERT, false, false);
+      }
+    }
 
     //change log into temp table if a group list membership
     if ("list".equals(this.getListType())) {
@@ -1723,42 +1693,9 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   public void onPostDelete(HibernateSession hibernateSession) {
 
     super.onPostDelete(hibernateSession);
-    
-    if (this.isImmediate()) {
-      // if the member is a group, delete the immediate group set.
-      if (this.getMember().getSubjectTypeId().equals("group")) {
 
-        // get the immediate group set (depth = 1)
-        GroupSet immediateGroupSet = null;
-        if (this.getOwnerGroupId() != null) {
-          immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet()
-            .findImmediateByOwnerGroupAndMemberGroupAndField(this.getOwnerGroupId(), this.getMember().toGroup().getUuid(), this.getField());
-        } else {
-          immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet()
-            .findImmediateByOwnerStemAndMemberGroupAndField(this.getOwnerStemId(), this.getMember().toGroup().getUuid(), this.getField());
-        }
-        
-        // delete it..  it may not exist if it was previously disabled.
-        if (immediateGroupSet != null) {
-          GrouperDAOFactory.getFactory().getGroupSet().delete(immediateGroupSet);
-        }
-      }
-      
-      // if the owner is a group and the field is the default list, then we need to check for composite membership updates
-      if (this.getOwnerGroupId() != null && this.getField().equals(Group.getDefaultList())) {
-        Set<String> membersList = new LinkedHashSet<String>();
-        membersList.add(this.getMemberUuid());
-        
-        if (this.getMember().getSubjectTypeId().equals("group")) {
-          Iterator<Member> memberIter = GrouperDAOFactory.getFactory().getMembership().findAllMembersByGroupOwnerAndField( 
-              this.getMember().toGroup().getUuid(), Group.getDefaultList(), null).iterator();
-          while (memberIter.hasNext()) {
-            membersList.add(memberIter.next().getUuid());
-          }
-        }
-        
-        fixComposites(this.getOwnerGroupId(), membersList);
-      }
+    if (this.isImmediate()) {
+      processPostMembershipDelete(this.getMember());
     }
     
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
@@ -1768,6 +1705,35 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_POST_DELETE, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_DELETE, false, true);
+    
+    // hooks for effective memberships
+    // note that effective membership hooks are also fired on pre and post events on GroupSet
+    Iterator<Membership> effectiveMembershipsIter = this.effectiveMembershipsForHooks.iterator();
+    while (effectiveMembershipsIter.hasNext()) {
+      Membership effectiveMembership = effectiveMembershipsIter.next();
+      
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_DELETE, HooksMembershipBean.class, 
+          effectiveMembership, Membership.class);
+
+      GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_POST_DELETE, HooksMembershipBean.class, 
+          effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_DELETE, false, true);
+    }
+    
+    this.effectiveMembershipsForHooks = null;
+    
+    if (this.isImmediate()) {
+      // high level membership hooks
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_REMOVE_MEMBER, HooksMembershipChangeBean.class, 
+          this, Membership.class);
+
+      GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_POST_REMOVE_MEMBER,
+          HooksMembershipChangeBean.class, this, Membership.class, 
+          VetoTypeGrouper.MEMBERSHIP_POST_REMOVE_MEMBER);
+    }
   }
 
   /**
@@ -1777,47 +1743,9 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   public void onPostSave(HibernateSession hibernateSession) {
 
     super.onPostSave(hibernateSession);
-    
+
     if (this.isImmediate()) {
-      // if the member is a group, add the immediate group set.
-      if (this.getMember().getSubjectTypeId().equals("group")) {
-        GroupSet immediateGroupSet = new GroupSet();
-        immediateGroupSet.setId(GrouperUuid.getUuid());
-        immediateGroupSet.setCreatorId(GrouperSession.staticGrouperSession().getMemberUuid());
-        immediateGroupSet.setDepth(1);
-        immediateGroupSet.setFieldId(this.getFieldId());
-        immediateGroupSet.setMemberGroupId(this.getMember().toGroup().getUuid());
-        immediateGroupSet.setType(Membership.EFFECTIVE);
-  
-        GroupSet parent = null;
-  
-        if (this.getOwnerGroupId() != null) {
-          immediateGroupSet.setOwnerGroupId(this.getGroup().getUuid());
-          parent = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(this.getGroup(), this.getField());
-        } else {
-          immediateGroupSet.setOwnerStemId(this.getStem().getUuid());
-          parent = GrouperDAOFactory.getFactory().getGroupSet().findSelfStem(this.getStem(), this.getField());
-        }
-        
-        immediateGroupSet.setParentId(parent.getId());
-        GrouperDAOFactory.getFactory().getGroupSet().save(immediateGroupSet);
-      }
-      
-      // if the owner is a group and the field is the default list, then we need to check for composite membership updates
-      if (this.getOwnerGroupId() != null && this.getField().equals(Group.getDefaultList())) {
-        Set<String> membersList = new LinkedHashSet<String>();
-        membersList.add(this.getMember().getUuid());
-        
-        if (this.getMember().getSubjectTypeId().equals("group")) {
-          Iterator<Member> memberIter = GrouperDAOFactory.getFactory().getMembership().findAllMembersByGroupOwnerAndField( 
-              this.getMember().toGroup().getUuid(), Group.getDefaultList(), null).iterator();
-          while (memberIter.hasNext()) {
-            membersList.add(memberIter.next().getUuid());
-          }
-        }
-        
-        fixComposites(this.getOwnerGroupId(), membersList);
-      }
+      processPostMembershipSaveOrUpdate();
     }
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
@@ -1828,11 +1756,190 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_INSERT, HooksMembershipBean.class, 
         this, Membership.class);
+    
+    // hooks for effective memberships
+    // note that effective membership hooks are also fired on pre and post events on GroupSet
+    Iterator<Membership> effectiveMembershipsIter = this.effectiveMembershipsForHooks.iterator();
+    while (effectiveMembershipsIter.hasNext()) {
+      Membership effectiveMembership = effectiveMembershipsIter.next();
+      
+      GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_POST_INSERT, HooksMembershipBean.class, 
+          effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_INSERT, true, false);
 
+      //do these second so the right object version is set, and dbVersion is ok
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_INSERT, HooksMembershipBean.class, 
+          effectiveMembership, Membership.class);
+    }
+    
+    this.effectiveMembershipsForHooks = null;
+
+    if (this.isImmediate()) {      
+      // high level membership hooks
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_ADD_MEMBER, HooksMembershipChangeBean.class, 
+          this, Membership.class);
+  
+      GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_POST_ADD_MEMBER,
+          HooksMembershipChangeBean.class, this, Membership.class, 
+          VetoTypeGrouper.MEMBERSHIP_POST_ADD_MEMBER);
+    }
+  }
+
+  /**
+   * Delete groupSets and composites when a membership is deleted.
+   * @param member
+   */
+  private void processPostMembershipDelete(Member member) {
+    // if the member is a group, delete the immediate group set.
+    if (this.getMember().getSubjectTypeId().equals("group")) {
+
+      // get the immediate group set (depth = 1)
+      GroupSet immediateGroupSet = null;
+      if (this.getOwnerGroupId() != null) {
+        immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet()
+          .findImmediateByOwnerGroupAndMemberGroupAndField(this.getOwnerGroupId(), member.toGroup().getUuid(), this.getField());
+      } else {
+        immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet()
+          .findImmediateByOwnerStemAndMemberGroupAndField(this.getOwnerStemId(), member.toGroup().getUuid(), this.getField());
+      }
+      
+      // delete it..  it may not exist if it was previously disabled.
+      if (immediateGroupSet != null) {
+        GrouperDAOFactory.getFactory().getGroupSet().delete(immediateGroupSet);
+      }
+    }
+
+    // if the owner is a group and the field is the default list, then we need to check for composite membership updates
+    // and then update last_membership_change
+    if (this.getField().equals(Group.getDefaultList())) {
+      Set<String> membersList = new LinkedHashSet<String>();
+      membersList.add(member.getUuid());
+      
+      if (member.getSubjectTypeId().equals("group")) {
+        Iterator<Member> memberIter = GrouperDAOFactory.getFactory().getMembership().findAllMembersByGroupOwnerAndField( 
+            member.toGroup().getUuid(), Group.getDefaultList(), null, true).iterator();
+        while (memberIter.hasNext()) {
+          membersList.add(memberIter.next().getUuid());
+        }
+      }
+      
+      Set<String> groupIds = fixComposites(this.getOwnerGroupId(), membersList);
+      groupIds.add(this.getOwnerGroupId());
+
+      // update last_membership_change
+      updateLastMembershipChangeDuringMembersListUpdate(groupIds);
+    } else {
+      // if this is not the default list, then we may just have to update last_membership_change
+      updateLastMembershipChangeDuringNonMembersListUpdate();
+    }
   }
   
-  protected static void fixComposites(String ownerGroupId, Set<String> membersList) {
+  /**
+   * Add groupSets and composites when a membership is added or updated.
+   */
+  private void processPostMembershipSaveOrUpdate() {
+    
+    // don't need to do anything if the membership is disabled..
+    if (!this.enabled) {
+      return;
+    }
+    
+    // if the member is a group, add the immediate group set.
+    if (this.getMember().getSubjectTypeId().equals("group")) {
+      GroupSet immediateGroupSet = new GroupSet();
+      immediateGroupSet.setId(GrouperUuid.getUuid());
+      immediateGroupSet.setCreatorId(GrouperSession.staticGrouperSession().getMemberUuid());
+      immediateGroupSet.setDepth(1);
+      immediateGroupSet.setFieldId(this.getFieldId());
+      immediateGroupSet.setMemberGroupId(this.getMember().toGroup().getUuid());
+      immediateGroupSet.setType(Membership.EFFECTIVE);
 
+      GroupSet parent = null;
+
+      if (this.getOwnerGroupId() != null) {
+        immediateGroupSet.setOwnerGroupId(this.getGroup().getUuid());
+        parent = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(this.getGroup(), this.getField());
+      } else {
+        immediateGroupSet.setOwnerStemId(this.getStem().getUuid());
+        parent = GrouperDAOFactory.getFactory().getGroupSet().findSelfStem(this.getStem(), this.getField());
+      }
+      
+      immediateGroupSet.setParentId(parent.getId());
+      GrouperDAOFactory.getFactory().getGroupSet().save(immediateGroupSet);
+    }
+
+    // if the owner is a group and the field is the default list, then we need to check for composite membership updates
+    // and then update last_membership_change
+    if (this.getField().equals(Group.getDefaultList())) {
+      Set<String> membersList = new LinkedHashSet<String>();
+      membersList.add(this.getMember().getUuid());
+      
+      if (this.getMember().getSubjectTypeId().equals("group")) {
+        Iterator<Member> memberIter = GrouperDAOFactory.getFactory().getMembership().findAllMembersByGroupOwnerAndField( 
+            this.getMember().toGroup().getUuid(), Group.getDefaultList(), null, true).iterator();
+        while (memberIter.hasNext()) {
+          membersList.add(memberIter.next().getUuid());
+        }
+      }
+      
+      Set<String> groupIds = fixComposites(this.getOwnerGroupId(), membersList);
+      groupIds.add(this.getOwnerGroupId());
+
+      // update last_membership_change
+      updateLastMembershipChangeDuringMembersListUpdate(groupIds);
+    } else {
+      // if this is not the default list, then we may just have to update last_membership_change
+      updateLastMembershipChangeDuringNonMembersListUpdate();
+    }
+  }
+  
+
+  /**
+   * Update the last_membership_change for the group or stem that's getting a new privilege or custom list membership.
+   */
+  private void updateLastMembershipChangeDuringNonMembersListUpdate() {
+    if (GrouperConfig.getPropertyBoolean("groups.updateLastMembershipTime", true) && this.getOwnerGroupId() != null) {
+      GrouperDAOFactory.getFactory().getGroup().updateLastMembershipChange(this.getOwnerGroupId());
+    }
+    
+    if (GrouperConfig.getPropertyBoolean("stems.updateLastMembershipTime", true) && this.getOwnerStemId() != null) {
+      GrouperDAOFactory.getFactory().getStem().updateLastMembershipChange(this.getOwnerStemId());
+    }
+  }
+  
+  /**
+   * Update the last_membership_change for the ancestor groups and stems for the given groups.
+   * @param groupIds
+   */
+  protected static void updateLastMembershipChangeDuringMembersListUpdate(Set<String> groupIds) {
+    if (GrouperConfig.getPropertyBoolean("groups.updateLastMembershipTime", true)) {
+      Iterator<String> iter = groupIds.iterator();
+      while (iter.hasNext()) {
+        GrouperDAOFactory.getFactory().getGroup().updateLastMembershipChangeIncludeAncestorGroups(iter.next());
+      }
+    }
+    
+    if (GrouperConfig.getPropertyBoolean("stems.updateLastMembershipTime", true)) {
+      Iterator<String> iter = groupIds.iterator();
+      while (iter.hasNext()) {
+        GrouperDAOFactory.getFactory().getStem().updateLastMembershipChangeIncludeAncestorGroups(iter.next());
+      }
+    }
+  }
+  
+  
+  /**
+   * @param ownerGroupId
+   * @param membersList
+   * @return set of group ids with modified composite memberships
+   */
+  protected static Set<String> fixComposites(String ownerGroupId, Set<String> membersList) {
+
+    Set<String> groupIds = new LinkedHashSet<String>();
+    
     Set<Composite> composites = GrouperDAOFactory.getFactory().getComposite().findAsFactorOrHasMemberOfFactor(ownerGroupId);
     Iterator<Composite> compositesIter = composites.iterator();
     while (compositesIter.hasNext()) {
@@ -1873,24 +1980,27 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           Membership ms = Composite.createNewCompositeMembershipObject(owner.getUuid(), memberId, composite.getUuid());
           GrouperDAOFactory.getFactory().getMembership().save(ms);
           modifiedMembersList.add(memberId);
+          groupIds.add(owner.getUuid());
         } else if (!compositeShouldHaveMember && ownerHasMember) {
           Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
-            owner.getUuid(), memberId, Group.getDefaultList(), Membership.COMPOSITE, true);
+            owner.getUuid(), memberId, Group.getDefaultList(), Membership.COMPOSITE, true, false);
           GrouperDAOFactory.getFactory().getMembership().delete(ms);
           modifiedMembersList.add(memberId);
+          groupIds.add(owner.getUuid());
         }
       }
       
       if (modifiedMembersList.size() > 0) {
-        fixComposites(owner.getUuid(), modifiedMembersList);
+        groupIds.addAll(fixComposites(owner.getUuid(), modifiedMembersList));
       }
     }
 
+    return groupIds;
   }
   
   private static boolean hasMember(String groupId, String memberId) {
     Set<Membership> mships = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndMemberAndField(
-        groupId, memberId, Group.getDefaultList());
+        groupId, memberId, Group.getDefaultList(), true);
     
     if (mships.size() > 0) {
       return true;
@@ -1907,6 +2017,32 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
 
     super.onPostUpdate(hibernateSession);
     
+    if (this.isImmediate()) {
+      if (this.dbVersionDifferentFields().contains(FIELD_ENABLED)) {
+        // if enabled column is changing, we may have to adjust composites and/or groupSets
+        boolean oldValue = this.dbVersion().enabled;
+        boolean newValue = this.enabled;
+        
+        // set member to null in case the member also changed...
+        this.member = null;
+        
+        if (!oldValue && newValue) {
+          // the membership is becoming enabled...
+          this.processPostMembershipSaveOrUpdate();
+        } else if (oldValue && !newValue) {
+          // the membership is becoming disabled...
+          this.processPostMembershipDelete(this.dbVersion().getMember());
+        }
+      } else if (this.dbVersionDifferentFields().contains(FIELD_MEMBER_UUID) && this.enabled) {
+        // set member to null
+        this.member = null;
+        
+        // if member column is changing, we may have to adjust composites and/or groupSets
+        this.processPostMembershipDelete(this.dbVersion().getMember());
+        this.processPostMembershipSaveOrUpdate();
+      }
+    }
+    
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_UPDATE, HooksMembershipBean.class, 
         this, Membership.class);
@@ -1914,6 +2050,23 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_POST_UPDATE, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_UPDATE, true, false);
+    
+    // hooks for effective memberships
+    // note that effective membership hooks are also fired on pre and post events on GroupSet
+    Iterator<Membership> effectiveMembershipsIter = this.effectiveMembershipsForHooks.iterator();
+    while (effectiveMembershipsIter.hasNext()) {
+      Membership effectiveMembership = effectiveMembershipsIter.next();
+      
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_UPDATE, HooksMembershipBean.class, 
+          effectiveMembership, Membership.class);
+
+      GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_POST_UPDATE, HooksMembershipBean.class, 
+          effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_UPDATE, true, false);
+    }
+    
+    this.effectiveMembershipsForHooks = null;
   }
 
   /**
@@ -1922,11 +2075,34 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   @Override
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
+    effectiveMembershipsForHooks = new LinkedHashSet<Membership>();
+    
+    if (this.isImmediate()) {
+      // high level membership hooks
+      GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_PRE_REMOVE_MEMBER,
+          HooksMembershipChangeBean.class, this, Membership.class, 
+          VetoTypeGrouper.MEMBERSHIP_PRE_REMOVE_MEMBER);
+    }
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_PRE_DELETE, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_DELETE, false, false);
-
+    
+    // now we need to take care of firing hooks for effective memberships
+    // note that effective membership hooks are also fired on pre and post events on GroupSet
+    if (this.getFieldId().equals(Group.getDefaultList().getUuid())) {
+      Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByMemberGroup(this.getOwnerGroupId());
+      Iterator<GroupSet> groupSetsIter = groupSets.iterator();
+      while (groupSetsIter.hasNext()) {
+        Membership effectiveMembership = groupSetsIter.next().internal_createEffectiveMembershipObjectForHooks(this);
+        effectiveMembershipsForHooks.add(effectiveMembership);
+        GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+            MembershipHooks.METHOD_MEMBERSHIP_PRE_DELETE, HooksMembershipBean.class, 
+            effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_DELETE, false, false);
+      }
+    }
+    
     //change log into temp table if a group list membership
     if ("list".equals(this.getListType())) {
       new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE, 
@@ -1937,7 +2113,7 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
           ChangeLogLabels.MEMBERSHIP_DELETE.membershipType.name(), this.getType(),
           ChangeLogLabels.MEMBERSHIP_DELETE.groupId.name(), this.getOwnerGroupId(),
           ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), this.getGroup().getName()).save();
-    }        
+    }
   }
 
   /**
@@ -1946,11 +2122,25 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
   @Override
   public void onPreUpdate(HibernateSession hibernateSession) {
     super.onPreUpdate(hibernateSession);
+    effectiveMembershipsForHooks = new LinkedHashSet<Membership>();
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
         MembershipHooks.METHOD_MEMBERSHIP_PRE_UPDATE, HooksMembershipBean.class, 
         this, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_UPDATE, false, false);
     
+    // now we need to take care of firing hooks for effective memberships
+    // note that effective membership hooks are also fired on pre and post events on GroupSet
+    if (this.getFieldId().equals(Group.getDefaultList().getUuid())) {
+      Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByMemberGroup(this.getOwnerGroupId());
+      Iterator<GroupSet> groupSetsIter = groupSets.iterator();
+      while (groupSetsIter.hasNext()) {
+        Membership effectiveMembership = groupSetsIter.next().internal_createEffectiveMembershipObjectForHooks(this);
+        effectiveMembershipsForHooks.add(effectiveMembership);
+        GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+            MembershipHooks.METHOD_MEMBERSHIP_PRE_UPDATE, HooksMembershipBean.class, 
+            effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_UPDATE, false, false);
+      }
+    }
     
     //change log into temp table if a group list membership
     if ("list".equals(this.getListType())) {

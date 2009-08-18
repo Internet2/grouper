@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperCheckConfig.java,v 1.29 2009-08-12 04:52:21 mchyzer Exp $
+ * $Id: GrouperCheckConfig.java,v 1.30 2009-08-18 23:11:38 shilen Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -312,12 +312,6 @@ public class GrouperCheckConfig {
 
     GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "stems.create.grant.all.create", true);
     GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "stems.create.grant.all.stem", true);
-
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "memberships.log.group.effective.add", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "memberships.log.group.effective.del", true);
-
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "memberships.log.stem.effective.add", true);
-    GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "memberships.log.stem.effective.del", true);
 
     GrouperUtil.propertyValueBoolean(GROUPER_PROPERTIES_NAME, "groups.wheel.use", true);
 

@@ -53,7 +53,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.68 2009-08-12 12:44:45 shilen Exp $
+ * @version $Id: Composite.java,v 1.69 2009-08-18 23:11:38 shilen Exp $
  * @since   1.0
  */
 @SuppressWarnings("serial")
@@ -492,7 +492,14 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     GrouperDAOFactory.getFactory().getMembership().save(this.createNewCompositeMembershipObjects(membersList));
     
     // fix composites
-    Membership.fixComposites(this.getFactorOwnerUuid(), membersList);
+    Set<String> groupIds = Membership.fixComposites(this.getFactorOwnerUuid(), membersList);
+    
+    // update last_membership_change
+    if (membersList.size() > 0) {
+      groupIds.add(this.getFactorOwnerUuid());
+    }
+    
+    Membership.updateLastMembershipChangeDuringMembersListUpdate(groupIds);
 
     // update group set object to specify type of composite
     GroupSet selfGroupSet = 
@@ -535,7 +542,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     
     // delete the composite memberships
     Set<Membership> mships = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndField( 
-        this.getFactorOwnerUuid(), Group.getDefaultList());
+        this.getFactorOwnerUuid(), Group.getDefaultList(), false);
 
     Set<String> membersList = new LinkedHashSet<String>();
     Iterator<Membership> iter = mships.iterator();
@@ -546,7 +553,14 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     GrouperDAOFactory.getFactory().getMembership().delete(mships);
 
     // fix composites
-    Membership.fixComposites(this.getFactorOwnerUuid(), membersList);
+    Set<String> groupIds = Membership.fixComposites(this.getFactorOwnerUuid(), membersList);
+    
+    // update last_membership_change
+    if (membersList.size() > 0) {
+      groupIds.add(this.getFactorOwnerUuid());
+    }
+    
+    Membership.updateLastMembershipChangeDuringMembersListUpdate(groupIds);
     
     // update the membership type of the group set to 'immediate'
     GroupSet selfGroupSet = 
@@ -733,7 +747,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
 
     Set<Membership> memberships = GrouperDAOFactory.getFactory()
       .getMembership().findAllByGroupOwnerAndMemberAndField(this.getLeftFactorUuid(), 
-          memberId, Group.getDefaultList());
+          memberId, Group.getDefaultList(), false);
     
     if (GrouperUtil.length(memberships) > 0) {
       throw new IllegalStateException("Membership paths from a left factor to the composite are not allowed. " 
@@ -741,7 +755,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     }
     memberships = GrouperDAOFactory.getFactory()
       .getMembership().findAllByGroupOwnerAndMemberAndField(this.getRightFactorUuid(), 
-          memberId, Group.getDefaultList());
+          memberId, Group.getDefaultList(), false);
     
     if (GrouperUtil.length(memberships) > 0) {
       throw new IllegalStateException("Membership paths from a right factor to the composite are not allowed. " 

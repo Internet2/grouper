@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.helper.DateHelper;
 import edu.internet2.middleware.grouper.helper.MembershipTestHelper;
 import edu.internet2.middleware.grouper.helper.R;
@@ -910,6 +911,7 @@ public class TestMembership4 extends TestCase {
     gR.deleteMember(gS.toSubject());
     gF.deleteMember(gR.toSubject());
     gR.deleteMember(gQ.toSubject());
+    GrouperCacheUtils.clearAllCaches();
   }
 }
 

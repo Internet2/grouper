@@ -15,19 +15,28 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupSetNotFoundException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.hooks.MembershipHooks;
+import edu.internet2.middleware.grouper.hooks.beans.HooksMembershipBean;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
+import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
+import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
+import edu.internet2.middleware.grouper.internal.dao.StemDAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * @author shilen $Id: GroupSet.java,v 1.2 2009-08-12 12:44:45 shilen Exp $
+ * @author shilen $Id: GroupSet.java,v 1.3 2009-08-18 23:11:38 shilen Exp $
  *
  */
 @SuppressWarnings("serial")
-public class GroupSet extends GrouperAPI implements Hib3GrouperVersioned {
+public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -204,6 +213,9 @@ public class GroupSet extends GrouperAPI implements Hib3GrouperVersioned {
     return GrouperUtil.clone(this, CLONE_FIELDS);
   }
 
+  /** we're using this to save effective memberships onPreSave and onPreDelete so they can be used onPostSave and onPostDelete */
+  private Set<Membership> effectiveMembershipsForHooks;
+
   /**
    * 
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)
@@ -211,12 +223,29 @@ public class GroupSet extends GrouperAPI implements Hib3GrouperVersioned {
   @Override
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
+    effectiveMembershipsForHooks = new LinkedHashSet<Membership>();
+
     if (this.createTime == null) {
       this.createTime = System.currentTimeMillis();
     }
     
     if (this.creatorId == null) {
       this.creatorId = GrouperSession.staticGrouperSession().getMember().getUuid();
+    }
+    
+    // now we need to take care of firing hooks for effective memberships
+    // note that effective membership hooks are also fired on pre and post events on Membership
+    if (this.getDepth() > 0) {
+      Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+          .findAllByGroupOwnerAndFieldAndDepth(this.getMemberGroupId(), Group.getDefaultList(), 0, true);
+      Iterator<Membership> membershipsIter = memberships.iterator();
+      while (membershipsIter.hasNext()) {
+        Membership effectiveMembership = this.internal_createEffectiveMembershipObjectForHooks(membershipsIter.next());
+        effectiveMembershipsForHooks.add(effectiveMembership);
+        GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+            MembershipHooks.METHOD_MEMBERSHIP_PRE_INSERT, HooksMembershipBean.class, 
+            effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_INSERT, false, false);
+      }
     }
   }
   
@@ -227,6 +256,24 @@ public class GroupSet extends GrouperAPI implements Hib3GrouperVersioned {
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
+    
+    // hooks for effective memberships
+    // note that effective membership hooks are also fired on pre and post events on Membership
+    Iterator<Membership> effectiveMembershipsIter = this.effectiveMembershipsForHooks.iterator();
+    while (effectiveMembershipsIter.hasNext()) {
+      Membership effectiveMembership = effectiveMembershipsIter.next();
+      
+      GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_POST_INSERT, HooksMembershipBean.class, 
+          effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_INSERT, true, false);
+
+      //do these second so the right object version is set, and dbVersion is ok
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_INSERT, HooksMembershipBean.class, 
+          effectiveMembership, Membership.class);
+    }
+    
+    this.effectiveMembershipsForHooks = null;
 
     // take care of effective group sets
     if (this.getDepth() == 1 && this.getMemberGroupId() != null) {
@@ -246,7 +293,35 @@ public class GroupSet extends GrouperAPI implements Hib3GrouperVersioned {
       }
       
       GrouperDAOFactory.getFactory().getGroupSet().save(results);
+      
+      // update last membership change time
+      this.updateLastMembershipChange(this, results);
     }
+  }
+  
+  
+  /**
+   * @see edu.internet2.middleware.grouper.GrouperAPI#onPostDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
+   */
+  public void onPostDelete(HibernateSession hibernateSession) {
+    super.onPostDelete(hibernateSession);
+    
+    // hooks for effective memberships
+    // note that effective membership hooks are also fired on pre and post events on Membership
+    Iterator<Membership> effectiveMembershipsIter = this.effectiveMembershipsForHooks.iterator();
+    while (effectiveMembershipsIter.hasNext()) {
+      Membership effectiveMembership = effectiveMembershipsIter.next();
+      
+      GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_POST_COMMIT_DELETE, HooksMembershipBean.class, 
+          effectiveMembership, Membership.class);
+
+      GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+          MembershipHooks.METHOD_MEMBERSHIP_POST_DELETE, HooksMembershipBean.class, 
+          effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_POST_DELETE, false, true);
+    }
+    
+    this.effectiveMembershipsForHooks = null;
   }
   
   /**
@@ -255,6 +330,22 @@ public class GroupSet extends GrouperAPI implements Hib3GrouperVersioned {
   @Override
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
+    effectiveMembershipsForHooks = new LinkedHashSet<Membership>();
+
+    // now we need to take care of firing hooks for effective memberships
+    // note that effective membership hooks are also fired on pre and post events on Membership
+    if (this.getDepth() > 0) {
+      Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+          .findAllByGroupOwnerAndFieldAndDepth(this.getMemberGroupId(), Group.getDefaultList(), 0, true);
+      Iterator<Membership> membershipsIter = memberships.iterator();
+      while (membershipsIter.hasNext()) {
+        Membership effectiveMembership = this.internal_createEffectiveMembershipObjectForHooks(membershipsIter.next());
+        effectiveMembershipsForHooks.add(effectiveMembership);
+        GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBERSHIP, 
+            MembershipHooks.METHOD_MEMBERSHIP_PRE_DELETE, HooksMembershipBean.class, 
+            effectiveMembership, Membership.class, VetoTypeGrouper.MEMBERSHIP_PRE_DELETE, false, false);
+      }
+    }
     
     // take care of effective group sets
     if (this.getDepth() == 1) {
@@ -284,6 +375,51 @@ public class GroupSet extends GrouperAPI implements Hib3GrouperVersioned {
       }
       
       GrouperDAOFactory.getFactory().getGroupSet().delete(groupSetsToDelete);
+      
+      // update last membership change time
+      this.updateLastMembershipChange(this, groupSetsToDelete);
+    }
+  }
+  
+  /**
+   * If enabled, update last_membership_change for groups and stems
+   * @param immediateGroupSet
+   * @param effectiveGroupSets
+   */
+  private void updateLastMembershipChange(GroupSet immediateGroupSet, Set<GroupSet> effectiveGroupSets) {
+    Set<String> groupIds = new LinkedHashSet<String>();
+    Set<String> stemIds = new LinkedHashSet<String>();
+    
+    if (immediateGroupSet.getOwnerGroupId() != null) {
+      groupIds.add(immediateGroupSet.getOwnerGroupId());
+    } else {
+      stemIds.add(immediateGroupSet.getOwnerStemId());
+    }
+    
+    Iterator<GroupSet> iter = effectiveGroupSets.iterator();
+    while (iter.hasNext()) {
+      GroupSet effectiveGroupSet = iter.next();
+      if (effectiveGroupSet.getOwnerGroupId() != null) {
+        groupIds.add(effectiveGroupSet.getOwnerGroupId());
+      } else {
+        stemIds.add(effectiveGroupSet.getOwnerStemId());
+      }
+    }
+    
+    if (GrouperConfig.getPropertyBoolean("stems.updateLastMembershipTime", true)) {
+      StemDAO dao = GrouperDAOFactory.getFactory().getStem();
+      Iterator<String> stemIdsIter = stemIds.iterator();
+      while (stemIdsIter.hasNext()) {
+        dao.updateLastMembershipChange(stemIdsIter.next());
+      }
+    }
+    
+    if (GrouperConfig.getPropertyBoolean("groups.updateLastMembershipTime", true)) {
+      GroupDAO dao = GrouperDAOFactory.getFactory().getGroup();
+      Iterator<String> groupIdsIter = groupIds.iterator();
+      while (groupIdsIter.hasNext()) {
+        dao.updateLastMembershipChange(groupIdsIter.next());
+      }
     }
   }
 
@@ -824,4 +960,28 @@ public class GroupSet extends GrouperAPI implements Hib3GrouperVersioned {
     this.type = type;
   }
 
+  
+  /**
+   * Since pre hooks on effective memberships have to fire before the membership can be queried,
+   * I have this method to manually combine a GroupSet and ImmediateMembershipEntry.
+   * @param immediateOrCompositeMembership
+   * @return membership
+   */
+  public Membership internal_createEffectiveMembershipObjectForHooks(Membership immediateOrCompositeMembership) {
+    Membership effectiveMembership = immediateOrCompositeMembership.clone();
+    effectiveMembership.setUuid(immediateOrCompositeMembership.getImmediateMembershipId() + ":" + this.getId());
+    effectiveMembership.setGroupSetId(this.getId());
+    effectiveMembership.setFieldId(this.getFieldId());
+    effectiveMembership.setOwnerGroupId(this.getOwnerGroupId());
+    effectiveMembership.setOwnerStemId(this.getOwnerStemId());
+    effectiveMembership.setViaGroupId(this.getViaGroupId());
+    effectiveMembership.setViaCompositeId(null);
+    effectiveMembership.setDepth(this.getDepth());
+    effectiveMembership.setType(Membership.EFFECTIVE);
+    effectiveMembership.setGroupSetParentId(this.getParentId());
+    effectiveMembership.setGroupSetCreatorUuid(this.getCreatorId());
+    effectiveMembership.setGroupSetCreateTimeLong(this.getCreateTime());
+    
+    return effectiveMembership;
+  }
 }

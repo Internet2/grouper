@@ -14,10 +14,11 @@ import edu.internet2.middleware.grouper.exception.GroupSetNotFoundException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GroupSetDAO;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /**
  * @author shilen
- * @version $Id: Hib3GroupSetDAO.java,v 1.2 2009-08-12 12:44:45 shilen Exp $
+ * @version $Id: Hib3GroupSetDAO.java,v 1.3 2009-08-18 23:11:38 shilen Exp $
  */
 public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
 
@@ -103,12 +104,21 @@ public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
       hs.createQuery("from GroupSet as gs order by depth desc")
       .list()
       ;
-
+    
+    // Find the root stem
+    Stem rootStem = GrouperDAOFactory.getFactory().getStem().findByName(Stem.ROOT_INT, true);
+    
     // Deleting each group set depth desc to prevent foreign key issues with parent_id
     for (GroupSet groupSet : groupSets) {
+      
+      // we don't want to delete the default groupSets for the root stem.
+      if (groupSet.getOwnerStemId() != null && groupSet.getOwnerStemId().equals(rootStem.getUuid()) && groupSet.getDepth() == 0) {
+        continue;
+      }
+      
       hs.createQuery("delete from GroupSet gs where gs.id=:id")
-      .setString("id", groupSet.getId())
-      .executeUpdate();
+        .setString("id", groupSet.getId())
+        .executeUpdate();
     }
 
   }
@@ -302,7 +312,7 @@ return groupSets;
     return HibernateSession
       .byHqlStatic()
       .createQuery("select gs from GroupSet as gs where gs.ownerGroupId = :ownerGroupId and gs.memberGroupId = :memberGroupId and fieldId = :field and type = 'effective' and depth = '1'")
-      .setCacheable(true).setCacheRegion(KLASS + ".FindImmediateByOwnerGroupAndMemberGroupAndField")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindImmediateByOwnerGroupAndMemberGroupAndField")
       .setString("ownerGroupId", ownerGroupId)
       .setString("memberGroupId", memberGroupId)
       .setString("field", field.getUuid())
@@ -319,7 +329,7 @@ return groupSets;
     return HibernateSession
       .byHqlStatic()
       .createQuery("select gs from GroupSet as gs where gs.ownerStemId = :ownerStemId and gs.memberGroupId = :memberGroupId and fieldId = :field and type = 'effective' and depth = '1'")
-      .setCacheable(true).setCacheRegion(KLASS + ".FindImmediateByOwnerStemAndMemberGroupAndField")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindImmediateByOwnerStemAndMemberGroupAndField")
       .setString("ownerStemId", ownerStemId)
       .setString("memberGroupId", memberGroupId)
       .setString("field", field.getUuid())

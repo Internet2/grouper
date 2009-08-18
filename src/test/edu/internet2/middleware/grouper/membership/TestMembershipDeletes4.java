@@ -88,12 +88,12 @@ public class TestMembershipDeletes4 extends TestCase {
     gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
     gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
 
-    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     gE.addMember(gD.toSubject());
     
     // Remove gD -> gE
     gE.deleteMember(gD.toSubject());
-    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
   }
   
@@ -109,12 +109,12 @@ public class TestMembershipDeletes4 extends TestCase {
     gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
     gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
 
-    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     gD.addMember(gC.toSubject());
     
     // Remove gC -> gD
     gD.deleteMember(gC.toSubject());
-    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
   }
   
@@ -130,12 +130,12 @@ public class TestMembershipDeletes4 extends TestCase {
     gE.addMember(gD.toSubject());
     gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
 
-    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
     
     // Remove gC -> gD (update priv)
     gD.revokePriv(gC.toSubject(), AccessPrivilege.UPDATE);
-    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
   }
   
@@ -151,12 +151,12 @@ public class TestMembershipDeletes4 extends TestCase {
     gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
     gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
 
-    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     gC.addMember(gA.toSubject());
 
     // Remove gA -> gC
     gC.deleteMember(gA.toSubject());
-    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
   }
   
@@ -172,12 +172,12 @@ public class TestMembershipDeletes4 extends TestCase {
     gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
     gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
 
-    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     gC.addMember(subjA);
 
     // Remove SA -> gC
     gC.deleteMember(subjA);
-    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
   }
   
@@ -193,12 +193,12 @@ public class TestMembershipDeletes4 extends TestCase {
     gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
     gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
 
-    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     gC.addMember(gA.toSubject());
 
     // Remove gA -> gC (update priv)
     gC.deleteMember(gA.toSubject());
-    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
   }
   
@@ -214,12 +214,12 @@ public class TestMembershipDeletes4 extends TestCase {
     gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
     gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
 
-    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     gA.addMember(gB.toSubject());
 
     // Remove gB -> gA
     gA.deleteMember(gB.toSubject());
-    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
   }
   
@@ -235,12 +235,12 @@ public class TestMembershipDeletes4 extends TestCase {
     gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
     gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
 
-    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     gB.addMember(gC.toSubject());
 
     // Remove gC -> gB
     gB.deleteMember(gC.toSubject());
-    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
   }
   
@@ -256,12 +256,12 @@ public class TestMembershipDeletes4 extends TestCase {
     gD.grantPriv(gC.toSubject(), AccessPrivilege.UPDATE);
     gC.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
 
-    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     gB.grantPriv(gC.toSubject(), AccessPrivilege.OPTIN);
     
     // Remove gC -> gB (opt-in)
     gB.revokePriv(gC.toSubject(), AccessPrivilege.OPTIN);
-    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll().size();
+    int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
     assertEquals("membership changes after add and delete", 0, afterCount - beforeCount);
   }
 }

@@ -26,7 +26,7 @@ import edu.internet2.middleware.grouper.internal.dao.hibernate.HibernateDaoConfi
  * Grouper configuration information.
  * <p><b>This class is being deprecated by the {@link edu.internet2.middleware.grouper.cfg.Configuration} interface.</b></p>
  * @author  blair christensen.
- * @version $Id: GrouperConfig.java,v 1.6 2009-08-11 20:18:09 mchyzer Exp $
+ * @version $Id: GrouperConfig.java,v 1.7 2009-08-18 23:11:38 shilen Exp $
  * @since   ?
  */
 public class GrouperConfig {
@@ -100,10 +100,6 @@ public class GrouperConfig {
   public static final String GCGAV         = "groups.create.grant.all.view";
   public static final String IST           = "application";
   public static final String LIST          = "members";
-  public static final String MSLGEA        = "memberships.log.group.effective.add";
-  public static final String MSLGED        = "memberships.log.group.effective.del";
-  public static final String MSLSEA        = "memberships.log.stem.effective.add";
-  public static final String MSLSED        = "memberships.log.stem.effective.del";
   public static final String NL            = System.getProperty("line.separator");
   public static final String ROOT          = "GrouperSystem";
   
