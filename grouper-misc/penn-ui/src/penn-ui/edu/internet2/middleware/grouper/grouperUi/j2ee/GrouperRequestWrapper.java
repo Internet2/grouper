@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperRequestWrapper.java,v 1.5 2009-08-16 01:12:49 mchyzer Exp $
+ * $Id: GrouperRequestWrapper.java,v 1.6 2009-08-19 06:29:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.j2ee;
 
@@ -238,7 +238,7 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
     if (fileItemFactory == null) {
       
       // the location for saving data that is larger than getSizeThreshold()
-      String tempDir = TagUtils.mediaResourceString(httpServletRequest, "file.upload.temp.dir");
+      String tempDir = TagUtils.mediaResourceString("file.upload.temp.dir");
 
       File tempDirFile = null;
       
@@ -258,7 +258,7 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
       staticServletFileUpload = new ServletFileUpload(fileItemFactory);
 
       int maxBytes = 
-          TagUtils.mediaResourceInt(httpServletRequest, "file.upload.max.bytes", 10000000);
+          TagUtils.mediaResourceInt("file.upload.max.bytes", 10000000);
       
       //10 megs
       staticServletFileUpload.setSizeMax(maxBytes);

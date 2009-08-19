@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperUiCustomizer.java,v 1.1 2009-07-31 14:27:27 mchyzer Exp $
+ * $Id: GrouperUiCustomizer.java,v 1.2 2009-08-19 06:29:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi;
 
@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -28,10 +29,7 @@ public class GrouperUiCustomizer {
     
     if (grouperUiCustomizer == null) {
     
-      Properties properties = GrouperUtil.propertiesFromResourceName(
-          "grouperUiSettings.properties");
-      String grouperUiCustomizerClassname = GrouperUtil.propertiesValue(properties, 
-          "grouperUiCustomizerClassname");
+      String grouperUiCustomizerClassname = TagUtils.mediaResourceString("grouperUiCustomizerClassname");
       grouperUiCustomizerClassname = StringUtils.defaultIfEmpty(grouperUiCustomizerClassname, 
           GrouperUiCustomizer.class.getName());
       Class<GrouperUiCustomizer> grouperUiCustomizerClass = GrouperUtil.forName(grouperUiCustomizerClassname);

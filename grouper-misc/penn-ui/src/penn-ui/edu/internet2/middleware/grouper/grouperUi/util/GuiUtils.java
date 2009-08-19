@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiUtils.java,v 1.8 2009-08-13 17:56:47 mchyzer Exp $
+ * $Id: GuiUtils.java,v 1.9 2009-08-19 06:29:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
@@ -43,11 +43,17 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.grouperUi.j2ee.GenericServletResponseWrapper;
 import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
+import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -62,13 +68,75 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 public class GuiUtils {
 
   /**
+   * find subjects which are members of a group, and return those members.  Do this in few queries
+   * since we might run out of bind variables
+   * 
+   * @param grouperSession
+   * @param group
+   * @param subjects
+   * @return the members or none if not allowed
+   */
+  public static Set<Member> convertSubjectsToMembers(GrouperSession grouperSession, 
+      Group group, Set<Subject> subjects) {
+
+    if (!PrivilegeHelper.canViewMembers(grouperSession, group, Group.getDefaultList())) {
+      return new LinkedHashSet<Member>();
+    }
+    
+    //lets do this in batches
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(subjects, 100);
+    
+    Set<Member> result = new LinkedHashSet<Member>();
+    
+    for (int i=0;i<numberOfBatches;i++) {
+      List<Subject> subjectBatch = GrouperUtil.batchList(subjects, 100, i);
+      
+//      select gm.* 
+//      from grouper_members gm, grouper_memberships gms
+//      where gm.id = gms.member_id
+//      and gms.field_id = 'abc' and gms.owner_id = '123'
+//      and gm.subject_id in ('123','234')
+      
+      //lets turn the subjects into subjectIds
+      Set<String> subjectIds = new LinkedHashSet<String>();
+      for (Subject currentSubject : subjectBatch) {
+        subjectIds.add(currentSubject.getId());
+      }
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      StringBuilder query = new StringBuilder("select gm " +
+          "from Member gm, Membership gms " +
+          "where gm.uuid = gms.memberUuid " +
+          "and gms.fieldId = :fieldId " +
+          "and gms.ownerUuid = :ownerId " +
+          "and gm.subjectIdDb in (");
+      
+      //add all the uuids
+      byHqlStatic.setString("fieldId", Group.getDefaultList().getUuid());
+      byHqlStatic.setString("ownerId", group.getUuid());
+      byHqlStatic.setCollectionInClause(query, subjectIds);
+      query.append(")");
+      List<Member> currentListPerhapsWithExtra = byHqlStatic.createQuery(query.toString())
+        .list(Member.class);
+      //could have two subjects with different sources with same subject id... weed those out
+      Set<Member> currentMembers = removeOverlappingSubjects(currentListPerhapsWithExtra, subjectBatch);
+      result.addAll(currentMembers);
+      
+    }
+    return result;
+  }
+  
+  /**
    * remove overlapping subjects from two lists.  i.e. if first is existing, and
    * second is new, then if we are replacing all members of the group, then the first would
    * end up being the ones to remove, and the second is the one to add
    * @param first
    * @param second
+   * @return the overlap, never null
    */
-  public static void removeOverlappingSubjects(List<Member> first, List<Subject> second) {
+  public static Set<Member> removeOverlappingSubjects(List<Member> first, List<Subject> second) {
+    
+    Set<Member> overlaps = new LinkedHashSet<Member>();
     
     //lets add them to hashes (multikeys)
     //multikey is the sourceId and subjectId
@@ -78,7 +146,7 @@ public class GuiUtils {
     
     //if null no overlap
     if (GrouperUtil.length(first) == 0 || GrouperUtil.length(second) == 0) {
-      return;
+      return overlaps;
     }
     
     //put these both in hashes, keep track of hashes
@@ -95,9 +163,24 @@ public class GuiUtils {
       int i=0;
       Iterator<Member> firstIterator = first.iterator();
       while (firstIterator.hasNext()) {
-        firstIterator.next();
-        if (secondHashes.contains(firstHashes.get(i))) {
+        Member next = firstIterator.next();
+        MultiKey hash = (MultiKey)firstHashes.get(i);
+        if (secondHashes.contains(hash)) {
           firstIterator.remove();
+          overlaps.add(next);
+          
+          //lets add the subject to the Member if not already there, so we dont have to look it up again
+          Subject memberSubject = (Subject)GrouperUtil.fieldValue(next, "subj");
+          if (memberSubject == null ) {
+            int subjectIndex = secondHashes.indexOf(hash);
+            Subject realSubject = second.get(subjectIndex);
+            //a little sanity here
+            if (!StringUtils.equals(realSubject.getId(), next.getSubjectId()) 
+                || !StringUtils.equals(realSubject.getSource().getId(), next.getSubjectSourceId())) {
+              throw new RuntimeException("These should be equal!!!");
+            }
+            GrouperUtil.assignField(next, "subj", realSubject);
+          }
         }
         i++;
       }
@@ -114,7 +197,29 @@ public class GuiUtils {
         i++;
       }
     }
+    return overlaps;
   }    
+  
+  /**
+   * 
+   * @param members
+   * @return the subjects
+   */
+  public static Set<Subject> convertMembersToSubject(Set<Member> members) {
+    if (members == null) {
+      return null;
+    }
+    Set<Subject> subjects = new LinkedHashSet<Subject>();
+    for (Member member : members) {
+      try {
+        subjects.add(member.getSubject());
+      } catch (SubjectNotFoundException snfe) {
+        throw new RuntimeException("Subject not found: " + member.getSubjectSourceId() + ", " + member.getSubjectId());
+      }
+    }
+    return subjects;
+    
+  }
   
   /**
    * 
@@ -263,9 +368,7 @@ public class GuiUtils {
       return subjects;
     }
     
-    Properties propertiesSettings = propertiesGrouperUiSettings(); 
-    String maxSubjectSortSizeString = GrouperUtil.propertiesValue(propertiesSettings, "grouperUi.max.subject.sort.size");
-    int maxSubjectSortSize = GrouperUtil.intValue(maxSubjectSortSizeString, 200);
+    int maxSubjectSortSize = TagUtils.mediaResourceInt("comparator.sort.limit", 200);
     
     //see if we should sort
     if (subjects.size() < maxSubjectSortSize) {
@@ -318,9 +421,7 @@ public class GuiUtils {
       return members;
     }
     
-    Properties propertiesSettings = propertiesGrouperUiSettings(); 
-    String maxSubjectSortSizeString = GrouperUtil.propertiesValue(propertiesSettings, "grouperUi.max.members.sort.size");
-    int maxSubjectSortSize = GrouperUtil.intValue(maxSubjectSortSizeString, 200);
+    int maxSubjectSortSize = TagUtils.mediaResourceInt("comparator.sort.limit", 200);
     
     //see if we should sort
     if (members.size() < maxSubjectSortSize) {
@@ -642,7 +743,8 @@ public class GuiUtils {
   public static String imageFromSubjectSource(String sourceId) {
     if (subjectImageMap == null) {
       Map<String, String> theSubjectImageMap = new HashMap<String, String>();
-      Properties propertiesSettings = propertiesGrouperUiSettings();
+      Properties propertiesSettings = GrouperUtil
+        .propertiesFromResourceName("resources/grouper/media.properties");
       
       int index = 0;
       while (true) {
@@ -673,7 +775,7 @@ public class GuiUtils {
   private static Map<String, String> subjectToScreenEl = null;
   
   /**
-   * get a label from a subject based on grouperUiSettings.properties
+   * get a label from a subject based on media.properties
    * @param subject
    * @return the relative path to image path
    */
@@ -686,11 +788,12 @@ public class GuiUtils {
 
     if (subjectToScreenEl == null) {
       Map<String, String> theSubjectToScreenEl = new HashMap<String, String>();
-      Properties propertiesSettings = propertiesGrouperUiSettings();
+      Properties propertiesSettings = GrouperUtil
+        .propertiesFromResourceName("resources/grouper/media.properties");
       
       int index = 0;
       while (true) {
-        
+      
         String sourceName = GrouperUtil.propertiesValue(propertiesSettings, 
             "grouperUi.subjectImg.sourceId." + index);
         String screenEl = GrouperUtil.propertiesValue(propertiesSettings, 
@@ -714,15 +817,6 @@ public class GuiUtils {
     Map<String, Object> variableMap = new HashMap<String, Object>();
     variableMap.put("subject", subject);
     return substituteExpressionLanguage(screenEl, variableMap);
-  }
-
-  /**
-   * properties object for grouper ui settings
-   * @return properties
-   */
-  public static Properties propertiesGrouperUiSettings() {
-    return GrouperUtil.propertiesFromResourceName(
-      "grouperUiSettings.properties");
   }
 
   /** class file dir cached */
@@ -930,9 +1024,8 @@ public class GuiUtils {
     String result = responseWrapper.resultString();
     
     //see if we are logging
-    Properties properties = propertiesGrouperUiSettings();
-    if (GrouperUtil.propertiesValueBoolean(properties, "grouperUi.logHtml", false)) {
-      String logDir = GrouperUtil.propertiesValue(properties, "grouperUi.logHtmlDir");
+    if (TagUtils.mediaResourceBoolean("grouperUi.logHtml", false)) {
+      String logDir = TagUtils.mediaResourceString("grouperUi.logHtmlDir");
       
       if (StringUtils.isBlank(logDir)) {
         throw new RuntimeException("Cant log html to file with dir to put files in: grouperUi.logHtmlDir");

@@ -16,15 +16,13 @@
 */
 package edu.internet2.middleware.grouper.grouperUi.tags;
 
-import java.util.Properties;
 import java.util.ResourceBundle;
 
-import javax.servlet.ServletRequest;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -36,14 +34,13 @@ public class TagUtils {
 
 	/**
 	 * based on request get a nav string
-	 * @param servletRequest
 	 * @param key
 	 * @return value
 	 */
-	public static String navResourceString(ServletRequest servletRequest, String key) {
+	public static String navResourceString(String key) {
 		
-		LocalizationContext localizationContext = (LocalizationContext)((HttpServletRequest)servletRequest)
-			.getSession().getAttribute("nav");
+		LocalizationContext localizationContext = (LocalizationContext)GrouperUiJ2ee
+      .retrieveHttpServletRequest().getSession().getAttribute("nav");
 		ResourceBundle nav = localizationContext.getResourceBundle();
 		String value = nav.getString(key);
 		return value;
@@ -51,14 +48,13 @@ public class TagUtils {
 	
 	/**
 	 * based on request get a nav string
-	 * @param servletRequest 
 	 * @param key 
 	 * @return value
 	 */
-	public static String mediaResourceString(ServletRequest servletRequest, String key) {
+	public static String mediaResourceString(String key) {
 		
-		LocalizationContext localizationContext = (LocalizationContext)((HttpServletRequest)servletRequest)
-			.getSession().getAttribute("media");
+		LocalizationContext localizationContext = (LocalizationContext)GrouperUiJ2ee
+		  .retrieveHttpServletRequest().getSession().getAttribute("media");
 //		if (localizationContext == null) {
 //		  //we must be before the init session phase...
 //		  Properties properties = GrouperUtil.propertiesFromResourceName("resources/grouper/media.properties");
@@ -71,15 +67,14 @@ public class TagUtils {
 	
 	/**
 	 * based on request get a media boolean
-	 * @param servletRequest 
 	 * @param key 
 	 * @param defaultValue if key isnt there, this is the default value
 	 * @return true if true, false if false
 	 */
-	public static boolean mediaResourceBoolean(ServletRequest servletRequest, 
+	public static boolean mediaResourceBoolean(
 			String key, boolean defaultValue) {
 		
-		String valueString = mediaResourceString(servletRequest, key);
+		String valueString = mediaResourceString(key);
 		
 		//handle if not in file
 		if (StringUtils.isBlank(valueString)) {
@@ -100,15 +95,14 @@ public class TagUtils {
 
   /**
    * based on request get a media int
-   * @param servletRequest 
    * @param key 
    * @param defaultValue if key isnt there, this is the default value
    * @return true if true, false if false
    */
-  public static int mediaResourceInt(ServletRequest servletRequest, 
+  public static int mediaResourceInt(
       String key, int defaultValue) {
     
-    String valueString = mediaResourceString(servletRequest, key);
+    String valueString = mediaResourceString(key);
     
     //handle if not in file
     if (StringUtils.isBlank(valueString)) {

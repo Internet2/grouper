@@ -1,5 +1,5 @@
 <%@ include file="../common/commonTaglib.jsp" %>
-<!-- Start: $Id: simpleMembershipMembershipList.jsp,v 1.9 2009-08-18 13:08:36 mchyzer Exp $ -->
+<!-- Start: $Id: simpleMembershipMembershipList.jsp,v 1.10 2009-08-19 06:29:58 mchyzer Exp $ -->
 <%-- this is the section of the screen which shows a box and the member list inside --%>
 <div class="section">
   <grouperGui:subtitle key="simpleMembershipUpdate.membershipListSubtitle"/>
@@ -23,7 +23,7 @@
         <td>
           <%-- add member button --%>
           <input class="blueButton" type="submit" 
-          onclick="ajax('../app/SimpleMembershipUpdate.retrieveMembers', {formIds: 'simpleMembershipMemberFilterForm'}); return false;" 
+          onclick="ajax('../app/SimpleMembershipUpdate.retrieveMembersFilterButton', {formIds: 'simpleMembershipMemberFilterForm'}); return false;" 
           value="${grouperGui:message('simpleMembershipUpdate.filterMemberButton', true, false) }" style="margin-top: 2px" />
         </td>
       </tr>
@@ -33,12 +33,21 @@
     
     <%-- if the member filter for screen is not empty, then tell the user what we are filtering on --%>
     <c:if test="${! empty simpleMembershipUpdateContainer.memberFilterForScreen}">
-      <span class="simpleMembershipUpdateFilterLabel"><grouperGui:message key="simpleMembershipUpdate.filterLabel" /></span>
-      <span class="simpleMembershipUpdateFilterValue"><c:out value="${simpleMembershipUpdateContainer.memberFilterForScreen}" /></span>
-      <span class="simpleMembershipUpdateFilterClear"
-        ><a href="#" onclick="ajax('SimpleMembershipUpdate.clearMemberFilter'); return false;"
-          ><grouperGui:message key="simpleMembershipUpdate.clearFilterButton" /></a></span>
-      <br />
+      <table class="formTable" cellspacing="2">
+        <tbody>
+          <tr class="formTableRow">
+            <td class="formTableLeft"><grouperGui:message key="simpleMembershipUpdate.filterLabel" /></td>
+      
+            <td class="formTableRight" style="white-space: nowrap;"><c:out value="${simpleMembershipUpdateContainer.memberFilterForScreen}" />
+              &nbsp; &nbsp; <span class="simpleMembershipUpdateFilterClear"
+              ><a href="#" class="smallLink" onclick="ajax('SimpleMembershipUpdate.clearMemberFilter'); return false;"
+                ><grouperGui:message key="simpleMembershipUpdate.clearFilterButton" /></a></span>
+            </td>
+          </tr>
+      </tbody>
+      </table>
+
+      <br /><br />
     </c:if>
 
   </div>
@@ -116,4 +125,4 @@
 <br />
 </div>
 </div>
-<!-- End: $Id: simpleMembershipMembershipList.jsp,v 1.9 2009-08-18 13:08:36 mchyzer Exp $ -->
+<!-- End: $Id: simpleMembershipMembershipList.jsp,v 1.10 2009-08-19 06:29:58 mchyzer Exp $ -->

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.17 2009-08-18 13:08:36 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.18 2009-08-19 06:29:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -10,10 +10,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.MissingResourceException;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -110,7 +110,7 @@ public class SimpleMembershipUpdate {
         GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
             GuiUtils.message("simpleMembershipUpdate.errorNotEnoughGroupChars", false), "bullet_error.png");
       } else {
-        queryOptions = new QueryOptions().paging(200, 1, true).sortAsc("displayName");
+        queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simpleMembershipUpdate.groupComboboxResultSize", 200), 1, true).sortAsc("displayName");
         groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure("%" + searchTerm + "%", grouperSession, loggedInSubject, 
             GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions);
         
@@ -320,6 +320,20 @@ public class SimpleMembershipUpdate {
    * @param response
    */
   @SuppressWarnings("unchecked")
+  public void retrieveMembersFilterButton(HttpServletRequest request, HttpServletResponse response) {
+    final SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = 
+      SimpleMembershipUpdateContainer.retrieveFromSession();
+    String simpleMembershipFilterMember = request.getParameter("simpleMembershipFilterMember");
+    simpleMembershipUpdateContainer.setMemberFilter(simpleMembershipFilterMember);
+    retrieveMembers(request, response);
+  }
+
+  /**
+   * retrieve members
+   * @param request
+   * @param response
+   */
+  @SuppressWarnings("unchecked")
   public void retrieveMembers(HttpServletRequest request, HttpServletResponse response) {
     
     final SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
@@ -327,7 +341,6 @@ public class SimpleMembershipUpdate {
     final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
     
     //init the pager
-    
     GuiPaging guiPaging = GuiPaging.retrievePaging("simpleMemberUpdateMembers", true);
     
     GrouperSession grouperSession = null;
@@ -339,49 +352,17 @@ public class SimpleMembershipUpdate {
       group = this.retrieveGroup(grouperSession);
       groupName = group.getName();
 
-      String simpleMembershipFilterMember = request.getParameter("simpleMembershipFilterMember");
-      simpleMembershipFilterMember = StringUtils.defaultIfEmpty(simpleMembershipFilterMember, 
-          simpleMembershipUpdateContainer.getMemberFilter());
+      String simpleMembershipFilterMember = simpleMembershipUpdateContainer.getMemberFilter();
 
-      if (StringUtils.isBlank(simpleMembershipFilterMember)) {
-        
-      }
       //we have the group, now get the members
-      
-      Set<Member> members;
-      //get the size
-      QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
-      group.getImmediateMembers(Group.getDefaultList(), queryOptions);
-      int totalSize = queryOptions.getCount().intValue();
-      
-      int pageSize = guiPaging.getPageSize();
-      
-      guiPaging.setTotalRecordCount(totalSize);
-      guiPaging.setPageSize(pageSize);
-      
-      //if there are less than the sort limit, then just get all, no problem
-      int sortLimit = 200;
-      QueryPaging queryPaging = new QueryPaging();
-      queryPaging.setPageSize(pageSize);
-      queryPaging.setPageNumber(guiPaging.getPageNumber());
-      
-      queryOptions = new QueryOptions().paging(queryPaging);
-      if (totalSize <= sortLimit) {
-        members = group.getImmediateMembers();
-        members = GuiUtils.membersSortedPaged(members, queryPaging);
+      Set<Member> members = null;
+      if (StringUtils.isBlank(simpleMembershipFilterMember)) {
+        simpleMembershipUpdateContainer.setMemberFilterForScreen(null);
+        members = retrieveMembersNoFilter(guiPaging, group);
+        
       } else {
-  
-        //.sortAsc("m.subjectIdDb")   this kills performance
-  
-        members = group.getMembers(Group.getDefaultList(), queryOptions);
-      }       
-      
-      guiPaging.setPageNumber(queryPaging.getPageNumber());
-      
-        //allChildren = group.getMemberships(field, members);
-  //    }
-  //    return allChildren;
-      
+        members = retrieveMembersFilter(guiPaging, group, simpleMembershipFilterMember); 
+      }      
         
       GuiMember[] guiMembers = new GuiMember[members.size()];
       int i=0;
@@ -409,6 +390,44 @@ public class SimpleMembershipUpdate {
     }
       
   
+  }
+
+  /**
+   * @param guiPaging
+   * @param group
+   * @return the members
+   * @throws SchemaException
+   */
+  @SuppressWarnings("unchecked")
+  private Set<Member> retrieveMembersNoFilter(GuiPaging guiPaging, Group group)
+      throws SchemaException {
+    Set<Member> members;
+    //get the size
+    QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+    group.getImmediateMembers(Group.getDefaultList(), queryOptions);
+    int totalSize = queryOptions.getCount().intValue();
+    
+    int pageSize = guiPaging.getPageSize();
+    
+    guiPaging.setTotalRecordCount(totalSize);
+    guiPaging.setPageSize(pageSize);
+    
+    //if there are less than the sort limit, then just get all, no problem
+    int sortLimit = TagUtils.mediaResourceInt("comparator.sort.limit", 200);
+    QueryPaging queryPaging = new QueryPaging();
+    queryPaging.setPageSize(pageSize);
+    queryPaging.setPageNumber(guiPaging.getPageNumber());
+    
+    queryOptions = new QueryOptions().paging(queryPaging);
+    if (totalSize <= sortLimit) {
+      members = group.getImmediateMembers();
+      members = GuiUtils.membersSortedPaged(members, queryPaging);
+    } else {
+      members = group.getMembers(Group.getDefaultList(), queryOptions);
+    }       
+    
+    guiPaging.setPageNumber(queryPaging.getPageNumber());
+    return members;
   }
 
   /**
@@ -546,8 +565,6 @@ public class SimpleMembershipUpdate {
     
     GrouperSession grouperSession = null;
 
-    Properties propertiesSettings = GuiUtils.propertiesGrouperUiSettings(); 
-    
     String searchTerm = httpServletRequest.getParameter("mask");
 
     try {
@@ -561,11 +578,12 @@ public class SimpleMembershipUpdate {
       
       //minimum input length
       if (StringUtils.defaultString(searchTerm).length() < 2) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", "Enter 2 or more characters", null);
+        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
+            GuiUtils.message("simpleMembershipUpdate.errorNotEnoughSubjectChars"), null);
       } else {
         subjects = SubjectFinder.findAll(searchTerm);
         
-        String maxSubjectsDropDownString = GrouperUtil.propertiesValue(propertiesSettings, "grouperUi.max.subjects.dropdown");
+        String maxSubjectsDropDownString = TagUtils.mediaResourceString("simpleMembershipUpdate.subjectComboboxResultSize");
         int maxSubjectsDropDown = GrouperUtil.intValue(maxSubjectsDropDownString, 50);
 
         queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
@@ -1036,7 +1054,7 @@ public class SimpleMembershipUpdate {
       
       HttpServletResponse response = GrouperUiJ2ee.retrieveHttpServletResponse(); 
       
-      String[] headers = GrouperUtil.splitTrim(TagUtils.mediaResourceString(GrouperUiJ2ee.retrieveHttpServletRequest(), 
+      String[] headers = GrouperUtil.splitTrim(TagUtils.mediaResourceString( 
           "simpleMembershipUpdate.exportAllSubjectFields"), ",");
       
       //note: isError is second to last col, error is the last column
@@ -1046,7 +1064,7 @@ public class SimpleMembershipUpdate {
       for (int i=0;i<headers.length;i++) {
         isAttribute[i] = !nonAttributeCols.contains(headers[i].toLowerCase());
         if (StringUtils.equalsIgnoreCase(headers[i], TagUtils.mediaResourceString(
-            GrouperUiJ2ee.retrieveHttpServletRequest(), "simpleMembershipUpdate.exportAllSortField"))) {
+            "simpleMembershipUpdate.exportAllSortField"))) {
           sortCol = i;
         } else if (StringUtils.equalsIgnoreCase("sourceId", headers[i])) {
           sourceIdCol = i;
@@ -1444,7 +1462,7 @@ public class SimpleMembershipUpdate {
       String order = null;
       
       try {
-        order = TagUtils.mediaResourceString(GrouperUiJ2ee.retrieveHttpServletRequest(), 
+        order = TagUtils.mediaResourceString( 
             "subject.attributes.order." + subject.getSource().getId());
       } catch (MissingResourceException mre) {
         //thats ok, go with default
@@ -1526,39 +1544,33 @@ public class SimpleMembershipUpdate {
    * @param httpServletResponse
    */
   public void filterMembers(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    //TODO change logic to go against member list
+
     final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
-    
     
     GrouperSession grouperSession = null;
   
-    Properties propertiesSettings = GuiUtils.propertiesGrouperUiSettings(); 
-    
     String searchTerm = httpServletRequest.getParameter("mask");
-  
+    Group group = null;
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       
+      group = retrieveGroup(grouperSession);
       
       Set<Subject> subjects = null;
       
       StringBuilder xmlBuilder = new StringBuilder(GuiUtils.DHTMLX_OPTIONS_START);
-      QueryPaging queryPaging = null;
-      
+      boolean notEnoughChars = false;
       //minimum input length
-      if (StringUtils.defaultString(searchTerm).length() < 2) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", "Enter 2 or more characters", null);
+      if (StringUtils.defaultString(searchTerm).length() < 3) {
+        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", GuiUtils.message("simpleMembershipUpdate.errorNotEnoughFilterChars"), null);
+        notEnoughChars = true;
       } else {
-        subjects = SubjectFinder.findAll(searchTerm);
-        
-        String maxSubjectsDropDownString = GrouperUtil.propertiesValue(propertiesSettings, "grouperUi.max.subjects.dropdown");
-        int maxSubjectsDropDown = GrouperUtil.intValue(maxSubjectsDropDownString, 50);
-  
-        queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
-        
-        //sort and page the results
-        subjects = GuiUtils.subjectsSortedPaged(subjects, queryPaging);
-        
+        GuiPaging guiPaging = new GuiPaging();
+        guiPaging.setPageNumber(1);
+        int maxSubjectsDropDown = TagUtils.mediaResourceInt("simpleMembershipUpdate.subjectComboboxResultSize", 50);
+        guiPaging.setPageSize(maxSubjectsDropDown);
+        Set<Member> members = retrieveMembersFilter(guiPaging, group, searchTerm);
+        subjects = GuiUtils.convertMembersToSubject(members);
       }
       
       //convert to XML for DHTMLX
@@ -1570,12 +1582,13 @@ public class SimpleMembershipUpdate {
   
         GuiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
       }
-  
-      //maybe add one more if we hit the limit
-      if (queryPaging != null && subjects.size() < queryPaging.getTotalRecordCount()) {
+      int maxSubjectsSort = TagUtils.mediaResourceInt("comparator.sort.limit", 200);
+      
+      //this might not be correct, but probably is
+      if (!notEnoughChars && GrouperUtil.length(subjects) == maxSubjectsSort) {
         GuiUtils.dhtmlxOptionAppend(xmlBuilder, null, GuiUtils.message("simpleMembershipUpdate.errorUserSearchTooManyResults", false), 
             "bullet_error.png");
-      } else if (subjects.size() == 0) {
+      } else if (!notEnoughChars && GrouperUtil.length(subjects) == 0) {
         GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", GuiUtils.message("simpleMembershipUpdate.errorUserSearchNoResults", false), "bullet_error.png");
       }
   
@@ -1592,6 +1605,109 @@ public class SimpleMembershipUpdate {
     //dont print the regular JSON
     throw new ControllerDone();
   
+  }
+
+  /**
+   * @param guiPaging
+   * @param group
+   * @param filterString filter by this string (could be sourceId__subjectId
+   * @return the set of members
+   * @throws SchemaException
+   */
+  @SuppressWarnings("unchecked")
+  private Set<Member> retrieveMembersFilter(GuiPaging guiPaging, Group group, String filterString)
+      throws SchemaException {
+    Set<Member> members = new LinkedHashSet<Member>();
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = 
+      SimpleMembershipUpdateContainer.retrieveFromSession();
+    
+    //lets do the subject search
+    if (StringUtils.defaultString(filterString).length() < TagUtils.mediaResourceInt("simpleMembershipUpdate.filterComboMinChars", 3)) {
+      guiResponseJs.addAction(GuiScreenAction.newAlert(
+          GuiUtils.message("simpleMembershipUpdate.errorNotEnoughFilterCharsAlert")));
+      return members;
+    } 
+    
+    Set<Subject> subjects = null;
+    boolean filterByOneSubject = false;
+    
+    //lets see if there is a subject in there
+    try {
+      Subject subject = GuiUtils.findSubject(filterString);
+      if (subject != null) {
+        //if there was a subject selected...
+        filterByOneSubject = true;
+        subjects = GrouperUtil.toSet(subject);
+        //show filter string on screen
+        simpleMembershipUpdateContainer.setMemberFilterForScreen(GuiUtils.convertSubjectToLabelConfigured(subject));
+      }
+    } catch (Exception e) {
+      //just ignore
+    }
+
+    if (!filterByOneSubject) {
+      //show filter string on screen
+      simpleMembershipUpdateContainer.setMemberFilterForScreen(filterString);
+
+      subjects = SubjectFinder.findAll(filterString);
+      if (GrouperUtil.length(subjects) > TagUtils.mediaResourceInt("simpleMembershipUpdate.filterMaxSearchSubjects", 1000)) {
+        simpleMembershipUpdateContainer.setMemberFilterForScreen(filterString);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(
+            GuiUtils.message("simpleMembershipUpdate.errorMemberFilterTooManyResults")));
+        return members;
+      }
+      
+    }    
+      
+    //lets convert these subjects to members
+    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    String groupName = null;
+
+    try {
+
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      groupName = group.getName();
+      
+      members = GuiUtils.convertSubjectsToMembers(grouperSession, group, subjects);
+    
+    } catch (Exception se) {
+      throw new RuntimeException("Error searching for members: '" + filterString 
+          + "', " + groupName + ", " + se.getMessage(), se);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    } 
+      
+    int maxSubjectsSort = TagUtils.mediaResourceInt("comparator.sort.limit", 200);
+
+    QueryPaging queryPaging = new QueryPaging(maxSubjectsSort, 1, true);
+    
+    int totalSize = members.size();
+    
+    int pageSize = guiPaging.getPageSize();
+    
+    guiPaging.setTotalRecordCount(totalSize);
+    guiPaging.setPageSize(pageSize);
+    
+    //if there are less than the sort limit, then just get all, no problem
+    queryPaging = new QueryPaging();
+    queryPaging.setPageSize(pageSize);
+    queryPaging.setPageNumber(guiPaging.getPageNumber());
+    
+    if (totalSize <= maxSubjectsSort) {
+      members = GuiUtils.membersSortedPaged(members, queryPaging);
+    } else {
+  
+      members = new LinkedHashSet<Member>(GrouperUtil.batchList(members, pageSize, guiPaging.getPageNumber()-1));
+    }       
+    
+    return members;
   }
   
 }

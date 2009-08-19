@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GrouperPagingTag.java,v 1.2 2009-08-13 17:56:47 mchyzer Exp $
+ * $Id: GrouperPagingTag.java,v 1.3 2009-08-19 06:29:58 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.tags;
 
@@ -69,7 +69,7 @@ public class GrouperPagingTag extends SimpleTagSupport  {
       
       
       
-      String pageSizeOptionsString = TagUtils.mediaResourceString(GrouperUiJ2ee.retrieveHttpServletRequest(), "pager.pagesize.selection");
+      String pageSizeOptionsString = TagUtils.mediaResourceString("pager.pagesize.selection");
       String[] pageSizeOptionsStringArray = GrouperUtil.splitTrim(pageSizeOptionsString, " ");
       
       result.append("<select class=\"pagingDropdown\" id=\"").append(id).append("\" onchange=\"return guiPageSize('").append(this.pagingName)

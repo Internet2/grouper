@@ -87,13 +87,12 @@ public class GrouperInfodotTag extends BodyTagSupport {
   public int doEndTag() throws JspException {
 
     //if not enabled, then dont display anything
-    if (!TagUtils.mediaResourceBoolean(this.pageContext.getRequest(), "infodot.enable",
+    if (!TagUtils.mediaResourceBoolean("infodot.enable",
         true)) {
       return Tag.EVAL_PAGE;
     }
 
-    String altText = StringUtils.trim(TagUtils.navResourceString(this.pageContext
-        .getRequest(), "groups.infodot.alt"));
+    String altText = StringUtils.trim(TagUtils.navResourceString("groups.infodot.alt"));
 
     String result = "<a href=\"#\" class=\"infodotLink\" onclick=\"return grouperHideShow(event, '"
         + this.hideShowHtmlId
