@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdateContainer.java,v 1.3 2009-08-18 13:08:36 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateContainer.java,v 1.4 2009-08-19 14:32:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate;
 
@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
 import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
+import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -41,7 +42,7 @@ public class SimpleMembershipUpdateContainer implements Serializable {
     SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = (SimpleMembershipUpdateContainer)httpSession
       .getAttribute("simpleMembershipUpdateContainer");
     if (simpleMembershipUpdateContainer == null) {
-      throw new RuntimeException("simpleMembershipUpdateContainer is null, start the application over and try again.  Contact the help desk if you have repeated problems.");
+      throw new RuntimeException(GuiUtils.message("simpleMembershipUpdate.noContainer"));
     }
     return simpleMembershipUpdateContainer;
   }

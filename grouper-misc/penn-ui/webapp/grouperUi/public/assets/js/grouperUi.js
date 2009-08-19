@@ -373,8 +373,166 @@ function guiProcessAction(guiScreenAction) {
     $('<div class=".simplemodal-dialoginner">' 
         + guiScreenAction.dialog + '</div>').modal({close: true, position: [20,20]});
   }
+  if (!guiIsEmpty(guiScreenAction.optionValues)) {
+    var optionValues = guiScreenAction.optionValues;
+    for (var i=0;i<optionValues.length;i++) {
+      var selectName = guiScreenAction.optionValuesSelectName;
+      var options = optionValues[i].optionValues;
+      var optionString = '';
+      if (options != null) {
+        for (var j=0;j<options.length;j++) {
+          var label = options[j].label;
+          var css = options[j].css;
+          var value = options[j].value;
+          
+          //escape stuff:
+          value = fastReplaceString(value, '"', '&quot;');
+          value = fastReplaceString(value, '<', '&lt;');
+          value = fastReplaceString(value, '>', '&gt;');
+          label = fastReplaceString(label, '<', '&lt;');
+          label = fastReplaceString(label, '>', '&gt;');
+          
+          optionString += '<option value="' + value + '"';
+          if (!fastIsEmpty(css)) {
+            optionString += ' class="' + css + '"';
+          }
+          optionString += '>' + label + '</option>';
+        }
+      }
+      var selectElement = guiGetElementByName(selectName);
+      $(selectElement).html(optionString);
+    }
+  }
+  if (!guiIsEmpty(guiScreenAction.formFieldName)) {
+    guiFormElementAssignValue(guiScreenAction.formFieldName, guiScreenAction.formFieldValues);
+  }
+
+}
+
+/**
+ * this is for xstream json... if there is an object which isnt an array, turn it into an array
+ * if object doesnt exist, return it (or lack thereof)
+ */
+function guiConvertToArray(someVar, convertIfNull) {
+  if (!convertIfNull && !someVar) {
+    return someVar;
+  }
+  //these are array functions and fields...
+  if (!someVar || !someVar.length || !someVar.sort) {
+    var theArray = new Array();
+    theArray[0] = someVar;
+    return theArray;
+  }
+  return someVar;
+}
+
+/**
+ * non null string
+ * @param x
+ * @return non null value
+ */
+function guiDefaultString(x) {
+  return x == null ? "" : x;
+} 
+
+/** set form element(s) to values */
+function guiFormElementAssignValue(name, values) {
+  values = guiConvertToArray(values, true);
+  
+  for (var i=0;i<values.length;i++) {
+    var value = guiToString(guiDefaultString(values[i]));
+    var theElements = document.getElementsByName(name);
+    if (theElements == null) {
+      alert('Error: cant find element with name: ' + name);
+    }
+    for (var j=0;j<theElements.length;j++) {
+      var theElement = theElements[j];
+      
+      if (theElement.nodeName.toUpperCase() == "INPUT" 
+        && (theElement.type.toUpperCase() == "TEXT" || theElement.type.toUpperCase() == "HIDDEN")) {
+        theElement.value = value;
+      } else if (theElement.nodeName.toUpperCase() == "INPUT" 
+        && (theElement.type.toUpperCase() == "CHECKBOX"
+        || theElement.type.toUpperCase() == "RADIO")) {
+        
+        //unselect all if first pass
+        if (i==0 && j==0) {
+          for (var l=0;l<theElements.length;l++) {
+            theElements[l].checked = false;
+          }
+        }
+        
+        if (theElement.value == value || 
+          (guiIsEmpty(theElement.value) && guiIsEmpty(value))) {
+          theElement.checked = true;
+        }
+      } else if (theElement.nodeName.toUpperCase() == "SELECT") {
+        var options = theElement.options;
+        if (options) {
+          //unselect all if first pass
+          if (i==0 && j==0) {
+            for (var l=0;l<options.length;l++) {
+              options[l].selected = false;
+            }
+          }
+
+          for (var k=0;k<options.length;k++) {
+            var option = options[k];
+            if (option.value == value || 
+              (guiIsEmpty(option.value) && guiIsEmpty(value))) {
+              option.selected = true;
+            }
+          }
+        }
+      } else if (theElement.nodeName.toUpperCase() == "TEXTAREA") {
+        //alert(theElement.name);
+        //theElement.innerHTML = value;
+        var jqueryTextarea = $(theElement);
+        jqueryTextarea.html(value);
+      } else {
+        alert('Error: form element type not implemented for assignment: ' + theElement.nodeName
+          + ", " + theElement.type);
+      }
+    }
+  }
   
 }
+
+
+/**
+ * replace a string in another string (all occurrences)
+ * 
+ * @param input
+ * @param stringToFind
+ * @param stringToReplace
+ * @return the new string
+ */
+function guiReplaceString(input, stringToFind, stringToReplace) {
+  if (guiIsEmpty(input) || guiIsEmpty(stringToFind)) {
+    return input;
+  }
+  input = guiToString(input);
+  var index = input.indexOf(stringToFind);
+  var ret = "";
+  if (index == -1) return input;
+  ret += input.substring(0,index) + stringToReplace;
+  if ( index + stringToFind.length < input.length) {
+    ret += guiReplaceString(input.substring(index + stringToFind.length, input.length), stringToFind, stringToReplace);
+  }
+  return ret;
+}
+
+/** convert input into a non-null string */
+function guiToString(input) {
+  if (typeof input == "number" && input == 0) {
+    return "0";
+  }
+  if (typeof input == "undefined" || input==null) {
+    return "";
+  }
+  return ""+input;
+}
+
 
 function guiX(x) {
   alert(x);

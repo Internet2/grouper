@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiUtils.java,v 1.10 2009-08-19 14:31:36 mchyzer Exp $
+ * $Id: GuiUtils.java,v 1.11 2009-08-19 14:32:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
@@ -14,13 +14,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,6 +70,42 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * utils for the gui
  */
 public class GuiUtils {
+
+  /**
+   * clone a collection, shallow, do not clone all objects inside
+   * @param <T> 
+   * @param object
+   * @return the cloned collection
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T cloneShallow(T object) {
+    if (object == null) {
+      return null;
+    }
+    if (object instanceof ArrayList) {
+      return (T)((ArrayList)object).clone();
+    }
+    if (object instanceof LinkedList) {
+      return (T)((LinkedList)object).clone();
+    }
+    if (object instanceof HashSet) {
+      return (T)((HashSet)object).clone();
+    }
+    if (object instanceof LinkedHashSet) {
+      return (T)((LinkedHashSet)object).clone();
+    }
+    if (object instanceof HashMap) {
+      return (T)((HashMap)object).clone();
+    }
+    if (object instanceof LinkedHashMap) {
+      return (T)((LinkedHashMap)object).clone();
+    }
+    if (object instanceof TreeMap) {
+      return (T)((TreeMap)object).clone();
+    }
+    //cant clone
+    throw new RuntimeException("Unsupported object type: " + GrouperUtil.className(object));
+  }
 
   /**
    * find subjects which are members of a group, and return those members.  Do this in few queries

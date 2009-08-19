@@ -4,8 +4,10 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.json;
 
 import java.io.Serializable;
+import java.util.List;
 
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * one action for screen (response has many actions in a list
@@ -25,7 +27,94 @@ public class GuiScreenAction implements Serializable {
   /** dialog to show on screen */
   private String dialog;
   
+  /** select name to replace options */
+  private String optionValuesSelectName;
   
+  /** option values to replace (use with optionValuesSelectName) (could be null to blank it out) */
+  private List<GuiOption> optionValues;
+  
+  /**
+   * if changing the value of a form field, this is the name
+   */
+  private String formFieldName;
+
+  /**
+   * if changing the value of a form field, these are the values (list of size one for 
+   * single values)
+   */
+  private List<String> formFieldValues;
+  
+  
+  /**
+   * if changing the value of a form field, this is the name
+   * @return the formFieldName
+   */
+  public String getFormFieldName() {
+    return this.formFieldName;
+  }
+
+  
+  /**
+   * if changing the value of a form field, this is the name
+   * @param formFieldName1 the formFieldName to set
+   */
+  public void setFormFieldName(String formFieldName1) {
+    this.formFieldName = formFieldName1;
+  }
+
+  
+  /**
+   * if changing the value of a form field, these are the values (list of size one for 
+   * single values)
+   * @return the formFieldValue
+   */
+  public List<String> getFormFieldValues() {
+    return this.formFieldValues;
+  }
+
+  
+  /**
+   * if changing the value of a form field, these are the values (list of size one for 
+   * single values)
+   * @param formFieldValue1 the formFieldValue to set
+   */
+  public void setFormFieldValues(List<String> formFieldValue1) {
+    this.formFieldValues = formFieldValue1;
+  }
+
+  /**
+   * option values to replace (use with optionValuesSelectName) (could be null to blank it out)
+   * @return the optionValues
+   */
+  public List<GuiOption> getOptionValues() {
+    return this.optionValues;
+  }
+  
+  /**
+   * option values to replace (use with optionValuesSelectName) (could be null to blank it out)
+   * @param optionValues1 the optionValues to set
+   */
+  public void setOptionValues(List<GuiOption> optionValues1) {
+    this.optionValues = optionValues1;
+  }
+
+  /**
+   * select name to replace options
+   * @return the optionValuesSelectName
+   */
+  public String getOptionValuesSelectName() {
+    return this.optionValuesSelectName;
+  }
+  
+  /**
+   * select name to replace options
+   * @param optionValuesSelectName1 the optionValuesSelectName to set
+   */
+  public void setOptionValuesSelectName(String optionValuesSelectName1) {
+    this.optionValuesSelectName = optionValuesSelectName1;
+  }
+
+
   /**
    * dialog to show on screen
    * @return the dialog
@@ -215,6 +304,45 @@ public class GuiScreenAction implements Serializable {
     GuiScreenAction guiScreenAction = new GuiScreenAction();
     guiScreenAction.setAssignmentName(theAssignmentName);
     guiScreenAction.setAssignmentObject(theAssignmentObject);
+    return guiScreenAction;
+  }
+  
+  /**
+   * construct with the name and object
+   * @param theSelectName name of the select
+   * @param theOptionValues values to replace (could be null to blank it out
+   * @return the action
+   */
+  public static GuiScreenAction newOptionValues(String theSelectName, List<GuiOption> theOptionValues) {
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    guiScreenAction.setOptionValuesSelectName(theSelectName);
+    guiScreenAction.setOptionValues(theOptionValues);
+    return guiScreenAction;
+  }
+  
+  /**
+   * construct with form field to change by name and value
+   * @param theFormFieldName 
+   * @param theFormFieldValue 
+   * @return the action
+   */
+  public static GuiScreenAction newFormFieldValue(String theFormFieldName, String theFormFieldValue) {
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    guiScreenAction.setFormFieldName(theFormFieldName);
+    guiScreenAction.setFormFieldValues(GrouperUtil.toList(theFormFieldValue));
+    return guiScreenAction;
+  }
+  
+  /**
+   * construct with form field to change by name and values (e.g. for checkboxes or multiselect)
+   * @param theFormFieldName 
+   * @param theFormFieldValues
+   * @return the action
+   */
+  public static GuiScreenAction newFormFieldValues(String theFormFieldName, List<String> theFormFieldValues) {
+    GuiScreenAction guiScreenAction = new GuiScreenAction();
+    guiScreenAction.setFormFieldName(theFormFieldName);
+    guiScreenAction.setFormFieldValues(theFormFieldValues);
     return guiScreenAction;
   }
   
