@@ -49,7 +49,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author shilen
- * @version $Id: TestDisabledMembership.java,v 1.1 2009-08-18 23:11:39 shilen Exp $
+ * @version $Id: TestDisabledMembership.java,v 1.2 2009-08-19 00:13:26 shilen Exp $
  */
 public class TestDisabledMembership extends TestCase {
 
@@ -72,6 +72,283 @@ public class TestDisabledMembership extends TestCase {
       r.rs.stop();
     }
   }
+  
+  /**
+   * @throws Exception 
+   */
+  public void testAddingDisabledMembership() throws Exception {
+    
+    r = R.populateRegistry(0, 0, 3);
+    
+    Timestamp disabledTime = new Timestamp(new Date().getTime() - 10000);
+    Timestamp enabledTime = new Timestamp(new Date().getTime() + 10000);
+    
+    Stem root = StemFinder.findRootStem(r.rs);
+    Stem top = root.addChildStem("top", "top");
+    Group owner = top.addChildGroup("owner", "owner");
+    Group left = top.addChildGroup("left", "left");
+    Group right = top.addChildGroup("right", "right");
+    Group one = top.addChildGroup("one", "one");
+    Group two = top.addChildGroup("two", "two");
+    Group three = top.addChildGroup("three", "three");
+
+    owner.addCompositeMember(CompositeType.UNION, left, right);
+    left.addMember(one.toSubject());
+    two.addMember(three.toSubject());
+    
+    // now add two -> one as a disabled membership
+    Membership ms = new Membership();
+    ms.setCreatorUuid(r.rs.getMemberUuid());
+    ms.setFieldId(Group.getDefaultList().getUuid());
+    ms.setMemberUuid(two.toMember().getUuid());
+    ms.setOwnerGroupId(one.getUuid());
+    ms.setMember(two.toMember());
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);    
+    GrouperDAOFactory.getFactory().getMembership().save(ms);
+    
+    assertFalse(owner.hasMember(two.toSubject()));
+    assertFalse(owner.hasMember(three.toSubject()));
+    assertFalse(left.hasMember(two.toSubject()));
+    assertFalse(left.hasMember(three.toSubject()));
+    assertFalse(one.hasMember(two.toSubject()));
+    assertFalse(one.hasMember(three.toSubject()));
+  }
+  
+  /**
+   * @throws Exception 
+   */
+  public void testAddingMembershipWhenDisabledMembershipExistsInPath() throws Exception {
+    
+    r = R.populateRegistry(0, 0, 3);
+    Subject a = r.getSubject("a");
+    
+    Timestamp disabledTime = new Timestamp(new Date().getTime() - 10000);
+    Timestamp enabledTime = new Timestamp(new Date().getTime() + 10000);
+    
+    Stem root = StemFinder.findRootStem(r.rs);
+    Stem top = root.addChildStem("top", "top");
+    Group owner = top.addChildGroup("owner", "owner");
+    Group left = top.addChildGroup("left", "left");
+    Group right = top.addChildGroup("right", "right");
+    Group one = top.addChildGroup("one", "one");
+    Group two = top.addChildGroup("two", "two");
+    
+    owner.addCompositeMember(CompositeType.UNION, left, right);
+    
+    left.addMember(one.toSubject());
+    one.addMember(two.toSubject());
+    
+    // disable one -> left
+    Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        left.getUuid(), one.toMember().getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    // add some memberships
+    two.addMember(a);
+    one.addMember(a);
+    
+    assertFalse(owner.hasMember(a));
+    assertFalse(owner.hasMember(two.toSubject()));
+    assertFalse(owner.hasMember(one.toSubject()));
+    assertFalse(left.hasMember(a));
+    assertFalse(left.hasMember(two.toSubject()));
+    assertFalse(left.hasMember(one.toSubject()));
+    assertEquals(3, one.getMemberships().size());
+  }
+  
+  /**
+   * @throws Exception 
+   */
+  public void testAddingUnionCompositeWithDisabledMemberships() throws Exception {
+    
+    r = R.populateRegistry(0, 0, 3);
+    Subject a = r.getSubject("a");
+    
+    Timestamp disabledTime = new Timestamp(new Date().getTime() - 10000);
+    Timestamp enabledTime = new Timestamp(new Date().getTime() + 10000);
+    
+    Stem root = StemFinder.findRootStem(r.rs);
+    Stem top = root.addChildStem("top", "top");
+    Group owner = top.addChildGroup("owner", "owner");
+    Group left = top.addChildGroup("left", "left");
+    Group right = top.addChildGroup("right", "right");
+    Group one = top.addChildGroup("one", "one");
+    Group two = top.addChildGroup("two", "two");
+    
+    left.addMember(one.toSubject());
+    one.addMember(two.toSubject());
+    
+    right.addMember(a);
+    two.addMember(a);
+    
+    // disable SA -> right and SA -> two
+    Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        right.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        two.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+
+    owner.addCompositeMember(CompositeType.UNION, left, right);
+    
+    assertFalse(owner.hasMember(a));
+  }
+  
+  /**
+   * @throws Exception 
+   */
+  public void testAddingIntersectionCompositeWithDisabledMemberships() throws Exception {
+    
+    r = R.populateRegistry(0, 0, 4);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+    Subject c = r.getSubject("c");
+    Subject d = r.getSubject("d");
+    
+    Timestamp disabledTime = new Timestamp(new Date().getTime() - 10000);
+    Timestamp enabledTime = new Timestamp(new Date().getTime() + 10000);
+    
+    Stem root = StemFinder.findRootStem(r.rs);
+    Stem top = root.addChildStem("top", "top");
+    Group owner = top.addChildGroup("owner", "owner");
+    Group left = top.addChildGroup("left", "left");
+    Group right = top.addChildGroup("right", "right");
+    Group one = top.addChildGroup("one", "one");
+    Group two = top.addChildGroup("two", "two");
+    
+    left.addMember(one.toSubject());
+    one.addMember(two.toSubject());
+    
+    right.addMember(a);
+    right.addMember(b);
+    right.addMember(c);
+    right.addMember(d);
+    two.addMember(a);
+    two.addMember(b);
+    two.addMember(c);
+    two.addMember(d);
+    
+    // disable SA -> right, SA -> two, SB -> right, SC -> two
+    Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        right.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        two.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        right.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        two.getUuid(), MemberFinder.findBySubject(r.rs, c, true).getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+
+    owner.addCompositeMember(CompositeType.INTERSECTION, left, right);
+    assertFalse(owner.hasMember(a));
+    assertFalse(owner.hasMember(b));
+    assertFalse(owner.hasMember(c));
+    assertTrue(owner.hasMember(d));
+  }
+  
+
+  /**
+   * @throws Exception 
+   */
+  public void testAddingComplementCompositeWithDisabledMemberships() throws Exception {
+    
+    r = R.populateRegistry(0, 0, 4);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+    Subject c = r.getSubject("c");
+    Subject d = r.getSubject("d");
+    
+    Timestamp disabledTime = new Timestamp(new Date().getTime() - 10000);
+    Timestamp enabledTime = new Timestamp(new Date().getTime() + 10000);
+    
+    Stem root = StemFinder.findRootStem(r.rs);
+    Stem top = root.addChildStem("top", "top");
+    Group owner = top.addChildGroup("owner", "owner");
+    Group left = top.addChildGroup("left", "left");
+    Group right = top.addChildGroup("right", "right");
+    Group one = top.addChildGroup("one", "one");
+    Group two = top.addChildGroup("two", "two");
+    
+    left.addMember(one.toSubject());
+    one.addMember(two.toSubject());
+    
+    right.addMember(a);
+    right.addMember(b);
+    right.addMember(c);
+    right.addMember(d);
+    two.addMember(a);
+    two.addMember(b);
+    two.addMember(c);
+    two.addMember(d);
+    
+    // disable SA -> right, SA -> two, SB -> right, SC -> two
+    Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        right.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        two.getUuid(), MemberFinder.findBySubject(r.rs, a, true).getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        right.getUuid(), MemberFinder.findBySubject(r.rs, b, true).getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+    ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
+        two.getUuid(), MemberFinder.findBySubject(r.rs, c, true).getUuid(), Group.getDefaultList(), Membership.IMMEDIATE, true, true);
+    ms.setEnabled(false);
+    ms.setEnabledTime(enabledTime);
+    ms.setDisabledTime(disabledTime);
+    GrouperDAOFactory.getFactory().getMembership().update(ms);
+    
+
+    owner.addCompositeMember(CompositeType.COMPLEMENT, left, right);
+    assertFalse(owner.hasMember(a));
+    assertTrue(owner.hasMember(b));
+    assertFalse(owner.hasMember(c));
+    assertFalse(owner.hasMember(d));
+  }
+  
   
   /**
    * @throws Exception
