@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiUtils.java,v 1.9 2009-08-19 06:29:58 mchyzer Exp $
+ * $Id: GuiUtils.java,v 1.10 2009-08-19 14:31:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
@@ -74,10 +74,11 @@ public class GuiUtils {
    * @param grouperSession
    * @param group
    * @param subjects
+   * @param immediateOnly true for only immediate, false for immediate and effective
    * @return the members or none if not allowed
    */
   public static Set<Member> convertSubjectsToMembers(GrouperSession grouperSession, 
-      Group group, Set<Subject> subjects) {
+      Group group, Set<Subject> subjects, boolean immediateOnly) {
 
     if (!PrivilegeHelper.canViewMembers(grouperSession, group, Group.getDefaultList())) {
       return new LinkedHashSet<Member>();
@@ -91,16 +92,21 @@ public class GuiUtils {
     for (int i=0;i<numberOfBatches;i++) {
       List<Subject> subjectBatch = GrouperUtil.batchList(subjects, 100, i);
       
-//      select gm.* 
+//      select distinct gm.* 
 //      from grouper_members gm, grouper_memberships gms
 //      where gm.id = gms.member_id
 //      and gms.field_id = 'abc' and gms.owner_id = '123'
 //      and gm.subject_id in ('123','234')
+//      and mship_type = 'immediate'
       
       //lets turn the subjects into subjectIds
       Set<String> subjectIds = new LinkedHashSet<String>();
       for (Subject currentSubject : subjectBatch) {
         subjectIds.add(currentSubject.getId());
+      }
+      
+      if (subjectIds.size() == 0) {
+        continue;
       }
       
       ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
@@ -109,6 +115,7 @@ public class GuiUtils {
           "where gm.uuid = gms.memberUuid " +
           "and gms.fieldId = :fieldId " +
           "and gms.ownerUuid = :ownerId " +
+          (immediateOnly ? "and gms.type = 'immediate' " : "") + 
           "and gm.subjectIdDb in (");
       
       //add all the uuids
@@ -127,9 +134,70 @@ public class GuiUtils {
   }
   
   /**
+   * remove duplicates
+   * @param members
+   */
+  public static void memberRemoveDuplicates(List<Member> members) {
+    if (members == null) {
+      return;
+    }
+    
+    Iterator<Member> iterator = members.iterator();
+    //keep track of ones we have seen
+    Set<MultiKey> uniqueSubjects = new LinkedHashSet<MultiKey>();
+    
+    //loop through all items
+    while(iterator.hasNext()) {
+      Member member = iterator.next();
+      
+      //get the key
+      MultiKey subjectKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId());
+      
+      //see if already seen
+      if (uniqueSubjects.contains(subjectKey)) {
+        //remove if so
+        iterator.remove();
+      } else {
+        uniqueSubjects.add(subjectKey);
+      }
+    }
+  }
+  
+  /**
+   * remove duplicates
+   * @param subjects
+   */
+  public static void subjectRemoveDuplicates(List<Subject> subjects) {
+    if (subjects == null) {
+      return;
+    }
+    
+    Iterator<Subject> iterator = subjects.iterator();
+    //keep track of ones we have seen
+    Set<MultiKey> uniqueSubjects = new LinkedHashSet<MultiKey>();
+    
+    //loop through all items
+    while(iterator.hasNext()) {
+      Subject subject = iterator.next();
+      
+      //get the key
+      MultiKey subjectKey = new MultiKey(subject.getId(), subject.getSource().getId());
+      
+      //see if already seen
+      if (uniqueSubjects.contains(subjectKey)) {
+        //remove if so
+        iterator.remove();
+      } else {
+        uniqueSubjects.add(subjectKey);
+      }
+    }
+  }
+  
+  /**
    * remove overlapping subjects from two lists.  i.e. if first is existing, and
    * second is new, then if we are replacing all members of the group, then the first would
-   * end up being the ones to remove, and the second is the one to add
+   * end up being the ones to remove, and the second is the one to add.
+   * this will also remove dupes
    * @param first
    * @param second
    * @return the overlap, never null
@@ -144,6 +212,9 @@ public class GuiUtils {
     ListOrderedSet firstHashes = new ListOrderedSet();
     ListOrderedSet secondHashes = new ListOrderedSet();
     
+    memberRemoveDuplicates(first);
+    subjectRemoveDuplicates(second);
+    
     //if null no overlap
     if (GrouperUtil.length(first) == 0 || GrouperUtil.length(second) == 0) {
       return overlaps;
@@ -151,6 +222,7 @@ public class GuiUtils {
     
     //put these both in hashes, keep track of hashes
     for (Member member : first) {
+      System.out.println("Adding to first: " + member.getSubjectSourceId() + ", " + member.getSubjectId());
       firstHashes.add(new MultiKey(member.getSubjectSourceId(), member.getSubjectId()));
       
     }

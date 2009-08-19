@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.18 2009-08-19 06:29:58 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.19 2009-08-19 14:31:36 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -10,7 +10,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.MissingResourceException;
@@ -1675,7 +1674,7 @@ public class SimpleMembershipUpdate {
 
       groupName = group.getName();
       
-      members = GuiUtils.convertSubjectsToMembers(grouperSession, group, subjects);
+      members = GuiUtils.convertSubjectsToMembers(grouperSession, group, subjects, true);
     
     } catch (Exception se) {
       throw new RuntimeException("Error searching for members: '" + filterString 
