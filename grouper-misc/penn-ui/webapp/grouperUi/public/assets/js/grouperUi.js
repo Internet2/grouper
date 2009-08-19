@@ -144,6 +144,7 @@ function AppState() {
 }
 
 /** list of combos by id */
+var allComboboxes = new Object();
 
 /**
  * register a combobox div
@@ -161,7 +162,8 @@ function guiRegisterDhtmlxCombo(divId, width, useImages, filterUrl ) {
   var theCombo=new dhtmlXCombo(
       divId,divId,width, useImages ? 'image' : undefined);
   theCombo.enableFilteringMode(true,filterUrl,false);
-  
+  //keep this so we can control it later
+  allComboboxes[divId] = theCombo;
 }
 
 
@@ -437,12 +439,32 @@ function guiDefaultString(x) {
 
 /** set form element(s) to values */
 function guiFormElementAssignValue(name, values) {
+  
+  //see if combo
+  if (!guiIsEmpty(allComboboxes[name])) {
+    if (guiIsEmpty(values)) {
+      allComboboxes[name].clearAll(true);
+    } else {
+      values = guiConvertToArray(values, true);
+      //assign a value
+      if (values.length == 1) {
+        allComboboxes[name].setComboValue(values[0]);
+      } else {
+        alert("Cant have length more than 1");
+      }
+    }
+    
+    return;
+  }
+
+  
   values = guiConvertToArray(values, true);
   
   for (var i=0;i<values.length;i++) {
     var value = guiToString(guiDefaultString(values[i]));
     var theElements = document.getElementsByName(name);
     if (theElements == null) {
+      
       alert('Error: cant find element with name: ' + name);
     }
     for (var j=0;j<theElements.length;j++) {

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.19 2009-08-19 14:31:36 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.20 2009-08-19 14:47:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -519,6 +519,8 @@ public class SimpleMembershipUpdate {
       
       group.addMember(subject);
       
+      //lets clear out the combobox:
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("simpleMembershipUpdateAddMember", null));
       
       guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.successMemberAdded",
           false, true, subjectLabel)));
