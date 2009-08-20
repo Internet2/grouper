@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperContext.java,v 1.6 2009-04-15 15:56:21 mchyzer Exp $
+ * $Id: GrouperContext.java,v 1.7 2009-08-20 07:24:37 isgwb Exp $
  */
 package edu.internet2.middleware.grouper.hibernate;
 
@@ -11,6 +11,7 @@ import java.sql.Timestamp;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.GrouperEngineIdentifier;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -94,6 +95,17 @@ public class GrouperContext {
       auditEntry.setUserIpAddress(grouperDefaultContext.callerIpAddress);
       auditEntry.setLoggedInMemberId(grouperDefaultContext.loggedInMemberId);
       auditEntry.setActAsMemberId(grouperDefaultContext.loggedInMemberIdActAs);
+      if(auditEntry.getActAsMemberId()==null) {
+    	  GrouperSession s = GrouperSession.staticGrouperSession();
+    	  //If there isn't an ActAsMemberId, but there is an active GrouperSession
+    	  //and its subject doesn't match the loggedInMemberId, use it for the actAsMemberId.
+    	  //Means that from GSH, where there is no loggedInMemberId, the current GrouperSession
+    	  //determines the actAsMemberId which means that audit log entries can be filtered by
+    	  //the nominal subject performing the action
+    	  if(s != null && !s.getMemberUuid().equals(auditEntry.getLoggedInMemberId())) {
+    		  auditEntry.setActAsMemberId(s.getMemberUuid());
+    	  }
+    	}
 
     }
 
