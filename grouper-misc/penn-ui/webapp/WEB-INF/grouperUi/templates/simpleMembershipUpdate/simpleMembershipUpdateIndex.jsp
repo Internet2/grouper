@@ -13,7 +13,7 @@
     <table width="900" cellpadding="0" cellspacing="0">
       <tr valign="top">
         <td style="padding: 0px" width="710">
-          <grouperGui:combobox filterOperation="SimpleMembershipUpdate.filterGroups" id="simpleMembershipUpdatePickGroup" 
+          <grouperGui:combobox filterOperation="SimpleMembershipUpdateFilter.filterGroups" id="simpleMembershipUpdatePickGroup" 
             width="700"/>
           
         </td>

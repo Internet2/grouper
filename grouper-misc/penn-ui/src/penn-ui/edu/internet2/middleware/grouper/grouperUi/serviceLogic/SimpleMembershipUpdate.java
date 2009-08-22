@@ -1,32 +1,20 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.20 2009-08-19 14:47:19 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.21 2009-08-22 21:21:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.MissingResourceException;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import au.com.bytecode.opencsv.CSVReader;
-import au.com.bytecode.opencsv.CSVWriter;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -45,9 +33,9 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
-import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.ImportSubjectWrapper;
 import edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate.SimpleMembershipUpdateContainer;
 import edu.internet2.middleware.grouper.grouperUi.exceptions.ControllerDone;
+import edu.internet2.middleware.grouper.grouperUi.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
@@ -57,7 +45,6 @@ import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -82,75 +69,6 @@ public class SimpleMembershipUpdate {
 
   }
 
-  /**
-   * filter groups to pick one to edit
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void filterGroups(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
-    
-    
-    GrouperSession grouperSession = null;
-
-    String searchTerm = httpServletRequest.getParameter("mask");
-
-    try {
-      grouperSession = GrouperSession.start(loggedInSubject);
-      
-      
-      Set<Group> groups = null;
-      
-      StringBuilder xmlBuilder = new StringBuilder(GuiUtils.DHTMLX_OPTIONS_START);
-
-      QueryOptions queryOptions = null;
-      
-      if (StringUtils.defaultString(searchTerm).length() < 2) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
-            GuiUtils.message("simpleMembershipUpdate.errorNotEnoughGroupChars", false), "bullet_error.png");
-      } else {
-        queryOptions = new QueryOptions().paging(TagUtils.mediaResourceInt("simpleMembershipUpdate.groupComboboxResultSize", 200), 1, true).sortAsc("displayName");
-        groups = GrouperDAOFactory.getFactory().getGroup().getAllGroupsSecure("%" + searchTerm + "%", grouperSession, loggedInSubject, 
-            GrouperUtil.toSet(AccessPrivilege.ADMIN, AccessPrivilege.UPDATE), queryOptions);
-        
-        if (GrouperUtil.length(groups) == 0) {
-          GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
-              GuiUtils.message("simpleMembershipUpdate.errorNoGroupsFound", false), "bullet_error.png");
-        }
-      }
-      
-      for (Group group : GrouperUtil.nonNull(groups)) {
-
-        String value = group.getUuid();
-        String label = group.getDisplayName();
-        String imageName = GuiUtils.imageFromSubjectSource("g:gsa");
-
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
-      }
-
-      //add one more for more options if we didnt get them all
-      if (queryOptions != null && queryOptions.getCount() != null 
-          && groups != null && queryOptions.getCount() > groups.size()) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
-            GuiUtils.message("simpleMembershipUpdate.errorTooManyGroups", false), "bullet_error.png");
-      }
-      
-      
-      xmlBuilder.append(GuiUtils.DHTMLX_OPTIONS_END);
-      
-      GuiUtils.printToScreen(xmlBuilder.toString(), "text/xml", false, false);
-
-    } catch (Exception se) {
-      throw new RuntimeException("Error searching for groups: '" + GuiUtils.escapeHtml(searchTerm, true) + "', " + se.getMessage(), se);
-    } finally {
-      GrouperSession.stopQuietly(grouperSession); 
-    }
-
-    //dont print the regular JSON
-    throw new ControllerDone();
-
-  }
-  
   /**
    * 
    * @param request
@@ -194,6 +112,8 @@ public class SimpleMembershipUpdate {
         GuiGroup wsGroup = new GuiGroup(group);
         simpleMembershipUpdateContainer.setGuiGroup(wsGroup);
       }
+    } catch (NoSessionException se) {
+      throw se;
     } catch (ControllerDone cd) {
       throw cd;
     } catch (Exception e) {
@@ -319,20 +239,6 @@ public class SimpleMembershipUpdate {
    * @param response
    */
   @SuppressWarnings("unchecked")
-  public void retrieveMembersFilterButton(HttpServletRequest request, HttpServletResponse response) {
-    final SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = 
-      SimpleMembershipUpdateContainer.retrieveFromSession();
-    String simpleMembershipFilterMember = request.getParameter("simpleMembershipFilterMember");
-    simpleMembershipUpdateContainer.setMemberFilter(simpleMembershipFilterMember);
-    retrieveMembers(request, response);
-  }
-
-  /**
-   * retrieve members
-   * @param request
-   * @param response
-   */
-  @SuppressWarnings("unchecked")
   public void retrieveMembers(HttpServletRequest request, HttpServletResponse response) {
     
     final SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
@@ -360,7 +266,7 @@ public class SimpleMembershipUpdate {
         members = retrieveMembersNoFilter(guiPaging, group);
         
       } else {
-        members = retrieveMembersFilter(guiPaging, group, simpleMembershipFilterMember); 
+        members = new SimpleMembershipUpdateFilter().retrieveMembersFilter(guiPaging, group, simpleMembershipFilterMember); 
       }      
         
       GuiMember[] guiMembers = new GuiMember[members.size()];
@@ -380,6 +286,8 @@ public class SimpleMembershipUpdate {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#simpleMembershipResultsList", 
           "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipMembershipList.jsp"));
+    } catch (NoSessionException se) {
+      throw se;
     } catch (ControllerDone cd) {
       throw cd;
     } catch (Exception e) {
@@ -398,7 +306,7 @@ public class SimpleMembershipUpdate {
    * @throws SchemaException
    */
   @SuppressWarnings("unchecked")
-  private Set<Member> retrieveMembersNoFilter(GuiPaging guiPaging, Group group)
+  Set<Member> retrieveMembersNoFilter(GuiPaging guiPaging, Group group)
       throws SchemaException {
     Set<Member> members;
     //get the size
@@ -459,6 +367,8 @@ public class SimpleMembershipUpdate {
       guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.successMemberDeleted",
           false, true, guiMember.getGuiSubject().getScreenLabel())));
       
+    } catch (NoSessionException se) {
+      throw se;
     } catch (ControllerDone cd) {
       throw cd;
     } catch (Exception se) {
@@ -511,6 +421,9 @@ public class SimpleMembershipUpdate {
       subjectLabel = GuiUtils.convertSubjectToLabel(subject);
       if (group.hasImmediateMember(subject)) {
         
+        //lets clear out the combobox:
+        guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("simpleMembershipUpdateAddMember", null));
+        
         guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.warningSubjectAlreadyMember",
             false, true, subjectLabel)));
 
@@ -519,12 +432,15 @@ public class SimpleMembershipUpdate {
       
       group.addMember(subject);
       
+
       //lets clear out the combobox:
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("simpleMembershipUpdateAddMember", null));
       
       guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.successMemberAdded",
           false, true, subjectLabel)));
       
+    } catch (NoSessionException se) {
+      throw se;
     } catch (ControllerDone cd) {
       throw cd;
     } catch (SubjectNotFoundException snfe) {
@@ -552,209 +468,6 @@ public class SimpleMembershipUpdate {
 
     retrieveMembers(httpServletRequest, httpServletResponse);
     
-  }
-  
-  /**
-   * 
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void filterUsers(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
-    
-    
-    GrouperSession grouperSession = null;
-
-    String searchTerm = httpServletRequest.getParameter("mask");
-
-    try {
-      grouperSession = GrouperSession.start(loggedInSubject);
-      
-      
-      Set<Subject> subjects = null;
-      
-      StringBuilder xmlBuilder = new StringBuilder(GuiUtils.DHTMLX_OPTIONS_START);
-      QueryPaging queryPaging = null;
-      
-      //minimum input length
-      if (StringUtils.defaultString(searchTerm).length() < 2) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", 
-            GuiUtils.message("simpleMembershipUpdate.errorNotEnoughSubjectChars"), null);
-      } else {
-        subjects = SubjectFinder.findAll(searchTerm);
-        
-        String maxSubjectsDropDownString = TagUtils.mediaResourceString("simpleMembershipUpdate.subjectComboboxResultSize");
-        int maxSubjectsDropDown = GrouperUtil.intValue(maxSubjectsDropDownString, 50);
-
-        queryPaging = new QueryPaging(maxSubjectsDropDown, 1, true);
-        
-        //sort and page the results
-        subjects = GuiUtils.subjectsSortedPaged(subjects, queryPaging);
-        
-      }
-      
-      //convert to XML for DHTMLX
-      for (Subject subject : GrouperUtil.nonNull(subjects)) {
-        String value = GuiUtils.convertSubjectToValue(subject);
-
-        String imageName = GuiUtils.imageFromSubjectSource(subject.getSource().getId());
-        String label = GuiUtils.convertSubjectToLabelConfigured(subject);
-
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
-      }
-
-      //maybe add one more if we hit the limit
-      if (queryPaging != null && subjects.size() < queryPaging.getTotalRecordCount()) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, null, GuiUtils.message("simpleMembershipUpdate.errorUserSearchTooManyResults", false), 
-            "bullet_error.png");
-      } else if (subjects.size() == 0) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", GuiUtils.message("simpleMembershipUpdate.errorUserSearchNoResults", false), "bullet_error.png");
-      }
-
-      xmlBuilder.append(GuiUtils.DHTMLX_OPTIONS_END);
-      
-      GuiUtils.printToScreen(xmlBuilder.toString(), "text/xml", false, false);
-
-    } catch (Exception se) {
-      throw new RuntimeException("Error searching for members: '" + searchTerm + "', " + se.getMessage(), se);
-    } finally {
-      GrouperSession.stopQuietly(grouperSession); 
-    }
-
-    //dont print the regular JSON
-    throw new ControllerDone();
-
-  }
-
-  /**
-   * clear the membership filter
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void clearMemberFilter(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
-    simpleMembershipUpdateContainer.setMemberFilter(null);
-    simpleMembershipUpdateContainer.setMemberFilterForScreen(null);
-    retrieveMembers(httpServletRequest, httpServletResponse);
-  }
-  
-  /**
-   * handle a click or select from the advanced menu
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void advancedMenu(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-    String menuItemId = httpServletRequest.getParameter("menuItemId");
-    //String menuHtmlId = httpServletRequest.getParameter("menuHtmlId");
-    //String menuRadioGroup = httpServletRequest.getParameter("menuRadioGroup");
-    String menuCheckboxChecked  = httpServletRequest.getParameter("menuCheckboxChecked");
-
-//    guiResponseJs.addAction(GuiScreenAction.newAlert("Menu action: menuItemId: " + menuItemId
-//        + ", menuHtmlId: " + menuHtmlId 
-//        + ", menuRadioGroup: " 
-//        + menuRadioGroup + ", menuCheckboxChecked: " + menuCheckboxChecked));
-    
-    if (StringUtils.equals(menuItemId, "showGroupDetails")) {
-      if (GrouperUtil.booleanValue(menuCheckboxChecked)) {
-        guiResponseJs.addAction(GuiScreenAction.newHideShowNameToShow("simpleMembershipUpdateGroupDetails"));
-      } else {
-        guiResponseJs.addAction(GuiScreenAction.newHideShowNameToHide("simpleMembershipUpdateGroupDetails"));
-      }
-    } else if (StringUtils.equals(menuItemId, "multiDelete")) {
-      if (GrouperUtil.booleanValue(menuCheckboxChecked)) {
-        guiResponseJs.addAction(GuiScreenAction.newHideShowNameToShow("simpleMembershipUpdateDeleteMultiple"));
-      } else {
-        guiResponseJs.addAction(GuiScreenAction.newHideShowNameToHide("simpleMembershipUpdateDeleteMultiple"));
-      }
-    } else if (StringUtils.equals(menuItemId, "showMemberFilter")) {
-      if (GrouperUtil.booleanValue(menuCheckboxChecked)) {
-        guiResponseJs.addAction(GuiScreenAction.newHideShowNameToShow("simpleMembershipUpdateMemberFilter"));
-      } else {
-        guiResponseJs.addAction(GuiScreenAction.newHideShowNameToHide("simpleMembershipUpdateMemberFilter"));
-      }
-    } else if (StringUtils.equals(menuItemId, "exportSubjectIds")) {
-      guiResponseJs.addAction(GuiScreenAction.newAlertFromJsp(
-          "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipUpdateExportSubjectIds.jsp"));
-    } else if (StringUtils.equals(menuItemId, "exportAll")) {
-      guiResponseJs.addAction(GuiScreenAction.newAlertFromJsp(
-          "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipUpdateExportAll.jsp"));
-      
-    } else if (StringUtils.equals(menuItemId, "import")) {
-      guiResponseJs.addAction(GuiScreenAction.newDialogFromJsp(
-          "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipUpdateImport.jsp"));
-    } else {
-      throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
-    }
-    
-  }
-
-  /**
-   * make the structure of the advanced menu
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void advancedMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    //get the text to add to html if showing details
-    GuiHideShow showGroupDetails = GuiHideShow.retrieveHideShow("simpleMembershipUpdateGroupDetails", true);
-    String showGroupDetailsChecked = showGroupDetails.isShowing() ? " checked=\"true\"" : "";
-    
-    //get the text to add to html if showing multi delete
-    GuiHideShow showMultiDelete = GuiHideShow.retrieveHideShow("simpleMembershipUpdateDeleteMultiple", true);
-    String showMultiDeleteChecked = showMultiDelete.isShowing() ? " checked=\"true\"" : "";
-
-    //get the text to add to html if showing member filter
-    GuiHideShow showMemberFilter = GuiHideShow.retrieveHideShow("simpleMembershipUpdateMemberFilter", true);
-    String showMemberFilterChecked = showMemberFilter.isShowing() ? " checked=\"true\"" : "";
-
-    GuiUtils.printToScreen(
-        "<?xml version=\"1.0\"?>\n"
-        + "<menu>\n"
-        + "  <item id=\"multiDelete\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuDeleteMultiple"), true) 
-        + "\" type=\"checkbox\" " + showMultiDeleteChecked + "><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuDeleteMultipleTooltip"), true) + "</tooltip></item>\n"
-        + "  <item id=\"showGroupDetails\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuShowGroupDetails"), true) 
-        + "\" type=\"checkbox\" " + showGroupDetailsChecked + "><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuShowGroupDetailsTooltip"), true) + "</tooltip></item>\n"
-        
-        + "  <item id=\"showMemberFilter\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuShowMemberFilter"), true) 
-        + "\" type=\"checkbox\" " + showMemberFilterChecked + "><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuShowMemberFilterTooltip"), true) + "</tooltip></item>\n"
-
-        + "  <item id=\"importExport\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuImportExport"), true) 
-        + "\" ><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuImportExportTooltip"), true) + "</tooltip>\n"
-        + "    <item id=\"export\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExport"), true) 
-        + "\" ><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExportTooltip"), true) + "</tooltip>\n"
-        + "      <item id=\"exportSubjectIds\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExportSubjectIds"), true) 
-        + "\" ><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExportSubjectIdsTooltip"), true) + "</tooltip></item>\n"
-        + "      <item id=\"exportAll\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExportAll"), true) 
-        + "\" ><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuExportAllTooltip"), true) + "</tooltip></item>\n"
-        //close the export
-        + "   </item>\n"
-        + "   <item id=\"import\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuImport"), true) 
-        + "\" ><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.advancedMenuImportTooltip"), true) + "</tooltip></item>\n"
-        //close the import/export
-        + "  </item>\n"
-        //+ "  <item id=\"m3\" text=\"Help\" type=\"checkbox\" checked=\"true\"/>\n"
-        //+ "  <item id=\"radio1\" text=\"Radio1\" type=\"radio\" group=\"hlm\"/>\n"
-        //+ "  <item id=\"radio2\" text=\"Radio2\" type=\"radio\" group=\"hlm\"/>\n"
-        + "</menu>", "text/xml", false, false);
-    throw new ControllerDone();
   }
   
   /**
@@ -806,6 +519,8 @@ public class SimpleMembershipUpdate {
       guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.successMembersDeleted",
           false, true, Integer.toString(deleteCount))));
       
+    } catch (NoSessionException se) {
+      throw se;
     } catch (ControllerDone cd) {
       throw cd;
     } catch (Exception se) {
@@ -860,6 +575,8 @@ public class SimpleMembershipUpdate {
       guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.successAllMembersDeleted",
           false, true, Integer.toString(deleteCount))));
       
+    } catch (NoSessionException se) {
+      throw se;
     } catch (ControllerDone cd) {
       throw cd;
     } catch (Exception se) {
@@ -874,841 +591,8 @@ public class SimpleMembershipUpdate {
 
   }
   
-  /**
-   * export all immediate subjects as subject ids
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  @SuppressWarnings("unchecked")
-  public void exportSubjectIdsCsv(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
-
-    GrouperSession grouperSession = null;
-
-    Group group = null;
-    String groupName = null;
-
-    String currentMemberUuid = null;
-    
-    try {
-
-      grouperSession = GrouperSession.start(loggedInSubject);
-
-      group = this.retrieveGroup(grouperSession);
-      groupName = group.getName();
-      
-      Set<Member> members = group.getImmediateMembers();
-      
-      HttpServletResponse response = GrouperUiJ2ee.retrieveHttpServletResponse(); 
-      
-      List<String[]> memberData = new ArrayList<String[]>(); 
-      for (Member member : members) {
-        // feed in your array (or convert your data to an array)
-        String[] entries = new String[]{member.getSubjectSourceId(), member.getSubjectId()};
-        memberData.add(entries);
-      }      
-
-      //sort
-      Collections.sort(memberData, new Comparator() {
-
-        /**
-         * 
-         * @param o1
-         * @param o2
-         * @return 1, -1, 0
-         */
-        @Override
-        public int compare(Object o1, Object o2) {
-          String[] first = (String[])o1;
-          String[] second = (String[])o2;
-          if (!StringUtils.equals(first[0], second[0])) {
-            return GuiUtils.compare(first[0], second[0], true);
-          }
-          return GuiUtils.compare(first[1], second[1], true);
-        }
-      });
-      
-      //say it is CSV
-      response.setContentType("text/csv");
-    
-      String groupExtensionFileName = GuiGroup.getExportSubjectIdsFileNameStatic(group);
-      
-      response.setHeader ("Content-Disposition", "inline;filename=\"" + groupExtensionFileName + "\"");
-      
-      //just write some stuff
-      PrintWriter out = null;
-    
-      try {
-        out = response.getWriter();
-      } catch (Exception e) {
-        throw new RuntimeException("Cant get response.getWriter: ", e);
-      }
-      
-      CSVWriter writer = new CSVWriter(out);
-      writer.writeNext(new String[]{"sourceId", "subjectId"});
-      for (String[] entries: memberData) {
-        // feed in your array (or convert your data to an array)
-        writer.writeNext(entries);
-      }      
-      writer.close();
-            
-
-      throw new ControllerDone();
-    } catch (ControllerDone cd) {
-      throw cd;
-    } catch (Exception se) {
-      throw new RuntimeException("Error exporting all members from group: " + groupName 
-          + ", " + currentMemberUuid + ", " + se.getMessage(), se);
-    } finally {
-      GrouperSession.stopQuietly(grouperSession); 
-    }
-
-  }
-
-  /**
-   * export all members
-   * @param member
-   * @param headers 
-   * @param isAttribute which indexes are attributes
-   * @return the stirng array for csv
-   */
-  private String[] exportAllStringArray(Member member, String[] headers, boolean[] isAttribute) {
-    String[] result = new String[headers.length+2];
-    
-    //lets see what we can get from the member
-    for (int i=0;i<headers.length;i++) {
-      String header = headers[i];
-      if ("subjectId".equalsIgnoreCase(header)) {
-        result[i] = member.getSubjectId();
-      } else if ("sourceId".equalsIgnoreCase(header)) {
-        result[i] = member.getSubjectSourceId();
-      } else if ("memberId".equalsIgnoreCase(header)) {
-        result[i] = member.getUuid();
-      }
-    }
-    
-    
-    try {
-      
-      Subject subject = member.getSubject();
-      
-      //lets see what we can get from the subject
-      for (int i=0;i<headers.length;i++) {
-        String header = headers[i];
-        if ("name".equalsIgnoreCase(header)) {
-          result[i] = subject.getName();
-        } else if ("description".equalsIgnoreCase(header)) {
-          result[i] = subject.getDescription();
-        } else if ("screenLabel".equalsIgnoreCase(header)) {
-          result[i] = GuiUtils.convertSubjectToLabelConfigured(subject);
-        } else if (isAttribute[i]) {
-          result[i] = subject.getAttributeValue(header);
-        }
-      }
-      
-      result[headers.length] = "T";
-    } catch (Exception e) {
-      result[headers.length] = "F";
-      String error = "error with memberId: " + member.getUuid() + ", subjectId: " + member.getSubjectId()
-        + ", " + ExceptionUtils.getFullStackTrace(e);
-      LOG.error(error);
-      result[headers.length + 1] = error;
-    }
-    return result;
-  }
-  
   /** logger */
-  private static final Log LOG = LogFactory.getLog(SimpleMembershipUpdate.class);
-
-  /**
-   * cols (tolower) which are cols which are not attributes
-   */
-  private static Set<String> nonAttributeCols = GrouperUtil.toSet(
-      "subjectid", "sourceid", "memberid", "name", "description", "screenlabel");
-  
-  /**
-   * export all immediate subjects in csv format
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  @SuppressWarnings("unchecked")
-  public void exportAllCsv(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
-  
-    GrouperSession grouperSession = null;
-  
-    Group group = null;
-    String groupName = null;
-  
-    String currentMemberUuid = null;
-    
-    try {
-  
-      grouperSession = GrouperSession.start(loggedInSubject);
-  
-      group = this.retrieveGroup(grouperSession);
-      groupName = group.getName();
-      
-      Set<Member> members = group.getImmediateMembers();
-      
-      HttpServletResponse response = GrouperUiJ2ee.retrieveHttpServletResponse(); 
-      
-      String[] headers = GrouperUtil.splitTrim(TagUtils.mediaResourceString( 
-          "simpleMembershipUpdate.exportAllSubjectFields"), ",");
-      
-      //note: isError is second to last col, error is the last column
-      boolean[] isAttribute = new boolean[headers.length];
-      int sortCol = 0;
-      int sourceIdCol = -1;
-      for (int i=0;i<headers.length;i++) {
-        isAttribute[i] = !nonAttributeCols.contains(headers[i].toLowerCase());
-        if (StringUtils.equalsIgnoreCase(headers[i], TagUtils.mediaResourceString(
-            "simpleMembershipUpdate.exportAllSortField"))) {
-          sortCol = i;
-        } else if (StringUtils.equalsIgnoreCase("sourceId", headers[i])) {
-          sourceIdCol = i;
-        }
-      }
-      
-      List<String[]> memberData = new ArrayList<String[]>(); 
-      for (Member member : members) {
-        // feed in your array (or convert your data to an array)
-        String[] entries = exportAllStringArray(member, headers, isAttribute);
-        memberData.add(entries);
-      }      
-  
-      final int SOURCE_ID_COL = sourceIdCol;
-      final int SORT_COL = sortCol;
-      //sort
-      Collections.sort(memberData, new Comparator() {
-  
-        /**
-         * 
-         * @param o1
-         * @param o2
-         * @return 1, -1, 0
-         */
-        @Override
-        public int compare(Object o1, Object o2) {
-          String[] first = (String[])o1;
-          String[] second = (String[])o2;
-          if (SOURCE_ID_COL != -1 && !StringUtils.equals(first[SOURCE_ID_COL], second[SOURCE_ID_COL])) {
-            return GuiUtils.compare(first[SOURCE_ID_COL], second[SOURCE_ID_COL], true);
-          }
-          return GuiUtils.compare(first[SORT_COL], second[SORT_COL], true);
-        }
-      });
-      
-      //say it is CSV
-      response.setContentType("text/csv");
-    
-      String groupExtensionFileName = GuiGroup.getExportAllFileNameStatic(group);
-      
-      response.setHeader ("Content-Disposition", "inline;filename=\"" + groupExtensionFileName + "\"");
-      
-      //just write some stuff
-      PrintWriter out = null;
-    
-      try {
-        out = response.getWriter();
-      } catch (Exception e) {
-        throw new RuntimeException("Cant get response.getWriter: ", e);
-      }
-      
-      CSVWriter writer = new CSVWriter(out);
-      String[] headersNew = new String[headers.length+2];
-      System.arraycopy(headers, 0, headersNew, 0, headers.length);
-      headersNew[headers.length] = "success";
-      headersNew[headers.length+1] = "errorMessage";
-      writer.writeNext(headersNew);
-      for (String[] entries: memberData) {
-        // feed in your array (or convert your data to an array)
-        writer.writeNext(entries);
-      }      
-      writer.close();
-  
-      throw new ControllerDone();
-    } catch (ControllerDone cd) {
-      throw cd;
-    } catch (Exception se) {
-      throw new RuntimeException("Error exporting all members from group: " + groupName 
-          + ", " + currentMemberUuid + ", " + se.getMessage(), se);
-    } finally {
-      GrouperSession.stopQuietly(grouperSession); 
-    }
-  
-  }
-  
-  /**
-   * import a CSV file
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  @SuppressWarnings("unchecked")
-  public void importCsv(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-    guiResponseJs.setAddTextAreaTag(true);
-    guiResponseJs.addAction(GuiScreenAction.newCloseModal());
-
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
-    
-    GrouperSession grouperSession = null;
-  
-    Group group = null;
-    String groupName = null;
-  
-    try {
-  
-      grouperSession = GrouperSession.start(loggedInSubject);
-  
-      group = this.retrieveGroup(grouperSession);
-      groupName = group.getName();
-      
-      List<Member> existingMembers = new ArrayList<Member>(GrouperUtil.nonNull(group.getImmediateMembers()));
-      
-      int existingCount = GrouperUtil.length(existingMembers);
-
-      GrouperRequestWrapper grouperRequestWrapper = (GrouperRequestWrapper)httpServletRequest;
-      
-      FileItem importCsvFile = grouperRequestWrapper.getParameterFileItem("importCsvFile");
-      
-      String fileName = StringUtils.defaultString(importCsvFile == null ? "" : importCsvFile.getName());
-
-      String fileSize = importCsvFile == null ? "" : (" : " + FileUtils.byteCountToDisplaySize(importCsvFile.getSize()));
-      
-      fileName += fileSize;
-      
-      //validate the inputs, file is required
-      if (importCsvFile == null || importCsvFile.getSize() == 0 || 
-          importCsvFile.getName() == null || !importCsvFile.getName().toLowerCase().endsWith(".csv")) {
-        
-        guiResponseJs.addAction(GuiScreenAction.newAlert("<pre>" 
-            + GuiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile") + fileName + "</pre>"));
-        return;
-      }
-      
-      boolean importReplaceMembers = grouperRequestWrapper.getParameterBoolean("importReplaceMembers", false);
-      
-      //convert the import file to subjects
-      List<String> subjectErrors = new ArrayList<String>();
-      List<Subject> importedSubjectWrappers = parseCsvImportFile(
-          importCsvFile, fileName, subjectErrors);
-
-      GuiUtils.removeOverlappingSubjects(existingMembers, importedSubjectWrappers);
-      
-      int addedCount = 0;
-      List<String> addErrors = new ArrayList<String>();
-      
-      //first lets add some members
-      for (int i=0;i<importedSubjectWrappers.size();i++) {
-        
-        ImportSubjectWrapper importedSubjectWrapper = (ImportSubjectWrapper)importedSubjectWrappers.get(i);
-        try {
-          group.addMember(importedSubjectWrapper, false);
-          addedCount++;
-        } catch (Exception e) {
-          String error = "Error adding subject from " + importedSubjectWrapper.errorLabelForError() + ", " + e.getMessage();
-          LOG.warn(error, e);
-          addErrors.add(error);
-        }
-
-      }
-
-      boolean didntImportDueToSubjects = false;
-      int deletedCount = 0;
-      List<String> deleteErrors = new ArrayList<String>();
-
-      //remove the ones which are already there
-      if (importReplaceMembers) {
-        
-        if (GrouperUtil.length(subjectErrors) == 0) {
-          
-          for (Member existingMember : existingMembers) {
-            
-            try {
-              group.deleteMember(existingMember, false);
-              deletedCount++;
-            } catch (Exception e) {
-              String error = "Error deleting subject " + SubjectHelper.getPretty(existingMember) + e.getMessage();
-              LOG.warn(error, e);
-              deleteErrors.add(error);
-            }
-          }
-        } else {
-          didntImportDueToSubjects = true;
-        }
-        
-        
-      }
-      
-      //this might be a little wasteful, but I think it is a good sanity check
-      int newSize = group.getImmediateMembers().size();
-      
-      StringBuilder result = new StringBuilder();
-      //result.append("File: " + importCsvFile.getName() + ", " + importCsvFile.getFieldName() 
-      //    + ", isFormField: " + importCsvFile.isFormField() + ", inMemory: " 
-      //    + importCsvFile.isInMemory() + "\n\n" + importCsvFile.getString() + "\n\n");
-      //result.append("importReplaceMembers: " + importReplaceMembers + "\n\n");
-      
-      //first of all, was it successful?
-      int errorSize = GrouperUtil.length(subjectErrors) + GrouperUtil.length(addErrors) 
-        + GrouperUtil.length(deleteErrors);
-      boolean hasError = errorSize > 0;
-      if (!hasError) {
-        
-        result.append("<b>").append(GuiUtils.message("simpleMembershipUpdate.importSuccessSummary")).append("</b><br /><br />\n");
-        
-      } else {
-        
-        result.append("<b>").append(GuiUtils.message("simpleMembershipUpdate.importErrorSummary", 
-            false, false, Integer.toString(errorSize))).append("</b><br /><br />\n");
-        
-      }
-      
-      //give general summary
-      result.append(GuiUtils.message("simpleMembershipUpdate.importSizeSummary", false, false, 
-          Integer.toString(existingCount), Integer.toString(newSize))).append("<br />\n");
-
-      if (didntImportDueToSubjects) {
-        result.append(GuiUtils.message("simpleMembershipUpdate.importErrorSubjectProblems", false, false, 
-            Integer.toString(existingCount), Integer.toString(newSize))).append("<br />\n");
-      }
-      
-      //adds, deletes
-      result.append(GuiUtils.message("simpleMembershipUpdate.importAddsDeletesSummary", false, 
-          false, Integer.toString(addedCount), Integer.toString(deletedCount))).append("<br />\n");
-      
-      if (GrouperUtil.length(subjectErrors) > 0) {
-        result.append("<br /><b>").append(GuiUtils.message("simpleMembershipUpdate.importSubjectErrorsLabel"))
-            .append("</b><br />\n");
-        for (String error: subjectErrors) {
-          result.append(error).append("<br />\n");
-        }
-      }
-      
-      if (GrouperUtil.length(addErrors) > 0) {
-        result.append("<br /><b>").append(GuiUtils.message("simpleMembershipUpdate.importAddErrorsLabel"))
-            .append("</b><br />\n");
-        for (String error: addErrors) {
-          result.append(error).append("<br />\n");
-        }
-      }
-
-      if (GrouperUtil.length(deleteErrors) > 0) {
-        result.append("<br /><b>").append(GuiUtils.message("simpleMembershipUpdate.importRemoveErrorsLabel"))
-          .append("</b><br />\n");
-        for (String error: deleteErrors) {
-          result.append(error).append("<br />\n");
-        }
-      }
-      
-      guiResponseJs.addAction(GuiScreenAction.newAlert(result.toString(), false));
-  
-    } catch (ControllerDone cd) {
-      throw cd;
-    } catch (Exception se) {
-      throw new RuntimeException("Error importing members to group: " + groupName 
-          + ", " + se.getMessage(), se);
-    } finally {
-      GrouperSession.stopQuietly(grouperSession); 
-    }
-    
-    //refresh list... since it probably changed
-    retrieveMembers(httpServletRequest, httpServletResponse);
-    
-  }
-
-  /**
-   * @param importCsvFile
-   * @param fileName
-   * @param subjectErrors pass in a list and errors will be put in here
-   * @return the list, never null
-   */
-  @SuppressWarnings("unchecked")
-  private List<Subject> parseCsvImportFile(FileItem importCsvFile, String fileName, List<String> subjectErrors) {
-    
-    //convert from CSV to 
-    CSVReader reader = null;
-    
-    //note, the first row is the title
-    List<String[]> csvEntries = null;
-
-    try {
-      reader = new CSVReader(new InputStreamReader(importCsvFile.getInputStream()));
-      csvEntries = reader.readAll();
-    } catch (IOException ioe) {
-      throw new RuntimeException("Error processing file: " + fileName, ioe);
-    }
-    
-    List<Subject> uploadedSubjects = new ArrayList<Subject>();
-    
-    //lets get the headers
-    int sourceIdColumn = -1;
-    int subjectIdColumn = -1;
-    int subjectIdentifierColumn = -1;
-    int subjectIdOrIdentifierColumn = -1;
-    
-    //must have lines
-    if (GrouperUtil.length(csvEntries) <= 1) {
-      throw new RuntimeException(GuiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile"));
-    }
-    
-    //lets go through the headers
-    String[] headers = csvEntries.get(0);
-    int headerSize = headers.length;
-    for (int i=0;i<headerSize;i++) {
-      if ("sourceId".equalsIgnoreCase(headers[i])) {
-        sourceIdColumn = i;
-      }
-      if ("subjectId".equalsIgnoreCase(headers[i])) {
-        subjectIdColumn = i;
-      }
-      if ("subjectIdentifier".equalsIgnoreCase(headers[i])) {
-        subjectIdentifierColumn = i;
-      }
-      if ("subjectIdOrIdentifier".equalsIgnoreCase(headers[i])) {
-        subjectIdOrIdentifierColumn = i;
-      }
-    }
-    
-    //must pass in an id
-    if (subjectIdColumn == -1 && subjectIdentifierColumn == -1 && subjectIdOrIdentifierColumn == -1) {
-      throw new RuntimeException(GuiUtils.message("simpleMembershipUpdate.importErrorNoIdCol"));
-    }
-    
-    //ok, lets go through the rows, start after the headers
-    for (int i=1;i<csvEntries.size();i++) {
-      String[] csvEntry = csvEntries.get(i);
-      int row = i+1;
-      
-      //try catch each one and see where we get
-      try {
-        String sourceId = null;
-        String subjectId = null;
-        String subjectIdentifier = null;
-        String subjectIdOrIdentifier = null;
-
-        sourceId = sourceIdColumn == -1 ? null : csvEntry[sourceIdColumn]; 
-        subjectId = subjectIdColumn == -1 ? null : csvEntry[subjectIdColumn]; 
-        subjectIdentifier = subjectIdentifierColumn == -1 ? null : csvEntry[subjectIdentifierColumn]; 
-        subjectIdOrIdentifier = subjectIdOrIdentifierColumn == -1 ? null : csvEntry[subjectIdOrIdentifierColumn]; 
-        
-        ImportSubjectWrapper importSubjectWrapper = 
-          new ImportSubjectWrapper(row, sourceId, subjectId, subjectIdentifier, subjectIdOrIdentifier, csvEntry);
-        uploadedSubjects.add(importSubjectWrapper);
-        
-      } catch (Exception e) {
-        LOG.info(e);
-        subjectErrors.add("Error on " + ImportSubjectWrapper.errorLabelForRowStatic(row, csvEntry) + ": " +    e.getMessage());
-      }
-    
-    }
-    
-    return uploadedSubjects;
-    
-    
-    
-  }
-
-  /**
-   * make the structure of the advanced menu
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void memberMenuStructure(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    
-    GuiUtils.printToScreen(
-        "<?xml version=\"1.0\"?>\n"
-        + "<menu>\n"
-        + "  <item id=\"memberDetails\" text=\"" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.memberMenuDetailsLabel"), true) 
-        + "\"><tooltip>" 
-        + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.memberMenuDetailsTooltip"), true) + "</tooltip></item>\n"
-        + "</menu>", "text/xml", false, false);
-    throw new ControllerDone();
-  }
-
-  /**
-   * show subject details
-   */
-  @SuppressWarnings("unchecked")
-  public void memberMenuSubjectDetails() {
-    
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-
-    //lets see which subject we are dealing with:
-    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
-    String menuIdOfMenuTarget = httpServletRequest.getParameter("menuIdOfMenuTarget");
-    if (StringUtils.isBlank(menuIdOfMenuTarget)) {
-      throw new RuntimeException("Missing id of menu target");
-    }
-    if (!menuIdOfMenuTarget.startsWith("memberMenuButton_")) {
-      throw new RuntimeException("Invalid id of menu target: '" + menuIdOfMenuTarget + "'");
-    }
-    String memberId = GrouperUtil.prefixOrSuffix(menuIdOfMenuTarget, "memberMenuButton_", false);
-    
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
-    
-    GrouperSession grouperSession = null;
-    
-    try {
-  
-      grouperSession = GrouperSession.start(loggedInSubject);
-
-      Member member = MemberFinder.findByUuid(grouperSession, memberId);
-      Subject subject = member.getSubject();
-      String order = null;
-      
-      try {
-        order = TagUtils.mediaResourceString( 
-            "subject.attributes.order." + subject.getSource().getId());
-      } catch (MissingResourceException mre) {
-        //thats ok, go with default
-      }
-      
-      if (StringUtils.isBlank(order)) {
-        Set<String> attributeNames = new LinkedHashSet<String>();
-        attributeNames.add("screenLabel");
-        attributeNames.addAll(subject.getAttributes().keySet());
-        
-        //lets add subjectId, typeName, sourceId, sourceName, memberId
-        attributeNames.add("subjectId");
-        attributeNames.add("name");
-        attributeNames.add("description");
-        attributeNames.add("typeName");
-        attributeNames.add("sourceId");
-        attributeNames.add("sourceName");
-        
-        order = GrouperUtil.join(attributeNames.iterator(), ',');
-      }
-
-      String[] attrNames = GrouperUtil.splitTrim(order, ",");
-      
-      SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = SimpleMembershipUpdateContainer.retrieveFromSession();
-      simpleMembershipUpdateContainer.setSubjectForDetails(subject);
-      simpleMembershipUpdateContainer.getSubjectDetails().clear();
-
-      //lookup each attribute
-      for (String attrName: attrNames) {
-        
-        //sometimes group have blank attributes???
-        if (StringUtils.isBlank(attrName)) {
-          continue;
-        }
-        String attributeValue = GuiSubject.attributeValue(subject, attrName);
-        simpleMembershipUpdateContainer.getSubjectDetails().put(attrName, attributeValue);
-      }
-      guiResponseJs.addAction(GuiScreenAction.newAlertFromJsp(
-        "/WEB-INF/grouperUi/templates/simpleMembershipUpdate/simpleMembershipUpdateSubjectDetails.jsp"));
-
-    } catch (ControllerDone cd) {
-      throw cd;
-    } catch (Exception se) {
-      throw new RuntimeException("Error listing member details: " + menuIdOfMenuTarget 
-          + ", " + se.getMessage(), se);
-    } finally {
-      GrouperSession.stopQuietly(grouperSession); 
-    }
-
-  }
-  
-  /**
-   * handle a click or select from the member menu
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
   @SuppressWarnings("unused")
-  public void memberMenu(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-    String menuItemId = httpServletRequest.getParameter("menuItemId");
-    String menuHtmlId = httpServletRequest.getParameter("menuHtmlId");
-    //String menuRadioGroup = httpServletRequest.getParameter("menuRadioGroup");
-    //String menuCheckboxChecked  = httpServletRequest.getParameter("menuCheckboxChecked");
-
-    menuHtmlId = httpServletRequest.getParameter("menuIdOfMenuTarget");
-    if (StringUtils.equals(menuItemId, "memberDetails")) {
-//        guiResponseJs.addAction(GuiScreenAction.newAlert("Menu action: menuItemId: " + menuItemId
-//            + ", menuHtmlId: " + menuHtmlId));
-      this.memberMenuSubjectDetails();
-    } else {
-      throw new RuntimeException("Unexpected menu id: '" + menuItemId + "'");
-    }
-    
-  }
-
-  /**
-   * when text is typed into the combobox, this activates the list
-   * @param httpServletRequest
-   * @param httpServletResponse
-   */
-  public void filterMembers(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
-
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
-    
-    GrouperSession grouperSession = null;
-  
-    String searchTerm = httpServletRequest.getParameter("mask");
-    Group group = null;
-    try {
-      grouperSession = GrouperSession.start(loggedInSubject);
-      
-      group = retrieveGroup(grouperSession);
-      
-      Set<Subject> subjects = null;
-      
-      StringBuilder xmlBuilder = new StringBuilder(GuiUtils.DHTMLX_OPTIONS_START);
-      boolean notEnoughChars = false;
-      //minimum input length
-      if (StringUtils.defaultString(searchTerm).length() < 3) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", GuiUtils.message("simpleMembershipUpdate.errorNotEnoughFilterChars"), null);
-        notEnoughChars = true;
-      } else {
-        GuiPaging guiPaging = new GuiPaging();
-        guiPaging.setPageNumber(1);
-        int maxSubjectsDropDown = TagUtils.mediaResourceInt("simpleMembershipUpdate.subjectComboboxResultSize", 50);
-        guiPaging.setPageSize(maxSubjectsDropDown);
-        Set<Member> members = retrieveMembersFilter(guiPaging, group, searchTerm);
-        subjects = GuiUtils.convertMembersToSubject(members);
-      }
-      
-      //convert to XML for DHTMLX
-      for (Subject subject : GrouperUtil.nonNull(subjects)) {
-        String value = GuiUtils.convertSubjectToValue(subject);
-  
-        String imageName = GuiUtils.imageFromSubjectSource(subject.getSource().getId());
-        String label = GuiUtils.convertSubjectToLabelConfigured(subject);
-  
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
-      }
-      int maxSubjectsSort = TagUtils.mediaResourceInt("comparator.sort.limit", 200);
-      
-      //this might not be correct, but probably is
-      if (!notEnoughChars && GrouperUtil.length(subjects) == maxSubjectsSort) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, null, GuiUtils.message("simpleMembershipUpdate.errorUserSearchTooManyResults", false), 
-            "bullet_error.png");
-      } else if (!notEnoughChars && GrouperUtil.length(subjects) == 0) {
-        GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", GuiUtils.message("simpleMembershipUpdate.errorUserSearchNoResults", false), "bullet_error.png");
-      }
-  
-      xmlBuilder.append(GuiUtils.DHTMLX_OPTIONS_END);
-      
-      GuiUtils.printToScreen(xmlBuilder.toString(), "text/xml", false, false);
-  
-    } catch (Exception se) {
-      throw new RuntimeException("Error searching for members: '" + searchTerm + "', " + se.getMessage(), se);
-    } finally {
-      GrouperSession.stopQuietly(grouperSession); 
-    }
-  
-    //dont print the regular JSON
-    throw new ControllerDone();
-  
-  }
-
-  /**
-   * @param guiPaging
-   * @param group
-   * @param filterString filter by this string (could be sourceId__subjectId
-   * @return the set of members
-   * @throws SchemaException
-   */
-  @SuppressWarnings("unchecked")
-  private Set<Member> retrieveMembersFilter(GuiPaging guiPaging, Group group, String filterString)
-      throws SchemaException {
-    Set<Member> members = new LinkedHashSet<Member>();
-    
-    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-    
-    SimpleMembershipUpdateContainer simpleMembershipUpdateContainer = 
-      SimpleMembershipUpdateContainer.retrieveFromSession();
-    
-    //lets do the subject search
-    if (StringUtils.defaultString(filterString).length() < TagUtils.mediaResourceInt("simpleMembershipUpdate.filterComboMinChars", 3)) {
-      guiResponseJs.addAction(GuiScreenAction.newAlert(
-          GuiUtils.message("simpleMembershipUpdate.errorNotEnoughFilterCharsAlert")));
-      return members;
-    } 
-    
-    Set<Subject> subjects = null;
-    boolean filterByOneSubject = false;
-    
-    //lets see if there is a subject in there
-    try {
-      Subject subject = GuiUtils.findSubject(filterString);
-      if (subject != null) {
-        //if there was a subject selected...
-        filterByOneSubject = true;
-        subjects = GrouperUtil.toSet(subject);
-        //show filter string on screen
-        simpleMembershipUpdateContainer.setMemberFilterForScreen(GuiUtils.convertSubjectToLabelConfigured(subject));
-      }
-    } catch (Exception e) {
-      //just ignore
-    }
-
-    if (!filterByOneSubject) {
-      //show filter string on screen
-      simpleMembershipUpdateContainer.setMemberFilterForScreen(filterString);
-
-      subjects = SubjectFinder.findAll(filterString);
-      if (GrouperUtil.length(subjects) > TagUtils.mediaResourceInt("simpleMembershipUpdate.filterMaxSearchSubjects", 1000)) {
-        simpleMembershipUpdateContainer.setMemberFilterForScreen(filterString);
-        guiResponseJs.addAction(GuiScreenAction.newAlert(
-            GuiUtils.message("simpleMembershipUpdate.errorMemberFilterTooManyResults")));
-        return members;
-      }
-      
-    }    
-      
-    //lets convert these subjects to members
-    final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
-
-    GrouperSession grouperSession = null;
-
-    String groupName = null;
-
-    try {
-
-      grouperSession = GrouperSession.start(loggedInSubject);
-
-      groupName = group.getName();
-      
-      members = GuiUtils.convertSubjectsToMembers(grouperSession, group, subjects, true);
-    
-    } catch (Exception se) {
-      throw new RuntimeException("Error searching for members: '" + filterString 
-          + "', " + groupName + ", " + se.getMessage(), se);
-    } finally {
-      GrouperSession.stopQuietly(grouperSession); 
-    } 
-      
-    int maxSubjectsSort = TagUtils.mediaResourceInt("comparator.sort.limit", 200);
-
-    QueryPaging queryPaging = new QueryPaging(maxSubjectsSort, 1, true);
-    
-    int totalSize = members.size();
-    
-    int pageSize = guiPaging.getPageSize();
-    
-    guiPaging.setTotalRecordCount(totalSize);
-    guiPaging.setPageSize(pageSize);
-    
-    //if there are less than the sort limit, then just get all, no problem
-    queryPaging = new QueryPaging();
-    queryPaging.setPageSize(pageSize);
-    queryPaging.setPageNumber(guiPaging.getPageNumber());
-    
-    if (totalSize <= maxSubjectsSort) {
-      members = GuiUtils.membersSortedPaged(members, queryPaging);
-    } else {
-  
-      members = new LinkedHashSet<Member>(GrouperUtil.batchList(members, pageSize, guiPaging.getPageNumber()-1));
-    }       
-    
-    return members;
-  }
+  private static final Log LOG = LogFactory.getLog(SimpleMembershipUpdate.class);
   
 }

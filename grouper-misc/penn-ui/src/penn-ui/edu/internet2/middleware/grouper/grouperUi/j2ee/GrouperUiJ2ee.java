@@ -17,15 +17,25 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.grouperUi.beans.ContextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
-import edu.internet2.middleware.grouper.grouperUi.util.SessionInitialiser;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.grouperUi.exceptions.ControllerDone;
+import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
+import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -116,6 +126,45 @@ public class GrouperUiJ2ee implements Filter {
     } catch (Exception e) {
       //this is probably a system error...  not a user error
       throw new RuntimeException("Cant find subject from login id: " + userIdLoggedIn, e);
+    }
+    
+    //see if member of login group
+    String groupToRequire = TagUtils.mediaResourceString("require.group.for.logins");
+    if (!StringUtils.isBlank(groupToRequire)) {
+
+      //get a session, close it if you started it
+      boolean startedSession = false;
+      GrouperSession grouperSession = null;
+      try {
+        grouperSession = GrouperSession.staticGrouperSession(false);
+        if (grouperSession == null) {
+          grouperSession = GrouperSession.startRootSession();
+          startedSession = true;
+        }
+        if (!PrivilegeHelper.isWheelOrRoot(grouperSession.getSubject())) {
+          grouperSession = grouperSession.internal_getRootSession();
+        }
+        Group group = GroupFinder.findByName(grouperSession, groupToRequire);
+        if (!group.hasMember(subjectLoggedIn)) {
+          String error = "User not in ui group: " + groupToRequire;
+          LOG.error(error);
+          GuiUtils.appendErrorToRequest(error);
+          GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+          guiResponseJs.addAction(GuiScreenAction.newAlert(
+              GuiUtils.message("simpleMembershipUpdate.notAllowedInUi")));
+          throw new ControllerDone();
+          
+        }
+        
+      } catch (ControllerDone cd) {
+        throw cd;
+      } catch (Exception e) {
+        throw new RuntimeException("Problem with user: " + userIdLoggedIn + ", " + groupToRequire, e);
+      } finally {
+        if (startedSession) {
+          GrouperSession.stopQuietly(grouperSession);
+        }
+      }
     }
     
     sessionContainer.setSubjectLoggedIn(subjectLoggedIn);
@@ -222,9 +271,14 @@ public class GrouperUiJ2ee implements Filter {
 
     try {
 
-
       filterChain.doFilter(httpServletRequest, response);
+      
+    } catch (RuntimeException re) {
+      GuiUtils.appendErrorToRequest(ExceptionUtils.getFullStackTrace(re));
+      LOG.error(re);
+      throw re;
     } finally {
+      sendErrorEmailIfNeeded();
       threadLocalRequest.remove();
       threadLocalResponse.remove();
       threadLocalRequestStartMillis.remove();
@@ -237,9 +291,55 @@ public class GrouperUiJ2ee implements Filter {
 
   /**
    * filter method
+   * @param arg0 
+   * @throws ServletException 
    */
   public void init(FilterConfig arg0) throws ServletException {
     // not needed
   }
+  
+  /**
+   * send error email if needed
+   */
+  public void sendErrorEmailIfNeeded() {
+    try {
+      HttpServletRequest httpServletRequest = retrieveHttpServletRequest();
+
+      String error = (String)httpServletRequest.getAttribute("error");
+      if (!StringUtils.isBlank(error)) {
+        
+        String errorMailAddresses = TagUtils.mediaResourceString("errorMailAddresses");
+
+        if (!StringUtils.isBlank(errorMailAddresses)) {
+          
+          String loggedInSubjectString = "dont know";
+          try {
+            Subject loggedInSubject = retrieveSubjectLoggedIn();
+            if (loggedInSubject == null) {
+              loggedInSubjectString = "none";
+            } else {
+              loggedInSubjectString = loggedInSubject.getSource().getId() + " - " + loggedInSubject.getId();
+            }
+          } catch (RuntimeException re) {
+            LOG.error(re);
+          }
+          
+          String requestParams = GuiUtils.requestParams();
+          error = "Server name: " + GrouperUtil.hostname() + "\n" 
+            + "IP Address: " + httpServletRequest.getRemoteAddr() + "\n"
+            + "User: " + loggedInSubjectString + "\n"
+            + "URL: " + httpServletRequest.getRequestURL() + "\n"
+            + "Request params: " + requestParams + "\n"
+            + "\n\nError: " + error; 
+          
+          new GrouperEmail().setTo(errorMailAddresses).setSubject("grouperUi error").setBody(error).send();
+        }
+      }
+      
+    } catch (Exception e) {
+      LOG.error("Error sending email", e);
+    }
+  }
+
 
 }

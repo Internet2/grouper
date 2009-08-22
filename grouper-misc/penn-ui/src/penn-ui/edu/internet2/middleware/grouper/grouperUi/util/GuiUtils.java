@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiUtils.java,v 1.11 2009-08-19 14:32:52 mchyzer Exp $
+ * $Id: GuiUtils.java,v 1.12 2009-08-22 21:21:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
@@ -72,41 +72,53 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 public class GuiUtils {
 
   /**
-   * clone a collection, shallow, do not clone all objects inside
-   * @param <T> 
-   * @param object
-   * @return the cloned collection
+   * get request params (e.g. for logging), in one string, abbreviated
+   * @return request params
    */
   @SuppressWarnings("unchecked")
-  public static <T> T cloneShallow(T object) {
-    if (object == null) {
-      return null;
+  public static String requestParams() {
+    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+    StringBuilder requestParams = new StringBuilder();
+    Map parameterMap = GrouperUtil.nonNull(httpServletRequest.getParameterMap());
+    for (Object nameObject : parameterMap.keySet()) {
+      String name = (String)nameObject;
+      Object object = parameterMap.get(name);
+      requestParams.append(name).append(" : ");
+      if (object == null) {
+        requestParams.append("null");
+      } else if (object instanceof String[]) {
+        String[] values = (String[])object;
+        for (int i=0;i<50;i++) {
+          if (i >= values.length) {
+            break;
+          }
+          requestParams.append(StringUtils.abbreviate(values[i], 50)).append(", ");
+        }
+        if (values.length > 50) {
+          requestParams.append("[more than 50 params...]");
+        }
+      }
+      requestParams.append("; ");
     }
-    if (object instanceof ArrayList) {
-      return (T)((ArrayList)object).clone();
-    }
-    if (object instanceof LinkedList) {
-      return (T)((LinkedList)object).clone();
-    }
-    if (object instanceof HashSet) {
-      return (T)((HashSet)object).clone();
-    }
-    if (object instanceof LinkedHashSet) {
-      return (T)((LinkedHashSet)object).clone();
-    }
-    if (object instanceof HashMap) {
-      return (T)((HashMap)object).clone();
-    }
-    if (object instanceof LinkedHashMap) {
-      return (T)((LinkedHashMap)object).clone();
-    }
-    if (object instanceof TreeMap) {
-      return (T)((TreeMap)object).clone();
-    }
-    //cant clone
-    throw new RuntimeException("Unsupported object type: " + GrouperUtil.className(object));
+    return requestParams.toString();
   }
 
+  
+  /**
+   * append an error to the request, will be logged and maybe emailed to admins
+   * @param error
+   */
+  public static void appendErrorToRequest(String error) {
+    HttpServletRequest httpServletRequest = GrouperUiJ2ee.retrieveHttpServletRequest();
+    String existingError = (String)httpServletRequest.getAttribute("error");
+    String newError = error;
+    if (!StringUtils.isBlank(existingError)) {
+      newError = existingError + "\n\n" + error;
+    }
+    httpServletRequest.setAttribute("error", newError);
+
+  }
+  
   /**
    * find subjects which are members of a group, and return those members.  Do this in few queries
    * since we might run out of bind variables
@@ -1215,6 +1227,43 @@ public class GuiUtils {
     }
     return GrouperUtil.replace(input, HTML_REPLACE_NO_SINGLE, HTML_SEARCH_NO_SINGLE);
     
+  }
+
+
+  /**
+   * clone a collection, shallow, do not clone all objects inside
+   * @param <T> 
+   * @param object
+   * @return the cloned collection
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> T cloneShallow(T object) {
+    if (object == null) {
+      return null;
+    }
+    if (object instanceof ArrayList) {
+      return (T)((ArrayList)object).clone();
+    }
+    if (object instanceof LinkedList) {
+      return (T)((LinkedList)object).clone();
+    }
+    if (object instanceof HashSet) {
+      return (T)((HashSet)object).clone();
+    }
+    if (object instanceof LinkedHashSet) {
+      return (T)((LinkedHashSet)object).clone();
+    }
+    if (object instanceof HashMap) {
+      return (T)((HashMap)object).clone();
+    }
+    if (object instanceof LinkedHashMap) {
+      return (T)((LinkedHashMap)object).clone();
+    }
+    if (object instanceof TreeMap) {
+      return (T)((TreeMap)object).clone();
+    }
+    //cant clone
+    throw new RuntimeException("Unsupported object type: " + GrouperUtil.className(object));
   }
 
 }

@@ -2,6 +2,6 @@
 
 <div class="simpleMembershipDownload">
   <grouperGui:message key="simpleMembershipUpdate.downloadAllLabel" /> <br /><br />
-  <a href="../app/SimpleMembershipUpdate.exportAllCsv/${simpleMembershipUpdateContainer.guiGroup.exportAllFileName}"
+  <a href="../app/SimpleMembershipUpdateImportExport.exportAllCsv/${simpleMembershipUpdateContainer.guiGroup.exportAllFileName}"
     >${fn:escapeXml(simpleMembershipUpdateContainer.guiGroup.group.displayName)}</a>
 </div>

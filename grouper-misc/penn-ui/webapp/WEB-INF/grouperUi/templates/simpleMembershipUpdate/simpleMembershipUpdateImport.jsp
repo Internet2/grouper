@@ -42,7 +42,7 @@
               <button class="simplemodal-close blueButton"><grouperGui:message key="simpleMembershipUpdate.importCancelButton" /></button> 
               &nbsp;
               <button class="blueButton" 
-                onclick="return guiSubmitFileForm(event, '#simpleMembershipUploadForm', '../app/SimpleMembershipUpdate.importCsv')"
+                onclick="return guiSubmitFileForm(event, '#simpleMembershipUploadForm', '../app/SimpleMembershipUpdateImportExport.importCsv')"
                 style="margin-top: 2px" ><grouperGui:message key="simpleMembershipUpdate.importButton" /></button>
             </td>
           </tr>

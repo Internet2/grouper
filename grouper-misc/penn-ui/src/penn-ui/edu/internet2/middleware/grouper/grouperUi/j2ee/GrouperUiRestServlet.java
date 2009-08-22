@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.3 2009-08-18 13:08:36 mchyzer Exp $
+ * @author mchyzer $Id: GrouperUiRestServlet.java,v 1.4 2009-08-22 21:21:47 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.j2ee;
 
@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -25,6 +26,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSettings;
 import edu.internet2.middleware.grouper.grouperUi.exceptions.ControllerDone;
+import edu.internet2.middleware.grouper.grouperUi.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -56,17 +58,29 @@ public class GrouperUiRestServlet extends HttpServlet {
 
   /** uris that it is ok to get (e.g. auto complete and other ajax components */
   private static Set<String> operationsOkGet = GrouperUtil.toSet(
-      "SimpleMembershipUpdate.filterUsers", "SimpleMembershipUpdate.filterGroups",
-      "SimpleMembershipUpdate.advancedMenuStructure", "SimpleMembershipUpdate.exportSubjectIdsCsv",
-      "SimpleMembershipUpdate.exportAllCsv", "SimpleMembershipUpdate.memberMenuStructure",
-      "SimpleMembershipUpdate.filterMembers");
-  
+      "SimpleMembershipUpdateFilter.filterUsers", "SimpleMembershipUpdateFilter.filterGroups",
+      "SimpleMembershipUpdateMenu.advancedMenuStructure", "SimpleMembershipUpdateImportExport.exportSubjectIdsCsv",
+      "SimpleMembershipUpdateImportExport.exportAllCsv", "SimpleMembershipUpdateMenu.memberMenuStructure",
+      "SimpleMembershipUpdateFilter.filterMembers");
+
   /**
    * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
    */
   @SuppressWarnings({ "unchecked" })
   @Override
-  protected void service(HttpServletRequest request, HttpServletResponse response)
+  protected void doPost(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    
+    this.doGet(request, response);
+    
+  }
+
+  /**
+   * @see javax.servlet.http.HttpServlet#service(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+   */
+  @SuppressWarnings({ "unchecked" })
+  @Override
+  protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
 
     GrouperUiJ2ee.assignHttpServlet(this);
@@ -87,15 +101,20 @@ public class GrouperUiRestServlet extends HttpServlet {
     
     appState.initRequest();
     
-    initGui();
+    try {
+      initGui();
+    } catch (ControllerDone cd) {
+      guiResponseJs.printToScreen();
+      return;
+    }
     
     boolean printToScreen = true;
 
     //this is just the filename of the export, for the browser to save correctly if right click
     if (GrouperUtil.length(urlStrings) == 3
         && StringUtils.equals("app", urlStrings.get(0))
-        && (StringUtils.equals("SimpleMembershipUpdate.exportSubjectIdsCsv", urlStrings.get(1))
-            || StringUtils.equals("SimpleMembershipUpdate.exportAllCsv", urlStrings.get(1)))) {
+        && (StringUtils.equals("SimpleMembershipUpdateImportExport.exportSubjectIdsCsv", urlStrings.get(1))
+            || StringUtils.equals("SimpleMembershipUpdateImportExport.exportAllCsv", urlStrings.get(1)))) {
       //strip off the filename
       urlStrings = GrouperUtil.toList(urlStrings.get(0), urlStrings.get(1));
     }
@@ -134,11 +153,23 @@ public class GrouperUiRestServlet extends HttpServlet {
 
         
 
+      } catch (NoSessionException nse) {
+
+        boolean addTextArea = guiResponseJs.isAddTextAreaTag();
+        
+        //print out error message for user, a new one
+        guiResponseJs = new GuiResponseJs();
+        guiResponseJs.addAction(GuiScreenAction.newCloseModal());
+        guiResponseJs.setAddTextAreaTag(addTextArea);
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.startOver")));
+
       } catch (ControllerDone cd) {
         printToScreen = cd.isPrintGuiReponseJs();
         //do nothing, this is ok
       } catch (RuntimeException re) {
-        LOG.error("Problem calling reflection from URL: " + className + "." + methodName, re);
+        String error = "Problem calling reflection from URL: " + className + "." + methodName + "\n\n" + ExceptionUtils.getFullStackTrace(re);
+        LOG.error(error);
+        GuiUtils.appendErrorToRequest(error);
         
         //if adding text area for form file submits, make sure to do that in errors too
         boolean addTextArea = guiResponseJs.isAddTextAreaTag();
@@ -157,28 +188,12 @@ public class GrouperUiRestServlet extends HttpServlet {
         + GrouperUtil.toStringForLog(urlStrings);
       guiResponseJs.addAction(GuiScreenAction.newAlert("Error: " + error));
       LOG.error(error);
+      GuiUtils.appendErrorToRequest(error);
     }
     
     if (printToScreen) {
-      StringBuilder result = new StringBuilder();
-
-      // if this is an ajax file submit, we need to add textarea around response
-      // since it is submitted to a hidden frame
-      if (guiResponseJs.isAddTextAreaTag()) {
-        result.append("<textarea>");
-      }
-      //take the object to print (bean) and print it
-      jsonObject = net.sf.json.JSONObject.fromObject( guiResponseJs );  
-      String json = jsonObject.toString();
-      result.append(json);
-      if (guiResponseJs.isAddTextAreaTag()) {
-        result.append("</textarea>");
-      }
-      
-      GuiUtils.printToScreen(result.toString(), 
-          guiResponseJs.isAddTextAreaTag() ? "text/html" : "application/json", false, false);
+      guiResponseJs.printToScreen();
     }
-    
   }
 
   /**

@@ -17,6 +17,14 @@
     <then><copy file="build.example.properties" tofile="build.properties" /></then>
   </if> 
   
+  <if><not><available file="conf/resources/custom/media.properties" /></not>
+    <then><copy file="conf/resources/custom/media.example.properties" tofile="conf/resources/custom/media.properties" /></then>
+  </if> 
+  <if><not><available file="conf/resources/custom/nav.properties" /></not>
+    <then><copy file="conf/resources/custom/nav.example.properties" tofile="conf/resources/custom/nav.properties" /></then>
+  </if> 
+
+  
   <property file="build.properties" />
   <property file="${basedir}/misc/version.properties"/>
 
@@ -189,8 +197,8 @@
     </copy>
     <mkdir dir="build/war/WEB-INF/classes"/>
     <copy todir="build/war/WEB-INF/classes">
-      <fileset dir="${grouper.home}/conf" includes="*" />
-      <fileset dir="conf" includes="*" />
+      <fileset dir="${grouper.home}/conf" includes="**" />
+      <fileset dir="conf" includes="**" />
     </copy>
     
     <jar destfile="dist/${webapp.name}.war" basedir="build/war"/>

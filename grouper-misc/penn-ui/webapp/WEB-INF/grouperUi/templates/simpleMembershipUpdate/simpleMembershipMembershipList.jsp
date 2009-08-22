@@ -1,5 +1,5 @@
 <%@ include file="../common/commonTaglib.jsp" %>
-<!-- Start: $Id: simpleMembershipMembershipList.jsp,v 1.10 2009-08-19 06:29:58 mchyzer Exp $ -->
+<!-- Start: $Id: simpleMembershipMembershipList.jsp,v 1.11 2009-08-22 21:21:47 mchyzer Exp $ -->
 <%-- this is the section of the screen which shows a box and the member list inside --%>
 <div class="section">
   <grouperGui:subtitle key="simpleMembershipUpdate.membershipListSubtitle"/>
@@ -17,13 +17,13 @@
       <tr valign="top">
         <td style="padding: 0px" width="710">
           <%-- show the combobox --%>
-          <grouperGui:combobox filterOperation="SimpleMembershipUpdate.filterMembers" id="simpleMembershipFilterMember" 
+          <grouperGui:combobox filterOperation="SimpleMembershipUpdateFilter.filterMembers" id="simpleMembershipFilterMember" 
             width="700"/>
         </td>
         <td>
           <%-- add member button --%>
           <input class="blueButton" type="submit" 
-          onclick="ajax('../app/SimpleMembershipUpdate.retrieveMembersFilterButton', {formIds: 'simpleMembershipMemberFilterForm'}); return false;" 
+          onclick="ajax('../app/SimpleMembershipUpdateFilter.retrieveMembersFilterButton', {formIds: 'simpleMembershipMemberFilterForm'}); return false;" 
           value="${grouperGui:message('simpleMembershipUpdate.filterMemberButton', true, false) }" style="margin-top: 2px" />
         </td>
       </tr>
@@ -40,7 +40,7 @@
       
             <td class="formTableRight" style="white-space: nowrap;"><c:out value="${simpleMembershipUpdateContainer.memberFilterForScreen}" />
               &nbsp; &nbsp; <span class="simpleMembershipUpdateFilterClear"
-              ><a href="#" class="smallLink" onclick="ajax('SimpleMembershipUpdate.clearMemberFilter'); return false;"
+              ><a href="#" class="smallLink" onclick="ajax('SimpleMembershipUpdateFilter.clearMemberFilter'); return false;"
                 ><grouperGui:message key="simpleMembershipUpdate.clearFilterButton" /></a></span>
             </td>
           </tr>
@@ -99,7 +99,7 @@
     <%-- member menu div, and attach to buttons --%>
     <grouperGui:menu menuId="memberMenu"
       operation="SimpleMembershipUpdate.memberMenu" 
-      structureOperation="SimpleMembershipUpdate.memberMenuStructure" 
+      structureOperation="SimpleMembershipUpdateMenu.memberMenuStructure" 
       contextZoneJqueryHandle=".memberMenuButton" contextMenu="true" />
   </form>
   <%-- if showing delete multiple, then show buttons for delete selected, and delete all --%>
@@ -125,4 +125,4 @@
 <br />
 </div>
 </div>
-<!-- End: $Id: simpleMembershipMembershipList.jsp,v 1.10 2009-08-19 06:29:58 mchyzer Exp $ -->
+<!-- End: $Id: simpleMembershipMembershipList.jsp,v 1.11 2009-08-22 21:21:47 mchyzer Exp $ -->

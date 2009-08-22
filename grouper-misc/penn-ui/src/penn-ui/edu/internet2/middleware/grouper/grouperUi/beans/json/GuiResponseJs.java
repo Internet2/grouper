@@ -11,7 +11,10 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.sf.json.JSONObject;
+
 import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
+import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 
 /**
  * container object for the response back to screen
@@ -20,6 +23,30 @@ import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
  */
 public class GuiResponseJs implements Serializable {
 
+  /**
+   * print this object to screen
+   */
+  public void printToScreen() {
+    StringBuilder result = new StringBuilder();
+
+    // if this is an ajax file submit, we need to add textarea around response
+    // since it is submitted to a hidden frame
+    if (this.isAddTextAreaTag()) {
+      result.append("<textarea>");
+    }
+    //take the object to print (bean) and print it
+    JSONObject jsonObject = net.sf.json.JSONObject.fromObject( this );  
+    String json = jsonObject.toString();
+    result.append(json);
+    if (this.isAddTextAreaTag()) {
+      result.append("</textarea>");
+    }
+    
+    GuiUtils.printToScreen(result.toString(), 
+        this.isAddTextAreaTag() ? "text/html" : "application/json", false, false);
+
+  }
+  
   /** if this is an ajax file submit, we need to add textarea around response
    * since it is submitted to a hidden frame
    */

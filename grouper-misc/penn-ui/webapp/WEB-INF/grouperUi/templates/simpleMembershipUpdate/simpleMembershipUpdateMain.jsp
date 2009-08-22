@@ -69,8 +69,8 @@
 
 <%-- register the menu, and attach it to the advanced button --%>
 <grouperGui:menu menuId="advancedMenu"
-operation="SimpleMembershipUpdate.advancedMenu" 
-structureOperation="SimpleMembershipUpdate.advancedMenuStructure" 
+operation="SimpleMembershipUpdateMenu.advancedMenu" 
+structureOperation="SimpleMembershipUpdateMenu.advancedMenuStructure" 
 contextZoneJqueryHandle="#advancedLink" contextMenu="true" />
 
 </div>
@@ -92,7 +92,7 @@ contextZoneJqueryHandle="#advancedLink" contextMenu="true" />
       <tr valign="top">
         <td style="padding: 0px" width="710">
           <%-- show the combobox --%>
-          <grouperGui:combobox filterOperation="SimpleMembershipUpdate.filterUsers" id="simpleMembershipUpdateAddMember" 
+          <grouperGui:combobox filterOperation="SimpleMembershipUpdateFilter.filterUsers" id="simpleMembershipUpdateAddMember" 
             width="700"/>
         </td>
         <td>
