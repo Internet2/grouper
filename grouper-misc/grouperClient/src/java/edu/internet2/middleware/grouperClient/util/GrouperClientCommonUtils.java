@@ -7294,7 +7294,8 @@ public class GrouperClientCommonUtils  {
     try {
       CodeSource codeSource = sampleClass.getProtectionDomain().getCodeSource();
       if (codeSource != null && codeSource.getLocation() != null) {
-        return new File(codeSource.getLocation().getFile());
+        String fileName = URLDecoder.decode(codeSource.getLocation().getFile(), "UTF-8");
+        return new File(fileName);
       }
       String resourcePath = sampleClass.getName();
       resourcePath = resourcePath.replace('.', '/') + ".class";
@@ -7308,7 +7309,13 @@ public class GrouperClientCommonUtils  {
         urlPath = urlPath.substring(5);
       }
       urlPath = prefixOrSuffix(urlPath, "!", true); 
-  
+      
+      System.out.println("urlPathBefore: " + urlPath);
+      
+      urlPath = URLDecoder.decode(urlPath, "UTF-8");
+
+      System.out.println("urlPathAfter: " + urlPath);
+      
       File file = new File(urlPath);
       if (urlPath.endsWith(".jar") && file.exists() && file.isFile()) {
         return file;
