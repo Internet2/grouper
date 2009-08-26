@@ -929,10 +929,15 @@ public class GrouperUtil {
     if (url == null) {
       return null;
     }
-
-    File configFile = new File(url.getFile());
-
-    return configFile;
+    try {
+      String fileName = URLDecoder.decode(url.getFile(), "UTF-8");
+  
+      File configFile = new File(fileName);
+  
+      return configFile;
+    } catch (UnsupportedEncodingException uee) {
+      throw new RuntimeException(uee);
+    }
   }
   
 
