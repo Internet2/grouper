@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ import java.util.StringTokenizer;
 /**
  * ExceptionUtils from commons, and some other useful classes, used for websec in oracle
  * and other external plugin type java programs
- * @version $Id: MorphStringUtils.java,v 1.3 2008-12-02 05:14:11 mchyzer Exp $
+ * @version $Id: MorphStringUtils.java,v 1.4 2009-08-26 05:06:36 mchyzer Exp $
  * @author mchyzer
  */
 public class MorphStringUtils {
@@ -1951,7 +1952,16 @@ public class MorphStringUtils {
       log.append(", URL from FileUtils.url() is: " + url);
     }
 
-    File configFile = new File(url.getFile());
+    String fileName = null;
+    File configFile = null;
+    try {
+      fileName = URLDecoder.decode(url.getFile(), "UTF-8");
+  
+      configFile = new File(fileName);
+  
+    } catch (UnsupportedEncodingException uee) {
+      throw new RuntimeException(uee);
+    }
 
     if (configFile == null) {
       if (isInfo) {
