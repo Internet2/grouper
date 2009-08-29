@@ -32,7 +32,7 @@ import edu.internet2.middleware.subject.Subject;
  * Facade for the {@link NamingAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: NamingResolver.java,v 1.10 2009-08-11 20:34:18 mchyzer Exp $
+ * @version $Id: NamingResolver.java,v 1.11 2009-08-29 15:57:59 shilen Exp $
  * @since   1.2.1
  */
 public interface NamingResolver {
@@ -178,5 +178,10 @@ public interface NamingResolver {
   public Set<Stem> postHqlFilterStems(
       Set<Stem> stems, Subject subject, Set<Privilege> privInSet);
 
+  /**
+   * Revoke all naming privileges that this subject has.
+   * @param subject
+   */
+  public void revokeAllPrivilegesForSubject(Subject subject);
 }
 

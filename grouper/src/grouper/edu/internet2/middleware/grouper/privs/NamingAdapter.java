@@ -37,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
  * wrapped by methods in the {@link Stem} class.
  * </p>
  * @author  blair christensen.
- * @version $Id: NamingAdapter.java,v 1.6 2009-04-13 16:53:07 mchyzer Exp $
+ * @version $Id: NamingAdapter.java,v 1.7 2009-08-29 15:57:59 shilen Exp $
  */
 public interface NamingAdapter {
 
@@ -249,5 +249,11 @@ public interface NamingAdapter {
   public Set<Stem> postHqlFilterStems(GrouperSession grouperSession, 
       Set<Stem> stems, Subject subject, Set<Privilege> privInSet);
 
+  /**
+   * Revoke all naming privileges that this subject has.
+   * @param grouperSession
+   * @param subject
+   */
+  public void revokeAllPrivilegesForSubject(GrouperSession grouperSession, Subject subject);
 }
 

@@ -1,6 +1,6 @@
 /**
  * @author shilen
- * $Id: GroupSetDAO.java,v 1.2 2009-08-12 12:44:45 shilen Exp $
+ * $Id: GroupSetDAO.java,v 1.3 2009-08-29 15:57:59 shilen Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -8,6 +8,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.group.GroupSet;
 
@@ -46,6 +47,12 @@ public interface GroupSetDAO extends GrouperDAO {
    * @param groupSet
    */
   public void update(GroupSet groupSet);
+  
+  /**
+   * update a set of group set objects
+   * @param groupSets
+   */
+  public void update(Set<GroupSet> groupSets);
   
   /**
    * delete a group set object
@@ -144,4 +151,11 @@ public interface GroupSetDAO extends GrouperDAO {
    */
   public GroupSet findImmediateByOwnerStemAndMemberGroupAndField(String ownerStemId,
       String memberGroupId, Field field);
+  
+  /**
+   * Returns all GroupSets with the given creator.
+   * @param member
+   * @return set
+   */
+  public Set<GroupSet> findAllByCreator(Member member);
 }

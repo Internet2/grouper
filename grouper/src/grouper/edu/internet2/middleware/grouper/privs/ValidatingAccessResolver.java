@@ -31,7 +31,7 @@ import  edu.internet2.middleware.subject.Subject;
  * Decorator that provides parameter validation for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: ValidatingAccessResolver.java,v 1.11 2009-08-11 20:34:18 mchyzer Exp $
+ * @version $Id: ValidatingAccessResolver.java,v 1.12 2009-08-29 15:57:59 shilen Exp $
  * @since   1.2.1
  */
 public class ValidatingAccessResolver extends AccessResolverDecorator {
@@ -222,6 +222,14 @@ public class ValidatingAccessResolver extends AccessResolverDecorator {
     //System.out.println(decoratedResolver.getClass().getName());
     //CachingAccessResolver
     return decoratedResolver.postHqlFilterMemberships(subject, memberships);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#revokeAllPrivilegesForSubject(edu.internet2.middleware.subject.Subject)
+   */
+  public void revokeAllPrivilegesForSubject(Subject subject) {
+    this.param.notNullSubject(subject);
+    super.getDecoratedResolver().revokeAllPrivilegesForSubject(subject);
   }
 
 }

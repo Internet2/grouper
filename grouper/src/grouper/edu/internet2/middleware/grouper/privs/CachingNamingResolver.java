@@ -35,7 +35,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides caching for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingNamingResolver.java,v 1.10 2009-08-11 20:34:18 mchyzer Exp $
+ * @version $Id: CachingNamingResolver.java,v 1.11 2009-08-29 15:57:59 shilen Exp $
  * @since   1.2.1
  */
 public class CachingNamingResolver extends NamingResolverDecorator {
@@ -245,6 +245,15 @@ public class CachingNamingResolver extends NamingResolverDecorator {
     if (this.cc != null) {
       this.cc.stop();
     }
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#revokeAllPrivilegesForSubject(edu.internet2.middleware.subject.Subject)
+   */
+  public void revokeAllPrivilegesForSubject(Subject subject) {
+    super.getDecoratedResolver().revokeAllPrivilegesForSubject(subject);
+    this.cc.flushCache();
   }
 }
 

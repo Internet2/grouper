@@ -52,7 +52,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * Reference to members list is: Group.getDefaultList()
  * <p/>
  * @author  blair christensen.
- * @version $Id: Field.java,v 1.45 2009-06-11 04:17:40 mchyzer Exp $    
+ * @version $Id: Field.java,v 1.46 2009-08-29 15:57:59 shilen Exp $    
  */
 public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -467,6 +467,25 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
     
+    // add group sets
+    if (this.isGroupListField()) {
+      Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().findAllByType(this.getGroupType());
+      Iterator<Group> iter = groups.iterator();
+      
+      while (iter.hasNext()) {
+        Group group = iter.next();
+        GroupSet groupSet = new GroupSet();
+        groupSet.setId(GrouperUuid.getUuid());
+        groupSet.setCreatorId(GrouperSession.staticGrouperSession().getMemberUuid());
+        groupSet.setDepth(0);
+        groupSet.setMemberGroupId(group.getUuid());
+        groupSet.setOwnerGroupId(group.getUuid());
+        groupSet.setParentId(groupSet.getId());
+        groupSet.setFieldId(this.getUuid());
+        GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);   
+      }
+    }
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.FIELD, 
         FieldHooks.METHOD_FIELD_POST_INSERT, HooksFieldBean.class, 
         this, Field.class, VetoTypeGrouper.FIELD_POST_INSERT, true, false);
@@ -536,27 +555,7 @@ public class Field extends GrouperAPI implements GrouperHasContext, Hib3GrouperV
   @Override
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
-    
-    // add group sets
-    if (this.isGroupListField()) {
-      Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().findAllByType(this.getGroupType());
-      Iterator<Group> iter = groups.iterator();
-      
-      while (iter.hasNext()) {
-        Group group = iter.next();
-        GroupSet groupSet = new GroupSet();
-        groupSet.setId(GrouperUuid.getUuid());
-        groupSet.setCreatorId(GrouperSession.staticGrouperSession().getMemberUuid());
-        groupSet.setDepth(0);
-        groupSet.setMemberGroupId(group.getUuid());
-        groupSet.setOwnerGroupId(group.getUuid());
-        groupSet.setParentId(groupSet.getId());
-        groupSet.setFieldId(this.getUuid());
-        GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);   
-      }
-    }
-
-    
+        
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.FIELD, 
         FieldHooks.METHOD_FIELD_PRE_INSERT, HooksFieldBean.class, 
         this, Field.class, VetoTypeGrouper.FIELD_PRE_INSERT, false, false);
