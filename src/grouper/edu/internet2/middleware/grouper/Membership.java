@@ -90,7 +90,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.127 2009-08-18 23:11:38 shilen Exp $
+ * @version $Id: Membership.java,v 1.128 2009-08-29 15:57:59 shilen Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -1799,11 +1799,13 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       // get the immediate group set (depth = 1)
       GroupSet immediateGroupSet = null;
       if (this.getOwnerGroupId() != null) {
+        Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), true, null);
         immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet()
-          .findImmediateByOwnerGroupAndMemberGroupAndField(this.getOwnerGroupId(), member.toGroup().getUuid(), this.getField());
+          .findImmediateByOwnerGroupAndMemberGroupAndField(this.getOwnerGroupId(), memberGroup.getUuid(), this.getField());
       } else {
+        Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), true, null);
         immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet()
-          .findImmediateByOwnerStemAndMemberGroupAndField(this.getOwnerStemId(), member.toGroup().getUuid(), this.getField());
+          .findImmediateByOwnerStemAndMemberGroupAndField(this.getOwnerStemId(), memberGroup.getUuid(), this.getField());
       }
       
       // delete it..  it may not exist if it was previously disabled.
@@ -1819,8 +1821,9 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       membersList.add(member.getUuid());
       
       if (member.getSubjectTypeId().equals("group")) {
+        Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(member.getSubjectId(), true, null);
         Iterator<Member> memberIter = GrouperDAOFactory.getFactory().getMembership().findAllMembersByGroupOwnerAndField( 
-            member.toGroup().getUuid(), Group.getDefaultList(), null, true).iterator();
+            memberGroup.getUuid(), Group.getDefaultList(), null, true).iterator();
         while (memberIter.hasNext()) {
           membersList.add(memberIter.next().getUuid());
         }
@@ -1849,12 +1852,14 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
     
     // if the member is a group, add the immediate group set.
     if (this.getMember().getSubjectTypeId().equals("group")) {
+      Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getMember().getSubjectId(), true, null);
+
       GroupSet immediateGroupSet = new GroupSet();
       immediateGroupSet.setId(GrouperUuid.getUuid());
       immediateGroupSet.setCreatorId(GrouperSession.staticGrouperSession().getMemberUuid());
       immediateGroupSet.setDepth(1);
       immediateGroupSet.setFieldId(this.getFieldId());
-      immediateGroupSet.setMemberGroupId(this.getMember().toGroup().getUuid());
+      immediateGroupSet.setMemberGroupId(memberGroup.getUuid());
       immediateGroupSet.setType(Membership.EFFECTIVE);
 
       GroupSet parent = null;
@@ -1878,8 +1883,10 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       membersList.add(this.getMember().getUuid());
       
       if (this.getMember().getSubjectTypeId().equals("group")) {
+        Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getMember().getSubjectId(), true, null);
+
         Iterator<Member> memberIter = GrouperDAOFactory.getFactory().getMembership().findAllMembersByGroupOwnerAndField( 
-            this.getMember().toGroup().getUuid(), Group.getDefaultList(), null, true).iterator();
+            memberGroup.getUuid(), Group.getDefaultList(), null, true).iterator();
         while (memberIter.hasNext()) {
           membersList.add(memberIter.next().getUuid());
         }

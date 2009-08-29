@@ -41,7 +41,7 @@ import edu.internet2.middleware.subject.Subject;
  * BaseAccessAdapter
  * 
  * @author  blair christensen.
- * @version $Id: AccessAdapter.java,v 1.5 2009-04-13 16:53:07 mchyzer Exp $
+ * @version $Id: AccessAdapter.java,v 1.6 2009-08-29 15:57:59 shilen Exp $
  */
 public interface AccessAdapter {
 
@@ -265,5 +265,13 @@ public interface AccessAdapter {
    */
   public Set<Membership> postHqlFilterMemberships(GrouperSession grouperSession, 
       Subject subject, Set<Membership> memberships);
+  
+
+  /**
+   * Revoke all access privileges that this subject has.
+   * @param grouperSession
+   * @param subject
+   */
+  public void revokeAllPrivilegesForSubject(GrouperSession grouperSession, Subject subject);
 }
 

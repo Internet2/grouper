@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: TestMemberChangeSubject.java,v 1.2 2009-03-31 06:58:29 mchyzer Exp $
+ * $Id: TestMemberChangeSubject.java,v 1.3 2009-08-29 15:57:59 shilen Exp $
  */
 package edu.internet2.middleware.grouper.member;
 
@@ -68,9 +68,8 @@ public class TestMemberChangeSubject extends GrouperTest {
   }
 
   /**
-   * grouper sesion 
+   * grouper session 
    */
-  @SuppressWarnings("unused")
   private GrouperSession grouperSession;
 
   /** root grouper sesion */

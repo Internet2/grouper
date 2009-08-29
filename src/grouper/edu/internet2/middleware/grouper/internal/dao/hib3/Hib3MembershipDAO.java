@@ -50,7 +50,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.41 2009-08-18 23:11:38 shilen Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.42 2009-08-29 15:57:59 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -94,7 +94,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     }
     
     StringBuilder sql = new StringBuilder("select distinct m from MembershipEntry as m where " +
-        " (m.creatorUuid = :uuid or m.memberUuid = :uuid or m.groupSetCreatorId = :uuid) ");
+        " (m.creatorUuid = :uuid or m.memberUuid = :uuid or m.groupSetCreatorUuid = :uuid) ");
     if (enabledOnly) {
       sql.append(" and m.enabledDb = 'T'");
     }
@@ -1319,6 +1319,16 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     Iterator<Membership> iter = mships.iterator();
     while (iter.hasNext()) {
       delete(iter.next());
+    }
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#update(java.util.Set)
+   */
+  public void update(Set<Membership> mships) {
+    Iterator<Membership> iter = mships.iterator();
+    while (iter.hasNext()) {
+      update(iter.next());
     }
   }
 

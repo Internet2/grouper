@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 /** 
  * Basic <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: MembershipDAO.java,v 1.26 2009-08-18 23:11:38 shilen Exp $
+ * @version $Id: MembershipDAO.java,v 1.27 2009-08-29 15:57:59 shilen Exp $
  * @since   1.2.0
  */
 public interface MembershipDAO extends GrouperDAO {
@@ -468,6 +468,12 @@ TODO update for 1.5
    * @param ms
    */
   public void update(Membership ms);
+  
+  /**
+   * Update a set of memberships
+   * @param mships
+   */
+  public void update(Set<Membership> mships);
   
   /**
    * Delete a set of memberships

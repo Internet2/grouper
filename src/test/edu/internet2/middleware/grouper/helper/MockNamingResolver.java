@@ -32,7 +32,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Mock {@link NamingResolver}.
  * @author  blair christensen.
- * @version $Id: MockNamingResolver.java,v 1.4 2009-08-11 20:34:18 mchyzer Exp $
+ * @version $Id: MockNamingResolver.java,v 1.5 2009-08-29 15:57:59 shilen Exp $
  * @since   1.2.1
  */
 public class MockNamingResolver implements NamingResolver {
@@ -192,6 +192,13 @@ public class MockNamingResolver implements NamingResolver {
    */
   public Set<Stem> postHqlFilterStems(Set<Stem> groups, Subject subject,
       Set<Privilege> privInSet) {
+    throw E;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#revokeAllPrivilegesForSubject(edu.internet2.middleware.subject.Subject)
+   */
+  public void revokeAllPrivilegesForSubject(Subject subject) {
     throw E;
   }            
 }

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperNonDbNamingAdapter.java,v 1.5 2009-08-18 23:11:38 shilen Exp $
+ * $Id: GrouperNonDbNamingAdapter.java,v 1.6 2009-08-29 15:57:59 shilen Exp $
  */
 package edu.internet2.middleware.grouper.privs;
 
@@ -14,6 +14,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -415,6 +416,30 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );
     }
   } // public void revokePriv(s, ns, subj, priv)
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingAdapter#revokeAllPrivilegesForSubject(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject)
+   */
+  public void revokeAllPrivilegesForSubject(GrouperSession grouperSession, Subject subject) {
+    GrouperSession.validate(grouperSession);
+    
+    // right now this method only gets executed as the root subject.
+    // so we're not doing any privilege checking just to save on performance.
+    if (!SubjectHelper.eq(SubjectFinder.findRootSubject(), grouperSession.getSubject())) {
+      throw new InsufficientPrivilegeException();
+    }
+    
+    Member member = MemberFinder.findBySubject(grouperSession, subject, true);
+    Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMember(member.getUuid(), false);
+    Iterator<Membership> iter = memberships.iterator();
+    while (iter.hasNext()) {
+      Membership mship = iter.next();
+      Field f = FieldFinder.findById(mship.getFieldId(), true);
+      if (FieldType.NAMING.equals(f.getType())) {
+        GrouperDAOFactory.getFactory().getMembership().delete(mship);
+      }
+    }
+  }
 
 
 }

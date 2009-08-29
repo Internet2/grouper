@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -84,7 +85,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * All immediate subjects, and effective members are members.  
  * 
  * @author  blair christensen.
- * @version $Id: Member.java,v 1.127 2009-08-18 23:11:38 shilen Exp $
+ * @version $Id: Member.java,v 1.128 2009-08-29 15:57:59 shilen Exp $
  */
 public class Member extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -472,10 +473,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                 if (report == null) {
                   //see if there are objects to update or delete
                   if (GrouperUtil.length(membershipsToUpdate) > 0) {
-                    hibernateSession.byObject().saveOrUpdate(membershipsToUpdate);
+                    GrouperDAOFactory.getFactory().getMembership().update(membershipsToUpdate);
                   }
                   if (GrouperUtil.length(membershipsToDelete) > 0) {
-                    hibernateSession.byObject().delete(membershipsToDelete);
+                    GrouperDAOFactory.getFactory().getMembership().delete(membershipsToDelete);
                   }
                 }
               }
@@ -527,6 +528,24 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                 }
                 if (report == null) {
                   hibernateSession.byObject().saveOrUpdate(groupTypes);
+                }
+              }
+            }
+            
+            {
+              //grouper_group_set.creator_id
+              Set<GroupSet> groupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByCreator(Member.this);
+              if (GrouperUtil.length(groupSets) > 0) {
+                for (GroupSet gs : groupSets) {
+                  if (report == null) {
+                    gs.setCreatorId(newMemberUuid);
+                  } else {
+                    report.append("CHANGE groupSet: " 
+                        + gs.getId() + ", creator id FROM: " + gs.getCreatorId() + ", TO: " + newMemberUuid + "\n");
+                  }
+                }
+                if (report == null) {
+                  GrouperDAOFactory.getFactory().getGroupSet().update(groupSets);
                 }
               }
             }

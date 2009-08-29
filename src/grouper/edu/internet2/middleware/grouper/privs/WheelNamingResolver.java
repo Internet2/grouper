@@ -42,7 +42,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides <i>Wheel</i> privilege resolution for {@link NamingResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: WheelNamingResolver.java,v 1.18 2009-08-11 20:34:18 mchyzer Exp $
+ * @version $Id: WheelNamingResolver.java,v 1.19 2009-08-29 15:57:59 shilen Exp $
  * @since   1.2.1
  */
 public class WheelNamingResolver extends NamingResolverDecorator {
@@ -311,6 +311,13 @@ public class WheelNamingResolver extends NamingResolverDecorator {
       return (Boolean) el.getObjectValue();
     }
     return null;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.NamingResolver#revokeAllPrivilegesForSubject(edu.internet2.middleware.subject.Subject)
+   */
+  public void revokeAllPrivilegesForSubject(Subject subject) {
+    super.getDecoratedResolver().revokeAllPrivilegesForSubject(subject);
   }
 
 }

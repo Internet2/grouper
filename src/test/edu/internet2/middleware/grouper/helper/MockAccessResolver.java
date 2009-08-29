@@ -33,7 +33,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Mock {@link AccessResolver}.
  * @author  blair christensen.
- * @version $Id: MockAccessResolver.java,v 1.4 2009-08-11 20:34:18 mchyzer Exp $
+ * @version $Id: MockAccessResolver.java,v 1.5 2009-08-29 15:57:59 shilen Exp $
  * @since   1.2.1
  */
 public class MockAccessResolver implements AccessResolver {
@@ -214,6 +214,14 @@ public class MockAccessResolver implements AccessResolver {
    */
   public Set<Group> postHqlFilterGroups(Set<Group> groups, Subject subject,
       Set<Privilege> privInSet) {
+    throw E;
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#revokeAllPrivilegesForSubject(edu.internet2.middleware.subject.Subject)
+   */
+  public void revokeAllPrivilegesForSubject(Subject subject) {
     throw E;
   }
 }

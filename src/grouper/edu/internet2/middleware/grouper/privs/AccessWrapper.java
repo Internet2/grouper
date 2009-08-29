@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
  * Class implementing wrapper around {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessWrapper.java,v 1.16 2009-08-11 20:34:18 mchyzer Exp $
+ * @version $Id: AccessWrapper.java,v 1.17 2009-08-29 15:57:59 shilen Exp $
  * @since   1.2.1
  */
 public class AccessWrapper implements AccessResolver {
@@ -290,6 +290,13 @@ public class AccessWrapper implements AccessResolver {
    * @see edu.internet2.middleware.grouper.privs.AccessResolver#stop()
    */
   public void stop() {
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#revokeAllPrivilegesForSubject(edu.internet2.middleware.subject.Subject)
+   */
+  public void revokeAllPrivilegesForSubject(Subject subject) {
+    this.access.revokeAllPrivilegesForSubject(this.s, subject);
   }
 
 }

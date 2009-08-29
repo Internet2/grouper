@@ -39,7 +39,7 @@ import edu.internet2.middleware.subject.Subject;
  * Decorator that provides caching for {@link AccessResolver}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: CachingAccessResolver.java,v 1.14 2009-08-11 20:34:18 mchyzer Exp $
+ * @version $Id: CachingAccessResolver.java,v 1.15 2009-08-29 15:57:59 shilen Exp $
  * @since   1.2.1
  */
 public class CachingAccessResolver extends AccessResolverDecorator {
@@ -331,6 +331,17 @@ public class CachingAccessResolver extends AccessResolverDecorator {
     if (this.cc != null) {
       this.cc.stop();
     }
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessResolver#revokeAllPrivilegesForSubject(edu.internet2.middleware.subject.Subject)
+   */
+  public void revokeAllPrivilegesForSubject(Subject subject) {
+    super.getDecoratedResolver().revokeAllPrivilegesForSubject(subject);
+    this.cc.flushCache();
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
+    grouperSession.getAccessResolver().flushCache();
   }
 
 

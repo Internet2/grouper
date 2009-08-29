@@ -60,7 +60,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link Group}.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Test_api_Group.java,v 1.9 2009-08-18 23:11:39 shilen Exp $
+ * @version $Id: Test_api_Group.java,v 1.10 2009-08-29 15:57:59 shilen Exp $
  * @since   1.2.1
  */
 public class Test_api_Group extends GrouperTest {
@@ -122,6 +122,49 @@ public class Test_api_Group extends GrouperTest {
 
   public void tearDown() {
     super.tearDown();
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void test_delete_where_group_has_privileges() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+    
+    Stem stem = root.addChildStem("stem", "stem");
+    Group group = stem.addChildGroup("group", "group");
+    
+    Group groupToDelete = stem.addChildGroup("groupToDelete", "groupToDelete");
+    groupToDelete.grantPriv(b, AccessPrivilege.ADMIN);
+    Subject groupToDeleteSubject = groupToDelete.toSubject();
+    
+    stem.grantPriv(a, NamingPrivilege.CREATE);
+    stem.grantPriv(groupToDeleteSubject, NamingPrivilege.CREATE);
+    group.grantPriv(a, AccessPrivilege.UPDATE);
+    group.grantPriv(groupToDeleteSubject, AccessPrivilege.UPDATE);
+    
+    assertTrue(stem.hasCreate(a));
+    assertTrue(stem.hasCreate(groupToDeleteSubject));
+    assertEquals(1, stem.getStemmers().size());
+    assertTrue(group.hasUpdate(a));
+    assertTrue(group.hasUpdate(groupToDeleteSubject));
+    assertEquals(1, group.getAdmins().size());
+    
+    GrouperSession session = GrouperSession.start(b);
+    groupToDelete.delete();
+    session.stop();
+    
+    session = GrouperSession.startRootSession();
+
+    assertTrue(stem.hasCreate(a));
+    assertFalse(stem.hasCreate(groupToDeleteSubject));
+    assertEquals(1, stem.getStemmers().size());
+    assertTrue(group.hasUpdate(a));
+    assertFalse(group.hasUpdate(groupToDeleteSubject));
+    assertEquals(1, group.getAdmins().size());
+    
+    session.stop();
   }
   
   /**

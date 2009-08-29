@@ -65,7 +65,7 @@ import edu.internet2.middleware.subject.Subject;
  * slower and more explicit than the GrouperAccessAdapter (subclass)
  * </p>
  * @author  blair christensen.
- * @version $Id: GrouperNonDbAccessAdapter.java,v 1.5 2009-08-18 23:11:38 shilen Exp $
+ * @version $Id: GrouperNonDbAccessAdapter.java,v 1.6 2009-08-29 15:57:59 shilen Exp $
  */
 public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements AccessAdapter {
 
@@ -457,6 +457,31 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
       throw new RevokePrivilegeAlreadyRevokedException( eMD.getMessage(), eMD );
     } catch (MemberDeleteException eMD) {
       throw new RevokePrivilegeException( eMD.getMessage(), eMD );
+    }
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.privs.AccessAdapter#revokeAllPrivilegesForSubject(edu.internet2.middleware.grouper.GrouperSession, edu.internet2.middleware.subject.Subject)
+   */
+  public void revokeAllPrivilegesForSubject(GrouperSession grouperSession, Subject subject) {
+    GrouperSession.validate(grouperSession);
+    
+    // right now this method only gets executed as the root subject.
+    // so we're not doing any privilege checking just to save on performance.
+    if (!SubjectHelper.eq(SubjectFinder.findRootSubject(), grouperSession.getSubject())) {
+      throw new InsufficientPrivilegeException();
+    }
+    
+    Member member = MemberFinder.findBySubject(grouperSession, subject, true);
+    Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMember(member.getUuid(), false);
+    Iterator<Membership> iter = memberships.iterator();
+    while (iter.hasNext()) {
+      Membership mship = iter.next();
+      Field f = FieldFinder.findById(mship.getFieldId(), true);
+      if (FieldType.ACCESS.equals(f.getType())) {
+        GrouperDAOFactory.getFactory().getMembership().delete(mship);
+      }
     }
   }
 

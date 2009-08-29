@@ -30,7 +30,7 @@ import edu.internet2.middleware.subject.Subject;
  * Facade for the {@link AccessAdapter} interface.
  * <p/>
  * @author  blair christensen.
- * @version $Id: AccessResolver.java,v 1.11 2009-08-11 20:34:18 mchyzer Exp $
+ * @version $Id: AccessResolver.java,v 1.12 2009-08-29 15:57:59 shilen Exp $
  * @since   1.2.1
  */
 public interface AccessResolver {
@@ -206,5 +206,10 @@ public interface AccessResolver {
   public Set<Membership> postHqlFilterMemberships(
       Subject subject, Set<Membership> memberships);
 
+  /**
+   * Revoke all access privileges that this subject has.
+   * @param subject
+   */
+  public void revokeAllPrivilegesForSubject(Subject subject);
 }
 

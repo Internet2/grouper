@@ -9,6 +9,7 @@ import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.exception.GroupSetNotFoundException;
 import edu.internet2.middleware.grouper.group.GroupSet;
@@ -18,7 +19,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /**
  * @author shilen
- * @version $Id: Hib3GroupSetDAO.java,v 1.3 2009-08-18 23:11:38 shilen Exp $
+ * @version $Id: Hib3GroupSetDAO.java,v 1.4 2009-08-29 15:57:59 shilen Exp $
  */
 public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
 
@@ -68,6 +69,16 @@ public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
    */
   public void update(GroupSet groupSet) {
     HibernateSession.byObjectStatic().update(groupSet);
+  }
+  
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#update(java.util.Set)
+   */
+  public void update(Set<GroupSet> groupSets) {
+    Iterator<GroupSet> iter = groupSets.iterator();
+    while (iter.hasNext()) {
+      update(iter.next());
+    }
   }
 
   /**
@@ -336,7 +347,19 @@ return groupSets;
       .uniqueResult(GroupSet.class);
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findAllByCreator(edu.internet2.middleware.grouper.Member)
+   */
+  public Set<GroupSet> findAllByCreator(Member member) {
+    Set<GroupSet> groupSets = HibernateSession
+        .byHqlStatic()
+        .createQuery("select gs from GroupSet as gs where gs.creatorId = :member")
+        .setCacheable(false).setCacheRegion(KLASS + ".FindAllByCreator")
+        .setString("member", member.getUuid())
+        .listSet(GroupSet.class);
 
+    return groupSets;
+  }
 
 }
 

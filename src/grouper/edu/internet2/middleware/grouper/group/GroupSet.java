@@ -32,11 +32,63 @@ import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * @author shilen $Id: GroupSet.java,v 1.3 2009-08-18 23:11:38 shilen Exp $
+ * @author shilen $Id: GroupSet.java,v 1.4 2009-08-29 15:57:59 shilen Exp $
  *
  */
 @SuppressWarnings("serial")
 public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+  
+  /** db id for this row */
+  public static final String COLUMN_ID = "id";
+  
+  /** Context id links together multiple operations into one high level action */
+  public static final String COLUMN_CONTEXT_ID = "context_id";
+
+  /** field represented by this group set */
+  public static final String COLUMN_FIELD_ID = "field_id";
+  
+  /** type of membership represented by this group set, immediate or composite or effective */
+  public static final String COLUMN_MSHIP_TYPE = "mship_type";
+  
+  /** same as member_group_id if depth is greater than 0, otherwise null. */
+  public static final String COLUMN_VIA_GROUP_ID = "via_group_id";
+  
+  /** number of hops in directed graph */
+  public static final String COLUMN_DEPTH = "depth";
+  
+  /** parent group set */
+  public static final String COLUMN_PARENT_ID = "parent_id";
+  
+  /** member uuid of the creator of this record */
+  public static final String COLUMN_CREATOR_ID = "creator_id";
+  
+  /** number of millis since 1970 that this record was created */
+  public static final String COLUMN_CREATE_TIME = "create_time";
+  
+  /** owner group if applicable */
+  public static final String COLUMN_OWNER_GROUP_ID = "owner_group_id";
+  
+  /** same as owner_group_id except nulls are replaced with the string '<NULL>' */
+  public static final String COLUMN_OWNER_GROUP_ID_NULL = "owner_group_id_null";
+  
+  /** owner stem if applicable */
+  public static final String COLUMN_OWNER_STEM_ID = "owner_stem_id";
+  
+  /** same as owner_stem_id except nulls are replaced with the string '<NULL>' */
+  public static final String COLUMN_OWNER_STEM_ID_NULL = "owner_stem_id_null";
+  
+  /** member group if applicable */
+  public static final String COLUMN_MEMBER_GROUP_ID = "member_group_id";
+  
+  /** same as member_group_id except nulls are replaced with the string '<NULL>' */
+  public static final String COLUMN_MEMBER_GROUP_ID_NULL = "member_group_id_null";
+  
+  /** member stem if applicable */
+  public static final String COLUMN_MEMBER_STEM_ID = "member_stem_id";
+  
+  /** same as member_stem_id except nulls are replaced with the string '<NULL>' */
+  public static final String COLUMN_MEMBER_STEM_ID_NULL = "member_stem_id_null";
+  
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -706,6 +758,8 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
 
   
   /**
+   * This is 0 for self memberships (where the owner and member are the same).
+   * Otherwise, it's the number of hops in a directed graph from the member to the group.
    * @return depth
    */
   public int getDepth() {
@@ -945,6 +999,8 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
 
   
   /**
+   * This is 'immediate' for self memberships (owner and member are the same) except if the group is a composite in which case this will be 'composite'.
+   * For non-self memberships, this is 'effective'.
    * @return membership type (immediate, effective, or composite)
    */
   public String getType() {
