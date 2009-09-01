@@ -64,7 +64,7 @@
 </table>
 <div style="margin-bottom: 8px;">
 <%-- advanced button --%>
-<a id="advancedLink" href="#" class="smallLink"
+<a id="advancedLink" href="#" 
 ><grouperGui:message key="simpleMembershipUpdate.advancedButton"/></a>
 
 <%-- register the menu, and attach it to the advanced button --%>

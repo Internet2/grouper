@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: SimpleMembershipUpdateFilter.java,v 1.1 2009-08-22 21:21:47 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateFilter.java,v 1.2 2009-09-01 05:29:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -91,7 +91,7 @@ public class SimpleMembershipUpdateFilter {
       for (Group group : GrouperUtil.nonNull(groups)) {
   
         String value = group.getUuid();
-        String label = group.getDisplayName();
+        String label = GuiUtils.escapeHtml(group.getDisplayName(), true);
         String imageName = GuiUtils.imageFromSubjectSource("g:gsa");
   
         GuiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
@@ -162,7 +162,7 @@ public class SimpleMembershipUpdateFilter {
         String value = GuiUtils.convertSubjectToValue(subject);
   
         String imageName = GuiUtils.imageFromSubjectSource(subject.getSource().getId());
-        String label = GuiUtils.convertSubjectToLabelConfigured(subject);
+        String label = GuiUtils.escapeHtml(GuiUtils.convertSubjectToLabelConfigured(subject), true);
   
         GuiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
       }
@@ -194,14 +194,13 @@ public class SimpleMembershipUpdateFilter {
   }
 
   /**
-   * 
+   * called in the combobox to list the users
    * @param httpServletRequest
    * @param httpServletResponse
    */
   public void filterUsers(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) {
     
     final Subject loggedInSubject = GrouperUiJ2ee.retrieveSubjectLoggedIn();
-    
     
     GrouperSession grouperSession = null;
   
@@ -238,16 +237,16 @@ public class SimpleMembershipUpdateFilter {
         String value = GuiUtils.convertSubjectToValue(subject);
   
         String imageName = GuiUtils.imageFromSubjectSource(subject.getSource().getId());
-        String label = GuiUtils.convertSubjectToLabelConfigured(subject);
+        String label = GuiUtils.escapeHtml(GuiUtils.convertSubjectToLabelConfigured(subject), true);
   
         GuiUtils.dhtmlxOptionAppend(xmlBuilder, value, label, imageName);
       }
   
       //maybe add one more if we hit the limit
-      if (queryPaging != null && subjects.size() < queryPaging.getTotalRecordCount()) {
+      if (queryPaging != null && GrouperUtil.length(subjects) < queryPaging.getTotalRecordCount()) {
         GuiUtils.dhtmlxOptionAppend(xmlBuilder, null, GuiUtils.message("simpleMembershipUpdate.errorUserSearchTooManyResults", false), 
             "bullet_error.png");
-      } else if (subjects.size() == 0) {
+      } else if (GrouperUtil.length(subjects) == 0) {
         GuiUtils.dhtmlxOptionAppend(xmlBuilder, "", GuiUtils.message("simpleMembershipUpdate.errorUserSearchNoResults", false), "bullet_error.png");
       }
   

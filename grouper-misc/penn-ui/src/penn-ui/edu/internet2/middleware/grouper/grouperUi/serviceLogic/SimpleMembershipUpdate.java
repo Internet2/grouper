@@ -1,11 +1,9 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.21 2009-08-22 21:21:47 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.22 2009-09-01 05:29:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import java.util.LinkedHashSet;
-import java.util.MissingResourceException;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,14 +18,12 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundRuntimeException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
-import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.AppState;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiHideShow;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
@@ -42,9 +38,7 @@ import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
@@ -162,7 +156,7 @@ public class SimpleMembershipUpdate {
 
       if ("".equals(id)) {
         //if the id is there, but empty, maybe they didnt enter anything...
-        guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.groupSearchNothingEntered", false)));
+        guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.errorGroupSearchNothingEntered", false)));
         
       } else {
         guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.errorGroupSearchNoParams", false)));
@@ -221,7 +215,7 @@ public class SimpleMembershipUpdate {
     }
 
     
-    if (group.isComposite()) {
+    if (group.hasComposite()) {
       guiResponseJs.addAction(GuiScreenAction.newScript("location.href = 'grouper.html#operation=SimpleMembershipUpdate.index'"));
       guiResponseJs.addAction(GuiScreenAction.newAlert(GuiUtils.message("simpleMembershipUpdate.errorGroupComposite", false)));
       index(request, response);

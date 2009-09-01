@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiUtils.java,v 1.12 2009-08-22 21:21:47 mchyzer Exp $
+ * $Id: GuiUtils.java,v 1.13 2009-09-01 05:29:19 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
@@ -51,6 +51,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.grouperUi.j2ee.GenericServletResponseWrapper;
 import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
@@ -656,15 +657,20 @@ public class GuiUtils {
    * @return the string
    */
   public static String convertSubjectToLabel(Subject subject) {
-    String label = subject.getDescription();
+    String label = null;
+    if ("g:gsa".equals(subject.getSource().getId())) {
+      
+      label = subject.getAttributeValue(GrouperConfig.ATTR_DISPLAY_NAME);
+      if (!StringUtils.isBlank(label)) {
+        return label;
+      }
+      
+    }
+
+    label = subject.getDescription();
     if (StringUtils.isBlank(label)) {
       
-      if ("g:gsa".equals(subject.getSource().getId())) {
-        label = subject.getName();
-      } else {
-      
-        label = subject.getSource().getId() + " - " + subject.getId() + " - " + subject.getName();
-      }
+      label = subject.getSource().getId() + " - " + subject.getId() + " - " + subject.getName();
     }
     return label;
   }
