@@ -1,4 +1,4 @@
-<!-- $Id: build.xml,v 1.220 2009-03-20 19:56:42 mchyzer Exp $ -->
+<!-- $Id: build.xml,v 1.221 2009-09-02 05:57:26 mchyzer Exp $ -->
 
 <project name="Grouper" default="compile" basedir=".">
 
@@ -117,6 +117,8 @@
             debug="true"
             deprecation="${compile.deprecation}"
             optimize="${compile.optimize}"
+            source="1.5"
+            target="1.5"
     >
       <classpath refid="project.classpath" />
 <!--  TODO 20061011 I'll eventually have to deal with this migration
@@ -786,7 +788,8 @@
           depends="init, compile"
   >
     <record name="${test.log}" action="start" append="yes"/>
-    <javac srcdir="${src.dir.test}" destdir="${build.dir.test}" debug="true">
+    <javac srcdir="${src.dir.test}" destdir="${build.dir.test}" debug="true"
+      source="1.5" target="1.5">
       <classpath  refid="test.classpath"/>
       <include name="**/*.java" />
     </javac>

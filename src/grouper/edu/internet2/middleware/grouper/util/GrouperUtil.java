@@ -100,6 +100,24 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperUtil {
 
   /**
+   * turn some strings into a map
+   * @param strings
+   * @return the map (never null)
+   */
+  public static Map<String, String> toMap(String... strings) {
+    Map<String, String> map = new LinkedHashMap<String, String>();
+    if (strings != null) {
+      if (strings.length % 2 != 0) {
+        throw new RuntimeException("Must pass in an odd number of strings: " + strings.length);
+      }
+      for (int i=0;i<strings.length;i+=2) {
+        map.put(strings[i], strings[i+2]);
+      }
+    }
+    return map;
+  }
+  
+  /**
    * convert millis to friendly string
    * @param duration
    * @return the friendly string

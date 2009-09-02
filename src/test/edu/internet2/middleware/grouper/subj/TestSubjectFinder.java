@@ -42,7 +42,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Test {@link SubjectFinder.findByIdentifier()} with {@link GrouperSourceAdapter}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestSubjectFinder.java,v 1.4 2009-04-12 18:16:34 shilen Exp $
+ * @version $Id: TestSubjectFinder.java,v 1.5 2009-09-02 05:57:26 mchyzer Exp $
  */
 public class TestSubjectFinder extends GrouperTest {
 
@@ -443,10 +443,6 @@ public class TestSubjectFinder extends GrouperTest {
         "subj instanceof Subject",
         subj instanceof Subject
       );
-      Assert.assertTrue(
-        "subj instanceof InternalSubject",
-        subj instanceof InternalSubject
-      );
       Assert.assertTrue("subj id", subj.getId().equals(id));
       //Configurable names means we should not assert this any longer
       //Assert.assertTrue("subj name", subj.getName().equals(id));
@@ -472,10 +468,6 @@ public class TestSubjectFinder extends GrouperTest {
       Assert.assertTrue(
         "subj instanceof Subject",
         subj instanceof Subject
-      );
-      Assert.assertTrue(
-        "subj instanceof InternalSubject",
-        subj instanceof InternalSubject
       );
       Assert.assertTrue("subj id", subj.getId().equals(id));
       //Configurable names means we should no longer make assertion
@@ -519,10 +511,6 @@ public class TestSubjectFinder extends GrouperTest {
         "subj instanceof Subject",
         subj instanceof Subject
       );
-      Assert.assertTrue(
-        "subj instanceof InternalSubject",
-        subj instanceof InternalSubject
-      );
       Assert.assertTrue("subj id", subj.getId().equals(id));
       //Configurable names means we should no longer make assertion
       //Assert.assertTrue("subj name", subj.getName().equals(id));
@@ -564,10 +552,6 @@ public class TestSubjectFinder extends GrouperTest {
       Assert.assertTrue(
         "subj instanceof Subject",
         subj instanceof Subject
-      );
-      Assert.assertTrue(
-        "subj instanceof InternalSubject",
-        subj instanceof InternalSubject
       );
       Assert.assertTrue("subj id", subj.getId().equals(id));
       //Configurable names means we should no longer make assertion

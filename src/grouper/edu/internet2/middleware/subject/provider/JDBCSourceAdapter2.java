@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: JDBCSourceAdapter2.java,v 1.3 2009-08-12 04:52:21 mchyzer Exp $
+ * @author mchyzer $Id: JDBCSourceAdapter2.java,v 1.4 2009-09-02 05:57:26 mchyzer Exp $
  */
 package edu.internet2.middleware.subject.provider;
 
@@ -615,7 +615,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
     String name = "";
     String subjectID = "";
     String description = "";
-    JDBCSubject subject = null;
+    SubjectImpl subject = null;
     //lets do this through metadata so caps dont matter
     ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
 
@@ -627,7 +627,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
           query, resultSetMetaData);
     }
     Map attributes = loadAttributes(resultSet, query, resultSetMetaData);
-    subject = new JDBCSubject(subjectID, name, description, this.getSubjectType(), this,
+    subject = new SubjectImpl(subjectID, name, description, this.getSubjectTypeString(), this.getId(),
         attributes);
     return subject;
   }
