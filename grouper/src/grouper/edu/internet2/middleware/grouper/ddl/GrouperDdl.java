@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.62 2009-08-29 15:57:59 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.63 2009-09-02 06:35:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -1946,6 +1946,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_types_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_groups_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_v");
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_lw_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_memberships_all_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_attributes_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_composites_v");
@@ -1955,6 +1956,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_stems_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_rpt_types_v");
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stems_v");
+    
   }
   
   /**
@@ -3039,6 +3041,25 @@ public enum GrouperDdl implements DdlVersionable {
             + "where (ms.owner_stem_id = gs.member_stem_id or ms.owner_group_id = gs.member_group_id) and " 
             + "      f1.id = ms.field_id and f2.id = gs.field_id and "
             + "      ((ms.field_id = gs.field_id and f1.name='members' and f1.type='list') or (ms.field_id = gs.field_id and gs.depth = '0') or (f1.name='members' and f1.type='list' and gs.depth > '0'))");
+
+    GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_lw_v", 
+        "Grouper_memberships_lw_v unique membership records that can be read from a SQL interface outside of grouper.  Immediate and effective memberships are represented here (distinct)",
+        GrouperUtil.toSet("SUBJECT_ID", "SUBJECT_SOURCE", "GROUP_NAME", "LIST_NAME", "LIST_TYPE", "GROUP_ID"),
+        GrouperUtil.toSet("SUBJECT_ID: of the member of the group", 
+            "SUBJECT_SOURCE: of the member of the group", 
+            "GROUP_NAME: system name of the group", 
+            "LIST_NAME: name of the list, e.g. members", 
+            "LIST_TYPE: type of list e.g. access or list", 
+            "GROUP_ID: uuid of the group"),
+            "select distinct gm.SUBJECT_ID, gm.SUBJECT_SOURCE, gg.name as group_name, "
+            + "gfl.NAME as list_name, gfl.TYPE as list_type, gg.ID group_id "
+            + "from grouper_memberships_all_v gms, grouper_members gm, " 
+            + "grouper_groups gg, grouper_fields gfl "
+            + "where gms.OWNER_GROUP_ID = gg.id " 
+            + "and gms.FIELD_ID = gfl.ID "
+            + "and gms.MEMBER_ID = gm.ID");
+
+        
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_memberships_v", 
         "Grouper_memberships_v holds one record for each membership or privilege in the system for members to groups or stems (for privileges).  This is denormalized so there are records for the actual immediate relationships, and the cascaded effective relationships.  This has friendly names.",
         GrouperUtil.toSet("GROUP_NAME", 
@@ -3465,6 +3486,8 @@ public enum GrouperDdl implements DdlVersionable {
 
   /**
    * @param database
+   * @param ddlVersionBean 
+   * @param requireNewMembershipColumns 
    */
   private static void runMembershipAndGroupSetConversion(Database database, DdlVersionBean ddlVersionBean,
       boolean requireNewMembershipColumns) {
@@ -3574,6 +3597,10 @@ public enum GrouperDdl implements DdlVersionable {
     addGroupSetTable(database);
   }
 
+  /**
+   * 
+   * @param database
+   */
   private static void addGroupSetTable(Database database) {
     Table grouperGroupSet = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
         GroupSet.TABLE_GROUPER_GROUP_SET);
@@ -4136,6 +4163,7 @@ public enum GrouperDdl implements DdlVersionable {
    * add privilege management in v2 or when needed
    * @param ddlVersionBean
    * @param database
+   * @param groupsTableNew 
    */
   private static void addPrivilegeManagement(DdlVersionBean ddlVersionBean, 
       Database database, boolean groupsTableNew) {
