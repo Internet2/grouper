@@ -1,6 +1,6 @@
 /*--
-$Id: JNDISourceAdapter.java,v 1.13 2009-08-13 14:56:36 mchyzer Exp $
-$Date: 2009-08-13 14:56:36 $
+$Id: JNDISourceAdapter.java,v 1.14 2009-09-02 05:40:10 mchyzer Exp $
+$Date: 2009-09-02 05:40:10 $
 
 Copyright 2005 Internet2 and Stanford University.  All Rights Reserved.
 See doc/license.txt in this distribution.
@@ -237,7 +237,7 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
     } catch (NamingException ex) {
       log.error("LDAP Naming Except: " + ex.getMessage(), ex);
     }
-    return new BaseSubject(subjectID, name1, description, this.getSubjectType().getName(), this.getId(), null);
+    return new SubjectImpl(subjectID, name1, description, this.getSubjectType().getName(), this.getId(), null);
   }
 
   /**
@@ -316,7 +316,7 @@ public class JNDISourceAdapter extends BaseSourceAdapter {
    * @param subject 
    * @return the map
    */
-  protected Map loadAttributes(BaseSubject subject) {
+  protected Map loadAttributes(SubjectImpl subject) {
     Map<String, Set<String>> attributes1 = new HashMap<String, Set<String>>();
     Search search = getSearch("searchSubject");
     if (search == null) {

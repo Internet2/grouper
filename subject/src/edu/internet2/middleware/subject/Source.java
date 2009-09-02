@@ -1,5 +1,4 @@
 package edu.internet2.middleware.subject;
-import java.io.Serializable;
 import java.util.Set;
 
 
@@ -8,7 +7,7 @@ import java.util.Set;
  * Source to find and get Subjects and their attributes.
  * You should probably extend BaseSourceAdapter instead of implement this interface
  */
-public interface Source extends Serializable {
+public interface Source {
 
 	/**
 	 * Returns the ID of this source.

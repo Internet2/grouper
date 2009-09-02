@@ -11,10 +11,11 @@ import java.util.Set;
  * Note, implementations of this interface shouldnt hold onto sources, since they
  * arent serializable, they should lookup with AllSources
  * 
- * Implementors should probably subclass BaseSubject instead of implement this directly.
+ * Implementors should probably subclass SubjectImpl instead of implement this directly.
  * 
- * Also, implementors should implement equals and hashcode like BaseSubject (based on
- * sourceId and subjectId)
+ * Also, implementors should implement toString, equals and hashcode like Subject (based on
+ * sourceId and subjectId).  There are static methods in subjectImpl which can be used as helper
+ * methods
  * </pre>
  */
 public interface Subject extends Serializable {
@@ -45,35 +46,58 @@ public interface Subject extends Serializable {
 	
 	/**
 	 * Gets this Subject's name.
-	 * @return name
+	 * @return name or null if not there
 	 */
 	public String getName();
 
 	/**
 	 * Gets this Subject's description.
-	 * @return description
+	 * @return description or null if not there
 	 */
 	public String getDescription();
 
 	/**
 	 * Returns the value of a single-valued attribute.
-	 * @param name 
-	 * @return value
+	 * If multivalued, this returns the first value
+	 * @param attributeName 
+	 * @return value or null if not found
 	 */
-	public String getAttributeValue(String name);
+	public String getAttributeValue(String attributeName);
 	
 	/**
-	 * Returns the values of a multi-valued attribute.
-	 * @param name 
-	 * @return set
+	 * Returns the values of a multi-valued attribute, or a set of size one for a single valued attribute.
+	 * Note the returned set should not be changed.
+	 * @param attributeName 
+	 * @return set or empty set if not there
 	 */
-	public java.util.Set<String> getAttributeValues(String name);
+	public java.util.Set<String> getAttributeValues(String attributeName);
+
+  /**
+   * Returns the attribute value if single-valued, or
+   * if multi-valued, throws an exception.  Implementors
+   * can use the static helper in SubjectImpl
+   * @param attributeName
+   * @return value or null if not there
+   */
+  public String getAttributeValueSingleValued(String attributeName);
+
+  /**
+   * <pre>
+   * Returns the attribute value if single-valued, or
+   * if multi-valued, returns the values comma separated (with a space too).
+   * So if the values are: a b c; this would return the string: "a, b, c"
+   * Implementors can use the static helper in SubjectImpl
+   * </pre>
+   * @param attributeName
+   * @return value or values or null if not there
+   */
+  public String getAttributeValueOrCommaSeparated(String attributeName);
 
 	/**
 	 * Gets a map attribute names and values. The map's key
 	 * contains the attribute name and the map's value
-	 * contains a Set of attribute value(s).
-	 * @return map
+	 * contains a Set of attribute value(s).  The returned Map can be augmented or changed
+	 * @return map or empty map if not there
 	 */
 	public java.util.Map<String, Set<String>> getAttributes();
 
@@ -82,11 +106,5 @@ public interface Subject extends Serializable {
 	 * @return source
 	 */
 	public Source getSource();
-
-//  /**
-//   * Returns the Source ID of this Subject (hopefully without having to go to the source object).
-//   * @return source
-//   */
-//  public Source getSourceId();
 
 }
