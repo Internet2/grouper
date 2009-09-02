@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.63 2009-09-02 06:35:07 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.64 2009-09-02 13:06:00 shilen Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -3645,7 +3645,7 @@ public enum GrouperDdl implements DdlVersionable {
         Types.VARCHAR, "128", false, false);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "parent_id",
-        Types.VARCHAR, "128", false, true);
+        Types.VARCHAR, "128", false, false);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperGroupSet, "creator_id",
         Types.VARCHAR, "128", false, true);
