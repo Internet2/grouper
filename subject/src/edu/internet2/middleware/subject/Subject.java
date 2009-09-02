@@ -68,7 +68,7 @@ public interface Subject extends Serializable {
 	 * Returns the values of a multi-valued attribute, or a set of size one for a single valued attribute.
 	 * Note the returned set should not be changed.
 	 * @param attributeName 
-	 * @return set or empty set if not there
+	 * @return set or empty set or null if not there
 	 */
 	public java.util.Set<String> getAttributeValues(String attributeName);
 
@@ -97,7 +97,7 @@ public interface Subject extends Serializable {
 	 * Gets a map attribute names and values. The map's key
 	 * contains the attribute name and the map's value
 	 * contains a Set of attribute value(s).  The returned Map can be augmented or changed
-	 * @return map or empty map if not there
+	 * @return map or empty map or null if not there
 	 */
 	public java.util.Map<String, Set<String>> getAttributes();
 
