@@ -16,13 +16,16 @@
 */
 
 package edu.internet2.middleware.grouper.subj;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
+import edu.internet2.middleware.subject.provider.SubjectImpl;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 /**
@@ -35,7 +38,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * <li><i>GrouperSystem</i></li>
  * </ul>
  * @author  blair christensen.
- * @version $Id: InternalSourceAdapter.java,v 1.5 2009-08-12 04:52:21 mchyzer Exp $
+ * @version $Id: InternalSourceAdapter.java,v 1.6 2009-09-02 05:57:26 mchyzer Exp $
  */
 public class InternalSourceAdapter extends BaseSourceAdapter {
 
@@ -201,7 +204,7 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
     	))
     		 {
       if (this.all == null) {
-        this.all = new InternalSubject(GrouperConfig.ALL, allName, this);
+        this.all = this.createSubject(GrouperConfig.ALL, allName);
       }
       return this.all;
     }
@@ -210,7 +213,7 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
     		)
 	))	 {
       if (this.root == null) {
-        this.root = new InternalSubject(GrouperConfig.ROOT, rootName, this);
+        this.root = this.createSubject(GrouperConfig.ROOT, rootName);
       }
       return this.root;
     }
@@ -236,6 +239,20 @@ public class InternalSourceAdapter extends BaseSourceAdapter {
 	  return name;
   }
 
+  /**
+   * create a subject
+   * @param id
+   * @param name
+   * @return the subject
+   */
+  private Subject createSubject(String id, String name) {
+    Subject subject = new SubjectImpl(id, name, name, 
+        SubjectTypeEnum.APPLICATION.getName(), this.getId(), 
+        new HashMap<String, Set<String>>());
+    subject.getAttributes().put("name", GrouperUtil.toSet(allName));
+    return subject;
+  }
+  
   /**
    * @see edu.internet2.middleware.subject.Source#checkConfig()
    */

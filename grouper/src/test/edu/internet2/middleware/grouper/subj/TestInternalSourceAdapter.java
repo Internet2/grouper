@@ -21,14 +21,13 @@ import java.util.Set;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
-import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
-import edu.internet2.middleware.grouper.subj.InternalSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -40,10 +39,18 @@ import edu.internet2.middleware.subject.SubjectType;
  * Test {@link InternalSourceAdapter} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestInternalSourceAdapter.java,v 1.3 2009-08-12 04:52:21 mchyzer Exp $
+ * @version $Id: TestInternalSourceAdapter.java,v 1.4 2009-09-02 05:57:26 mchyzer Exp $
  */
 public class TestInternalSourceAdapter extends TestCase {
 
+  /**
+   * 
+   * @param args
+   */
+  public static void main(String[] args) {
+    TestRunner.run(new TestInternalSourceAdapter("testGrouperAllAttributes"));
+  }
+  
   // Private Class Constants
   private static final  String  ID    = InternalSourceAdapter.ID;
   private static final  Log     LOG   = GrouperUtil.getLog(TestInternalSourceAdapter.class);
@@ -139,10 +146,6 @@ public class TestInternalSourceAdapter extends TestCase {
         "subj instanceof Subject",
         subj instanceof Subject
       );
-      Assert.assertTrue(
-        "subj instanceof InternalSubject",
-        subj instanceof InternalSubject
-      );
       Assert.assertTrue("subj id", subj.getId().equals(id));
       
       //Remove assertion so that name can be configured
@@ -170,10 +173,6 @@ public class TestInternalSourceAdapter extends TestCase {
       Assert.assertTrue(
         "subj instanceof Subject",
         subj instanceof Subject
-      );
-      Assert.assertTrue(
-        "subj instanceof InternalSubject",
-        subj instanceof InternalSubject
       );
       Assert.assertTrue("subj id", subj.getId().equals(id));
       
@@ -210,10 +209,6 @@ public class TestInternalSourceAdapter extends TestCase {
         "subj instanceof Subject",
         subj instanceof Subject
       );
-      Assert.assertTrue(
-        "subj instanceof InternalSubject",
-        subj instanceof InternalSubject
-      );
       Assert.assertTrue("subj id", subj.getId().equals(id));
       
       //Remove assertion so that name can be configured
@@ -241,10 +236,6 @@ public class TestInternalSourceAdapter extends TestCase {
       Assert.assertTrue(
         "subj instanceof Subject",
         subj instanceof Subject
-      );
-      Assert.assertTrue(
-        "subj instanceof InternalSubject",
-        subj instanceof InternalSubject
       );
       Assert.assertTrue("subj id", subj.getId().equals(id));
       
@@ -279,10 +270,10 @@ public class TestInternalSourceAdapter extends TestCase {
       Assert.assertTrue("zero attrs", attrs.size() == 1);
       String  val   = subj.getAttributeValue("foo");
       Assert.assertTrue(
-        "no attr (" + val + ")", val.equals("")
+        "no attr (" + val + ")", val == null
       );
       Set     vals  = subj.getAttributeValues("foo");
-      Assert.assertTrue("zero values", vals.size() == 0);
+      Assert.assertTrue("zero values", GrouperUtil.length(vals) == 0);
       Assert.assertTrue(
         "desc == name", subj.getDescription().equals(subj.getName())
       );

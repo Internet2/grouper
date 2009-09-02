@@ -16,16 +16,9 @@
 */
 
 package edu.internet2.middleware.grouper;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -35,18 +28,18 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
-import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectType;
-import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
+import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 /** 
  * A {@link Subject} local to the Groups Registry.
  * <p/>
  * <p><b>NOTE: THIS CLASS IS NOT CONSIDERED STABLE AND MAY CHANGE IN FUTURE RELEASES.</b></p>
  * @author  blair christensen.
- * @version $Id: RegistrySubject.java,v 1.18 2009-03-22 05:41:01 mchyzer Exp $
+ * @version $Id: RegistrySubject.java,v 1.19 2009-09-02 05:57:26 mchyzer Exp $
  * @since   1.2.0
  */
+@SuppressWarnings("serial")
 public class RegistrySubject extends GrouperAPI implements Subject {
 
   /**
@@ -57,7 +50,10 @@ public class RegistrySubject extends GrouperAPI implements Subject {
     throw new RuntimeException("Clone not supported");
   }
 
-  // PUBLIC CLASS METHODS //
+  /**
+   * wrap a subjectImpl
+   */
+  private SubjectImpl subject = new SubjectImpl(null, null, null, null, null);
 
   /**
    * Add a {@link Subject} to a {@link Source} within the Groups Registry.
@@ -105,15 +101,6 @@ public class RegistrySubject extends GrouperAPI implements Subject {
   } // public static RegistrySubject add(s, id, type, name)
 
 
-  // PRIVATE INSTANCE VARIABLES //
-  private String  id;
-  private String  name;
-  private String  typeString;
-
-
-
-  // PUBLIC INSTANCE METHODS //
-
   /**
    * Delete existing {@link RegistrySubject}.
    * <pre>
@@ -153,44 +140,30 @@ public class RegistrySubject extends GrouperAPI implements Subject {
     }
   }
   
-  /** attributes */
-  private Map<String, Set<String>> attributes = new HashMap<String, Set<String>>();
-  
-  /**
-   * Return the subject's attribute.
-   * @return  the map
-   * @since   1.2.0
-   */
-  public Map<String, Set<String>> getAttributes() {
-    return this.attributes;
-  } // public Map getAttributes()
-
   /**
    * Return the value of the specified attribute.
    * <p/>
-   * <p><b>NOTE:</b> This is not currently implemented and will always return an empty string.</p>
-   * @since   1.2.0
+   * @param name 
+   * @return attribute value
    */
   public String getAttributeValue(String name) {
-    Set<String> set = this.attributes.get(name);
-    return set == null ? null : set.iterator().next();
+    return this.subject.getAttributeValue(name);
   } // public String getAttributevalue(name)
 
   /**
    * Return the values for the specified attribute.
    * <p/>
-   * <p><b>NOTE:</b> This is not currently implemented and will always return an empty set.</p>
-   * @since   1.2.0
+   * @param name 
+   * @return attributes
    */
   public Set<String> getAttributeValues(String name) {
-    return this.attributes.get(name);
+    return this.subject.getAttributeValues(name);
   }
 
   /**
    * Return this subject's description.
    * <p/>
-   * <p><b>NOTE:</b> This is not currently implemented and will always return an empty string.</p>
-   * @since   1.2.0
+   * @return description
    */
   public String getDescription() {
     //if theres a description, use it
@@ -198,25 +171,25 @@ public class RegistrySubject extends GrouperAPI implements Subject {
 //    if (!StringUtils.isBlank(attributeDescription)) {
 //      return attributeDescription;
 //    }
-    return GrouperConfig.EMPTY_STRING;
-  } // public String getDescription()
+    return this.subject.getDescription();
+  } 
 
   /**
    * Return the subject id.
    * <p/>
-   * @since   1.2.0
+   * @return id
    */
   public String getId() {
-    return this.id;
-  } // public String getId()
+    return this.subject.getId();
+  }
 
   /**
    * Return the subject's name.
    * <p/>
-   * @since   1.2.0
+   * @return the name
    */
   public String getName() {
-    return this.name;
+    return this.subject.getName();
   } 
 
   /**
@@ -224,108 +197,120 @@ public class RegistrySubject extends GrouperAPI implements Subject {
    * <p/>
    * <p><b>NOTE:</b> The current implementation is very crude and inefficient.  It
    * attempts to query for the subject to identify the source.</p>
+   * @return the source
    * @throws  IllegalStateException if source cannot be returned.
    * @since   1.2.0
    */
   public Source getSource() 
-    throws  IllegalStateException
-  {
-    try {
-      return SubjectFinder.findById( this.getId(), this.getTypeString(), true).getSource();
-    }
-    catch (SubjectNotFoundException eSNF)   {
-      throw new IllegalStateException( eSNF.getMessage(), eSNF );
-    }
-    catch (SubjectNotUniqueException eSNU)  {
-      throw new IllegalStateException( eSNU.getMessage(), eSNU );
-    }
-  } // public Source getSource()
+    throws  IllegalStateException {
+    return this.subject.getSource();
+  } 
 
   /**
    * Return this subject's {@link SubjectType}.
-   * <p/>
-   * @since   1.2.0
+   * @return  type
    */
   public SubjectType getType() {
-    return SubjectTypeEnum.valueOf( this.getTypeString() );
-  } // public SubjectType getType()
-
-
-  /**
-   * @since   1.2.0
-   */  
-  public boolean equals(Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (!(other instanceof RegistrySubject)) {
-      return false;
-    }
-    RegistrySubject that = (RegistrySubject) other;
-    return new EqualsBuilder()
-      .append( this.getId(),   that.getId()   )
-      .append( this.getType(), that.getType() )
-      .isEquals();
+    return this.subject.getType();
   }
 
 
   /**
-   * @since   1.2.0
+   * @return type string
    */
   public String getTypeString() {
-    return this.typeString;
+    return this.subject.getTypeName();
   }
 
 
 
   /**
-   * @since   1.2.0
+   * @see java.lang.Object#equals(java.lang.Object)
    */
-  public int hashCode() {
-    return new HashCodeBuilder()
-      .append( this.getId()   )
-      .append( this.getType() )
-      .toHashCode();
-  } // public int hashCode()
-
+  @Override
+  public boolean equals(Object obj) {
+    return this.subject.equals(obj);
+  }
 
 
   /**
-   * @since   1.2.0
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    return this.subject.hashCode();
+  }
+
+  /**
+   * @param id 
    */
   public void setId(String id) {
-    this.id = id;
+    this.subject.setId(id);
   }
 
-
-
   /**
-   * @since   1.2.0
+   * 
+   * @param name
    */
   public void setName(String name) {
-    this.name = name;
+    this.subject.setName(name);
   }
 
 
 
   /**
-   * @since   1.2.0
+   * @param type 
    */
   public void setTypeString(String type) {
-    this.typeString = type;
+    this.subject.setTypeName(type);
+  }
+  
+  /**
+   * 
+   * @see java.lang.Object#toString()
+   */
+  public String toString() {
+    return this.subject.toString();
   }
 
 
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValueOrCommaSeparated(java.lang.String)
+   */
+  public String getAttributeValueOrCommaSeparated(String attributeName) {
+    return this.subject.getAttributeValueOrCommaSeparated(attributeName);
+  }
+
 
   /**
-   * @since   1.2.0
+   * @see edu.internet2.middleware.subject.Subject#getAttributeValueSingleValued(java.lang.String)
    */
-  public String toString() {
-    return new ToStringBuilder(this)
-      .append( "name",        this.getName() )
-      .append( "subjectId",   this.getId()   )
-      .append( "subjectType", this.getType() )
-      .toString();
+  public String getAttributeValueSingleValued(String attributeName) {
+    return this.subject.getAttributeValueSingleValued(attributeName);
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getSourceId()
+   */
+  public String getSourceId() {
+    return this.subject.getSourceId();
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getTypeName()
+   */
+  public String getTypeName() {
+    return this.subject.getTypeName();
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.subject.Subject#getAttributes()
+   */
+  public Map<String, Set<String>> getAttributes() {
+    return this.subject.getAttributes();
   } 
   
 }

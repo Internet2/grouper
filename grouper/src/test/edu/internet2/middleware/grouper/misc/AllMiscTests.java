@@ -1,5 +1,5 @@
 /*
- * @author mchyzer $Id: AllMiscTests.java,v 1.2 2009-08-11 20:34:18 mchyzer Exp $
+ * @author mchyzer $Id: AllMiscTests.java,v 1.3 2009-09-02 05:57:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.misc;
 
@@ -19,7 +19,6 @@ public class AllMiscTests {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.misc");
     //$JUnit-BEGIN$
     suite.addTestSuite(GrouperReportTest.class);
-    suite.addTest(AllMiscTests.suite());
     //$JUnit-END$
     return suite;
   }

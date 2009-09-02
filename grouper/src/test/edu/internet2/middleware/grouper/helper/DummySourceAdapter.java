@@ -30,7 +30,7 @@ import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
  * This subject adapter resolves any subject
  * </p>
  * @author  chris hyzer
- * @version $Id: DummySourceAdapter.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: DummySourceAdapter.java,v 1.2 2009-09-02 05:57:26 mchyzer Exp $
  */
 public class DummySourceAdapter extends BaseSourceAdapter {
 
@@ -154,7 +154,7 @@ public class DummySourceAdapter extends BaseSourceAdapter {
    */
   private Subject _resolveSubject(String qry) 
       throws  SubjectNotFoundException { 
-    return new DummySubject(qry, this);
+    return new DummySubject(qry, this.getId());
   }
 
   /**

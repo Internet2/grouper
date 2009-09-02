@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: XmlUserAuditImport.java,v 1.2 2009-06-28 19:02:17 mchyzer Exp $
+ * $Id: XmlUserAuditImport.java,v 1.3 2009-09-02 05:57:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.xml.userAudit;
 
@@ -33,8 +33,9 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.subj.SimpleSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.provider.SubjectImpl;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 
 /**
@@ -325,8 +326,9 @@ public class XmlUserAuditImport {
     LOG.debug("userAudit import: read new member: " 
         + xmlMemberFromFile.toString());
     
-    SimpleSubject simpleSubject = new SimpleSubject(
-        xmlMemberFromFile.getSubjectId(), xmlMemberFromFile.getSourceId());
+    SubjectImpl simpleSubject = new SubjectImpl(
+        xmlMemberFromFile.getSubjectId(), xmlMemberFromFile.getSubjectId(), 
+        xmlMemberFromFile.getSubjectId(), SubjectTypeEnum.PERSON.getName(), xmlMemberFromFile.getSourceId());
     Member member = MemberFinder.internal_findBySubject(simpleSubject, xmlMemberFromFile.getUuid(), true);
  
     if (!StringUtils.equals(member.getUuid(), xmlMemberFromFile.getUuid())) {

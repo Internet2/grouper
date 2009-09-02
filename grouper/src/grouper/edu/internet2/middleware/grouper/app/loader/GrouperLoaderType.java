@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperLoaderType.java,v 1.21 2009-08-11 20:18:09 mchyzer Exp $
+ * $Id: GrouperLoaderType.java,v 1.22 2009-09-02 05:57:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.app.loader;
 
@@ -848,23 +848,23 @@ public enum GrouperLoaderType {
   /**
    * maintenance clean logs name
    */
-  public static final String MAINTENANCE_CLEAN_LOGS = GrouperLoaderType.MAINTENANCE.name() + "_cleanLogs";
+  public static final String MAINTENANCE_CLEAN_LOGS = "MAINTENANCE_cleanLogs";
 
   /**
    * maintenance grouper report name
    */
-  public static final String GROUPER_REPORT = GrouperLoaderType.MAINTENANCE.name() + "_grouperReport";
+  public static final String GROUPER_REPORT = "MAINTENANCE__grouperReport";
 
   /**
    * change log temp to change log
    */
-  public static final String GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG = GrouperLoaderType.CHANGE_LOG.name() + "_changeLogTempToChangeLog";
+  public static final String GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG = "CHANGE_LOG_changeLogTempToChangeLog";
 
   
   /**
    * change log consumer prefix
    */
-  public static final String GROUPER_CHANGE_LOG_CONSUMER_PREFIX = GrouperLoaderType.CHANGE_LOG.name() + "_consumer_";
+  public static final String GROUPER_CHANGE_LOG_CONSUMER_PREFIX = "CHANGE_LOG_consumer_";
 
   
   

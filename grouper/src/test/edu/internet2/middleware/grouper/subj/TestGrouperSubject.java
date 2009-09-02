@@ -37,7 +37,7 @@ import edu.internet2.middleware.subject.Subject;
  * Test {@link GrouperSubject} class.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestGrouperSubject.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestGrouperSubject.java,v 1.2 2009-09-02 05:57:26 mchyzer Exp $
  */
 public class TestGrouperSubject extends TestCase {
 
@@ -101,11 +101,11 @@ public class TestGrouperSubject extends TestCase {
     LOG.info("testGetAttributeValues");
     Assert.assertTrue(
       "i2 has no multivalued attributes",
-      subjI2.getAttributeValues("members").size() == 0
+      subjI2.getAttributeValues("members") == null
     );
     Assert.assertTrue(
       "uofc has no multivalued attributes",
-      subjUofc.getAttributeValues("members").size() == 0
+      subjUofc.getAttributeValues("members") == null
     );
   } // public void testGetAttributeValues()
 

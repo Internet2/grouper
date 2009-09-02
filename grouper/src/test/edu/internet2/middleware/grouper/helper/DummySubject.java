@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: DummySubject.java,v 1.3 2009-08-12 04:52:21 mchyzer Exp $
+ * $Id: DummySubject.java,v 1.4 2009-09-02 05:57:26 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.helper;
 
@@ -10,39 +10,30 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Source;
-import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.SubjectType;
-import edu.internet2.middleware.subject.provider.SourceManager;
+import edu.internet2.middleware.subject.provider.SubjectImpl;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 
 /**
  *
  */
-public class DummySubject implements Subject {
+@SuppressWarnings("serial")
+public class DummySubject extends SubjectImpl {
 
-  /** */
-  private String subjectId;
-  
-  /** */
-  private String sourceId;
-  
   /**
    * 
    * @param theSubjectId
-   * @param theSource
+   * @param sourceId
    */
-  public DummySubject(String theSubjectId, Source theSource) {
-    this.subjectId = theSubjectId;
-    this.sourceId = theSource == null ? null : theSource.getId();
+  public DummySubject(String theSubjectId, String sourceId) {
+    super(theSubjectId, theSubjectId, theSubjectId, SubjectTypeEnum.PERSON.getName(), sourceId, null);
   }
   
   /**
    * @see edu.internet2.middleware.subject.Subject#getAttributeValue(java.lang.String)
    */
   public String getAttributeValue(String arg0) {
-    return this.subjectId;
+    return this.getId();
   }
 
   /**
@@ -51,7 +42,7 @@ public class DummySubject implements Subject {
   public Set<String> getAttributeValues(String arg0) {
     
     Set<String> results =new HashSet<String>();
-    results.add(this.subjectId);
+    results.add(this.getId());
     return results;
   }
 
@@ -60,45 +51,10 @@ public class DummySubject implements Subject {
    */
   public Map<String, Set<String>> getAttributes() {
     Map<String, Set<String>> map = new  HashMap<String, Set<String>>();
-    map.put("loginid", GrouperUtil.toSet(this.subjectId));
-    map.put("name", GrouperUtil.toSet(this.subjectId));
-    map.put("description", GrouperUtil.toSet(this.subjectId));
+    map.put("loginid", GrouperUtil.toSet(this.getId()));
+    map.put("name", GrouperUtil.toSet(this.getId()));
+    map.put("description", GrouperUtil.toSet(this.getId()));
     return map;
-  }
-
-  /**
-   * @see edu.internet2.middleware.subject.Subject#getDescription()
-   */
-  public String getDescription() {
-    return this.subjectId;
-  }
-
-  /**
-   * @see edu.internet2.middleware.subject.Subject#getId()
-   */
-  public String getId() {
-    return this.subjectId;
-  }
-
-  /**
-   * @see edu.internet2.middleware.subject.Subject#getName()
-   */
-  public String getName() {
-    return this.subjectId;
-  }
-
-  /**
-   * @see edu.internet2.middleware.subject.Subject#getSource()
-   */
-  public Source getSource() {
-    return this.sourceId == null ? null : SourceManager.getInstance().getSource(this.sourceId);
-  }
-
-  /**
-   * @see edu.internet2.middleware.subject.Subject#getType()
-   */
-  public SubjectType getType() {
-    return SubjectTypeEnum.PERSON;
   }
 
 }

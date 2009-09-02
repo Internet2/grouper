@@ -46,7 +46,7 @@ import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
-import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 /**
  * The Unresolvable Subject Deletion Utility finds and optionally deletes
@@ -63,10 +63,10 @@ public class USDU {
   @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(USDU.class);
 
-  // store the identifier for the GrouperSourceAdapter, probably "g:gsa"
+  /** store the identifier for the GrouperSourceAdapter, probably "g:gsa" */
   private static String grouperSourceAdapterId = null;
 
-  // map list names to corresponding privileges, a better way probably exists
+  /** map list names to corresponding privileges, a better way probably exists */
   private static Map<String, Privilege> list2priv = new HashMap<String, Privilege>();
   static {
     list2priv.put("admins", AccessPrivilege.ADMIN);
@@ -88,6 +88,7 @@ public class USDU {
    * // or
    * usdu.bat
    * </pre>
+   * @param args 
    * 
    * @since 1.3.0
    */
@@ -148,6 +149,10 @@ public class USDU {
     System.exit(0);
   }
 
+  /**
+   * 
+   * @param options
+   */
   private static void printUsage(Options options) {
 
     System.out.println();
@@ -239,6 +244,7 @@ public class USDU {
    * 
    * @param s
    *          the Grouper session
+   * @param source 
    * @param delete
    *          if true will delete memberships and privileges
    * @throws IllegalArgumentException
@@ -405,7 +411,8 @@ public class USDU {
    */
   protected static Subject getUSDUSubject(Member member) throws IllegalArgumentException, SourceUnavailableException {
 
-    return new USDUSubject(member.getSubjectId(), member.getSubjectSourceId(), member.getSubjectType());
+    return new SubjectImpl(member.getSubjectId(), member.getSubjectId(), 
+        null, member.getSubjectTypeId(), member.getSubjectSourceId());
   }
 
   /**
@@ -529,64 +536,5 @@ public class USDU {
     }
   }
 
-  /**
-   * A {@link Subject} implementation which consists of a subject id,
-   * {@link Source}, and {@link SubjectType}. The source is looked up from the
-   * given source identifier string since Member.getSubjectSource() will return
-   * a {@link SubjectNotFoundException}.
-   */
-  private static class USDUSubject implements Subject {
 
-    private String id;
-    private SubjectType type;
-    private Source source;
-
-    private USDUSubject(String id, String sourceId, SubjectType type) throws IllegalArgumentException,
-        SourceUnavailableException {
-
-      this.id = id;
-      this.type = type;
-      this.source = SubjectFinder.getSource(sourceId);
-    }
-
-    public String getAttributeValue(String arg0) {
-
-      return null;
-    }
-
-    public Set<String> getAttributeValues(String arg0) {
-
-      return null;
-    }
-
-    public Map<String, Set<String>> getAttributes() {
-
-      return null;
-    }
-
-    public String getDescription() {
-
-      return null;
-    }
-
-    public String getId() {
-
-      return id;
-    }
-
-    public String getName() {
-
-      return id;
-    }
-
-    public Source getSource() {
-
-      return source;
-    }
-
-    public SubjectType getType() {
-
-      return type;
-    }
-  }
 }

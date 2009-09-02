@@ -26,15 +26,15 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 /**
  * {@link Subject} utility helper class.
  * <p/>
  * @author  blair christensen.
- * @version $Id: SubjectHelper.java,v 1.4 2009-08-11 20:18:08 mchyzer Exp $
+ * @version $Id: SubjectHelper.java,v 1.5 2009-09-02 05:57:26 mchyzer Exp $
  */
 public class SubjectHelper {
 
@@ -107,7 +107,9 @@ public class SubjectHelper {
    * @since   1.2.1
    */
   public static boolean eq(Object a, Object b) {
-    // TODO 20070816 add tests
+    if (a==b) {
+      return true;
+    }
     if ( (a == null) || (b == null) ) {
       return false;
     }
@@ -117,17 +119,7 @@ public class SubjectHelper {
     if ( !(b instanceof Subject) ) {
       return false;
     }
-    Subject subjA = (Subject) a;
-    Subject subjB = (Subject) b;
-    if (
-         subjA.getId().equals( subjB.getId() )
-      && subjA.getSource().getId().equals( subjB.getSource().getId() )
-      && subjA.getType().getName().equals( subjB.getType().getName() )
-    )
-    {
-      return true;
-    }
-    return false;
+    return SubjectImpl.equalsStatic((Subject)a, b);
   } 
 
   /**

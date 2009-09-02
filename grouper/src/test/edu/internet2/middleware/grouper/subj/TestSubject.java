@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.Subject;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestSubject.java,v 1.1 2009-03-20 19:56:41 mchyzer Exp $
+ * @version $Id: TestSubject.java,v 1.2 2009-09-02 05:57:26 mchyzer Exp $
  */
 public class TestSubject extends GrouperTest {
 
@@ -52,7 +52,7 @@ public class TestSubject extends GrouperTest {
   public void testGetSources() {
     LOG.info("testGetSources");
     Set sources = SubjectFinder.getSources();
-    T.amount("sources", 3, sources.size());
+    assertTrue(sources.size() >= 3);
   } // public void testGetSources()
 
   public void testFailToFindAllBySource() {
@@ -235,7 +235,7 @@ public class TestSubject extends GrouperTest {
     Set people        = SubjectFinder.getSources("person");
     T.amount("application sources", 1, applications.size());  
     T.amount("group sources"      , 1, groups.size()      );  
-    T.amount("person sources"     , 1, people.size()      );  
+    assertTrue(people.size() >= 1);
   } // public void testGetSourcesWithType()
 
   public void testGrouperSubjectEqual() {
