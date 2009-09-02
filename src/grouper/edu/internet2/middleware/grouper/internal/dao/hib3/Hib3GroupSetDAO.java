@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.hibernate.Session;
@@ -19,7 +18,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /**
  * @author shilen
- * @version $Id: Hib3GroupSetDAO.java,v 1.4 2009-08-29 15:57:59 shilen Exp $
+ * @version $Id: Hib3GroupSetDAO.java,v 1.5 2009-09-02 13:06:00 shilen Exp $
  */
 public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
 
@@ -111,27 +110,16 @@ public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
   static void reset(HibernateSession hibernateSession) {
     Session hs = hibernateSession.getSession();
 
-    List<GroupSet> groupSets =
-      hs.createQuery("from GroupSet as gs order by depth desc")
-      .list()
-      ;
-    
     // Find the root stem
     Stem rootStem = GrouperDAOFactory.getFactory().getStem().findByName(Stem.ROOT_INT, true);
     
-    // Deleting each group set depth desc to prevent foreign key issues with parent_id
-    for (GroupSet groupSet : groupSets) {
-      
-      // we don't want to delete the default groupSets for the root stem.
-      if (groupSet.getOwnerStemId() != null && groupSet.getOwnerStemId().equals(rootStem.getUuid()) && groupSet.getDepth() == 0) {
-        continue;
-      }
-      
-      hs.createQuery("delete from GroupSet gs where gs.id=:id")
-        .setString("id", groupSet.getId())
+    // set parent_id to null first to avoid foreign key constraint violations
+    hs.createQuery("update GroupSet set parentId = null where ownerStemId not like :owner or ownerStemId is null or depth not like '0'")
+        .setString("owner", rootStem.getUuid())
         .executeUpdate();
-    }
-
+    
+    hs.createQuery("delete from GroupSet where parentId = null")
+        .executeUpdate();
   }
 
 
