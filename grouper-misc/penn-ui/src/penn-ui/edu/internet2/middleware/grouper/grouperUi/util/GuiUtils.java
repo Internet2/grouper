@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiUtils.java,v 1.13 2009-09-01 05:29:19 mchyzer Exp $
+ * $Id: GuiUtils.java,v 1.14 2009-09-06 07:01:48 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
@@ -275,7 +275,6 @@ public class GuiUtils {
     
     //put these both in hashes, keep track of hashes
     for (Member member : first) {
-      System.out.println("Adding to first: " + member.getSubjectSourceId() + ", " + member.getSubjectId());
       firstHashes.add(new MultiKey(member.getSubjectSourceId(), member.getSubjectId()));
       
     }

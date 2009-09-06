@@ -1,5 +1,5 @@
 <%@ include file="../common/commonTaglib.jsp" %>
-<!-- Start: $Id: simpleMembershipMembershipList.jsp,v 1.11 2009-08-22 21:21:47 mchyzer Exp $ -->
+<!-- Start: $Id: simpleMembershipMembershipList.jsp,v 1.12 2009-09-06 07:01:49 mchyzer Exp $ -->
 <%-- this is the section of the screen which shows a box and the member list inside --%>
 <div class="section">
   <grouperGui:subtitle key="simpleMembershipUpdate.membershipListSubtitle"/>
@@ -98,7 +98,7 @@
     </c:forEach>
     <%-- member menu div, and attach to buttons --%>
     <grouperGui:menu menuId="memberMenu"
-      operation="SimpleMembershipUpdate.memberMenu" 
+      operation="SimpleMembershipUpdateMenu.memberMenu" 
       structureOperation="SimpleMembershipUpdateMenu.memberMenuStructure" 
       contextZoneJqueryHandle=".memberMenuButton" contextMenu="true" />
   </form>
@@ -125,4 +125,4 @@
 <br />
 </div>
 </div>
-<!-- End: $Id: simpleMembershipMembershipList.jsp,v 1.11 2009-08-22 21:21:47 mchyzer Exp $ -->
+<!-- End: $Id: simpleMembershipMembershipList.jsp,v 1.12 2009-09-06 07:01:49 mchyzer Exp $ -->

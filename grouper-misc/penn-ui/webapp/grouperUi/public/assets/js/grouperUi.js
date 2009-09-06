@@ -260,8 +260,8 @@ function ajax(theUrl, options) {
   
   options.requestParams.appState = JSON.stringify(appState);
   
-  var result = null;
-
+  //if modal up, it wont block, so close modal before ajax
+  //$.modal.close(); 
   $.blockUI();  
   $.ajax({
     url: theUrl,
@@ -269,7 +269,7 @@ function ajax(theUrl, options) {
     cache: false,
     dataType: 'json',
     data: options.requestParams,
-    timeout: 30000,
+    timeout: 180000,
     async: true,
     //TODO handle errors success better.  probably non modal disappearing reusable window
     error: function(error){
@@ -281,7 +281,6 @@ function ajax(theUrl, options) {
       guiProcessJsonResponse(json);
     }
   });
-  return result;
 }
 
 /**
@@ -289,6 +288,8 @@ function ajax(theUrl, options) {
  * @param guiResponseJs
  */
 function guiProcessJsonResponse(guiResponseJs) {
+  
+  //$.unblockUI(); 
   
   //put new pagers in the app state
   if (guiResponseJs.pagers) {
@@ -365,14 +366,14 @@ function guiProcessAction(guiScreenAction) {
     
     //alert(guiScreenAction.alert);
     //$.modal.close();
-    $('<div class="simplemodal-guiinner' + (centered ? ' simplemodal-guiinnerCentered' : '') + '">' 
+    $('<div class="guimodal simplemodal-guiinner' + (centered ? ' simplemodal-guiinnerCentered' : '') + '">' 
         + guiScreenAction.alert + '<div class="simplemodal-buttonrow"><button class=\'simplemodal-close blueButton\'>OK</button></div></div>').modal({close: true, position: [20,20]});
   }
   
   //do an alert
   if (!guiIsEmpty(guiScreenAction.dialog)) {
     $.unblockUI(); 
-    $('<div class=".simplemodal-dialoginner">' 
+    $('<div class="guimodal simplemodal-dialoginner">' 
         + guiScreenAction.dialog + '</div>').modal({close: true, position: [20,20]});
   }
   if (!guiIsEmpty(guiScreenAction.optionValues)) {
@@ -1198,6 +1199,8 @@ function guiSubmitFileForm(event, formJqueryHandle, operation) {
       },
       url: operation
   };
+  //$.modal.close(); 
+  //$.blockUI();  
   $(formJqueryHandle).ajaxSubmit(options);
   return false;
 }

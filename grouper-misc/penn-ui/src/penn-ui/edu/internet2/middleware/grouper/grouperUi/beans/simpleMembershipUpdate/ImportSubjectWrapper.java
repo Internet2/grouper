@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: ImportSubjectWrapper.java,v 1.1 2009-08-13 17:56:47 mchyzer Exp $
+ * $Id: ImportSubjectWrapper.java,v 1.2 2009-09-06 07:01:49 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate;
 
@@ -99,9 +99,9 @@ public class ImportSubjectWrapper implements Subject {
     Subject subject = null;
     
     //if not, we have to do more
-    if (!hasSourceId) {
+    if (!hasSourceId && hasSubjectId) {
       subject = SubjectFinder.findById(this.subjectId);
-      this.subjectId = subject.getId();
+      this.sourceId = subject.getSource().getId();
       return;
     }
     
@@ -145,7 +145,12 @@ public class ImportSubjectWrapper implements Subject {
       }
       
     }
-    
+    if (subject != null) {
+      this.sourceId = subject.getSource().getId();
+      this.subjectId = subject.getId();
+    } else {
+      throw new RuntimeException("Not sure why we are here... " + hasSourceId + ", " + hasSubjectId + ", " + hasSubjectIdentifier + ", " + hasSubjectIdOrIdentifier );
+    }
   }
   
   /**
