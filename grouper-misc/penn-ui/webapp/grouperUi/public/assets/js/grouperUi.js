@@ -942,6 +942,8 @@ function guiPageSize(pagingName, pageSize, refreshOperation) {
     alert("Error: Cant find pager for page size: '" + pagingName + "'"); 
     return;
   }
+  //might get into a problem if we dont set this back to 1
+  pager.pageNumber = 1;
   pager.pageSize = pageSize;
   ajax(refreshOperation);
   return false;
