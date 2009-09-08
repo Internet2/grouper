@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdateContainer.java,v 1.5 2009-08-22 21:21:47 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateContainer.java,v 1.6 2009-09-08 18:53:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.simpleMembershipUpdate;
 
@@ -21,7 +21,7 @@ import edu.internet2.middleware.subject.Subject;
 
 
 /**
- * bean for simple membership update
+ * bean for simple membership update.  holds all state for this module
  */
 public class SimpleMembershipUpdateContainer implements Serializable {
 

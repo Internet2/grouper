@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GrouperPagingTag.java,v 1.3 2009-08-19 06:29:58 mchyzer Exp $
+ * $Id: GrouperPagingTag.java,v 1.4 2009-09-08 18:53:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.tags;
 
@@ -10,14 +10,13 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
-import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- *
+ * does paging google style
  */
 public class GrouperPagingTag extends SimpleTagSupport  {
 

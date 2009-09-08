@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: SimpleMembershipUpdate.java,v 1.22 2009-09-01 05:29:19 mchyzer Exp $
+ * $Id: SimpleMembershipUpdate.java,v 1.23 2009-09-08 18:53:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 
 /**
- *
+ * main ajax methods for simple membership update module
  */
 public class SimpleMembershipUpdate {
 

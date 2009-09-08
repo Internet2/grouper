@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: SimpleMembershipUpdateMenu.java,v 1.1 2009-08-22 21:21:47 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateMenu.java,v 1.2 2009-09-08 18:53:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -26,12 +26,13 @@ import edu.internet2.middleware.grouper.grouperUi.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.grouperUi.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 
 /**
- *
+ * ajax methods for the menus in the simple membership update module
  */
 public class SimpleMembershipUpdateMenu {
 
@@ -149,7 +150,7 @@ public class SimpleMembershipUpdateMenu {
         //+ "  <item id=\"m3\" text=\"Help\" type=\"checkbox\" checked=\"true\"/>\n"
         //+ "  <item id=\"radio1\" text=\"Radio1\" type=\"radio\" group=\"hlm\"/>\n"
         //+ "  <item id=\"radio2\" text=\"Radio2\" type=\"radio\" group=\"hlm\"/>\n"
-        + "</menu>", "text/xml", false, false);
+        + "</menu>", HttpContentType.TEXT_XML, false, false);
     throw new ControllerDone();
   }
 
@@ -191,7 +192,7 @@ public class SimpleMembershipUpdateMenu {
         + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.memberMenuDetailsLabel"), true) 
         + "\"><tooltip>" 
         + GuiUtils.escapeHtml(GuiUtils.message("simpleMembershipUpdate.memberMenuDetailsTooltip"), true) + "</tooltip></item>\n"
-        + "</menu>", "text/xml", false, false);
+        + "</menu>", HttpContentType.TEXT_XML, false, false);
     throw new ControllerDone();
   }
 

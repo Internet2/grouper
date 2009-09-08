@@ -15,6 +15,7 @@ import net.sf.json.JSONObject;
 
 import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.grouperUi.util.HttpContentType;
 
 /**
  * container object for the response back to screen
@@ -43,7 +44,7 @@ public class GuiResponseJs implements Serializable {
     }
     
     GuiUtils.printToScreen(result.toString(), 
-        this.isAddTextAreaTag() ? "text/html" : "application/json", false, false);
+        this.isAddTextAreaTag() ? HttpContentType.TEXT_HTML : HttpContentType.APPLICATION_JSON, false, false);
 
   }
   

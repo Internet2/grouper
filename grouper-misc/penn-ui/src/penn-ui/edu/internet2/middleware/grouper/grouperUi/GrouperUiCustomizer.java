@@ -1,10 +1,8 @@
 /*
  * @author mchyzer
- * $Id: GrouperUiCustomizer.java,v 1.2 2009-08-19 06:29:58 mchyzer Exp $
+ * $Id: GrouperUiCustomizer.java,v 1.3 2009-09-08 18:53:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi;
-
-import java.util.Properties;
 
 import org.apache.commons.lang.StringUtils;
 

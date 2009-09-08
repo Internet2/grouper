@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiMember.java,v 1.1 2009-08-13 17:56:47 mchyzer Exp $
+ * $Id: GuiMember.java,v 1.2 2009-09-08 18:53:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
@@ -12,7 +12,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 
 /**
- * member bean to be shipped to gui
+ * member bean wraps grouper class with useful methods for UIs
  */
 public class GuiMember implements Serializable {
 

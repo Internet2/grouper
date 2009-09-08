@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: Misc.java,v 1.6 2009-08-19 06:29:58 mchyzer Exp $
+ * $Id: Misc.java,v 1.7 2009-09-08 18:53:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -18,7 +18,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- *
+ * miscellaneous ajax methods
  */
 public class Misc {
 

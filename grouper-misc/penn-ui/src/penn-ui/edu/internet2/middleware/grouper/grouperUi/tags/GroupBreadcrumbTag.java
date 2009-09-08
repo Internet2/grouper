@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: GroupBreadcrumbTag.java,v 1.4 2009-08-10 07:40:42 mchyzer Exp $
+ * $Id: GroupBreadcrumbTag.java,v 1.5 2009-09-08 18:53:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.tags;
 
@@ -14,7 +14,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- *
+ * shows the folders and group which is being looked at
  */
 public class GroupBreadcrumbTag extends SimpleTagSupport  {
 

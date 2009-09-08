@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GuiUtils.java,v 1.14 2009-09-06 07:01:48 mchyzer Exp $
+ * $Id: GuiUtils.java,v 1.15 2009-09-08 18:53:31 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.util;
 
@@ -742,36 +742,37 @@ public class GuiUtils {
   /**
    * Print some text to the screen
    * @param string 
-   * @param contentType e.g. "text/html", "text/xml"
+   * @param httpContentType e.g. "text/html", "text/xml"
    * @param includeXmlTag 
    * @param includeHtmlTag 
    * 
    */
-  public static void printToScreen(String string, String contentType, boolean includeXmlTag, boolean includeHtmlTag) {
-  
+  public static void printToScreen(String string, HttpContentType httpContentType, 
+      boolean includeXmlTag, boolean includeHtmlTag) {
+
     HttpServletResponse response = GrouperUiJ2ee.retrieveHttpServletResponse(); 
-    
+
     //say it is HTML, if not too late
-    if (!response.isCommitted()) {
-      response.setContentType(contentType);
+    if (httpContentType != null && !response.isCommitted()) {
+      response.setContentType(httpContentType.getContentType());
     }
-  
+
     //just write some stuff
     PrintWriter out = null;
-  
+
     try {
       out = response.getWriter();
     } catch (Exception e) {
       throw new RuntimeException("Cant get response.getWriter: ", e);
     }
-    
+
     if (includeXmlTag) {
       out.println("<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n"
         + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 "
               + "Transitional//EN\" " +
                   "\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
     }
-    
+
     //see if we should add <html> etc
     if (includeHtmlTag) {
       out.println("<html><head></head><body>");
