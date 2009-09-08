@@ -20,6 +20,7 @@ package edu.internet2.middleware.grouper.ui;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.MissingResourceException;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -39,7 +40,6 @@ import edu.internet2.middleware.grouper.GrouperHelper;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.ui.actions.LowLevelGrouperCapableAction;
 import edu.internet2.middleware.grouper.ui.util.ChainedResourceBundle;
 import edu.internet2.middleware.grouper.ui.util.DOMHelper;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
@@ -52,7 +52,7 @@ import edu.internet2.middleware.grouper.ui.util.MembershipImportManager;
  * <p />
  * 
  * @author Gary Brown.
- * @version $Id: SessionInitialiser.java,v 1.22 2009-08-12 04:52:14 mchyzer Exp $
+ * @version $Id: SessionInitialiser.java,v 1.23 2009-09-08 02:29:01 mchyzer Exp $
  */
 
 public class SessionInitialiser {
@@ -351,9 +351,9 @@ public class SessionInitialiser {
 	private static void initDebugging(HttpSession session) {
 		boolean debugEnable = false;
 		String debugGroup=null;
-		ResourceBundle media = GrouperUiFilter.retrieveSessionMediaResourceBundle();
+		Properties mediaProperties = GrouperUiFilter.retrieveMediaProperties();
 		try {
-			debugEnable = !"true".equals(media.getString("browser.debug.enable"));
+			debugEnable = !"true".equals(mediaProperties.getProperty("browser.debug.enable"));
 		}catch(Exception e) {
 			LOG.error("Error processing browser.debug.enable. Disabling.", e);
 		}
@@ -363,7 +363,7 @@ public class SessionInitialiser {
 		}
 		if(debuggers==null) {
 			try {
-				debugGroup = media.getString("browser.debug.group");
+				debugGroup = mediaProperties.getProperty("browser.debug.group");
 			}catch(Exception e) {
 				LOG.info("browser.debug.group not set in media.properties");
 			}
@@ -383,7 +383,7 @@ public class SessionInitialiser {
 		}
 		boolean enableHtmlEditor=false;
 		try {
-			enableHtmlEditor="true".equals(media.getString("browser.debug.group.enable-html-editor"));
+			enableHtmlEditor="true".equals(mediaProperties.getProperty("browser.debug.group.enable-html-editor"));
 		}catch(Exception e){
 			LOG.info("browser.debug.group.enable-html-editor not set in media.properties");
 		}

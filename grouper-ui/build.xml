@@ -458,6 +458,12 @@
 			</fileset>
 		</path>
 		<property name="final.web.xmls" refid="final.web.xml.files"/>
+	  
+	  <!-- echo message="temp.dir : ${temp.dir}" />
+    <echo message="final.web.xmls : ${final.web.xmls}" />
+    <echo message="ui.folder : ${ui.folder}" />
+    <echo message="webapp.folder : ${webapp.folder}" / -->
+	  
 		<java classname="edu.internet2.middleware.grouper.ui.util.MergeWebXmls" classpathref="merge.class.path" outputproperty="mergeOutput" resultProperty="result">
 			<arg value="${temp.dir}"/>
 			<arg value="${final.web.xmls}"/>

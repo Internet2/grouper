@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
 
@@ -61,7 +62,7 @@ import edu.internet2.middleware.subject.Subject;
  * Generic filter for ui for grouper (e.g. set hooks context)
  * 
  * @author Chris Hyzer.
- * @version $Id: GrouperUiFilter.java,v 1.5 2009-08-12 04:52:14 mchyzer Exp $
+ * @version $Id: GrouperUiFilter.java,v 1.6 2009-09-08 02:29:01 mchyzer Exp $
  */
 
 public class GrouperUiFilter implements Filter {
@@ -85,7 +86,27 @@ public class GrouperUiFilter implements Filter {
    * @return the media resource bundle
    */
   public static ResourceBundle retrieveSessionMediaResourceBundle() {
-    return ((LocalizationContext)retrieveHttpServletRequest().getSession().getAttribute("media")).getResourceBundle();
+    HttpSession session = retrieveHttpServletRequest().getSession(false);
+    LocalizationContext localizationContext = null;
+    if (session != null) {
+      localizationContext = (LocalizationContext)session.getAttribute("media");      
+    }
+    if (localizationContext != null) {
+      return localizationContext.getResourceBundle();
+    }
+    //note, call retrieveMediaProperties() if session properites are null...
+    throw new RuntimeException("Cant find media bundle");
+  }
+  
+  /**
+   * if the media resource bundle is null, use this
+   * @return properties
+   */
+  public static Properties retrieveMediaProperties() {
+    //cant find in session, this should be a special case, like during startup
+    Properties propertiesSettings = GrouperUtil
+      .propertiesFromResourceName("resources/grouper/media.properties");
+    return propertiesSettings;
   }
   
   /**
