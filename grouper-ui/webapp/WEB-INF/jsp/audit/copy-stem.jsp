@@ -2,7 +2,7 @@
 		  audit log view
 --%><%--
   @author Gary Brown.
-  @version $Id: copy-stem.jsp,v 1.2 2009-08-10 14:03:01 isgwb Exp $
+  @version $Id: copy-stem.jsp,v 1.3 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -19,10 +19,10 @@
 		  <tiles:put name="view" value="stemSearchResultLink"/>
 	</tiles:insert></c:when>
 		<c:otherwise>
-		<grouper:message bundle="${nav}" key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.oldStemId}"/> - <c:out value="${viewObject.fields.oldGroupName}"/>)
+		<grouper:message key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.oldStemId}"/> - <c:out value="${viewObject.fields.oldGroupName}"/>)
 		</c:otherwise>
 	</c:choose>
-	<br/><grouper:message bundle="${nav}" key="audit.result.label.to-object"/> 
+	<br/><grouper:message key="audit.result.label.to-object"/> 
 	<c:choose>
     	<c:when test="${!empty copiedTo }">
     <c:set target="${copiedTo}" property="callerPageId" value="${thisPageId}"/>
@@ -31,7 +31,7 @@
 		  <tiles:put name="view" value="stemSearchResultLink"/>
 	</tiles:insert></c:when>
 		<c:otherwise>
-		<grouper:message bundle="${nav}" key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.newGroupId}"/> - <c:out value="${viewObject.fields.newGroupName}"/>)
+		<grouper:message key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.newGroupId}"/> - <c:out value="${viewObject.fields.newGroupName}"/>)
 		</c:otherwise>
 	</c:choose><br/>
 		

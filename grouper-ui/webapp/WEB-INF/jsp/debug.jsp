@@ -2,7 +2,7 @@
 			Tile which displays debug information if dbug mode is on
 --%><%--
   @author Gary Brown.
-  @version $Id: debug.jsp,v 1.5 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: debug.jsp,v 1.6 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -47,7 +47,7 @@ function show(id) {
 
 
 </script>
-<a href="populateDebugPrefs.do" ><grouper:message bundle="${nav}" key="debug.prefs.edit.link"/></a>
+<a href="populateDebugPrefs.do" ><grouper:message key="debug.prefs.edit.link"/></a>
 <c:if test="${debugPrefs.doShowResources}">
 	<span id="resourceButton"><a href="#" onclick="changeDebug('resource');return false;">Show resources</a></span>
 	<script type="text/javascript">debugStuff['resource']=1;</script>

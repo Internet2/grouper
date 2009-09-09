@@ -3,7 +3,7 @@
 		  membership / privileges for the active group to be changed
 --%><%--
   @author Gary Brown.
-  @version $Id: modifyGroupMemberPrivilegesView.jsp,v 1.12 2008-04-14 16:09:47 isgwb Exp $
+  @version $Id: modifyGroupMemberPrivilegesView.jsp,v 1.13 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -26,11 +26,11 @@
 	<c:set var="disabled">true</c:set>
 	<c:choose>
 		<c:when test="${empty listField}">
-			<c:set var="label"><grouper:message bundle="${nav}" key="priv.member"/></c:set>
+			<c:set var="label"><grouper:message key="priv.member"/></c:set>
 			<c:set var="disabled"><c:out value="${!groupPrivResolver.canManageMembers}"/></c:set>
 		</c:when>
 		<c:otherwise>
-			<c:set var="label"><grouper:message bundle="${nav}" key="priv.member-list-field">
+			<c:set var="label"><grouper:message key="priv.member-list-field">
 				<grouper:param value="${listField}"/>
 			</grouper:message></c:set>
 			<c:set var="disabled"><c:out value="${!groupPrivResolver.canManageField[listField]}"/></c:set>
@@ -46,7 +46,7 @@
 	</c:if>
 		<c:forEach var="priv" items="${possiblePrivs}">
 			<html:multibox property="privileges" value="${priv}" styleId="priv${priv}" disabled="${disabled}"/> 
-				<label for="priv<c:out value="${priv}"/>"><grouper:message bundle="${nav}" key="priv.${priv}"/></label><br/>
+				<label for="priv<c:out value="${priv}"/>"><grouper:message key="priv.${priv}"/></label><br/>
 		</c:forEach>
 	</c:if>
 	<c:if test="${groupPrivResolver.canManagePrivileges || groupPrivResolver.canManageMembers}">

@@ -3,7 +3,7 @@
 			members with links to edit individual members  
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupMembers.jsp,v 1.15 2008-04-29 18:02:31 mchyzer Exp $
+  @version $Id: GroupMembers.jsp,v 1.16 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -62,14 +62,14 @@
 			<c:choose>
 				<c:when test="${isCompositeGroup}">
 					<html:link page="/removeComposite.do" name="groupMembership" onclick="return confirm('${navMap['groups.remove.all.warn']}')">
-						<grouper:message bundle="${nav}" key="groups.composite.remove"/>
+						<grouper:message key="groups.composite.remove"/>
 					</html:link>
 					
 				</c:when>
 				<c:otherwise>
 				<c:if test="${empty $param.callerPageId}">
 					<html:link page="/populateFindNewMembers.do" name="groupMembership">
-						<grouper:message bundle="${nav}" key="find.groups.add-new-members"/>
+						<grouper:message key="find.groups.add-new-members"/>
 					</html:link>
 				</c:if>
 				</c:otherwise>
@@ -79,10 +79,10 @@
 		<html:link page="/populateAddComposite.do" name="groupMembership" onclick="return confirm('${navMap['groups.remove.all.warn']}')">
 			<c:choose>
 				<c:when test="${isCompositeGroup}">
-						<grouper:message bundle="${nav}" key="groups.composite.replace"/>
+						<grouper:message key="groups.composite.replace"/>
 				</c:when>
 				<c:otherwise>
-					<grouper:message bundle="${nav}" key="groups.composite.members-replace"/>
+					<grouper:message key="groups.composite.members-replace"/>
 				</c:otherwise>
 			</c:choose>
 					</html:link>
@@ -90,14 +90,14 @@
 		
 		<c:set target="${groupMembership}" property="callerPageId"></c:set>
 		<html:link page="/populateGroupSummary.do" name="groupMembership">
-			<grouper:message bundle="${nav}" key="find.groups.done"/>
+			<grouper:message key="find.groups.done"/>
 		</html:link>
 		
 		<tiles:insert definition="callerPageButtonDef"/>
 	</c:when>
 	<c:otherwise>
 		<html:link page="/populateSubjectSummary.do">
-			<grouper:message bundle="${nav}" key="groups.action.summary.return-to-subject-summary"/>
+			<grouper:message key="groups.action.summary.return-to-subject-summary"/>
 		</html:link>
 	</c:otherwise>
 </c:choose>

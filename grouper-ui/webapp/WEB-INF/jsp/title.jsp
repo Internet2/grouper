@@ -4,7 +4,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: title.jsp,v 1.8 2008-04-11 14:49:36 mchyzer Exp $
+  @version $Id: title.jsp,v 1.9 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic"
@@ -15,11 +15,11 @@
     <c:choose>
       <c:when test="${!empty title && !empty subtitle}">
         <c:set var="title1" scope="request">
-          <grouper:message bundle="${nav}" key="${title}"
+          <grouper:message key="${title}"
             tooltipDisable="true" />
         </c:set>
         <c:set var="title2" scope="request">
-        <grouper:message bundle="${nav}" key="${subtitle}" tooltipDisable="true">
+        <grouper:message key="${subtitle}" tooltipDisable="true">
             <c:forEach var="arg" items="${subtitleArgs}">
               <grouper:param value="${arg}" />
             </c:forEach>
@@ -46,7 +46,7 @@
         <%-- blank it out so it isnt carried over from another set --%>
         <c:set var="title1" scope="request" value="" />
         <c:set var="title2" scope="request">
-          <grouper:message bundle="${nav}" key="${title}"
+          <grouper:message key="${title}"
             tooltipDisable="true" />
         </c:set>
         <%-- this is the nav.properties id for the infodot body for this title/subtitle combo --%>
@@ -56,7 +56,7 @@
       <c:when test="${!empty subtitle}">
         <c:set var="title1" scope="request" value="" />
         <c:set var="title2" scope="request">
-        <grouper:message bundle="${nav}" key="${subtitle}" tooltipDisable="true">
+        <grouper:message key="${subtitle}" tooltipDisable="true">
             <c:forEach var="arg" items="${subtitleArgs}">
               <grouper:param value="${arg}" />
             </c:forEach>
@@ -78,7 +78,7 @@
       <c:if test="${!empty navNullMap[titleInfodotName]}">
         <div class="helpText"
           <grouper:hideShowTarget hideShowHtmlId="titleHideShow_${titleInfodotName}"  />
-        ><grouper:message bundle="${nav}" key="${titleInfodotName}"
+        ><grouper:message key="${titleInfodotName}"
           useNewTermContext="true"
         /></div>
       </c:if>

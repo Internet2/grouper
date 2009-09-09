@@ -4,7 +4,7 @@
 		  when searching for subjects in 'Find' mode
 --%><%--
   @author Gary Brown.
-  @version $Id: searchForPrivAssignmentListHeaderView.jsp,v 1.8 2009-03-04 10:52:40 isgwb Exp $
+  @version $Id: searchForPrivAssignmentListHeaderView.jsp,v 1.9 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
     <grouper:subtitle key="find.heading.select-privs" param1="${subtitleArgs[0]}"/>
@@ -32,29 +32,29 @@
 		<div class="privilegeCheckBoxes">
 			<c:if test="${forStems}">
     			<span class="checkbox"><input type="checkbox" name="privileges" 
-				value="CREATE" id="privCreate" <c:out value="${CREATEChecked}"/>/>&#160;<label for="privCreate"><grouper:message bundle="${nav}" key="priv.create"/></label></span>
+				value="CREATE" id="privCreate" <c:out value="${CREATEChecked}"/>/>&#160;<label for="privCreate"><grouper:message key="priv.create"/></label></span>
     			<span class="checkbox"><input type="checkbox" name="privileges" 
-				value="STEM" id="privStem" <c:out value="${STEMChecked}"/>/>&#160;<label for="privCreate"><grouper:message bundle="${nav}" key="priv.stem"/></label></span>
+				value="STEM" id="privStem" <c:out value="${STEMChecked}"/>/>&#160;<label for="privCreate"><grouper:message key="priv.stem"/></label></span>
 				<input type="hidden" name="stems" value="true"/>
 			</c:if>
 
                       
 			<c:if test="${!forStems}">
     			<span class="checkbox"><input type="checkbox" name="privileges" value="member"  id="privMember" <c:out value="${memberChecked}" escapeXml="false" />/> 
-					<label for="privMember"><grouper:message bundle="${nav}" key="priv.member"/></label></span>
+					<label for="privMember"><grouper:message key="priv.member"/></label></span>
     			<c:if test="${groupPrivResolver.canManagePrivileges}">
 	    			<span class="checkbox"><input type="checkbox" name="privileges" value="OPTIN"  id="privOptin" <c:out value="${OPTINChecked}" escapeXml="false" />/> 
-						<label for="privOptin"><grouper:message bundle="${nav}" key="priv.optin"/></label></span>
+						<label for="privOptin"><grouper:message key="priv.optin"/></label></span>
 	    			<span class="checkbox"><input type="checkbox" name="privileges" value="OPTOUT"  id="privOptout" <c:out value="${OPTOUTChecked}" escapeXml="false" />/> 
-						<label for="privOptout"><grouper:message bundle="${nav}" key="priv.optout"/></label></span>
+						<label for="privOptout"><grouper:message key="priv.optout"/></label></span>
 	    			<span class="checkbox"><input type="checkbox" name="privileges" value="VIEW"  id="privView" <c:out value="${VIEWChecked}" escapeXml="false"/>/> 
-						<label for="privView"><grouper:message bundle="${nav}" key="priv.view"/></label></span>
+						<label for="privView"><grouper:message key="priv.view"/></label></span>
 	    			<span class="checkbox"><input type="checkbox" name="privileges" value="READ"  id="privRead" <c:out value="${READChecked}" escapeXml="false" />/> 
-						<label for="privRead"><grouper:message bundle="${nav}" key="priv.read"/></label></span>
+						<label for="privRead"><grouper:message key="priv.read"/></label></span>
 	    			<span class="checkbox"><input type="checkbox" name="privileges" value="UPDATE"  id="privUpdate" <c:out value="${UPDATEChecked}" escapeXml="false"/>/> 
-						<label for="privUpdate"><grouper:message bundle="${nav}" key="priv.update"/></label></span>
+						<label for="privUpdate"><grouper:message key="priv.update"/></label></span>
 	    			<span class="checkbox"><input type="checkbox" name="privileges" 
-					value="ADMIN"  id="privAdmin" <c:out value="${ADMINChecked}"/>/>&#160;<label for="privAdmin"><grouper:message bundle="${nav}" key="priv.admin"/></label></span>
+					value="ADMIN"  id="privAdmin" <c:out value="${ADMINChecked}"/>/>&#160;<label for="privAdmin"><grouper:message key="priv.admin"/></label></span>
 				</c:if>
 			</c:if>
 

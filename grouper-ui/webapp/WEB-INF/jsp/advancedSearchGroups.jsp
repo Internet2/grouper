@@ -2,14 +2,14 @@
 		Tile which displays the advanced search form for groups
 --%><%--
   @author Gary Brown.
-  @version $Id: advancedSearchGroups.jsp,v 1.13 2008-05-01 16:11:21 mchyzer Exp $
+  @version $Id: advancedSearchGroups.jsp,v 1.14 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.search"/></a>
+<a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message key="page.skip.search"/></a>
 <div class="advancedSearchGroups section">
 <c:if test="${!empty subjectOfInterest}">
-	<div class="groupSearchSubject"><grouper:message bundle="${nav}" key="subject.action.search-groups.info"/> 
+	<div class="groupSearchSubject"><grouper:message key="subject.action.search-groups.info"/> 
 	<tiles:insert definition="dynamicTileDef" flush="false">
 	  			<tiles:put name="viewObject" beanName="subjectOfInterest"/>
 	  			<tiles:put name="view" value="groupSearchForPrivileges"/>
@@ -18,7 +18,7 @@
 <grouper:subtitle key="find.heading.groups-advanced-search">
 <a class="underline subtitleLink"
   href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=false"><grouper:message 
-bundle="${nav}" key="find.action.cancel-advanced-search"/></a>
+key="find.action.cancel-advanced-search"/></a>
 </grouper:subtitle>
 
   <div class="sectionBody">

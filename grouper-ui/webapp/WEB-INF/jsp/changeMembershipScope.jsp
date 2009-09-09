@@ -6,7 +6,7 @@
 		If configured, an dthe user has appropriate privileges, it is possible to import/export members from/to flat files
 --%><%--
   @author Gary Brown.
-  @version $Id: changeMembershipScope.jsp,v 1.10 2008-04-29 18:02:31 mchyzer Exp $
+  @version $Id: changeMembershipScope.jsp,v 1.11 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -20,32 +20,32 @@
 <input type="hidden" name="callerPageId" value="<c:out value="${thisPageId}"/>"/>
 <fieldset>
 	<span class="membershipListScope">
-		<html:radio property="membershipListScope" value="imm"/> <grouper:message bundle="${nav}" key="groups.list-members.scope.imm"/>
+		<html:radio property="membershipListScope" value="imm"/> <grouper:message key="groups.list-members.scope.imm"/>
 	</span>
 	<span class="membershipListScope">
-		<html:radio property="membershipListScope" value="eff"/> <grouper:message bundle="${nav}" key="groups.list-members.scope.eff"/>
+		<html:radio property="membershipListScope" value="eff"/> <grouper:message key="groups.list-members.scope.eff"/>
 	</span>
 	<span class="membershipListScope">
-		<html:radio property="membershipListScope" value="all"/> <grouper:message bundle="${nav}" key="groups.list-members.scope.all"/>
+		<html:radio property="membershipListScope" value="all"/> <grouper:message key="groups.list-members.scope.all"/>
 	</span>
 	<c:if test="${listFieldsSize gt 0}">
 		<span class="membershipListScope">
 		
 			<html:select property="listField">
-				<option value=""><grouper:message bundle="${nav}" key="groups.list-members.scope.ordinary-membership"/></option>
+				<option value=""><grouper:message key="groups.list-members.scope.ordinary-membership"/></option>
 				<html:options name="listFields"/>
-			</html:select> <grouper:message bundle="${nav}" key="groups.list-members.scope.select-list"/>
+			</html:select> <grouper:message key="groups.list-members.scope.select-list"/>
 		</span>
 	</c:if>
 	<c:if test="${mediaMap['members.filter.by-source']=='true' && sourcesSize > 1}">
-	<grouper:message bundle="${nav}" key="groups.list-members.filter-by-source"/> <html:select property="selectedSource">
-	<html:option value="_void_"><grouper:message bundle="${nav}" key="groups.list-members.any-source"/></html:option>
+	<grouper:message key="groups.list-members.filter-by-source"/> <html:select property="selectedSource">
+	<html:option value="_void_"><grouper:message key="groups.list-members.any-source"/></html:option>
 	<html:options collection="sources" property="key" labelProperty="value"/>
 	</html:select>
 	</c:if>
   <br />
 	<span class="membershipListScope">
-		<input name="submit.changeScope" type="submit" class="blueButton" value="<grouper:message bundle="${nav}" key="groups.list-members.scope.submit"/>"/>
+		<input name="submit.changeScope" type="submit" class="blueButton" value="<grouper:message key="groups.list-members.scope.submit"/>"/>
 	</span>
   <br />
 	<c:if test="${MembershipExporter.active}">

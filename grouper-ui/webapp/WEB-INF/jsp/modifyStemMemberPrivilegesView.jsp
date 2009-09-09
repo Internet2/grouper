@@ -3,7 +3,7 @@
 		  privileges for the active stem to be changed
 --%><%--
   @author Gary Brown.
-  @version $Id: modifyStemMemberPrivilegesView.jsp,v 1.6 2008-04-14 16:09:36 isgwb Exp $
+  @version $Id: modifyStemMemberPrivilegesView.jsp,v 1.7 2009-09-09 15:10:03 mchyzer Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -23,7 +23,7 @@
 	<c:if test="${authUserPriv.STEM}">
 		<c:forEach var="priv" items="${possiblePrivs}">
 			<html:multibox property="privileges" value="${priv}"  styleId="priv${priv}"/> 
-				<label for="priv<c:out value="${priv}"/>"><grouper:message bundle="${nav}" key="priv.${priv}"/></label><br/>
+				<label for="priv<c:out value="${priv}"/>"><grouper:message key="priv.${priv}"/></label><br/>
 		</c:forEach>
 	</c:if>
 	<html:submit styleClass="blueButton" property="submit.group.member" value="${navMap['priv.assign']}"/> 

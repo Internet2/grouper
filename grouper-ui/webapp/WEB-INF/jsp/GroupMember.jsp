@@ -5,7 +5,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: GroupMember.jsp,v 1.7 2008-04-11 14:49:36 mchyzer Exp $
+  @version $Id: GroupMember.jsp,v 1.8 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="section">
@@ -19,7 +19,7 @@
   <c:when test="${authUserPriv.UPDATE || authUserPriv.ADMIN}">
     <div class="section">
     <c:set var="groupMemberSubtitle">
-      <grouper:message bundle="${nav}" key="find.heading.select-privs">
+      <grouper:message key="find.heading.select-privs">
         <grouper:param>
           <tiles:insert definition="dynamicTileDef" flush="false">
             <tiles:put name="viewObject" beanName="subject" />
@@ -43,7 +43,7 @@
   <c:otherwise>
     <div class="section">
       <div class="sectionBody">
-        <grouper:message bundle="${nav}" key="privs.group.member.none" />
+        <grouper:message key="privs.group.member.none" />
   </c:otherwise>
 </c:choose>
 <div class="linkButton"><c:choose>
@@ -67,7 +67,7 @@
     />
     <c:if test="${GroupOrStemMemberFormBean.map.contextSubject!='true'}">
       <html:link page="/populateChains.do" name="contextParams">
-        <grouper:message bundle="${nav}" key="privs.group.member.return-to-chains" />
+        <grouper:message key="privs.group.member.return-to-chains" />
       </html:link>
     </c:if>
     <c:choose>
@@ -75,7 +75,7 @@
 
         <tiles:insert definition="callerPageButtonDef" flush="false" />
         <html:link page="/populateSubjectSummary.do">
-          <grouper:message bundle="${nav}"
+          <grouper:message
             key="groups.action.summary.return-to-subject-summary"
           />
         </html:link>
@@ -87,7 +87,7 @@
         <html:link page="/populateGroupMembers.do" paramName="browseParent"
           paramProperty="id" paramId="groupId"
         >
-          <grouper:message bundle="${nav}" key="privs.group.member.cancel" />
+          <grouper:message key="privs.group.member.cancel" />
         </html:link>
       </c:otherwise>
     </c:choose>
@@ -103,7 +103,7 @@
           value="${GroupOrStemMemberFormBean.map.privilege}"
         />
         <html:link page="/populateGroupPriviligees.do" name="params">
-          <grouper:message bundle="${nav}" key="privs.group.member.cancel" />
+          <grouper:message key="privs.group.member.cancel" />
         </html:link>
       </c:when>
       <c:when test="${!empty GroupOrStemMemberFormBean.map.callerPageId}">
@@ -111,7 +111,7 @@
       </c:when>
       <c:when test="${GroupOrStemMemberFormBean.map.contextSubject=='true'}">
         <html:link page="/populateSubjectSummary.do">
-          <grouper:message bundle="${nav}" key="members.return-to-subject-summary" />
+          <grouper:message key="members.return-to-subject-summary" />
         </html:link>
 
       </c:when>
@@ -119,7 +119,7 @@
         <html:link page="/populateGroupMembers.do" paramName="GroupOrStemMemberFormBean"
           paramProperty="asMemberOf" paramId="groupId"
         >
-          <grouper:message bundle="${nav}" key="privs.group.member.cancel" />
+          <grouper:message key="privs.group.member.cancel" />
         </html:link>
 
       </c:otherwise>

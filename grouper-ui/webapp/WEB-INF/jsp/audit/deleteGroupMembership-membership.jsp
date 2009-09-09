@@ -2,7 +2,7 @@
 		  audit log view
 --%><%--
   @author Gary Brown.
-  @version $Id: deleteGroupMembership-membership.jsp,v 1.2 2009-08-10 14:03:01 isgwb Exp $
+  @version $Id: deleteGroupMembership-membership.jsp,v 1.3 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -15,7 +15,7 @@
 	<c:set target="${linkParams}" property="subjectId" value="${subject.id}"/>
 	<c:set target="${linkParams}" property="subjectType" value="${subject.subjectType}"/>
 	<c:set target="${linkParams}" property="sourceId" value="${subject.sourceId}"/>
-    <c:set var="linkTitle"><grouper:message bundle="${nav}" key="audit.result.label.subject"/></c:set>
+    <c:set var="linkTitle"><grouper:message key="audit.result.label.subject"/></c:set>
     <tiles:insert definition="dynamicTileDef" flush="false">
 		  <tiles:put name="viewObject" beanName="subject"/>
 		  <tiles:put name="view" value="subjectSummaryLink"/>
@@ -23,10 +23,10 @@
 		  <tiles:put name="linkTitle" beanName="linkTitle"/>
 	</tiles:insert></c:when>
 		<c:otherwise>
-		<grouper:message bundle="${nav}" key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.memberId}"/>)
+		<grouper:message key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.memberId}"/>)
 		</c:otherwise>
 	</c:choose> 
-	<grouper:message bundle="${nav}" key="audit.result.label.member-deleted">
+	<grouper:message key="audit.result.label.member-deleted">
 		<grouper:param value="${viewObject.fields.membershipType}"/>
 		<grouper:param value="${viewObject.fields.fieldName}"/>
 	</grouper:message>
@@ -39,7 +39,7 @@
 		  <tiles:put name="view" value="groupSearchResultLink"/>
 	</tiles:insert></c:when>
 		<c:otherwise>
-		<grouper:message bundle="${nav}" key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.groupId}"/> - <c:out value="${viewObject.fields.groupName}"/>)
+		<grouper:message key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.groupId}"/> - <c:out value="${viewObject.fields.groupName}"/>)
 		</c:otherwise>
 	</c:choose>
 	

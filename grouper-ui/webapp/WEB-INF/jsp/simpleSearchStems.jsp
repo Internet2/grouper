@@ -2,14 +2,14 @@
 		Tile which displays the simple search form for stems
 --%><%--
   @author Gary Brown.
-  @version $Id: simpleSearchStems.jsp,v 1.11 2008-04-11 15:59:18 mchyzer Exp $
+  @version $Id: simpleSearchStems.jsp,v 1.12 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.search"/></a>
+<a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message key="page.skip.search"/></a>
 <div class="searchGroups section">
 <grouper:subtitle key="stems.heading.search">
-	<a class="subtitleLink underlined" href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"><grouper:message bundle="${nav}" key="find.action.select.stems-advanced-search"/></a>
+	<a class="subtitleLink underlined" href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"><grouper:message key="find.action.select.stems-advanced-search"/></a>
 </grouper:subtitle>
 <div class="sectionBody>	
     <html:form action="/searchStems" styleId="SearchFormBean" method="post">
@@ -21,7 +21,7 @@
 
   <tr class="formTableRow">
   <td class="formTableLeft">
-    	<label for="searchTerm" class="noCSSOnly"><grouper:message bundle="${nav}" key="find.search-term"/></label>
+    	<label for="searchTerm" class="noCSSOnly"><grouper:message key="find.search-term"/></label>
       <html:text property="searchTerm" size="25" styleId="searchTerm"/>
     </td>
     <td class="formTableRight">

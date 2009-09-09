@@ -2,7 +2,7 @@
 		  Dynamic tile used to render a field which is a list field
 --%><%--
   @author Gary Brown.
-  @version $Id: fieldLISTView.jsp,v 1.4 2008-09-09 20:03:40 mchyzer Exp $
+  @version $Id: fieldLISTView.jsp,v 1.5 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -13,7 +13,7 @@
 		</td>
     <%-- on the edit screen there there 3 cols, this should take up two --%>
 		<td class="formTableRight" colspan="2">
-			<span class="fieldIsList"><grouper:message bundle="${nav}" key="groups.summary.field-is-list"/></span>
+			<span class="fieldIsList"><grouper:message key="groups.summary.field-is-list"/></span>
 		</td>
 	</tr>
    

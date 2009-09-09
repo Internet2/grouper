@@ -42,14 +42,14 @@ param2="${browseParent.desc}" />
 </tiles:insert>
 <c:choose>
 	<c:when test="${privsSize>0}">
-		<grouper:message bundle="${nav}" key="subject.privileges.chain"/>
+		<grouper:message key="subject.privileges.chain"/>
 		<c:forEach var="priv" items="${privs}">
 			<c:out value="${priv}"/><tiles:insert definition="linkSeparatorDef" flush="false"/>
 		</c:forEach>
-		<c:set var="linkText"><grouper:message bundle="${nav}" key="subject.privileges.chain.change"/></c:set>
+		<c:set var="linkText"><grouper:message key="subject.privileges.chain.change"/></c:set>
 	</c:when>
-	<c:otherwise><grouper:message bundle="${nav}" key="subject.privileges.chain.none"/> 
-		<c:set var="linkText"><grouper:message bundle="${nav}" key="subject.privileges.chain.assign"/></c:set>
+	<c:otherwise><grouper:message key="subject.privileges.chain.none"/> 
+		<c:set var="linkText"><grouper:message key="subject.privileges.chain.assign"/></c:set>
 	</c:otherwise>
 </c:choose>
 <html:link page="/populateGroupMember.do" name="groupMemberParams"><c:out value="${linkText}"/></html:link>
@@ -59,7 +59,7 @@ param2="${browseParent.desc}" />
 <c:choose>
 	<c:when test="${GroupFormBean.map.contextSubject=='true'}">
 		<html:link page="/populateSubjectSummary.do">
-					<grouper:message bundle="${nav}" key="groups.action.summary.return-to-subject-summary"/>
+					<grouper:message key="groups.action.summary.return-to-subject-summary"/>
 		</html:link>
 	</c:when>
 	<c:when test="${!empty composite}">
@@ -67,7 +67,7 @@ param2="${browseParent.desc}" />
 	</c:when>
 	<c:otherwise>
 		<html:link page="/populateGroupMembers.do" name="requestParams">
-			<grouper:message bundle="${nav}" key="groups.membership.chain.cancel"/>
+			<grouper:message key="groups.membership.chain.cancel"/>
 		</html:link>
 	</c:otherwise>
 </c:choose>

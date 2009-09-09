@@ -2,15 +2,15 @@
 		Tile which displays the simple search form for people and groups
 --%><%--
   @author Gary Brown.
-  @version $Id: simpleSearch.jsp,v 1.11 2008-04-16 09:11:23 isgwb Exp $
+  @version $Id: simpleSearch.jsp,v 1.12 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.search"/></a>
+<a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message key="page.skip.search"/></a>
 <div class="section searchGroups">
 <grouper:subtitle key="find.heading.search">
   <a class="underline subtitleLink" href="<c:out value="${pageUrlMinusQueryString}"/>?advancedSearch=true"
-    ><grouper:message bundle="${nav}" key="find.action.select.groups-advanced-search"/></a>
+    ><grouper:message key="find.action.select.groups-advanced-search"/></a>
     
     <a href="#" onclick="return grouperHideShow(event, 'advancedSubjectSearch');" 
       class="underline subtitleLink"><grouper:message key="find.search.subjects.specifySource" ignoreTooltipStyle="true"/></a>
@@ -33,7 +33,7 @@
 <tr class="formTableRow">
 <td class="formTableLeft">
 	<label for="searchTerm" class="noCSSOnly"><grouper:message
-          bundle="${nav}" key="find.search-term"
+          key="find.search-term"
         /></label><input name="searchTerm" type="text" id="searchTerm"/>
   </td>
 <td class="formTableRight">

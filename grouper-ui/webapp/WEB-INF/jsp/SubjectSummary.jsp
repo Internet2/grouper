@@ -3,7 +3,7 @@
 			the maintenance of the subject
 --%><%--
   @author Gary Brown.
-  @version $Id: SubjectSummary.jsp,v 1.8 2008-04-12 03:51:00 mchyzer Exp $
+  @version $Id: SubjectSummary.jsp,v 1.9 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="subjectSummary section">
@@ -17,13 +17,13 @@
 <div class="linkButton">
 			<c:if test="${!empty subject}">
 				<html:link page="/addSavedSubject.do" name="saveParams">
-					<fmt:message bundle="${nav}" key="saved-subjects.add.subject"/>
+					<grouper:message key="saved-subjects.add.subject"/>
 				</html:link>
 			</c:if>
 		<tiles:insert definition="callerPageButtonDef"/>
 		<c:set target="${subject}" property="changeMode" value="true"/>
 		<html:link page="/populateSubjectSummary.do" name="subject">
-					<fmt:message bundle="${nav}" key="subject.summary.start-again-here"/>
+					<grouper:message key="subject.summary.start-again-here"/>
 		</html:link>
 		</div>
 
@@ -56,7 +56,7 @@
 		</tiles:insert>
 		
 	<c:if test="${pager.count==0}">
-		<div class="searchCountZero"><grouper:message bundle="${nav}" key="${scopeListData.noResultsKey}"/></div>
+		<div class="searchCountZero"><grouper:message key="${scopeListData.noResultsKey}"/></div>
 	</c:if>
 </c:if>
   </div>

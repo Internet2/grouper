@@ -4,7 +4,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: groupInfo.jsp,v 1.8 2009-04-10 19:29:16 shilen Exp $
+  @version $Id: groupInfo.jsp,v 1.9 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic"
@@ -48,7 +48,7 @@
     </tr>
     <c:if test="${!empty group.types}">
       <tr class="formTableRow">
-        <td class="formTableLeft"><grouper:message bundle="${nav}"
+        <td class="formTableLeft"><grouper:message
           key="groups.summary.types"
         /></td>
         <td class="formTableRight">

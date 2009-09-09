@@ -2,9 +2,9 @@
 		  audit log view
 --%><%--
   @author Gary Brown.
-  @version $Id: addAttributeDefName-attributeDefName.jsp,v 1.1 2009-07-16 11:33:34 isgwb Exp $
+  @version $Id: addAttributeDefName-attributeDefName.jsp,v 1.2 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
-<em><c:out value="${viewObject.fields.displayName}"/></em> <grouper:message bundle="${nav}" key="audit.result.label.defined-by"/> 
+<em><c:out value="${viewObject.fields.displayName}"/></em> <grouper:message key="audit.result.label.defined-by"/> 
 <c:out value="${viewObject.fields.parentAttributeDefName}"/>

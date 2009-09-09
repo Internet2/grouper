@@ -3,7 +3,7 @@
 		  the active node.
 --%><%--
   @author Gary Brown.
-  @version $Id: fieldLISTWithValueView.jsp,v 1.4 2008-09-09 20:03:40 mchyzer Exp $
+  @version $Id: fieldLISTWithValueView.jsp,v 1.5 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -12,7 +12,7 @@
 			<c:out value="${fieldList[viewObject.name].displayName}"/>
 		</td>
 		<td class="formTableRight">
-			<span class="fieldIsList"><grouper:message bundle="${nav}" key="groups.summary.field-is-list"/></span>
+			<span class="fieldIsList"><grouper:message key="groups.summary.field-is-list"/></span>
 		</td>
 	</tr>
    

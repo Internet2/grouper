@@ -24,6 +24,9 @@ import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /**
  * Utility methods for tags
  * @author mchyzer
@@ -61,6 +64,20 @@ public class TagUtils {
 		return value;
 	}
 	
+  /**
+   * based on request get a nav string
+   * @param key 
+   * @return value
+   */
+  public static String mediaResourceString(String key) {
+    HttpServletRequest servletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+    LocalizationContext localizationContext = (LocalizationContext)(servletRequest
+      .getSession().getAttribute("media"));
+    ResourceBundle media = localizationContext.getResourceBundle();
+    String value = media.getString(key);
+    return value;
+  }
+  
 	/**
 	 * based on request get a nav string
 	 * @param servletRequest 
@@ -89,4 +106,28 @@ public class TagUtils {
 		throw new RuntimeException("Invalid value: '" + valueString + "' for key '" + key + "' in media properties" +
 				" (or local or locale).  Should be true or false");
 	}
+
+  /**
+   * based on request get a media int
+   * @param key 
+   * @param defaultValue if key isnt there, this is the default value
+   * @return true if true, false if false
+   */
+  public static int mediaResourceInt(
+      String key, int defaultValue) {
+    
+    String valueString = mediaResourceString(key);
+    
+    //handle if not in file
+    if (StringUtils.isBlank(valueString)) {
+      return defaultValue;
+    }
+    try {
+      return GrouperUtil.intValue(valueString, defaultValue);
+    } catch (Exception e) {
+      //throw descriptive exception
+      throw new RuntimeException("Invalid value: '" + valueString + "' for key '" + key + "' in media properties" +
+          " (or local or locale).  Should be true or false", e);
+    }
+  }
 }

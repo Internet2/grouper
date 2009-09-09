@@ -2,7 +2,7 @@
 		  audit log view
 --%><%--
   @author Gary Brown.
-  @version $Id: deleteGroupComposite-groupComposite.jsp,v 1.2 2009-08-10 14:03:01 isgwb Exp $
+  @version $Id: deleteGroupComposite-groupComposite.jsp,v 1.3 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -20,7 +20,7 @@
 		  <tiles:put name="view" value="groupSearchResultLink"/>
 	</tiles:insert></c:when>
 		<c:otherwise>
-		<grouper:message bundle="${nav}" key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.ownerId}"/> - <c:out value="${viewObject.fields.ownerName}"/>)
+		<grouper:message key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.ownerId}"/> - <c:out value="${viewObject.fields.ownerName}"/>)
 		</c:otherwise>
 	</c:choose>
 	=<br/>
@@ -32,7 +32,7 @@
 		  <tiles:put name="view" value="groupSearchResultLink"/>
 	</tiles:insert></c:when>
 		<c:otherwise>
-		<grouper:message bundle="${nav}" key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.leftFactorId}"/> - <c:out value="${viewObject.fields.leftFactorName}"/>)
+		<grouper:message key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.leftFactorId}"/> - <c:out value="${viewObject.fields.leftFactorName}"/>)
 		</c:otherwise>
 	</c:choose><br/>
 		<c:out value="${viewObject.fields.type}"/>
@@ -45,6 +45,6 @@
 		  <tiles:put name="view" value="groupSearchResultLink"/>
 	</tiles:insert></c:when>
 		<c:otherwise>
-		<grouper:message bundle="${nav}" key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.rightfactorId}"/> - <c:out value="${viewObject.fields.rightFactorId}"/>)
+		<grouper:message key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.rightfactorId}"/> - <c:out value="${viewObject.fields.rightFactorId}"/>)
 		</c:otherwise>
 	</c:choose>

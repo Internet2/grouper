@@ -2,13 +2,13 @@
 		  Display paged results for Subject search
 --%><%--
   @author Gary Brown.
-  @version $Id: SubjectSearchResults.jsp,v 1.5 2008-04-11 05:53:47 mchyzer Exp $
+  @version $Id: SubjectSearchResults.jsp,v 1.6 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%><tiles:importAttribute />
 <%-- adding this in so that we have css handle on list --%>
 <div class="subjectSearchResults section">
 <div class="sectionBody">
-<div class="searchedFor"><grouper:message bundle="${nav}" key="find.subjects.searched-for">
+<div class="searchedFor"><grouper:message key="find.subjects.searched-for">
 	<grouper:param value="${pager.params.searchTerm}"/>
 </grouper:message></div>
 

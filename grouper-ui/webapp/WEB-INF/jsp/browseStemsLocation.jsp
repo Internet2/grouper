@@ -4,15 +4,15 @@
 		  the user to navigate the hierarchy
 --%><%--
   @author Gary Brown.
-  @version $Id: browseStemsLocation.jsp,v 1.9 2008-04-11 05:53:47 mchyzer Exp $
+  @version $Id: browseStemsLocation.jsp,v 1.10 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <div class="browseStemsLocation">
 <c:choose>
 	<c:when test="${! isFlat}">
-<a href="<c:out value="${pageUrl}"/>#skipCurrentLocation" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.current-location"/><br/></a>
-<strong><grouper:message bundle="${nav}" key="find.browse.here"/></strong>
+<a href="<c:out value="${pageUrl}"/>#skipCurrentLocation" class="noCSSOnly"><grouper:message key="page.skip.current-location"/><br/></a>
+<strong><grouper:message key="find.browse.here"/></strong>
 <%-- CH 20080324 change spacing: --%>  <br /><div class="currentLocationList">
 
 <%

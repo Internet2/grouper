@@ -11,11 +11,11 @@
   	<c:choose>
 		<c:when test="${group.listField=='members'}">
 			<c:set var="linkTitle" value="${navMap['groups.membership.through.title']} ${group.desc}"/>
-			<c:set var="linkText"><grouper:message bundle="${nav}" key="groups.membership.chain.member-of" tooltipDisable="true"/></c:set>
+			<c:set var="linkText"><grouper:message key="groups.membership.chain.member-of" tooltipDisable="true"/></c:set>
 		</c:when>
 		<c:otherwise>
 			<c:set var="linkTitle" value="${navMap['groups.membership.through.title']} ${group.desc}"/>
-			<c:set var="linkText"><grouper:message bundle="${nav}" key="groups.membership.chain.member-of-list" tooltipDisable="true">
+			<c:set var="linkText"><grouper:message key="groups.membership.chain.member-of-list" tooltipDisable="true">
 				<grouper:param value="${group.listField}"/>
 			</grouper:message></c:set>
 			<c:set target="${params}" property="listField" value="${group.listField}"/>

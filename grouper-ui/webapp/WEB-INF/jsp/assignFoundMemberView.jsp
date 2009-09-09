@@ -3,18 +3,18 @@
 		  which can be selected for privilege assignment.
 --%><%--
   @author Gary Brown.
-  @version $Id: assignFoundMemberView.jsp,v 1.6 2009-03-15 08:14:12 mchyzer Exp $
+  @version $Id: assignFoundMemberView.jsp,v 1.7 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
  <%--  Use params to make link title descriptive for accessibility --%>		
-<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.to.subject.summary" tooltipDisable="true">
+<c:set var="linkTitle"><grouper:message key="browse.to.subject.summary" tooltipDisable="true">
 		 		<grouper:param value="${viewObject.description}"/>
 		</grouper:message></c:set>
 	<input type="hidden" name="subjectType:<c:out value="${viewObject.id}"/>" value="<c:out value="${viewObject.subjectType}"/>" />
 	<input type="hidden" name="sourceId:<c:out value="${viewObject.id}"/>" value="<c:out value="${viewObject.sourceId}"/>" />
 	<label for="members<c:out value="${itemPos}"/>" class="noCSSOnly">
-	   	<grouper:message bundle="${nav}" key="browse.select.subject"/> <c:out value="${viewObject.desc}"/>
+	   	<grouper:message key="browse.select.subject"/> <c:out value="${viewObject.desc}"/>
 		</label>
 	<input type="checkbox" name="members" value="<c:out value="${viewObject.id}"/>" <c:out value="${checked}"/>/>
 	<c:set var="areAssignableChildren" value="true" scope="request"/> 

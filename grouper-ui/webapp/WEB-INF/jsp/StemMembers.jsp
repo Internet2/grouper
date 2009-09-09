@@ -28,11 +28,11 @@ bulk update capability?). Also link to find new members --%>
 </c:forEach>
 </ul>
 <!--<c:if test="${!empty searchObj && !searchObj.trueSearch}">
-<html:link page="/populateFindNewMembers.do" ><grouper:message bundle="${nav}" key="find.return-find"/></html:link><p/>
+<html:link page="/populateFindNewMembers.do" ><grouper:message key="find.return-find"/></html:link><p/>
 </c:if>-->
 <c:if test="${!empty searchObj && searchObj.trueSearch}">
-<html:link page="/searchNewMembers.do" name="searchObj"><grouper:message bundle="${nav}" key="find.return-results"/></html:link><p/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<html:link page="/searchNewMembers.do" name="searchObj"><grouper:message key="find.return-results"/></html:link><p/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 </c:if>
-<br/><html:link page="/populateFindNewMembers.do" name="groupMembership"><grouper:message bundle="${nav}" key="find.add-new-members"/></html:link>
-<html:link page="/populateGroupSummary.do" name="groupMembership"><grouper:message bundle="${nav}" key="done"/></html:link>
+<br/><html:link page="/populateFindNewMembers.do" name="groupMembership"><grouper:message key="find.add-new-members"/></html:link>
+<html:link page="/populateGroupSummary.do" name="groupMembership"><grouper:message key="done"/></html:link>
 

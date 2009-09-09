@@ -2,7 +2,7 @@
 			Imports data from uploaded file and displays output
 --%><%--
   @author Gary Brown.
-  @version $Id: ImportMembers.jsp,v 1.5 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: ImportMembers.jsp,v 1.6 2009-09-09 15:10:03 mchyzer Exp $
 --%><%@include file="/WEB-INF/jsp/include.jsp"%><c:choose>
 	<c:when test="${canWriteField}"><%importMembers(request,response);%>
 		<c:if test="${mediaMap['membership-import.allow-textarea']=='true'}">
@@ -31,7 +31,7 @@
 			</select>
 			</c:otherwise>
 		</c:choose><br/><br/>
-		<p><grouper:message bundle="${nav}" key="groups.import.textarea-title"/></p>
+		<p><grouper:message key="groups.import.textarea-title"/></p>
 		<html:textarea rows="20" cols="50" property="importString" title="${navMap['groups.import.textarea-title']}"/>
 		<br/>
 		<input type="submit" class="blueButton" name="submit.import" value="<c:out value="${navMap['groups.import.submit']}"/>"/>
@@ -42,13 +42,13 @@
 		</c:if>
 	</c:when>
 	<c:otherwise>
-		<grouper:message bundle="${nav}" key="groups.import.message.insufficient-privileges"/>
+		<grouper:message key="groups.import.message.insufficient-privileges"/>
 	</c:otherwise>
 </c:choose>
 
 <div class="linkButton">
 <html:link page="/populateGroupMembers.do"  name="listGroupParams">
-				<grouper:message bundle="${nav}" key="groups.action.edit-members"/>
+				<grouper:message key="groups.action.edit-members"/>
 			</html:link>
 </div>
 

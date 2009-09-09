@@ -3,14 +3,14 @@
 		  except 'Find' mode 
 --%><%--
   @author Gary Brown.
-  @version $Id: SearchGroupResults.jsp,v 1.7 2008-04-14 08:54:30 isgwb Exp $
+  @version $Id: SearchGroupResults.jsp,v 1.8 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
   <div class="section groupSearchSubject">
   <div class="sectionBody">
 <c:if test="${!empty subjectOfInterest}">
   
-  <grouper:message bundle="${nav}" key="subject.action.search-groups.info"/> 
+  <grouper:message key="subject.action.search-groups.info"/> 
 	<tiles:insert definition="dynamicTileDef" flush="false">
 	  			<tiles:put name="viewObject" beanName="subjectOfInterest"/>
 	  			<tiles:put name="view" value="groupSearchForPrivileges"/>
@@ -27,23 +27,23 @@
 		</c:when>
 		<c:when test="${termMode == 'field'}">
 			<c:set var="termText"><c:out value="${termText}" escapeXml="false"/> 
-			<span class="termIn"><grouper:message bundle="${nav}" key="find.results.search-in"/></span> 
+			<span class="termIn"><grouper:message key="find.results.search-in"/></span> 
 				<span class="termField"><c:out value="${outTerm}" escapeXml="false"/></span></c:set>
 			<c:set var="termMode" value="andOrNot"/>
 		</c:when>
 		<c:otherwise>
 			<c:set var="termAndOrNotKey" value="find.search.${outTerm}"/>
 			<c:set var="termText"><c:out value="${termText}" escapeXml="false"/> 
-				<span class="termAndOrNot"><grouper:message bundle="${nav}" key="${termAndOrNotKey}"/></span></c:set>	
+				<span class="termAndOrNot"><grouper:message key="${termAndOrNotKey}"/></span></c:set>	
 			<c:set var="termMode" value="query"/>
 		</c:otherwise>
 	</c:choose>
 </c:forEach>
-<div class="searchedFor"><grouper:message bundle="${nav}" key="find.groups.searched-for">
+<div class="searchedFor"><grouper:message key="find.groups.searched-for">
 	<grouper:param value="${termText}"/>
 </grouper:message></div>
 <c:if test="${!empty pager.params.searchFromDisplay}">
-<div class="searchedFrom"><grouper:message bundle="${nav}" key="find.groups.searched-from">
+<div class="searchedFrom"><grouper:message key="find.groups.searched-from">
 	<grouper:param value="${pager.params.searchFromDisplay}"/>
 </grouper:message></div>
 </c:if>
@@ -67,20 +67,20 @@
 </tiles:insert>
 
 <c:if test="${pager.count==0}">
-<div class="searchCountZero"><grouper:message bundle="${nav}" key="find.groups.no-results"/></div>
+<div class="searchCountZero"><grouper:message key="find.groups.no-results"/></div>
 </c:if>
 <div class="linkButton">
 <tiles:insert definition="callerPageButtonDef">
-	<tiles:put name="buttonTitle"><grouper:message bundle="${nav}" key="find.results.search-again"/></tiles:put>
-	<tiles:put name="buttonText"><grouper:message bundle="${nav}" key="find.results.search-again"/></tiles:put>
+	<tiles:put name="buttonTitle"><grouper:message key="find.results.search-again"/></tiles:put>
+	<tiles:put name="buttonText"><grouper:message key="find.results.search-again"/></tiles:put>
 </tiles:insert>
 <c:if test="${grouperForm.map.advSearch=='Y'}">
 <c:choose>
 	<c:when test="${browseMode=='SubjectSearch'}">
-		<a href="populateSubjectSummary.do?advancedSearch=false"><grouper:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a>
+		<a href="populateSubjectSummary.do?advancedSearch=false"><grouper:message key="find.action.cancel-advanced-search"/></a>
 	</c:when>
 	<c:otherwise>
-		<a href="populate<c:out value="${linkBrowseMode}"/>Groups.do?advancedSearch=false"><grouper:message bundle="${nav}" key="find.action.cancel-advanced-search"/></a>
+		<a href="populate<c:out value="${linkBrowseMode}"/>Groups.do?advancedSearch=false"><grouper:message key="find.action.cancel-advanced-search"/></a>
 	</c:otherwise>
 	</c:choose>
 </c:if>

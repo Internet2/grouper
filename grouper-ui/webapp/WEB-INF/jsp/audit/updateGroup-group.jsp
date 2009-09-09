@@ -2,7 +2,7 @@
 		  audit log view
 --%><%--
   @author Gary Brown.
-  @version $Id: updateGroup-group.jsp,v 1.2 2009-08-10 14:03:01 isgwb Exp $
+  @version $Id: updateGroup-group.jsp,v 1.3 2009-09-09 15:10:03 mchyzer Exp $
 --%><%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 
@@ -17,7 +17,7 @@
 		  <tiles:put name="view" value="groupSearchResultLink"/>
 	</tiles:insert></c:when>
 		<c:otherwise>
-		<grouper:message bundle="${nav}" key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.id}"/> - <c:out value="${viewObject.fields.name}"/>)
+		<grouper:message key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.id}"/> - <c:out value="${viewObject.fields.name}"/>)
 		</c:otherwise>
 	</c:choose>
 	

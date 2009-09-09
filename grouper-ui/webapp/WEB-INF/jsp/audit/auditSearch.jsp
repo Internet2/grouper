@@ -2,11 +2,11 @@
 		Tile which displays the simple search form for audit entries
 --%><%--
   @author Gary Brown.
-  @version $Id: auditSearch.jsp,v 1.2 2009-08-11 14:17:21 isgwb Exp $
+  @version $Id: auditSearch.jsp,v 1.3 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.search"/></a>
+<a href="<c:out value="${pageUrl}"/>#endSearch" class="noCSSOnly"><grouper:message key="page.skip.search"/></a>
 
  <html:form styleId="SearchFormBean" action="/userAudit" method="post">
  		<input type="hidden" name="viaForm" value="true"/>
@@ -25,17 +25,17 @@
 <tr class="formTableRow">
 <td class="formTableLeft">
 	<label for="searchTerm" class="noCSSOnly"><grouper:message
-          bundle="${nav}" key="find.search-term"
-        /></label><grouper:message bundle="${nav}" key="audit.query.filter-by-date"/> 
+          key="find.search-term"
+        /></label><grouper:message key="audit.query.filter-by-date"/> 
         
   </td>
 <td class="formTableRight">
 <html:select property="dateQualifier">
-        	<html:option value="on"><grouper:message bundle="${nav}" key="audit.query.filter-by-date.on"/></html:option>
-        	<html:option value="before"><grouper:message bundle="${nav}" key="audit.query.filter-by-date.before"/></html:option>
-        	<html:option value="after"><grouper:message bundle="${nav}" key="audit.query.filter-by-date.after"/></html:option>
-        	<html:option value="between"><grouper:message bundle="${nav}" key="audit.query.filter-by-date.between"/></html:option>
-        	</html:select> <html:text size="15" property="date1" /> (<grouper:message bundle="${nav}" key="audit.query.filter-by-date.and"/> <html:text size="15" property="date2" />)
+        	<html:option value="on"><grouper:message key="audit.query.filter-by-date.on"/></html:option>
+        	<html:option value="before"><grouper:message key="audit.query.filter-by-date.before"/></html:option>
+        	<html:option value="after"><grouper:message key="audit.query.filter-by-date.after"/></html:option>
+        	<html:option value="between"><grouper:message key="audit.query.filter-by-date.between"/></html:option>
+        	</html:select> <html:text size="15" property="date1" /> (<grouper:message key="audit.query.filter-by-date.and"/> <html:text size="15" property="date2" />)
 	
     </td>
 </tr>
@@ -43,20 +43,20 @@
 <tr class="formTableRow">
 <td class="formTableLeft">
 	<label for="searchTerm" class="noCSSOnly"><grouper:message
-          bundle="${nav}" key="find.search-term"
-        /></label><grouper:message bundle="${nav}" key="audit.query.sort"/> 
+          key="find.search-term"
+        /></label><grouper:message key="audit.query.sort"/> 
         
   </td>
 <td class="formTableRight">
 <html:select property="sort">
-        	<html:option value="desc"><grouper:message bundle="${nav}" key="audit.query.desc"/></html:option>
-        	<html:option value="asc"><grouper:message bundle="${nav}" key="audit.query.asc"/></html:option>
+        	<html:option value="desc"><grouper:message key="audit.query.desc"/></html:option>
+        	<html:option value="asc"><grouper:message key="audit.query.asc"/></html:option>
  	</html:select>
     </td>
 </tr>
 <tr class="formTableRow">
 <td class="formTableLeft">
-	<grouper:message bundle="${nav}" key="audit.query.extended-results"/> 
+	<grouper:message key="audit.query.extended-results"/> 
         
   </td>
 <td class="formTableRight">

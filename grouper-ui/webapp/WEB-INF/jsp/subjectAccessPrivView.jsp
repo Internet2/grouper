@@ -3,7 +3,7 @@
 		  render individual Access privileges for current subject
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectAccessPrivView.jsp,v 1.7 2009-03-15 08:14:12 mchyzer Exp $
+  @version $Id: subjectAccessPrivView.jsp,v 1.8 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -21,16 +21,16 @@
 <c:set target="${pagerParams}" property="contextSourceId" value="${viewObject.sourceId}"/> 
   
  <%--  Use params to make link title descriptive for accessibility --%>		
-<c:set var="linkTitle"><grouper:message bundle="${nav}" key="groups.access.chain.title" tooltipDisable="true">
+<c:set var="linkTitle"><grouper:message key="groups.access.chain.title" tooltipDisable="true">
 		 		<grouper:param value="${SubjectFormBean.map.accessPriv}"/>
 				<grouper:param value="${viewObject.desc}"/>
 				<grouper:param value="${viewObject.memberOfGroup.desc}"/>
 </grouper:message></c:set>
 <span class="groupMemberLink">		
 		<html:link page="/populateGroupMember.do" name="pagerParams" title="${linkTitle}">
-		 	<fmt:message bundle="${nav}" key="groups.privilege.has-for">
-		 	<fmt:param value="${SubjectFormBean.map.accessPriv}"/>
-			</fmt:message>
+		 	<grouper:message key="groups.privilege.has-for">
+		 	<grouper:param value="${SubjectFormBean.map.accessPriv}"/>
+			</grouper:message>
 		</html:link></span> <c:out value="${linkSeparator}" escapeXml="false"/>
 		
 	

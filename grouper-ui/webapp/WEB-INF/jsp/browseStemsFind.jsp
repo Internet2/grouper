@@ -4,7 +4,7 @@
 		  memberships of the curent node
 --%><%--
   @author Gary Brown.
-  @version $Id: browseStemsFind.jsp,v 1.7 2008-04-10 19:50:25 mchyzer Exp $
+  @version $Id: browseStemsFind.jsp,v 1.8 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -25,10 +25,10 @@
 
 			
 			<html:select property="expandListField">
-				<option value=""><grouper:message bundle="${nav}" key="groups.list-members.scope.ordinary-membership"/></option>
+				<option value=""><grouper:message key="groups.list-members.scope.ordinary-membership"/></option>
 				<html:options name="listFields"/>
 			</html:select> 
-			<input type="submit" class="blueButton" value="<grouper:message bundle="${nav}" key="groups.list-members.scope.select-list"/>"/>	
+			<input type="submit" class="blueButton" value="<grouper:message key="groups.list-members.scope.select-list"/>"/>	
 			</html:form>
 			</div>
 	

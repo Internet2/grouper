@@ -10,14 +10,14 @@
 
 
 <c:if test="${savedSubjectsSize<2}">
-<grouper:message bundle="${nav}" key="groups.composite.add.insufficient-saved"/>
+<grouper:message key="groups.composite.add.insufficient-saved"/>
 </c:if>
 <html:form action="/saveComposite" method="post">
 <input type="hidden" name="groupId" value="<c:out value="${browseParent.groupId}"/>">
 <fieldset>
 <table class="formTable">
 <tr class="formTableRow">
-	<td class="formTableLeft"><grouper:message bundle="${nav}" key="groups.composite.leftGroup"/></td>
+	<td class="formTableLeft"><grouper:message key="groups.composite.leftGroup"/></td>
 	<td class="formTableRight">
 		<html:select property="leftGroup">
 			<html:options collection="savedSubjects" property="id" labelProperty="displayName"/>		
@@ -25,17 +25,17 @@
 	</td>
 </tr>
 <tr class="formTableRow">
-	<td class="formTableLeft"><grouper:message bundle="${nav}" key="groups.composite.type"/></td>
+	<td class="formTableLeft"><grouper:message key="groups.composite.type"/></td>
 	<td class="formTableRight">
 		<select name="compositeType">
-			<option value="union"><grouper:message bundle="${nav}" key="union"/></option>
-			<option value="intersection"><grouper:message bundle="${nav}" key="intersection"/></option>
-			<option value="complement"><grouper:message bundle="${nav}" key="complement"/></option>
+			<option value="union"><grouper:message key="union"/></option>
+			<option value="intersection"><grouper:message key="intersection"/></option>
+			<option value="complement"><grouper:message key="complement"/></option>
 		</select>
 	</td>
 </tr>
 <tr class="formTableRow">
-	<td class="formTableLeft"><grouper:message bundle="${nav}" key="groups.composite.rightGroup"/></td>
+	<td class="formTableLeft"><grouper:message key="groups.composite.rightGroup"/></td>
 	<td class="formTableRight">
 		<html:select property="rightGroup">
 			<html:options collection="savedSubjects" property="id" labelProperty="displayName"/>		

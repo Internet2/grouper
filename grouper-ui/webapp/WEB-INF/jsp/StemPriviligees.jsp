@@ -3,7 +3,7 @@
 			to edit privileges for individual Subjects
 --%><%--
   @author Gary Brown.
-  @version $Id: StemPriviligees.jsp,v 1.9 2008-05-01 18:22:36 mchyzer Exp $
+  @version $Id: StemPriviligees.jsp,v 1.10 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -37,19 +37,19 @@
 <%--<c:if test="${!empty searchObj && searchObj.trueSearch}">
 	<c:set target="${searchObj}" property="stems" value="true"/>
 	<html:link page="/searchNewMembers.do" name="searchObj">
-		<grouper:message bundle="${nav}" key="find.stems.membersreturn-results"/>
+		<grouper:message key="find.stems.membersreturn-results"/>
 	</html:link>
 </c:if>--%>
 
 <html:link page="/populateFindNewMembersForStems.do" name="stemMembership">
-	<grouper:message bundle="${nav}" key="find.stems.add-new-privilegees"/>
+	<grouper:message key="find.stems.add-new-privilegees"/>
 </html:link>
 <html:link page="/populate${linkBrowseMode}Groups.do" >
-	<grouper:message bundle="${nav}" key="priv.stems.list.cancel"/>
+	<grouper:message key="priv.stems.list.cancel"/>
 </html:link>
 <c:if test="${isNewStem && !empty findForNode}">
 <html:link page="/populate${browseMode}Groups.do" paramId="currentNode" paramName="findForNode">
-	<grouper:message bundle="${nav}" key="priv.stems.list.cancel-and-work-in-new"/>
+	<grouper:message key="priv.stems.list.cancel-and-work-in-new"/>
 </html:link>
 </c:if>
 </div>

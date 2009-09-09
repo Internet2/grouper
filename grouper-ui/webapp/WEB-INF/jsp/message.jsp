@@ -4,7 +4,7 @@
 		 'message'
 --%><%--
   @author Gary Brown.
-  @version $Id: message.jsp,v 1.7 2008-10-10 10:16:04 isgwb Exp $
+  @version $Id: message.jsp,v 1.8 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -25,7 +25,7 @@ request.setAttribute("messages",messages);
 <grouper:message key="message.${message.containerId}" />
 
 <!--message-->
-<grouper:message bundle="${nav}" key="${message.text}">
+<grouper:message key="${message.text}">
 <c:forEach var="arg" items="${message.args}">
    <grouper:param value="${arg}"/>
 </c:forEach>

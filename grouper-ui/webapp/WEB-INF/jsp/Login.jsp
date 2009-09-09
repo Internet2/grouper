@@ -4,7 +4,7 @@
 <h3>You will get a very different view of available groups depending on who you log in as. SuperUser sees everything.<p/>
 </h3>
 
-<html:form action="/login" method="post"><grouper:message bundle="${nav}" key="auth.username"/> <!--html:text property="username" size="50"/-->
+<html:form action="/login" method="post"><grouper:message key="auth.username"/> <!--html:text property="username" size="50"/-->
 <html:select property="username">
 <option>81122</option>
 <option>83891</option>
@@ -14,7 +14,7 @@
 </c:forEach>
 </html:select>
 <br/>
-<!--<grouper:message bundle="${nav}" key="auth.password"/> <html:text property="password" size="50"/><br/>-->
+<!--<grouper:message key="auth.password"/> <html:text property="password" size="50"/><br/>-->
 <!--<input type="radio" CHECKED value="en" name="lang"/> English<br/>
 <input type="radio" value="es" name="lang"/> Espanol<br/>
 -->

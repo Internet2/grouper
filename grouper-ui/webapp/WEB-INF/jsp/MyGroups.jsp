@@ -2,13 +2,13 @@
 		  Main page for the 'default' browse mode - My memberships
 --%><%--
   @author Gary Brown.
-  @version $Id: MyGroups.jsp,v 1.5 2008-04-11 14:49:36 mchyzer Exp $
+  @version $Id: MyGroups.jsp,v 1.6 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:choose>
 	<c:when test="${!isAdvancedSearch}">
 <div class="pageBlurb">
-	<grouper:message bundle="${nav}" key="groups.current-memberships"/>
+	<grouper:message key="groups.current-memberships"/>
 </div>
 
 <%-- capture output since it does logic we need --%>

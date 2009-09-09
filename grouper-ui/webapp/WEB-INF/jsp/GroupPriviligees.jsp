@@ -3,7 +3,7 @@
 			to edit privileges for individual Subjects
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupPriviligees.jsp,v 1.6 2008-05-01 18:22:36 mchyzer Exp $
+  @version $Id: GroupPriviligees.jsp,v 1.7 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -37,17 +37,17 @@
 <div class="linkButton">
 <c:if test="${!empty searchObj && searchObj.trueSearch}">
 	<html:link page="/searchNewMembers.do" name="searchObj">
-		<grouper:message bundle="${nav}" key="find.return-results"/>
+		<grouper:message key="find.return-results"/>
 	</html:link>
 </c:if>
 
 <c:if test="${groupPrivResolver.canManagePrivileges}">
 <html:link page="/populateFindNewMembers.do" name="groupMembership">
-	<grouper:message bundle="${nav}" key="find.groups.add-new-privilegees"/>
+	<grouper:message key="find.groups.add-new-privilegees"/>
 </html:link>
 </c:if>
 <html:link page="/populateGroupSummary.do" name="groupMembership">
-	<grouper:message bundle="${nav}" key="find.groups.done"/>
+	<grouper:message key="find.groups.done"/>
 </html:link>
 </div>
 <br/>

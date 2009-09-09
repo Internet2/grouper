@@ -3,7 +3,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: subjectSearchFragment.jsp,v 1.9 2008-09-09 20:03:40 mchyzer Exp $
+  @version $Id: subjectSearchFragment.jsp,v 1.10 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute />
@@ -21,7 +21,7 @@
   </c:if>
   <tr class="formTableRow" 
     <grouper:hideShowTarget hideShowHtmlId="advancedSubjectSearch" showInitially="${advancedMode}"/> >
-    <td class="formTableLeft"><grouper:message bundle="${nav}"
+    <td class="formTableLeft"><grouper:message
       key="find.search-source"
     />
     <grouper:infodot hideShowHtmlId="find.search-sourceInfodot" />
@@ -31,7 +31,7 @@
       <c:out value="${checked}"/> name="subjectSource" id="allRadio"
     />
     <label for="<c:out value="allRadio"/>"><grouper:message
-      bundle="${nav}" key="find.search-all-sources"
+      key="find.search-all-sources"
     /></label>
     </td>
 

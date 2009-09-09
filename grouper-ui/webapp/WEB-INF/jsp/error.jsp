@@ -2,7 +2,7 @@
 			Page displayed if uncaught exception thrown
 --%><%--
   @author Gary Brown.
-  @version $Id: error.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: error.jsp,v 1.3 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <%@page import="java.io.PrintWriter"%>
@@ -19,7 +19,7 @@
 	</c:when>
 	<c:otherwise>
 	<div class="exceptionUndefined">
-		<grouper:message bundle="${nav}" key="error.undefined"/>
+		<grouper:message key="error.undefined"/>
 	</div>
 	</c:otherwise>
 </c:choose>

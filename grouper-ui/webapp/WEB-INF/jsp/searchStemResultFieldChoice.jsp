@@ -2,7 +2,7 @@
 		  Tile which lets user select which field to display in search results
 --%><%--
   @author Gary Brown.
-  @version $Id: searchStemResultFieldChoice.jsp,v 1.5 2008-04-12 03:51:00 mchyzer Exp $
+  @version $Id: searchStemResultFieldChoice.jsp,v 1.6 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
@@ -16,7 +16,7 @@
 <c:if test="${empty stemSearchResultField}"><c:set var="stemSearchResultField" value="${mediaMap['search.stem.result-field']}"/></c:if>
 <c:forTokens items="${mediaMap['search.stem.result-field-choice']}" delims=" " var="field" varStatus="counter">
 	<c:if test="${counter.count==1}">
-    <td class="formTableLeft"><grouper:message bundle="${nav}" key="find.stems.select-result-field"/>
+    <td class="formTableLeft"><grouper:message key="find.stems.select-result-field"/>
     </td><td class="formTableRight"></c:if>
 	
   <c:set var="checked" value=""/>

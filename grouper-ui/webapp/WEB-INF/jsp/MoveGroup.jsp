@@ -3,7 +3,7 @@
 --%>
 <%--
   @author shilen
-  @version $Id: MoveGroup.jsp,v 1.1 2009-04-18 16:33:46 shilen Exp $
+  @version $Id: MoveGroup.jsp,v 1.2 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -63,7 +63,7 @@
     <div class="linkButton">
       <c:set var="groupAttr" value="${GroupFormBean.map}" />
       <html:link page="/populateGroupSummary.do" paramId="groupId" paramName="groupAttr" paramProperty="groupId">
-        <grouper:message bundle="${nav}" key="groups.move.cancel" />
+        <grouper:message key="groups.move.cancel" />
       </html:link>
     </div>
 

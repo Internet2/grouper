@@ -3,7 +3,7 @@
 		  and a 'viewObject'
 --%><%--
   @author Gary Brown.
-  @version $Id: dynamicTile.jsp,v 1.6 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: dynamicTile.jsp,v 1.7 2009-09-09 15:10:03 mchyzer Exp $
 --%><%@page import="org.apache.struts.tiles.ComponentContext"%><%@include file="/WEB-INF/jsp/include.jsp"%><tiles:importAttribute ignore="true"/><c:if test="${empty inLink}">
 <!--       view=<c:out value="${view}"/>
     object type=<c:out value="${dynamicObjectType}"/>
@@ -30,7 +30,7 @@ pageContext.setAttribute("parentTilesContext",tContext);
 		</c:if>
 		</c:catch>
 <c:if test="${not empty uiException && empty silent}">
-	<span class="jspError"><grouper:message bundle="${nav}" key="jsp.error"/></span>
+	<span class="jspError"><grouper:message key="jsp.error"/></span>
 	<!-- <c:out value="${uiException.class.simpleName}"/>:<c:out escapeXml="false" value="${uiException.message}"/> -->
 </c:if>	
 <c:if test="${not empty uiException}">

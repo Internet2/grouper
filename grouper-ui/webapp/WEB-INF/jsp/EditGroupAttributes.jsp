@@ -17,13 +17,13 @@ Can save and
   <table class="formTable">
 	<tr class="typesHeader groupTypes groupInfo formTableRow">
 		<td class="formTableLeft">
-			<grouper:message bundle="${nav}" key="groups.edit-attributes.types-header"/>
+			<grouper:message key="groups.edit-attributes.types-header"/>
 		</td>
 		<td class="formTableLeft">
-			<grouper:message bundle="${nav}" key="groups.edit-attributes.attributes-header"/>
+			<grouper:message key="groups.edit-attributes.attributes-header"/>
 		</td>
 		<td class="formTableLeft" style="text-align: left">
-			<grouper:message bundle="${nav}" key="groups.edit-attributes.values-header"/>
+			<grouper:message key="groups.edit-attributes.values-header"/>
 		</td>
 	</tr>
 <c:if test="${!empty group.types}">
@@ -36,7 +36,7 @@ Can save and
 </c:if>
 <c:if test="${!empty areRequiredAttributes}">
 <tr class="formTableRow">
-<td></td><td  class="formTableLeft"><span class="requiredAttrInfo"><grouper:message bundle="${nav}" key="attribute.required.info"/></span></td><td></td></tr>
+<td></td><td  class="formTableLeft"><span class="requiredAttrInfo"><grouper:message key="attribute.required.info"/></span></td><td></td></tr>
 </c:if>
 <tr class="formTableRow">
 <td colspan="3">

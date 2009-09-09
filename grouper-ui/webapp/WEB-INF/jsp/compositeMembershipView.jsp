@@ -2,7 +2,7 @@
 		  Dynamic tile used to render a membership link for a Subject and a group which is a factor in a composite
 --%><%--
   @author Gary Brown.
-  @version $Id: compositeMembershipView.jsp,v 1.5 2009-03-15 08:14:12 mchyzer Exp $
+  @version $Id: compositeMembershipView.jsp,v 1.6 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -18,7 +18,7 @@
 	<c:set target="${linkParams}" property="listField" value="${listField}"/>
 </c:if>
 
-<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.to.subject.summary" tooltipDisable="true">
+<c:set var="linkTitle"><grouper:message key="browse.to.subject.summary" tooltipDisable="true">
 		 		<grouper:param value="${viewObject.desc}"/>
 		</grouper:message></c:set>
 		<c:set var="subject" value="${viewObject.subject}"/>

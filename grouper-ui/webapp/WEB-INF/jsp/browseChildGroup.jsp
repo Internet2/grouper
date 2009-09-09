@@ -3,11 +3,11 @@
 		  to display a child group
 --%><%--
   @author Gary Brown.
-  @version $Id: browseChildGroup.jsp,v 1.10 2008-04-16 06:41:23 isgwb Exp $
+  @version $Id: browseChildGroup.jsp,v 1.11 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
-<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.to.group.summary" tooltipDisable="true">
+<c:set var="linkTitle"><grouper:message key="browse.to.group.summary" tooltipDisable="true">
 		 		<grouper:param value="${viewObject.displayExtension}"/>
 </grouper:message></c:set>
 

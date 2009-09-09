@@ -2,13 +2,13 @@
 		  audit log view
 --%><%--
   @author Gary Brown.
-  @version $Id: queryResult.jsp,v 1.3 2009-08-11 14:39:44 isgwb Exp $
+  @version $Id: queryResult.jsp,v 1.4 2009-09-09 15:10:03 mchyzer Exp $
 --%><%@include file="/WEB-INF/jsp/include.jsp"%>
 <jsp:useBean id="linkParams" class="java.util.HashMap" scope="page"/>
 <tiles:importAttribute ignore="true"/>
 <c:set var="auditEntry" value="${viewObject}"/>
 <c:set var="actionKey">audit.query.<c:out value="${auditEntry.auditType.actionName}"/>-<c:out value="${auditEntry.auditType.auditCategory}"/></c:set>	
-<tr><td><fmt:formatDate pattern="${mediaMap['audit.query.display-date-format']}" value="${auditEntry.lastUpdated}" /></td>
+<tr><td><fmt:formatDate pattern="${mediaMap['audit.query.display-date-format']}" value="\\${auditEntry.lastUpdated}" /></td>
     
     <td><c:set var="actor" value="${auditEntry.loggedInMember}"/><c:set var="actAsMember" value="${auditEntry.actAsMember}"/>
     <c:choose>
@@ -18,7 +18,7 @@
 	<c:set target="${linkParams}" property="subjectId" value="${actor.id}"/>
 	<c:set target="${linkParams}" property="subjectType" value="${actor.subjectType}"/>
 	<c:set target="${linkParams}" property="sourceId" value="${actor.sourceId}"/>
-    <c:set var="linkTitle"><grouper:message bundle="${nav}" key="audit.result.label.logged-in-member.link.title"/></c:set>
+    <c:set var="linkTitle"><grouper:message key="audit.result.label.logged-in-member.link.title"/></c:set>
     <tiles:insert definition="dynamicTileDef" flush="false">
 		  <tiles:put name="viewObject" beanName="actor"/>
 		  <tiles:put name="view" value="subjectSummaryLink"/>
@@ -30,12 +30,12 @@
 		</c:otherwise>
 	</c:choose>
 	<c:if test="${!empty actAsMember}">
-		<grouper:message bundle="${nav}" key="audit.result.label.acting-as"/><br/>
+		<grouper:message key="audit.result.label.acting-as"/><br/>
 		<c:set target="${linkParams}" property="callerPageId" value="${thisPageId}"/>
 		<c:set target="${linkParams}" property="subjectId" value="${actAsMember.id}"/>
 		<c:set target="${linkParams}" property="subjectType" value="${actAsMember.subjectType}"/>
 		<c:set target="${linkParams}" property="sourceId" value="${actAsMember.sourceId}"/>
-    	<c:set var="linkTitle"><grouper:message bundle="${nav}" key="audit.result.label.act-as-member.link.title"/></c:set>
+    	<c:set var="linkTitle"><grouper:message key="audit.result.label.act-as-member.link.title"/></c:set>
     	<tiles:insert definition="dynamicTileDef" flush="false">
 		  <tiles:put name="viewObject" beanName="actAsMember"/>
 		  <tiles:put name="view" value="subjectSummaryLink"/>
@@ -49,7 +49,7 @@
 	<td><c:out value="${auditEntry.grouperEngine}"/></td>
     <td> 
     <!--<c:out value="${auditEntry.auditType.actionName}"/>-<c:out value="${auditEntry.auditType.auditCategory}"/>-->
-    <strong><grouper:message bundle="${nav}" key="${actionKey}"/></strong><br/>
+    <strong><grouper:message key="${actionKey}"/></strong><br/>
     <tiles:insert definition="dynamicTileDef" flush="false">
 		  <tiles:put name="viewObject" beanName="auditEntry"/>
 		  <tiles:put name="view" value="summary"/>

@@ -2,17 +2,17 @@
 		  Allow user to select which grouip types they want to search
 --%><%--
   @author Gary Brown.
-  @version $Id: selectGroupSearchTypes.jsp,v 1.3 2008-05-01 16:11:21 mchyzer Exp $
+  @version $Id: selectGroupSearchTypes.jsp,v 1.4 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <tiles:importAttribute ignore="true"/>
 		<tr class="formTableRow">
 			<td class="formTableLeft">
-			<strong><grouper:message bundle="${nav}" key="find.search.in-group-type-input"/></strong>	
+			<strong><grouper:message key="find.search.in-group-type-input"/></strong>	
 			</td>
 			<td class="formTableRight">
-			<strong><grouper:message bundle="${nav}" key="find.search.in-group-type"/></strong>		
+			<strong><grouper:message key="find.search.in-group-type"/></strong>		
 			</td>
 		</tr>
 <c:if test="${empty maxTypes}"><c:set var="maxTypes" value="${mediaMap['search.max-group-types']}"/></c:if>
@@ -23,9 +23,9 @@
 			<c:set var="searchTypeName">searchType.<c:out value="${typeCount.count}"/></c:set>
 		<c:set var="searchTypeAndOrNot">searchType.<c:out value="${typeCount.count}"/>.searchAndOrNot</c:set>
 			<select name="<c:out value="${searchTypeAndOrNot}"/>">
-				<option value="or" <c:if test="${advancedSearchFieldParams[searchTypeAndOrNot]=='or'}">selected="selected"</c:if>><grouper:message bundle="${nav}" key="find.search.or"/></option>
-				<option value="and"  <c:if test="${advancedSearchFieldParams[searchTypeAndOrNot]=='and'}">selected="selected"</c:if>><grouper:message bundle="${nav}" key="find.search.and"/></option>
-				<option value="not" <c:if test="${advancedSearchFieldParams[searchTypeAndOrNot]=='not'}">selected="selected"</c:if>><grouper:message bundle="${nav}" key="find.search.not"/></option>
+				<option value="or" <c:if test="${advancedSearchFieldParams[searchTypeAndOrNot]=='or'}">selected="selected"</c:if>><grouper:message key="find.search.or"/></option>
+				<option value="and"  <c:if test="${advancedSearchFieldParams[searchTypeAndOrNot]=='and'}">selected="selected"</c:if>><grouper:message key="find.search.and"/></option>
+				<option value="not" <c:if test="${advancedSearchFieldParams[searchTypeAndOrNot]=='not'}">selected="selected"</c:if>><grouper:message key="find.search.not"/></option>
 			</select>
 			
 		</td>

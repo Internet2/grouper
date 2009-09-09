@@ -3,12 +3,12 @@
 		 on the privileges of the current user for the current stem
 --%><%--
   @author Gary Brown.
-  @version $Id: stemLinks.jsp,v 1.11 2009-07-16 11:33:34 isgwb Exp $
+  @version $Id: stemLinks.jsp,v 1.12 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="section">
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<a href="<c:out value="${pageUrl}"/>#endStemLinks" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.stem-links"/></a>
+<a href="<c:out value="${pageUrl}"/>#endStemLinks" class="noCSSOnly"><grouper:message key="page.skip.stem-links"/></a>
 
 <grouper:subtitle key="stems.heading.manage" />
 <div class="sectionBody">
@@ -23,26 +23,26 @@
 </div>
 </c:if>
 <c:if test="${!currentLocation.isRootStem}">
-<html:link page="/addSavedStem.do" name="saveStemParams"><grouper:message bundle="${nav}" key="saved-stems.add.stem" /></html:link>
+<html:link page="/addSavedStem.do" name="saveStemParams"><grouper:message key="saved-stems.add.stem" /></html:link>
 </c:if>
 <c:if test="${browsePrivs.STEM && !empty currentLocation.id}">
-<html:link page="/populateEditStem.do"><grouper:message bundle="${nav}" key="stems.action.edit"/></html:link>
+<html:link page="/populateEditStem.do"><grouper:message key="stems.action.edit"/></html:link>
 </c:if>
 
 
 
 
 <c:if test="${!stemHasChildren && browsePrivs.STEM}"> 
-<html:link page="/deleteStem.do" onclick="return confirm('${navMap['stems.delete.warn']}')"><grouper:message bundle="${nav}" key="stems.action.delete" /></html:link>
+<html:link page="/deleteStem.do" onclick="return confirm('${navMap['stems.delete.warn']}')"><grouper:message key="stems.action.delete" /></html:link>
 </c:if>
 <c:if test="${browsePrivs.STEM}"> 
-<html:link page="/populateCreateStem.do"><grouper:message bundle="${nav}" key="stems.action.create"/></html:link>
+<html:link page="/populateCreateStem.do"><grouper:message key="stems.action.create"/></html:link>
 </c:if>
 <c:if test="${browsePrivs.CREATE}"> 
-<html:link page="/populateCreateGroup.do" ><grouper:message bundle="${nav}" key="groups.action.create"/></html:link>
+<html:link page="/populateCreateGroup.do" ><grouper:message key="groups.action.create"/></html:link>
 </c:if>
 <c:if test="${showStemMovesCopies}">
-<html:link page="/populateMovesCopiesLinks.do" name="stemMovesCopiesParams"><grouper:message bundle="${nav}" key="stems.action.movesandcopies"/></html:link>
+<html:link page="/populateMovesCopiesLinks.do" name="stemMovesCopiesParams"><grouper:message key="stems.action.movesandcopies"/></html:link>
 </c:if>
 
 <c:if test="${browsePrivs.STEM || browsePrivs.CREATE}"> 
@@ -50,7 +50,7 @@
 		<c:set target="${auditParams}" property="origCallerPageId" value="${thisPageId}"/>
 		<c:set target="${auditParams}" property="stemId" value="${currentLocation.id}"/>
 		<html:link page="/userAudit.do"  name="auditParams">
-			<grouper:message bundle="${nav}" key="groups.action.audit"/>
+			<grouper:message key="groups.action.audit"/>
 		</html:link>
 
 </c:if>

@@ -2,7 +2,7 @@
 		  audit log view
 --%><%--
   @author Gary Brown.
-  @version $Id: move-stem.jsp,v 1.2 2009-08-10 14:03:01 isgwb Exp $
+  @version $Id: move-stem.jsp,v 1.3 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -10,7 +10,7 @@
 <c:set var="copiedTo" value="${viewObject.fieldObjects.stemId}"/>
 <jsp:useBean id="linkParams" class="java.util.HashMap" scope="page"/>
 <c:out value="${viewObject.fields.oldStemName}"/> 
-<br/><grouper:message bundle="${nav}" key="audit.result.label.to-object"/> 
+<br/><grouper:message key="audit.result.label.to-object"/> 
 
 
 <c:choose>
@@ -25,7 +25,7 @@
 		  <tiles:put name="view" value="stemSearchResultLink"/>
 	</tiles:insert></c:when>
 		<c:otherwise>
-		<grouper:message bundle="${nav}" key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.stemId}"/> - <c:out value="${viewObject.fields.newStemName}"/>)
+		<grouper:message key="audit.result.label.unavailable"/> (<c:out value="${viewObject.fields.stemId}"/> - <c:out value="${viewObject.fields.newStemName}"/>)
 		</c:otherwise>
 	</c:choose>
 	

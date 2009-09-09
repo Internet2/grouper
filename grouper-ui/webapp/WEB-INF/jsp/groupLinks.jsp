@@ -3,11 +3,11 @@
 		 	on the privileges of the current user for the current group
 --%><%--
   @author Gary Brown.
-  @version $Id: groupLinks.jsp,v 1.14 2009-07-16 11:33:34 isgwb Exp $
+  @version $Id: groupLinks.jsp,v 1.15 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
-<a href="<c:out value="${pageUrl}"/>#endGroupLinks" class="noCSSOnly"><grouper:message bundle="${nav}" key="page.skip.group-links"/></a>
+<a href="<c:out value="${pageUrl}"/>#endGroupLinks" class="noCSSOnly"><grouper:message key="page.skip.group-links"/></a>
 <div class="groupLinks">
 <div class="linkButton">
 
@@ -17,7 +17,7 @@
 	   <c:if test="${groupPrivResolver.canEditGroup}">
     
       <html:link page="/deleteGroup.do" styleClass="redLink" name="group" onclick="return confirm('${navMap['groups.delete.warn']}')">
-        <grouper:message bundle="${nav}" key="groups.action.delete"/>
+        <grouper:message key="groups.action.delete"/>
       </html:link>
 
   </c:if>
@@ -26,7 +26,7 @@
 
 	<c:if test="${groupPrivResolver.canEditGroup}">
 			<html:link page="/populateEditGroup.do" name="group">
-				<grouper:message bundle="${nav}" key="groups.action.edit"/>
+				<grouper:message key="groups.action.edit"/>
 			</html:link>
 		
 	</c:if>
@@ -34,7 +34,7 @@
 	<c:if test="${userCanEditACustomAttribute}">
 		
 			<html:link page="/populateEditGroupAttributes.do" name="group">
-				<grouper:message bundle="${nav}" key="groups.action.edit-attr"/>
+				<grouper:message key="groups.action.edit-attr"/>
 			</html:link>
 		
 	</c:if>
@@ -44,44 +44,44 @@
 	<c:if test="${groupPrivs.ADMIN  || groupPrivs.READ}">
 		
 			<html:link page="/populateGroupMembers.do"  name="group">
-				<grouper:message bundle="${nav}" key="groups.action.edit-members"/>
+				<grouper:message key="groups.action.edit-members"/>
 			</html:link>
 		</c:if>
 
 		<c:if test="${!isCompositeGroup && groupPrivResolver.canManageMembers}">
 		
 			<html:link page="/populateFindNewMembers.do"  name="group">
-				<grouper:message bundle="${nav}" key="find.groups.add-new-members"/>
+				<grouper:message key="find.groups.add-new-members"/>
 			</html:link>
 		
 		</c:if>
 		<c:if test="${isFactor}">
 			<html:link page="/populateGroupAsFactor.do"  name="factorParams">
-				<grouper:message bundle="${nav}" key="groups.action.as-factor"/>
+				<grouper:message key="groups.action.as-factor"/>
 			</html:link>
 		</c:if>
 	<c:if test="${groupPrivs.OPTIN && !groupPrivs.MEMBER}">
 		
 			<html:link page="/joinGroup.do"  name="group">
-				<grouper:message bundle="${nav}" key="groups.action.join"/>
+				<grouper:message key="groups.action.join"/>
 			</html:link>
 		
 	</c:if>
 	<c:if test="${groupPrivs.OPTOUT && groupPrivs.MEMBER}">
 		
 			<html:link page="/leaveGroup.do"  name="group">
-				<grouper:message bundle="${nav}" key="groups.action.leave"/>
+				<grouper:message key="groups.action.leave"/>
 			</html:link>
 		
 	</c:if>
 	<c:if test="${groupPrivs.ADMIN}">
 		<html:link page="/populateMoveGroup.do"  name="group">
-			<grouper:message bundle="${nav}" key="groups.action.move"/>
+			<grouper:message key="groups.action.move"/>
 		</html:link>
 	</c:if>
 	<c:if test="${groupPrivs.ADMIN || groupPrivs.READ}">
 		<html:link page="/populateCopyGroup.do"  name="group">
-			<grouper:message bundle="${nav}" key="groups.action.copy"/>
+			<grouper:message key="groups.action.copy"/>
 		</html:link>
 	</c:if>
 	<c:if test="${groupPrivs.ADMIN}">
@@ -89,7 +89,7 @@
 		<c:set target="${auditParams}" property="origCallerPageId" value="${thisPageId}"/>
 		<c:set target="${auditParams}" property="groupId" value="${group.id}"/>
 		<html:link page="/userAudit.do"  name="auditParams">
-			<grouper:message bundle="${nav}" key="groups.action.audit"/>
+			<grouper:message key="groups.action.audit"/>
 		</html:link>
 	</c:if>
 	<jsp:useBean id="subjSum" class="java.util.HashMap"/>
@@ -98,7 +98,7 @@
 	<c:set target="${subjSum}" property="sourceId" value="g:gsa"/>
 	<c:set target="${subjSum}" property="changeMode" value="true"/>
 			<html:link page="/populateSubjectSummary.do" name="subjSum">
-				<grouper:message bundle="${nav}" key="groups.action.summary.goto-this-subject"/>
+				<grouper:message key="groups.action.summary.goto-this-subject"/>
 			</html:link>
 </div>
 <tiles:insert definition="selectListFieldsDef"/>

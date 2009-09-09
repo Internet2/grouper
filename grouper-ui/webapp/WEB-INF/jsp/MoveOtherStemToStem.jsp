@@ -3,7 +3,7 @@
 --%>
 <%--
   @author shilen
-  @version $Id: MoveOtherStemToStem.jsp,v 1.1 2009-05-08 12:03:37 shilen Exp $
+  @version $Id: MoveOtherStemToStem.jsp,v 1.2 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 
@@ -62,7 +62,7 @@
 
     <div class="linkButton">
       <html:link page="/populate${linkBrowseMode}Groups.do">
-        <grouper:message bundle="${nav}" key="stems.movesandcopies.cancel"/>
+        <grouper:message key="stems.movesandcopies.cancel"/>
       </html:link>
     </div>
 

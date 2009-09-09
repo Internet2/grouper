@@ -2,7 +2,7 @@
 		  Shows effective privileges for subject over group or stem
 --%><%--
   @author Gary Brown.
-  @version $Id: effectivePrivs.jsp,v 1.6 2009-03-15 08:14:12 mchyzer Exp $
+  @version $Id: effectivePrivs.jsp,v 1.7 2009-09-09 15:10:03 mchyzer Exp $
 --%>	
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -18,7 +18,7 @@
 	</tiles:insert>
 </c:set>
  <%--  Use params to make link title descriptive for accessibility --%>		
-<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.to.subject.summary" tooltipDisable="true">
+<c:set var="linkTitle"><grouper:message key="browse.to.subject.summary" tooltipDisable="true">
 		 		<grouper:param value="${viewObject.description}"/>
 		</grouper:message></c:set>
 

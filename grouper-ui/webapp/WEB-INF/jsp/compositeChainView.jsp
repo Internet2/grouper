@@ -2,13 +2,13 @@
 		  Dynamic tile used to render the detail of a composite group
 --%><%--
   @author Gary Brown.
-  @version $Id: compositeChainView.jsp,v 1.2 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: compositeChainView.jsp,v 1.3 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 <div class="chainComposite">
 
-<grouper:message bundle="${nav}" key="groups.composite-member.indicator"/>
+<grouper:message key="groups.composite-member.indicator"/>
  
 <div class="compositeLeft">
 <tiles:insert definition="dynamicTileDef" flush="false">

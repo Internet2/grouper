@@ -2,13 +2,13 @@
 		  Group types
 --%><%--
   @author Gary Brown.
-  @version $Id: GroupTypes.jsp,v 1.1 2009-08-10 14:03:01 isgwb Exp $
+  @version $Id: GroupTypes.jsp,v 1.2 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <jsp:useBean id="linkParams" class="java.util.HashMap" scope="page"/>
 
 <div class="pageBlurb">
-	<grouper:message bundle="${nav}" key="grouptypes.list.can"/>
+	<grouper:message key="grouptypes.list.can"/>
 </div>
 
 <c:forEach var="groupType" items="${groupTypes}">

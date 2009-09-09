@@ -4,12 +4,12 @@
 			active stem
 --%><%--
   @author Gary Brown.
-  @version $Id: StemMember.jsp,v 1.4 2008-04-15 13:43:21 isgwb Exp $
+  @version $Id: StemMember.jsp,v 1.5 2009-09-09 15:10:03 mchyzer Exp $
 --%> 
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:insert definition="showStemsLocationDef"/>
 <h2 class="actionheader">
-	<grouper:message bundle="${nav}" key="find.heading.select-privs">
+	<grouper:message key="find.heading.select-privs">
 	<grouper:param><tiles:insert definition="dynamicTileDef" flush="false">
 	  <tiles:put name="viewObject" beanName="subject"/>
 	  <tiles:put name="view" value="groupMember"/>
@@ -28,7 +28,7 @@
 		<tiles:insert definition="callerPageButtonDef"/>
 	
 		<html:link page="/populateSubjectSummary.do">
-			<grouper:message bundle="${nav}" key="groups.action.summary.return-to-subject-summary"/>
+			<grouper:message key="groups.action.summary.return-to-subject-summary"/>
 		</html:link>
 	</c:when>
 	<c:when test="${!empty GroupOrStemMemberFormBean.map.callerPageId}">
@@ -36,7 +36,7 @@
 	</c:when>
 	<c:otherwise>
 		<html:link page="/populateStemPriviligees.do" paramName="GroupOrStemMemberFormBean" paramProperty="asMemberOf" paramId="stemId">
-			<grouper:message bundle="${nav}" key="cancel"/>
+			<grouper:message key="cancel"/>
 		</html:link>
 	</c:otherwise>
 </c:choose>

@@ -2,13 +2,13 @@
 		  Main page for the 'Create' browse mode
 --%><%--
   @author Gary Brown.
-  @version $Id: CreateGroups.jsp,v 1.5 2008-04-11 14:49:36 mchyzer Exp $
+  @version $Id: CreateGroups.jsp,v 1.6 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:choose>
 	<c:when test="${!isAdvancedSearch}">
 <div class="pageBlurb">
-	<grouper:message bundle="${nav}" key="groups.create.can"/>
+	<grouper:message key="groups.create.can"/>
 </div>
 
 <%-- capture output since it does logic we need --%>

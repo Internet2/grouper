@@ -3,7 +3,7 @@
 --%>
 <%--
   @author Gary Brown.
-  @version $Id: EditGroup.jsp,v 1.14 2009-04-10 19:29:16 shilen Exp $
+  @version $Id: EditGroup.jsp,v 1.15 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <div class="editForm section">
@@ -48,7 +48,7 @@
     </tr>
 
     <tr class="formTableRow">
-      <td class="formTableLeft"><grouper:message bundle="${nav}"
+      <td class="formTableLeft"><grouper:message
         key="groups.create.privs-for-all"
       /></td>
       <td class="formTableRight"><c:forEach var="priv" items="${privileges}">
@@ -57,14 +57,14 @@
           type="checkbox" name="privileges" value="<c:out value="${priv}"/>"
           id="priv<c:out value="${priv}"/>"
         /> <label for="priv<c:out value="${priv}"/>"><grouper:message
-          bundle="${nav}" key="priv.${priv}"
+          key="priv.${priv}"
         /></label></span>
       </c:forEach></td>
     </tr>
 
 
     <tr class="formTableRow">
-      <td class="formTableLeft"><grouper:message bundle="${nav}"
+      <td class="formTableLeft"><grouper:message
         key="groups.edit.type"
       /></td>
       <td class="formTableRight"><tiles:insert definition="multiOptionDef">
@@ -79,7 +79,7 @@
   </table>
 
   <!--<tr>
-    <td valign="top"><grouper:message bundle="${nav}" key="groups.edit.type"/></td>
+    <td valign="top"><grouper:message key="groups.edit.type"/></td>
     <td valign="top"><html:select property="groupType" disabled="${editMode}">
     <htmlx:options name="groupTypes" />
    </html:select>
@@ -97,14 +97,14 @@
 </html:form>
 <div class="linkButton"><c:if test="${! editMode}">
   <html:link page="/populate${linkBrowseMode}Groups.do">
-    <grouper:message bundle="${nav}" key="groups.create.cancel" />
+    <grouper:message key="groups.create.cancel" />
   </html:link>
 </c:if> <c:if test="${editMode}">
   <c:set var="groupAttr" value="${GroupFormBean.map}" />
   <html:link page="/populateGroupSummary.do" paramId="groupId" paramName="groupAttr"
     paramProperty="groupId"
   >
-    <grouper:message bundle="${nav}" key="groups.edit.cancel" />
+    <grouper:message key="groups.edit.cancel" />
   </html:link>
 </c:if></div>
 </div>

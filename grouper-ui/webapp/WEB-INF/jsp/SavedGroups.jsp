@@ -1,10 +1,10 @@
 <%-- @annotation@ Top level JSP which displays a list of saved groups --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
-<grouper:message bundle="${nav}" key="saved-subjects.groups.intro"/>
+<grouper:message key="saved-subjects.groups.intro"/>
 <div class="savedGroupsList section">
 <div class="sectionBody">
 <c:if test="${savedSubjectsSize==0}">
-<grouper:message bundle="${nav}" key="saved-subjects.groups.none"/>
+<grouper:message key="saved-subjects.groups.none"/>
 </c:if>
 
 <c:if test="${savedSubjectsSize>0}">

@@ -2,13 +2,13 @@
 		  Main page for the 'Join' browse mode
 --%><%--
   @author Gary Brown.
-  @version $Id: JoinGroups.jsp,v 1.6 2008-04-11 14:49:36 mchyzer Exp $
+  @version $Id: JoinGroups.jsp,v 1.7 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:choose>
 	<c:when test="${!isAdvancedSearch}">
 <div class="pageBlurb">
-	<grouper:message bundle="${nav}" key="groups.join.can" />
+	<grouper:message key="groups.join.can" />
   
 </div>
 

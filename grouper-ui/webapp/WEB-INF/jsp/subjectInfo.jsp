@@ -2,7 +2,7 @@
 			Displays subject attributes
 --%><%--
   @author Gary Brown.
-  @version $Id: subjectInfo.jsp,v 1.10 2008-04-11 14:49:36 mchyzer Exp $
+  @version $Id: subjectInfo.jsp,v 1.11 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
@@ -74,7 +74,7 @@ subject.summary.subjectType=Entity type
 	</td>
 	<td class="formTableRight">
 		<html:link page="/populateGroupMembers.do" name="listFieldParams" >
-	<grouper:message bundle="${nav}" key="subject.summary.view-list-field-members"><grouper:param value="${groupListField}"/></grouper:message></html:link>
+	<grouper:message key="subject.summary.view-list-field-members"><grouper:param value="${groupListField}"/></grouper:message></html:link>
 	</td>
 </tr>
  

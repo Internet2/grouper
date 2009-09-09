@@ -2,7 +2,7 @@
 		  Displays search results when searching for stems
 --%><%--
   @author Gary Brown.
-  @version $Id: SearchStemResults.jsp,v 1.4 2008-03-25 14:59:51 mchyzer Exp $
+  @version $Id: SearchStemResults.jsp,v 1.5 2009-09-09 15:10:03 mchyzer Exp $
 --%>
 <%@include file="/WEB-INF/jsp/include.jsp"%>
 <c:set var="termMode" value="query"/>
@@ -15,23 +15,23 @@
 		</c:when>
 		<c:when test="${termMode == 'field'}">
 			<c:set var="termText"><c:out value="${termText}" escapeXml="false"/> 
-			<span class="termIn"><grouper:message bundle="${nav}" key="find.results.search-in"/></span> 
+			<span class="termIn"><grouper:message key="find.results.search-in"/></span> 
 				<span class="termField"><c:out value="${outTerm}" escapeXml="false"/></span></c:set>
 			<c:set var="termMode" value="andOrNot"/>
 		</c:when>
 		<c:otherwise>
 			<c:set var="termAndOrNotKey" value="find.search.${outTerm}"/>
 			<c:set var="termText"><c:out value="${termText}" escapeXml="false"/> 
-				<span class="termAndOrNot"><grouper:message bundle="${nav}" key="${termAndOrNotKey}"/></span></c:set>	
+				<span class="termAndOrNot"><grouper:message key="${termAndOrNotKey}"/></span></c:set>	
 			<c:set var="termMode" value="query"/>
 		</c:otherwise>
 	</c:choose>
 </c:forEach>
-<div class="searchedFor"><grouper:message bundle="${nav}" key="find.groups.searched-for">
+<div class="searchedFor"><grouper:message key="find.groups.searched-for">
 	<grouper:param value="${termText}"/>
 </grouper:message></div>
 <c:if test="${!empty pager.params.searchFromDisplay}">
-<div class="searchedFrom"><grouper:message bundle="${nav}" key="find.stems.searched-from">
+<div class="searchedFrom"><grouper:message key="find.stems.searched-from">
 	<grouper:param value="${pager.params.searchFromDisplay}"/>
 </grouper:message></div>
 </c:if>
@@ -46,7 +46,7 @@
 </tiles:insert>
 
 <c:if test="${pager.count==0}">
-<div class="searchCountZero"><grouper:message bundle="${nav}" key="find.stems.no-results"/></div>
+<div class="searchCountZero"><grouper:message key="find.stems.no-results"/></div>
 </c:if>
 <div class="linkButton">
 <tiles:insert definition="callerPageButtonDef"/>

@@ -2,7 +2,7 @@
 			Displays a group when part of a chain
 --%><%--
   @author Gary Brown.
-  @version $Id: groupChainPathView.jsp,v 1.7 2009-03-15 08:14:12 mchyzer Exp $
+  @version $Id: groupChainPathView.jsp,v 1.8 2009-09-09 15:10:03 mchyzer Exp $
 --%><%@page import="org.apache.struts.tiles.ComponentContext"%><%@include file="/WEB-INF/jsp/include.jsp"%>
 <tiles:importAttribute ignore="true"/>
 
@@ -11,7 +11,7 @@
 
  <%--  Use params to make link title descriptive for accessibility --%>
  <span class="groupSummaryLink">		
-<c:set var="linkTitle"><grouper:message bundle="${nav}" key="browse.to.group.summary" tooltipDisable="true">
+<c:set var="linkTitle"><grouper:message key="browse.to.group.summary" tooltipDisable="true">
 		 		<grouper:param value="${viewObject.displayExtension}"/>
 </grouper:message></c:set>
 <html:link page="/populateGroupSummary.do" name="viewObject" title="${linkTitle}">

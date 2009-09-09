@@ -2,14 +2,14 @@
 		  Allow user to select which fields they want to search
 --%><%--
   @author Gary Brown.
-  @version $Id: selectGroupSearchFields.jsp,v 1.9 2008-05-01 16:20:43 mchyzer Exp $
+  @version $Id: selectGroupSearchFields.jsp,v 1.10 2009-09-09 15:10:03 mchyzer Exp $
 --%><%@include file="/WEB-INF/jsp/include.jsp"%>
 <grouper:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 
 <tiles:importAttribute ignore="true"/>
 		<tr class="formTableRow">
 			<td class="formTableLeft">
-				<grouper:message bundle="${nav}" key="find.search.in-field"/>	
+				<grouper:message key="find.search.in-field"/>	
 			</td>
 			<td class="formTableRight">&nbsp;</td>
 	  </tr>
@@ -49,9 +49,9 @@
 		
 			<c:if test="${maxFields != fieldCount.count}">
 			<select name="<c:out value="${searchFieldAndOrNot}"/>">
-				<option value="or" <c:if test="${advancedSearchFieldParams[searchFieldAndOrNot]=='or'}">selected="selected"</c:if>><grouper:message bundle="${nav}" key="find.search.or"/></option>
-				<option value="and"  <c:if test="${advancedSearchFieldParams[searchFieldAndOrNot]=='and'}">selected="selected"</c:if>><grouper:message bundle="${nav}" key="find.search.and"/></option>
-				<option value="not" <c:if test="${advancedSearchFieldParams[searchFieldAndOrNot]=='not'}">selected="selected"</c:if>><grouper:message bundle="${nav}" key="find.search.not"/></option>
+				<option value="or" <c:if test="${advancedSearchFieldParams[searchFieldAndOrNot]=='or'}">selected="selected"</c:if>><grouper:message key="find.search.or"/></option>
+				<option value="and"  <c:if test="${advancedSearchFieldParams[searchFieldAndOrNot]=='and'}">selected="selected"</c:if>><grouper:message key="find.search.and"/></option>
+				<option value="not" <c:if test="${advancedSearchFieldParams[searchFieldAndOrNot]=='not'}">selected="selected"</c:if>><grouper:message key="find.search.not"/></option>
 			</select>
 			</c:if>
 		</td>
