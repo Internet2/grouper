@@ -1,5 +1,5 @@
 /*
- * $Id: SetToEnumeration.java,v 1.1 2009-09-09 15:10:03 mchyzer Exp $
+ * $Id: SetToEnumeration.java,v 1.2 2009-09-09 15:20:20 mchyzer Exp $
  * 
  * Copyright University of Pennsylvania 2004
  */
@@ -15,6 +15,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
+ * helper class to convert set to enumeration
  */
 public class SetToEnumeration implements Enumeration {
 

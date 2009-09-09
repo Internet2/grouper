@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperRequestWrapper.java,v 1.1 2009-09-09 15:10:03 mchyzer Exp $
+ * $Id: GrouperRequestWrapper.java,v 1.2 2009-09-09 15:20:20 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.j2ee;
 
@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- *
+ * wrap request so we can customize
  */
 public class GrouperRequestWrapper extends HttpServletRequestWrapper {
 

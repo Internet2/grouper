@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: SimpleMembershipUpdateFilter.java,v 1.1 2009-09-09 15:10:03 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateFilter.java,v 1.2 2009-09-09 15:20:20 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.grouperUi.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.grouperUi.util.HttpContentType;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -35,7 +36,7 @@ import edu.internet2.middleware.subject.Subject;
 
 
 /**
- *
+ * ajax methods for simple membership update filters (autocompletes)
  */
 public class SimpleMembershipUpdateFilter {
 
@@ -107,7 +108,7 @@ public class SimpleMembershipUpdateFilter {
       
       xmlBuilder.append(GuiUtils.DHTMLX_OPTIONS_END);
       
-      GuiUtils.printToScreen(xmlBuilder.toString(), "text/xml", false, false);
+      GuiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
   
     } catch (NoSessionException se) {
       throw se;
@@ -178,7 +179,7 @@ public class SimpleMembershipUpdateFilter {
   
       xmlBuilder.append(GuiUtils.DHTMLX_OPTIONS_END);
       
-      GuiUtils.printToScreen(xmlBuilder.toString(), "text/xml", false, false);
+      GuiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
   
     } catch (NoSessionException se) {
       throw se;
@@ -252,7 +253,7 @@ public class SimpleMembershipUpdateFilter {
   
       xmlBuilder.append(GuiUtils.DHTMLX_OPTIONS_END);
       
-      GuiUtils.printToScreen(xmlBuilder.toString(), "text/xml", false, false);
+      GuiUtils.printToScreen(xmlBuilder.toString(), HttpContentType.TEXT_XML, false, false);
   
     } catch (NoSessionException se) {
       throw se;

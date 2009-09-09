@@ -227,7 +227,7 @@ public class GrouperMessageTag extends MessageTag {
   
   		String prefix = null;
   		
-  	  if (!bundleSpecified) {
+  	  if (!this.bundleSpecified) {
   			Tag t = findAncestorWithClass(this, BundleSupport.class);
   			if (t != null) {
   				// use resource bundle from parent <bundle> tag
@@ -239,7 +239,7 @@ public class GrouperMessageTag extends MessageTag {
   			}
   		} else {
   			// localization context taken from 'bundle' attribute
-        locCtxt = bundleAttrValue;
+        locCtxt = this.bundleAttrValue;
   			if (locCtxt.getLocale() != null) {
   				GrouperUtil.callMethod(SetLocaleSupport.class,
   						"setResponseLocale", new Class[] { PageContext.class,

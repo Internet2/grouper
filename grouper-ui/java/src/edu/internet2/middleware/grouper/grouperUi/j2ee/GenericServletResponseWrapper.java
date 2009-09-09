@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GenericServletResponseWrapper.java,v 1.1 2009-09-09 15:10:03 mchyzer Exp $
+ * $Id: GenericServletResponseWrapper.java,v 1.2 2009-09-09 15:20:20 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.j2ee;
 
@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 
 
 /**
- *
+ * wrap response so we can customize (e.g. log)
  */
 public class GenericServletResponseWrapper extends ServletResponseWrapper implements HttpServletResponse {
 

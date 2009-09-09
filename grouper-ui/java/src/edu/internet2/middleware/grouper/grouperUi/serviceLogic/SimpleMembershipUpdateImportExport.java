@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: SimpleMembershipUpdateImportExport.java,v 1.1 2009-09-09 15:10:03 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateImportExport.java,v 1.2 2009-09-09 15:20:20 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -38,13 +38,14 @@ import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
 import edu.internet2.middleware.grouper.grouperUi.util.GuiUtils;
+import edu.internet2.middleware.grouper.grouperUi.util.HttpContentType;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 
 /**
- *
+ * ajax methods for simple memebrship update import and export actions
  */
 public class SimpleMembershipUpdateImportExport {
 
@@ -130,7 +131,7 @@ public class SimpleMembershipUpdateImportExport {
       });
       
       //say it is CSV
-      response.setContentType("text/csv");
+      response.setContentType(HttpContentType.TEXT_CSV.getContentType());
     
       String groupExtensionFileName = GuiGroup.getExportAllFileNameStatic(group);
       
@@ -362,7 +363,9 @@ public class SimpleMembershipUpdateImportExport {
       
       //validate the inputs, file is required
       if (importCsvFile == null || importCsvFile.getSize() == 0 || 
-          importCsvFile.getName() == null || !importCsvFile.getName().toLowerCase().endsWith(".csv")) {
+          importCsvFile.getName() == null 
+          || (!importCsvFile.getName().toLowerCase().endsWith(".csv")
+            &&  !importCsvFile.getName().toLowerCase().endsWith(".txt"))) {
         
         guiResponseJs.addAction(GuiScreenAction.newAlert("<pre>" 
             + GuiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile") + fileName + "</pre>"));

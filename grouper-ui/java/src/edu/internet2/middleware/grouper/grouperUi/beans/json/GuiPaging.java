@@ -1,18 +1,17 @@
 /*
  * @author mchyzer
- * $Id: GuiPaging.java,v 1.1 2009-09-09 15:10:04 mchyzer Exp $
+ * $Id: GuiPaging.java,v 1.2 2009-09-09 15:20:20 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.json;
 
 import java.io.Serializable;
 
-import edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee;
 import edu.internet2.middleware.grouper.grouperUi.tags.TagUtils;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- *
+ * paging object holds state of next.previous etc
  */
 public class GuiPaging implements Serializable {
 
