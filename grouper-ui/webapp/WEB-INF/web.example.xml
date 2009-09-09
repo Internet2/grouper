@@ -37,6 +37,19 @@
   	<filter-name>Caller page</filter-name>
   	<filter-class>edu.internet2.middleware.grouper.ui.CallerPageFilter</filter-class>
     </filter>
+
+  <filter>
+    <!-- keeps the request and response in threadlocal so they dont have to be passed around -->
+    <filter-name>Grouper UI filter</filter-name>
+    <filter-class>edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiJ2ee</filter-class>
+  </filter>
+  
+  <!-- Map the filter to a Servlet or URL -->
+  <filter-mapping>
+    <filter-name>Grouper UI filter</filter-name>
+    <url-pattern>/grouperUi/app/*</url-pattern>
+  </filter-mapping>
+
 <!--Processing filter-mapping-->
 <!--Inserting tag from merge file-->
 <filter-mapping>
@@ -84,6 +97,17 @@
     </init-param>
     <load-on-startup>2</load-on-startup>
   </servlet>
+
+  <servlet>
+    <servlet-name>UiServlet</servlet-name>
+    <servlet-class>edu.internet2.middleware.grouper.grouperUi.j2ee.GrouperUiRestServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>UiServlet</servlet-name>
+    <url-pattern>/grouperUi/app/*</url-pattern>
+  </servlet-mapping>
+
 <!--Processing servlet-mapping-->
 <!--Inserting tag from base file-->
 <servlet-mapping>
@@ -124,6 +148,29 @@
        <role-name>*</role-name>
     </auth-constraint>
   </security-constraint>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperUi/app/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>*</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+  <security-constraint>
+    <web-resource-collection>
+      <web-resource-name>UI</web-resource-name>
+      <url-pattern>/grouperUi/appHtml/*</url-pattern>
+    </web-resource-collection>
+    <auth-constraint>
+      <role-name>*</role-name>
+    </auth-constraint>
+  </security-constraint>
+
+
+
 <login-config>
     <auth-method>BASIC</auth-method>
     <realm-name>Grouper Application</realm-name>
