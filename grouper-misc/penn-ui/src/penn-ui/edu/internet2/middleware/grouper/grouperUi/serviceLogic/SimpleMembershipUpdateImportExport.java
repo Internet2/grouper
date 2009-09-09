@@ -1,6 +1,6 @@
 /**
  * @author mchyzer
- * $Id: SimpleMembershipUpdateImportExport.java,v 1.2 2009-09-08 18:53:31 mchyzer Exp $
+ * $Id: SimpleMembershipUpdateImportExport.java,v 1.3 2009-09-09 15:06:05 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
@@ -365,7 +365,9 @@ public class SimpleMembershipUpdateImportExport {
       
       //validate the inputs, file is required
       if (importCsvFile == null || importCsvFile.getSize() == 0 || 
-          importCsvFile.getName() == null || !importCsvFile.getName().toLowerCase().endsWith(".csv")) {
+          importCsvFile.getName() == null 
+          || (!importCsvFile.getName().toLowerCase().endsWith(".csv")
+            &&  !importCsvFile.getName().toLowerCase().endsWith(".txt"))) {
         
         guiResponseJs.addAction(GuiScreenAction.newAlert("<pre>" 
             + GuiUtils.message("simpleMembershipUpdate.importErrorNoWrongFile") + fileName + "</pre>"));

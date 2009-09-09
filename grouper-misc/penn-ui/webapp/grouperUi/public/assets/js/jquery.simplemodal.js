@@ -3,7 +3,6 @@
  * http://www.ericmmartin.com/projects/simplemodal/
  * Copyright (c) 2009 Eric Martin
  * Dual licensed under the MIT and GPL licenses
- * Revision: $Id: jquery.simplemodal.js,v 1.2 2009-08-10 21:35:17 mchyzer Exp $
  */
 
 /**
