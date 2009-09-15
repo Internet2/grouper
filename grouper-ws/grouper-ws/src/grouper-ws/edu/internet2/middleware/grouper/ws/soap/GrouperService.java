@@ -46,6 +46,25 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  */
 public class GrouperService {
 
+  /** 
+   * default
+   */
+  public GrouperService() {
+    //nothin
+  }
+  
+  /** if soap */
+  private boolean soap = true;
+  
+  /**
+   * 
+   * @param soap1
+   */
+  public GrouperService(boolean soap1) {
+    this.soap = soap1;
+  }
+  
+  
   /** logger */
   @SuppressWarnings("unused")
   private static final Log LOG = LogFactory.getLog(GrouperService.class);
@@ -125,7 +144,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsFindGroupsResults.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsFindGroupsResults.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsFindGroupsResults;
@@ -162,7 +181,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsFindStemsResults.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsFindStemsResults.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsFindStemsResults;
@@ -203,7 +222,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsFindGroupsResults.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsFindGroupsResults.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsFindGroupsResults;
@@ -352,7 +371,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsGetMembersLiteResult.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsGetMembersLiteResult.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsGetMembersLiteResult;
@@ -414,7 +433,7 @@ public class GrouperService {
     }
   
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsGetMembersResults.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsGetMembersResults.getResultMetadata(), this.soap);
   
     //this should be the first and only return, or else it is exiting too early
     return wsGetMembersResults;
@@ -565,7 +584,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsGetGroupsResults.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsGetGroupsResults.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsGetGroupsResults;
@@ -638,7 +657,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsHasMemberResults.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsHasMemberResults.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsHasMemberResults;
@@ -692,7 +711,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsStemDeleteLiteResult.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsStemDeleteLiteResult.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsStemDeleteLiteResult;
@@ -750,7 +769,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsGroupDeleteLiteResult.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsGroupDeleteLiteResult.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsGroupDeleteLiteResult;
@@ -904,7 +923,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsGroupSaveLiteResult.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsGroupSaveLiteResult.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsGroupSaveLiteResult;
@@ -970,7 +989,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsStemSaveLiteResult.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsStemSaveLiteResult.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsStemSaveLiteResult;
@@ -1275,7 +1294,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsGroupSaveResults.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsGroupSaveResults.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsGroupSaveResults;
@@ -1321,7 +1340,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsStemSaveResults.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsStemSaveResults.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsStemSaveResults;
@@ -1365,7 +1384,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsStemDeleteResults.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsStemDeleteResults.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsStemDeleteResults;
@@ -1413,7 +1432,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsGroupDeleteResults.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsGroupDeleteResults.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsGroupDeleteResults;
@@ -2422,7 +2441,7 @@ public class GrouperService {
       }
   
       //set response headers
-      GrouperServiceUtils.addResponseHeaders(wsAddMemberResults.getResultMetadata());
+      GrouperServiceUtils.addResponseHeaders(wsAddMemberResults.getResultMetadata(), this.soap);
   
       //this should be the first and only return, or else it is exiting too early
       return wsAddMemberResults;
@@ -2488,7 +2507,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsDeleteMemberResults.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsDeleteMemberResults.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsDeleteMemberResults;
@@ -2570,7 +2589,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsGetGroupsLiteResult.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsGetGroupsLiteResult.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsGetGroupsLiteResult;
@@ -2655,7 +2674,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsAddMemberLiteResult.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsAddMemberLiteResult.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsAddMemberLiteResult;
@@ -2921,7 +2940,7 @@ public class GrouperService {
       }
   
       //set response headers
-      GrouperServiceUtils.addResponseHeaders(wsHasMemberLiteResult.getResultMetadata());
+      GrouperServiceUtils.addResponseHeaders(wsHasMemberLiteResult.getResultMetadata(), this.soap);
   
       //this should be the first and only return, or else it is exiting too early
       return wsHasMemberLiteResult;
@@ -3000,7 +3019,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsMemberChangeSubjectLiteResult.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsMemberChangeSubjectLiteResult.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsMemberChangeSubjectLiteResult;
@@ -3054,7 +3073,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsMemberChangeSubjectResults.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsMemberChangeSubjectResults.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsMemberChangeSubjectResults;
@@ -3138,7 +3157,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsDeleteMemberLiteResult.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsDeleteMemberLiteResult.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsDeleteMemberLiteResult;
@@ -3213,7 +3232,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsFindStemsResults.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsFindStemsResults.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsFindStemsResults;
@@ -3321,7 +3340,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsGetGrouperPrivilegesLiteResult.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsGetGrouperPrivilegesLiteResult.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsGetGrouperPrivilegesLiteResult;
@@ -3437,7 +3456,7 @@ public class GrouperService {
     }
 
     //set response headers
-    GrouperServiceUtils.addResponseHeaders(wsAssignGrouperPrivilegesLiteResult.getResultMetadata());
+    GrouperServiceUtils.addResponseHeaders(wsAssignGrouperPrivilegesLiteResult.getResultMetadata(), this.soap);
 
     //this should be the first and only return, or else it is exiting too early
     return wsAssignGrouperPrivilegesLiteResult;

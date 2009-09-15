@@ -7288,7 +7288,8 @@ public class GrouperClientCommonUtils  {
    */
   public static void copy(InputStream input, Writer output)
           throws IOException {
-      InputStreamReader in = new InputStreamReader(input);
+      String charsetName = GrouperClientUtils.propertiesValue("grouperClient.default.fileEncoding", true);
+      InputStreamReader in = new InputStreamReader(input, charsetName);
       copy(in, output);
   }
   

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperClientWsTest.java,v 1.1.2.7 2009-05-19 15:37:59 mchyzer Exp $
+ * $Id: GrouperClientWsTest.java,v 1.1.2.8 2009-09-15 16:21:55 mchyzer Exp $
  */
 package edu.internet2.middleware.grouperClient.poc;
 
@@ -46,7 +46,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testGroupSaveUpdateExistingName"));
+    TestRunner.run(new GrouperClientWsTest("testGroupSave"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
   }
@@ -1815,21 +1815,53 @@ public class GrouperClientWsTest extends GrouperTest {
 
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     System.setOut(new PrintStream(baos));
-
+    String output = null;
+    String[] outputLines = null;
+    Pattern pattern = null;
+    Matcher matcher = null;
     try {
-
+      systemOut.println("Umlaut: ä");
       //try with name with slash
+      GrouperClient.main(GrouperClientUtils.splitTrim(
+          "--operation=groupSaveWs --name=aStem:newGroup0ä", " "));
+      System.out.flush();
+      output = new String(baos.toByteArray());
+      
+      systemOut.println(output);
+      
+      System.setOut(systemOut);
+
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
+//ä
+      pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
+      matcher = pattern.matcher(outputLines[0]);
+
+      assertTrue(outputLines[0], matcher.matches());
+
+      assertEquals("SUCCESS_INSERTED", matcher.group(1));
+      assertEquals("aStem:newGroup0ä", matcher.group(2));
+      if (true) {
+        //TODO take out
+        return;
+      }
+      
+      // ##########################
+      // try with name with slash
+
+      baos = new ByteArrayOutputStream();
+      System.setOut(new PrintStream(baos));
+
       GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=groupSaveWs --name=aStem:newGroup0/1", " "));
       System.out.flush();
-      String output = new String(baos.toByteArray());
+      output = new String(baos.toByteArray());
 
       System.setOut(systemOut);
 
-      String[] outputLines = GrouperClientUtils.splitTrim(output, "\n");
+      outputLines = GrouperClientUtils.splitTrim(output, "\n");
 
-      Pattern pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
-      Matcher matcher = pattern.matcher(outputLines[0]);
+      pattern = Pattern.compile("^Success: T: code: ([A-Z_]+): (.*+)$");
+      matcher = pattern.matcher(outputLines[0]);
 
       assertTrue(outputLines[0], matcher.matches());
 
