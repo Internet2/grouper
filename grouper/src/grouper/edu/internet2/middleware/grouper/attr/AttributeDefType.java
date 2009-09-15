@@ -15,6 +15,9 @@ public enum AttributeDefType {
   /** if this is an attribute */
   attr, 
   
+  /** group up things into one application */
+  domain, 
+  
   /** if this is a type */
   type, 
   

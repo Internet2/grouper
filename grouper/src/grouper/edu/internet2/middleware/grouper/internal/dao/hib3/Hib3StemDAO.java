@@ -60,7 +60,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Stem</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3StemDAO.java,v 1.32 2009-08-18 23:11:38 shilen Exp $
+ * @version $Id: Hib3StemDAO.java,v 1.33 2009-09-15 06:08:44 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3StemDAO extends Hib3DAO implements StemDAO {
@@ -1045,7 +1045,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               attributeDefNameSet.setIfHasAttributeDefNameId(attributeDefName.getId());
               attributeDefNameSet.setThenHasAttributeDefNameId(attributeDefName.getId());
               attributeDefNameSet.setType(AttributeDefAssignmentType.self);
-              attributeDefNameSet.setFirstHopAttrDefNameSetId(attributeDefNameSet.getId());
+              attributeDefNameSet.setParentAttrDefNameSetId(attributeDefNameSet.getId());
               attributeDefNameSet.saveOrUpdate();
               
               hibernateSession.misc().flush();

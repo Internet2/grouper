@@ -8,6 +8,7 @@ import org.apache.commons.logging.Log;
 import org.hibernate.Session;
 
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
+import edu.internet2.middleware.grouper.exception.MembershipAlreadyExistsException;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -15,7 +16,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
- * @version $Id: ByObject.java,v 1.12 2009-06-02 12:33:36 mchyzer Exp $
+ * @version $Id: ByObject.java,v 1.13 2009-09-15 06:08:44 mchyzer Exp $
  * @author harveycg
  */
 public class ByObject extends HibernateDelegate {
@@ -195,6 +196,8 @@ public class ByObject extends HibernateDelegate {
       //just throw, this is ok
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (MembershipAlreadyExistsException e) {
       throw e;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in save: " + GrouperUtil.className(object) + ", " + this, e);

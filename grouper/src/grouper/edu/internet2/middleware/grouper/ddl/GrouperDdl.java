@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.64 2009-09-02 13:06:00 shilen Exp $
+ * $Id: GrouperDdl.java,v 1.65 2009-09-15 06:08:44 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -3325,35 +3325,36 @@ public enum GrouperDdl implements DdlVersionable {
         GrouperUtil.toSet("if_has_attr_def_name_name", 
             "then_has_attr_def_name_name", 
             "depth", "type", 
-            "first_hop_name", "last_hop_name",
+            "parent_if_has_name", "parent_then_has_name",
             "id", "if_has_attr_def_name_id", "then_has_attr_def_name_id",
-            "first_hop_attr_def_name_set_id", "last_hop_attr_def_name_set_id"),
+            "parent_attr_def_name_set_id"),
         GrouperUtil.toSet("if_has_attr_def_name_name: name of the set attribute def name", 
             "then_has_attr_def_name_name: name of the member attribute def name", 
             "depth: number of hops in the directed graph",
             "type: self, immediate, effective",
-            "first_hop_name: name of the attribute def name set record which is the first hop on effective path",
-            "last_hop_name: name of the attribute def name set record which is the last hop on effective path",
+            "parent_if_has_name: name of the attribute def name set record which is the parent ifHas on effective path (everything but last hop)",
+            "parent_then_has_name: name of the attribute def name set record which is the parent thenHas on effective path (everything but last hop)",
             "id: id of the set record", "if_has_attr_def_name_id: id of the set attribute def name",
             "then_has_attr_def_name_id: id of the member attribute def name", 
-            "first_hop_attr_def_name_set_id: id of the attribute def name set record which is the first hop on effective path",
-            "last_hop_attr_def_name_set_id: id of the attribute def name set record which is the first hop on effective path"
+            "parent_attr_def_name_set_id: id of the attribute def name set record which is the parent on effective path (everything but last hop)"
         ),
-        "select ifHas.name if_has_attr_def_name_name, thenHas.name then_has_attr_def_name_name, " 
-        + "gadns.depth, "
-        + "gadns.type, gadnFirst.name first_hop_name, gadnLast.name last_hop_name, gadns.id, "
-        + "ifHas.id if_has_attr_def_name_id, thenHas.id then_has_attr_def_name_id, gadns.first_hop_attr_def_name_set_id, " 
-        +	"gadns.first_hop_attr_def_name_set_id "
-        + "from grouper_attribute_def_name_set gadns, grouper_attribute_def_name_set gadnsFirst, "
-        + "grouper_attribute_def_name_set gadnsLast, grouper_attribute_def_name gadnFirst, grouper_attribute_def_name gadnLast, "
-        + "grouper_attribute_def_name ifHas, grouper_attribute_def_name thenHas "
-        + "where  thenHas.id = gadns.then_has_attribute_def_name_id "
-        + "and ifHas.id = gadns.if_has_attribute_def_name_id "
-        + "and gadns.first_hop_attr_def_name_set_id = gadnsFirst.id "
-        + "and gadns.last_hop_attr_def_name_set_id = gadnsLast.id "
-        + "and gadnsFirst.then_has_attribute_def_name_id = gadnFirst.id "
-        + "and gadnsLast.if_has_attribute_def_name_id = gadnLast.id "
-        + "order by ifHas.name, thenHas.name, gadns.depth");
+        "select ifHas.name if_has_attr_def_name_name, thenHas.name then_has_attr_def_name_name,  "
+        + "gadns.depth,  "
+        + "gadns.type, gadnParentIfHas.name parent_if_has_name, gadnParentThenHas.name parent_then_has_name,  "
+        + "gadns.id,  "
+        + "ifHas.id if_has_attr_def_name_id, thenHas.id then_has_attr_def_name_id,  "
+        + "gadns.parent_attr_def_name_set_id "
+        + "from grouper_attribute_def_name_set gadns,  "
+        + "grouper_attribute_def_name_set gadnsParent,  "
+        + "grouper_attribute_def_name gadnParentIfHas,  "
+        + "grouper_attribute_def_name gadnParentThenHas,  "
+        + "grouper_attribute_def_name ifHas, grouper_attribute_def_name thenHas  "
+        + "where  thenHas.id = gadns.then_has_attribute_def_name_id  "
+        + "and ifHas.id = gadns.if_has_attribute_def_name_id  "
+        + "and gadns.parent_attr_def_name_set_id = gadnsParent.id  "
+        + "and gadnParentIfHas.id = gadnsParent.if_has_attribute_def_name_id  "
+        + "and gadnParentThenHas.id = gadnsParent.then_has_attribute_def_name_id  "
+        + "order by ifHas.name, thenHas.name, gadns.depth, gadnParentIfHas.name, gadnParentThenHas.name ");
   }
 
   /**
@@ -4496,10 +4497,7 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, Types.VARCHAR, "128", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
-          AttributeDefNameSet.COLUMN_FIRST_HOP_ATTR_DEF_NAME_SET_ID, Types.VARCHAR, "128", false, false);
-
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
-          AttributeDefNameSet.COLUMN_LAST_HOP_ATTR_DEF_NAME_SET_ID, Types.VARCHAR, "128", false, false);
+          AttributeDefNameSet.COLUMN_PARENT_ATTR_DEF_NAME_SET_ID, Types.VARCHAR, "128", false, false);
 
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeDefNameSetTable,
           AttributeDefNameSet.COLUMN_TYPE, Types.VARCHAR, "32", false, true);
@@ -4514,10 +4512,8 @@ public enum GrouperDdl implements DdlVersionable {
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, attributeDefNameSetTable.getName(), 
           "attr_def_name_set_unq_idx", true, 
-          AttributeDefNameSet.COLUMN_FIRST_HOP_ATTR_DEF_NAME_SET_ID, 
-          AttributeDefNameSet.COLUMN_LAST_HOP_ATTR_DEF_NAME_SET_ID, AttributeDefNameSet.COLUMN_DEPTH,
-          AttributeDefNameSet.COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID, AttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID,
-          AttributeDefNameSet.COLUMN_TYPE);
+          AttributeDefNameSet.COLUMN_PARENT_ATTR_DEF_NAME_SET_ID, 
+          AttributeDefNameSet.COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID, AttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID);
 
     }
   }

@@ -30,7 +30,7 @@ public class AttributeDefNameSetView {
   public static final String FIELD_IF_HAS_ATTR_DEF_NAME_NAME = "ifHasAttrDefNameName";
 
   /** constant for field name for: parentId */
-  public static final String FIELD_PARENT_ID = "parentId";
+  public static final String FIELD_PARENT_ATTR_DEF_NAME_SET_ID = "parentAttrDefNameSetId";
 
   /** constant for field name for: thenHasAttrDefNameId */
   public static final String FIELD_THEN_HAS_ATTR_DEF_NAME_ID = "thenHasAttrDefNameId";
@@ -41,19 +41,31 @@ public class AttributeDefNameSetView {
   /** constant for field name for: type */
   public static final String FIELD_TYPE = "type";
 
+  /** constant for field name for: parentIfHasName */
+  public static final String FIELD_PARENT_IF_HAS_NAME = "parentIfHasName";
+
+  /** constant for field name for: parentThenHasName */
+  public static final String FIELD_PARENT_THEN_HAS_NAME = "parentThenHasName";
+
   /**
    * fields which are included in db version
    */
+  @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_DEPTH, FIELD_ID, FIELD_IF_HAS_ATTR_DEF_NAME_ID, FIELD_IF_HAS_ATTR_DEF_NAME_NAME, 
-      FIELD_PARENT_ID, FIELD_THEN_HAS_ATTR_DEF_NAME_ID, FIELD_THEN_HAS_ATTR_DEF_NAME_NAME, FIELD_TYPE);
+      FIELD_PARENT_ATTR_DEF_NAME_SET_ID, 
+      FIELD_THEN_HAS_ATTR_DEF_NAME_ID, FIELD_THEN_HAS_ATTR_DEF_NAME_NAME, FIELD_TYPE,
+      FIELD_PARENT_IF_HAS_NAME, FIELD_PARENT_THEN_HAS_NAME);
 
   /**
    * fields which are included in clone method
    */
+  @SuppressWarnings("unused")
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_DEPTH, FIELD_ID, FIELD_IF_HAS_ATTR_DEF_NAME_ID, FIELD_IF_HAS_ATTR_DEF_NAME_NAME, 
-      FIELD_PARENT_ID, FIELD_THEN_HAS_ATTR_DEF_NAME_ID, FIELD_THEN_HAS_ATTR_DEF_NAME_NAME, FIELD_TYPE);
+      FIELD_PARENT_ATTR_DEF_NAME_SET_ID, FIELD_THEN_HAS_ATTR_DEF_NAME_ID, 
+      FIELD_THEN_HAS_ATTR_DEF_NAME_NAME, FIELD_TYPE, FIELD_PARENT_IF_HAS_NAME,
+      FIELD_PARENT_THEN_HAS_NAME);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
 
@@ -75,8 +87,15 @@ public class AttributeDefNameSetView {
   /** id of the member attribute def name */
   private String thenHasAttrDefNameId;
 
-  /** id of the attribute def name set record which is the immediate record this derives from */
-  private String parentId;
+  /** id of the attribute def name set record which is the immediate record this derives from
+   * (everything but last hop) */
+  private String parentAttrDefNameSetId;
+  
+  /** name of the attribute of the parent where if it has this name, then it has another name */
+  private String parentIfHasName;
+  
+  /** name of the attribute of the parent where it has this name, if it have the ifName */
+  private String parentThenHasName;
   
   /**
    * membership type -- self, immediate, or effective 
@@ -227,19 +246,59 @@ public class AttributeDefNameSetView {
   
   /**
    * id of the attribute def name set record which is the immediate record this derives from
-   * @return the parentId
+   * (everything but last hop)
+   * @return the parentAttrDefNameSetId
    */
-  public String getParentId() {
-    return this.parentId;
+  public String getParentAttrDefNameSetId() {
+    return this.parentAttrDefNameSetId;
   }
 
   
   /**
-   * id of the attribute def name set record which is the immediate record this derives from"
-   * @param parentId1 the parentId to set
+   * id of the attribute def name set record which is the immediate record this derives from
+   * (everything but last hop)
+   * @param parentAttrDefNameSetId1 the parentAttrDefNameSetId to set
    */
-  public void setParentId(String parentId1) {
-    this.parentId = parentId1;
+  public void setParentAttrDefNameSetId(String parentAttrDefNameSetId1) {
+    this.parentAttrDefNameSetId = parentAttrDefNameSetId1;
   }
+
+  
+  /**
+   * name of the attribute of the parent where if it has this name, then it has another name
+   * @return the parentIfHasName
+   */
+  public String getParentIfHasName() {
+    return this.parentIfHasName;
+  }
+
+  
+  /**
+   * name of the attribute of the parent where if it has this name, then it has another name
+   * @param parentIfHasName1 the parentIfHasName to set
+   */
+  public void setParentIfHasName(String parentIfHasName1) {
+    this.parentIfHasName = parentIfHasName1;
+  }
+
+  
+  /**
+   * name of the attribute of the parent where it has this name, if it have the ifName
+   * @return the parentThenHasName
+   */
+  public String getParentThenHasName() {
+    return this.parentThenHasName;
+  }
+
+  
+  /**
+   * name of the attribute of the parent where it has this name, if it have the ifName
+   * @param parentThenHasName1 the parentThenHasName to set
+   */
+  public void setParentThenHasName(String parentThenHasName1) {
+    this.parentThenHasName = parentThenHasName1;
+  }
+
+  
   
 }
