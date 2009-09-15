@@ -63,6 +63,7 @@ import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.exception.MembershipAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -125,7 +126,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * A group within the Groups Registry.
  * <p/>
  * @author  blair christensen.
- * @version $Id: Group.java,v 1.256 2009-08-29 15:57:59 shilen Exp $
+ * @version $Id: Group.java,v 1.257 2009-09-15 06:08:44 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3GrouperVersioned, Comparable {
@@ -722,13 +723,23 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
               }
               boolean doesntExist = true;
               Membership membership = null;
+              
               try {
                 membership = Membership.internal_addImmediateMembership( GrouperSession.staticGrouperSession(), Group.this, subj, f );
-              } catch (MemberAddAlreadyExistsException maaee) {
+                
+              } catch (MemberAddAlreadyExistsException memberAddAlreadyExistsException) {
                 if (exceptionIfAlreadyMember) {
-                  throw maaee;
+                  throw memberAddAlreadyExistsException;
                 }
                 doesntExist = false;
+              } catch (MembershipAlreadyExistsException membershipAlreadyExistsException) {
+                if (exceptionIfAlreadyMember) {
+                  //convert to member add
+                  throw new MemberAddAlreadyExistsException(membershipAlreadyExistsException);
+                }
+                doesntExist = false;
+              } catch (Exception exception) {
+                throw new RuntimeException(exception);
               }
               if (doesntExist) {
                 EVENT_LOG.groupAddMember(GrouperSession.staticGrouperSession(), Group.this.getName(), subj, f, sw);
@@ -3985,7 +3996,6 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
       return true;
     }
     catch (InsufficientPrivilegeException eIP) {
-      //eIP.printStackTrace();
       return false;
     }
   }
@@ -4814,7 +4824,7 @@ public class Group extends GrouperAPI implements GrouperHasContext, Owner, Hib3G
    * @param isIncludeExcludes 
    * @param andGroups groups (like activeEmployee) which the user must also be in
    */
-  public void manageIncludesExcludesRequiredGroups(GrouperSession grouperSession, boolean isIncludeExcludes, Set<Group> andGroups) {
+  public void manageIncludesExcludesRequiredGroups(@SuppressWarnings("unused") GrouperSession grouperSession, boolean isIncludeExcludes, Set<Group> andGroups) {
     
     GroupTypeTupleIncludeExcludeHook.manageIncludesExcludesAndGroups(this, isIncludeExcludes, andGroups,
         "from manageIncludesExclude() method in Group class: " + this.getExtension());

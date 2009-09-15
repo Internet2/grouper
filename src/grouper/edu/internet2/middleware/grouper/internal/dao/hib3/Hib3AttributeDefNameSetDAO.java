@@ -9,7 +9,7 @@ import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO;
 /**
  * Data Access Object for attribute def name set
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.2 2009-07-03 21:15:13 mchyzer Exp $
+ * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.3 2009-09-15 06:08:44 mchyzer Exp $
  */
 public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefNameSetDAO {
   
@@ -41,7 +41,8 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
   }
 
   /**
-   * save or update
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO#saveOrUpdate(edu.internet2.middleware.grouper.attr.AttributeDefNameSet)
    */
   public void saveOrUpdate(AttributeDefNameSet attributeDefNameSet) {
     HibernateSession.byObjectStatic().saveOrUpdate(attributeDefNameSet);
@@ -67,6 +68,32 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
       .setString("theId", id).listSet(AttributeDefNameSet.class);
     return attributeDefNameSets;
 
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO#findByIfThenHasAttributeDefNameId(java.lang.String, java.lang.String)
+   */
+  public Set<AttributeDefNameSet> findByIfThenHasAttributeDefNameId(
+      String attributeDefNameSetForThens, String attributeDefNameSetForIfs) {
+    Set<AttributeDefNameSet> attributeDefNameSets = HibernateSession.byHqlStatic().createQuery(
+        "select theAttributeDefNameSet from AttributeDefNameSet as theAttributeDefNameSet, AttributeDefNameSet as theAttributeDefNameSetThens, "
+        + "AttributeDefNameSet as theAttributeDefNameSetIfs "
+        + "where theAttributeDefNameSetThens.thenHasAttributeDefNameId = :attributeDefNameSetForThens "
+        + "and theAttributeDefNameSetIfs.ifHasAttributeDefNameId = :attributeDefNameSetForIfs "
+        + "and theAttributeDefNameSet.ifHasAttributeDefNameId = theAttributeDefNameSetThens.ifHasAttributeDefNameId "
+        + "and theAttributeDefNameSet.thenHasAttributeDefNameId = theAttributeDefNameSetIfs.thenHasAttributeDefNameId "
+    )
+    .setString("attributeDefNameSetForThens", attributeDefNameSetForThens)
+    .setString("attributeDefNameSetForIfs", attributeDefNameSetForIfs)
+    .listSet(AttributeDefNameSet.class);
+  return attributeDefNameSets;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO#delete(edu.internet2.middleware.grouper.attr.AttributeDefNameSet)
+   */
+  public void delete(AttributeDefNameSet attributeDefNameSet) {
+    HibernateSession.byObjectStatic().delete(attributeDefNameSet);
   }
 
 } 

@@ -89,7 +89,7 @@ public class AttributeDefNameTest extends GrouperTest {
     try {
       attributeDefName2 = this.top.addChildAttributeDefName(attributeDef, "testName", "test name");
     } catch (AttributeDefNameAddException adae) {
-      assertTrue(ExceptionUtils.getFullStackTrace(adae), adae.getMessage().startsWith("attribute def name already exists"));
+      assertTrue(ExceptionUtils.getFullStackTrace(adae), adae.getMessage().contains("attribute def name already exists"));
     }
 
     attributeDefName2 = this.top.addChildAttributeDefName(attributeDef, "testName2", "test name2");

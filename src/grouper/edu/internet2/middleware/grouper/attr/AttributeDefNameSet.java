@@ -1,8 +1,10 @@
 package edu.internet2.middleware.grouper.attr;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
@@ -26,7 +28,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 //and gadn.id = gadns.then_has_attribute_def_name_id;
 
 /**
- * @author mchyzer $Id: AttributeDefNameSet.java,v 1.3 2009-08-11 20:18:08 mchyzer Exp $
+ * @author mchyzer $Id: AttributeDefNameSet.java,v 1.4 2009-09-15 06:08:44 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersioned {
@@ -60,10 +62,7 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
   public static final String COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID = "then_has_attribute_def_name_id";
 
   /** column */
-  public static final String COLUMN_FIRST_HOP_ATTR_DEF_NAME_SET_ID = "first_hop_attr_def_name_set_id";
-
-  /** column */
-  public static final String COLUMN_LAST_HOP_ATTR_DEF_NAME_SET_ID = "last_hop_attr_def_name_set_id";
+  public static final String COLUMN_PARENT_ATTR_DEF_NAME_SET_ID = "parent_attr_def_name_set_id";
 
   /** column */
   public static final String COLUMN_TYPE = "type";
@@ -105,6 +104,7 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
   /**
    * fields which are included in db version
    */
+  @SuppressWarnings("unused")
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_CREATED_ON_DB, FIELD_DEPTH, FIELD_FIRST_HOP_ATTR_DEF_NAME_SET_ID, 
       FIELD_ID, FIELD_IF_HAS_ATTRIBUTE_DEF_NAME_ID, FIELD_LAST_HOP_ATTR_DEF_NAME_SET_ID, FIELD_LAST_UPDATED_DB, 
@@ -134,15 +134,8 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
    * for effective, this is the first hop on the directed graph
    * to get to this membership. 
    */
-  private String firstHopAttrDefNameSetId;
+  private String parentAttrDefNameSetId;
 
-  /** 
-   * for self, or immediate, just use this id.
-   * for effective, this is the last hop on the directed graph
-   * to get to this membership. 
-   */
-  private String lastHopAttrDefNameSetId;
-  
   /** attribute def name id of the parent */
   private String thenHasAttributeDefNameId;
   
@@ -165,7 +158,35 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
   private Long lastUpdatedDb;
 
   /**
-   * business equals based on fields
+   * find an attribute def name set, better be here
+   * @param attributeDefNameSets 
+   * @param ifHasId 
+   * @param thenHasId 
+   * @param depth is the depth expecting
+   * @param exceptionIfNull 
+   * @return the def name set
+   */
+  public static AttributeDefNameSet findInCollection(
+      Collection<AttributeDefNameSet> attributeDefNameSets, String ifHasId, 
+      String thenHasId, int depth, boolean exceptionIfNull) {
+
+    //are we sure we are getting the right one here???
+    for (AttributeDefNameSet attributeDefNameSet : GrouperUtil.nonNull(attributeDefNameSets)) {
+      if (StringUtils.equals(ifHasId, attributeDefNameSet.getIfHasAttributeDefNameId())
+          && StringUtils.equals(thenHasId, attributeDefNameSet.getThenHasAttributeDefNameId())
+          && depth == attributeDefNameSet.getDepth()) {
+        return attributeDefNameSet;
+      }
+    }
+    if (exceptionIfNull) {
+      throw new RuntimeException("Cant find attribute def name set with id: " + ifHasId + ", " + thenHasId + ", " + depth);
+    }
+    return null;
+  }
+
+  /**
+   * 
+   * @see java.lang.Object#equals(java.lang.Object)
    */
   public boolean equals(Object other) {
     if (this == other) {
@@ -178,22 +199,20 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
     
     AttributeDefNameSet that = (AttributeDefNameSet) other;
     return new EqualsBuilder()
-      .append(this.type, that.type)
-      .append(this.depth, that.depth)
-      .append(this.firstHopAttrDefNameSetId, that.firstHopAttrDefNameSetId)
+      .append(this.parentAttrDefNameSetId, that.parentAttrDefNameSetId)
       .append(this.thenHasAttributeDefNameId, that.thenHasAttributeDefNameId)
       .append(this.ifHasAttributeDefNameId, that.ifHasAttributeDefNameId)
       .isEquals();
-  } 
 
+  }
+  
   /**
-   * business hashcode based on fields
+   * 
+   * @see java.lang.Object#hashCode()
    */
   public int hashCode() {
     return new HashCodeBuilder()
-      .append(this.type)
-      .append(this.depth)
-      .append(this.firstHopAttrDefNameSetId)
+      .append(this.parentAttrDefNameSetId)
       .append(this.thenHasAttributeDefNameId)
       .append(this.ifHasAttributeDefNameId)
       .toHashCode();
@@ -211,15 +230,34 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
    * @return the parent group set or null if none
    */
   public AttributeDefNameSet getParentAttributeDefSet() {
-    if (depth == 0) {
-      return null;
+    if (this.depth == 0) {
+      return this;
     }
     
-    AttributeDefNameSet parent = null; 
-      //TODO GrouperDAOFactory.getFactory().getAttributeDefSet().findParentGroupSet(this) ;
+    AttributeDefNameSet parent = GrouperDAOFactory.getFactory().getAttributeDefNameSet()
+      .findById(this.getParentAttrDefNameSetId(), true) ;
     return parent;
   }
   
+  /**
+   * @return the parent group set or null if none
+   */
+  public AttributeDefName getIfHasAttributeDefName() {
+    AttributeDefName ifHasAttributeDefName = 
+      GrouperDAOFactory.getFactory().getAttributeDefName()
+      .findById(this.getIfHasAttributeDefNameId(), true) ;
+    return ifHasAttributeDefName;
+  }
+  
+  /**
+   * @return the parent group set or null if none
+   */
+  public AttributeDefName getThenHasAttributeDefName() {
+    AttributeDefName thenHasAttributeDefName = 
+      GrouperDAOFactory.getFactory().getAttributeDefName()
+      .findById(this.getThenHasAttributeDefNameId(), true) ;
+    return thenHasAttributeDefName;
+  }
   
   /**
    * @return id
@@ -252,8 +290,8 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
    * to get to this membership. 
    * @return parent id
    */
-  public String getFirstHopAttrDefNameSetId() {
-    return firstHopAttrDefNameSetId;
+  public String getParentAttrDefNameSetId() {
+    return parentAttrDefNameSetId;
   }
 
   
@@ -261,10 +299,10 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
    * for self, or immediate, just use this id.
    * for effective, this is the first hop on the directed graph
    * to get to this membership. 
-   * @param parentId
+   * @param parentId1
    */
-  public void setFirstHopAttrDefNameSetId(String parentId) {
-    this.firstHopAttrDefNameSetId = parentId;
+  public void setParentAttrDefNameSetId(String parentId1) {
+    this.parentAttrDefNameSetId = parentId1;
   }
 
   
@@ -394,6 +432,13 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
   }
 
   /**
+   * save or update this object
+   */
+  public void delete() {
+    GrouperDAOFactory.getFactory().getAttributeDefNameSet().delete(this);
+  }
+
+  /**
    * when created
    * @param createdOn1
    */
@@ -423,28 +468,6 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
    */
   public void setLastUpdatedDb(Long lastUpdated1) {
     this.lastUpdatedDb = lastUpdated1;
-  }
-
-  
-  /**
-   * for self, or immediate, just use this id.
-   * for effective, this is the last hop on the directed graph
-   * to get to this membership. 
-   * @return the lastHopDefNameSetId
-   */
-  public String getLastHopAttrDefNameSetId() {
-    return this.lastHopAttrDefNameSetId;
-  }
-
-  
-  /**
-   * for self, or immediate, just use this id.
-   * for effective, this is the last hop on the directed graph
-   * to get to this membership. 
-   * @param lastHopDefNameSetId1 the lastHopDefNameSetId to set
-   */
-  public void setLastHopAttrDefNameSetId(String lastHopDefNameSetId1) {
-    this.lastHopAttrDefNameSetId = lastHopDefNameSetId1;
   }
 
 }

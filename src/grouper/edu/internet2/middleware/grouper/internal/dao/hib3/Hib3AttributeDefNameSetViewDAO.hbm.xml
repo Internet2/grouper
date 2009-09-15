@@ -20,7 +20,7 @@
   limitations under the License.
 -->
 
-<!-- $Id: Hib3AttributeDefNameSetViewDAO.hbm.xml,v 1.1 2009-07-03 21:15:13 mchyzer Exp $ -->
+<!-- $Id: Hib3AttributeDefNameSetViewDAO.hbm.xml,v 1.2 2009-09-15 06:08:44 mchyzer Exp $ -->
 
 <hibernate-mapping package="edu.internet2.middleware.grouper.attr">
 
@@ -39,11 +39,12 @@
     <property name="depth" column="depth"/>
     <property name="ifHasAttrDefNameId" column="if_has_attr_def_name_id"/>
     <property name="thenHasAttrDefNameId" column="then_has_attr_def_name_id"/>
-    <property name="parentId" column="parent_id"/>
-    <property name="typeDb" column="type"/>
     <property name="ifHasAttrDefNameName" column="if_has_attr_def_name_name"/>
     <property name="thenHasAttrDefNameName" column="then_has_attr_def_name_name"/>
-    
+    <property name="parentAttrDefNameSetId" column="parent_attr_def_name_set_id"/>
+    <property name="typeDb" column="type"/>
+    <property name="parentIfHasName" column="parent_if_has_name"/>
+    <property name="parentThenHasName" column="parent_then_has_name"/>
   </class>
 </hibernate-mapping>
 

@@ -10,6 +10,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.exception.GrouperStaleObjectStateException;
+import edu.internet2.middleware.grouper.exception.MembershipAlreadyExistsException;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -453,6 +454,8 @@ public class ByObjectStatic extends ByQueryBase {
     } catch (HookVeto hookVeto) {
       throw hookVeto;
     } catch (GrouperStaleObjectStateException e) {
+      throw e;
+    } catch (MembershipAlreadyExistsException e) {
       throw e;
     } catch (GrouperDAOException e) {
       LOG.error("Exception in save: " + GrouperUtil.className(object) + ", " + this, e);
