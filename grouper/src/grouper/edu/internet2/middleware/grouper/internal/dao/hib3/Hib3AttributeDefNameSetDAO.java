@@ -9,7 +9,7 @@ import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO;
 /**
  * Data Access Object for attribute def name set
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.3 2009-09-15 06:08:44 mchyzer Exp $
+ * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.4 2009-09-16 05:50:52 mchyzer Exp $
  */
 public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefNameSetDAO {
   
@@ -24,11 +24,13 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
    * @param hibernateSession
    */
   static void reset(HibernateSession hibernateSession) {
+    hibernateSession.byHql().createQuery("update AttributeDefNameSet set parentAttrDefNameSetId = null").executeUpdate();
     hibernateSession.byHql().createQuery("delete from AttributeDefNameSet").executeUpdate();
   }
 
   /**
-   * retrieve by id
+   * 
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO#findById(java.lang.String, boolean)
    */
   public AttributeDefNameSet findById(String id, boolean exceptionIfNotFound) {
     AttributeDefNameSet attributeDefNameSet = HibernateSession.byHqlStatic().createQuery(
@@ -76,7 +78,7 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
   public Set<AttributeDefNameSet> findByIfThenHasAttributeDefNameId(
       String attributeDefNameSetForThens, String attributeDefNameSetForIfs) {
     Set<AttributeDefNameSet> attributeDefNameSets = HibernateSession.byHqlStatic().createQuery(
-        "select theAttributeDefNameSet from AttributeDefNameSet as theAttributeDefNameSet, AttributeDefNameSet as theAttributeDefNameSetThens, "
+        "select distinct theAttributeDefNameSet from AttributeDefNameSet as theAttributeDefNameSet, AttributeDefNameSet as theAttributeDefNameSetThens, "
         + "AttributeDefNameSet as theAttributeDefNameSetIfs "
         + "where theAttributeDefNameSetThens.thenHasAttributeDefNameId = :attributeDefNameSetForThens "
         + "and theAttributeDefNameSetIfs.ifHasAttributeDefNameId = :attributeDefNameSetForIfs "
@@ -94,6 +96,24 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
    */
   public void delete(AttributeDefNameSet attributeDefNameSet) {
     HibernateSession.byObjectStatic().delete(attributeDefNameSet);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO#findByIfThenImmediate(java.lang.String, java.lang.String, boolean)
+   */
+  public AttributeDefNameSet findByIfThenImmediate(String attributeDefNameIdIf,
+      String attributeDefNameIdThen, boolean exceptionIfNotFound) {
+    AttributeDefNameSet attributeDefNameSet = HibernateSession.byHqlStatic().createQuery(
+      "from AttributeDefNameSet where ifHasAttributeDefNameId = :ifId " +
+      "and thenHasAttributeDefNameId = :thenId")
+      .setString("ifId", attributeDefNameIdIf).setString("thenId", attributeDefNameIdThen)
+      .uniqueResult(AttributeDefNameSet.class);
+    if (attributeDefNameSet == null && exceptionIfNotFound) {
+      throw new RuntimeException("AttributeDefNameSet immediate if "
+          + attributeDefNameIdIf + ", then: " + attributeDefNameIdThen);
+    }
+    return attributeDefNameSet;
+
   }
 
 } 

@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: GrouperDdl.java,v 1.65 2009-09-15 06:08:44 mchyzer Exp $
+ * $Id: GrouperDdl.java,v 1.66 2009-09-16 05:50:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.ddl;
 
@@ -2629,6 +2629,24 @@ public enum GrouperDdl implements DdlVersionable {
           "fk_attributes_field_id", Field.TABLE_GROUPER_FIELDS, "field_id", "id");
     }
 
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+        "fk_attr_def_name_stem", Stem.TABLE_GROUPER_STEMS, 
+        AttributeDefName.COLUMN_STEM_ID, Stem.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF, 
+        "fk_attr_def_stem", Stem.TABLE_GROUPER_STEMS, 
+        AttributeDef.COLUMN_STEM_ID, Stem.COLUMN_ID);
+
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET, 
+        "fk_attr_def_name_set_parent", AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET, 
+        AttributeDefNameSet.COLUMN_PARENT_ATTR_DEF_NAME_SET_ID, AttributeDefNameSet.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET, 
+        "fk_attr_def_name_if", AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+        AttributeDefNameSet.COLUMN_IF_HAS_ATTRIBUTE_DEF_NAME_ID, AttributeDefName.COLUMN_ID);
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, AttributeDefNameSet.TABLE_GROUPER_ATTRIBUTE_DEF_NAME_SET, 
+        "fk_attr_def_name_then", AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME, 
+        AttributeDefNameSet.COLUMN_THEN_HAS_ATTRIBUTE_DEF_NAME_ID, AttributeDefName.COLUMN_ID);
+    
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Composite.TABLE_GROUPER_COMPOSITES, 
         "fk_composites_owner", Group.TABLE_GROUPER_GROUPS, "owner", groupIdCol);
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, Composite.TABLE_GROUPER_COMPOSITES, 
@@ -4414,7 +4432,7 @@ public enum GrouperDdl implements DdlVersionable {
           AttributeAssignValue.COLUMN_ATTRIBUTE_ASSIGN_ID);
 
       {
-        String scriptOverrideName = ddlVersionBean.isMysql() ? "\nCREATE unique INDEX attribute_val_string_idx " +
+        String scriptOverrideName = ddlVersionBean.isMysql() ? "\nCREATE INDEX attribute_val_string_idx " +
             "ON grouper_attribute_assign_value (value_string(333));\n" : null;
         
         GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, attributeAssignValueTable.getName(), 

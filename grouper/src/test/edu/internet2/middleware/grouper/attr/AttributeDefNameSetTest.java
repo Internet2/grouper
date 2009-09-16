@@ -28,7 +28,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefNameSetTest("testComplexRemoveCfromB"));
+    TestRunner.run(new AttributeDefNameSetTest("testComplexRemoveCfromK"));
   }
 
   /**
@@ -178,8 +178,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
         GrouperDAOFactory.getFactory()
-            .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
-            GrouperUtil.toSet("top:org1", "top:org2", "top:org3", "top:org4")));
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet("top:org1", "top:org2", "top:org3", "top:org4")));
 
     assertEquals("top:org1", attributeDefNameSetViews.get(0).getIfHasAttrDefNameName());
     assertEquals("top:org1", attributeDefNameSetViews.get(0).getThenHasAttrDefNameName());
@@ -282,11 +282,11 @@ public class AttributeDefNameSetTest extends GrouperTest {
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
         GrouperDAOFactory.getFactory()
-            .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
-            GrouperUtil.toSet(
-                "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
-                "top:orgG", "top:orgH",
-                "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
 
     int index = 0;
 
@@ -1068,7 +1068,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
   /**
    * <pre>
    * complex relationships: ^ means relationship pointing up, v means down -> means right
-   * e.g. if has A, then has B.  So B is in the attributeSet of A, 
+   * e.g. if someone has A, then that someone also effectively has B.  
+   * So B is in the attributeSet of A, 
    * as is C, D, E, F, G, H, I, J, and L (not K)
    * 
    *          K       G---\ 
@@ -1139,7 +1140,8 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals(initialAttrDefNameSetViewCount + 2, attrDefNameSetViewCount);
 
     // A -> B
-    orgA.addToAttributeDefNameSet(orgB);
+    assertTrue(orgA.addToAttributeDefNameSet(orgB));
+    assertFalse(orgA.addToAttributeDefNameSet(orgB));
 
     attrDefNameSetViewCount = HibernateSession.bySqlStatic().select(
         int.class, "select count(1) from grouper_attr_def_name_set_v");
@@ -1363,11 +1365,11 @@ public class AttributeDefNameSetTest extends GrouperTest {
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
         GrouperDAOFactory.getFactory()
-            .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
-            GrouperUtil.toSet(
-                "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
-                "top:orgG", "top:orgH",
-                "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
 
     int index = 0;
 
@@ -2193,11 +2195,11 @@ public class AttributeDefNameSetTest extends GrouperTest {
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
         GrouperDAOFactory.getFactory()
-            .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
-            GrouperUtil.toSet(
-                "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
-                "top:orgG", "top:orgH",
-                "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
 
     int index = 0;
 
@@ -3011,11 +3013,11 @@ public class AttributeDefNameSetTest extends GrouperTest {
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
         GrouperDAOFactory.getFactory()
-            .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
-            GrouperUtil.toSet(
-                "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
-                "top:orgG", "top:orgH",
-                "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
 
     int index = 0;
 
@@ -3830,11 +3832,11 @@ public class AttributeDefNameSetTest extends GrouperTest {
     //lets look at them all
     List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
         GrouperDAOFactory.getFactory()
-            .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
-            GrouperUtil.toSet(
-                "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
-                "top:orgG", "top:orgH",
-                "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
 
     int index = 0;
 
@@ -3860,17 +3862,17 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
     assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
 
-//    index++;
-//
-//    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
-//        .getIfHasAttrDefNameName());
-//    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
-//        .getThenHasAttrDefNameName());
-//    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
-//    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
-//        .get(index).getType());
-//    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
-//    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //    index++;
+    //
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
 
     index++;
 
@@ -3884,17 +3886,17 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
     assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
 
-//    index++;
-//
-//    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
-//        .getIfHasAttrDefNameName());
-//    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
-//        .getThenHasAttrDefNameName());
-//    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
-//    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
-//        .get(index).getType());
-//    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
-//    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //    index++;
+    //
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
 
     index++;
 
@@ -3920,17 +3922,17 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
     assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
 
-//    index++;
-//
-//    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
-//        .getIfHasAttrDefNameName());
-//    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
-//        .getThenHasAttrDefNameName());
-//    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
-//    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
-//        .get(index).getType());
-//    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
-//    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //    index++;
+    //
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
 
     index++;
 
@@ -3945,17 +3947,17 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
     assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
 
-//    index++;
-//
-//    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
-//        .getIfHasAttrDefNameName());
-//    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
-//        .getThenHasAttrDefNameName());
-//    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
-//    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
-//        .get(index).getType());
-//    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
-//    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //    index++;
+    //
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
 
     index++;
 
@@ -3970,17 +3972,17 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
     assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
 
-//    index++;
-//
-//    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
-//        .getIfHasAttrDefNameName());
-//    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
-//        .getThenHasAttrDefNameName());
-//    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
-//    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
-//        .get(index).getType());
-//    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
-//    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //    index++;
+    //
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
 
     index++;
 
@@ -4054,17 +4056,17 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
     assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
 
-//    index++;
-//
-//    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
-//        .getIfHasAttrDefNameName());
-//    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
-//        .getThenHasAttrDefNameName());
-//    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
-//    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
-//        .get(index).getType());
-//    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
-//    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //    index++;
+    //
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
 
     index++;
 
@@ -4091,17 +4093,17 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
     assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
 
-//    index++;
-//
-//    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
-//        .getIfHasAttrDefNameName());
-//    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
-//        .getThenHasAttrDefNameName());
-//    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
-//    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
-//        .get(index).getType());
-//    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
-//    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //    index++;
+    //
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
 
     index++;
 
@@ -4115,17 +4117,17 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
     assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
 
-//    index++;
-//
-//    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
-//        .getIfHasAttrDefNameName());
-//    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
-//        .getThenHasAttrDefNameName());
-//    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
-//    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
-//        .get(index).getType());
-//    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
-//    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //    index++;
+    //
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
 
     index++;
 
@@ -4139,17 +4141,17 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
     assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
 
-//    index++;
-//
-//    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
-//        .getIfHasAttrDefNameName());
-//    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
-//        .getThenHasAttrDefNameName());
-//    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
-//    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
-//        .get(index).getType());
-//    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
-//    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //    index++;
+    //
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
 
     index++;
 
@@ -4164,41 +4166,41 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
     assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
 
-//    index++;
-//
-//    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
-//        .getIfHasAttrDefNameName());
-//    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
-//        .getThenHasAttrDefNameName());
-//    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
-//    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
-//        .get(index).getType());
-//    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
-//    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //    index++;
+    //
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
 
-//    index++;
-//
-//    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
-//        .getIfHasAttrDefNameName());
-//    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
-//        .getThenHasAttrDefNameName());
-//    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
-//    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
-//        .get(index).getType());
-//    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
-//    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //    index++;
+    //
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
 
-//    index++;
-//
-//    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
-//        .getIfHasAttrDefNameName());
-//    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
-//        .getThenHasAttrDefNameName());
-//    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
-//    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
-//        .get(index).getType());
-//    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
-//    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //    index++;
+    //
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
 
     index++;
 
@@ -4631,6 +4633,9964 @@ public class AttributeDefNameSetTest extends GrouperTest {
         .get(index).getType());
     assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
     assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+  }
+
+  /**
+     * 
+     */
+  public void testComplexRemoveDfromB() {
+    setupStructure();
+    AttributeDefName orgB = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgB", true);
+    AttributeDefName orgD = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgD", true);
+    assertFalse(orgD.removeFromAttributeDefNameSet(orgB));
+    assertTrue(orgB.removeFromAttributeDefNameSet(orgD));
+
+    //lets look at them all
+    List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
+        GrouperDAOFactory.getFactory()
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+
+    int index = 0;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two E's since there are two paths to it
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two A->J's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note there are two of these since two A->E's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //two of these since two B->E's
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+  }
+
+  /**
+       * 
+       */
+  public void testComplexRemoveEfromC() {
+    setupStructure();
+    AttributeDefName orgC = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgC", true);
+    AttributeDefName orgE = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgE", true);
+    assertTrue(orgC.removeFromAttributeDefNameSet(orgE));
+
+    //lets look at them all
+    List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
+        GrouperDAOFactory.getFactory()
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+
+    int index = 0;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two E's since there are two paths to it
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two A->J's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note there are two of these since two A->E's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //two of these since two B->E's
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+  }
+
+  /**
+   * 
+   */
+  public void testComplexRemoveGfromC() {
+    setupStructure();
+    AttributeDefName orgC = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgC", true);
+    AttributeDefName orgG = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgG", true);
+    assertTrue(orgC.removeFromAttributeDefNameSet(orgG));
+
+    //lets look at them all
+    List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
+        GrouperDAOFactory.getFactory()
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+
+    int index = 0;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two E's since there are two paths to it
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two A->J's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note there are two of these since two A->E's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //two of these since two B->E's
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+  }
+
+  /**
+     * 
+     */
+  public void testComplexRemoveEfromD() {
+    setupStructure();
+    AttributeDefName orgD = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgD", true);
+    AttributeDefName orgE = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgE", true);
+    assertTrue(orgD.removeFromAttributeDefNameSet(orgE));
+
+    //lets look at them all
+    List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
+        GrouperDAOFactory.getFactory()
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+
+    int index = 0;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two E's since there are two paths to it
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two A->J's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      //note there are two of these since two A->E's
+    //      assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+    //
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //
+    //      index++;
+    //
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //
+    //      index++;
+
+    //two of these since two B->E's
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //
+    //      index++;
+    //
+    //      assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+  }
+
+  /**
+       * 
+       */
+  public void testComplexRemoveFfromE() {
+    setupStructure();
+    AttributeDefName orgE = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgE", true);
+    AttributeDefName orgF = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgF", true);
+    assertTrue(orgE.removeFromAttributeDefNameSet(orgF));
+
+    //lets look at them all
+    List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
+        GrouperDAOFactory.getFactory()
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+
+    int index = 0;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        //note, there are two E's since there are two paths to it
+    //        assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two A->J's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note there are two of these since two A->E's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //
+    //        index++;
+    //
+    //        //two of these since two B->E's
+    //        assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+  }
+
+  /**
+   * 
+   */
+  public void testComplexRemoveLfromE() {
+    setupStructure();
+    AttributeDefName orgE = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgE", true);
+    AttributeDefName orgL = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgL", true);
+    assertTrue(orgE.removeFromAttributeDefNameSet(orgL));
+
+    //lets look at them all
+    List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
+        GrouperDAOFactory.getFactory()
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+
+    int index = 0;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two E's since there are two paths to it
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two A->J's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    //note there are two of these since two A->E's
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //two of these since two B->E's
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+  }
+
+  /**
+     * 
+     */
+  public void testComplexRemoveFfromG() {
+    setupStructure();
+    AttributeDefName orgG = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgG", true);
+    AttributeDefName orgF = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgF", true);
+    assertTrue(orgG.removeFromAttributeDefNameSet(orgF));
+
+    //lets look at them all
+    List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
+        GrouperDAOFactory.getFactory()
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+
+    int index = 0;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two E's since there are two paths to it
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two A->J's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note there are two of these since two A->E's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //two of these since two B->E's
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+  }
+
+  /**
+       * 
+       */
+  public void testComplexRemoveIfromH() {
+    setupStructure();
+    AttributeDefName orgH = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgH", true);
+    AttributeDefName orgI = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgI", true);
+    assertTrue(orgH.removeFromAttributeDefNameSet(orgI));
+
+    //lets look at them all
+    List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
+        GrouperDAOFactory.getFactory()
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+
+    int index = 0;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two E's since there are two paths to it
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        //note, there are two A->J's
+    //        assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note there are two of these since two A->E's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //two of these since two B->E's
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //        index++;
+    //
+    //        assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+    //            .getIfHasAttrDefNameName());
+    //        assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+    //            .getThenHasAttrDefNameName());
+    //        assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //        assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //            .get(index).getType());
+    //        assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //        assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+  }
+
+  /**
+   * 
+   */
+  public void testComplexRemoveJfromI() {
+    setupStructure();
+    AttributeDefName orgI = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgI", true);
+    AttributeDefName orgJ = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgJ", true);
+    assertTrue(orgI.removeFromAttributeDefNameSet(orgJ));
+
+    //lets look at them all
+    List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
+        GrouperDAOFactory.getFactory()
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+
+    int index = 0;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two E's since there are two paths to it
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    //note, there are two A->J's
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note there are two of these since two A->E's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //two of these since two B->E's
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+  }
+
+  /**
+   * 
+   */
+  public void testComplexRemoveFfromJ() {
+    setupStructure();
+    AttributeDefName orgJ = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgJ", true);
+    AttributeDefName orgF = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgF", true);
+    assertTrue(orgJ.removeFromAttributeDefNameSet(orgF));
+    //lets look at them all
+    List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
+        GrouperDAOFactory.getFactory()
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+
+    int index = 0;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two E's since there are two paths to it
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    //note, there are two A->J's
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note there are two of these since two A->E's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //two of these since two B->E's
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+  }
+
+  /**
+   * 
+   */
+  public void testComplexRemoveHfromJ() {
+    setupStructure();
+    AttributeDefName orgJ = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgJ", true);
+    AttributeDefName orgH = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgH", true);
+    assertTrue(orgJ.removeFromAttributeDefNameSet(orgH));
+    //lets look at them all
+    List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
+        GrouperDAOFactory.getFactory()
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+
+    int index = 0;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two E's since there are two paths to it
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two A->J's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note there are two of these since two A->E's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //two of these since two B->E's
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //    index++;
+    //
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+    //
+    //    index++;
+    //
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+    //        .getIfHasAttrDefNameName());
+    //    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+    //        .getThenHasAttrDefNameName());
+    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //        .get(index).getType());
+    //    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+  }
+
+  /**
+     * 
+     */
+  public void testComplexRemoveCfromK() {
+    setupStructure();
+    AttributeDefName orgK = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgK", true);
+    AttributeDefName orgC = GrouperDAOFactory.getFactory().getAttributeDefName()
+        .findByName("top:orgC", true);
+    assertTrue(orgK.removeFromAttributeDefNameSet(orgC));
+    //lets look at them all
+    List<AttributeDefNameSetView> attributeDefNameSetViews = new ArrayList<AttributeDefNameSetView>(
+        GrouperDAOFactory.getFactory()
+        .getAttributeDefNameSetView().findByAttributeDefNameSetViews(
+        GrouperUtil.toSet(
+        "top:orgA", "top:orgB", "top:orgC", "top:orgD", "top:orgE", "top:orgF",
+        "top:orgG", "top:orgH",
+        "top:orgI", "top:orgJ", "top:orgK", "top:orgL")));
+
+    int index = 0;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two E's since there are two paths to it
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note, there are two A->J's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //note there are two of these since two A->E's
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(4, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgA", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    //two of these since two B->E's
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgD", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgI", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgH", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgJ", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+//    index++;
+//
+//    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+//        .getIfHasAttrDefNameName());
+//    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+//        .getThenHasAttrDefNameName());
+//    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+//    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+//        .get(index).getType());
+//    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+//    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+//    index++;
+//
+//    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+//        .getIfHasAttrDefNameName());
+//    assertEquals("top:orgE", attributeDefNameSetViews.get(index)
+//        .getThenHasAttrDefNameName());
+//    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+//    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+//        .get(index).getType());
+//    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+//    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+//    index++;
+//
+//    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+//        .getIfHasAttrDefNameName());
+//    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+//        .getThenHasAttrDefNameName());
+//    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+//    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+//        .get(index).getType());
+//    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+//    assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+//    index++;
+//
+//    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+//        .getIfHasAttrDefNameName());
+//    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+//        .getThenHasAttrDefNameName());
+//    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+//    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+//        .get(index).getType());
+//    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+//    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+//    index++;
+//
+//    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+//        .getIfHasAttrDefNameName());
+//    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+//        .getThenHasAttrDefNameName());
+//    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+//    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+//        .get(index).getType());
+//    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+//    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(0, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.self, attributeDefNameSetViews.get(index)
+        .getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentThenHasName());
+
+    //      index++;
+    //
+    //      assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+    //          .getIfHasAttrDefNameName());
+    //      assertEquals("top:orgL", attributeDefNameSetViews.get(index)
+    //          .getThenHasAttrDefNameName());
+    //      assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    //      assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+    //          .get(index).getType());
+    //      assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    //      assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
 
     index++;
 

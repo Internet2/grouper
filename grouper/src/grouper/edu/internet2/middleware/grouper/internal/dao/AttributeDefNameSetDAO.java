@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: AttributeDefNameSetDAO.java,v 1.3 2009-09-15 06:08:44 mchyzer Exp $
+ * $Id: AttributeDefNameSetDAO.java,v 1.4 2009-09-16 05:50:52 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -66,6 +66,14 @@ public interface AttributeDefNameSetDAO extends GrouperDAO {
   public Set<AttributeDefNameSet> findByIfThenHasAttributeDefNameId(String attributeDefNameSetForThens, 
       String attributeDefNameSetForIfs);
 
-  
+  /**
+   * find by if and then (not same) with depth of 1 (immediate)
+   * @param attributeDefNameIdIf
+   * @param attributeDefNameIdThen
+   * @param exceptionIfNotFound 
+   * @return the attributeDefNameSet
+   */
+  public AttributeDefNameSet findByIfThenImmediate(String attributeDefNameIdIf, 
+      String attributeDefNameIdThen, boolean exceptionIfNotFound);
   
 }
