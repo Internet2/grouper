@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.grouperSet.GrouperSet;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -28,7 +29,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author mchyzer
  */
 @SuppressWarnings("serial")
-public class AttributeDefName extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
+public class AttributeDefName extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned, GrouperSet {
 
   /** name of the groups attribute def name table in the db */
   public static final String TABLE_GROUPER_ATTRIBUTE_DEF_NAME = "grouper_attribute_def_name";
@@ -553,15 +554,21 @@ public class AttributeDefName extends GrouperAPI implements GrouperHasContext, H
   /**
    * 
    * @param newAttributeDefName
-   * return true if added, false if already there
+   * @return true if added, false if already there
    */
   public boolean addToAttributeDefNameSet(AttributeDefName newAttributeDefName) {
-    
-    //TODO check to see if it was already added
     
     if (LOG.isDebugEnabled()) {
       LOG.debug("Adding to attribute set " + this.getName() + "\n  (" + this.getId() + ")" 
           + " this attribute: " + newAttributeDefName.getName() + " (" + newAttributeDefName.getId() + ")");
+    }
+    
+    //lets see if this one already exists
+    AttributeDefNameSet existingAttributeDefNameSet = GrouperDAOFactory.getFactory()
+      .getAttributeDefNameSet().findByIfThenImmediate(this.getId(), 
+        newAttributeDefName.getId(), false);
+    if (existingAttributeDefNameSet != null) {
+      return false;
     }
     
     //lets see what implies having this existing def name
@@ -768,27 +775,25 @@ public class AttributeDefName extends GrouperAPI implements GrouperHasContext, H
 
   /**
    * 
-   * @param newAttributeDefName
+   * @param attributeDefNameToRemove
    * @return true if removed, false if already removed
    */
-  public boolean removeFromAttributeDefNameSet(AttributeDefName newAttributeDefName) {
-    
-    //TODO test removing already removed
+  public boolean removeFromAttributeDefNameSet(AttributeDefName attributeDefNameToRemove) {
     
     if (LOG.isDebugEnabled()) {
       LOG.debug("Removing from attribute set " + this.getName() + "\n  (" + this.getId() + ")" 
-          + " this attribute: " + newAttributeDefName.getName() + " (" + newAttributeDefName.getId() + ")");
+          + " this attribute: " + attributeDefNameToRemove.getName() + " (" + attributeDefNameToRemove.getId() + ")");
     }
     
     //lets see what implies having this existing def name
     Set<AttributeDefNameSet> candidateAttributeDefNameSetToRemove = 
-      GrouperDAOFactory.getFactory().getAttributeDefNameSet().findByIfThenHasAttributeDefNameId(this.getId(), newAttributeDefName.getId());
+      GrouperDAOFactory.getFactory().getAttributeDefNameSet().findByIfThenHasAttributeDefNameId(this.getId(), attributeDefNameToRemove.getId());
 
     Set<AttributeDefNameSet> attributeDefNameSetWillRemove = new HashSet<AttributeDefNameSet>();
     Set<String> attributeDefNameSetIdsWillRemove = new HashSet<String>();
 
     AttributeDefNameSet setToRemove = AttributeDefNameSet.findInCollection(
-        candidateAttributeDefNameSetToRemove, this.getId(), newAttributeDefName.getId(), 1, false);
+        candidateAttributeDefNameSetToRemove, this.getId(), attributeDefNameToRemove.getId(), 1, false);
     
     if (setToRemove == null) {
       return false;
@@ -798,20 +803,73 @@ public class AttributeDefName extends GrouperAPI implements GrouperHasContext, H
     attributeDefNameSetIdsWillRemove.add(setToRemove.getId());
     candidateAttributeDefNameSetToRemove.remove(setToRemove);
     
+    Iterator<AttributeDefNameSet> iterator = candidateAttributeDefNameSetToRemove.iterator();
+
+    //get the records whose parent ends on the node being cut, and who ends on the other node being cut.
+    //e.g. if A -> B -> C, and B -> C is being cut, then delete A -> C
+    while (iterator.hasNext()) {
+      AttributeDefNameSet attributeDefNameSet = iterator.next();
+      
+//      if (LOG.isDebugEnabled()) {
+//        AttributeDefName ifHasAttributeDefName = attributeDefNameSet.getIfHasAttributeDefName();
+//        AttributeDefName thenHasAttributeDefName = attributeDefNameSet.getThenHasAttributeDefName();
+//        LOG.debug("Initial check " + attributeDefNameSet.getId() + ",\n  ifHas: " 
+//            + ifHasAttributeDefName.getName() + "(" + ifHasAttributeDefName.getId() + "),\n  thenHas: "
+//            + thenHasAttributeDefName.getName() + "(" + thenHasAttributeDefName.getId() + ")\n  depth: " 
+//            + attributeDefNameSet.getDepth());
+//      }
+      
+//      String logPrefix = "Skipping initial set to remove ";
+      if (StringUtils.equals(attributeDefNameSet.getThenHasAttributeDefNameId(), 
+          attributeDefNameToRemove.getId())) {
+        AttributeDefNameSet parentSet = attributeDefNameSet.getParentAttributeDefSet();
+        if (StringUtils.equals(parentSet.getThenHasAttributeDefNameId(), this.getId())) {
+          attributeDefNameSetWillRemove.add(attributeDefNameSet);
+          attributeDefNameSetIdsWillRemove.add(attributeDefNameSet.getId());
+          iterator.remove();
+//          logPrefix = "Found initial set to remove ";
+        }
+      }
+      
+//      if (LOG.isDebugEnabled()) {
+//        AttributeDefName ifHasAttributeDefName = attributeDefNameSet.getIfHasAttributeDefName();
+//        AttributeDefName thenHasAttributeDefName = attributeDefNameSet.getThenHasAttributeDefName();
+//        LOG.debug(logPrefix + attributeDefNameSet.getId() + ",\n  ifHas: " 
+//            + ifHasAttributeDefName.getName() + "(" + ifHasAttributeDefName.getId() + "),\n  thenHas: "
+//            + thenHasAttributeDefName.getName() + "(" + thenHasAttributeDefName.getId() + ")\n  depth: " 
+//            + attributeDefNameSet.getDepth());
+//      }
+
+    }
+
+    
+    
     int setToRemoveSize = attributeDefNameSetWillRemove.size();
     int timeToLive = 100;
     while (timeToLive-- > 0) {
-      Iterator<AttributeDefNameSet> iterator = candidateAttributeDefNameSetToRemove.iterator();
+      iterator = candidateAttributeDefNameSetToRemove.iterator();
       
       //see if any parents destroyed
       while (iterator.hasNext()) {
         AttributeDefNameSet attributeDefNameSet = iterator.next();
         //if the parent is there, it is gone
+        
+//        String logPrefix = "Skipping set to remove ";
+        
         if (attributeDefNameSetIdsWillRemove.contains(attributeDefNameSet.getParentAttrDefNameSetId())) {
           attributeDefNameSetWillRemove.add(attributeDefNameSet);
           attributeDefNameSetIdsWillRemove.add(attributeDefNameSet.getId());
           iterator.remove();
+//          logPrefix = "Found set to remove ";
         }
+//        if (LOG.isDebugEnabled()) {
+//          AttributeDefName ifHasAttributeDefName = attributeDefNameSet.getIfHasAttributeDefName();
+//          AttributeDefName thenHasAttributeDefName = attributeDefNameSet.getThenHasAttributeDefName();
+//          LOG.debug(logPrefix + attributeDefNameSet.getId() + ",\n  ifHas: " 
+//              + ifHasAttributeDefName.getName() + "(" + ifHasAttributeDefName.getId() + "),\n  thenHas: "
+//              + thenHasAttributeDefName.getName() + "(" + thenHasAttributeDefName.getId() + ")\n  depth: " 
+//              + attributeDefNameSet.getDepth());
+//        }
       }
       
       //if we didnt make progress, we are done
@@ -847,7 +905,35 @@ public class AttributeDefName extends GrouperAPI implements GrouperHasContext, H
       }
       attributeDefNameSet.delete();
     }
+
+//    for (AttributeDefNameSet attributeDefNameSet : candidateAttributeDefNameSetToRemove) {
+//      if (LOG.isDebugEnabled()) {
+//        AttributeDefName ifHasAttributeDefName = attributeDefNameSet.getIfHasAttributeDefName();
+//        AttributeDefName thenHasAttributeDefName = attributeDefNameSet.getThenHasAttributeDefName();
+//        LOG.debug("Not deleting set " + attributeDefNameSet.getId() + ",\n  ifHas: " 
+//            + ifHasAttributeDefName.getName() + "(" + ifHasAttributeDefName.getId() + "),\n  thenHas: "
+//            + thenHasAttributeDefName.getName() + "(" + thenHasAttributeDefName.getId() + ")\n  depth: " 
+//            + attributeDefNameSet.getDepth());
+//      }
+//    }
+
+    //now, if there is A -> B -> C, and you cut B -> C, then you need to remove A -> C
+    
     return true;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getId()
+   */
+  public String __getId() {
+    return null;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getName()
+   */
+  public String __getName() {
+    return null;
   }
   
 }
