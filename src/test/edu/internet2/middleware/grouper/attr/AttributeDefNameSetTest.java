@@ -28,7 +28,7 @@ public class AttributeDefNameSetTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new AttributeDefNameSetTest("testComplexRemoveCfromK"));
+    TestRunner.run(new AttributeDefNameSetTest("testComplexRemoveLfromE"));
   }
 
   /**
@@ -9147,17 +9147,17 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
     assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
 
-    //    index++;
-    //
-    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
-    //        .getIfHasAttrDefNameName());
-    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
-    //        .getThenHasAttrDefNameName());
-    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
-    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
-    //        .get(index).getType());
-    //    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
-    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+    index++;
+
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgB", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
 
     index++;
 
@@ -9231,17 +9231,17 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
     assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
 
-    //    index++;
-    //
-    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
-    //        .getIfHasAttrDefNameName());
-    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
-    //        .getThenHasAttrDefNameName());
-    //    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
-    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
-    //        .get(index).getType());
-    //    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
-    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+    index++;
+
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(2, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgC", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
 
     index++;
 
@@ -9363,17 +9363,17 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentIfHasName());
     assertEquals("top:orgF", attributeDefNameSetViews.get(index).getParentThenHasName());
 
-    //    index++;
-    //
-    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
-    //        .getIfHasAttrDefNameName());
-    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
-    //        .getThenHasAttrDefNameName());
-    //    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
-    //    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
-    //        .get(index).getType());
-    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
-    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+    index++;
+
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(1, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.immediate, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
 
     index++;
 
@@ -9567,17 +9567,17 @@ public class AttributeDefNameSetTest extends GrouperTest {
     assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
     assertEquals("top:orgE", attributeDefNameSetViews.get(index).getParentThenHasName());
 
-    //    index++;
-    //
-    //    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
-    //        .getIfHasAttrDefNameName());
-    //    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
-    //        .getThenHasAttrDefNameName());
-    //    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
-    //    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
-    //        .get(index).getType());
-    //    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
-    //    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
+    index++;
+
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index)
+        .getIfHasAttrDefNameName());
+    assertEquals("top:orgF", attributeDefNameSetViews.get(index)
+        .getThenHasAttrDefNameName());
+    assertEquals(3, attributeDefNameSetViews.get(index).getDepth());
+    assertEquals(AttributeDefAssignmentType.effective, attributeDefNameSetViews
+        .get(index).getType());
+    assertEquals("top:orgK", attributeDefNameSetViews.get(index).getParentIfHasName());
+    assertEquals("top:orgG", attributeDefNameSetViews.get(index).getParentThenHasName());
 
     index++;
 

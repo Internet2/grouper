@@ -10,6 +10,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.grouperSet.GrouperSet;
+import edu.internet2.middleware.grouper.grouperSet.GrouperSetElement;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -28,10 +30,11 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 //and gadn.id = gadns.then_has_attribute_def_name_id;
 
 /**
- * @author mchyzer $Id: AttributeDefNameSet.java,v 1.4 2009-09-15 06:08:44 mchyzer Exp $
+ * @author mchyzer $Id: AttributeDefNameSet.java,v 1.5 2009-09-16 08:52:22 mchyzer Exp $
  */
 @SuppressWarnings("serial")
-public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersioned {
+public class AttributeDefNameSet extends GrouperAPI 
+    implements Hib3GrouperVersioned, GrouperSet {
   
   /** logger */
   @SuppressWarnings("unused")
@@ -468,6 +471,69 @@ public class AttributeDefNameSet extends GrouperAPI implements Hib3GrouperVersio
    */
   public void setLastUpdatedDb(Long lastUpdated1) {
     this.lastUpdatedDb = lastUpdated1;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getId()
+   */
+  public String __getId() {
+    return this.getId();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getIfHasElementId()
+   */
+  public String __getIfHasElementId() {
+    return this.getIfHasAttributeDefNameId();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getThenHasElementId()
+   */
+  public String __getThenHasElementId() {
+    return this.getThenHasAttributeDefNameId();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getDepth()
+   */
+  public int __getDepth() {
+    return this.getDepth();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getIfHasElement()
+   */
+  public GrouperSetElement __getIfHasElement() {
+    return this.getIfHasAttributeDefName();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getThenHasElement()
+   */
+  public GrouperSetElement __getThenHasElement() {
+    return this.getThenHasAttributeDefName();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__setParentGrouperSetId(java.lang.String)
+   */
+  public void __setParentGrouperSetId(String grouperSetId) {
+    this.setParentAttrDefNameSetId(grouperSetId);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getParentGrouperSet()
+   */
+  public GrouperSet __getParentGrouperSet() {
+    return this.getParentAttributeDefSet();
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.grouperSet.GrouperSet#__getParentGrouperSetId()
+   */
+  public String __getParentGrouperSetId() {
+    return this.getParentAttrDefNameSetId();
   }
 
 }
