@@ -50,7 +50,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Membership</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3MembershipDAO.java,v 1.42 2009-08-29 15:57:59 shilen Exp $
+ * @version $Id: Hib3MembershipDAO.java,v 1.43 2009-09-17 15:33:05 shilen Exp $
  * @since   @HEAD@
  */
 public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
@@ -1410,6 +1410,48 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     Member m = (Member) result[1];
     ms.setMember(m);
     return ms;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findMissingImmediateGroupSetsForGroupOwners()
+   */
+  public Set<Membership> findMissingImmediateGroupSetsForGroupOwners() {
+    String sql = "select ms, m from ImmediateMembershipEntry as ms, Member as m " +
+    		"where ms.ownerGroupId is not null and ms.type = 'immediate' " +
+    		"and ms.enabledDb = 'T' and ms.memberUuid = m.uuid and m.subjectTypeId = 'group' " +
+    		"and not exists ( " +
+    		"select gs.ownerGroupId from GroupSet as gs where gs.ownerGroupId = ms.ownerGroupId " +
+    		"and gs.memberGroupId = m.subjectIdDb and gs.fieldId = ms.fieldId and gs.depth='1' " +
+    		")";
+    
+    Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql)
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindMissingImmediateGroupSetsForGroupOwners")
+      .listSet(Object[].class);
+    
+    return _getMembershipsFromMembershipAndMemberQuery(mships);
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findMissingImmediateGroupSetsForStemOwners()
+   */
+  public Set<Membership> findMissingImmediateGroupSetsForStemOwners() {
+    String sql = "select ms, m from ImmediateMembershipEntry as ms, Member as m " +
+        "where ms.ownerStemId is not null and ms.type = 'immediate' " +
+        "and ms.enabledDb = 'T' and ms.memberUuid = m.uuid and m.subjectTypeId = 'group' " +
+        "and not exists ( " +
+        "select gs.ownerStemId from GroupSet as gs where gs.ownerStemId = ms.ownerStemId " +
+        "and gs.memberGroupId = m.subjectIdDb and gs.fieldId = ms.fieldId and gs.depth='1' " +
+        ")";
+    
+    Set<Object[]> mships = HibernateSession.byHqlStatic()
+      .createQuery(sql)
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindMissingImmediateGroupSetsForStemOwners")
+      .listSet(Object[].class);
+    
+    return _getMembershipsFromMembershipAndMemberQuery(mships);
   }
 } 
 

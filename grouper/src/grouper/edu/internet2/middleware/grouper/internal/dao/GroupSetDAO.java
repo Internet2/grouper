@@ -1,6 +1,6 @@
 /**
  * @author shilen
- * $Id: GroupSetDAO.java,v 1.3 2009-08-29 15:57:59 shilen Exp $
+ * $Id: GroupSetDAO.java,v 1.4 2009-09-17 15:33:05 shilen Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -9,7 +9,6 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.group.GroupSet;
 
 
@@ -107,18 +106,18 @@ public interface GroupSetDAO extends GrouperDAO {
       String memberGroupId);
 
   /**
-   * @param group
-   * @param field 
+   * @param groupId
+   * @param fieldId
    * @return group set
    */
-  public GroupSet findSelfGroup(Group group, Field field);
+  public GroupSet findSelfGroup(String groupId, String fieldId);
 
   /**
-   * @param stem
-   * @param field 
+   * @param stemId
+   * @param fieldId
    * @return group set
    */
-  public GroupSet findSelfStem(Stem stem, Field field);
+  public GroupSet findSelfStem(String stemId, String fieldId);
 
   /**
    * @param group
@@ -158,4 +157,19 @@ public interface GroupSetDAO extends GrouperDAO {
    * @return set
    */
   public Set<GroupSet> findAllByCreator(Member member);
+  
+  
+  /**
+   * Find all missing self group sets for groups.
+   * @return set of array objects where the first element is the group
+   * and the second element is the field.
+   */
+  public Set<Object[]> findMissingSelfGroupSetsForGroups();
+  
+  /**
+   * Find all missing self group sets for stems.
+   * @return set of array objects where the first element is the stem
+   * and the second element is the field.
+   */
+  public Set<Object[]> findMissingSelfGroupSetsForStems();
 }

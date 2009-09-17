@@ -32,7 +32,7 @@ import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
- * @author shilen $Id: GroupSet.java,v 1.4 2009-08-29 15:57:59 shilen Exp $
+ * @author shilen $Id: GroupSet.java,v 1.5 2009-09-17 15:33:05 shilen Exp $
  *
  */
 @SuppressWarnings("serial")
@@ -487,8 +487,6 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       throws IllegalStateException {
     Set<GroupSet> groupSets = new LinkedHashSet();
 
-    String creatorUUID = GrouperSession.staticGrouperSession().getMember().getUuid();
-
     Iterator<GroupSet> isMembersIter = groupSetIsMember.iterator();
     Map<String, Set<GroupSet>> parentToChildrenMap = getParentToChildrenMap(groupSetHasMembers);
 
@@ -520,7 +518,8 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
 
       GroupSet groupSet = new GroupSet();
       groupSet.setId(GrouperUuid.getUuid());
-      groupSet.setCreatorId(creatorUUID);
+      groupSet.setCreatorId(this.getCreatorId());
+      groupSet.setCreateTime(this.getCreateTime());
       groupSet.setDepth(depth + 1);
       groupSet.setParentId(id);
       groupSet.setFieldId(fieldId);
@@ -540,7 +539,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       while (itHM.hasNext()) {
         GroupSet hasGS = itHM.next();
         Set<GroupSet> newAdditions = addHasMembersRecursively(isGS, hasGS, groupSet,
-            parentToChildrenMap, ownerGroupId, ownerStemId, creatorUUID, fieldId);
+            parentToChildrenMap, ownerGroupId, ownerStemId, this.getCreatorId(), fieldId);
         groupSets.addAll(newAdditions);
       }
     }
@@ -564,7 +563,6 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     // cache values outside of iterator
     String ownerGroupId = immediateGroupSet.getOwnerGroupId();
     String ownerStemId = immediateGroupSet.getOwnerStemId();
-    String creatorUUID = GrouperSession.staticGrouperSession().getMember().getUuid();
     String fieldId = immediateGroupSet.getFieldId();
 
     Map<String, Set<GroupSet>> parentToChildrenMap = getParentToChildrenMap(hasMembers);
@@ -573,7 +571,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       GroupSet gs = it.next();
       if (gs.getDepth() == 1) {
         Set<GroupSet> newAdditions = addHasMembersRecursively(immediateGroupSet, gs, 
-            immediateGroupSet, parentToChildrenMap, ownerGroupId, ownerStemId, creatorUUID, fieldId);
+            immediateGroupSet, parentToChildrenMap, ownerGroupId, ownerStemId, this.getCreatorId(), fieldId);
         groupSets.addAll(newAdditions);
       }
     }
@@ -627,6 +625,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       GroupSet newGroupSet = new GroupSet();
       newGroupSet.setId(GrouperUuid.getUuid());
       newGroupSet.setCreatorId(creatorUUID);
+      newGroupSet.setCreateTime(this.getCreateTime());
       newGroupSet.setFieldId(fieldId);
       newGroupSet.setOwnerGroupId(ownerGroupId);
       newGroupSet.setOwnerStemId(ownerStemId);

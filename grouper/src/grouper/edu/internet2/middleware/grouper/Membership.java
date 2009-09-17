@@ -90,7 +90,7 @@ import edu.internet2.middleware.subject.Subject;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Membership.java,v 1.128 2009-08-29 15:57:59 shilen Exp $
+ * @version $Id: Membership.java,v 1.129 2009-09-17 15:33:05 shilen Exp $
  */
 public class Membership extends GrouperAPI implements GrouperHasContext, Hib3GrouperVersioned {
 
@@ -1865,11 +1865,11 @@ public class Membership extends GrouperAPI implements GrouperHasContext, Hib3Gro
       GroupSet parent = null;
 
       if (this.getOwnerGroupId() != null) {
-        immediateGroupSet.setOwnerGroupId(this.getGroup().getUuid());
-        parent = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(this.getGroup(), this.getField());
+        immediateGroupSet.setOwnerGroupId(this.getOwnerGroupId());
+        parent = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(this.getOwnerGroupId(), this.getFieldId());
       } else {
-        immediateGroupSet.setOwnerStemId(this.getStem().getUuid());
-        parent = GrouperDAOFactory.getFactory().getGroupSet().findSelfStem(this.getStem(), this.getField());
+        immediateGroupSet.setOwnerStemId(this.getOwnerStemId());
+        parent = GrouperDAOFactory.getFactory().getGroupSet().findSelfStem(this.getOwnerStemId(), this.getFieldId());
       }
       
       immediateGroupSet.setParentId(parent.getId());

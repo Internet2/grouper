@@ -18,7 +18,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 
 /**
  * @author shilen
- * @version $Id: Hib3GroupSetDAO.java,v 1.5 2009-09-02 13:06:00 shilen Exp $
+ * @version $Id: Hib3GroupSetDAO.java,v 1.6 2009-09-17 15:33:05 shilen Exp $
  */
 public class Hib3GroupSetDAO extends Hib3DAO implements GroupSetDAO {
 
@@ -248,42 +248,39 @@ return groupSets;
 
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findSelfGroup(edu.internet2.middleware.grouper.Group)
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findSelfGroup(java.lang.String, java.lang.String)
    */
-  public GroupSet findSelfGroup(Group group, Field field) {
+  public GroupSet findSelfGroup(String groupId, String fieldId) {
     GroupSet groupSet = HibernateSession
       .byHqlStatic()
       .createQuery("select gs from GroupSet as gs where gs.ownerGroupId = :id and memberGroupId = :id and fieldId = :field and depth='0'")
       .setCacheable(true).setCacheRegion(KLASS + ".FindSelfGroup")
-      .setString("id", group.getUuid())
-      .setString("field", field.getUuid())
+      .setString("id", groupId)
+      .setString("field", fieldId)
       .uniqueResult(GroupSet.class);
     
     if (groupSet == null) {
-      throw new GroupSetNotFoundException("Didn't find groupSet of depth 0 with owner and member: " 
-          + group.getUuid() + " (" + group.getName() + ")");
+      throw new GroupSetNotFoundException("Didn't find groupSet of depth 0 with owner and member: " + groupId);
     }
     
     return groupSet;
   }
 
 
-
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findSelfStem(edu.internet2.middleware.grouper.Stem)
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findSelfStem(java.lang.String, java.lang.String)
    */
-  public GroupSet findSelfStem(Stem stem, Field field) {
+  public GroupSet findSelfStem(String stemId, String fieldId) {
     GroupSet groupSet = HibernateSession
       .byHqlStatic()
       .createQuery("select gs from GroupSet as gs where gs.ownerStemId = :id and memberStemId = :id and fieldId = :field and depth='0'")
       .setCacheable(true).setCacheRegion(KLASS + ".FindSelfStem")
-      .setString("id", stem.getUuid())
-      .setString("field", field.getUuid())
+      .setString("id", stemId)
+      .setString("field", fieldId)
       .uniqueResult(GroupSet.class);
     
     if (groupSet == null) {
-      throw new GroupSetNotFoundException("Didn't find groupSet of depth 0 with owner and member: " 
-          + stem.getUuid() + " (" + stem.getName() + ")");
+      throw new GroupSetNotFoundException("Didn't find groupSet of depth 0 with owner and member: " + stemId);
     }
     
     return groupSet;
@@ -349,5 +346,47 @@ return groupSets;
     return groupSets;
   }
 
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findMissingSelfGroupSetsForGroups()
+   */
+  public Set<Object[]> findMissingSelfGroupSetsForGroups() {
+    
+    String sql = "select g, f from GroupTypeTuple as gtt, Field as f, Group as g " +
+                 "where g.uuid = gtt.groupUuid " +
+                 "and gtt.typeUuid = f.groupTypeUuid " +
+                 "and (f.typeString = 'list' or f.typeString = 'access') " +
+                 "and not exists " +
+                 "(select gs.ownerGroupId from GroupSet as gs where gs.ownerGroupId = g.id and gs.fieldId = f.uuid and gs.depth='0')";
+    
+    Set<Object[]> missing = HibernateSession
+        .byHqlStatic()
+        .createQuery(sql)
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindMissingSelfGroupSetsForGroups")
+        .listSet(Object[].class);
+    
+    return missing;
+  }
+
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupSetDAO#findMissingSelfGroupSetsForStems()
+   */
+  public Set<Object[]> findMissingSelfGroupSetsForStems() {
+    
+    String sql = "select s, f from Field as f, Stem as s " +
+                 "where f.typeString = 'naming' " +
+                 "and not exists " +
+                 "(select gs.ownerStemId from GroupSet as gs where gs.ownerStemId = s.id and gs.fieldId = f.uuid and gs.depth='0')";
+    
+    Set<Object[]> missing = HibernateSession
+        .byHqlStatic()
+        .createQuery(sql)
+        .setCacheable(false)
+        .setCacheRegion(KLASS + ".FindMissingSelfGroupSetsForStems")
+        .listSet(Object[].class);
+    
+    return missing;
+  }
 }
 
