@@ -1,6 +1,6 @@
 /*
  * @author mchyzer
- * $Id: RoleSetDAO.java,v 1.2 2009-09-17 17:51:50 mchyzer Exp $
+ * $Id: RoleSetDAO.java,v 1.3 2009-09-17 22:40:07 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
@@ -83,4 +83,35 @@ public interface RoleSetDAO extends GrouperDAO {
   public RoleSet findByIfThenImmediate(String roleIdIf, 
       String roleIdThen, boolean exceptionIfNotFound);
   
+  /**
+   * get all the IF rows from rowSet about this id.  So if this is seniorLoanAdministator,
+   * loanAdministrator would be returned.  Dont return the role for the id passed in
+   * @param roleId
+   * @return the role
+   */
+  public Set<Role> rolesInheritPermissionsToThis(String roleId);
+
+  /**
+   * get all the IF rows from rowSet about this id (immediate only).  So if this is seniorLoanAdministator,
+   * loanAdministrator would be returned.  Dont return the role for the id passed in
+   * @param roleId
+   * @return the role
+   */
+  public Set<Role> rolesInheritPermissionsToThisImmediate(String roleId);
+
+  /**
+   * get all the THEN rows from rowSet about this id.  So if this is loanAdministrator,
+   * seniorLoanAdministator would be returned.  Dont return the role for the id passed in
+   * @param roleId
+   * @return the role
+   */
+  public Set<Role> rolesInheritPermissionsFromThis(String roleId);
+
+  /**
+   * get all the THEN rows from rowSet about this id (immediate only).  So if this is loanAdministrator,
+   * seniorLoanAdministator would be returned.  Dont return the role for the id passed in
+   * @param roleId
+   * @return the role
+   */
+  public Set<Role> rolesInheritPermissionsFromThisImmediate(String roleId);
 }

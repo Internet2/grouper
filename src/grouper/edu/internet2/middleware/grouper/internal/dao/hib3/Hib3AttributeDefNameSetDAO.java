@@ -11,12 +11,11 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.permissions.Role;
 
 /**
  * Data Access Object for attribute def name set
  * @author  mchyzer
- * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.6 2009-09-17 17:51:50 mchyzer Exp $
+ * @version $Id: Hib3AttributeDefNameSetDAO.java,v 1.7 2009-09-17 22:40:07 mchyzer Exp $
  */
 public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefNameSetDAO {
   
@@ -159,8 +158,54 @@ public class Hib3AttributeDefNameSetDAO extends Hib3DAO implements AttributeDefN
             return null;
           }
         });
+  }
 
-    
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO#attributeDefNamesImpliedByThis(java.lang.String)
+   */
+  public Set<AttributeDefName> attributeDefNamesImpliedByThis(String attributeDefNameId) {
+    Set<AttributeDefName> attributeDefNames = HibernateSession.byHqlStatic().createQuery(
+        "select distinct adn from AttributeDefNameSet as adns, AttributeDefName as adn " +
+        "where adn.ifHasAttributeDefNameId = :theId and adn.id = adns.thenHasAttributeDefNameId " +
+        "and adn.id != :theId order by adn.name")
+        .setString("theId", attributeDefNameId).listSet(AttributeDefName.class);
+      return attributeDefNames;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO#attributeDefNamesImpliedByThisImmediate(java.lang.String)
+   */
+  public Set<AttributeDefName> attributeDefNamesImpliedByThisImmediate(String attributeDefNameId) {
+    Set<AttributeDefName> attributeDefNames = HibernateSession.byHqlStatic().createQuery(
+        "select distinct adn from AttributeDefNameSet as adns, AttributeDefName as adn " +
+        "where adn.ifHasAttributeDefNameId = :theId and adn.id = adns.thenHasAttributeDefNameId " +
+        "and adn.id != :theId and adn.typeDb = 'immediate' order by adn.name")
+        .setString("theId", attributeDefNameId).listSet(AttributeDefName.class);
+      return attributeDefNames;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO#attributeDefNamesThatImplyThis(java.lang.String)
+   */
+  public Set<AttributeDefName> attributeDefNamesThatImplyThis(String attributeDefNameId) {
+    Set<AttributeDefName> attributeDefNames = HibernateSession.byHqlStatic().createQuery(
+        "select distinct adn from AttributeDefNameSet as adns, AttributeDefName as adn " +
+        "where adn.thenHasAttributeDefNameId = :theId and adn.id = adns.ifHasAttributeDefNameId " +
+        "and adn.id != :theId order by adn.name")
+        .setString("theId", attributeDefNameId).listSet(AttributeDefName.class);
+      return attributeDefNames;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeDefNameSetDAO#attributeDefNamesThatImplyThisImmediate(java.lang.String)
+   */
+  public Set<AttributeDefName> attributeDefNamesThatImplyThisImmediate(String attributeDefNameId) {
+    Set<AttributeDefName> attributeDefNames = HibernateSession.byHqlStatic().createQuery(
+        "select distinct adn from AttributeDefNameSet as adns, AttributeDefName as adn " +
+        "where adn.thenHasAttributeDefNameId = :theId and adn.id = adns.ifHasAttributeDefNameId " +
+        "and adn.id != :theId and adn.typeDb = 'immediate' order by adn.name")
+        .setString("theId", attributeDefNameId).listSet(AttributeDefName.class);
+      return attributeDefNames;
   }
 
 } 
