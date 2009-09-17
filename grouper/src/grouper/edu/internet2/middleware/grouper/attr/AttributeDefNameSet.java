@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 //and gadn.id = gadns.then_has_attribute_def_name_id;
 
 /**
- * @author mchyzer $Id: AttributeDefNameSet.java,v 1.6 2009-09-17 04:19:15 mchyzer Exp $
+ * @author mchyzer $Id: AttributeDefNameSet.java,v 1.7 2009-09-17 17:51:50 mchyzer Exp $
  */
 @SuppressWarnings("serial")
 public class AttributeDefNameSet extends GrouperAPI 
@@ -429,7 +429,7 @@ public class AttributeDefNameSet extends GrouperAPI
   }
 
   /**
-   * save or update this object
+   * delete this object
    */
   public void delete() {
     GrouperDAOFactory.getFactory().getAttributeDefNameSet().delete(this);

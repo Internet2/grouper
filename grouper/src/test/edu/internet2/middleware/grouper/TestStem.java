@@ -63,7 +63,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  * Test {@link Stem}.
  * <p />
  * @author  blair christensen.
- * @version $Id: TestStem.java,v 1.30 2009-08-18 23:11:39 shilen Exp $
+ * @version $Id: TestStem.java,v 1.31 2009-09-17 17:51:50 mchyzer Exp $
  */
 public class TestStem extends GrouperTest {
 
@@ -75,7 +75,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testCache"));
+    TestRunner.run(new TestStem("testDeleteEmptyStem"));
     //TestRunner.run(TestStem.class);
   }
 

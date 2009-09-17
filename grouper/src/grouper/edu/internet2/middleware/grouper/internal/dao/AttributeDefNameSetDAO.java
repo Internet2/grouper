@@ -1,11 +1,12 @@
 /*
  * @author mchyzer
- * $Id: AttributeDefNameSetDAO.java,v 1.5 2009-09-17 04:19:15 mchyzer Exp $
+ * $Id: AttributeDefNameSetDAO.java,v 1.6 2009-09-17 17:51:50 mchyzer Exp $
  */
 package edu.internet2.middleware.grouper.internal.dao;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSet;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameSetNotFoundException;
 
@@ -77,4 +78,11 @@ public interface AttributeDefNameSetDAO extends GrouperDAO {
   public AttributeDefNameSet findByIfThenImmediate(String attributeDefNameIdIf, 
       String attributeDefNameIdThen, boolean exceptionIfNotFound) throws AttributeDefNameSetNotFoundException;
   
+  /**
+   * delete attributeDefName sets by owner, so the attributeDefName can be deleted
+   * @param attributeDefName
+   */
+  public void deleteByIfHasAttributeDefName(AttributeDefName attributeDefName);
+  
+
 }

@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHql;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
@@ -64,7 +65,7 @@ import edu.internet2.middleware.subject.Subject;
 /**
  * Basic Hibernate <code>Group</code> DAO interface.
  * @author  blair christensen.
- * @version $Id: Hib3GroupDAO.java,v 1.45 2009-08-18 23:11:38 shilen Exp $
+ * @version $Id: Hib3GroupDAO.java,v 1.46 2009-09-17 17:51:50 mchyzer Exp $
  * @since   @HEAD@
  */
 public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
@@ -163,6 +164,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
             byHql.setString("group", _g.getUuid() );
             byHql.executeUpdate();
             
+            // delete role sets (only the ones underneath of this one, 
+            // others might cause foreign key problems
+            if (TypeOfGroup.role.equals(_g.getTypeOfGroup())) {
+              GrouperDAOFactory.getFactory().getRoleSet().deleteByIfHasRole(_g);
+            }
+
             // delete group sets
             GrouperDAOFactory.getFactory().getGroupSet().deleteByOwnerGroup(_g);
             

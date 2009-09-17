@@ -3,14 +3,20 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.exception.AttributeDefNameSetNotFoundException;
 import edu.internet2.middleware.grouper.exception.RoleSetNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
+import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.RoleSetDAO;
+import edu.internet2.middleware.grouper.permissions.Role;
 import edu.internet2.middleware.grouper.permissions.RoleSet;
 
 /**
  * Data Access Object for role set
  * @author  mchyzer
- * @version $Id: Hib3RoleSetDAO.java,v 1.1 2009-09-17 04:19:15 mchyzer Exp $
+ * @version $Id: Hib3RoleSetDAO.java,v 1.2 2009-09-17 17:51:50 mchyzer Exp $
  */
 public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
   
@@ -54,8 +60,23 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#delete(edu.internet2.middleware.grouper.permissions.RoleSet)
    */
-  public void delete(RoleSet roleSet) {
-    HibernateSession.byObjectStatic().delete(roleSet);
+  public void delete(final RoleSet roleSet) {
+    //HibernateSession.byObjectStatic().delete(roleSet);
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+        AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            //set parent to null so mysql doest get mad
+            //http://bugs.mysql.com/bug.php?id=15746
+            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
+                "update RoleSet set parentRoleSetId = null where id = :id")
+                .setString("id", roleSet.getId()).executeUpdate();
+            hibernateHandlerBean.getHibernateSession().byObject().delete(roleSet);
+            return null;
+          }
+      
+    });
   }
 
   /**
@@ -111,6 +132,31 @@ public class Hib3RoleSetDAO extends Hib3DAO implements RoleSetDAO {
       "from RoleSet where thenHasRoleId = :theId")
       .setString("theId", id).listSet(RoleSet.class);
     return roleSets;
+  }
+
+  /**
+   * @see edu.internet2.middleware.grouper.internal.dao.RoleSetDAO#deleteByIfHasRole(edu.internet2.middleware.grouper.permissions.Role)
+   */
+  public void deleteByIfHasRole(final Role role) {
+
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, 
+        AuditControl.WILL_NOT_AUDIT, new HibernateHandler()  {
+          
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            //do this since mysql cant handle self-referential foreign keys
+            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
+              "update RoleSet set parentRoleSetId = null where ifHasRoleId = :id")
+              .setString("id", role.getId())
+              .executeUpdate();    
+            hibernateHandlerBean.getHibernateSession().byHql().createQuery(
+              "delete from RoleSet where ifHasRoleId = :id")
+              .setString("id", role.getId())
+              .executeUpdate();    
+            return null;
+          }
+        });
+    
   }
 
 } 
