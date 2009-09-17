@@ -53,7 +53,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <p/>
  * @author  blair christensen.
- * @version $Id: Composite.java,v 1.69 2009-08-18 23:11:38 shilen Exp $
+ * @version $Id: Composite.java,v 1.70 2009-09-17 15:33:05 shilen Exp $
  * @since   1.0
  */
 @SuppressWarnings("serial")
@@ -503,7 +503,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
 
     // update group set object to specify type of composite
     GroupSet selfGroupSet = 
-      GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(this.getOwnerGroup(), Group.getDefaultList());
+      GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(this.getFactorOwnerUuid(), Group.getDefaultList().getUuid());
     selfGroupSet.setType(Membership.COMPOSITE);
     GrouperDAOFactory.getFactory().getGroupSet().update(selfGroupSet);
 
@@ -564,7 +564,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     
     // update the membership type of the group set to 'immediate'
     GroupSet selfGroupSet = 
-      GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(this.getOwnerGroup(), Group.getDefaultList());
+      GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(this.getFactorOwnerUuid(), Group.getDefaultList().getUuid());
     selfGroupSet.setType(Membership.IMMEDIATE);
     GrouperDAOFactory.getFactory().getGroupSet().update(selfGroupSet);
     

@@ -74,7 +74,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * @author  blair christensen.
- * @version $Id: TestGroup1.java,v 1.2 2009-03-24 17:12:08 mchyzer Exp $
+ * @version $Id: TestGroup1.java,v 1.3 2009-09-17 15:33:05 shilen Exp $
  */
 public class TestGroup1 extends TestCase {
 
@@ -1244,7 +1244,7 @@ public class TestGroup1 extends TestCase {
     try {
       group1.addMember(SubjectFinder.findById(group2.getUuid(), true));
       fail("Shouldnt be able to add this member without READ priv");
-    } catch (MemberAddException e) {
+    } catch (Exception e) {
       //this is ok
     }
     try {

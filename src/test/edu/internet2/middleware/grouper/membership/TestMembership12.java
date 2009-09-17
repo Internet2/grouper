@@ -91,7 +91,7 @@ public class TestMembership12 extends GrouperTest {
       try {
         gB.addMember(gA.toSubject());
         fail("Should throw MemberAddException");
-      } catch (MemberAddException e) {
+      } catch (Exception e) {
         // good
       }
 
@@ -99,7 +99,7 @@ public class TestMembership12 extends GrouperTest {
       try {
         gC.addMember(gA.toSubject());
         fail("Should throw MemberAddException");
-      } catch (MemberAddException e) {
+      } catch (Exception e) {
         // good
       }
 
@@ -108,7 +108,7 @@ public class TestMembership12 extends GrouperTest {
       try {
         gD.addMember(gA.toSubject());
         fail("Should throw MemberAddException");
-      } catch (MemberAddException e) {
+      } catch (Exception e) {
         // good
       }
 
@@ -118,7 +118,7 @@ public class TestMembership12 extends GrouperTest {
       try {
         gB.addMember(gD.toSubject());
         fail("Should throw MemberAddException");
-      } catch (MemberAddException e) {
+      } catch (Exception e) {
         // good
       }
 
@@ -130,7 +130,7 @@ public class TestMembership12 extends GrouperTest {
       try {
         gF.addMember(gA.toSubject());
         fail("Should throw MemberAddException");
-      } catch (MemberAddException e) {
+      } catch (Exception e) {
         // good
       }
 
@@ -140,7 +140,7 @@ public class TestMembership12 extends GrouperTest {
       try {
         gE.addMember(gF.toSubject());
         fail("Should throw MemberAddException");
-      } catch (MemberAddException e) {
+      } catch (Exception e) {
         // good
       }
 
@@ -150,7 +150,7 @@ public class TestMembership12 extends GrouperTest {
       try {
         gA.addCompositeMember(CompositeType.UNION, gB, gC);
         fail("Should throw IllegalStateException");
-      } catch (IllegalStateException e) {
+      } catch (Exception e) {
         // good
       }
 
